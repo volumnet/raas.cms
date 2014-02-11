@@ -28,9 +28,21 @@ abstract class ViewBlock
                       </a>';
         }
         if ($temp = $this->view->context->getBlockContextMenu($Item, $Page, $i, count($Page->blocksByLocations[$Location->urn]))) {
-            $temp = array_map(function($x) { return array('text' => '<i class="icon-' . $x['icon'] . '"></i>&nbsp;' . $x['name'], 'href' => $x['href']); }, $temp);
+            $f = function($x) { return array('text' => '<i class="icon-' . $x['icon'] . '"></i>&nbsp;' . $x['name'], 'href' => $x['href'], 'onclick' => $x['onclick']); };
+            $temp = array_map($f, $temp);
             $temp = json_encode($temp);
-            $text .= '<script type="text/javascript">jQuery(document).ready(function($) { context.attach("#block-' . (int)$Item->id . '", ' . $temp . ') })</script>';
+            $text .= '<script type="text/javascript">
+            jQuery(document).ready(function($) { 
+                var temp = ' . $temp . ';
+                for (var i = 0; i < temp.length; i++) {
+                    if (temp[i].onclick) {
+                        temp[i].action = new Function("e", temp[i].onclick);
+                    }
+                }
+                console.log(temp);
+                context.attach("#block-' . (int)$Item->id . '", temp) 
+            })
+            </script>';
         }
         $text .= '<input type="hidden" value="' . (int)$Item->id . '" />
                 </div>';
