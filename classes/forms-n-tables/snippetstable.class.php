@@ -8,6 +8,7 @@ class SnippetsTable extends \RAAS\Table
     public function __construct(array $params = array())
     {
         $this->view = $view = isset($params['view']) ? $params['view'] : null;
+        unset($params['view']);
         $f = function(Snippet_Folder $node) use (&$f)
         {
             static $level = 0;

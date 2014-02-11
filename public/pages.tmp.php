@@ -3,9 +3,9 @@ function displayLocation($VIEW, $loc, $Item)
 {
     $text = '';
     if ($temp = $VIEW->context->getLocationContextMenu($loc, $Item)) {
-        $text .= '<div class="btn-group pull-right">
-                    <a href="#" class="btn btn-mini dropdown-toggle" data-toggle="dropdown"><i class="icon-plus"></i></a>
-                    <ul class="dropdown-menu">' . showMenu($temp) . '</ul>
+        $text .= '<div class="btn-group pull-right" data-toggle="context" data-target="#location-' . htmlspecialchars($loc->urn) . '-context-menu">
+                    <!-- <a href="#" class="btn btn-mini dropdown-toggle" data-toggle="dropdown"><i class="icon-plus"></i></a> -->
+                    <div id="location-' . htmlspecialchars($loc->urn) . '-context-menu"><ul class="dropdown-menu">' . showMenu($temp) . '</ul></div>
                   </div>';
     }
     $text .=  ' <h6>' . htmlspecialchars($loc->urn) . '</h6>
