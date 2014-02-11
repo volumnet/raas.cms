@@ -3,18 +3,16 @@ function displayLocation($VIEW, $loc, $Item)
 {
     $text = '';
     if ($temp = $VIEW->context->getLocationContextMenu($loc, $Item)) {
-        $text .= '<div class="btn-group pull-right">
-                    <a href="#" class="btn btn-mini dropdown-toggle" data-toggle="dropdown"><i class="icon-plus"></i></a>
-                    <ul class="dropdown-menu">' . showMenu($temp) . '</ul>
-                  </div>';
+        $temp = array_map(function($x) { return array('text' => $x['name'], 'href' => $x['href']); }, $temp);
+        $temp = json_encode($temp);
+        $text .= '<script type="text/javascript">jQuery(document).ready(function($) { context.attach("#location-' . htmlspecialchars($loc->urn) . '", ' . $temp . ') })</script>';
     }
     $text .=  ' <h6>' . htmlspecialchars($loc->urn) . '</h6>
                 <input type="hidden" value="' . $loc->urn . '" />';
-    //ob_clean(); print_r ($Item->blocksByLocations); exit;
     if (isset($Item->blocksByLocations[$loc->urn])) {
         for ($i = 0; $i < count($Item->blocksByLocations[$loc->urn]); $i++) { 
             $row = $Item->blocksByLocations[$loc->urn][$i];
-            $text .= \RAAS\CMS\Block_Type::getType($row->block_type)->viewer->renderBlock($row, $Item, $loc);
+            $text .= \RAAS\CMS\Block_Type::getType($row->block_type)->viewer->renderBlock($row, $Item, $loc, $i);
         }
     }
     return $text;
@@ -38,14 +36,14 @@ function displayLocation($VIEW, $loc, $Item)
               <?php if ($Item->Template->id) { ?>
                   <div class="cms-template" style="<?php echo htmlspecialchars($Item->Template->style)?>">
                     <?php foreach ($Item->Template->locations as $loc) { ?>
-                        <div class="cms-location<?php echo $loc->horizontal ? ' cms-horizontal' : ''?>" style="<?php echo htmlspecialchars($loc->style)?>">
+                        <div class="cms-location<?php echo $loc->horizontal ? ' cms-horizontal' : ''?>" style="<?php echo htmlspecialchars($loc->style)?>" id="location-<?php echo htmlspecialchars($loc->urn)?>">
                           <?php echo displayLocation($VIEW, $loc, $Item)?>
                         </div>
                     <?php } ?>
                   </div>
               <?php } ?>
               <?php if (isset($Item->blocksByLocations['']) || !$Item->Template->locations) { ?>
-                  <div class="cms-location" style="position: relative; width: <?php echo $Item->Template->width?>px">
+                  <div class="cms-location" style="position: relative; width: <?php echo $Item->Template->width?>px" id="location-">
                     <?php echo displayLocation($VIEW, new \RAAS\CMS\Location(), $Item)?>
                   </div>
               <?php } ?>

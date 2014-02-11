@@ -19,19 +19,18 @@ abstract class ViewBlock
     }
 
 
-    public function renderBlock(Block $Item, Page $Page, Location $Location)
+    public function renderBlock(Block $Item, Page $Page, Location $Location, $i = 0)
     {
-        $text .= '<div class="well well-small cms-block ' . static::blockListItemClass . '">';
+        $text .= '<div class="well well-small cms-block ' . static::blockListItemClass . '" id="block-' . (int)$Item->id . '">';
         if (!$Location->horizontal) {
             $text .= '<a class="cms-block-name" href="' . $this->view->url . '&action=edit_block&id=' . (int)$Item->id . '&pid=' . (int)$Page->id . '" title="' . htmlspecialchars($Item->title) . '">
                         <span' . (!$Item->vis ? ' class="muted"' : '') . '>' . htmlspecialchars($Item->title) . '</span>
                       </a>';
         }
         if ($temp = $this->view->context->getBlockContextMenu($Item, $Page, $i, count($Page->blocksByLocations[$Location->urn]))) {
-            $text .= '<a href="#" class="dropdown-toggle" data-toggle="dropdown" title="' . htmlspecialchars($Item->title) . '">
-                        <span class="caret"></span>
-                      </a>
-                      <ul class="dropdown-menu pull-right">' . showMenu($temp) . '</ul>';
+            $temp = array_map(function($x) { return array('text' => '<i class="icon-' . $x['icon'] . '"></i>&nbsp;' . $x['name'], 'href' => $x['href']); }, $temp);
+            $temp = json_encode($temp);
+            $text .= '<script type="text/javascript">jQuery(document).ready(function($) { context.attach("#block-' . (int)$Item->id . '", ' . $temp . ') })</script>';
         }
         $text .= '<input type="hidden" value="' . (int)$Item->id . '" />
                 </div>';

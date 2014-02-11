@@ -233,13 +233,13 @@ abstract class Abstract_Controller extends \RAAS\Abstract_Package_Controller
             $classname = $Item->block_type;
         } else {
             $classname = 'RAAS\\CMS\\' . str_replace('.', '\\', $_GET['type']);
-            $Item = new $classname();
         }
-        if (!($blockType = Block_Type::getType($classname))) {
+        if (!($blockType = Block_Type::getType($classname)) || !class_exists($classname)) {
             $classname = 'RAAS\\CMS\\Block_HTML';
-            if (!$this->id) {
-                $Item = new $classname();
-            }
+            $blockType = Block_Type::getType($classname);
+        }
+        if (!$this->id) {
+            $Item = new $classname();
         }
         $Parent = isset($_GET['pid']) ? new Page((int)$_GET['pid']) : ($Item->pid ? $Item->parent : new Page());
         $t = $this;
