@@ -1,0 +1,10 @@
+Order Deny,Allow
+Allow from All
+<Files *.tmp.php>
+  order allow,deny
+  deny from all
+</Files>
+<Files *.inc.php>
+  order allow,deny
+  deny from all
+</Files>

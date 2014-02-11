@@ -1,0 +1,258 @@
+<?php
+namespace RAAS\CMS;
+
+$notify = function(Feedback $Item, Material $Material = null)
+{
+    $temp = array_values(array_filter(array_map('trim', preg_split('/(;|,)/', $Item->parent->email))));
+    $emails = array();
+    $sms = array();
+    foreach ($temp as $row) {
+        if (($row[0] == '[') && ($row[strlen($row) - 1] == ']')) {
+            $sms[] = substr($row, 1, -1);
+        } else {
+            $emails[] = $row;
+        }
+    }
+    if ($Item->parent->Interface->id) {
+        $template = $Item->parent->Interface->description;
+    } else {
+        $template = $Item->parent->description;
+    }
+    
+    ob_start();
+    eval('?' . '>' . $template);
+    $message = ob_get_contents();
+    ob_end_clean();
+    
+    ob_start();
+    $SMS = true;
+    eval('?' . '>' . $template);
+    $message_sms = ob_get_contents();
+    ob_end_clean();
+    
+    
+    $subject = date(DATETIMEFORMAT) . ' ' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name);
+    if ($emails) {
+        \RAAS\Application::i()->sendmail($emails, $subject, $message, 'info@' . $_SERVER['HTTP_HOST'], 'RAAS.CMS');
+    }
+    if ($sms) {
+        \RAAS\Application::i()->sendmail($sms, $subject, $message_sms, 'info@' . $_SERVER['HTTP_HOST'], 'RAAS.CMS', false);
+    }
+};
+
+$OUT = array();
+$Form = new Form(isset($config['form']) ? (int)$config['form'] : 0);
+if ($Form->id) {
+    $localError = array();
+    if (($Form->signature && isset($_POST['form_signature']) && $_POST['form_signature'] == md5('form' . (int)$Form->id . (int)$Block->id)) || (!$Form->signature && ($_SERVER['REQUEST_METHOD'] == 'POST'))) {
+        $Item = new Feedback();
+        $Item->pid = (int)$Form->id;
+        if ($Form->Material_Type->id) {
+            $Material = new Material();
+            $Material->pid = (int)$Form->Material_Type->id;
+            $Material->vis = 0;
+        }
+        foreach ($Form->fields as $row) {
+            switch ($row->datatype) {
+                case 'file': case 'image':
+                    if (!isset($_FILES[$row->urn]['tmp_name']) || !$row->isFilled($_FILES[$row->urn]['tmp_name'])) {
+                        if ($row->required && !$row->countValues()) {
+                            $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);
+                        }
+                    } elseif (isset($_FILES[$row->urn]['tmp_name']) && $row->isFilled($_FILES[$row->urn]['tmp_name'])) {
+                        if (!$row->validate($_FILES[$row->urn]['tmp_name'])) {
+                            $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);
+                        }
+                    }
+                    break;
+                default:
+                    if (!isset($_POST[$row->urn]) || !$row->isFilled($_POST[$row->urn])) {
+                        if ($row->required) {
+                            $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);
+                        }
+                    } elseif (isset($_POST[$row->urn]) && $row->isFilled($_POST[$row->urn])) {
+                        if (($row->datatype == 'password') && ($_POST[$row->urn] != $_POST[$row->urn . '@confirm'])) {
+                            $localError[$row->urn] = sprintf(ERR_CUSTOM_PASSWORD_DOESNT_MATCH_CONFIRM, $row->name);
+                        } elseif (!$row->validate($_POST[$row->urn])) {
+                            $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);
+                        }
+                    }
+                    break;
+            }
+        }
+        if ($Form->antispam && $Form->antispam_field_name) {
+            switch ($Form->antispam) {
+                case 'captcha':
+                    if (!isset($_POST[$Form->antispam_field_name], $_SESSION['captcha_keystring']) || ($_POST[$Form->antispam_field_name] != $_SESSION['captcha_keystring'])) {
+                        $localError[$row->urn] = ERR_CAPTCHA_FIELD_INVALID;
+                    }
+                    break;
+                case 'hidden':
+                    if (isset($_POST[$Form->antispam_field_name]) && $_POST[$Form->antispam_field_name]) {
+                        $localError[$row->urn] = ERR_CAPTCHA_FIELD_INVALID;
+                    }
+                    break;
+            }
+        }
+        if (!$localError) {
+            if ((\RAAS\Controller_Frontend::i()->user instanceof \RAAS\CMS\User) && \RAAS\Controller_Frontend::i()->user->id) {
+                $Item->uid = (int)Controller_Frontend::i()->user->id;
+            } else {
+                $Item->uid = 0;
+            }
+            // Для AJAX'а
+            //$Referer = \RAAS\CMS\Page::importByURL($_SERVER['HTTP_REFERER']);
+            //$Item->page_id = (int)$Referer->id;
+            $Item->page_id = (int)$Page->id;
+            $Item->ip = (string)$_SERVER['REMOTE_ADDR'];
+            $Item->user_agent = (string)$_SERVER['HTTP_USER_AGENT'];
+            $Objects = array($Item);
+            if ($Form->Material_Type->id) {
+                if (!$Form->Material_Type->global_type) {
+                    $Material->cats = array((int)$Page->id);
+                }
+                $Objects[] = $Material;
+            }
+            
+            foreach ($Objects as $Object) {
+                if ($Object instanceof Material) {
+                    if (isset($Item->fields['_name_'])) {
+                        $Object->name = $Item->fields['_name_']->getValue();
+                    } else {
+                        $Object->name = $Form->Material_Type->name . ': ' . date(DATETIMEFORMAT);
+                    }
+                    if (isset($Item->fields['_description_'])) {
+                        $Object->description = $Item->fields['_description_']->getValue();
+                    }
+                }
+                $Object->commit();
+                if ($Object instanceof Material) {
+                    foreach ($Object->fields as $fname => $temp) {
+                        if (!isset($Item->fields[$fname])) {
+                            switch ($temp->datatype) {
+                                case 'datetime': case 'datetime-local':
+                                    $temp->addValue(date('Y-m-d H:i:s'));
+                                    break;
+                                case 'date':
+                                    $temp->addValue(date('Y-m-d'));
+                                    break;
+                                case 'time':
+                                    $temp->addValue(date('H:i:s'));
+                                    break;
+                            }
+                        }
+                    }
+                }
+                foreach ($Item->fields as $fname => $temp) {
+                    if (isset($Object->fields[$fname])) {
+                        $row = $Object->fields[$fname];
+                        switch ($row->datatype) {
+                            case 'file': case 'image':
+                                $row->deleteValues();
+                                if ($row->multiple) {
+                                    foreach ($_FILES[$row->urn]['tmp_name'] as $key => $val) {
+                                        $row2 = array(
+                                            'vis' => (int)$_POST[$row->urn . '@vis'][$key], 
+                                            'name' => (string)$_POST[$row->urn . '@name'][$key],
+                                            'description' => (string)$_POST[$row->urn . '@description'][$key],
+                                            'attachment' => (int)$_POST[$row->urn . '@attachment'][$key]
+                                        );
+                                        if (is_uploaded_file($_FILES[$row->urn]['tmp_name'][$key]) && $row->validate($_FILES[$row->urn]['tmp_name'][$key])) {
+                                            $att = new Attachment((int)$row2['attachment']);
+                                            $att->upload = $_FILES[$row->urn]['tmp_name'][$key];
+                                            $att->filename = $_FILES[$row->urn]['name'][$key];
+                                            $att->mime = $_FILES[$row->urn]['type'][$key];
+                                            $att->parent = $Material;
+                                            if ($row->datatype == 'image') {
+                                                $att->image = 1;
+                                                if ($temp = (int)$this->package->registryGet('maxsize')) {
+                                                    $att->maxWidth = $att->maxHeight = $temp;
+                                                }
+                                                if ($temp = (int)$this->package->registryGet('tnsize')) {
+                                                    $att->tnsize = $temp;
+                                                }
+                                            }
+                                            $att->commit();
+                                            $row2['attachment'] = (int)$att->id;
+                                            $row->addValue(json_encode($row2));
+                                        } elseif ($row2['attachment']) {
+                                            $row->addValue(json_encode($row2));
+                                        }
+                                        unset($att, $row2);
+                                    }
+                                } else {
+                                    $row2 = array(
+                                        'vis' => (int)$_POST[$row->urn . '@vis'], 
+                                        'name' => (string)$_POST[$row->urn . '@name'], 
+                                        'description' => (string)$_POST[$row->urn . '@description'],
+                                        'attachment' => (int)$_POST[$row->urn . '@attachment']
+                                    );
+                                    if (is_uploaded_file($_FILES[$row->urn]['tmp_name']) && $row->validate($_FILES[$row->urn]['tmp_name'])) {
+                                        $att = new Attachment((int)$row2['attachment']);
+                                        $att->upload = $_FILES[$row->urn]['tmp_name'];
+                                        $att->filename = $_FILES[$row->urn]['name'];
+                                        $att->mime = $_FILES[$row->urn]['type'];
+                                        $att->parent = $Material;
+                                        if ($row->datatype == 'image') {
+                                            $att->image = 1;
+                                            if ($temp = (int)$this->package->registryGet('maxsize')) {
+                                                $att->maxWidth = $att->maxHeight = $temp;
+                                            }
+                                            if ($temp = (int)$this->package->registryGet('tnsize')) {
+                                                $att->tnsize = $temp;
+                                            }
+                                        }
+                                        $att->commit();
+                                        $row2['attachment'] = (int)$att->id;
+                                        $row->addValue(json_encode($row2));
+                                    } elseif ($_POST[$row->urn . '@attachment']) {
+                                        $row2['attachment'] = (int)$_POST[$row->urn . '@attachment'];
+                                        $row->addValue(json_encode($row2));
+                                    }
+                                    unset($att, $row2);
+                                }
+                                break;
+                            default:
+                                $row->deleteValues();
+                                if (isset($_POST[$row->urn])) {
+                                    foreach ((array)$_POST[$row->urn] as $val) {
+                                        $row->addValue($val);
+                                    }
+                                }
+                                break;
+                        }
+                        if (in_array($row->datatype, array('file', 'image'))) {
+                            $row->clearLostAttachments();
+                        }
+                    }
+                }
+                if ($Object instanceof Material) {
+                    if (isset($Object->fields['ip'])) {
+                        $Object->fields['ip']->deleteValues();
+                        $Object->fields['ip']->addValue((string)$_SERVER['REMOTE_ADDR']);
+                    }
+                    if (isset($Object->fields['user_agent'])) {
+                        $Object->fields['user_agent']->deleteValues();
+                        $Object->fields['user_agent']->addValue((string)$_SERVER['HTTP_USER_AGENT']);
+                    }
+                }
+            }
+            if ($Form->email) {
+                $notify($Item, $Form->Material_Type->id ? $Material : null);
+            }
+            if (!$Form->create_feedback) {
+                Feedback::delete($Item);
+            }
+            $OUT['success'][(int)$Block->id] = true;
+        }
+    }
+    $OUT['localError'] = $localError;
+    $OUT['DATA'] = $_POST;
+    $OUT['Item'] = $Item;
+    if ($Form->Material_Type->id) {
+        $OUT['Material'] = $Material;
+    }
+}
+$OUT['Form'] = $Form;
+
+return $OUT;

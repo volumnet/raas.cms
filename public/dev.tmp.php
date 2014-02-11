@@ -1,0 +1,1 @@
+<p><?php echo CMS\DEV_SECTION_TEXT?></p>
