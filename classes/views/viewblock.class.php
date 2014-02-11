@@ -21,9 +21,9 @@ abstract class ViewBlock
 
     public function renderBlock(Block $Item, Page $Page, Location $Location, $i = 0)
     {
-        $text .= '<div class="well well-small cms-block ' . static::blockListItemClass . '" id="block-' . (int)$Item->id . '">';
+        $text .= '<div class="well well-small cms-block ' . static::blockListItemClass . '" id="block-' . (int)$Item->id . '" ' . ($Location->horizontal ? ' title="' . htmlspecialchars($Item->title) . '"' : '') . '>';
         if (!$Location->horizontal) {
-            $text .= '<a class="cms-block-name" href="' . $this->view->url . '&action=edit_block&id=' . (int)$Item->id . '&pid=' . (int)$Page->id . '" title="' . htmlspecialchars($Item->title) . '">
+            $text .= '<a class="cms-block-name" href="' . $this->view->url . '&action=edit_block&id=' . (int)$Item->id . '&pid=' . (int)$Page->id . '">
                         <span' . (!$Item->vis ? ' class="muted"' : '') . '>' . htmlspecialchars($Item->title) . '</span>
                       </a>';
         }
