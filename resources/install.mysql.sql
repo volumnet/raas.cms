@@ -133,8 +133,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_data (
   PRIMARY KEY (pid,fid,fii),
   KEY pid (pid),
   KEY fid (fid),
-  KEY fii (fii),
-  FULLTEXT KEY `value` (`value`)
+  KEY fii (fii) -- ,
+  -- FULLTEXT KEY `value` (`value`)
 ) COMMENT='Pages fields';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_dictionaries (
