@@ -45,6 +45,13 @@ final class Controller_Frontend extends Abstract_Controller
     public function run()
     {
         if (!$this->getCache()) {
+            $p = pathinfo($_SERVER['REQUEST_URI']);
+            if (preg_match('/(\\d+)x(\\d+)(_(\\w+))?/i', $p['basename'], $regs) && is_file($f = ltrim($p['dirname'] . '/' . $p['filename'], '/'))) {
+                if ($s = getimagesize($f)) {
+                    $this->getThumbnail($f, $regs[1], $regs[2], $regs[4]);
+                    exit;
+                }
+            }
             if ($this->checkCompatibility()) {
                 if ($this->checkDB()) {
                     if ($this->checkSOME()) {
@@ -113,17 +120,18 @@ final class Controller_Frontend extends Abstract_Controller
         ob_end_flush();
         if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET')) {
             if ($content) {
-                $this->saveCache($Page, $content, $headers);
+                $this->saveCache((int)$Page->id, $content, $headers);
             }
         }
     }
 
-    protected function saveCache($Page, $content = '', array $headers = array())
+
+    protected function saveCache($id, $content = '', array $headers = array())
     {
         if (!is_dir($this->model->cacheDir)) {
             @mkdir($this->model->cacheDir, 0777, true);
         }
-        $id = $this->model->cachePrefix . $Page->id . '.' . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        $filename = $this->model->cachePrefix . $id . '.' . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
         $replace = array();
         $replace['<' . '?'] = '<' . '?php echo "<" . "?";?' . '>';
         $replace['?' . '>'] = '<' . '?php echo "?" . ">";?' . '>';
@@ -134,11 +142,31 @@ final class Controller_Frontend extends Abstract_Controller
             foreach ($headers as $header) {
                 $text .= 'header("' . addslashes($header) . '");' . "\n";
             }
-            $text .= '?' . ">\n";
+            $text .= '?' . ">";
         }
         $text .= $content;
-        file_put_contents($this->model->cacheDir . '/' . $id . '.php', $text);
+        file_put_contents($this->model->cacheDir . '/' . $filename . '.php', $text);
+        chmod($this->model->cacheDir . '/' . $filename . '.php', 0777);
     }
+
+
+    protected function getThumbnail($filename, $w = null, $h = null, $mode = null)
+    {
+        if (defined('SOME\Thumbnail::THUMBNAIL_' . strtoupper($mode))) {
+            $mode = constant('SOME\Thumbnail::THUMBNAIL_' . strtoupper($mode));
+        } else {
+            $mode = \SOME\Thumbnail::THUMBNAIL_CROP;
+        }
+        ob_start();
+        \SOME\Thumbnail::make($filename, null, $w ? $w : INF, $h ? $h : INT, $mode, true);
+        $content = ob_get_contents();
+        $headers = (array)headers_list();
+        ob_end_flush();
+        if ($content) {
+            $this->saveCache('_tn', $content, $headers);
+        }
+    }
+
 
     protected function getCache()
     {
