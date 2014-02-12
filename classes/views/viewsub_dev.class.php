@@ -210,7 +210,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             ),
             'Set' => $IN['Set'],
             'Pages' => $IN['Pages'],
-            'emptyString' => 'NO_MATERIAL_TYPES_FOUND'
+            'emptyString' => $this->_('NO_MATERIAL_TYPES_FOUND')
         ));
         $this->assignVars($IN);
         $this->title = $this->_('MATERIAL_TYPES');

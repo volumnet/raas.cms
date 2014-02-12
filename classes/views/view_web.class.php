@@ -340,9 +340,9 @@ class View_Web extends \RAAS\Package_View_Web
         foreach ($node->children as $row) {
             $temp = array('name' => \SOME\Text::cuttext($row->name, 64, '...'), 'href' => $this->url, 'class' => '', 'active' => false);
             if ($node instanceof Menu) {
-                $temp['href'] .= '&action=menus';
+                $temp['href'] .= '&sub=dev&action=menus';
             } elseif ($node instanceof Dictionary) {
-                $temp['href'] .= '&action=dictionaries';
+                $temp['href'] .= '&sub=dev&action=dictionaries';
             }
             $temp['href'] .= '&id=' . (int)$row->id;
             if ($row->id == $current->id || in_array($current->id, $row->all_children_ids)) {

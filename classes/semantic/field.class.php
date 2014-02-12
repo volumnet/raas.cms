@@ -33,7 +33,7 @@ abstract class Field extends \RAAS\CustomField
                                         }
                                     }
                                 } else {
-                                    if (!is_uploaded_file($_FILES[$Field->name]['tmp_name']) && isset($_POST[$Field->name . '@attachment']) && !trim($_POST[$Field->name . '@attachment'])) {
+                                    if (!is_uploaded_file($_FILES[$Field->name]['tmp_name']) && isset($_POST[$Field->name . '@attachment']) && trim($_POST[$Field->name . '@attachment'])) {
                                         $ok = true;
                                     }
                                 }

@@ -159,7 +159,7 @@ abstract class Abstract_Controller extends \RAAS\Abstract_Package_Controller
                 new FieldSet(array(
                     'template' => 'edit_page.inherit.php',
                     'children' => array(
-                        array('type' => 'checkbox', 'name' => 'cache', 'caption' => $this->view->_('CACHE_PAGE')),
+                        array('type' => 'checkbox', 'name' => 'cache', 'caption' => $this->view->_('CACHE_PAGE'), 'default' => ($Parent->id ? $Parent->cache : 0)),
                         array('type' => 'checkbox', 'name' => 'inherit_cache', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->inherit_cache : 1))
                     )
                 )),
