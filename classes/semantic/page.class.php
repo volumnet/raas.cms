@@ -330,7 +330,8 @@ class Page extends \SOME\SOME
 
     protected function _Domain()
     {
-        return clone ($this->pid ? $this->parents[0] : $this);
+        $id = $this->pid->id ? $this->parents[0]->id : $this->id;
+        return new static((int)$id);
     }
     
     public static function importByURL($url)

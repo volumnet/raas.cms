@@ -459,7 +459,7 @@ class Updater extends \RAAS\Updater
                 'locked' => 1
             ));
         }
-        $Item->description = $this->stdSearchView;
+        $Item->description = $this->stdSearchInterface;
         $Item->commit();
 
         $Item = Snippet::importByURN('__RAAS_form_notify');
