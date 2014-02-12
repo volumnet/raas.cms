@@ -37,7 +37,7 @@
 /*.cms-block .btn { display: table-cell; }
 .cms-block .btn:first-child { width: 100%; text-align: left; }
 .cms-block.btn-group + .cms-block.btn-group { margin: 3px 0 0; }*/
-.cms-location.cms-horizontal .cms-block { display: inline-block; width: auto; margin-right: 3px; }
+.cms-location.cms-horizontal .cms-block { display: inline-block; width: auto; margin-right: 3px; min-width: 20px; }
 
 div.CodeMirror { height: 310px; border: 1px solid #ccc; border-radius: 5px; padding: 5px; }
 .cms-field_repo { display: none; }

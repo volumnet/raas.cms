@@ -19,19 +19,30 @@ abstract class ViewBlock
     }
 
 
-    public function renderBlock(Block $Item, Page $Page, Location $Location)
+    public function renderBlock(Block $Item, Page $Page, Location $Location, $i = 0)
     {
-        $text .= '<div class="well well-small cms-block ' . static::blockListItemClass . '">';
+        $text .= '<div class="well well-small cms-block ' . static::blockListItemClass . '" id="block-' . (int)$Item->id . '" ' . ($Location->horizontal ? ' title="' . htmlspecialchars($Item->title) . '"' : '') . '>';
         if (!$Location->horizontal) {
-            $text .= '<a class="cms-block-name" href="' . $this->view->url . '&action=edit_block&id=' . (int)$Item->id . '&pid=' . (int)$Page->id . '" title="' . htmlspecialchars($Item->title) . '">
+            $text .= '<a class="cms-block-name" href="' . $this->view->url . '&action=edit_block&id=' . (int)$Item->id . '&pid=' . (int)$Page->id . '">
                         <span' . (!$Item->vis ? ' class="muted"' : '') . '>' . htmlspecialchars($Item->title) . '</span>
                       </a>';
         }
         if ($temp = $this->view->context->getBlockContextMenu($Item, $Page, $i, count($Page->blocksByLocations[$Location->urn]))) {
-            $text .= '<a href="#" class="dropdown-toggle" data-toggle="dropdown" title="' . htmlspecialchars($Item->title) . '">
-                        <span class="caret"></span>
-                      </a>
-                      <ul class="dropdown-menu pull-right">' . showMenu($temp) . '</ul>';
+            $f = function($x) { return array('text' => '<i class="icon-' . $x['icon'] . '"></i>&nbsp;' . $x['name'], 'href' => $x['href'], 'onclick' => $x['onclick']); };
+            $temp = array_map($f, $temp);
+            $temp = json_encode($temp);
+            $text .= '<script type="text/javascript">
+            jQuery(document).ready(function($) { 
+                var temp = ' . $temp . ';
+                for (var i = 0; i < temp.length; i++) {
+                    if (temp[i].onclick) {
+                        temp[i].action = new Function("e", temp[i].onclick);
+                    }
+                }
+                console.log(temp);
+                context.attach("#block-' . (int)$Item->id . '", temp) 
+            })
+            </script>';
         }
         $text .= '<input type="hidden" value="' . (int)$Item->id . '" />
                 </div>';
