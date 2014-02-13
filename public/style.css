@@ -14,7 +14,7 @@
 .cms-location > .btn-group > .btn { line-height: 14px; padding: 0 4px; }
 .cms-location h6 { margin: 0; padding: 0 0 0 3px; min-height: 20px; color: #888; }
 .cms-block { display: block; position: relative; padding: 0; min-height: 24px; margin-bottom: 3px; box-shadow: 2px 2px 2px rgba(0,0,0,0.5); }
-.cms-block > .cms-block-name { padding: 6px; font-size: 11px; line-height: 12px; height: 12px; display: table-cell; width: 100%; overflow: hidden; }
+.cms-block > .cms-block-name { padding: 6px; font-size: 11px; line-height: 12px; height: 12px; display: block; width: 100%; overflow: hidden; }
 .cms-block > .dropdown-toggle { display: table-cell; min-width: 24px; text-align: center; }
 .cms-block > .cms-block-name + .dropdown-toggle { border-left: 1px solid #ddd; }
 .cms-block > .dropdown-toggle span.caret { position: relative; top: 8px; }
