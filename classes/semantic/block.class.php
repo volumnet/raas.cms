@@ -179,6 +179,7 @@ abstract class Block extends \SOME\SOME
         $Block = $this;
         $config = $this->getAddData();
         $IN = (array)$this->processInterface($config, $Page);
+        $IN['config'] = $config;
         $this->processWidget($IN, $Page);
     }
     
