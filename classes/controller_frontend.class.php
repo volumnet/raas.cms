@@ -158,7 +158,7 @@ final class Controller_Frontend extends Abstract_Controller
             $mode = \SOME\Thumbnail::THUMBNAIL_CROP;
         }
         ob_start();
-        \SOME\Thumbnail::make($filename, null, $w ? $w : INF, $h ? $h : INT, $mode, true);
+        \SOME\Thumbnail::make($filename, null, $w ? $w : INF, $h ? $h : INT, $mode, true, false, 90);
         $content = ob_get_contents();
         $headers = (array)headers_list();
         ob_end_flush();
