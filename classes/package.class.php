@@ -7,16 +7,11 @@ class Package extends \RAAS\Package
     
     const version = '2013-12-01 18:23:01';
     
-    protected $_blockTypes;
-    
     protected static $instance;
 
     public function __get($var)
     {
         switch ($var) {
-            case 'blockTypes':
-                return (array)$this->_blockTypes;
-                break;
             case 'cacheDir':
                 return $this->application->baseDir . '/cache';
                 break;
@@ -104,7 +99,6 @@ class Package extends \RAAS\Package
     {
         $_SESSION['KCFINDER']['uploadURL'] = '/files/cms/common/';
         $_SESSION['KCFINDER']['disabled'] = false;
-        $this->_blockTypes = new \ArrayObject();
         parent::init();
         Block_Type::registerType('RAAS\\CMS\\Block_HTML', 'RAAS\\CMS\\ViewBlockHTML', 'RAAS\\CMS\\EditBlockHTMLForm');
         Block_Type::registerType('RAAS\\CMS\\Block_PHP', 'RAAS\\CMS\\ViewBlockPHP', 'RAAS\\CMS\\EditBlockPHPForm');
