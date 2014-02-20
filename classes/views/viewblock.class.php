@@ -13,7 +13,13 @@ abstract class ViewBlock
     {
         switch ($var) {
             case 'view':
-                return Package::i()->view;
+                $NS = \SOME\Namespaces::getNS($this);
+                if ($NS == __NAMESPACE__) {
+                    return Package::i()->view;
+                } else {
+                    $classname = $NS . '\\Module';
+                    return $classname::i()->view;
+                }
                 break;
         }
     }

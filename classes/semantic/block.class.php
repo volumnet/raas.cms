@@ -198,6 +198,7 @@ abstract class Block extends \SOME\SOME
         return $OUT;
     }
     
+
     protected function processWidget(array $IN = array(), $Page)
     {
         $SITE = $Page->Domain;
@@ -211,8 +212,19 @@ abstract class Block extends \SOME\SOME
         }
     }
     
+
     protected function _Location()
     {
         return $this->parent->Template->locations[$this->location];
+    }
+
+
+    public static function delete(Block $Item)
+    {
+        if (static::$tablename2) {
+            $SQL_query = "DELETE FROM " . static::$dbprefix . static::$tablename2 . " WHERE id = " . (int)$Item->id;
+            self::$SQL->query($SQL_query);
+        }
+        parent::delete($Item);
     }
 }

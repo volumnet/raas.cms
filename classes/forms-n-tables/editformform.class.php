@@ -2,6 +2,7 @@
 namespace RAAS\CMS;
 use \RAAS\Field as RAASField;
 use \RAAS\Option;
+use \RAAS\Application;
 
 class EditFormForm extends \RAAS\Form
 {
@@ -33,7 +34,7 @@ class EditFormForm extends \RAAS\Form
 
         $defaultParams = array(
             'caption' => $Item->id ? $Item->name : $view->_('CREATING_FORM'),
-            'parentUrl' => $this->url . '&action=forms',
+            'parentUrl' => Sub_Dev::i()->url . '&action=forms',
             'children' => array(
                 array('name' => 'name', 'caption' => $view->_('NAME'), 'required' => 'required'),
                 array(
@@ -49,7 +50,7 @@ class EditFormForm extends \RAAS\Form
                     'name' => 'email', 
                     'caption' => $view->_('EMAIL_TO_SEND_NOTIFY'), 
                     'data-hint' => $view->_('SPACE_COMMA_SEMICOLON_SEPARATED'), 
-                    'default' => $this->application->user->email
+                    'default' => Application::i()->user->email
                 ),
                 array(
                     'type' => 'select',
@@ -64,7 +65,7 @@ class EditFormForm extends \RAAS\Form
                     'type' => 'codearea', 
                     'name' => 'description', 
                     'caption' => $view->_('TEMPLATE_CODE'), 
-                    'default' => $this->model->stdFormTemplate,
+                    'default' => Package::i()->stdFormTemplate,
                     'import' => function($Field) { 
                         return $Field->Form->Item->Interface->id ? $Field->Form->Item->Interface->description : $Field->importDefault(); 
                     },

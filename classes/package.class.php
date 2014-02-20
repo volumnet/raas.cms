@@ -106,6 +106,11 @@ class Package extends \RAAS\Package
         Block_Type::registerType('RAAS\\CMS\\Block_Menu', 'RAAS\\CMS\\ViewBlockMenu', 'RAAS\\CMS\\EditBlockMenuForm');
         Block_Type::registerType('RAAS\\CMS\\Block_Form', 'RAAS\\CMS\\ViewBlockForm', 'RAAS\\CMS\\EditBlockFormForm');
         Block_Type::registerType('RAAS\\CMS\\Block_Search', 'RAAS\\CMS\\ViewBlockSearch', 'RAAS\\CMS\\EditBlockSearchForm');
+        foreach ($this->modules as $module) {
+            if (method_exists($module, 'registerBlockTypes')) {
+                $module->registerBlockTypes();
+            }
+        }
     }
     
     
@@ -300,14 +305,6 @@ class Package extends \RAAS\Package
         $Set = Feedback::getSQLSet($SQL_query, $Pages);
         $columns = Form_Field::getSet(array('where' => $col_where));
         return array('Set' => $Set, 'Pages' => $Pages, 'Parent' => $Parent, 'columns' => $columns);
-    }
-    
-    public function install()
-    {
-        if (!$this->registryGet('installDate')) {
-            parent::install();
-            new Updater($this);
-        }
     }
 
 

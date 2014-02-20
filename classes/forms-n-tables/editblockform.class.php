@@ -18,8 +18,8 @@ class EditBlockForm extends \RAAS\Form
         $defaultParams = array(
             'caption' => $Item->id ? $this->_view->_('EDITING_BLOCK') : $this->_view->_('CREATING_BLOCK'),
             'data-block-type' => str_replace('RAAS\\CMS\\', '', $Item->block_type),
-            'parentUrl' => $this->url . '&id=' . (int)$Parent->id,
-            'newUrl' => $this->url . '&pid=%s&action=edit_block&pid=' . (int)$Parent->id . '&type=' . str_replace('\\', '.', str_replace('RAAS\\CMS\\', '', $Item->block_type)) . '&loc=' . $loc,
+            'parentUrl' => Package::i()->url . '&id=' . (int)$Parent->id,
+            'newUrl' => Package::i()->url . '&pid=%s&action=edit_block&pid=' . (int)$Parent->id . '&type=' . str_replace('\\', '.', str_replace('RAAS\\CMS\\', '', $Item->block_type)) . '&loc=' . $loc,
             'export' => function($Form) use ($t) {
                 $Form->exportDefault();
                 $Form->Item->editor_id = Application::i()->user->id;
