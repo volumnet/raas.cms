@@ -8,6 +8,7 @@ class Feedback extends \SOME\SOME
     protected static $cognizableVars = array('fields');
 
     protected static $references = array(
+        'user' => array('FK' => 'uid', 'classname' => 'RAAS\\CMS\\User', 'cascade' => true),
         'parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Form', 'cascade' => true),
         'page' => array('FK' => 'page_id', 'classname' => 'RAAS\\CMS\\Page', 'cascade' => false),
         'viewer' => array('FK' => 'vis', 'classname' => 'RAAS\\User', 'cascade' => false),
