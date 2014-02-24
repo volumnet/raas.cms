@@ -416,61 +416,41 @@ class Updater extends \RAAS\Updater
 
         $Item = Snippet::importByURN('__RAAS_material_interface');
         if (!$Item->id) {
-            $Item = new Snippet(array(
-                'pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 
-                'urn' => '__RAAS_material_interface', 
-                'name' => $this->view->_('MATERIAL_STANDARD_INTERFACE'), 
-                'locked' => 1
-            ));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_material_interface', 'locked' => 1));
         }
+        $Item->name = $this->view->_('MATERIAL_STANDARD_INTERFACE');
         $Item->description = $this->stdMaterialInterface;
         $Item->commit();
 
         $Item = Snippet::importByURN('__RAAS_form_interface');
         if (!$Item->id) {
-            $Item = new Snippet(array(
-                'pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 
-                'urn' => '__RAAS_form_interface', 
-                'name' => $this->view->_('FORM_STANDARD_INTERFACE'), 
-                'locked' => 1
-            ));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_form_interface', 'locked' => 1));
         }
+        $Item->name = $this->view->_('FORM_STANDARD_INTERFACE');
         $Item->description = $this->stdFormInterface;
         $Item->commit();
 
         $Item = Snippet::importByURN('__RAAS_menu_interface');
         if (!$Item->id) {
-            $Item = new Snippet(array(
-                'pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 
-                'urn' => '__RAAS_menu_interface', 
-                'name' => $this->view->_('MENU_STANDARD_INTERFACE'), 
-                'locked' => 1
-            ));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_menu_interface', 'locked' => 1));
         }
+        $Item->name = $this->view->_('MENU_STANDARD_INTERFACE');
         $Item->description = $this->stdMenuInterface;
         $Item->commit();
 
         $Item = Snippet::importByURN('__RAAS_search_interface');
         if (!$Item->id) {
-            $Item = new Snippet(array(
-                'pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 
-                'urn' => '__RAAS_search_interface', 
-                'name' => $this->view->_('SEARCH_STANDARD_INTERFACE'), 
-                'locked' => 1
-            ));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_search_interface', 'locked' => 1));
         }
+        $Item->name = $this->view->_('SEARCH_STANDARD_INTERFACE');
         $Item->description = $this->stdSearchInterface;
         $Item->commit();
 
         $Item = Snippet::importByURN('__RAAS_form_notify');
         if (!$Item->id) {
-            $Item = new Snippet(array(
-                'pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 
-                'urn' => '__RAAS_form_notify', 
-                'name' => $this->view->_('FORM_STANDARD_NOTIFICATION'), 
-                'locked' => 1
-            ));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_form_notify', 'locked' => 1));
         }
+        $Item->name = $this->view->_('FORM_STANDARD_NOTIFICATION');
         $Item->description = $this->stdFormTemplate;
         $Item->commit();
     }

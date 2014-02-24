@@ -105,7 +105,7 @@ class ViewSub_Feedback extends \RAAS\Abstract_Sub_View
                 'active' => ($row->id == $IN['Item']->id)
             );
         }
-        $this->title = $this->_('FEEDBACK');
+        $this->title = $IN['Item']->name ? $IN['Item']->name : $this->_('FEEDBACK');
         $this->template = 'feedback';
 
     }

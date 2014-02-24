@@ -97,7 +97,7 @@ class Feedback extends \SOME\SOME
 
     public static function unreadFeedbacks()
     {
-        $SQL_query = "SELECT COUNT(*) FROM " . self::_tablename() . " WHERE NOT vis";
-        return self::$SQL->getvalue($SQL_query);
+        $SQL_query = "SELECT COUNT(*) FROM " . static::_tablename() . " WHERE NOT vis";
+        return static::$SQL->getvalue($SQL_query);
     }
 }

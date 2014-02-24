@@ -324,6 +324,14 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippet_folders (
   KEY pid (pid)
 ) COMMENT='Snippet folders';
 
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (
+  id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+  login varchar(255) NOT NULL DEFAULT '' COMMENT 'Login',
+  password_md5 varchar(255) NOT NULL DEFAULT '' COMMENT 'Password MD5',
+  PRIMARY KEY (id),
+  INDEX pid (login)
+) COMMENT='Users';
+
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
