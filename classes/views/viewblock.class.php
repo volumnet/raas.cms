@@ -27,12 +27,10 @@ abstract class ViewBlock
 
     public function renderBlock(Block $Item, Page $Page, Location $Location, $i = 0)
     {
-        $text .= '<div class="well well-small cms-block ' . static::blockListItemClass . '" id="block-' . (int)$Item->id . '" ' . ($Location->horizontal ? ' title="' . htmlspecialchars($Item->title) . '"' : '') . '>';
-        if (!$Location->horizontal) {
-            $text .= '<a class="cms-block-name" href="' . $this->view->url . '&action=edit_block&id=' . (int)$Item->id . '&pid=' . (int)$Page->id . '">
-                        <span' . (!$Item->vis ? ' class="muted"' : '') . '>' . htmlspecialchars($Item->title) . '</span>
-                      </a>';
-        }
+        $text .= '<div class="well well-small cms-block ' . static::blockListItemClass . '" id="block-' . (int)$Item->id . '" title="' . htmlspecialchars($Item->title) . '">
+                    <a class="cms-block-name" href="' . $this->view->url . '&action=edit_block&id=' . (int)$Item->id . '&pid=' . (int)$Page->id . '">
+                      <span' . (!$Item->vis ? ' class="muted"' : '') . '>' . htmlspecialchars($Item->title) . '</span>
+                    </a>';
         if ($temp = $this->view->context->getBlockContextMenu($Item, $Page, $i, count($Page->blocksByLocations[$Location->urn]))) {
             $f = function($x) { return array('text' => '<i class="icon-' . $x['icon'] . '"></i>&nbsp;' . $x['name'], 'href' => $x['href'], 'onclick' => $x['onclick']); };
             $temp = array_map($f, $temp);

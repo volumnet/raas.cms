@@ -192,7 +192,7 @@ class Page extends \SOME\SOME
                             FROM " . Block::_tablename() . " AS tB
                             JOIN " . self::$dbprefix . self::$links['blocks']['tablename'] . " AS tBPA ON tBPA.block_id = tB.id 
                            WHERE tBPA.page_id = " . (int)$this->pid . " AND inherit ORDER BY priority";
-            $SQL_result = array_map(function($x) { return Block::spawn(x); }, \SOME\SOME::getSQLSet($SQL_query));
+            $SQL_result = array_map(function($x) { return Block::spawn($x); }, \SOME\SOME::getSQLSet($SQL_query));
             if ($SQL_result) {
                 $arr = array();
                 $priority = (int)self::$SQL->getvalue("SELECT MAX(priority) FROM " . self::$dbprefix . self::$links['blocks']['tablename']);
