@@ -20,7 +20,7 @@ $getSelect = function(\RAAS\CMS\Field $Item, array $DATA, $current = 0, $placeho
 
 $getCheckbox = function(\RAAS\CMS\Field $Item, array $DATA, $current = 0, $placeholder = '') use (&$getCheckbox) {
     static $level = 0;
-    $temp = '<input type="' . $Item->datatype . '" '
+    $temp = '<input type="' . $Item->datatype . '" class="form-control" '
           .       ' name="' . htmlspecialchars($Item->urn) . ((($Item->datatype == 'checkbox') && $Item->multiple) ? '[]' : '') . '"' 
           .       ($Item->required ? ' required="required"' : '');
     
@@ -78,8 +78,8 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
                                 '<input type="checkbox" name="' . htmlspecialchars($row->urn . '@vis[]') . '" value="1" ' . (!isset($DATA[$row->urn . '@vis'][$i]) || $DATA[$row->urn . '@vis'][$i] ? 'checked="checked"' : '') . ' />' .
                                 VISIBLE . 
                               '</label><br />' .
-                              '<input type="text" name="' . htmlspecialchars($row->urn . '@name[]') . '" value="' . htmlspecialchars(isset($DATA[$row->urn . '@name'][$i]) ? $DATA[$row->urn . '@name'][$i] : '') . '" /><br />' .
-                              '<textarea name="' . htmlspecialchars($row->urn . '@description[]') . '">' . htmlspecialchars(isset($DATA[$row->urn . '@description'][$i]) ? $DATA[$row->urn . '@description'][$i] : '') . '</textarea>' . 
+                              '<input type="text" class="form-control" name="' . htmlspecialchars($row->urn . '@name[]') . '" value="' . htmlspecialchars(isset($DATA[$row->urn . '@name'][$i]) ? $DATA[$row->urn . '@name'][$i] : '') . '" /><br />' .
+                              '<textarea class="form-control" name="' . htmlspecialchars($row->urn . '@description[]') . '">' . htmlspecialchars(isset($DATA[$row->urn . '@description'][$i]) ? $DATA[$row->urn . '@description'][$i] : '') . '</textarea>' . 
                             '</div>' .
                             '<span class="icon cms-move" ' . ((count($DATA[$row->urn . '@attachment']) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
                             '<a href="#" class="jsDeleteField icon system delete" ' . ($row->required && (count($DATA[$row->urn . '@attachment']) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '"></a>' .
@@ -98,8 +98,8 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
                             '<input type="checkbox" name="' . htmlspecialchars($row->urn . '@vis[]') . '" value="1" checked="checked" />' .
                             VISIBLE . 
                           '</label><br />' .
-                          '<input type="text" name="' . htmlspecialchars($row->urn . '@name[]') . '" value="" /><br />' .
-                          '<textarea name="' . htmlspecialchars($row->urn . '@name[]') . '"></textarea>' . 
+                          '<input type="text" class="form-control" name="' . htmlspecialchars($row->urn . '@name[]') . '" value="" /><br />' .
+                          '<textarea class="form-control" name="' . htmlspecialchars($row->urn . '@name[]') . '"></textarea>' . 
                         '</div>' .
                         '<span class="icon cms-move" title="' . MOVE . '"></span>' .
                         '<a href="#" class="jsDeleteField icon system delete" title="' . DELETE . '"></a>' .
@@ -132,8 +132,8 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
                             '<input type="checkbox" name="' . htmlspecialchars($row->urn . '@vis') . '" value="1" ' . (isset($DATA[$row->urn . '@vis']) && $DATA[$row->urn . '@vis'] ? 'checked="checked"' : '') . ' />' .
                             VISIBLE . 
                           '</label><br />' .
-                          '<input type="text" name="' . htmlspecialchars($row->urn . '@name') . '" value="' . htmlspecialchars(isset($DATA[$row->urn . '@name']) ? $DATA[$row->urn . '@name'] : '') . '" /><br />' .
-                          '<textarea name="' . htmlspecialchars($row->urn . '@description') . '">' . htmlspecialchars(isset($DATA[$row->urn . '@description']) ? $DATA[$row->urn . '@description'] : '') . '</textarea>' . 
+                          '<input type="text" class="form-control" name="' . htmlspecialchars($row->urn . '@name') . '" value="' . htmlspecialchars(isset($DATA[$row->urn . '@name']) ? $DATA[$row->urn . '@name'] : '') . '" /><br />' .
+                          '<textarea class="form-control" name="' . htmlspecialchars($row->urn . '@description') . '">' . htmlspecialchars(isset($DATA[$row->urn . '@description']) ? $DATA[$row->urn . '@description'] : '') . '</textarea>' . 
                         '</div>' .
                         (!$row->required ? '<a href="#" class="jsDeleteFile icon system delete" ' . ($row->required && !count($DATA[$row->urn]) ? 'style="display: none"' : '') . ' title="' . DELETE . '"></a>' : '') .
                      '</div>';
@@ -143,7 +143,7 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             if ($row->multiple) {
                 echo $getCheckbox($row, $row->stdSource, $DATA[$row->urn], $row->placeholder);
             } else {
-                echo '<input type="' . $row->datatype . '" ' . 
+                echo '<input type="' . $row->datatype . '" class="form-control" ' . 
                             'name="' . htmlspecialchars($row->urn) . '" ' . 
                             'id="' . htmlspecialchars($row->urn) . '"' .
                               ($row->required ? ' required="required"' : '') . ' ' .
@@ -155,7 +155,7 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             echo $getCheckbox($row, $row->stdSource, $DATA[$row->urn], $row->placeholder);
             break;
         case 'select':
-            $temp = '<select '
+            $temp = '<select class="form-control" '
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
                   .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn) . '"' : '')
                   .       ($row->required ? ' required="required"' : '');
@@ -178,7 +178,7 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             }
             break;
         case 'textarea': case 'htmlarea':
-            $temp = '<textarea ' . ($row->datatype == 'htmlarea' ? 'class="cms-htmlarea"' : '')
+            $temp = '<textarea ' . ($row->datatype == 'htmlarea' ? 'class="cms-htmlarea"' : 'class="form-control"')
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
                   .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn) . '"' : '')
                   .       ($row->maxlength ? ' maxlength="' . (int)$row->maxlength . '"' : '')
@@ -203,13 +203,13 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             }
             break;
         case 'password':
-            $temp = '<input type="' . $row->datatype . '"'
+            $temp = '<input type="' . $row->datatype . '" class="form-control"'
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
                   .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn) . '"' : '')
                   .       ($row->maxlength ? ' maxlength="' . (int)$row->maxlength . '"' : '')
                   .       ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '')
                   .       ($row->required ? ' required="required"' : '');
-            $temp2 = '<input type="' . $row->datatype . '"'
+            $temp2 = '<input type="' . $row->datatype . '" class="form-control"'
                    .       ' name="' . htmlspecialchars($row->urn) . '@confirm' . ($row->multiple ? '[]' : '') . '"'
                    .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn) . '@confirm"' : '')
                    .       ($row->maxlength ? ' maxlength="' . (int)$row->maxlength . '"' : '')
@@ -235,7 +235,7 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             break;
             break;
         default: 
-            $temp = '<input type="' . $row->datatype . '"'
+            $temp = '<input type="' . $row->datatype . '" class="form-control"'
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
                   .       ($row->min_val ? ' min="' . (float)$row->min_val . '"' : '')
                   .       ($row->max_val ? ' max="' . (float)$row->max_val . '"' : '')

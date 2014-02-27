@@ -169,7 +169,6 @@ class Page extends \SOME\SOME
         while ((int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . self::_tablename() . " WHERE urn = ? AND pid = ? AND id != ?", $this->urn, $this->pid, (int)$this->id))) {
             $this->urn = '_' . $this->urn . '_';
         }
-        parent::commit();
         
         $enableHeritage = false;
         foreach (self::$inheritedFields as $key => $val) {
@@ -180,13 +179,16 @@ class Page extends \SOME\SOME
         if ($enableHeritage) {
             foreach ($this->children as $row) {
                 foreach (self::$inheritedFields as $key => $val) {
-                    if ($this->$key) {
+                    if ($this->updates[$key] && ($row->$key == $this->properties[$key])) {
                         $row->$val = $this->$val;
                     }
                 }
                 $row->commit();
             }
         }
+        
+        parent::commit();
+        
         if (($this->template == $this->parent->template) && $new) {
             $SQL_query = "SELECT tB.*
                             FROM " . Block::_tablename() . " AS tB
