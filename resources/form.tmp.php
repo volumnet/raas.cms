@@ -39,7 +39,7 @@
               </div>
           <?php } ?>
           <div class="form-group">
-            <div class="col-sm-4 col-sm-offset-2"><button class="btn" type="submit"><?php echo SEND?></button></div>
+            <div class="col-sm-4 col-sm-offset-2"><button class="btn btn-default" type="submit"><?php echo SEND?></button></div>
           </div>
       <?php } ?>
     </form>

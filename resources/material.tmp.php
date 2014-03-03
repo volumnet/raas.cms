@@ -38,19 +38,17 @@
     <?php } ?>
     <?php include \RAAS\CMS\Package::i()->resourcesDir . '/pages.inc.php'?>
     <?php if ($Pages->pages > 1) { ?>
-        <div class="pagination pagination-pull-right">
-          <ul>
-            <?php 
-            echo $outputNav(
-                $Pages, 
-                array(
-                    'pattern' => '<li><a href="' . \SOME\HTTP::queryString('page={link}') . '">{text}</a></li>', 
-                    'pattern_active' => '<li class="active"><span>{text}</span></li>',
-                    'ellipse' => '<li class="disabled"><a>...</a></li>'
-                )
-            );
-            ?>
-          </ul>
-        </div>
+        <ul class="pagination pagination-pull-right">
+          <?php 
+          echo $outputNav(
+              $Pages, 
+              array(
+                  'pattern' => '<li><a href="' . \SOME\HTTP::queryString('page={link}') . '">{text}</a></li>', 
+                  'pattern_active' => '<li class="active"><span>{text}</span></li>',
+                  'ellipse' => '<li class="disabled"><a>...</a></li>'
+              )
+          );
+          ?>
+        </ul>
     <?php } ?>
 <?php } ?>
