@@ -2,7 +2,7 @@
     <h1><?php echo htmlspecialchars($Item->name)?></h1>
     <article class="article">
       <?php if (strtotime($Item->date) > 0) { ?>
-          <p class="date"><small><?php echo date('d', strtotime($Item->date)) . ' ' . \SOME\Text::$months[date('m', strtotime($Item->date))] . ' ' . date('Y', strtotime($Item->date))?></small></p>
+          <p class="date"><small><?php echo date('d', strtotime($Item->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($Item->date))] . ' ' . date('Y', strtotime($Item->date))?></small></p>
       <?php } ?>
       <?php if ($Item->visImages) { ?>
           <a href="/<?php echo $Item->visImages[0]->fileURL?>" class="context-image thumbnail zoom-in pull-left">
