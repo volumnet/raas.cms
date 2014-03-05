@@ -31,7 +31,7 @@
           <?php } ?>
           <?php if ($Form->antispam == 'captcha' && $Form->antispam_field_name) { ?>
               <div class="form-group">
-                <label for="name" class="control-label col-sm-2"><?php echo CAPTCHA?></label>
+                <label for="<?php echo htmlspecialchars($Form->antispam_field_name)?>" class="control-label col-sm-2"><?php echo CAPTCHA?></label>
                 <div class="col-sm-4 <?php echo htmlspecialchars($Form->antispam_field_name)?>">
                   <img src="/assets/kcaptcha/?<?php echo session_name() . '=' . session_id()?>" /><br />
                   <input type="text" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />
