@@ -24,7 +24,7 @@
         <article class="article">
           <h2 class="article-title text-normal"><?php echo htmlspecialchars($row->name)?></h2>
           <?php if (strtotime($row->date) > 0) { ?>
-              <p class="date"><small><?php echo date('d', strtotime($row->date)) . ' ' . \SOME\Text::$months[date('m', strtotime($row->date))] . ' ' . date('Y', strtotime($row->date))?></small></p>
+              <p class="date"><small><?php echo date('d', strtotime($row->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->date))] . ' ' . date('Y', strtotime($row->date))?></small></p>
           <?php } ?>
           <?php if ($row->visImages) { ?>
               <a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>" class="context-image thumbnail w130 zoom-in pull-left">
