@@ -20,7 +20,7 @@ $getSelect = function(\RAAS\CMS\Field $Item, array $DATA, $current = 0, $placeho
 
 $getCheckbox = function(\RAAS\CMS\Field $Item, array $DATA, $current = 0, $placeholder = '') use (&$getCheckbox) {
     static $level = 0;
-    $temp = '<input type="' . $Item->datatype . '" class="form-control" '
+    $temp = '<input type="' . $Item->datatype . '" '
           .       ' name="' . htmlspecialchars($Item->urn) . ((($Item->datatype == 'checkbox') && $Item->multiple) ? '[]' : '') . '"' 
           .       ($Item->required ? ' required="required"' : '');
     
@@ -50,100 +50,30 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
     switch ($row->datatype) { 
         case 'image': case 'file': 
             if ($row->multiple) {
-                echo '<div class="jsFieldContainer">';
-                for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
-                    echo '<div class="jsField cms-file">' . 
-                            '<div class="cms-file-internal">' . 
-                              (
-                                  isset($DATA[$row->urn . '@file'][$i]) ? 
-                                  '<p class="jsFilePath cms-file-path">' . 
-                                    '<a href="' . htmlspecialchars($DATA[$row->urn . '@file'][$i]) . '">' . 
-                                        (
-                                            $row->datatype == 'image' ? 
-                                            '<img src="' . htmlspecialchars($DATA[$row->urn][$i]->tnURL) . '" alt="' . htmlspecialchars(basename($DATA[$row->urn . '@file'][$i])) . '" title="' . htmlspecialchars(basename($DATA[$row->urn . '@file'][$i])) . '" />' : 
-                                            htmlspecialchars(basename($DATA[$row->urn . '@file'][$i]))
-                                        ) . 
-                                    '</a>' . 
-                                  '</p>' : 
-                                  ''
-                              ) . 
-                              '<input type="hidden" name="' . htmlspecialchars($row->urn . '@attachment[]') . '" ' . ($row->required ? 'required="required"' : '') . ' value="' . (int)(isset($DATA[$row->urn . '@attachment'][$i]) ? $DATA[$row->urn . '@attachment'][$i] : 0) . '" />' . 
-                              '<input type="file"' .
-                                 ($row->datatype == 'image' ? ' accept="image/jpeg,image/png,image/gif"' : '') .
-                                 ' name="' . htmlspecialchars($row->urn) . '[]"' .
-                                 ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '') .
-                                 (!isset($DATA[$row->urn . '@file'][$i]) && $row->required ? ' required="required"' : '') . ' /><br /> ' .
-                              '<label>' .
-                                '<input type="hidden" class="jsRemainDisable" name="' . htmlspecialchars($row->urn . '@vis[]') . '" value="0" ' . (!isset($DATA[$row->urn . '@vis'][$i]) || $DATA[$row->urn . '@vis'][$i] ? 'disabled="disabled"' : '') . ' />' .
-                                '<input type="checkbox" name="' . htmlspecialchars($row->urn . '@vis[]') . '" value="1" ' . (!isset($DATA[$row->urn . '@vis'][$i]) || $DATA[$row->urn . '@vis'][$i] ? 'checked="checked"' : '') . ' />' .
-                                VISIBLE . 
-                              '</label><br />' .
-                              '<input type="text" class="form-control" name="' . htmlspecialchars($row->urn . '@name[]') . '" value="' . htmlspecialchars(isset($DATA[$row->urn . '@name'][$i]) ? $DATA[$row->urn . '@name'][$i] : '') . '" /><br />' .
-                              '<textarea class="form-control" name="' . htmlspecialchars($row->urn . '@description[]') . '">' . htmlspecialchars(isset($DATA[$row->urn . '@description'][$i]) ? $DATA[$row->urn . '@description'][$i] : '') . '</textarea>' . 
-                            '</div>' .
-                            '<span class="icon cms-move" ' . ((count($DATA[$row->urn . '@attachment']) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
-                            '<a href="#" class="jsDeleteField icon system delete" ' . ($row->required && (count($DATA[$row->urn . '@attachment']) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '"></a>' .
-                         '</div>';
-                }
-                echo  '<div class="jsRepo cms-field_repo cms-file">' . 
-                         '<div class="cms-file-internal">' . 
-                          '<input type="hidden" name="' . htmlspecialchars($row->urn . '@attachment[]') . '" disabled="disabled" value="0" />' . 
-                          '<input type="file" disabled="disabled" ' .
+                echo '<div data-role="file-container">
+                        <div data-role="file-item">
+                          <input type="file" disabled="disabled" ' .
                              ($row->datatype == 'image' ? ' accept="image/jpeg,image/png,image/gif"' : '') .
                              ' name="' . htmlspecialchars($row->urn) . '[]"' .
                              ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '') .
-                             ($row->required ? ' required="required"' : '') . ' /><br /> ' .
-                          '<label>' .
-                            '<input type="hidden" class="jsRemainDisable" name="' . htmlspecialchars($row->urn . '@vis[]') . '" value="0" disabled="disabled" />' .
-                            '<input type="checkbox" name="' . htmlspecialchars($row->urn . '@vis[]') . '" value="1" checked="checked" />' .
-                            VISIBLE . 
-                          '</label><br />' .
-                          '<input type="text" class="form-control" name="' . htmlspecialchars($row->urn . '@name[]') . '" value="" /><br />' .
-                          '<textarea class="form-control" name="' . htmlspecialchars($row->urn . '@name[]') . '"></textarea>' . 
-                        '</div>' .
-                        '<span class="icon cms-move" title="' . MOVE . '"></span>' .
-                        '<a href="#" class="jsDeleteField icon system delete" title="' . DELETE . '"></a>' .
-                      '</div>';
-                echo '</div>';
+                             ($row->required ? ' required="required"' : '') . ' />
+                          <a href="#" data-role="delete-file" title="' . DELETE . '"><i class="icon icon-remove"></i></a>
+                        </div>
+                      </div>';
             } else {
-                echo '<div class="jsField cms-file">' .
-                        '<div class="cms-file-internal">' . 
-                           (
-                                  isset($DATA[$row->urn . '@file']) ? 
-                                  '<p class="jsFilePath cms-file-path">' . 
-                                    '<a href="' . htmlspecialchars($DATA[$row->urn . '@file']) . '">' . 
-                                        (
-                                            $row->datatype == 'image' ? 
-                                            '<img src="' . htmlspecialchars($DATA[$row->urn]->tnURL) . '" alt="' . htmlspecialchars(basename($DATA[$row->urn . '@file'])) . '" title="' . htmlspecialchars(basename($DATA[$row->urn . '@file'])) . '" />' : 
-                                            htmlspecialchars(basename($DATA[$row->urn . '@file'][$i]))
-                                        ) . 
-                                    '</a>' . 
-                                  '</p>' : 
-                                  ''
-                              ) . 
-                          '<input type="hidden" name="' . htmlspecialchars($row->urn . '@attachment') . '" value="' . (int)(isset($DATA[$row->urn . '@attachment']) ? $DATA[$row->urn . '@attachment'] : 0) . '" />' .
-                          '<input type="file"' .
-                             ($row->datatype == 'image' ? ' accept="image/jpeg,image/png,image/gif"' : '') .
-                             ' name="' . htmlspecialchars($row->urn) . '"' .
-                             ' id="' . htmlspecialchars($row->urn) . '"' .
-                             ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '') .
-                             ($row->required ? ' required1="required"' : '') . ' /><br /> ' .
-                          '<label>' .
-                            '<input type="checkbox" name="' . htmlspecialchars($row->urn . '@vis') . '" value="1" ' . (isset($DATA[$row->urn . '@vis']) && $DATA[$row->urn . '@vis'] ? 'checked="checked"' : '') . ' />' .
-                            VISIBLE . 
-                          '</label><br />' .
-                          '<input type="text" class="form-control" name="' . htmlspecialchars($row->urn . '@name') . '" value="' . htmlspecialchars(isset($DATA[$row->urn . '@name']) ? $DATA[$row->urn . '@name'] : '') . '" /><br />' .
-                          '<textarea class="form-control" name="' . htmlspecialchars($row->urn . '@description') . '">' . htmlspecialchars(isset($DATA[$row->urn . '@description']) ? $DATA[$row->urn . '@description'] : '') . '</textarea>' . 
-                        '</div>' .
-                        (!$row->required ? '<a href="#" class="jsDeleteFile icon system delete" ' . ($row->required && !count($DATA[$row->urn]) ? 'style="display: none"' : '') . ' title="' . DELETE . '"></a>' : '') .
-                     '</div>';
+                echo '<input type="file"' .
+                       ($row->datatype == 'image' ? ' accept="image/jpeg,image/png,image/gif"' : '') .
+                       ' name="' . htmlspecialchars($row->urn) . '"' .
+                       ' id="' . htmlspecialchars($row->urn) . '"' .
+                       ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '') .
+                       ($row->required ? ' required1="required"' : '') . ' />';
             }
             break;
         case 'checkbox':
             if ($row->multiple) {
                 echo $getCheckbox($row, $row->stdSource, $DATA[$row->urn], $row->placeholder);
             } else {
-                echo '<input type="' . $row->datatype . '" class="form-control" ' . 
+                echo '<input type="' . $row->datatype . '" ' . 
                             'name="' . htmlspecialchars($row->urn) . '" ' . 
                             'id="' . htmlspecialchars($row->urn) . '"' .
                               ($row->required ? ' required="required"' : '') . ' ' .

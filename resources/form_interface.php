@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+use RAAS\Attachment;
 
 $notify = function(Feedback $Item, Material $Material = null)
 {
@@ -165,10 +166,10 @@ if ($Form->id) {
                                             $att->parent = $Material;
                                             if ($row->datatype == 'image') {
                                                 $att->image = 1;
-                                                if ($temp = (int)$this->package->registryGet('maxsize')) {
+                                                if ($temp = (int)Package::i()->registryGet('maxsize')) {
                                                     $att->maxWidth = $att->maxHeight = $temp;
                                                 }
-                                                if ($temp = (int)$this->package->registryGet('tnsize')) {
+                                                if ($temp = (int)Package::i()->registryGet('tnsize')) {
                                                     $att->tnsize = $temp;
                                                 }
                                             }
@@ -195,10 +196,10 @@ if ($Form->id) {
                                         $att->parent = $Material;
                                         if ($row->datatype == 'image') {
                                             $att->image = 1;
-                                            if ($temp = (int)$this->package->registryGet('maxsize')) {
+                                            if ($temp = (int)Package::i()->registryGet('maxsize')) {
                                                 $att->maxWidth = $att->maxHeight = $temp;
                                             }
-                                            if ($temp = (int)$this->package->registryGet('tnsize')) {
+                                            if ($temp = (int)Package::i()->registryGet('tnsize')) {
                                                 $att->tnsize = $temp;
                                             }
                                         }
