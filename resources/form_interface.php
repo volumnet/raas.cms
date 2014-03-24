@@ -56,25 +56,35 @@ if ($Form->id) {
         foreach ($Form->fields as $row) {
             switch ($row->datatype) {
                 case 'file': case 'image':
-                    if (!isset($_FILES[$row->urn]['tmp_name']) || !$row->isFilled($_FILES[$row->urn]['tmp_name'])) {
+                    $val = isset($_FILES[$row->urn]['tmp_name']) ? $_FILES[$row->urn]['tmp_name'] : null;
+                    if ($val && $row->multiple) {
+                        $val = (array)$val;
+                        $val = array_shift($val);
+                    }
+                    if (!isset($val) || !$row->isFilled($val)) {
                         if ($row->required && !$row->countValues()) {
                             $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);
                         }
-                    } elseif (isset($_FILES[$row->urn]['tmp_name']) && $row->isFilled($_FILES[$row->urn]['tmp_name'])) {
-                        if (!$row->validate($_FILES[$row->urn]['tmp_name'])) {
+                    } elseif (!$row->multiple) {
+                        if (!$row->validate($val)) {
                             $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);
                         }
                     }
                     break;
                 default:
-                    if (!isset($_POST[$row->urn]) || !$row->isFilled($_POST[$row->urn])) {
+                    $val = isset($_POST[$row->urn]) ? $_POST[$row->urn] : null;
+                    if ($val && $row->multiple) {
+                        $val = (array)$val;
+                        $val = array_shift($val);
+                    }
+                    if (!isset($val) || !$row->isFilled($val)) {
                         if ($row->required) {
                             $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);
                         }
-                    } elseif (isset($_POST[$row->urn]) && $row->isFilled($_POST[$row->urn])) {
+                    } elseif (!$row->multiple) {
                         if (($row->datatype == 'password') && ($_POST[$row->urn] != $_POST[$row->urn . '@confirm'])) {
                             $localError[$row->urn] = sprintf(ERR_CUSTOM_PASSWORD_DOESNT_MATCH_CONFIRM, $row->name);
-                        } elseif (!$row->validate($_POST[$row->urn])) {
+                        } elseif (!$row->validate($val)) {
                             $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);
                         }
                     }
