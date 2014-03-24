@@ -60,8 +60,8 @@ class EditBlockMaterialForm extends EditBlockForm
             array('value' => 'post_date', 'caption' => $this->_view->_('CREATED_BY')),
             array('value' => 'modify_date', 'caption' => $this->_view->_('EDITED_BY'))
         );
-        if ($Item->id) {
-            $Material_Type = $Item->Material_Type;
+        if ($this->Item->id) {
+            $Material_Type = $this->Item->Material_Type;
         } elseif (isset($_POST['material_type'])) {
             $Material_Type = new Material_Type($_POST['material_type']);
         } else {
