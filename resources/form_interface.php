@@ -4,7 +4,7 @@ use RAAS\Attachment;
 
 $notify = function(Feedback $Item, Material $Material = null)
 {
-    $temp = array_values(array_filter(array_map('trim', preg_split('/(;|,)/', $Item->parent->email))));
+    $temp = array_values(array_filter(array_map('trim', preg_split('/( |;|,)/', $Item->parent->email))));
     $emails = array();
     $sms = array();
     foreach ($temp as $row) {
