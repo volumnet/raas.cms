@@ -15,6 +15,19 @@ class Updater extends \RAAS\Updater
 
     protected function oldUpdates()
     {
+        $tables = $this->SQL->getcol("SHOW TABLES");
+        if (!in_array(\SOME\SOME::_dbprefix() . "cms_snippets", $tables) && in_array(\SOME\SOME::_dbprefix() . "cms_widgets", $tables)) {
+            $SQL_query = "RENAME TABLE " . \SOME\SOME::_dbprefix() . "cms_widgets TO " . \SOME\SOME::_dbprefix() . "cms_snippets";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "ALTER TABLE  " . \SOME\SOME::_dbprefix() . "cms_snippets COMMENT =  'Snippets'";
+            $this->SQL->query($SQL_query);
+
+            $SQL_query = "RENAME TABLE " . \SOME\SOME::_dbprefix() . "cms_widget_folders TO " . \SOME\SOME::_dbprefix() . "cms_snippet_folders";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "ALTER TABLE  " . \SOME\SOME::_dbprefix() . "cms_snippet_folders COMMENT =  'Snippet folders'";
+            $this->SQL->query($SQL_query);
+        }
+
         $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . Form::_tablename()));
         if (!in_array('material_type', $columns)) {
             $SQL_query = "ALTER TABLE " . Form::_tablename() . " ADD material_type INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type' AFTER name";
@@ -60,12 +73,12 @@ class Updater extends \RAAS\Updater
 
         $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . Block::_tablename()));
         $tables = $this->SQL->getcol("SHOW TABLES");
-        if (in_array('description', $columns)) {
+        if (in_array('description', $columns) && !in_array(\SOME\SOME::_dbprefix() . 'cms_blocks_php', $tables)) {
             $this->SQL->query("UPDATE " . Block::_tablename() . " SET description = REPLACE(description, '\\\\/files\\\\/common', '\\\\/')");
             if (!in_array(\SOME\SOME::_dbprefix() . 'cms_blocks_html', $tables)) {
                 $SQL_query = "CREATE TABLE IF NOT EXISTS " . \SOME\SOME::_dbprefix() . "cms_blocks_html (
                     id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
-                    description TEXT NULL DEFAULT NULL COMMENT 'Text',
+                    description MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Text',
 
                     PRIMARY KEY (id)
                 ) COMMENT 'HTML blocks';";
@@ -74,7 +87,7 @@ class Updater extends \RAAS\Updater
             if (!in_array(\SOME\SOME::_dbprefix() . 'cms_blocks_php', $tables)) {
                 $SQL_query = "CREATE TABLE IF NOT EXISTS " . \SOME\SOME::_dbprefix() . "cms_blocks_php (
                     id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
-                    description TEXT NULL DEFAULT NULL COMMENT 'Code',
+                    description MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Code',
                     widget INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Snippet ID#',
 
                     PRIMARY KEY (id),
@@ -87,9 +100,9 @@ class Updater extends \RAAS\Updater
                     id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
                     material_type INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
                     std_interface TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Standard interface',
-                    interface TEXT NULL DEFAULT NULL COMMENT 'Interface code',
+                    interface MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Interface code',
                     widget INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Snippet ID#',
-                    description TEXT NULL DEFAULT NULL COMMENT 'Snippet code',
+                    description MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Snippet code',
                     pages_var_name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Pages var name',
                     rows_per_page TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Rows per page',
                     sort_var_name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Sorting var name',
@@ -134,9 +147,9 @@ class Updater extends \RAAS\Updater
                     id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
                     form INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Form ID#',
                     std_interface TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Standard interface',
-                    interface TEXT NULL DEFAULT NULL COMMENT 'Interface code',
+                    interface MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Interface code',
                     widget INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Snippet ID#',
-                    description TEXT NULL DEFAULT NULL COMMENT 'Snippet code',
+                    description MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Snippet code',
                     
                     PRIMARY KEY (id),
                     KEY (form),
@@ -150,9 +163,9 @@ class Updater extends \RAAS\Updater
                     menu INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Menu ID#',
                     full_menu TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Full menu',
                     std_interface TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Standard interface',
-                    interface TEXT NULL DEFAULT NULL COMMENT 'Interface code',
+                    interface MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Interface code',
                     widget INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Snippet ID#',
-                    description TEXT NULL DEFAULT NULL COMMENT 'Snippet code',
+                    description MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Snippet code',
                     
                     PRIMARY KEY (id),
                     KEY (menu),
@@ -168,9 +181,9 @@ class Updater extends \RAAS\Updater
                     pages_var_name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Pages var name',
                     rows_per_page TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Rows per page',
                     std_interface TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Standard interface',
-                    interface TEXT NULL DEFAULT NULL COMMENT 'Interface code',
+                    interface MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Interface code',
                     widget INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Snippet ID#',
-                    description TEXT NULL DEFAULT NULL COMMENT 'Snippet code',
+                    description MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Snippet code',
                     
                     PRIMARY KEY (id),
                     KEY (widget)
@@ -367,37 +380,26 @@ class Updater extends \RAAS\Updater
             $this->SQL->query($SQL_query);
             $this->SQL->query("ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks DROP description");
         }
-
-        if (!in_array(\SOME\SOME::_dbprefix() . "cms_snippets", $tables) && in_array(\SOME\SOME::_dbprefix() . "cms_widgets", $tables)) {
-            $SQL_query = "RENAME TABLE " . \SOME\SOME::_dbprefix() . "cms_widgets TO " . \SOME\SOME::_dbprefix() . "cms_snippets";
-            $this->SQL->query($SQL_query);
-            $SQL_query = "ALTER TABLE  " . \SOME\SOME::_dbprefix() . "cms_snippets COMMENT =  'Snippets'";
-            $this->SQL->query($SQL_query);
-
-            $SQL_query = "RENAME TABLE " . \SOME\SOME::_dbprefix() . "cms_widget_folders TO " . \SOME\SOME::_dbprefix() . "cms_snippet_folders";
-            $this->SQL->query($SQL_query);
-            $SQL_query = "ALTER TABLE  " . \SOME\SOME::_dbprefix() . "cms_snippet_folders COMMENT =  'Snippet folders'";
-            $this->SQL->query($SQL_query);
-        }
     }
 
 
     protected function update20140202()
     {
-        $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . Snippet::_tablename()));
+        $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_snippets"));
         if (!in_array('locked', $columns)) {
-            $this->SQL->query("ALTER TABLE " . Snippet::_tablename() . " ADD locked TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Locked'");
+            $this->SQL->query("ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_snippets ADD locked TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Locked'");
         }
 
-        $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . Snippet_Folder::_tablename()));
+        $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_snippet_folders"));
         if (!in_array('locked', $columns)) {
-            $this->SQL->query("ALTER TABLE " . Snippet_Folder::_tablename() . " ADD locked TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Locked'");
+            $this->SQL->query("ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_snippet_folders ADD locked TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Locked'");
         }
 
-        $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . Snippet_Folder::_tablename()));
+        $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_snippet_folders"));
         if (!in_array('urn', $columns)) {
-            $this->SQL->query("ALTER TABLE " . Snippet_Folder::_tablename() . " ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER id");
+            $this->SQL->query("ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_snippet_folders ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER id");
         }
+        \SOME\SOME::init();
     }
 
 
@@ -405,13 +407,17 @@ class Updater extends \RAAS\Updater
     {
         $Item = Snippet_Folder::importByURN('__RAAS_interfaces');
         if (!$Item->id) {
-            $Item = new Snippet_Folder(array('urn' => '__RAAS_interfaces', 'name' => $this->view->_('INTERFACES'), 'pid' => 0, 'locked' => 1));
-            $Item->commit();
+            $this->SQL->add(
+                \SOME\SOME::_dbprefix() . "cms_snippet_folders", 
+                array('urn' => '__RAAS_interfaces', 'name' => $this->view->_('INTERFACES'), 'pid' => 0, 'locked' => 1)
+            );
         }
         $Item = Snippet_Folder::importByURN('__RAAS_views');
         if (!$Item->id) {
-            $Item = new Snippet_Folder(array('urn' => '__RAAS_views', 'name' => $this->view->_('VIEWS'), 'pid' => 0, 'locked' => 1));
-            $Item->commit();
+            $this->SQL->add(
+                \SOME\SOME::_dbprefix() . "cms_snippet_folders", 
+                array('urn' => '__RAAS_views', 'name' => $this->view->_('VIEWS'), 'pid' => 0, 'locked' => 1)
+            );
         }
 
         $Item = Snippet::importByURN('__RAAS_material_interface');
@@ -462,9 +468,9 @@ class Updater extends \RAAS\Updater
         if (!in_array('widget', $columns)) {
             $SQL_query .= "ALTER TABLE " . Block::_tablename() . " 
                                    ADD interface_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Interface ID#',
-                                   ADD interface TEXT NULL DEFAULT NULL COMMENT 'Interface code',
+                                   ADD interface MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Interface code',
                                    ADD widget_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Widget ID#',
-                                   ADD widget TEXT NULL DEFAULT NULL COMMENT 'Widget code' ";
+                                   ADD widget MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Widget code' ";
             $this->SQL->query($SQL_query);
 
             $SQL_query = "UPDATE " . Block::_tablename() . " AS tB
@@ -489,7 +495,7 @@ class Updater extends \RAAS\Updater
 
             $SQL_query = "UPDATE " . Block::_tablename() . " AS tB
                             JOIN " . Block::_dbprefix() . "cms_blocks_material AS tB2 ON tB.id = tB2.id
-                             SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . Snippet::_tablename() . " WHERE urn = '__RAAS_material_interface'), 0),
+                             SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__RAAS_material_interface'), 0),
                                  tB.interface = tB2.interface,
                                  tB.widget_id = tB2.widget,
                                  tB.widget = tB2.description";
@@ -499,7 +505,7 @@ class Updater extends \RAAS\Updater
 
             $SQL_query = "UPDATE " . Block::_tablename() . " AS tB
                             JOIN " . Block::_dbprefix() . "cms_blocks_menu AS tB2 ON tB.id = tB2.id
-                             SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . Snippet::_tablename() . " WHERE urn = '__RAAS_menu_interface'), 0),
+                             SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__RAAS_menu_interface'), 0),
                                  tB.interface = tB2.interface,
                                  tB.widget_id = tB2.widget,
                                  tB.widget = tB2.description";
@@ -509,7 +515,7 @@ class Updater extends \RAAS\Updater
 
             $SQL_query = "UPDATE " . Block::_tablename() . " AS tB
                             JOIN " . Block::_dbprefix() . "cms_blocks_form AS tB2 ON tB.id = tB2.id
-                             SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . Snippet::_tablename() . " WHERE urn = '__RAAS_form_interface'), 0),
+                             SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__RAAS_form_interface'), 0),
                                  tB.interface = tB2.interface,
                                  tB.widget_id = tB2.widget,
                                  tB.widget = tB2.description";
@@ -519,7 +525,7 @@ class Updater extends \RAAS\Updater
 
             $SQL_query = "UPDATE " . Block::_tablename() . " AS tB
                             JOIN " . Block::_dbprefix() . "cms_blocks_search AS tB2 ON tB.id = tB2.id
-                             SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . Snippet::_tablename() . " WHERE urn = '__RAAS_search_interface'), 0),
+                             SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__RAAS_search_interface'), 0),
                                  tB.interface = tB2.interface,
                                  tB.widget_id = tB2.widget,
                                  tB.widget = tB2.description";
@@ -533,7 +539,7 @@ class Updater extends \RAAS\Updater
             $SQL_query = "ALTER TABLE " . Form::_tablename() . " ADD interface_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Interface ID#' AFTER std_template";
             $this->SQL->query($SQL_query);
 
-            $SQL_query = "UPDATE " . Form::_tablename() . " SET interface_id = (SELECT id FROM " . Snippet::_tablename() . " WHERE urn = '__RAAS_form_notify') 
+            $SQL_query = "UPDATE " . Form::_tablename() . " SET interface_id = (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__RAAS_form_notify') 
                            WHERE std_template";
             $this->SQL->query($SQL_query);
 
