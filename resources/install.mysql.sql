@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_feedback (
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Form ID#',
   page_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Page ID#',
   post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
-  vis tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Visited',
+  vis int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Visited',
   ip varchar(255) NOT NULL DEFAULT '0.0.0.0' COMMENT 'IP address',
   user_agent varchar(255) NOT NULL DEFAULT '0.0.0.0' COMMENT 'User Agent',
   PRIMARY KEY (id),
