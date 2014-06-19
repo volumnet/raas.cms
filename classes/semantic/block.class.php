@@ -191,7 +191,7 @@ abstract class Block extends \SOME\SOME
         $OUT = null;
         if ($this->Interface->id) {
             $Interface = $this->Interface;
-            eval('?' . '>' . $Interface->description);
+            $OUT = eval('?' . '>' . $Interface->description);
         } else {
             $OUT = eval('?' . '>' . $this->interface);
         }

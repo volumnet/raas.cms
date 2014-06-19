@@ -1,9 +1,10 @@
 <?php
 namespace RAAS\CMS;
+use RAAS\Attachment;
 
 $notify = function(Feedback $Item, Material $Material = null)
 {
-    $temp = array_values(array_filter(array_map('trim', preg_split('/(;|,)/', $Item->parent->email))));
+    $temp = array_values(array_filter(array_map('trim', preg_split('/( |;|,)/', $Item->parent->email))));
     $emails = array();
     $sms = array();
     foreach ($temp as $row) {
@@ -55,25 +56,35 @@ if ($Form->id) {
         foreach ($Form->fields as $row) {
             switch ($row->datatype) {
                 case 'file': case 'image':
-                    if (!isset($_FILES[$row->urn]['tmp_name']) || !$row->isFilled($_FILES[$row->urn]['tmp_name'])) {
+                    $val = isset($_FILES[$row->urn]['tmp_name']) ? $_FILES[$row->urn]['tmp_name'] : null;
+                    if ($val && $row->multiple) {
+                        $val = (array)$val;
+                        $val = array_shift($val);
+                    }
+                    if (!isset($val) || !$row->isFilled($val)) {
                         if ($row->required && !$row->countValues()) {
                             $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);
                         }
-                    } elseif (isset($_FILES[$row->urn]['tmp_name']) && $row->isFilled($_FILES[$row->urn]['tmp_name'])) {
-                        if (!$row->validate($_FILES[$row->urn]['tmp_name'])) {
+                    } elseif (!$row->multiple) {
+                        if (!$row->validate($val)) {
                             $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);
                         }
                     }
                     break;
                 default:
-                    if (!isset($_POST[$row->urn]) || !$row->isFilled($_POST[$row->urn])) {
+                    $val = isset($_POST[$row->urn]) ? $_POST[$row->urn] : null;
+                    if ($val && $row->multiple) {
+                        $val = (array)$val;
+                        $val = array_shift($val);
+                    }
+                    if (!isset($val) || !$row->isFilled($val)) {
                         if ($row->required) {
                             $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);
                         }
-                    } elseif (isset($_POST[$row->urn]) && $row->isFilled($_POST[$row->urn])) {
+                    } elseif (!$row->multiple) {
                         if (($row->datatype == 'password') && ($_POST[$row->urn] != $_POST[$row->urn . '@confirm'])) {
                             $localError[$row->urn] = sprintf(ERR_CUSTOM_PASSWORD_DOESNT_MATCH_CONFIRM, $row->name);
-                        } elseif (!$row->validate($_POST[$row->urn])) {
+                        } elseif (!$row->validate($val)) {
                             $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);
                         }
                     }
@@ -101,8 +112,8 @@ if ($Form->id) {
                 $Item->uid = 0;
             }
             // Для AJAX'а
-            //$Referer = \RAAS\CMS\Page::importByURL($_SERVER['HTTP_REFERER']);
-            //$Item->page_id = (int)$Referer->id;
+            $Referer = \RAAS\CMS\Page::importByURL($_SERVER['HTTP_REFERER']);
+            $Item->page_id = (int)$Referer->id;
             $Item->page_id = (int)$Page->id;
             $Item->ip = (string)$_SERVER['REMOTE_ADDR'];
             $Item->user_agent = (string)$_SERVER['HTTP_USER_AGENT'];
@@ -165,10 +176,10 @@ if ($Form->id) {
                                             $att->parent = $Material;
                                             if ($row->datatype == 'image') {
                                                 $att->image = 1;
-                                                if ($temp = (int)$this->package->registryGet('maxsize')) {
+                                                if ($temp = (int)Package::i()->registryGet('maxsize')) {
                                                     $att->maxWidth = $att->maxHeight = $temp;
                                                 }
-                                                if ($temp = (int)$this->package->registryGet('tnsize')) {
+                                                if ($temp = (int)Package::i()->registryGet('tnsize')) {
                                                     $att->tnsize = $temp;
                                                 }
                                             }
@@ -195,10 +206,10 @@ if ($Form->id) {
                                         $att->parent = $Material;
                                         if ($row->datatype == 'image') {
                                             $att->image = 1;
-                                            if ($temp = (int)$this->package->registryGet('maxsize')) {
+                                            if ($temp = (int)Package::i()->registryGet('maxsize')) {
                                                 $att->maxWidth = $att->maxHeight = $temp;
                                             }
-                                            if ($temp = (int)$this->package->registryGet('tnsize')) {
+                                            if ($temp = (int)Package::i()->registryGet('tnsize')) {
                                                 $att->tnsize = $temp;
                                             }
                                         }

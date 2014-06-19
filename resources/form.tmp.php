@@ -12,7 +12,7 @@
           <?php if ($localError) { ?>
               <div class="notifications">
                 <?php foreach ((array)$localError as $key => $val) { ?>
-                    <div class="alert alert-error"><?php echo htmlspecialchars($val)?></div>
+                    <div class="alert alert-danger"><?php echo htmlspecialchars($val)?></div>
                 <?php } ?>
               </div>
           <?php } ?>
@@ -24,22 +24,22 @@
           		<input type="text" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" value="<?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?>" style="position: absolute; left: -9999px" />
           <?php } ?>
           <?php foreach ($Form->fields as $row) { ?>
-              <div class="control-group">
-                <label for="<?php echo htmlspecialchars($row->urn)?>" class="control-label"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?></label>
-                <div class="controls"><?php $getField($row, $DATA)?></div>
+              <div class="form-group">
+                <label for="<?php echo htmlspecialchars($row->urn)?>" class="control-label col-sm-2"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?></label>
+                <div class="col-sm-4"><?php $getField($row, $DATA)?></div>
               </div>
           <?php } ?>
           <?php if ($Form->antispam == 'captcha' && $Form->antispam_field_name) { ?>
-              <div class="control-group">
-                <label for="name" class="control-label"><?php echo CAPTCHA?></label>
-                <div class="<?php echo htmlspecialchars($Form->antispam_field_name)?>">
+              <div class="form-group">
+                <label for="<?php echo htmlspecialchars($Form->antispam_field_name)?>" class="control-label col-sm-2"><?php echo CAPTCHA?></label>
+                <div class="col-sm-4 <?php echo htmlspecialchars($Form->antispam_field_name)?>">
                   <img src="/assets/kcaptcha/?<?php echo session_name() . '=' . session_id()?>" /><br />
                   <input type="text" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />
                 </div>
               </div>
           <?php } ?>
-          <div class="control-group">
-            <div class="controls"><button class="btn" type="submit"><?php echo SEND?></button></div>
+          <div class="form-group">
+            <div class="col-sm-4 col-sm-offset-2"><button class="btn btn-default" type="submit"><?php echo SEND?></button></div>
           </div>
       <?php } ?>
     </form>

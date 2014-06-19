@@ -36,9 +36,9 @@ if (!$search_string) {
                             JOIN " . Material_Type::_tablename() . " AS tMT ON tMT.id = tM.pid
                             JOIN " . Page::_tablename() . " AS tP
                             JOIN " . Block::_dbprefix() . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
-                            JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.material_type = tMt.id
+                            JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.material_type = tMT.id
                             JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id AND tB.vis AND tB.id = tBM.id
-                            JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON IF(tMT.global_type, 1, tMPA.id = tM.id AND tP.id = tMPA.pid)
+                       LEFT JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON IF(tMT.global_type, 1, tMPA.id = tM.id AND tP.id = tMPA.pid)
                        LEFT JOIN " . Field::_tablename() . " AS tF ON tF.pid = tM.pid AND tF.classname = 'RAAS\\CMS\\Material_Type' AND tF.datatype IN ('text', 'tel', 'email', 'url', 'textarea', 'htmlarea')
                        LEFT JOIN " . Field::_dbprefix() . "cms_data AS tD ON tD.pid = tM.id AND tD.fid = tF.id 
                            WHERE tP.vis AND NOT tP.response_code AND tM.vis AND (tM.name LIKE " . $SQL_search_string . " OR tM.description LIKE " . $SQL_search_string . " OR tD.value LIKE " . $SQL_search_string . ") 

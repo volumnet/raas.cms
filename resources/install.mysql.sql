@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   nat tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Translate address',
   params varchar(255) NOT NULL DEFAULT '' COMMENT 'Additional params',
   interface_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
-  interface text COMMENT 'Interface code',
+  interface mediumtext COMMENT 'Interface code',
   widget_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Widget ID#',
-  widget text COMMENT 'Widget code',
+  widget mediumtext COMMENT 'Widget code',
   PRIMARY KEY (id),
   KEY author_id (author_id),
   KEY editor_id (editor_id)
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_form (
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_html (
   id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'ID#',
-  description text COMMENT 'Text',
+  description mediumtext COMMENT 'Text',
   PRIMARY KEY (id)
 ) COMMENT='HTML blocks';
 
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_pages_assoc (
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_php (
   id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'ID#',
-  description text COMMENT 'Code',
+  description mediumtext COMMENT 'Code',
   widget int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Widget ID#',
   PRIMARY KEY (id),
   KEY widget (widget)
@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_data (
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   fid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field ID#',
   fii int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field index',
-  `value` text COMMENT 'Value',
+  `value` mediumtext COMMENT 'Value',
   inherited tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Inherited',
   PRIMARY KEY (pid,fid,fii),
   KEY pid (pid),
@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   maxlength int(255) NOT NULL,
   multiple tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Multiple data',
   source_type enum('','ini','csv','xml','sql','php','dictionary') NOT NULL DEFAULT '' COMMENT 'Source type',
-  `source` text COMMENT 'Source',
+  `source` mediumtext COMMENT 'Source',
   min_val float NOT NULL DEFAULT '0' COMMENT 'Minimal value',
   max_val float NOT NULL DEFAULT '0' COMMENT 'Maximal value',
   placeholder varchar(255) NOT NULL DEFAULT '' COMMENT 'Placeholder',
@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (
   antispam varchar(255) NOT NULL DEFAULT '' COMMENT 'Use anti-spam',
   antispam_field_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Anti-spam field name',
   interface_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
-  description text COMMENT 'E-mail template',
+  description mediumtext COMMENT 'E-mail template',
   PRIMARY KEY (id)
 ) COMMENT='Forms';
 
@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   editor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Editor ID#',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
-  description text COMMENT 'Description',
+  description mediumtext COMMENT 'Description',
   meta_title varchar(255) NOT NULL DEFAULT '' COMMENT 'Meta title',
   meta_description text COMMENT 'Meta description',
   meta_keywords text COMMENT 'Meta keywords',
@@ -296,7 +296,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages_data (
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Page ID#',
   fid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field ID#',
   fii int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field index',
-  `value` text COMMENT 'Value',
+  `value` mediumtext COMMENT 'Value',
   PRIMARY KEY (pid,fid,fii),
   KEY pid (pid),
   KEY fid (fid),
@@ -308,7 +308,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippets (
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
-  description text COMMENT 'Code',
+  description mediumtext COMMENT 'Code',
   locked tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Locked',
   PRIMARY KEY (id),
   KEY pid (pid)
@@ -335,7 +335,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
-  description text COMMENT 'Code',
+  description mediumtext COMMENT 'Code',
   width int(10) unsigned NOT NULL DEFAULT '640' COMMENT 'Width',
   height int(10) unsigned NOT NULL DEFAULT '1024' COMMENT 'Height',
   visual tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Template is visual',

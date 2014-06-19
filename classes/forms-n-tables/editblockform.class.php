@@ -14,6 +14,7 @@ class EditBlockForm extends \RAAS\Form
         $this->_view = isset($params['view']) ? $params['view'] : null;
         unset($params['view']);
         $Item = isset($params['Item']) ? $params['Item'] : null;
+        $Parent = $params['meta']['Parent'];
         $loc = $Item->location ? $Item->location : (isset($_GET['loc']) ? $_GET['loc'] : '');
         $defaultParams = array(
             'caption' => $Item->id ? $this->_view->_('EDITING_BLOCK') : $this->_view->_('CREATING_BLOCK'),

@@ -83,7 +83,7 @@ class ViewSub_Feedback extends \RAAS\Abstract_Sub_View
         foreach ($IN['columns'] as $key => $col) {
             $columns[$col->urn] = array(
                 'caption' => $col->name,
-                'callback' => function($row) use ($col) { $y = $row->fields[$col->urn]->doRich(); return $y ? $y : ''; }
+                'callback' => function($row) use ($col) { if (isset($row->fields[$col->urn])) { $y = $row->fields[$col->urn]->doRich(); } return $y ? $y : ''; }
             );
         }
         $columns[' '] = array('callback' => function ($row) use ($view) { return rowContextMenu($view->getFeedbackContextMenu($row)); });
