@@ -199,7 +199,6 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (
   antispam varchar(255) NOT NULL DEFAULT '' COMMENT 'Use anti-spam',
   antispam_field_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Anti-spam field name',
   interface_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
-  description mediumtext COMMENT 'E-mail template',
   PRIMARY KEY (id)
 ) COMMENT='Forms';
 
