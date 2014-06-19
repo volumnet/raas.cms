@@ -14,23 +14,6 @@ class EditBlockMaterialForm extends EditBlockForm
     }
 
 
-    protected function getInterfaceCodeField()
-    {
-        $field = parent::getInterfaceCodeField();
-        $snippet = Snippet::importByURN('__RAAS_material_interface');
-        $field->default = $snippet->description;
-        return $field;
-    }
-
-
-    protected function getWidgetCodeField()
-    {
-        $field = parent::getWidgetCodeField();
-        $field->default = Package::i()->stdMaterialView;
-        return $field;
-    }
-
-
     protected function getCommonTab()
     {
         $tab = parent::getCommonTab();
@@ -45,7 +28,6 @@ class EditBlockMaterialForm extends EditBlockForm
             'data-hint' => $this->_view->_('BLOCK_TRANSLATE_ADDRESS_DESCRIPTION')
         ));
         $tab->children[] = $this->getWidgetField();
-        $tab->children[] = $this->getWidgetCodeField();
         return $tab;
     }
 
@@ -147,7 +129,6 @@ class EditBlockMaterialForm extends EditBlockForm
         ));
         $tab->children[] = new RAASField(array('name' => 'params', 'caption' => $this->_view->_('ADDITIONAL_PARAMS')));
         $tab->children[] = $this->getInterfaceField();
-        $tab->children[] = $this->getInterfaceCodeField();
         return $tab;
     }
 }

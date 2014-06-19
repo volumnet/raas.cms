@@ -7,7 +7,6 @@ class EditBlockPHPForm extends EditBlockForm
     {
         $tab = parent::getCommonTab();
         $tab->children[] = $this->getWidgetField();
-        $tab->children[] = $this->getWidgetCodeField();
         return $tab;
     }
 
@@ -16,7 +15,6 @@ class EditBlockPHPForm extends EditBlockForm
     {
         $tab = parent::getServiceTab();
         $tab->children[] = $this->getInterfaceField();
-        $tab->children[] = $this->getInterfaceCodeField();
         return $tab;
     }
 }

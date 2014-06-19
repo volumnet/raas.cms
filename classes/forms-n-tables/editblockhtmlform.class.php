@@ -6,7 +6,7 @@ class EditBlockHTMLForm extends EditBlockForm
     protected function getCommonTab()
     {
         $tab = parent::getCommonTab();
-        $tab->children[] = array('type' => 'htmlarea', 'name' => 'widget');
+        $tab->children[] = array('type' => 'htmlarea', 'name' => 'description');
         return $tab;
     }
 }

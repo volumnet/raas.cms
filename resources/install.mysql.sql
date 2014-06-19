@@ -12,9 +12,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   nat tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Translate address',
   params varchar(255) NOT NULL DEFAULT '' COMMENT 'Additional params',
   interface_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
-  interface mediumtext COMMENT 'Interface code',
   widget_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Widget ID#',
-  widget mediumtext COMMENT 'Widget code',
   PRIMARY KEY (id),
   KEY author_id (author_id),
   KEY editor_id (editor_id)

@@ -13,23 +13,6 @@ class EditBlockMenuForm extends EditBlockForm
     }
 
 
-    protected function getInterfaceCodeField()
-    {
-        $field = parent::getInterfaceCodeField();
-        $snippet = Snippet::importByURN('__RAAS_menu_interface');
-        $field->default = $snippet->description;
-        return $field;
-    }
-
-
-    protected function getWidgetCodeField()
-    {
-        $field = parent::getWidgetCodeField();
-        $field->default = Package::i()->stdMenuView;
-        return $field;
-    }
-
-
     protected function getCommonTab()
     {
         $tab = parent::getCommonTab();
@@ -44,7 +27,6 @@ class EditBlockMenuForm extends EditBlockForm
             'type' => 'select', 'name' => 'full_menu', 'caption' => $this->_view->_('MENU_APPEARANCE'), 'children' => $this->meta['CONTENT']['menu_appearances'], 'default' => 1)
         );
         $tab->children[] = $this->getWidgetField();
-        $tab->children[] = $this->getWidgetCodeField();
         return $tab;
     }
 
@@ -53,7 +35,6 @@ class EditBlockMenuForm extends EditBlockForm
     {
         $tab = parent::getServiceTab();
         $tab->children[] = $this->getInterfaceField();
-        $tab->children[] = $this->getInterfaceCodeField();
         return $tab;
     }
 }

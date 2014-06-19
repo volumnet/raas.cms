@@ -56,26 +56,12 @@ class EditFormForm extends \RAAS\Form
                     'type' => 'select',
                     'class' => 'input-xxlarge',
                     'name' => 'interface_id', 
+                    'required' => true,
                     'caption' => $view->_('INTERFACE'), 
                     'placeholder' => $view->_('_NONE'), 
                     'children' => $wf(new Snippet_Folder()),
                     'default' => Snippet::importByURN('__RAAS_form_notify')->id,
                 ),
-                array(
-                    'type' => 'codearea', 
-                    'name' => 'description', 
-                    'caption' => $view->_('TEMPLATE_CODE'), 
-                    'default' => Package::i()->stdFormTemplate,
-                    'import' => function($Field) { 
-                        return $Field->Form->Item->Interface->id ? $Field->Form->Item->Interface->description : $Field->importDefault(); 
-                    },
-                    'export' => function($Field) {
-                        $Field->Form->Item->description = '';
-                        if (!(isset($_POST['interface_id']) && (int)$_POST['interface_id']) && isset($_POST['description'])) {
-                            $Field->Form->Item->description = (string)$_POST['description'];
-                        }
-                    }, 
-                )
             )
         );
         $arr = array_merge($defaultParams, $params);
