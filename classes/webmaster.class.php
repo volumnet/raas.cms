@@ -21,7 +21,8 @@ class Webmaster
      */
     public function checkStdSnippets()
     {
-        if (in_array(\SOME\SOME::_dbprefix() . "cms_forms", $this->tables) && in_array(\SOME\SOME::_dbprefix() . "cms_forms", $this->tables)) {
+        $tables = $this->SQL->getcol("SHOW TABLES");
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_forms", $tables) && in_array(\SOME\SOME::_dbprefix() . "cms_forms", $tables)) {
             $Item = Snippet_Folder::importByURN('__RAAS_interfaces');
             if (!$Item->id) {
                 $this->SQL->add(
