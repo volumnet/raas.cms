@@ -18,6 +18,7 @@ $showMenu = function(\RAAS\CMS\Menu $node, \RAAS\CMS\Page $current) use (&$showM
         }
         $text .= '</li>';
     }
+    
     return $text ? '<ul>' . $text . '</ul>' : $text;
 };
 

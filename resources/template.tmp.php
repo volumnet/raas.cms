@@ -1,0 +1,1 @@
+<?php $Page->location('header'); $Page->location('content'); $Page->location('footer');

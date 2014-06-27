@@ -15,7 +15,11 @@ class Updater extends \RAAS\Updater
 
     public function postInstall()
     {
-        $this->checkStdSnippets();
+        $w = new Webmaster();
+        $w->checkStdSnippets();
+        if (!$this->SQL->getvalue("SELECT COUNT(*) FROM " . \SOME\SOME::_dbprefix() . "cms_pages")) {
+            $w->initSite();
+        }
     }
 
 
@@ -430,70 +434,6 @@ class Updater extends \RAAS\Updater
     }
 
 
-    /**
-     * Создаем стандартные сниппеты
-     */
-    protected function checkStdSnippets()
-    {
-        if (in_array(\SOME\SOME::_dbprefix() . "cms_forms", $this->tables) && in_array(\SOME\SOME::_dbprefix() . "cms_forms", $this->tables)) {
-            $Item = Snippet_Folder::importByURN('__RAAS_interfaces');
-            if (!$Item->id) {
-                $this->SQL->add(
-                    \SOME\SOME::_dbprefix() . "cms_snippet_folders", 
-                    array('urn' => '__RAAS_interfaces', 'name' => $this->view->_('INTERFACES'), 'pid' => 0, 'locked' => 1)
-                );
-            }
-            $Item = Snippet_Folder::importByURN('__RAAS_views');
-            if (!$Item->id) {
-                $this->SQL->add(
-                    \SOME\SOME::_dbprefix() . "cms_snippet_folders", 
-                    array('urn' => '__RAAS_views', 'name' => $this->view->_('VIEWS'), 'pid' => 0, 'locked' => 1)
-                );
-            }
-
-            $Item = Snippet::importByURN('__RAAS_material_interface');
-            if (!$Item->id) {
-                $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_material_interface', 'locked' => 1));
-            }
-            $Item->name = $this->view->_('MATERIAL_STANDARD_INTERFACE');
-            $Item->description = $this->stdMaterialInterface;
-            $Item->commit();
-
-            $Item = Snippet::importByURN('__RAAS_form_interface');
-            if (!$Item->id) {
-                $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_form_interface', 'locked' => 1));
-            }
-            $Item->name = $this->view->_('FORM_STANDARD_INTERFACE');
-            $Item->description = $this->stdFormInterface;
-            $Item->commit();
-
-            $Item = Snippet::importByURN('__RAAS_menu_interface');
-            if (!$Item->id) {
-                $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_menu_interface', 'locked' => 1));
-            }
-            $Item->name = $this->view->_('MENU_STANDARD_INTERFACE');
-            $Item->description = $this->stdMenuInterface;
-            $Item->commit();
-
-            $Item = Snippet::importByURN('__RAAS_search_interface');
-            if (!$Item->id) {
-                $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_search_interface', 'locked' => 1));
-            }
-            $Item->name = $this->view->_('SEARCH_STANDARD_INTERFACE');
-            $Item->description = $this->stdSearchInterface;
-            $Item->commit();
-
-            $Item = Snippet::importByURN('__RAAS_form_notify');
-            if (!$Item->id) {
-                $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_form_notify', 'locked' => 1));
-            }
-            $Item->name = $this->view->_('FORM_STANDARD_NOTIFICATION');
-            $Item->description = $this->stdFormTemplate;
-            $Item->commit();
-        }
-    }
-
-
     protected function update20140202_2()
     {
         // Обновляем привязку к сниппетам у блоков
@@ -586,7 +526,7 @@ class Updater extends \RAAS\Updater
     }
 
 
-    public function update20140619()
+    protected function update20140619()
     {
         // Избавляемся от внутренних сниппетов
         if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks", $this->tables) && in_array(\SOME\SOME::_dbprefix() . "cms_snippets", $this->tables) && in_array(\SOME\SOME::_dbprefix() . "cms_blocks_html", $this->tables)) {
