@@ -19,7 +19,7 @@ class Webmaster
     /**
      * Создаем стандартные сниппеты
      */
-    protected function checkStdSnippets()
+    public function checkStdSnippets()
     {
         if (in_array(\SOME\SOME::_dbprefix() . "cms_forms", $this->tables) && in_array(\SOME\SOME::_dbprefix() . "cms_forms", $this->tables)) {
             $Item = Snippet_Folder::importByURN('__RAAS_interfaces');
@@ -86,7 +86,7 @@ class Webmaster
         $temp = Template::getSet();
         if (!$temp) {
             $T = new Template();
-            $T->name = 'Главная';
+            $T->name = $this->view->_('MAIN_PAGE');
             $f = $this->resourcesDir . '/template.tmp.php';
             $T->description = file_get_contents($f);
             $T->commit();
@@ -94,15 +94,15 @@ class Webmaster
 
         // Добавим виджеты
         $snippets = array(
-            'banners' => 'Баннеры', 
-            'feedback' => 'Обратная связь', 
-            'feedback_inner' => 'Обратная связь (внутренний блок)', 
-            'head' => '<head>',
-            'map' => 'Карта',
-            'menu_content' => 'Карта сайта',
-            'menu_top' => 'Верхнее меню',
-            'search' => 'Поиск по сайту',
-            'sitemaps' => 'sitemaps.xml',
+            'banners' => $this->view->_('BANNERS'), 
+            'feedback' => $this->view->_('FEEDBACK'), 
+            'feedback_inner' => $this->view->_('FEEDBACK_INNER'), 
+            'head' => $this->view->_('HEAD'),
+            'map' => $this->view->_('MAP'),
+            'menu_content' => $this->view->_('SITEMAP'),
+            'menu_top' => $this->view->_('TOP_MENU'),
+            'search' => $this->view->_('SITE_SEARCH'),
+            'sitemap_xml' => $this->view->_('SITEMAP_XML'),
         );
         $VF = Snippet_Folder::importByURN('__RAAS_views');
         foreach ($snippets as $urn => $name) {
@@ -120,7 +120,7 @@ class Webmaster
         }
 
         $S = new Snippet();
-        $S->name = 'robots.txt';
+        $S->name = $this->view->_('ROBOTS_TXT');
         $S->urn = 'robots';
         $S->pid = 0;
         $S->description = '';
@@ -129,14 +129,14 @@ class Webmaster
         $temp = Material_Type::importByURN('banners');
         if (!$temp->id) {
             $MT = new Material_Type();
-            $MT->name = 'Баннеры';
+            $MT->name = $this->view->_('BANNERS');
             $MT->urn = 'banners';
             $MT->global_type = 1;
             $MT->commit();
 
             $F = new Material_Field();
             $F->pid = $MT->id;
-            $F->name = 'Ссылка';
+            $F->name = $this->view->_('URL');
             $F->urn = 'url';
             $F->datatype = 'text';
             $F->show_in_table = 1;
@@ -144,7 +144,7 @@ class Webmaster
 
             $F = new Material_Field();
             $F->pid = $MT->id;
-            $F->name = 'Изображение';
+            $F->name = $this->view->_('IMAGE');
             $F->urn = 'image';
             $F->datatype = 'image';
             $F->commit();
@@ -154,7 +154,7 @@ class Webmaster
         if (!$temp) {
             $S = Snippet::importByURN('__RAAS_form_notify');
             $FRM = new \RAAS\CMS\Form();
-            $FRM->name = 'Обратная связь';
+            $FRM->name = $this->view->_('FEEDBACK');
             $FRM->create_feedback = 1;
             $FRM->signature = 0;
             $FRM->antispam = 'hidden';
@@ -164,7 +164,7 @@ class Webmaster
 
             $F = new Form_Field();
             $F->pid = $FRM->id;
-            $F->name = 'Ваше имя';
+            $F->name = $this->view->_('YOUR_NAME');
             $F->urn = 'full_name';
             $F->required = 1;
             $F->datatype = 'text';
@@ -173,7 +173,7 @@ class Webmaster
 
             $F = new Form_Field();
             $F->pid = $FRM->id;
-            $F->name = 'Телефон';
+            $F->name = $this->view->_('PHONE');
             $F->urn = 'phone';
             $F->datatype = 'text';
             $F->show_in_table = 1;
@@ -181,7 +181,7 @@ class Webmaster
 
             $F = new Form_Field();
             $F->pid = $FRM->id;
-            $F->name = 'E-mail';
+            $F->name = $this->view->_('EMAIL');
             $F->urn = 'email';
             $F->datatype = 'text';
             $F->show_in_table = 1;
@@ -189,7 +189,7 @@ class Webmaster
 
             $F = new Form_Field();
             $F->pid = $FRM->id;
-            $F->name = 'Текст вопроса';
+            $F->name = $this->view->_('QUESTION_TEXT');
             $F->urn = '_description_';
             $F->required = 1;
             $F->datatype = 'textarea';
@@ -209,29 +209,29 @@ class Webmaster
                 $M = new Menu();
                 $M->page_id = $Site->id;
                 $M->inherit = 10;
-                $M->name = 'Верхнее меню';
+                $M->name = $this->view->_('TOP_MENU');
                 $M->commit();
 
                 $M = new Menu();
                 $M->page_id = $Site->id;
                 $M->inherit = 10;
-                $M->name = 'Карта сайта';
+                $M->name = $this->view->_('SITEMAP');
                 $M->commit();
             }
 
-            $contacts = $this->createPage(array('name' => 'Контакты', 'urn' => 'contacts'), $Site);
-            $map = $this->createPage(array('name' => 'Карта сайта', 'urn' => 'map', 'response_code' => 200), $Site);
-            $ajax = $this->createPage(array('name' => 'AJAX', 'urn' => 'ajax', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
-            $feedbackAJAX = $this->createPage(array('name' => 'Обратная связь', 'urn' => 'feedback', 'template' => 0, 'cache' => 0), $ajax);
-            $p404 = $this->createPage(array('name' => '404 — страница не найдена', 'urn' => '404', 'response_code' => 404), $Site);
-            $sitemaps = $this->createPage(array('name' => 'sitemaps.xml', 'urn' => 'sitemaps', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
-            $robots = $this->createPage(array('name' => 'robots.txt', 'urn' => 'robots', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
+            $contacts = $this->createPage(array('name' => $this->view->_('CONTACTS'), 'urn' => 'contacts'), $Site);
+            $map = $this->createPage(array('name' => $this->view->_('SITEMAP'), 'urn' => 'map', 'response_code' => 200), $Site);
+            $ajax = $this->createPage(array('name' => $this->view->_('AJAX'), 'urn' => 'ajax', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
+            $feedbackAJAX = $this->createPage(array('name' => $this->view->_('FEEDBACK'), 'urn' => 'feedback', 'template' => 0, 'cache' => 0), $ajax);
+            $p404 = $this->createPage(array('name' => $this->view->_('PAGE_404'), 'urn' => '404', 'response_code' => 404), $Site);
+            $sitemaps = $this->createPage(array('name' => $this->view->_('SITEMAP_XML'), 'urn' => 'sitemaps', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
+            $robots = $this->createPage(array('name' => $this->view->_('ROBOTS_TXT'), 'urn' => 'robots', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
 
             $B = new Block_HTML();
             $B->location = 'content';
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->widget = 'Извините, раздел находится в стадии наполнения';
+            $B->description = $this->view->_('PAGE_UNDER_CONSTRUCTION');
             $B->cats = array((int)$Site->id);
             $B->commit();
 
@@ -248,7 +248,7 @@ class Webmaster
             $B->location = 'content';
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->name = 'Контакты';
+            $B->name = $this->view->_('CONTACTS');
             $B->cats = array($contacts->id);
             $B->commit();
 
@@ -256,11 +256,11 @@ class Webmaster
             $B->location = 'content';
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->widget = '<h3>Обратная связь</h3>';
+            $B->description = '<h3>' . $this->view->_('FEEDBACK') . '</h3>';
             $B->cats = array($contacts->id);
             $B->commit();
 
-            $FRM = Form::getSet(array('where' => "name = 'Обратная связь'"));
+            $FRM = Form::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('FEEDBACK')) . "'"));
             $I = Snippet::importByURN('__RAAS_form_interface');
             $S = Snippet::importByURN('feedback');
             $B = new Block_Form();
@@ -273,7 +273,7 @@ class Webmaster
             $B->interface_id = $I->id;
             $B->commit();
 
-            $FRM = Form::getSet(array('where' => "name = 'Обратная связь'"));
+            $FRM = Form::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('FEEDBACK')) . "'"));
             $I = Snippet::importByURN('__RAAS_form_interface');
             $S = Snippet::importByURN('feedback_inner');
             $B = new Block_Form();
@@ -289,11 +289,11 @@ class Webmaster
             $B->location = 'content';
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->widget = 'Извините, запрашиваемая Вами страница не найдена. Если вы уверены, что эта страница должна существовать, обратитесь к администрации сайта.';
+            $B->description = $this->view->_('PAGE_404_TEXT');
             $B->cats = array($p404->id);
             $B->commit();
 
-            $MNU = Menu::getSet(array('where' => "name = 'Карта сайта'"));
+            $MNU = Menu::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('SITEMAP')) . "'"));
             $S = Snippet::importByURN('menu_content');
             $I = Snippet::importByURN('__RAAS_menu_interface');
             $B = new Block_Menu();
@@ -407,7 +407,7 @@ class Webmaster
 
             $dateField = new Material_Field();
             $dateField->pid = $MT->id;
-            $dateField->name = 'Дата';
+            $dateField->name = $this->view->_('DATE');
             $dateField->urn = 'date';
             $dateField->datatype = 'date';
             $dateField->show_in_table = 1;
@@ -415,7 +415,7 @@ class Webmaster
 
             $F = new Material_Field();
             $F->pid = $MT->id;
-            $F->name = 'Изображение';
+            $F->name = $this->view->_('IMAGE');
             $F->multiple = 1;
             $F->urn = 'images';
             $F->datatype = 'image';
@@ -457,7 +457,7 @@ class Webmaster
 
     public function createSearch()
     {
-        $name = 'Поиск';
+        $name = $this->view->_('SEARCH');
         $urn = 'search';
         $Site = new Page();
         if ($Site->children) {
@@ -512,14 +512,14 @@ class Webmaster
 
         $F = new Material_Field();
         $F->pid = $MT->id;
-        $F->name = 'Телефон';
+        $F->name = $this->view->_('PHONE');
         $F->urn = 'phone';
         $F->datatype = 'text';
         $F->commit();
 
         $F = new Material_Field();
         $F->pid = $MT->id;
-        $F->name = 'Ответ';
+        $F->name = $this->view->_('ANSWER');
         $F->urn = 'answer';
         $F->datatype = 'textarea';
         $F->commit();
@@ -537,7 +537,7 @@ class Webmaster
 
         $F = new Form_Field();
         $F->pid = $FRM->id;
-        $F->name = 'Ваше имя';
+        $F->name = $this->view->_('YOUR_NAME');
         $F->urn = 'name';
         $F->required = 1;
         $F->datatype = 'text';
@@ -546,7 +546,7 @@ class Webmaster
 
         $F = new Form_Field();
         $F->pid = $FRM->id;
-        $F->name = 'Телефон';
+        $F->name = $this->view->_('PHONE');
         $F->urn = 'phone';
         $F->datatype = 'text';
         $F->show_in_table = 1;
@@ -554,7 +554,7 @@ class Webmaster
 
         $F = new Form_Field();
         $F->pid = $FRM->id;
-        $F->name = 'Текст вопроса';
+        $F->name = $this->view->_('QUESTION_TEXT');
         $F->urn = 'description';
         $F->required = 1;
         $F->datatype = 'textarea';
@@ -565,7 +565,7 @@ class Webmaster
         $temp = Snippet::importByURN('faq');
         if (!$temp->id) {
             $S = new Snippet();
-            $S->name = 'Вопрос-ответ';
+            $S->name = $this->view->_('FAQ');
             $S->urn = 'faq';
             $S->pid = $VF->id;
             $f = $this->resourcesDir . '/faq.php';
@@ -581,7 +581,7 @@ class Webmaster
         $B->location = 'content';
         $B->vis = 1;
         $B->author_id = $B->editor_id = Application::i()->user->id;
-        $B->widget = '<p>Вы можете задать свой вопрос, заполнив форму ниже</p>';
+        $B->description = '<p>' . $this->view->_('YOU_CAN_ASK_YOUR_QUESTION') . '</p>';
         $B->cats = array($faqPage->id);
         $B->commit();
 
@@ -649,7 +649,7 @@ class Webmaster
 
         $F = new Form_Field();
         $F->pid = $FRM->id;
-        $F->name = 'Ваше имя';
+        $F->name = $this->view->_('YOUR_NAME');
         $F->urn = 'full_name';
         $F->required = 1;
         $F->datatype = 'text';
@@ -658,7 +658,7 @@ class Webmaster
 
         $F = new Form_Field();
         $F->pid = $FRM->id;
-        $F->name = 'Телефон';
+        $F->name = $this->view->_('PHONE');
         $F->urn = 'phone';
         $F->datatype = 'text';
         $F->show_in_table = 1;
@@ -666,7 +666,7 @@ class Webmaster
 
         $F = new Form_Field();
         $F->pid = $FRM->id;
-        $F->name = 'E-mail';
+        $F->name = $this->view->_('EMAIL');
         $F->urn = 'email';
         $F->datatype = 'text';
         $F->show_in_table = 1;
@@ -674,7 +674,7 @@ class Webmaster
 
         $F = new Form_Field();
         $F->pid = $FRM->id;
-        $F->name = 'Текст вопроса';
+        $F->name = $this->view->_('QUESTION_TEXT');
         $F->urn = '_description_';
         $F->required = 1;
         $F->datatype = 'textarea';
@@ -687,7 +687,7 @@ class Webmaster
         $B->location = 'content';
         $B->vis = 1;
         $B->author_id = $B->editor_id = Application::i()->user->id;
-        $B->widget = '<h3>Обратная связь</h3>';
+        $B->description = '<h3>' . $this->view->_('FEEDBACK') . '</h3>';
         $B->cats = array($contacts->id);
         $B->commit();
 
