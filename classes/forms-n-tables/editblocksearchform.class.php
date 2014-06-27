@@ -13,23 +13,6 @@ class EditBlockSearchForm extends EditBlockForm
     }
 
 
-    protected function getInterfaceCodeField()
-    {
-        $field = parent::getInterfaceCodeField();
-        $snippet = Snippet::importByURN('__RAAS_search_interface');
-        $field->default = $snippet->description;
-        return $field;
-    }
-
-
-    protected function getWidgetCodeField()
-    {
-        $field = parent::getWidgetCodeField();
-        $field->default = Package::i()->stdSearchView;
-        return $field;
-    }
-
-
     protected function getCommonTab()
     {
         $tab = parent::getCommonTab();
@@ -65,7 +48,6 @@ class EditBlockSearchForm extends EditBlockForm
             'children' => $this->meta['CONTENT']['pages']
         ));
         $tab->children[] = $this->getWidgetField();
-        $tab->children[] = $this->getWidgetCodeField();
         return $tab;
     }
 
@@ -76,7 +58,6 @@ class EditBlockSearchForm extends EditBlockForm
         $tab->children[] = $this->getPagesVarField();
         $tab->children[] = $this->getRowsPerPageField();
         $tab->children[] = $this->getInterfaceField();
-        $tab->children[] = $this->getInterfaceCodeField();
         return $tab;
     }
 }

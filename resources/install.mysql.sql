@@ -12,9 +12,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   nat tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Translate address',
   params varchar(255) NOT NULL DEFAULT '' COMMENT 'Additional params',
   interface_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
-  interface mediumtext COMMENT 'Interface code',
   widget_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Widget ID#',
-  widget mediumtext COMMENT 'Widget code',
   PRIMARY KEY (id),
   KEY author_id (author_id),
   KEY editor_id (editor_id)
@@ -158,7 +156,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_feedback (
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Form ID#',
   page_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Page ID#',
   post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
-  vis tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Visited',
+  vis int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Visited',
   ip varchar(255) NOT NULL DEFAULT '0.0.0.0' COMMENT 'IP address',
   user_agent varchar(255) NOT NULL DEFAULT '0.0.0.0' COMMENT 'User Agent',
   PRIMARY KEY (id),
@@ -201,7 +199,6 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (
   antispam varchar(255) NOT NULL DEFAULT '' COMMENT 'Use anti-spam',
   antispam_field_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Anti-spam field name',
   interface_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
-  description mediumtext COMMENT 'E-mail template',
   PRIMARY KEY (id)
 ) COMMENT='Forms';
 

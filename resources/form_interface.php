@@ -16,8 +16,6 @@ $notify = function(Feedback $Item, Material $Material = null)
     }
     if ($Item->parent->Interface->id) {
         $template = $Item->parent->Interface->description;
-    } else {
-        $template = $Item->parent->description;
     }
     
     ob_start();

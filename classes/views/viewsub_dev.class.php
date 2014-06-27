@@ -162,6 +162,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     {
         $view = $this;
         $IN['Table'] = new SnippetsTable(array('view' => $this));
+        $IN['Set'] = (array)$IN['Table']->Set;
         $this->assignVars($IN);
         $this->title = $this->_('SNIPPETS');
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);

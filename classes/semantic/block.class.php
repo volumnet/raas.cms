@@ -64,6 +64,12 @@ abstract class Block extends \SOME\SOME
             case 'Widget':
                 return new Snippet((int)$this->widget_id);
                 break;
+            case 'interface':
+                return $this->Interface->description;
+                break;
+            case 'widget':
+                return $this->Widget->description;
+                break;
             case 'parent':
                 if ($this->pages) {
                     return new Page($this->pages_ids[0]);
@@ -192,8 +198,6 @@ abstract class Block extends \SOME\SOME
         if ($this->Interface->id) {
             $Interface = $this->Interface;
             $OUT = eval('?' . '>' . $Interface->description);
-        } else {
-            $OUT = eval('?' . '>' . $this->interface);
         }
         return $OUT;
     }
@@ -207,8 +211,6 @@ abstract class Block extends \SOME\SOME
         if ($this->Widget->id) {
             $Widget = $this->Widget;
             eval('?' . '>' . $Widget->description);
-        } else {
-            eval('?' . '>' . @$this->widget);
         }
     }
     

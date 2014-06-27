@@ -72,28 +72,10 @@ class EditBlockForm extends \RAAS\Form
             'type' => 'select',
             'class' => 'input-xxlarge',
             'name' => 'interface_id', 
+            'required' => true,
             'caption' => $this->_view->_('INTERFACE'), 
             'placeholder' => $this->_view->_('_NONE'), 
             'children' => $wf(new Snippet_Folder())
-        ));
-        return $field;
-    }
-
-
-    protected function getInterfaceCodeField()
-    {
-        $field = new RAASField(array(
-            'type' => 'codearea', 
-            'name' => 'interface', 
-            'export' => function($Field) {
-                $Field->Form->Item->interface = '';
-                if (!(isset($_POST['interface_id']) && (int)$_POST['interface_id']) && isset($_POST['interface'])) {
-                    $Field->Form->Item->interface = (string)$_POST['interface'];
-                }
-            }, 
-            'import' => function($Field) use ($t) { 
-                return $Field->Form->Item->Interface->id ? $Field->Form->Item->Interface->description : $Field->Form->Item->interface; 
-            }
         ));
         return $field;
     }
@@ -119,28 +101,10 @@ class EditBlockForm extends \RAAS\Form
             'type' => 'select',
             'class' => 'input-xxlarge',  
             'name' => 'widget_id', 
+            'required' => true,
             'caption' => $this->_view->_('WIDGET'), 
             'placeholder' => $this->_view->_('_NONE'), 
             'children' => $wf(new Snippet_Folder())
-        ));
-        return $field;
-    }
-
-
-    protected function getWidgetCodeField()
-    {
-        $field = new RAASField(array(
-            'type' => 'codearea', 
-            'name' => 'widget', 
-            'export' => function($Field) {
-                $Field->Form->Item->widget = '';
-                if (!(isset($_POST['widget_id']) && (int)$_POST['widget_id']) && isset($_POST['widget'])) {
-                    $Field->Form->Item->widget = (string)$_POST['widget'];
-                }
-            }, 
-            'import' => function($Field) use ($t) { 
-                return $Field->Form->Item->Widget->id ? $Field->Form->Item->Widget->description : $Field->Form->Item->widget; 
-            }
         ));
         return $field;
     }
