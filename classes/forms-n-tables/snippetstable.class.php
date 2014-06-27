@@ -50,7 +50,7 @@ class SnippetsTable extends \RAAS\Table
                 )
             ),
             'callback' => function($Row) { if ($Row->source instanceof Snippet_Folder) { $Row->class = 'info'; } },
-            'emptyString' => 'NO_SNIPPETS_FOUND',
+            'emptyString' => $this->view->_('NO_SNIPPETS_FOUND'),
             'Set' => $f(new Snippet_Folder())
         );
         $arr = array_merge($defaultParams, $params);
