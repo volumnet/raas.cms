@@ -110,7 +110,7 @@ class Webmaster
                 $S->name = $name;
                 $S->urn = $urn;
                 $S->pid = $VF->id;
-                $f = $this->resourcesDir . '/' . $urn . '.php';
+                $f = $this->resourcesDir . '/' . $urn . '.tmp.php';
                 $S->description = file_get_contents($f);
                 $S->commit();
                 // copy($f, $this->verstkaDir . '/' . $urn . '.php');
