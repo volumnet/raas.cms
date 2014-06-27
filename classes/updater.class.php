@@ -18,7 +18,7 @@ class Updater extends \RAAS\Updater
         $w = new Webmaster();
         $w->checkStdSnippets();
         if (!$this->SQL->getvalue("SELECT COUNT(*) FROM " . \SOME\SOME::_dbprefix() . "cms_pages")) {
-            $w->initSite();
+            $w->createSite();
         }
     }
 
