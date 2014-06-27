@@ -87,6 +87,9 @@ class Webmaster
             $T->name = $this->view->_('MAIN_PAGE');
             $f = $this->resourcesDir . '/template.tmp.php';
             $T->description = file_get_contents($f);
+            $T->locations_info = '[{"urn":"head_counters","x":"0","y":"0","width":"640","height":"50"},{"urn":"header","x":"0","y":"60","width":"640","height":"50"},{"urn":"footer","x":"0","y":"410","width":"640","height":"50"},{"urn":"footer_counters","x":"0","y":"470","width":"640","height":"50"},{"urn":"left","x":"0","y":"120","width":"140","height":"280"},{"urn":"content","x":"150","y":"120","width":"490","height":"280"}]';
+            $T->width = 640;
+            $T->height = 480;
             $T->commit();
         }
 
@@ -95,7 +98,7 @@ class Webmaster
             'banners' => $this->view->_('BANNERS'), 
             'feedback' => $this->view->_('FEEDBACK'), 
             'feedback_inner' => $this->view->_('FEEDBACK_INNER'), 
-            'head' => $this->view->_('HEAD'),
+            'head' => $this->view->_('HEAD_TAG'),
             'map' => $this->view->_('MAP'),
             'menu_content' => $this->view->_('SITEMAP'),
             'menu_top' => $this->view->_('TOP_MENU'),
@@ -197,9 +200,9 @@ class Webmaster
         if (!Page::getSet()) {
             $temp = Template::getSet();
             $Site = $this->createPage(array(
-                'name' => $siteName, 
-                'meta_title' => $siteName,
-                'urn' =>  ($siteDomains ? $siteDomains . ' ' : '') . 'localhost ' . $_SERVER['HTTP_HOST'] . ' ' . $_SERVER['HTTP_HOST'] . '.volumnet.ru',
+                'name' => $this->view->_('MAIN_PAGE'), 
+                'meta_title' => $this->view->_('MAIN_PAGE'),
+                'urn' =>  $_SERVER['HTTP_HOST'],
                 'template' => ($temp ? $temp[0]->id : 0)
             ));
 
@@ -322,6 +325,8 @@ class Webmaster
             $B->widget_id = $S->id;
             $B->cats = array($robots->id);
             $B->commit();
+
+            $this->createNews($this->view->_('NEWS'));
         }
     }
 
