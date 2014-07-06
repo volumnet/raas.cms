@@ -10,6 +10,7 @@ class Updater extends \RAAS\Updater
         $this->update20140202();
         $this->update20140202_2();
         $this->update20140619();
+        $this->update20140706();
     }
 
 
@@ -588,6 +589,15 @@ class Updater extends \RAAS\Updater
                 $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_forms DROP description";
                 $this->SQL->query($SQL_query);
             }
+        }
+    }
+
+
+    protected function update20140706()
+    {
+        if (!in_array('wysiwyg', $this->columns(\SOME\SOME::_dbprefix() . "cms_blocks_html"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks_html ADD wysiwyg TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'WYSIWYG editor on'";
+            $this->SQL->query($SQL_query);
         }
     }
 }

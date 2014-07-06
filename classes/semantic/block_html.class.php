@@ -25,6 +25,7 @@ class Block_HTML extends Block
         return array(
             'id' => (int)$this->id, 
             'description' => $this->description,
+            'wysiwyg' => (int)$this->wysiwyg
         );
     }
 }

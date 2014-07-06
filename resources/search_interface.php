@@ -70,14 +70,15 @@ if (!$search_string) {
                                  MAX(tP.name LIKE " . $SQL_search_string . ") AS rPname, 
                                  MAX(tD.value LIKE " . $SQL_search_string . ") AS tPdata,
                                  0 AS rMname, 
-                                 MAX(tB.widget LIKE " . $SQL_search_string . ") AS rMdescription, 
+                                 MAX(tBH.description LIKE " . $SQL_search_string . ") AS rMdescription, 
                                  0 AS rMdata
                             FROM " . Page::_tablename() . " AS tP
                        LEFT JOIN " . Field::_tablename() . " AS tF ON tF.pid = 0 AND tF.classname = 'RAAS\\CMS\\Material_Type' AND tF.datatype IN ('text', 'tel', 'email', 'url', 'textarea', 'htmlarea')
                        LEFT JOIN " . Field::_dbprefix() . "cms_data AS tD ON tD.pid = tP.id AND tD.fid = tF.id
                             JOIN " . Block::_dbprefix() . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
-                            JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id AND tB.vis AND tB.block_type IN ('RAAS\\\\CMS\\\\Block_HTML', 'RAAS\\\\CMS\\\\Block_PHP')
-                           WHERE tP.vis AND NOT tP.response_code AND (tP.name LIKE " . $SQL_search_string . " OR tD.value LIKE " . $SQL_search_string . " OR tB.widget LIKE " . $SQL_search_string . ")
+                            JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id AND tB.vis 
+                            JOIN " . Block::_dbprefix() . "cms_blocks_html AS tBH ON tBH.id = tB.id
+                           WHERE tP.vis AND NOT tP.response_code AND (tP.name LIKE " . $SQL_search_string . " OR tD.value LIKE " . $SQL_search_string . " OR tBH.description LIKE " . $SQL_search_string . ")
                              ";
     if ((array)$config['pages']) {
         $SQL_query .= " AND tP.id IN (" . implode(", ", array_map('intval', (array)$config['pages'])) . ") 
