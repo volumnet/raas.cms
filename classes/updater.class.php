@@ -595,7 +595,7 @@ class Updater extends \RAAS\Updater
 
     protected function update20140706()
     {
-        if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks_html", $this->tables()) && !in_array('wysiwyg', $this->columns(\SOME\SOME::_dbprefix() . "cms_blocks_html"))) {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks_html", $this->tables) && !in_array('wysiwyg', $this->columns(\SOME\SOME::_dbprefix() . "cms_blocks_html"))) {
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks_html ADD wysiwyg TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'WYSIWYG editor on'";
             $this->SQL->query($SQL_query);
         }

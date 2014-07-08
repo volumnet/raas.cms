@@ -87,7 +87,14 @@ class Webmaster
             $T->name = $this->view->_('MAIN_PAGE');
             $f = $this->resourcesDir . '/template.tmp.php';
             $T->description = file_get_contents($f);
-            $T->locations_info = '[{"urn":"head_counters","x":"0","y":"0","width":"640","height":"50"},{"urn":"header","x":"0","y":"60","width":"640","height":"50"},{"urn":"footer","x":"0","y":"410","width":"640","height":"50"},{"urn":"footer_counters","x":"0","y":"470","width":"640","height":"50"},{"urn":"left","x":"0","y":"120","width":"140","height":"280"},{"urn":"content","x":"150","y":"120","width":"490","height":"280"}]';
+            $T->locations_info = '['
+                               .    '{"urn":"header","x":"0","y":"0","width":"640","height":"50"},'
+                               .    '{"urn":"left","x":"0","y":"60","width":"140","height":"280"},'
+                               .    '{"urn":"content","x":"150","y":"60","width":"490","height":"280"},'
+                               .    '{"urn":"footer","x":"0","y":"350","width":"640","height":"50"},'
+                               .    '{"urn":"head_counters","x":"0","y":"410","width":"315","height":"50"},'
+                               .    '{"urn":"footer_counters","x":"325","y":"410","width":"315","height":"50"}'
+                               . ']';
             $T->width = 640;
             $T->height = 480;
             $T->commit();
@@ -114,7 +121,6 @@ class Webmaster
                 $f = $this->resourcesDir . '/' . $urn . '.tmp.php';
                 $S->description = file_get_contents($f);
                 $S->commit();
-                // copy($f, $this->verstkaDir . '/' . $urn . '.php');
             }
         }
 
@@ -217,11 +223,30 @@ class Webmaster
             $sitemaps = $this->createPage(array('name' => $this->view->_('SITEMAP_XML'), 'urn' => 'sitemaps', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
             $robots = $this->createPage(array('name' => $this->view->_('ROBOTS_TXT'), 'urn' => 'robots', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
 
+            $MT = Material_Type::importByURN('banners');
+            $I = Snippet::importByURN('__RAAS_material_interface');
+            $S = Snippet::importByURN('banners');
+            $B = new Block_Material();
+            $B->location = 'content';
+            $B->vis = 1;
+            $B->author_id = $B->editor_id = Application::i()->user->id;
+            $B->interface_id = $I->id;
+            $B->widget_id = $S->id;
+            $B->cats = array((int)$Site->id);
+            $B->material_type = (int)$MT->id;
+            $B->nat = 0;
+            $B->pages_var_name = 'page';
+            $B->rows_per_page = 0;
+            $B->sort_field_default = $dateField->id;
+            $B->sort_order_default = 'desc!';
+            $B->commit();
+
             $B = new Block_HTML();
             $B->location = 'content';
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
             $B->description = $this->view->_('PAGE_UNDER_CONSTRUCTION');
+            $B->wysiwyg = 1;
             $B->cats = array((int)$Site->id);
             $B->commit();
 
@@ -229,6 +254,7 @@ class Webmaster
             $B->location = 'content';
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
+            $B->name = $this->view->_('MAP');
             $B->description = file_get_contents($this->resourcesDir . '/map.tmp.php');
             $B->wysiwyg = 0;
             $B->cats = array($contacts->id);
@@ -239,6 +265,8 @@ class Webmaster
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
             $B->name = $this->view->_('CONTACTS');
+            $B->description = file_get_contents($this->resourcesDir . '/contacts.tmp.php');
+            $B->wysiwyg = 1;
             $B->cats = array($contacts->id);
             $B->commit();
 
@@ -246,7 +274,9 @@ class Webmaster
             $B->location = 'content';
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
+            $B->name = $this->view->_('FEEDBACK');
             $B->description = '<h3>' . $this->view->_('FEEDBACK') . '</h3>';
+            $B->wysiwyg = 1;
             $B->cats = array($contacts->id);
             $B->commit();
 
@@ -267,7 +297,9 @@ class Webmaster
             $B->location = 'content';
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
+            $B->name = $this->view->_('PAGE_404');
             $B->description = $this->view->_('PAGE_404_TEXT');
+            $B->wysiwyg = 1;
             $B->cats = array($p404->id);
             $B->commit();
 
@@ -285,13 +317,14 @@ class Webmaster
             $B->cats = array($map->id);
             $B->commit();
 
-            $S = Snippet::importByURN('sitemaps');
+            $S = Snippet::importByURN('sitemap_xml');
             $B = new Block_PHP();
             $B->location = 'content';
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
             $B->widget_id = $S->id;
             $B->cats = array($sitemaps->id);
+            $B->name = $this->view->_('SITEMAP_XML');
             $B->commit();
 
             $B = new Block_HTML();
@@ -299,11 +332,12 @@ class Webmaster
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
             $B->cats = array($robots->id);
+            $B->name = $this->view->_('ROBOTS_TXT');
             $B->description = '';
             $B->wysiwyg = 0;
             $B->commit();
 
-            $this->createNews($this->view->_('NEWS'));
+            $this->createNews($this->view->_('NEWS'), 'news');
         }
     }
 
@@ -402,21 +436,20 @@ class Webmaster
             $F->commit();
 
             $VF = Snippet_Folder::importByURN('__RAAS_views');
-            $temp = Snippet::importByURN('news');
+            $temp = Snippet::importByURN($urn);
             if (!$temp->id) {
                 $S = new Snippet();
                 $S->name = $name;
                 $S->urn = $urn;
                 $S->pid = $VF->id;
-                $f = $this->resourcesDir . '/news.php';
+                $f = $this->resourcesDir . '/material.tmp.php';
                 $S->description = file_get_contents($f);
                 $S->commit();
-                copy($f, $this->verstkaDir . '/news.php');
             }
             
             $page = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);
             $I = Snippet::importByURN('__RAAS_material_interface');
-            $S = Snippet::importByURN('news');
+            $S = Snippet::importByURN($urn);
             $B = new Block_Material();
             $B->location = 'content';
             $B->vis = 1;
@@ -452,10 +485,9 @@ class Webmaster
                 $S->name = $name;
                 $S->urn = $urn;
                 $S->pid = $VF->id;
-                $f = $this->resourcesDir . '/' . $urn . '.php';
+                $f = $this->resourcesDir . '/' . $urn . '.tmp.php';
                 $S->description = file_get_contents($f);
                 $S->commit();
-                copy($f, $this->verstkaDir . '/' . $urn . '.php');
             }
 
             $page = $this->createPage(array('name' => $name, 'urn' => $urn, 'response_code' => 200), $Site);
@@ -547,10 +579,9 @@ class Webmaster
             $S->name = $this->view->_('FAQ');
             $S->urn = 'faq';
             $S->pid = $VF->id;
-            $f = $this->resourcesDir . '/faq.php';
+            $f = $this->resourcesDir . '/faq.tmp.php';
             $S->description = file_get_contents($f);
             $S->commit();
-            copy($f, $this->verstkaDir . '/faq.php');
         }
 
         $faqPage = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);

@@ -11,22 +11,22 @@
       <div class="container">
         <div class="row">
           <div class="col-xs-12">
-            <header class="location-header container-fluid"><?php echo $Page->location('header')?></head>
+            <header class="location_header container-fluid"><?php echo $Page->location('header')?></head>
             <section class="main-container container-fluid">
               <div class="row">
-                <aside class="location-left col-sm-3">
-                  <nav class="menu-left"><?php echo $Page->locationBlocksText['left'][0]?></nav>
-                  <?php foreach ($i = 1; $i < count($Page->locationBlocksText['left']); $i++) { ?>
-                      <section class="block-left"><?php echo $Page->locationBlocksText['left'][$i]?></section>    
+                <aside class="location_left col-sm-3">
+                  <nav class="menu_left"><?php echo $Page->locationBlocksText['left'][0]?></nav>
+                  <?php for ($i = 1; $i < count($Page->locationBlocksText['left']); $i++) { ?>
+                      <section class="block_left"><?php echo $Page->locationBlocksText['left'][$i]?></section>    
                   <?php } ?>
                 </aside>
-                <main class="location-content col-sm-9">
+                <main class="location_content col-sm-9">
                   <?php 
                   if (!$Page->pid) { 
                       echo $Page->locationBlocksText['content'][0];
                   }
                   ?>
-                  <div class="main-container__center-block">
+                  <div class="block_content">
                     <?php if (count($Page->parents) > 1) { ?>
                         <ol class="breadcrumb">
                           <?php foreach ($Page->parents as $row) { ?>
@@ -46,7 +46,7 @@
                 </main>
               </div>
             </section>
-            <footer class="location-footer container-fluid">
+            <footer class="location_footer container-fluid">
               <div class="row footer__inner">
                 <?php echo $Page->location('footer')?>
               </div>
