@@ -11,7 +11,7 @@
       <div class="container">
         <div class="row">
           <div class="col-xs-12">
-            <header class="location_header container-fluid"><?php echo $Page->location('header')?></head>
+            <header class="location_header container-fluid"><?php echo $Page->location('header')?></header>
             <section class="main-container container-fluid">
               <div class="row">
                 <aside class="location_left col-sm-3">
