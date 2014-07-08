@@ -347,7 +347,6 @@ class Webmaster
         $P = new Page();
         $P->vis = 1;
         $P->author_id = $P->editor_id = Application::i()->user->id;
-        $P->inherit_meta_title = true;
         $P->cache = 1;
         $P->inherit_cache = 1;
         $P->inherit_template = 0;
