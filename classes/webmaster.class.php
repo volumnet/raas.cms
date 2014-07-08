@@ -97,9 +97,7 @@ class Webmaster
         $snippets = array(
             'banners' => $this->view->_('BANNERS'), 
             'feedback' => $this->view->_('FEEDBACK'), 
-            'feedback_inner' => $this->view->_('FEEDBACK_INNER'), 
             'head' => $this->view->_('HEAD_TAG'),
-            'map' => $this->view->_('MAP'),
             'menu_content' => $this->view->_('SITEMAP'),
             'menu_top' => $this->view->_('TOP_MENU'),
             'search' => $this->view->_('SITE_SEARCH'),
@@ -119,13 +117,6 @@ class Webmaster
                 // copy($f, $this->verstkaDir . '/' . $urn . '.php');
             }
         }
-
-        $S = new Snippet();
-        $S->name = $this->view->_('ROBOTS_TXT');
-        $S->urn = 'robots';
-        $S->pid = 0;
-        $S->description = '';
-        $S->commit();
 
         $temp = Material_Type::importByURN('banners');
         if (!$temp->id) {
@@ -222,8 +213,6 @@ class Webmaster
 
             $contacts = $this->createPage(array('name' => $this->view->_('CONTACTS'), 'urn' => 'contacts'), $Site);
             $map = $this->createPage(array('name' => $this->view->_('SITEMAP'), 'urn' => 'map', 'response_code' => 200), $Site);
-            $ajax = $this->createPage(array('name' => $this->view->_('AJAX'), 'urn' => 'ajax', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
-            $feedbackAJAX = $this->createPage(array('name' => $this->view->_('FEEDBACK'), 'urn' => 'feedback', 'template' => 0, 'cache' => 0), $ajax);
             $p404 = $this->createPage(array('name' => $this->view->_('PAGE_404'), 'urn' => '404', 'response_code' => 404), $Site);
             $sitemaps = $this->createPage(array('name' => $this->view->_('SITEMAP_XML'), 'urn' => 'sitemaps', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
             $robots = $this->createPage(array('name' => $this->view->_('ROBOTS_TXT'), 'urn' => 'robots', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
@@ -236,12 +225,12 @@ class Webmaster
             $B->cats = array((int)$Site->id);
             $B->commit();
 
-            $S = Snippet::importByURN('map');
-            $B = new Block_PHP();
+            $B = new Block_HTML();
             $B->location = 'content';
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->widget_id = $S->id;
+            $B->description = file_get_contents($this->resourcesDir . '/map.tmp.php');
+            $B->wysiwyg = 0;
             $B->cats = array($contacts->id);
             $B->commit();
 
@@ -269,18 +258,6 @@ class Webmaster
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
             $B->cats = array($contacts->id);
-            $B->form = $FRM ? $FRM[0]->id : 0;
-            $B->widget_id = $S->id;
-            $B->interface_id = $I->id;
-            $B->commit();
-
-            $FRM = Form::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('FEEDBACK')) . "'"));
-            $I = Snippet::importByURN('__RAAS_form_interface');
-            $S = Snippet::importByURN('feedback_inner');
-            $B = new Block_Form();
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->cats = array($feedbackAJAX->id);
             $B->form = $FRM ? $FRM[0]->id : 0;
             $B->widget_id = $S->id;
             $B->interface_id = $I->id;
@@ -317,13 +294,13 @@ class Webmaster
             $B->cats = array($sitemaps->id);
             $B->commit();
 
-            $S = Snippet::importByURN('robots');
-            $B = new Block_PHP();
+            $B = new Block_HTML();
             $B->location = 'content';
             $B->vis = 1;
             $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->widget_id = $S->id;
             $B->cats = array($robots->id);
+            $B->description = '';
+            $B->wysiwyg = 0;
             $B->commit();
 
             $this->createNews($this->view->_('NEWS'));
@@ -505,7 +482,6 @@ class Webmaster
         $Site = new Page();
         if ($Site->children) {
             $Site = $Site->children[0];
-            $ajax = array_shift(array_filter($Site->children, function($x) { return $x->urn == 'ajax'; }));
         }
         $MT = new Material_Type();
         $MT->name = $name;
@@ -578,8 +554,7 @@ class Webmaster
         }
 
         $faqPage = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);
-        $faqAJAX = $this->createPage(array('name' => $name, 'urn' => $urn, 'template' => 0, 'cache' => 0), $ajax);
-
+        
         $B = new Block_HTML();
         $B->location = 'content';
         $B->vis = 1;
@@ -600,17 +575,6 @@ class Webmaster
         $B->interface_id = $I->id;
         $B->commit();
 
-        $I = Snippet::importByURN('__RAAS_form_interface');
-        $S = Snippet::importByURN('feedback_inner');
-        $B = new Block_Form();
-        $B->vis = 1;
-        $B->author_id = $B->editor_id = Application::i()->user->id;
-        $B->cats = array($faqAJAX->id);
-        $B->form = $FRM ? $FRM[0]->id : 0;
-        $B->widget_id = $S->id;
-        $B->interface_id = $I->id;
-        $B->commit();
-    
         $I = Snippet::importByURN('__RAAS_material_interface');
         $S = Snippet::importByURN('faq');
         $B = new Block_Material();
@@ -638,7 +602,6 @@ class Webmaster
         $Site = new Page();
         if ($Site->children) {
             $Site = $Site->children[0];
-            $ajax = array_shift(array_filter($Site->children, function($x) { return $x->urn == 'ajax'; }));
         }
         $S = Snippet::importByURN('__RAAS_form_notify');
         $FRM = new \RAAS\CMS\Form();
@@ -684,7 +647,6 @@ class Webmaster
         $F->commit();
 
         $contacts = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);
-        $feedbackAJAX = $this->createPage(array('name' => $name, 'urn' => $urn, 'template' => 0, 'cache' => 0), $ajax);
         
         $B = new Block_HTML();
         $B->location = 'content';
@@ -701,17 +663,6 @@ class Webmaster
         $B->vis = 1;
         $B->author_id = $B->editor_id = Application::i()->user->id;
         $B->cats = array($contacts->id);
-        $B->form = $FRM ? $FRM[0]->id : 0;
-        $B->widget_id = $S->id;
-        $B->interface_id = $I->id;
-        $B->commit();
-
-        $I = Snippet::importByURN('__RAAS_form_interface');
-        $S = Snippet::importByURN('feedback_inner');
-        $B = new Block_Form();
-        $B->vis = 1;
-        $B->author_id = $B->editor_id = Application::i()->user->id;
-        $B->cats = array($feedbackAJAX->id);
         $B->form = $FRM ? $FRM[0]->id : 0;
         $B->widget_id = $S->id;
         $B->interface_id = $I->id;
