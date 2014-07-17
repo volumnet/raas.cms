@@ -219,7 +219,7 @@ class Package extends \RAAS\Package
     
     public function dev_pages_fields()
     {
-        return Page_Field::getSet(array('where' => "NOT pid"));
+        return Page_Field::getSet();
     }
     
     

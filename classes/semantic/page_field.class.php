@@ -18,4 +18,14 @@ class Page_Field extends Field
                 break;
         }
     }
+
+    public static function getSet()
+    {
+        $args = func_get_args();
+        if (!isset($args[0]['where'])) {
+            $args[0]['where'] = array();
+        }
+        $args[0]['where'][] = "NOT pid";
+        return call_user_func_array('parent::getSet', $args);
+    }
 }
