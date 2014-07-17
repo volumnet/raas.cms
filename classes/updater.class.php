@@ -11,6 +11,7 @@ class Updater extends \RAAS\Updater
         $this->update20140202_2();
         $this->update20140619();
         $this->update20140706();
+        $this->update20140717();
     }
 
 
@@ -597,6 +598,20 @@ class Updater extends \RAAS\Updater
     {
         if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks_html", $this->tables) && !in_array('wysiwyg', $this->columns(\SOME\SOME::_dbprefix() . "cms_blocks_html"))) {
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks_html ADD wysiwyg TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'WYSIWYG editor on'";
+            $this->SQL->query($SQL_query);
+        }
+    }
+
+
+    protected function update20140717()
+    {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_users", $this->tables) && !in_array('email', $this->columns(\SOME\SOME::_dbprefix() . "cms_users"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_users ADD email VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'E-mail', 
+                          ADD INDEX (email), 
+                          ADD post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Registration date',
+                          ADD INDEX (post_date),
+                          ADD vis TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Active',
+                          ADD INDEX (vis)";
             $this->SQL->query($SQL_query);
         }
     }
