@@ -4,6 +4,7 @@ use \RAAS\Application;
 use \RAAS\FormTab;
 use \RAAS\Field as RAASField;
 use \RAAS\Option;
+use \RAAS\FieldSet;
 
 class EditFieldForm extends \RAAS\Form
 {
@@ -14,7 +15,7 @@ class EditFieldForm extends \RAAS\Form
         $this->_view = isset($params['view']) ? $params['view'] : null;
         unset($params['view']);
         $Item = isset($params['Item']) ? $params['Item'] : null;
-        $Parent = $params['meta']['Parent'];
+        $Parent = isset($params['meta']['Parent']) ? $params['meta']['Parent'] : null;
         $parentUrl = $params['meta']['parentUrl'];
         $CONTENT = array();
         foreach (\RAAS\CMS\Field::$fieldTypes as $key) {
@@ -28,9 +29,9 @@ class EditFieldForm extends \RAAS\Form
         $temp = new Dictionary();
         $CONTENT['dictionaries'] = array('Set' => array_merge(array(new Dictionary(array('id' => 0, 'name' => $this->_view->_('SELECT_DICTIONARY')))), $temp->children), 'level' => 0);
         $defaultParams = array(
-            'caption' => $Item->id ? $Item->name : $this->_('CREATING_FIELD'),
+            'caption' => $Item->id ? $Item->name : $this->_view->_('CREATING_FIELD'),
             'parentUrl' => $parentUrl,
-            'export' => function($Form) use ($Parent) {
+            'export' => function($Form) use ($Item, $Parent) {
                 $Form->exportDefault();
                 if (!$Form->Item->id && isset($Parent) && $Parent && $Parent->id) {
                     $Form->Item->pid = (int)$Parent->id;
@@ -47,7 +48,7 @@ class EditFieldForm extends \RAAS\Form
                 array(
                     'name' => 'source', 
                     'caption' => $this->_view->_('SOURCE'), 
-                    'template' => 'dev_edit_field.source.tmp.php',
+                    'template' => 'cms/dev_edit_field.source.tmp.php',
                     'check' => function ($Field) {  
                         if (in_array($_POST['datatype'], array('select', 'radio')) || (($_POST['datatype'] == 'checkbox') && isset($_POST['multiple']))) {
                             if ((!isset($_POST['source_type']) || !trim($_POST['source_type'])) || (!isset($_POST['source']) || !trim($_POST['source']))) {
@@ -58,7 +59,7 @@ class EditFieldForm extends \RAAS\Form
                     'children' => $CONTENT['dictionaries']
                 ),
                 new FieldSet(array(
-                    'template' => 'dev_edit_field.range.tmp.php', 
+                    'template' => 'cms/dev_edit_field.range.tmp.php', 
                     'caption' => $this->_view->_('RANGE'),
                     'children' => array(
                         array('type' => 'number', 'name' => 'min_val', 'class' => 'span1'), array('type' => 'number', 'name' => 'max_val', 'class' => 'span1')

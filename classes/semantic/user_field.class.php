@@ -1,15 +1,16 @@
 <?php
 namespace RAAS\CMS;
+use \RAAS\CMS\Field;
 
-class Page_Field extends Field
+class User_Field extends Field
 {
-    protected static $references = array('parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => true));
+    protected static $references = array('parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\User', 'cascade' => true));
     
     public function __set($var, $val)
     {
         switch ($var) {
             case 'Owner':
-                if ($val instanceof Page) {
+                if ($val instanceof User) {
                     $this->Owner = $val;
                 }
                 break;
@@ -18,6 +19,7 @@ class Page_Field extends Field
                 break;
         }
     }
+
 
     public static function getSet()
     {

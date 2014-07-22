@@ -411,9 +411,10 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             $parentUrl .= '&id=' . (int)$Parent->id;
         } else {
             $Item = new Page_Field((int)$this->id);
+            $Parent = null;
             $parentUrl = $this->url . '&action=pages_fields';
         }
-        $Form = new EditFieldForm(array('Item' => $Item, 'view' => $this->view, 'Parent' => $Parent, 'parentUrl' => $parentUrl));
+        $Form = new EditFieldForm(array('Item' => $Item, 'view' => $this->view, 'meta' => array('Parent' => $Parent, 'parentUrl' => $parentUrl)));
         $OUT = $Form->process();
         if ($Item instanceof Material_Field) {
             $OUT['Parent'] = $Parent;
