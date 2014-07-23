@@ -1,7 +1,8 @@
 <?php
 namespace RAAS;
 
-use RAAS\CMS\Page as Page;
+use \RAAS\CMS\Page;
+use \RAAS\CMS\User AS CMSUser;
 
 final class Controller_Frontend extends Abstract_Controller
 {
@@ -14,6 +15,9 @@ final class Controller_Frontend extends Abstract_Controller
                 return \RAAS\CMS\Package::i();
                 break;
             case 'user':
+                if (!$this->user) {
+                    $this->user = CMSUser(isset($_SESSION['SITE_USER']) ? (int)$_SESSION['SITE_USER'] : 0);
+                }
                 return $this->user;
                 break;
             default:
@@ -26,7 +30,7 @@ final class Controller_Frontend extends Abstract_Controller
     {
         switch ($var) {
             case 'user':
-                if ($val instanceof \RAAS\CMS\User) {
+                if ($val instanceof CMSUser) {
                     $this->user = $val;
                 }
                 break;

@@ -21,6 +21,18 @@ class User_Field extends Field
     }
 
 
+    public function commit()
+    {
+        if (!$this->urn && $this->name) {
+            $this->urn = \SOME\Text::beautify($this->name);
+        }
+        while (in_array($this->urn, array('login', 'password', 'social', 'email'))) {
+            $this->urn = '_' . $this->urn . '_';
+        }
+        parent::commit();
+    }
+    
+
     public static function getSet()
     {
         $args = func_get_args();

@@ -11,21 +11,31 @@ class User extends \SOME\SOME
 
     public function __get($var)
     {
-        $val = parent::__get($var);
-        if ($val !== null) {
-            return $val;
-        } else {
-            if (substr($var, 0, 3) == 'vis') {
-                $var = strtolower(substr($var, 3));
-                $vis = true;
-            }
-            if (isset($this->fields[$var]) && ($this->fields[$var] instanceof Material_Field)) {
-                $temp = $this->fields[$var]->getValues();
-                if ($vis) {
-                    $temp = array_values(array_filter($temp, function($x) { return isset($x->vis) && $x->vis; }));
+        switch ($var) {
+            case 'activationKey':
+                return $this->id . Application::md5('activation' . $this->id . $this->login . $this->email . $this->password_md5);
+                break;
+            case 'recoveryKey':
+                return $this->id . Application::md5('recovery' . $this->id . $this->login . $this->email . $this->password_md5);
+                break;
+            default:
+                $val = parent::__get($var);
+                if ($val !== null) {
+                    return $val;
+                } else {
+                    if (substr($var, 0, 3) == 'vis') {
+                        $var = strtolower(substr($var, 3));
+                        $vis = true;
+                    }
+                    if (isset($this->fields[$var]) && ($this->fields[$var] instanceof Material_Field)) {
+                        $temp = $this->fields[$var]->getValues();
+                        if ($vis) {
+                            $temp = array_values(array_filter($temp, function($x) { return isset($x->vis) && $x->vis; }));
+                        }
+                        return $temp;
+                    }
                 }
-                return $temp;
-            }
+                break;
         }
     }    
 
@@ -103,5 +113,45 @@ class User extends \SOME\SOME
         }
         $SQL_result = static::$SQL->getvalue(array($SQL_query, $SQL_bind));
         return (bool)$SQL_result;
+    }
+
+
+    public static function importByActivationKey($key)
+    {
+        $id = (int)substr($key, 0, -32);
+        $Set = static::getSet(array('where' => array("NOT vis", "id = " . $id)));
+        if ($Set) {
+            $User = array_shift($Set);
+            if ($User->activationKey == $key) {
+                return $User;
+            }
+        }
+        return null;
+    }
+
+
+    public static function importByRecoveryKey($key)
+    {
+        $id = (int)substr($key, 0, -32);
+        $Set = static::getSet(array('where' => "id = " . $id));
+        if ($Set) {
+            $User = array_shift($Set);
+            if ($User->recoveryKey == $key) {
+                return $User;
+            }
+        }
+        return null;
+    }
+
+
+    public static function importByLoginOrEmail($login)
+    {
+        $login = self::$SQL->real_escape_string(trim($login));
+        $Set = static::getSet(array('where' => "login = '" . $login . "' OR email = '" . $login . "'"));
+        if ($Set) {
+            $User = array_shift($Set);
+            return $User;
+        }
+        return null;
     }
 }
