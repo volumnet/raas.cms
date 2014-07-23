@@ -611,7 +611,14 @@ class Updater extends \RAAS\Updater
                           ADD post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Registration date',
                           ADD INDEX (post_date),
                           ADD vis TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Active',
-                          ADD INDEX (vis)";
+                          ADD INDEX (vis),
+                          ADD lang varchar(255) NOT NULL DEFAULT 'ru' COMMENT 'Language'";
+            $this->SQL->query($SQL_query);
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_users", $this->tables) && !in_array('lang', $this->columns(\SOME\SOME::_dbprefix() . "cms_users"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_users ADD lang varchar(255) NOT NULL DEFAULT 'ru' COMMENT 'Language'";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "registry CHANGE `value` `value` TEXT NULL DEFAULT NULL COMMENT 'Value';";
             $this->SQL->query($SQL_query);
         }
     }

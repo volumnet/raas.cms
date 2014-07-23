@@ -329,6 +329,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (
   login varchar(255) NOT NULL DEFAULT '' COMMENT 'Login',
   password_md5 varchar(255) NOT NULL DEFAULT '' COMMENT 'Password MD5',
   email varchar(255) NOT NULL DEFAULT '' COMMENT 'E-mail',
+  lang varchar(255) NOT NULL DEFAULT 'ru' COMMENT 'Language',
   PRIMARY KEY (id),
   INDEX (login),
   INDEX (email),

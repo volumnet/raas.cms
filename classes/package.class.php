@@ -344,4 +344,18 @@ class Package extends \RAAS\Package
         }
         return $Item2;
     }
+
+
+    public function install()
+    {
+        if (!$this->registryGet('installDate')) {
+            if (!$this->registryGet('tnsize')) {
+                $this->registrySet('tnsize', 300);
+            }
+            if (!$this->registryGet('maxsize')) {
+                $this->registrySet('maxsize', 1920);
+            }
+        }
+        parent::install();
+    }
 }
