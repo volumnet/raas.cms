@@ -53,21 +53,45 @@ class User extends \SOME\SOME
     private function exportSocial()
     {
         if (isset($this->meta_social)) {
-            $SQL_query = "DELETE FROM " . self::_dbprefix() . self::$links['social']['tablename'] 
-                       . " WHERE " . self::$links['social']['field_from'] . " = " . (int)$this->id;
-            self::$SQL->query($SQL_query);
+            $SQL_query = "DELETE FROM " . static::_dbprefix() . static::$links['social']['tablename'] 
+                       . " WHERE " . static::$links['social']['field_from'] . " = " . (int)$this->id;
+            static::$SQL->query($SQL_query);
             $id = (int)$this->id;
-            $socialRef = self::$links['social'];
-            $arr = array_map(
-                function($x) use ($id, $socialRef) { return array($socialRef['field_from'] => $id, $socialRef['field_to'] => $x); }, 
-                (array)$this->meta_social
-            );
+            $arr = array();
+            foreach ((array)$this->meta_social as $val) {
+                $tmp_user = static::importBySocialNetwork($val);
+                if (!$tmp_user || ($tmp_user->id == $this->id)) {
+                    $arr[] = array(static::$links['social']['field_from'] => $this->id, static::$links['social']['field_to'] => trim($val));
+                }
+            }
             unset($this->meta_social);
-            self::$SQL->add(self::$dbprefix . $socialRef['tablename'], $arr);
+            static::$SQL->add(static::$dbprefix . static::$links['social']['tablename'], $arr);
         }
     }
 
-    
+
+    public function addSocial($social)
+    {
+        $social = trim($social);
+        if (!in_array($social, $this->meta_social)) {
+            $arr = array(static::$links['social']['field_from'] => $this->id, static::$links['social']['field_to'] => trim($social));
+            static::$SQL->add(static::$dbprefix . static::$links['social']['tablename'], $arr);
+        }
+        $this->reload();
+    }
+
+
+    public function deleteSocial($social)
+    {
+        $social = trim($social);
+        if (in_array($social, $this->meta_social)) {
+            $SQL_query = "DELETE FROM " . static::_dbprefix() . static::$links['social']['tablename'] 
+                       . " WHERE " . static::$links['social']['field_from'] . " = " . (int)$this->id 
+                       . "   AND " . static::$links['social']['field_to'] . " = '" . static::$SQL->real_escape_string($social) . "'";
+            static::$SQL->query($SQL_query);
+        }
+        $this->reload();
+    }
 
     public static function delete(self $object)
     {
@@ -146,10 +170,24 @@ class User extends \SOME\SOME
 
     public static function importByLoginOrEmail($login)
     {
-        $login = self::$SQL->real_escape_string(trim($login));
+        $login = static::$SQL->real_escape_string(trim($login));
         $Set = static::getSet(array('where' => "login = '" . $login . "' OR email = '" . $login . "'"));
         if ($Set) {
             $User = array_shift($Set);
+            return $User;
+        }
+        return null;
+    }
+
+
+    public static function importBySocialNetwork($profile)
+    {
+        $SQL_query = "SELECT tU.* 
+                        FROM " . static::_tablename() . " AS tU 
+                        JOIN " . static::_dbprefix() . static::$links['social']['tablename'] . " AS tUS ON tUS." . static::$links['social']['field_from'] . " = tU.id 
+                       WHERE " . static::$links['social']['field_to'] . " = '" . static::$SQL->real_escape_string(trim($profile)) . "'
+                       LIMIT 1";
+        if ($User = static::getSQLObject($SQL_query)) {
             return $User;
         }
         return null;

@@ -6,6 +6,7 @@ class Auth
 {
     const SESSION_VAR = 'SITE_USER';
     const COOKIE_VAR = 'SITE_USER';
+    const SESSION_CONFIRMED_SOCIAL_VAR = 'confirmedSocial';
 
     protected $user;
     
@@ -70,10 +71,22 @@ class Auth
     }
 
 
+    public function loginBySocialNetwork($profile)
+    {
+        $User = User::importBySocialNetwork($profile);
+        if ($User) {
+            $this->user = $User;
+            $this->setSession();
+            return true;
+        }
+        return false;
+    }
+
+
     public function logout()
     {
         $this->user = new User();
-        unset($_SESSION[self::SESSION_VAR]);
+        unset($_SESSION[self::SESSION_VAR], $_SESSION[static::SESSION_CONFIRMED_SOCIAL_VAR]);
         setcookie(self::COOKIE_VAR, $_COOKIE[self::COOKIE_VAR] = '', time() - Application::i()->registryGet('cookieLifetime') * 86400, '/');
     }
 
