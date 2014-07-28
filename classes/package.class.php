@@ -247,7 +247,7 @@ class Package extends \RAAS\Package
                                  OR urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
                             )";
         }
-        $Pages = new \SOME\Pages($page, $this->registryGet('rowsPerPage'));
+        $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
             $f = function($a, $b) use ($_sort) { return strcasecmp($a->fields[$_sort]->doRich(), $b->fields[$_sort]->doRich()); };
