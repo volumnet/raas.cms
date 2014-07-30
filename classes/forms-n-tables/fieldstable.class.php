@@ -37,7 +37,7 @@ class FieldsTable extends \RAAS\Table
                     'title' => $this->_view->_('SHOW_IN_TABLE'),
                     'callback' => function($row) { return $row->show_in_table ? '<i class="icon-ok"></i>' : ''; }
                 ),
-                ' ' => array('callback' => function ($row, $i) use ($view, $params, $ctxMenu, $shift) { return rowContextMenu($view->$ctxMenu($row, $i - $shift, count($params['Set']))); })
+                ' ' => array('callback' => function ($row, $i) use ($view, $params, $ctxMenu, $shift) { return rowContextMenu($view->$ctxMenu($row, $i - $shift, count($params['Set']) - $shift)); })
             ),
             'Set' => $params['Set'],
             'Pages' => $params['Pages'],

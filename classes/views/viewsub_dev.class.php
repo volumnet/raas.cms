@@ -225,14 +225,15 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     public function edit_material_type(array $IN = array())
     {
         $view = $this;
-        $IN['Table'] = new FieldsTable(array_merge(
-            $IN, array('view' => $this, 'editAction' => 'edit_material_field', 'ctxMenu' => 'getMaterialFieldContextMenu', 'shift' => 2)
-        ));
-        $IN['Table']->Set[] = new Material_Field(array('name' => $this->_('NAME'), 'urn' => 'name', 'datatype' => 'text'));
-        $IN['Table']->Set[] = new Material_Field(array('name' => $this->_('DESCRIPTION'), 'urn' => 'description', 'datatype' => 'htmlarea'));
+        $Set = array();
+        $Set[] = new Material_Field(array('name' => $this->_('NAME'), 'urn' => 'name', 'datatype' => 'text'));
+        $Set[] = new Material_Field(array('name' => $this->_('DESCRIPTION'), 'urn' => 'description', 'datatype' => 'htmlarea'));
         foreach ($IN['Item']->fields as $row) {
-            $IN['Table']->Set[] = $row;
+            $Set[] = $row;
         }
+        $IN['Table'] = new FieldsTable(array_merge(
+            $IN, array('view' => $this, 'editAction' => 'edit_material_field', 'ctxMenu' => 'getMaterialFieldContextMenu', 'shift' => 2, 'Set' => $Set)
+        ));
         $this->assignVars($IN);
         $this->title = $IN['Form']->caption;
         $this->template = 'form_table';
@@ -262,10 +263,11 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     public function edit_form(array $IN = array())
     {
         $view = $this;
-        $IN['Table'] = new FieldsTable(array_merge($IN, array('view' => $this, 'editAction' => 'edit_form_field', 'ctxMenu' => 'getFormFieldContextMenu')));
+        $Set = array();
         foreach ($IN['Item']->fields as $row) {
-            $IN['Table']->Set[] = $row;
+            $Set[] = $row;
         }
+        $IN['Table'] = new FieldsTable(array_merge($IN, array('view' => $this, 'editAction' => 'edit_form_field', 'ctxMenu' => 'getFormFieldContextMenu', 'Set' => $Set)));
         $this->assignVars($IN);
         $this->title = $IN['Form']->caption;
         $this->template = 'form_table';
