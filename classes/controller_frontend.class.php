@@ -16,7 +16,7 @@ final class Controller_Frontend extends Abstract_Controller
                 break;
             case 'user':
                 if (!$this->user) {
-                    $this->user = CMSUser(isset($_SESSION['SITE_USER']) ? (int)$_SESSION['SITE_USER'] : 0);
+                    $this->user = new CMSUser(isset($_SESSION['SITE_USER']) ? (int)$_SESSION['SITE_USER'] : 0);
                 }
                 return $this->user;
                 break;
