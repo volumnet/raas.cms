@@ -3,7 +3,7 @@ namespace RAAS\CMS;
 use \RAAS\Redirector as Redirector;
 use \RAAS\Attachment as Attachment;
 use \ArrayObject as ArrayObject;
-use \RAAS\Field as Field;
+use \RAAS\Field as RAASField;
 use \RAAS\FieldSet as FieldSet;
 use \RAAS\FieldContainer as FieldContainer;
 use \RAAS\Form as RAASForm;
@@ -156,12 +156,12 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             'parentUrl' => $this->url . '&action=dictionaries&id=' . (int)$Parent->id,
             'newUrl' => $this->url . '&action=edit_dictionary&pid=%s'
         ));
-        $Form->children[] = new Field(array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1));
-        $Form->children[] = new Field(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
+        $Form->children[] = new RAASField(array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1));
+        $Form->children[] = new RAASField(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
         if ($Parent->id) {
-            $Form->children[] = new Field(array('name' => 'urn', 'caption' => $this->view->_('VALUE')));
+            $Form->children[] = new RAASField(array('name' => 'urn', 'caption' => $this->view->_('VALUE')));
         }
-        $Form->children[] = new Field(array('type' => 'radio', 'name' => 'orderby', 'children' => $CONTENT['orderBy'], 'default' => 'priority'));
+        $Form->children[] = new RAASField(array('type' => 'radio', 'name' => 'orderby', 'children' => $CONTENT['orderBy'], 'default' => 'priority'));
         $this->view->edit_dictionary(array_merge($Form->process(), array('Parent' => $Parent)));
     }
     
@@ -282,9 +282,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     protected function edit_template()
     {
         $Item = new Template((int)$this->id);
-        $NameField = new Field(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
-        $DescriptionField = new Field(array('type' => 'codearea', 'name' => 'description', 'caption' => $this->view->_('TEMPLATE_CODE'), 'required' => 'required'));
-        $BackgroundField = new Field(array(
+        $NameField = new RAASField(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
+        $DescriptionField = new RAASField(array('type' => 'codearea', 'name' => 'description', 'caption' => $this->view->_('TEMPLATE_CODE'), 'required' => 'required'));
+        $BackgroundField = new RAASField(array(
             'type' => 'image', 
             'name' => 'background', 
             'caption' => $this->view->_('BACKGROUND'), 
