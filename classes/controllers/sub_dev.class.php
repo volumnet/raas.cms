@@ -52,7 +52,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'chvis_menu': case 'delete_menu': case 'realize_menu': 
                 $Item = new Menu((int)$this->id);
                 $f = str_replace('_menu', '', $this->action);
-                StdSub::$f($Item, $this->url . '&action=menus&id=' . (int)$Item->pid);
+                StdSub::$f($Item, $this->url . '&action=menus&id=' . (int)$Item->id);
                 break;
             case 'delete_template_image': 
                 $Item = new Template((int)$this->id);

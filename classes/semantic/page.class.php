@@ -272,9 +272,8 @@ class Page extends \SOME\SOME
     
     protected function _fields()
     {
-        $SQL_query = "SELECT * FROM " . Page_Field::_tablename() . " WHERE NOT pid ORDER BY priority";
         $arr = array();
-        $temp = Page_Field::getSQLSet($SQL_query);
+        $temp = Page_Field::getSet($SQL_query);
         foreach ($temp as $row) {
             $row->Owner = $this;
             $arr[$row->urn] = $row;

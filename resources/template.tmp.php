@@ -39,11 +39,17 @@
                     ?>
                   </div>
                 </main>
-                <aside class="location_left col-sm-4"><?php echo $Page->location('left')?></aside>
-                <section class="location_center col-sm-<?php echo (3 - (int)(bool)count($Page->locationBlocksText['left']) - (int)(bool)count($Page->locationBlocksText['right'])) * 4?>">
-                  <?php echo $Page->location('center')?>
-                </section> 
-                <aside class="location_left col-sm-4"><?php echo $Page->location('right')?></aside>
+                <?php if (count($Page->locationBlocksText['left'])) { ?>
+                    <aside class="location_left col-sm-4"><?php echo $Page->location('left')?></aside>
+                <?php } ?>
+                <?php if (count($Page->locationBlocksText['center'])) { ?>
+                    <section class="location_center col-sm-<?php echo (3 - (int)(bool)count($Page->locationBlocksText['left']) - (int)(bool)count($Page->locationBlocksText['right'])) * 4?>">
+                      <?php echo $Page->location('center')?>
+                    </section> 
+                <?php } ?>
+                <?php if (count($Page->locationBlocksText['right'])) { ?>
+                    <aside class="location_left col-sm-4"><?php echo $Page->location('right')?></aside>
+                <?php } ?>
               </div>
             </section>
             <footer class="location_footer container-fluid">
