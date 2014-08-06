@@ -326,6 +326,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Registration date',
   vis TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Active',
+  new TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'New',
+  activated TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Activated',
   login varchar(255) NOT NULL DEFAULT '' COMMENT 'Login',
   password_md5 varchar(255) NOT NULL DEFAULT '' COMMENT 'Password MD5',
   email varchar(255) NOT NULL DEFAULT '' COMMENT 'E-mail',
@@ -334,7 +336,9 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (
   INDEX (login),
   INDEX (email),
   INDEX (post_date),
-  INDEX (vis)
+  INDEX (vis),
+  INDEX (new),
+  INDEX (activated)
 ) COMMENT='Users';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users_social (

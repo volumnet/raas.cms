@@ -621,5 +621,13 @@ class Updater extends \RAAS\Updater
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "registry CHANGE `value` `value` TEXT NULL DEFAULT NULL COMMENT 'Value';";
             $this->SQL->query($SQL_query);
         }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_users", $this->tables) && !in_array('new', $this->columns(\SOME\SOME::_dbprefix() . "cms_users"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_users 
+                            ADD new TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'New',
+                            ADD activated TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Activated',
+                            ADD INDEX(new),
+                            ADD INDEX(activated)";
+            $this->SQL->query($SQL_query);
+        }
     }
 }
