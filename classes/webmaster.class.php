@@ -89,8 +89,11 @@ class Webmaster
             $T->description = file_get_contents($f);
             $T->locations_info = '['
                                .    '{"urn":"header","x":"0","y":"0","width":"640","height":"50"},'
-                               .    '{"urn":"left","x":"0","y":"60","width":"140","height":"280"},'
-                               .    '{"urn":"content","x":"150","y":"60","width":"490","height":"280"},'
+                               .    '{"urn":"menu_top","x":"0","y":"60","width":"640","height":"50"},'
+                               .    '{"urn":"content","x":"0","y":"120","width":"640","height":"110"},'
+                               .    '{"urn":"left","x":"0","y":"240","width":"150","height":"100"},'
+                               .    '{"urn":"center","x":"160","y":"240","width":"310","height":"100"},'
+                               .    '{"urn":"right","x":"490","y":"240","width":"150","height":"100"},'
                                .    '{"urn":"footer","x":"0","y":"350","width":"640","height":"50"},'
                                .    '{"urn":"head_counters","x":"0","y":"410","width":"315","height":"50"},'
                                .    '{"urn":"footer_counters","x":"325","y":"410","width":"315","height":"50"}'
