@@ -20,16 +20,16 @@ abstract class SocialProfile
     protected $first_name;
 
     protected static $social = array(
-        '(vk\\.com)|(vkontakte\\.ru)' => self::CONST_VK,
-        '(fb\\.com)|(facebook\\.com)' => self::CONST_FB,
-        '(ok\\.ru)|(odnoklassniki\\.ru)' => self::CONST_OK,
-        'my\\.mail\\.ru' => self::CONST_MR,
-        'twitter\\.(com|ru)' => self::CONST_TW,
-        'livejournal\\.(com|ru)' => self::CONST_LJ,
-        'google\\.(com|ru)' => self::CONST_GO,
-        'yandex\\.(com|ru)' => self::CONST_YA,
-        'webmoney\\.(com|ru)' => self::CONST_WM,
-        'youtube\\.(com|ru)' => self::CONST_YT
+        '(vk\\.com)|(vkontakte\\.ru)' => self::SN_VK,
+        '(fb\\.com)|(facebook\\.com)' => self::SN_FB,
+        '(ok\\.ru)|(odnoklassniki\\.ru)' => self::SN_OK,
+        'my\\.mail\\.ru' => self::SN_MR,
+        'twitter\\.(com|ru)' => self::SN_TW,
+        'livejournal\\.(com|ru)' => self::SN_LJ,
+        'google\\.(com|ru)' => self::SN_GO,
+        'yandex\\.(com|ru)' => self::SN_YA,
+        'webmoney\\.(com|ru)' => self::SN_WM,
+        'youtube\\.(com|ru)' => self::SN_YT
     );
 
     public function __get($var)
@@ -56,7 +56,7 @@ abstract class SocialProfile
         $url = static::getProfileURL($token);
         $text = file_get_contents($url);
         if ($text) {
-            $arr = json_decode($s, true);
+            $arr = json_decode($text, true);
             if ($arr) {
                 $User = new static();
                 if ($User->parseProfile($arr)) {

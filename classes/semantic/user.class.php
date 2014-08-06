@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+use \RAAS\Application;
 
 class User extends \SOME\SOME
 {
@@ -13,10 +14,10 @@ class User extends \SOME\SOME
     {
         switch ($var) {
             case 'activationKey':
-                return $this->id . Application::md5('activation' . $this->id . $this->login . $this->email . $this->password_md5);
+                return $this->id . Application::md5It('activation' . $this->id . $this->login . $this->email . $this->password_md5);
                 break;
             case 'recoveryKey':
-                return $this->id . Application::md5('recovery' . $this->id . $this->login . $this->email . $this->password_md5);
+                return $this->id . Application::md5It('recovery' . $this->id . $this->login . $this->email . $this->password_md5);
                 break;
             default:
                 $val = parent::__get($var);
@@ -140,6 +141,15 @@ class User extends \SOME\SOME
     }
 
 
+    public function visit()
+    {
+        if ($this->id) {
+            $this->new = 0;
+            $this->commit();
+        }
+    }
+
+
     public static function importByActivationKey($key)
     {
         $id = (int)substr($key, 0, -32);
@@ -187,7 +197,8 @@ class User extends \SOME\SOME
                         JOIN " . static::_dbprefix() . static::$links['social']['tablename'] . " AS tUS ON tUS." . static::$links['social']['field_from'] . " = tU.id 
                        WHERE " . static::$links['social']['field_to'] . " = '" . static::$SQL->real_escape_string(trim($profile)) . "'
                        LIMIT 1";
-        if ($User = static::getSQLObject($SQL_query)) {
+        $User = static::getSQLObject($SQL_query);
+        if ($User->id) {
             return $User;
         }
         return null;
