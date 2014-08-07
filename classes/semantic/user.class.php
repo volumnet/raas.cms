@@ -19,6 +19,9 @@ class User extends \SOME\SOME
             case 'recoveryKey':
                 return $this->id . Application::md5It('recovery' . $this->id . $this->login . $this->email . $this->password_md5);
                 break;
+            case 'loginKey':
+                return $this->id . Application::md5It('login' . $this->id . $this->login . $this->email . $this->password_md5);
+                break;
             default:
                 $val = parent::__get($var);
                 if ($val !== null) {
@@ -28,7 +31,7 @@ class User extends \SOME\SOME
                         $var = strtolower(substr($var, 3));
                         $vis = true;
                     }
-                    if (isset($this->fields[$var]) && ($this->fields[$var] instanceof Material_Field)) {
+                    if (isset($this->fields[$var]) && ($this->fields[$var] instanceof User_Field)) {
                         $temp = $this->fields[$var]->getValues();
                         if ($vis) {
                             $temp = array_values(array_filter($temp, function($x) { return isset($x->vis) && $x->vis; }));
@@ -150,6 +153,14 @@ class User extends \SOME\SOME
     }
 
 
+    public function chvis()
+    {
+        if ($this->id) {
+            $this->vis = (int)!$this->chvis;
+            $this->commit();
+        }
+    }
+
     public static function importByActivationKey($key)
     {
         $id = (int)substr($key, 0, -32);
@@ -178,6 +189,20 @@ class User extends \SOME\SOME
     }
 
 
+    public static function importByLoginKey($key)
+    {
+        $id = (int)substr($key, 0, -32);
+        $Set = static::getSet(array('where' => array('vis', "id = " . $id)));
+        if ($Set) {
+            $User = array_shift($Set);
+            if ($User->loginKey == $key) {
+                return $User;
+            }
+        }
+        return null;
+    }
+
+
     public static function importByLoginOrEmail($login)
     {
         $login = static::$SQL->real_escape_string(trim($login));
@@ -185,6 +210,20 @@ class User extends \SOME\SOME
         if ($Set) {
             $User = array_shift($Set);
             return $User;
+        }
+        return null;
+    }
+
+
+    public static function importByLoginPassword($login, $password)
+    {
+        $login = static::$SQL->real_escape_string(trim($login));
+        $Set = static::getSet(array('where' => "login = '" . $login . "'"));
+        if ($Set) {
+            $User = array_shift($Set);
+            if (Application::md5It($password) == $User->password_md5) {
+                return $User;
+            }
         }
         return null;
     }

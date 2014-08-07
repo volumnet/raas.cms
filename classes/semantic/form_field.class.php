@@ -3,7 +3,7 @@ namespace RAAS\CMS;
 
 class Form_Field extends Field
 {
-    protected static $references = array('parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Form', 'cascade' => true));
+    protected static $references = array('parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Form', 'cascade' => false));
     
     public function __set($var, $val)
     {

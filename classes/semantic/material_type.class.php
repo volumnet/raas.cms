@@ -17,6 +17,16 @@ class Material_Type extends \SOME\SOME
         parent::commit();
     }
     
+    
+    public static function delete(self $object)
+    {
+        foreach ($object->fields as $row) {
+            Material_Field::delete($row);
+        }
+        parent::delete($object);
+    }
+
+
     protected function _fields()
     {
         $SQL_query = "SELECT * FROM " . Material_Field::_tablename() . " WHERE classname = ? AND pid = ? ORDER BY priority";

@@ -60,6 +60,9 @@ class Auth
     {
         $User = User::importByLoginPassword($login, $password);
         if ($User) {
+            if (!$User->vis) {
+                return -1;
+            }
             $this->user = $User;
             $this->setSession();
             if ($savePassword) {
@@ -102,7 +105,7 @@ class Auth
                 $this->setSession();
             }
         }
-        return $user;
+        return $this->user;
     }
 
 }

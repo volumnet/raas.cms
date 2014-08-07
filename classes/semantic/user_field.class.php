@@ -4,7 +4,7 @@ use \RAAS\CMS\Field;
 
 class User_Field extends Field
 {
-    protected static $references = array('parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\User', 'cascade' => true));
+    protected static $references = array('parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\User', 'cascade' => false));
     
     public function __set($var, $val)
     {

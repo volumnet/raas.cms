@@ -3,7 +3,7 @@ namespace RAAS\CMS;
 
 class Material_Field extends Field
 {
-    protected static $references = array('parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => true));
+    protected static $references = array('parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => false));
     
     public function __set($var, $val)
     {

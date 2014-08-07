@@ -3,6 +3,7 @@ namespace RAAS;
 
 use \RAAS\CMS\Page;
 use \RAAS\CMS\User AS CMSUser;
+use \RAAS\CMS\Auth;
 
 final class Controller_Frontend extends Abstract_Controller
 {
@@ -16,7 +17,8 @@ final class Controller_Frontend extends Abstract_Controller
                 break;
             case 'user':
                 if (!$this->user) {
-                    $this->user = new CMSUser(isset($_SESSION['SITE_USER']) ? (int)$_SESSION['SITE_USER'] : 0);
+                    $a = new Auth(new CMSUser());
+                    $this->user = $a->auth();
                 }
                 return $this->user;
                 break;
