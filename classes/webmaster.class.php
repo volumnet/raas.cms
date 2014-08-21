@@ -201,7 +201,6 @@ class Webmaster
             $temp = Template::getSet();
             $Site = $this->createPage(array(
                 'name' => $this->view->_('MAIN_PAGE'), 
-                'meta_title' => $this->view->_('MAIN_PAGE'),
                 'urn' =>  $_SERVER['HTTP_HOST'] . ' ' . $_SERVER['HTTP_HOST'] . '.volumnet.ru',
                 'template' => ($temp ? $temp[0]->id : 0)
             ));
