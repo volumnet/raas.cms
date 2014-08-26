@@ -17,4 +17,12 @@ class EditBlockPHPForm extends EditBlockForm
         $tab->children[] = $this->getInterfaceField();
         return $tab;
     }
+
+
+    protected function getInterfaceField()
+    {
+        $field = parent::getInterfaceField();
+        $field->required = false;
+        return $field;
+    }
 }

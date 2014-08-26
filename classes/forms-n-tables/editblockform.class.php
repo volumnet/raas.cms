@@ -72,7 +72,7 @@ class EditBlockForm extends \RAAS\Form
             'type' => 'select',
             'class' => 'input-xxlarge',
             'name' => 'interface_id', 
-            'required' => !($this->Form->Item instanceof Block_PHP),
+            'required' => true,
             'caption' => $this->_view->_('INTERFACE'), 
             'placeholder' => $this->_view->_('_NONE'), 
             'children' => $wf(new Snippet_Folder())
