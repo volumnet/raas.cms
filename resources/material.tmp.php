@@ -42,7 +42,7 @@
     <?php } ?>
     <?php include \RAAS\CMS\Package::i()->resourcesDir . '/pages.inc.php'?>
     <?php if ($Pages->pages > 1) { ?>
-        <ul class="pagination pagination-pull-right">
+        <ul class="pagination pull-right">
           <?php 
           echo $outputNav(
               $Pages, 
