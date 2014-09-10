@@ -11,6 +11,15 @@ class Form extends \SOME\SOME
         'Interface' => array('FK' => 'interface_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
     );
 
+    public static function delete(self $object)
+    {
+        foreach ($object->fields as $row) {
+            Form_Field::delete($row);
+        }
+        parent::delete($object);
+    }
+
+
     protected function _fields()
     {
         $SQL_query = "SELECT * FROM " . Form_Field::_tablename() . " WHERE classname = ? AND pid = ? ORDER BY priority";
@@ -22,6 +31,7 @@ class Form extends \SOME\SOME
         }
         return $arr;
     }
+
 
     protected function _unreadFeedbacks()
     {

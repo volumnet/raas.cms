@@ -324,11 +324,30 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippet_folders (
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+  post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Registration date',
+  vis TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Active',
+  new TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'New',
+  activated TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Activated',
   login varchar(255) NOT NULL DEFAULT '' COMMENT 'Login',
   password_md5 varchar(255) NOT NULL DEFAULT '' COMMENT 'Password MD5',
+  email varchar(255) NOT NULL DEFAULT '' COMMENT 'E-mail',
+  lang varchar(255) NOT NULL DEFAULT 'ru' COMMENT 'Language',
   PRIMARY KEY (id),
-  INDEX pid (login)
+  INDEX (login),
+  INDEX (email),
+  INDEX (post_date),
+  INDEX (vis),
+  INDEX (new),
+  INDEX (activated)
 ) COMMENT='Users';
+
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users_social (
+    uid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'User ID#',
+    url varchar(255) NOT NULL DEFAULT '' COMMENT 'Social network page URL',
+    PRIMARY KEY (uid, url),
+    KEY uid (uid),
+    KEY url (url)
+) COMMENT 'Users social networks associations';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',

@@ -219,7 +219,7 @@ class Package extends \RAAS\Package
     
     public function dev_pages_fields()
     {
-        return Page_Field::getSet(array('where' => "NOT pid"));
+        return Page_Field::getSet();
     }
     
     
@@ -247,7 +247,7 @@ class Package extends \RAAS\Package
                                  OR urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
                             )";
         }
-        $Pages = new \SOME\Pages($page, $this->registryGet('rowsPerPage'));
+        $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
             $f = function($a, $b) use ($_sort) { return strcasecmp($a->fields[$_sort]->doRich(), $b->fields[$_sort]->doRich()); };
@@ -343,5 +343,19 @@ class Package extends \RAAS\Package
             $Item2->urn = '_' . $Item2->urn . '_';
         }
         return $Item2;
+    }
+
+
+    public function install()
+    {
+        if (!$this->registryGet('installDate')) {
+            if (!$this->registryGet('tnsize')) {
+                $this->registrySet('tnsize', 300);
+            }
+            if (!$this->registryGet('maxsize')) {
+                $this->registrySet('maxsize', 1920);
+            }
+        }
+        parent::install();
     }
 }

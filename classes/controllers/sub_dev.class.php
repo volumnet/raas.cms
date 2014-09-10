@@ -3,7 +3,7 @@ namespace RAAS\CMS;
 use \RAAS\Redirector as Redirector;
 use \RAAS\Attachment as Attachment;
 use \ArrayObject as ArrayObject;
-use \RAAS\Field as Field;
+use \RAAS\Field as RAASField;
 use \RAAS\FieldSet as FieldSet;
 use \RAAS\FieldContainer as FieldContainer;
 use \RAAS\Form as RAASForm;
@@ -52,7 +52,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'chvis_menu': case 'delete_menu': case 'realize_menu': 
                 $Item = new Menu((int)$this->id);
                 $f = str_replace('_menu', '', $this->action);
-                StdSub::$f($Item, $this->url . '&action=menus&id=' . (int)$Item->pid);
+                StdSub::$f($Item, $this->url . '&action=menus&id=' . (int)$Item->id);
                 break;
             case 'delete_template_image': 
                 $Item = new Template((int)$this->id);
@@ -156,12 +156,12 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             'parentUrl' => $this->url . '&action=dictionaries&id=' . (int)$Parent->id,
             'newUrl' => $this->url . '&action=edit_dictionary&pid=%s'
         ));
-        $Form->children[] = new Field(array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1));
-        $Form->children[] = new Field(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
+        $Form->children[] = new RAASField(array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1));
+        $Form->children[] = new RAASField(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
         if ($Parent->id) {
-            $Form->children[] = new Field(array('name' => 'urn', 'caption' => $this->view->_('VALUE')));
+            $Form->children[] = new RAASField(array('name' => 'urn', 'caption' => $this->view->_('VALUE')));
         }
-        $Form->children[] = new Field(array('type' => 'radio', 'name' => 'orderby', 'children' => $CONTENT['orderBy'], 'default' => 'priority'));
+        $Form->children[] = new RAASField(array('type' => 'radio', 'name' => 'orderby', 'children' => $CONTENT['orderBy'], 'default' => 'priority'));
         $this->view->edit_dictionary(array_merge($Form->process(), array('Parent' => $Parent)));
     }
     
@@ -282,9 +282,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     protected function edit_template()
     {
         $Item = new Template((int)$this->id);
-        $NameField = new Field(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
-        $DescriptionField = new Field(array('type' => 'codearea', 'name' => 'description', 'caption' => $this->view->_('TEMPLATE_CODE'), 'required' => 'required'));
-        $BackgroundField = new Field(array(
+        $NameField = new RAASField(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
+        $DescriptionField = new RAASField(array('type' => 'codearea', 'name' => 'description', 'caption' => $this->view->_('TEMPLATE_CODE'), 'required' => 'required'));
+        $BackgroundField = new RAASField(array(
             'type' => 'image', 
             'name' => 'background', 
             'caption' => $this->view->_('BACKGROUND'), 
@@ -411,61 +411,10 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             $parentUrl .= '&id=' . (int)$Parent->id;
         } else {
             $Item = new Page_Field((int)$this->id);
+            $Parent = null;
             $parentUrl = $this->url . '&action=pages_fields';
         }
-        $CONTENT = array();
-        foreach (\RAAS\CMS\Field::$fieldTypes as $key) {
-            $CONTENT['datatypes'][] = array('value' => $key, 'caption' => $this->view->_('DATATYPE_' . str_replace('-', '_', strtoupper($key))));
-        }
-        foreach (\RAAS\CMS\Field::$sourceTypes as $key) {
-            $CONTENT['sourcetypes'][] = array(
-                'value' => $key, 'caption' => $this->view->_('SOURCETYPE_' . strtoupper($key)), 'data-hint' => $this->view->_('SOURCETYPE_' . strtoupper($key) . '_HINT')
-            );
-        }
-        $temp = new Dictionary();
-        $CONTENT['dictionaries'] = array('Set' => array_merge(array(new Dictionary(array('id' => 0, 'name' => $this->view->_('SELECT_DICTIONARY')))), $temp->children), 'level' => 0);
-        $Form = new RAASForm(array(
-            'Item' => $Item,
-            'caption' => $Item->id ? $Item->name : $this->_('CREATING_FIELD'),
-            'parentUrl' => $parentUrl,
-            'export' => function($Form) use ($Parent) {
-                $Form->exportDefault();
-                if (!$Form->Item->id && isset($Parent) && $Parent && $Parent->id) {
-                    $Form->Item->pid = (int)$Parent->id;
-                }
-            },
-            'children' => array(
-                array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'),
-                array('name' => 'urn', 'caption' => $this->view->_('URN')),
-                array('type' => 'checkbox', 'name' => 'required', 'caption' => $this->view->_('REQUIRED')),
-                array('type' => 'checkbox', 'name' => 'multiple', 'caption' => $this->view->_('MULTIPLE')),
-                array('type' => 'number', 'name' => 'maxlength', 'caption' => $this->view->_('MAXLENGTH')),
-                array('type' => 'select', 'name' => 'datatype', 'caption' => $this->view->_('DATATYPE'), 'children' => $CONTENT['datatypes'], 'default' => 'text'),
-                array('type' => 'select', 'name' => 'source_type', 'caption' => $this->view->_('SOURCETYPE'), 'children' => $CONTENT['sourcetypes'], 'data-hint' => ''),
-                array(
-                    'name' => 'source', 
-                    'caption' => $this->view->_('SOURCE'), 
-                    'template' => 'dev_edit_field.source.tmp.php',
-                    'check' => function ($Field) {  
-                        if (in_array($_POST['datatype'], array('select', 'radio')) || (($_POST['datatype'] == 'checkbox') && isset($_POST['multiple']))) {
-                            if ((!isset($_POST['source_type']) || !trim($_POST['source_type'])) || (!isset($_POST['source']) || !trim($_POST['source']))) {
-                                return array('name' => 'MISSED', 'value' => 'source', 'description' => 'ERR_NO_DATA_SOURCE');
-                            }
-                        }
-                    },
-                    'children' => $CONTENT['dictionaries']
-                ),
-                new FieldSet(array(
-                    'template' => 'dev_edit_field.range.tmp.php', 
-                    'caption' => $this->view->_('RANGE'),
-                    'children' => array(
-                        array('type' => 'number', 'name' => 'min_val', 'class' => 'span1'), array('type' => 'number', 'name' => 'max_val', 'class' => 'span1')
-                    )
-                )),
-                array('name' => 'placeholder', 'caption' => $this->view->_('PLACEHOLDER')),
-                array('type' => 'checkbox', 'name' => 'show_in_table', 'caption' => $this->view->_('SHOW_IN_TABLE'))
-            )
-        ));
+        $Form = new EditFieldForm(array('Item' => $Item, 'view' => $this->view, 'meta' => array('Parent' => $Parent, 'parentUrl' => $parentUrl)));
         $OUT = $Form->process();
         if ($Item instanceof Material_Field) {
             $OUT['Parent'] = $Parent;

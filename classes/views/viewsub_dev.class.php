@@ -225,50 +225,15 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     public function edit_material_type(array $IN = array())
     {
         $view = $this;
-        $IN['Table'] = new Table(array(
-            'columns' => array(
-                'name' => array(
-                    'caption' => $this->_('NAME'), 
-                    'callback' => function($row) use ($view) { 
-                        if ($row->id) {
-                            return '<a href="' . $view->url . '&action=edit_material_field&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>'; 
-                        } else {
-                            return $row->name;
-                        }
-                    }
-                ),
-                'urn' => array(
-                    'caption' => $this->_('URN'),
-                    'callback' => function($row) use ($view) { 
-                        return htmlspecialchars($row->urn) 
-                             . ($row->multiple ? '<strong title="' . $view->_('MULTIPLE') . '">[]</strong>' : '') 
-                             . ($row->required ? ' <span class="text-error" title="' . $view->_('REQUIRED') . '">*</span>' : ''); 
-                    }
-                ),
-                'datatype' => array(
-                    'caption' => $this->_('DATATYPE'), 
-                    'callback' => function($row) use ($view) { return htmlspecialchars($view->_('DATATYPE_' . str_replace('-', '_', strtoupper($row->datatype)))); }
-                ),
-                'show_in_table' => array(
-                    'caption' => $this->_('SHOW_IN_TABLE'),
-                    'title' => $this->_('SHOW_IN_TABLE'),
-                    'callback' => function($row) { return $row->show_in_table ? '<i class="icon-ok"></i>' : ''; }
-                ),
-                ' ' => array(
-                    'callback' => function ($row, $i) use ($view, $IN) { 
-                        if ($row->id) {
-                            return rowContextMenu($view->getMaterialFieldContextMenu($row, $i - 2, count($IN['Item']->fields))); 
-                        }
-                    }
-                )
-            ),
-        ));
-        $IN['Table']->Set[] = new Material_Field(array('name' => $this->_('NAME'), 'urn' => 'name', 'datatype' => 'text'));
-        $IN['Table']->Set[] = new Material_Field(array('name' => $this->_('DESCRIPTION'), 'urn' => 'description', 'datatype' => 'htmlarea'));
+        $Set = array();
+        $Set[] = new Material_Field(array('name' => $this->_('NAME'), 'urn' => 'name', 'datatype' => 'text'));
+        $Set[] = new Material_Field(array('name' => $this->_('DESCRIPTION'), 'urn' => 'description', 'datatype' => 'htmlarea'));
         foreach ($IN['Item']->fields as $row) {
-            $IN['Table']->Set[] = $row;
+            $Set[] = $row;
         }
-        
+        $IN['Table'] = new FieldsTable(array_merge(
+            $IN, array('view' => $this, 'editAction' => 'edit_material_field', 'ctxMenu' => 'getMaterialFieldContextMenu', 'shift' => 2, 'Set' => $Set)
+        ));
         $this->assignVars($IN);
         $this->title = $IN['Form']->caption;
         $this->template = 'form_table';
@@ -298,47 +263,11 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     public function edit_form(array $IN = array())
     {
         $view = $this;
-        $IN['Table'] = new Table(array(
-            'columns' => array(
-                'name' => array(
-                    'caption' => $this->_('NAME'), 
-                    'callback' => function($row) use ($view) { 
-                        if ($row->id) {
-                            return '<a href="' . $view->url . '&action=edit_form_field&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>'; 
-                        } else {
-                            return $row->name;
-                        }
-                    }
-                ),
-                'urn' => array(
-                    'caption' => $this->_('URN'),
-                    'callback' => function($row) use ($view) { 
-                        return htmlspecialchars($row->urn) 
-                             . ($row->multiple ? '<strong title="' . $view->_('MULTIPLE') . '">[]</strong>' : '') 
-                             . ($row->required ? ' <span class="text-error" title="' . $view->_('REQUIRED') . '">*</span>' : ''); 
-                    }
-                ),
-                'datatype' => array(
-                    'caption' => $this->_('DATATYPE'), 
-                    'callback' => function($row) use ($view) { return htmlspecialchars($view->_('DATATYPE_' . str_replace('-', '_', strtoupper($row->datatype)))); }
-                ),
-                'show_in_table' => array(
-                    'caption' => $this->_('SHOW_IN_TABLE'),
-                    'title' => $this->_('SHOW_IN_TABLE'),
-                    'callback' => function($row) { return $row->show_in_table ? '<i class="icon-ok"></i>' : ''; }
-                ),
-                ' ' => array(
-                    'callback' => function ($row, $i) use ($view, $IN) { 
-                        if ($row->id) {
-                            return rowContextMenu($view->getFormFieldContextMenu($row, $i, count($IN['Item']->fields))); 
-                        }
-                    }
-                )
-            ),
-        ));
+        $Set = array();
         foreach ($IN['Item']->fields as $row) {
-            $IN['Table']->Set[] = $row;
+            $Set[] = $row;
         }
+        $IN['Table'] = new FieldsTable(array_merge($IN, array('view' => $this, 'editAction' => 'edit_form_field', 'ctxMenu' => 'getFormFieldContextMenu', 'Set' => $Set)));
         $this->assignVars($IN);
         $this->title = $IN['Form']->caption;
         $this->template = 'form_table';
@@ -361,37 +290,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     
     public function pages_fields(array $IN = array())
     {
-        $view = $this;
-        $IN['Table'] = new Table(array(
-            'columns' => array(
-                'name' => array(
-                    'caption' => $this->_('NAME'), 
-                    'callback' => function($row) use ($view) { 
-                        return '<a href="' . $view->url . '&action=edit_page_field&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>'; 
-                    }
-                ),
-                'urn' => array(
-                    'caption' => $this->_('URN'),
-                    'callback' => function($row) use ($view) { 
-                        return htmlspecialchars($row->urn) 
-                             . ($row->multiple ? '<strong title="' . $view->_('MULTIPLE') . '">[]</strong>' : '') 
-                             . ($row->required ? ' <span class="text-error" title="' . $view->_('REQUIRED') . '">*</span>' : ''); 
-                    }
-                ),
-                'datatype' => array(
-                    'caption' => $this->_('DATATYPE'), 
-                    'callback' => function($row) use ($view) { return htmlspecialchars($view->_('DATATYPE_' . str_replace('-', '_', strtoupper($row->datatype)))); }
-                ),
-                'show_in_table' => array(
-                    'caption' => $this->_('SHOW_IN_TABLE'),
-                    'title' => $this->_('SHOW_IN_TABLE'),
-                    'callback' => function($row) { return $row->show_in_table ? '<i class="icon-ok"></i>' : ''; }
-                ),
-                ' ' => array('callback' => function ($row, $i) use ($view, $IN) { return rowContextMenu($view->getPageFieldContextMenu($row, $i, count($IN['Set']))); })
-            ),
-            'Set' => $IN['Set'],
-            'Pages' => $IN['Pages'],
-        ));
+        $IN['Table'] = new FieldsTable(array_merge($IN, array('view' => $this, 'editAction' => 'edit_page_field', 'ctxMenu' => 'getPageFieldContextMenu')));
         $this->assignVars($IN);
         $this->title = $this->_('PAGES_FIELDS');
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);

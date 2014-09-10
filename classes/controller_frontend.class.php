@@ -1,7 +1,9 @@
 <?php
 namespace RAAS;
 
-use RAAS\CMS\Page as Page;
+use \RAAS\CMS\Page;
+use \RAAS\CMS\User AS CMSUser;
+use \RAAS\CMS\Auth;
 
 final class Controller_Frontend extends Abstract_Controller
 {
@@ -14,6 +16,10 @@ final class Controller_Frontend extends Abstract_Controller
                 return \RAAS\CMS\Package::i();
                 break;
             case 'user':
+                if (!$this->user) {
+                    $a = new Auth(new CMSUser());
+                    $this->user = $a->auth();
+                }
                 return $this->user;
                 break;
             default:
@@ -26,7 +32,7 @@ final class Controller_Frontend extends Abstract_Controller
     {
         switch ($var) {
             case 'user':
-                if ($val instanceof \RAAS\CMS\User) {
+                if ($val instanceof CMSUser) {
                     $this->user = $val;
                 }
                 break;
@@ -46,7 +52,7 @@ final class Controller_Frontend extends Abstract_Controller
     {
         if (!$this->getCache()) {
             $p = pathinfo($_SERVER['REQUEST_URI']);
-            if (preg_match('/(\\d+)x(\\d+)(_(\\w+))?/i', $p['basename'], $regs) && is_file($f = ltrim($p['dirname'] . '/' . $p['filename'], '/'))) {
+            if (preg_match('/(\\d+)x(\\d+)(_(\\w+))?$/i', $p['basename'], $regs) && is_file($f = ltrim($p['dirname'] . '/' . $p['filename'], '/'))) {
                 if ($s = getimagesize($f)) {
                     $this->getThumbnail($f, $regs[1], $regs[2], $regs[4]);
                     exit;

@@ -188,7 +188,7 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
                     echo '<div class="jsField" data-role="raas-repo-element">' . 
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
-                            $temp . ' /> <br />' . $temp2 . ' /> ' .
+                            $temp . ' /> ' . $temp2 . ' /> ' .
                             '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
                          '</div>';
                 }
@@ -198,7 +198,7 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
                       '</div>';
                 echo '</div>';
             } else {
-                echo $temp . ' /> <br />' . $temp2 . ' />';
+                echo $temp . ' /> ' . $temp2 . ' />';
             }
             break;
             break;
