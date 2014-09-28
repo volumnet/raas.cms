@@ -3,12 +3,22 @@ namespace RAAS\CMS;
 
 class SnippetsTable extends \RAAS\Table
 {
-    protected $view;
+    public function __get($var)
+    {
+        switch ($var) {
+            case 'view':
+                return ViewSub_Dev::i();
+                break;
+            default:
+                return parent::__get($var);
+                break;
+        }
+    }
+
 
     public function __construct(array $params = array())
     {
-        $this->view = $view = isset($params['view']) ? $params['view'] : null;
-        unset($params['view']);
+        $view = $this->view;
         $f = function(Snippet_Folder $node) use (&$f)
         {
             static $level = 0;

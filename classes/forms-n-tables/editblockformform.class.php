@@ -18,7 +18,7 @@ class EditBlockFormForm extends EditBlockForm
     {
         $tab = parent::getCommonTab();
         $tab->children[] = new RAASField(array(
-            'type' => 'select', 'name' => 'form', 'caption' => $this->_view->_('FORM'), 'children' => array('Set' => CMSForm::getSet())
+            'type' => 'select', 'name' => 'form', 'caption' => $this->view->_('FORM'), 'children' => array('Set' => CMSForm::getSet())
         ));
         $tab->children[] = $this->getWidgetField();
         return $tab;

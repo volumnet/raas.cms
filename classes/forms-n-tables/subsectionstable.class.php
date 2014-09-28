@@ -41,7 +41,7 @@ class SubsectionsTable extends \RAAS\Table
             foreach ($params['columns'] as $key => $col) {
                 $columns[$col->urn] = array('caption' => $col->name, 'callback' => function($row) use ($col) { return $row->fields[$col->urn]->doRich(); });
             }
-            $columns[' '] = array('callback' => function ($row, $i) use ($view, $IN) { return rowContextMenu($view->getPageContextMenu($row, $i, count($params['Set']))); });
+            $columns[' '] = array('callback' => function ($row, $i) use ($view, $params) { return rowContextMenu($view->getPageContextMenu($row, $i, count($params['Set']))); });
         } else {
             $columns['name'] = array(
                 'caption' => $this->view->_('NAME'),

@@ -3,10 +3,22 @@ namespace RAAS\CMS;
 
 class EditSnippetForm extends \RAAS\Form
 {
+    public function __get($var)
+    {
+        switch ($var) {
+            case 'view':
+                return ViewSub_Dev::i();
+                break;
+            default:
+                return parent::__get($var);
+                break;
+        }
+    }
+
+
     public function __construct(array $params = array())
     {
-        $view = isset($params['view']) ? $params['view'] : null;
-        unset($params['view']);
+        $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
         $CONTENT = array('pid' => array(new Snippet_Folder(array('name' => $this->view->_('ROOT_FOLDER'), 'id' => 0))));
         $filter = function($x) use ($Item) { return $x->id != $Item->id; };

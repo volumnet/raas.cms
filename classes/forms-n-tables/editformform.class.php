@@ -6,10 +6,22 @@ use \RAAS\Application;
 
 class EditFormForm extends \RAAS\Form
 {
+    public function __get($var)
+    {
+        switch ($var) {
+            case 'view':
+                return ViewSub_Dev::i();
+                break;
+            default:
+                return parent::__get($var);
+                break;
+        }
+    }
+
+
     public function __construct(array $params = array())
     {
-        $view = isset($params['view']) ? $params['view'] : null;
-        unset($params['view']);
+        $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
         $CONTENT = array();
         $CONTENT['material_types'] = array_merge(array(new Material_Type(array('id' => 0, 'name' => $view->_('_NONE')))), (array)Material_Type::getSet());

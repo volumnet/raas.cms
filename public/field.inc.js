@@ -1,5 +1,5 @@
 jQuery(function($) {
-    $('.well:has(input:file) a.close:not([data-role="raas-repo-del"])').click(function() {
+    $('.well:has(input:file)').on('click', 'a.close:not([data-role="raas-repo-del"])', function() {
         var $w = $(this).closest('.well');
         $('[data-role="file-link"]', $w).remove();
         $('input:text, input:hidden, textarea', $w).val('');

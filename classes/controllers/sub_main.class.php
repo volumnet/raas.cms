@@ -1,9 +1,6 @@
 <?php
 namespace RAAS\CMS;
 use \RAAS\StdSub;
-use \RAAS\FormTab;
-use \RAAS\FieldSet;
-use \RAAS\Form as RAASForm;
 
 class Sub_Main extends \RAAS\Abstract_Sub_Controller
 {
@@ -98,113 +95,7 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
     {
         $Item = new Page((int)$this->id);
         $Parent = $Item->pid ? $Item->parent : new Page(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
-        $t = $this;
-        $CONTENT = array();
-        $CONTENT['templates'] = array('Set' => array_merge(array(new Template(array('id' => 0, 'name' => $this->view->_('NOT_SELECTED')))), Template::getSet()));
-        $CONTENT['languages'] = array();
-        foreach ($this->view->availableLanguages as $key => $val) {
-            $CONTENT['languages'][] = array('value' => $key, 'caption' => $val);
-        }
-        
-        if ($Parent->id) {
-            $title = $Item->id ? $this->view->_('EDITING_PAGE') : $this->view->_('CREATING_PAGE');
-        } else {
-            $title = $Item->id ? $this->view->_('EDITING_SITE') : $this->view->_('CREATING_SITE');
-        }
-        $Form = new RAASForm(array(
-            'Item' => $Item, 
-            'parentUrl' => $this->url . '&id=%s', 
-            'caption' => $title,
-            'export' => function($Form) use ($t, $Parent) {
-                $Form->exportDefault();
-                $Form->Item->editor_id = $t->application->user->id;
-                if (!$Form->Item->id) {
-                    $Form->Item->pid = $Parent->id;
-                    $Form->Item->author_id = $Form->Item->editor_id;
-                }
-            }
-        ));
-        $commonTab = new FormTab(array('name' => 'common', 'caption' => $this->view->_('GENERAL'), 'children' => array(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'))));
-        $serviceTab = new FormTab(array(
-            'name' => 'service', 
-            'caption' => $this->view->_('SERVICE'), 
-            'children' => array(
-                array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_($Parent->id ? 'VISIBLE' : 'IS_ACTIVE'), 'default' => 1),
-                array(
-                    'name' => 'response_code', 
-                    'class' => 'span1', 
-                    'maxlength' => 3, 
-                    'caption' => $this->view->_('SERVICE_RESPONSE_CODE'), 
-                    'data-hint' => $this->view->_('SERVICE_PAGE_DESCRIPTION'), 
-                    'import' => function() use ($Item) { return (int)$Item->response_code ? (int)$Item->response_code : ''; }
-                ),
-                array('type' => 'checkbox', 'name' => 'nat', 'caption' => $this->view->_('TRANSLATE_ADDRESS')),
-                new FieldSet(array(
-                    'template' => 'edit_page.inherit.php',
-                    'children' => array(
-                        array('type' => 'checkbox', 'name' => 'cache', 'caption' => $this->view->_('CACHE_PAGE'), 'default' => ($Parent->id ? $Parent->cache : 0)),
-                        array('type' => 'checkbox', 'name' => 'inherit_cache', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->inherit_cache : 1))
-                    )
-                )),
-                new FieldSet(array(
-                    'template' => 'edit_page.inherit.php',
-                    'children' => array(
-                        array('type' => 'select', 'name' => 'template', 'caption' => $this->view->_('TEMPLATE'), 'children' => $CONTENT['templates'], 'default' => ($Parent->id ? $Parent->template : 0)),
-                        array('type' => 'checkbox', 'name' => 'inherit_template', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->inherit_template : 1))
-                    )
-                )),
-                new FieldSet(array(
-                    'template' => 'edit_page.inherit.php',
-                    'children' => array(
-                        array('type' => 'select', 'name' => 'lang', 'caption' => $this->view->_('LANGUAGE'), 'children' => $CONTENT['languages'], 'default' => ($Parent->id ? $Parent->lang : $this->view->language)),
-                        array('type' => 'checkbox', 'name' => 'inherit_lang', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->inherit_lang : 1))
-                    )
-                )),
-            )
-        ));
-
-
-        if ($Parent->id) {
-            $commonTab->children[] = array('name' => 'urn', 'caption' => $this->view->_('URN'));
-        } else {
-            $commonTab->children[] = array('name' => 'urn', 'caption' => $this->view->_('DOMAIN_NAMES'), 'required' => 'required');
-        }
-        foreach (array('meta_title', 'meta_description', 'meta_keywords') as $key) {
-            $commonTab->children[] = new FieldSet(array(
-                'template' => 'edit_page.inherit.php',
-                'children' => array(
-                    array('name' => $key, 'caption' => $this->view->_(strtoupper($key)), 'default' => ($Parent->id ? $Parent->$key : '')), 
-                    array('type' => 'checkbox', 'name' => 'inherit_' . $key, 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->{'inherit_' . $key} : 1))
-                )
-            ));
-        }
-        if ($Item->id) {
-            $serviceTab->children[] = array('name' => 'post_date', 'caption' => $this->view->_('CREATED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
-            $serviceTab->children[] = array('name' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
-        }
-        foreach ($Item->fields as $row) {
-            $f = $row->Field;
-            $commonTab->children[] = new FieldSet(array(
-                'template' => 'edit_page.inherit.php',
-                'children' => array(
-                    $f,
-                    array(
-                        'type' => 'checkbox', 
-                        'name' => 'inherit_' . $row->Field->name, 
-                        'caption' => $this->view->_('INHERIT'), 
-                        'default' => ($Parent->id ? $Parent->{'inherit_' . $row->Field->name} : 1), 
-                        'oncommit' => function() use ($row) {
-                            if ($_POST['inherit_' . $row->Field->name]) {
-                                $row->inheritValues();
-                            }
-                        },
-                        'import' => function() use ($row) { return $row->inherited; }
-                    )
-                ),
-            ));
-        }
-
-        $Form->children = array($commonTab, $serviceTab);
+        $Form = new EditPageForm(array('Item' => $Item, 'Parent' => $Parent));
         $this->view->edit_page(array_merge($Form->process(), array('Parent' => $Parent)));
     }
     
@@ -229,29 +120,9 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
         if (!$Parent->id) {
             new Redirector($this->url);
         }
-        $arr = array('Item' => $Item, 'view' => $this->view, 'meta' => array('Parent' => $Parent));
+        $arr = array('Item' => $Item, 'meta' => array('Parent' => $Parent));
         
         $Form = $blockType->getForm($arr);
-        // switch ($Item->block_type) {
-        //     case 'RAAS\\CMS\\Block_PHP':
-        //         $Form = new EditBlockPHPForm($arr);
-        //         break;
-        //     case 'RAAS\\CMS\\Block_Material':
-        //         $Form = new EditBlockMaterialForm($arr);
-        //         break;
-        //     case 'RAAS\\CMS\\Block_Menu':
-        //         $Form = new EditBlockMenuForm($arr);
-        //         break;
-        //     case 'RAAS\\CMS\\Block_Form':
-        //         $Form = new EditBlockFormForm($arr);
-        //         break;
-        //     case 'RAAS\\CMS\\Block_Search':
-        //         $Form = new EditBlockSearchForm($arr);
-        //         break;
-        //     default:
-        //         $Form = new EditBlockHTMLForm($arr);
-        //         break;
-        // }
         $this->view->edit_block(array_merge($Form->process(), array('Parent' => $Parent)));
     }
     
@@ -295,83 +166,8 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
         if (!$Type->id) {
             new Redirector($this->url . '&id=' . (int)$Parent->id);
         }
-        $t = $this;
-
-        $CONTENT = array();
-        $temp = new Page();
-        $CONTENT['cats'] = array('Set' => $temp->children);
-        
-        if ($Parent->id) {
-            $title = $Item->id ? $this->view->_('EDITING_PAGE') : $this->view->_('CREATING_PAGE');
-        } else {
-            $title = $Item->id ? $this->view->_('EDITING_SITE') : $this->view->_('CREATING_SITE');
-        }
-        $Form = new RAASForm(array(
-            'Item' => $Item, 
-            'parentUrl' => $this->url . '&id=' . $Parent->id . '#_' . $Type->urn, 
-            'caption' => $Item->id ? $Item->name : $this->_('CREATING_MATERIAL'),
-            'export' => function($Form) use ($t, $Parent) {
-                $Form->exportDefault();
-                $Form->Item->editor_id = $t->application->user->id;
-                if (!$Form->Item->id) {
-                    $Form->Item->author_id = $Form->Item->editor_id;
-                }
-            }
-        ));
-        $commonTab = new FormTab(array(
-            'name' => 'common', 
-            'caption' => $this->view->_('GENERAL'), 
-            'children' => array(
-                array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'),
-                array('type' => 'htmlarea', 'name' => 'description', 'caption' => $this->view->_('DESCRIPTION'))
-            )
-        ));
-        $seoTab = new FormTab(array(
-            'name' => 'seo', 
-            'caption' => $this->view->_('SEO'), 
-            'children' => array(
-                array('name' => 'urn', 'caption' => $this->view->_('URN')),
-                array('name' => 'meta_title', 'caption' => $this->view->_('META_TITLE')),
-                array('name' => 'meta_description', 'caption' => $this->view->_('META_DESCRIPTION')),
-                array('name' => 'meta_keywords', 'caption' => $this->view->_('META_KEYWORDS'))
-            )
-        ));
-        $serviceTab = new FormTab(array(
-            'name' => 'service', 
-            'caption' => $this->view->_('SERVICE'), 
-            'children' => array(array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_($Parent->id ? 'VISIBLE' : 'IS_ACTIVE'), 'default' => 1))
-        ));
-        if ($Item->id) {
-            $serviceTab->children[] = array('name' => 'post_date', 'caption' => $this->view->_('CREATED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
-            $serviceTab->children[] = array('name' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
-        }
-        foreach ($Item->fields as $row) {
-            $commonTab->children[] = $row->Field;
-        }
-
-        $Form->children = array($commonTab, $seoTab, $serviceTab);
-        if (!$Type->global_type){
-            $Form->children[] = new FormTab(array(
-                'name' => 'pages',
-                'caption' => $this->view->_('PAGES'),
-                'children' => array(
-                    array(
-                        'type' => 'checkbox', 
-                        'multiple' => true, 
-                        'name' => 'cats', 
-                        'caption' => $this->view->_('PAGES'),
-                        'required' => 'required', 
-                        'children' => $CONTENT['cats'], 
-                        'default' => array((int)$Parent->id),
-                        'import' => function($Field) { return $Field->Form->Item->pages_ids; }
-                    )
-                )
-            ));
-        }
-        $OUT = $Form->process();
-        $OUT['Parent'] = $Parent;
-        $OUT['Type'] = $Type;
-        $this->view->edit_material($OUT);
+        $Form = new EditMaterialForm(array('Item' => $Item, 'Parent' => $Parent, 'Type' => $Type));
+        $this->view->edit_material(array_merge($Form->process(), array('Parent' => $Parent, 'Type' => $Type)));
     }
 
 }

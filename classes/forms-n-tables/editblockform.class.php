@@ -7,17 +7,27 @@ use \RAAS\Option;
 
 class EditBlockForm extends \RAAS\Form
 {
-    protected $_view;
+    public function __get($var)
+    {
+        switch ($var) {
+            case 'view':
+                return ViewSub_Main::i();
+                break;
+            default:
+                return parent::__get($var);
+                break;
+        }
+    }
+
 
     public function __construct(array $params = array())
     {
-        $this->_view = isset($params['view']) ? $params['view'] : null;
-        unset($params['view']);
+        $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
         $Parent = $params['meta']['Parent'];
         $loc = $Item->location ? $Item->location : (isset($_GET['loc']) ? $_GET['loc'] : '');
         $defaultParams = array(
-            'caption' => $Item->id ? $this->_view->_('EDITING_BLOCK') : $this->_view->_('CREATING_BLOCK'),
+            'caption' => $Item->id ? $this->view->_('EDITING_BLOCK') : $this->view->_('CREATING_BLOCK'),
             'data-block-type' => str_replace('RAAS\\CMS\\', '', $Item->block_type),
             'parentUrl' => Package::i()->url . '&id=' . (int)$Parent->id,
             'newUrl' => Package::i()->url . '&pid=%s&action=edit_block&pid=' . (int)$Parent->id . '&type=' . str_replace('\\', '.', str_replace('RAAS\\CMS\\', '', $Item->block_type)) . '&loc=' . $loc,
@@ -42,10 +52,10 @@ class EditBlockForm extends \RAAS\Form
         $this->children['pagesTab'] = $this->getPagesTab();
         if ($this->Item->id) {
             $this->children['serviceTab']->children[] = new RAASField(array(
-                'name' => 'post_date', 'caption' => $this->_view->_('CREATED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php'
+                'name' => 'post_date', 'caption' => $this->view->_('CREATED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php'
             ));
             $this->children['serviceTab']->children[] = new RAASField(array(
-                'name' => 'modify_date', 'caption' => $this->_view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php'
+                'name' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php'
             ));
         }
         
@@ -73,8 +83,8 @@ class EditBlockForm extends \RAAS\Form
             'class' => 'input-xxlarge',
             'name' => 'interface_id', 
             'required' => true,
-            'caption' => $this->_view->_('INTERFACE'), 
-            'placeholder' => $this->_view->_('_NONE'), 
+            'caption' => $this->view->_('INTERFACE'), 
+            'placeholder' => $this->view->_('_NONE'), 
             'children' => $wf(new Snippet_Folder())
         ));
         return $field;
@@ -102,8 +112,8 @@ class EditBlockForm extends \RAAS\Form
             'class' => 'input-xxlarge',  
             'name' => 'widget_id', 
             'required' => true,
-            'caption' => $this->_view->_('WIDGET'), 
-            'placeholder' => $this->_view->_('_NONE'), 
+            'caption' => $this->view->_('WIDGET'), 
+            'placeholder' => $this->view->_('_NONE'), 
             'children' => $wf(new Snippet_Folder())
         ));
         return $field;
@@ -112,7 +122,7 @@ class EditBlockForm extends \RAAS\Form
 
     protected function getPagesVarField()
     {
-        $field = new RAASField(array('name' => 'pages_var_name', 'caption' => $this->_view->_('PAGES_VAR_NAME'), 'default' => 'page'));
+        $field = new RAASField(array('name' => 'pages_var_name', 'caption' => $this->view->_('PAGES_VAR_NAME'), 'default' => 'page'));
         return $field;
     }
 
@@ -120,7 +130,7 @@ class EditBlockForm extends \RAAS\Form
     protected function getRowsPerPageField()
     {
         $field = new RAASField(array(
-            'name' => 'rows_per_page', 'caption' => $this->_view->_('ITEMS_PER_PAGE'), 'default' => Application::i()->registryGet('rowsPerPage')
+            'name' => 'rows_per_page', 'caption' => $this->view->_('ITEMS_PER_PAGE'), 'default' => Application::i()->registryGet('rowsPerPage')
         ));
         return $field;
     }
@@ -130,9 +140,9 @@ class EditBlockForm extends \RAAS\Form
     {
         $tab = new FormTab(array(
             'name' => 'common', 
-            'caption' => $this->_view->_('GENERAL'),
+            'caption' => $this->view->_('GENERAL'),
             'children' => array(
-                array('name' => 'name', 'caption' => $this->_view->_('NAME'))
+                array('name' => 'name', 'caption' => $this->view->_('NAME'))
             )
         ));
         return $tab;
@@ -143,9 +153,9 @@ class EditBlockForm extends \RAAS\Form
     {
         $tab = new FormTab(array(
             'name' => 'service', 
-            'caption' => $this->_view->_('SERVICE'),
+            'caption' => $this->view->_('SERVICE'),
             'children' => array(
-                array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->_view->_('VISIBLE'), 'default' => 1)
+                array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1)
             )
         ));
         return $tab;
@@ -154,13 +164,13 @@ class EditBlockForm extends \RAAS\Form
 
     protected function getPagesTab()
     {
-        $tab = new FormTab(array('name' => 'pages', 'caption' => $this->_view->_('PAGES')));
+        $tab = new FormTab(array('name' => 'pages', 'caption' => $this->view->_('PAGES')));
         $loc = $Item->location ? $Item->location : (isset($_GET['loc']) ? $_GET['loc'] : '');
-        $tab->children[] = new RAASField(array('type' => 'checkbox', 'name' => 'inherit', 'caption' => $this->_view->_('INHERIT')));
+        $tab->children[] = new RAASField(array('type' => 'checkbox', 'name' => 'inherit', 'caption' => $this->view->_('INHERIT')));
         $tab->children[] = new RAASField(array(
             'type' => 'select', 
             'name' => 'location', 
-            'caption' => $this->_view->_('LOCATION'), 
+            'caption' => $this->view->_('LOCATION'), 
             'default' => $loc, 
             'placeholder' => '--', 
             'children' => $this->meta['CONTENT']['locations']
@@ -168,7 +178,7 @@ class EditBlockForm extends \RAAS\Form
         $tab->children[] = new RAASField(array(
             'type' => 'checkbox', 
             'name' => 'cats', 
-            'caption' => $this->_view->_('PAGES'), 
+            'caption' => $this->view->_('PAGES'), 
             'multiple' => 'multiple', 
             'children' => $this->meta['CONTENT']['cats'],
             'check' =>function($Field) {

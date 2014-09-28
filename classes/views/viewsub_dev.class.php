@@ -1,8 +1,5 @@
 <?php
 namespace RAAS\CMS;
-use \RAAS\Table as Table;
-use \RAAS\Column as Column;
-use \RAAS\Row as Row;
 
 class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 {
@@ -11,33 +8,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     public function dictionaries(array $IN = array())
     {
         $view = $this;
-        $IN['Table'] = new Table(array(
-            'Set' => $IN['Set'],
-            'Pages' => $IN['Pages']
-        ));
-        $IN['Table']->columns['name'] = array(
-            'caption' => $this->_('NAME'), 
-            'callback' => function($row) use ($view) { 
-                return '<a href="' . $view->url . '&action=dictionaries&id=' . (int)$row->id . '" class="' . (!$row->vis ? ' muted' : '') . ($row->pvis ? '' : ' cms-inpvis') . '">'
-                     .    htmlspecialchars($row->name) 
-                     . '</a>'; 
-            }
-        );
-        if ($IN['Item']->id) {
-            $IN['Table']->columns['urn'] = array(
-                'caption' => $this->_('VALUE'),
-                'callback' => function($row) { 
-                    return '<span class="' . (!$row->vis ? ' muted' : '') . ($row->pvis ? '' : ' cms-inpvis') . '">' . htmlspecialchars($row->urn) . '</span>'; 
-                }
-            );
-        }
-        $IN['Table']->columns[' '] = array(
-            'callback' => function($row, $i) use ($view, $IN) { return rowContextMenu($view->getDictionaryContextMenu($row, $i, count($IN['Set']))); }
-        );
-        if ($IN['Item']->id) {
-            $IN['Table']->emptyString = $this->_('NO_NOTES_FOUND');
-        }
-
+        $IN['Table'] = new DictionariesTable($IN);
         $this->assignVars($IN);
         $this->title = $IN['Item']->id ? $IN['Item']->name : $this->_('DICTIONARIES');
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
@@ -48,7 +19,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             }
         }
         $this->contextmenu = $this->getDictionaryContextMenu($IN['Item']);
-        $this->template = 'dev_dictionaries';
+        $this->template = $IN['Table']->template;
     }
     
     
@@ -161,7 +132,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     public function snippets(array $IN = array())
     {
         $view = $this;
-        $IN['Table'] = new SnippetsTable(array('view' => $this));
+        $IN['Table'] = new SnippetsTable();
         $IN['Set'] = (array)$IN['Table']->Set;
         $this->assignVars($IN);
         $this->title = $this->_('SNIPPETS');
@@ -193,26 +164,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     public function material_types(array $IN = array())
     {
         $view = $this;
-        $IN['Table'] = new Table(array(
-            'columns' => array(
-                'name' => array(
-                    'caption' => $this->_('NAME'), 
-                    'callback' => function($row) use ($view) { 
-                        return '<a href="' . $view->url . '&action=edit_material_type&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>'; 
-                    }
-                ),
-                'urn' => array('caption' => $this->_('URN')),
-                'global_type' => array(
-                    'caption' => $this->_('IS_GLOBAL_TYPE'), 
-                    'title' => $this->_('GLOBAL_MATERIALS'), 
-                    'callback' => function($row) { return $row->global_type ? '<i class="icon-ok"></i>' : ''; }
-                ),
-                ' ' => array('callback' => function ($row) use ($view) { return rowContextMenu($view->getMaterialTypeContextMenu($row)); })
-            ),
-            'Set' => $IN['Set'],
-            'Pages' => $IN['Pages'],
-            'emptyString' => $this->_('NO_MATERIAL_TYPES_FOUND')
-        ));
+        $IN['Table'] = new MaterialTypesTable($IN);
         $this->assignVars($IN);
         $this->title = $this->_('MATERIAL_TYPES');
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
@@ -232,7 +184,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             $Set[] = $row;
         }
         $IN['Table'] = new FieldsTable(array_merge(
-            $IN, array('view' => $this, 'editAction' => 'edit_material_field', 'ctxMenu' => 'getMaterialFieldContextMenu', 'shift' => 2, 'Set' => $Set)
+            $IN, array('editAction' => 'edit_material_field', 'ctxMenu' => 'getMaterialFieldContextMenu', 'shift' => 2, 'Set' => $Set)
         ));
         $this->assignVars($IN);
         $this->title = $IN['Form']->caption;
@@ -267,7 +219,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         foreach ($IN['Item']->fields as $row) {
             $Set[] = $row;
         }
-        $IN['Table'] = new FieldsTable(array_merge($IN, array('view' => $this, 'editAction' => 'edit_form_field', 'ctxMenu' => 'getFormFieldContextMenu', 'Set' => $Set)));
+        $IN['Table'] = new FieldsTable(array_merge($IN, array('editAction' => 'edit_form_field', 'ctxMenu' => 'getFormFieldContextMenu', 'Set' => $Set)));
         $this->assignVars($IN);
         $this->title = $IN['Form']->caption;
         $this->template = 'form_table';
@@ -290,7 +242,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     
     public function pages_fields(array $IN = array())
     {
-        $IN['Table'] = new FieldsTable(array_merge($IN, array('view' => $this, 'editAction' => 'edit_page_field', 'ctxMenu' => 'getPageFieldContextMenu')));
+        $IN['Table'] = new FieldsTable(array_merge($IN, array('editAction' => 'edit_page_field', 'ctxMenu' => 'getPageFieldContextMenu')));
         $this->assignVars($IN);
         $this->title = $this->_('PAGES_FIELDS');
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
@@ -322,7 +274,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             'active' => (in_array($this->action, array('dictionaries', 'edit_dictionary', 'move_dictionary')) && !$this->moduleName),
             'submenu' => (
                 in_array($this->action, array('dictionaries', 'edit_dictionary', 'move_dictionary')) ? 
-                $this->pagesMenu(new Dictionary(), new Dictionary($this->id ? $this->id : (isset($this->nav['pid']) ? $this->nav['pid'] : 0))) : 
+                ViewSub_Main::i()->pagesMenu(new Dictionary(), new Dictionary($this->id ? $this->id : (isset($this->nav['pid']) ? $this->nav['pid'] : 0))) : 
                 null
             )
         );
@@ -352,7 +304,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             'active' => (in_array($this->action, array('menus', 'edit_menu', 'move_menu')) && !$this->moduleName),
             'submenu' => (
                 in_array($this->action, array('menus', 'edit_menu', 'move_menu')) ? 
-                $this->pagesMenu(new Menu(), new Menu($this->id ? $this->id : (isset($this->nav['pid']) ? $this->nav['pid'] : 0))) : 
+                ViewSub_Main::i()->pagesMenu(new Menu(), new Menu($this->id ? $this->id : (isset($this->nav['pid']) ? $this->nav['pid'] : 0))) : 
                 null
             )
         );

@@ -11,7 +11,7 @@ class EditBlockHTMLForm extends EditBlockForm
         } else {
             $tab->children[] = array('type' => 'codearea', 'name' => 'description', 'data-language' => 'html');
         }
-        $tab->children[] = array('type' => 'checkbox', 'name' => 'wysiwyg', 'caption' => $this->_view->_('USE_WYSIWYG_EDITOR'), 'default' => 1);
+        $tab->children[] = array('type' => 'checkbox', 'name' => 'wysiwyg', 'caption' => $this->view->_('USE_WYSIWYG_EDITOR'), 'default' => 1);
         return $tab;
     }
 }

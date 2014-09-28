@@ -1,8 +1,6 @@
 <?php
 namespace RAAS\CMS;
-use \RAAS\Table as Table;
 use \RAAS\Column as Column;
-use \RAAS\Row as Row;
 
 class ViewSub_Main extends \RAAS\Abstract_Sub_View
 {
@@ -16,41 +14,10 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
         if ($IN['Item']->id) {
             $IN['MTable'] = array();
             foreach ($IN['Item']->affectedMaterialTypes as $mtype) {
-                $columns = array();
-                $columns['name'] = array(
-                    'caption' => $this->_('NAME'),
-                    'sortable' => Column::SORTABLE_REVERSABLE,
-                    'callback' => function($row) use ($view, $IN) { 
-                        return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . '&pid=' . (int)$IN['Item']->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' 
-                             .    htmlspecialchars($row->name) 
-                             . '</a>';
-                    }
-                );
-                $columns['post_date'] = array(
-                    'caption' => $this->_('CREATED_BY'),
-                    'sortable' => Column::SORTABLE_REVERSABLE,
-                    'callback' => function($row) use ($view) { 
-                        return '<span' . (!$row->vis ? ' class="muted"' : '') . '>' . (strtotime($row->post_date) ? date(DATETIMEFORMAT, strtotime($row->post_date)) : '') . '</span>';
-                    }
-                );
-                $columns['modify_date'] = array(
-                    'caption' => $this->_('EDITED_BY'),
-                    'sortable' => Column::SORTABLE_REVERSABLE,
-                    'callback' => function($row) use ($view) { 
-                        return '<span' . (!$row->vis ? ' class="muted"' : '') . '>' . (strtotime($row->modify_date) ? date(DATETIMEFORMAT, strtotime($row->modify_date)) : '') . '</span>';
-                    }
-                );
-                foreach (array_filter($mtype->fields, function($x) { return $x->show_in_table; }) as $key => $col) {
-                    $columns[$col->urn] = array(
-                        'caption' => $col->name,
-                        'sortable' => Column::SORTABLE_REVERSABLE,
-                        'callback' => function($row) use ($col) { return $row->fields[$col->urn]->doRich(); }
-                    );
-                }
-                $columns[' '] = array('callback' => function ($row) use ($view) { return rowContextMenu($view->getMaterialContextMenu($row)); });
-                $IN['MTable'][$mtype->urn] = new Table(array(
+                $IN['MTable'][$mtype->urn] = new MaterialsTable(array(
+                    'Item' => $IN['Item'],
+                    'mtype' => $mtype,
                     'hashTag' => $mtype->urn,
-                    'columns' => $columns, 
                     'Set' => $IN['MSet'][$mtype->urn],
                     'Pages' => $IN['MPages'][$mtype->urn], 
                     'sortVar' => 'm' . $mtype->id . 'sort',
@@ -149,6 +116,7 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
             $this->path[] = array('href' => $this->url . '&id=' . (int)$IN['Parent']->id . '#_' . $IN['Type']->urn, 'name' => $IN['Parent']->name . ': ' . $IN['Type']->name);
         }
         $this->submenu = $this->pagesMenu(new Page(), $IN['Parent']);
+        $this->js[] = $this->publicURL . '/field.inc.js';
         $this->stdView->stdEdit($IN, 'getMaterialContextMenu');
     }
     

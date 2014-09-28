@@ -19,13 +19,13 @@ class EditBlockMaterialForm extends EditBlockForm
         $tab = parent::getCommonTab();
         $this->meta['CONTENT']['material_types'] = array('Set' => Material_Type::getSet());
         $tab->children[] = new RAASField(array(
-            'type' => 'select', 'name' => 'material_type', 'caption' => $this->_view->_('MATERIAL_TYPE'), 'children' => $this->meta['CONTENT']['material_types']
+            'type' => 'select', 'name' => 'material_type', 'caption' => $this->view->_('MATERIAL_TYPE'), 'children' => $this->meta['CONTENT']['material_types']
         ));
         $tab->children[] = new RAASField(array(
             'type' => 'checkbox', 
             'name' => 'nat', 
-            'caption' => $this->_view->_('TRANSLATE_ADDRESS'), 
-            'data-hint' => $this->_view->_('BLOCK_TRANSLATE_ADDRESS_DESCRIPTION')
+            'caption' => $this->view->_('TRANSLATE_ADDRESS'), 
+            'data-hint' => $this->view->_('BLOCK_TRANSLATE_ADDRESS_DESCRIPTION')
         ));
         $tab->children[] = $this->getWidgetField();
         return $tab;
@@ -36,11 +36,11 @@ class EditBlockMaterialForm extends EditBlockForm
     {
         $tab = parent::getServiceTab();
         $this->meta['CONTENT']['fields'] = array(
-            array('value' => 'name', 'caption' => $this->_view->_('NAME')),
-            array('value' => 'urn', 'caption' => $this->_view->_('URN')),
-            array('value' => 'description', 'caption' => $this->_view->_('DESCRIPTION')),
-            array('value' => 'post_date', 'caption' => $this->_view->_('CREATED_BY')),
-            array('value' => 'modify_date', 'caption' => $this->_view->_('EDITED_BY'))
+            array('value' => 'name', 'caption' => $this->view->_('NAME')),
+            array('value' => 'urn', 'caption' => $this->view->_('URN')),
+            array('value' => 'description', 'caption' => $this->view->_('DESCRIPTION')),
+            array('value' => 'post_date', 'caption' => $this->view->_('CREATED_BY')),
+            array('value' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'))
         );
         if ($this->Item->id) {
             $Material_Type = $this->Item->Material_Type;
@@ -55,13 +55,13 @@ class EditBlockMaterialForm extends EditBlockForm
             }
         }
         foreach (Block_Material::$orderRelations as $key => $val) {
-            $this->meta['CONTENT']['orders'][] = array('value' => $key, 'caption' => $this->_view->_($val));
+            $this->meta['CONTENT']['orders'][] = array('value' => $key, 'caption' => $this->view->_($val));
         }
         
         $tab->children[] = $this->getPagesVarField();
         $tab->children[] = $this->getRowsPerPageField();
         $tab->children[] = new FieldSet(array(
-            'caption' => $this->_view->_('FILTER_PARAMS'),
+            'caption' => $this->view->_('FILTER_PARAMS'),
             'template' => 'edit_block_material.filter.php',
             'import' => function($FieldSet) {
                 $DATA = array();
@@ -91,7 +91,7 @@ class EditBlockMaterialForm extends EditBlockForm
             }
         ));
         $tab->children[] = new FieldSet(array(
-            'caption' => $this->_view->_('SORTING_PARAMS'),
+            'caption' => $this->view->_('SORTING_PARAMS'),
             'template' => 'edit_block_material.sort.php',
             'import' => function($FieldSet) {
                 $DATA = $FieldSet->importDefault();
@@ -121,13 +121,13 @@ class EditBlockMaterialForm extends EditBlockForm
                 }
             },
             'children' => array(
-                'sort_var_name' => array('name' => 'sort_var_name', 'placeholder' => $this->_view->_('SORTING_VAR'), 'class' => 'span2'),
-                'order_var_name' => array('name' => 'order_var_name', 'placeholder' => $this->_view->_('ORDER_VAR'), 'class' => 'span2'),
+                'sort_var_name' => array('name' => 'sort_var_name', 'placeholder' => $this->view->_('SORTING_VAR'), 'class' => 'span2'),
+                'order_var_name' => array('name' => 'order_var_name', 'placeholder' => $this->view->_('ORDER_VAR'), 'class' => 'span2'),
                 'sort_field_default' => array('type' => 'select', 'name' => 'sort_field_default', 'children' => $this->meta['CONTENT']['fields'], 'class' => 'span2'),
                 'sort_order_default' => array('type' => 'select', 'name' => 'sort_order_default', 'children' => $this->meta['CONTENT']['orders'], 'class' => 'span2')
             )
         ));
-        $tab->children[] = new RAASField(array('name' => 'params', 'caption' => $this->_view->_('ADDITIONAL_PARAMS')));
+        $tab->children[] = new RAASField(array('name' => 'params', 'caption' => $this->view->_('ADDITIONAL_PARAMS')));
         $tab->children[] = $this->getInterfaceField();
         return $tab;
     }

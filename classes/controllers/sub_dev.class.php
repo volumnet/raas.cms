@@ -145,23 +145,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     {
         $Item = new Dictionary((int)$this->id);
         $Parent = $Item->pid ? $Item->parent : new Dictionary(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
-        $CONTENT = array();
-        foreach (\RAAS\CMS\Dictionary::$ordersBy as $key => $val) {
-            $CONTENT['orderBy'][] = array('value' => $key, 'caption' => $this->view->_($val));
-        }
-        $Form = new RAASForm(array(
-            'Item' => $Item,
-            'caption' => $Item->id ? $Item->name : ($Parent->id ? $this->view->_('CREATING_NOTE') : $this->view->_('CREATING_DICTIONARY')),
-            'export' => function($Form) use ($Parent) { $Form->exportDefault(); $Form->Item->pid = (int)$Parent->id; },
-            'parentUrl' => $this->url . '&action=dictionaries&id=' . (int)$Parent->id,
-            'newUrl' => $this->url . '&action=edit_dictionary&pid=%s'
-        ));
-        $Form->children[] = new RAASField(array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1));
-        $Form->children[] = new RAASField(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
-        if ($Parent->id) {
-            $Form->children[] = new RAASField(array('name' => 'urn', 'caption' => $this->view->_('VALUE')));
-        }
-        $Form->children[] = new RAASField(array('type' => 'radio', 'name' => 'orderby', 'children' => $CONTENT['orderBy'], 'default' => 'priority'));
+        $Form = new EditDictionaryForm(array('Item' => $Item, 'Parent' => $Parent));
         $this->view->edit_dictionary(array_merge($Form->process(), array('Parent' => $Parent)));
     }
     
@@ -214,52 +198,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     {
         $Item = new Menu((int)$this->id);
         $Parent = $Item->pid ? $Item->parent : new Menu(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
-        $CONTENT = array();
-        $CONTENT['pages'] = array(new Page(array('id' => 0, 'name' => '--')));
-        
-        $Form = new RAASForm(array(
-            'Item' => $Item,
-            'caption' => $Item->id ? $Item->name : ($Parent->id ? $this->_('CREATING_NOTE') : $this->_('CREATING_MENU')),
-            'parentUrl' => $this->url . '&action=menus&id=%s',
-            'export' => function($Form) use ($Parent) {
-                $Form->exportDefault();
-                if (!$Form->Item->id) {
-                    $Form->Item->pid = (int)$Parent->id;
-                }
-            },
-            'children' => array(
-                array(
-                    'type' => 'hidden', 
-                    'name' => 'pid', 
-                    'export' => 'is_null', 
-                    'import' => function() use ($Parent) { return (int)$Parent->id; }, 
-                    'default' => (int)$Parent->id
-                ),
-                array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1),
-                array('type' => 'select', 'name' => 'page_id', 'caption' => $this->view->_('PAGE'), 'children' => array('Set' => $CONTENT['pages'])),
-                array(
-                    'type' => 'number', 
-                    'name' => 'inherit', 
-                    'caption' => $this->view->_('INHERIT_LEVEL'), 
-                    'check' => function($Field) use ($Parent) {  
-                        if (!$Parent->id && (int)$_POST['page_id'] && !(isset($_POST['inherit']) && (int)$_POST['inherit'])) {
-                            return array('name' => 'MISSED', 'value' => $Field->name, 'description' => 'ERR_NO_MENU_INHERIT');
-                        }
-                    },
-                ),
-                array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'),
-                array(
-                    'name' => 'url', 
-                    'caption' => $this->view->_('URL'), 
-                    'check' => function($Field) use ($Parent) {
-                        if ($Parent->id && !(int)$_POST['page_id'] && !trim($_POST['url'])) {
-                            return array('name' => 'MISSED', 'value' => $Field->name, 'description' => 'ERR_NO_URL');
-                        }
-                    }
-                ),
-                
-            )
-        ));
+        $Form = new EditMenuForm(array('Item' => $Item, 'Parent' => $Parent));
         $this->view->edit_menu(array_merge($Form->process(), array('Parent' => $Parent)));
     }
     
@@ -282,54 +221,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     protected function edit_template()
     {
         $Item = new Template((int)$this->id);
-        $NameField = new RAASField(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
-        $DescriptionField = new RAASField(array('type' => 'codearea', 'name' => 'description', 'caption' => $this->view->_('TEMPLATE_CODE'), 'required' => 'required'));
-        $BackgroundField = new RAASField(array(
-            'type' => 'image', 
-            'name' => 'background', 
-            'caption' => $this->view->_('BACKGROUND'), 
-            'meta' => array('attachmentVar' => 'Background', 'deleteAttachmentPath' => $this->url . '&action=delete_template_image&id=' . (int)$Item->id)
-        ));
-        $Form = new RAASForm(array(
-            'Item' => $Item, 'caption' => $this->view->_('EDIT_TEMPLATE'), 'parentUrl' => $this->url . '&action=templates'
-        ));
-        if ($Item->id) {
-            $Form->children = array(
-                new FormTab(array('name' => 'edit', 'caption' => $this->view->_('EDITING'), 'children' => array($NameField, $DescriptionField))),
-                new FormTab(array(
-                    'name' => 'layout',
-                    'caption' => $this->view->_('LAYOUT'),
-                    'children' => array(
-                        new FieldSet(array(
-                            'template' => 'dev_edit_template',
-                            'export' => function($FormTab) {
-                                $Item = $FormTab->Form->Item;
-                                foreach (array('width', 'height') as $key) {
-                                    if (isset($_POST[$key]) && (int)$_POST[$key]) {
-                                        $Item->$key = (int)$_POST[$key];
-                                    }
-                                }
-                                if (isset($_POST['location'])) {
-                                    $Item->locs = new ArrayObject();
-                                    foreach ($_POST['location'] as $key => $val) {
-                                        $Item->locs[] = array(
-                                            'urn' => isset($_POST['location'][$key]) ? (string)$_POST['location'][$key] : 'Location',
-                                            'x' => isset($_POST['location-left'][$key]) ? (string)$_POST['location-left'][$key] : 0,
-                                            'y' => isset($_POST['location-top'][$key]) ? (string)$_POST['location-top'][$key] : 0,
-                                            'width' => isset($_POST['location-width'][$key]) ? (string)$_POST['location-width'][$key] : $Item->width,
-                                            'height' => isset($_POST['location-height'][$key]) ? (string)$_POST['location-height'][$key] : Location::min_height,
-                                        );
-                                    }
-                                }
-                            }
-                        )),
-                        $BackgroundField
-                    )
-                ))
-            );
-        } else {
-            $Form->children = array($NameField, $DescriptionField, $BackgroundField);
-        }
+        $Form = new EditTemplateForm(array('Item' => $Item));
         $this->view->edit_template($Form->process());
     }
     
@@ -340,7 +232,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         if ($Item->locked) {
             exit;
         }
-        $Form = new EditSnippetFolderForm(array('Item' => $Item, 'view' => $this->view));
+        $Form = new EditSnippetFolderForm(array('Item' => $Item));
         $this->view->edit_snippet_folder($Form->process());
     }
     
@@ -351,7 +243,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         if ($Item->locked) {
             exit;
         }
-        $Form = new EditSnippetForm(array('Item' => $Item, 'view' => $this->view));
+        $Form = new EditSnippetForm(array('Item' => $Item));
         $this->view->edit_snippet($Form->process());
     }
     
@@ -361,7 +253,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         $Item = new Snippet((int)$this->id);
         $Item = $this->model->copyItem($Item);
         $Item->locked = 0;
-        $Form = new CopySnippetForm(array('Item' => $Item, 'view' => $this->view));
+        $Form = new CopySnippetForm(array('Item' => $Item));
         $this->view->edit_snippet($Form->process());
     }
     
@@ -386,7 +278,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     protected function edit_form()
     {
         $Item = new CMSForm((int)$this->id);
-        $Form = new EditFormForm(array('Item' => $Item, 'view' => $this->view, ));
+        $Form = new EditFormForm(array('Item' => $Item));
         $this->view->edit_form($Form->process());
     }
     
@@ -414,7 +306,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             $Parent = null;
             $parentUrl = $this->url . '&action=pages_fields';
         }
-        $Form = new EditFieldForm(array('Item' => $Item, 'view' => $this->view, 'meta' => array('Parent' => $Parent, 'parentUrl' => $parentUrl)));
+        $Form = new EditFieldForm(array('Item' => $Item, 'meta' => array('Parent' => $Parent, 'parentUrl' => $parentUrl)));
         $OUT = $Form->process();
         if ($Item instanceof Material_Field) {
             $OUT['Parent'] = $Parent;
