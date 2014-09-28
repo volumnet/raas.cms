@@ -25,7 +25,7 @@
                   <?php echo htmlspecialchars(str_replace('http://', '', array_shift(explode(' ', $row->urn))))?>
                 </a>
               </td>
-              <td><?php echo rowContextMenu($VIEW->context->getPageContextMenu($row))?></td>
+              <td><?php echo rowContextMenu(\RAAS\CMS\ViewSub_Main->getPageContextMenu($row))?></td>
             </tr>
         <?php } ?>
       </tbody>

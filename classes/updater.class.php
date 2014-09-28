@@ -12,6 +12,7 @@ class Updater extends \RAAS\Updater
         $this->update20140619();
         $this->update20140706();
         $this->update20140717();
+        $this->update20140910();
     }
 
 
@@ -627,6 +628,20 @@ class Updater extends \RAAS\Updater
                             ADD activated TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Activated',
                             ADD INDEX(new),
                             ADD INDEX(activated)";
+            $this->SQL->query($SQL_query);
+        }
+    }
+
+
+    protected function update20140910()
+    {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_fields", $this->tables) && !in_array('defval', $this->columns(\SOME\SOME::_dbprefix() . "cms_fields"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_fields
+                            ADD defval TEXT NULL DEFAULT NULL COMMENT 'Default value' AFTER source";
+            $this->SQL->query($SQL_query);
+
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials
+                            ADD priority INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Priority'";
             $this->SQL->query($SQL_query);
         }
     }

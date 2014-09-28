@@ -31,7 +31,7 @@ abstract class ViewBlock
                     <a class="cms-block-name" href="' . $this->view->url . '&action=edit_block&id=' . (int)$Item->id . '&pid=' . (int)$Page->id . '">
                       <span' . (!$Item->vis ? ' class="muted"' : '') . '>' . htmlspecialchars($Item->title) . '</span>
                     </a>';
-        if ($temp = $this->view->context->getBlockContextMenu($Item, $Page, $i, count($Page->blocksByLocations[$Location->urn]))) {
+        if ($temp = ViewSub_Main::i()->getBlockContextMenu($Item, $Page, $i, count($Page->blocksByLocations[$Location->urn]))) {
             $f = function($x) { return array('text' => '<i class="icon-' . $x['icon'] . '"></i>&nbsp;' . $x['name'], 'href' => $x['href'], 'onclick' => $x['onclick']); };
             $temp = array_map($f, $temp);
             $temp = json_encode($temp);

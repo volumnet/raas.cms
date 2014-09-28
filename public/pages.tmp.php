@@ -2,7 +2,7 @@
 function displayLocation($VIEW, $loc, $Item)
 {
     $text = '';
-    if ($temp = $VIEW->context->getLocationContextMenu($loc, $Item)) {
+    if ($temp = $VIEW->getLocationContextMenu($loc, $Item)) {
         $temp = array_map(function($x) { return array('text' => $x['name'], 'href' => $x['href']); }, $temp);
         $temp = json_encode($temp);
         $text .= '<script type="text/javascript">jQuery(document).ready(function($) { context.attach("#location-' . htmlspecialchars($loc->urn) . '", ' . $temp . ') })</script>';
@@ -37,14 +37,14 @@ function displayLocation($VIEW, $loc, $Item)
                   <div class="cms-template" style="<?php echo htmlspecialchars($Item->Template->style)?>">
                     <?php foreach ($Item->Template->locations as $loc) { ?>
                         <div class="cms-location<?php echo $loc->horizontal ? ' cms-horizontal' : ''?>" style="<?php echo htmlspecialchars($loc->style)?>" id="location-<?php echo htmlspecialchars($loc->urn)?>">
-                          <?php echo displayLocation($VIEW, $loc, $Item)?>
+                          <?php echo displayLocation(\RAAS\CMS\ViewSub_Main::i(), $loc, $Item)?>
                         </div>
                     <?php } ?>
                   </div>
               <?php } ?>
               <?php if (isset($Item->blocksByLocations['']) || !$Item->Template->locations) { ?>
                   <div class="cms-location" style="position: relative; width: <?php echo $Item->Template->width?>px" id="location-">
-                    <?php echo displayLocation($VIEW, new \RAAS\CMS\Location(), $Item)?>
+                    <?php echo displayLocation(\RAAS\CMS\ViewSub_Main::i(), new \RAAS\CMS\Location(), $Item)?>
                   </div>
               <?php } ?>
             </div>
@@ -60,7 +60,7 @@ function displayLocation($VIEW, $loc, $Item)
     <?php } ?>
     
     <div class="tab-pane" id="subsections">
-      <p><a href="?p=<?php echo $VIEW->packageName?>&action=edit&pid=<?php echo (int)$Item->id?>" class="btn btn-small pull-right"><i class="icon-plus"></i> <?php echo CMS\CREATE_PAGE?></a></p>
+      <p><a href="?p=<?php echo\RAAS\CMS\ ViewSub_Main::i()->packageName?>&action=edit&pid=<?php echo (int)$Item->id?>" class="btn btn-small pull-right"><i class="icon-plus"></i> <?php echo CMS\CREATE_PAGE?></a></p>
       <?php include \RAAS\Application::i()->view->context->tmp('/table.tmp.php');?>
     </div>
     
@@ -68,18 +68,18 @@ function displayLocation($VIEW, $loc, $Item)
         <?php foreach ($Item->affectedMaterialTypes as $mtype) { ?>
             <div class="tab-pane" id="_<?php echo htmlspecialchars($mtype->urn)?>">
               <p>
-                <a href="?p=<?php echo $VIEW->packageName?>&action=edit_material&pid=<?php echo (int)$Item->id?>&mtype=<?php echo $mtype->id?>" class="btn btn-small pull-right">
+                <a href="?p=<?php echo\RAAS\CMS\ ViewSub_Main::i()->packageName?>&action=edit_material&pid=<?php echo (int)$Item->id?>&mtype=<?php echo $mtype->id?>" class="btn btn-small pull-right">
                   <i class="icon icon-plus"></i> <?php echo CMS\CREATE_MATERIAL?>
                 </a>
               </p>
               <form class="form-search" action="" method="get">
-                <?php foreach ($VIEW->nav as $key => $val) { ?>
+                <?php foreach (\RAAS\CMS\ViewSub_Main::i()->nav as $key => $val) { ?>
                     <?php if (!in_array($key, array('page', 'm' . (int)$mtype->id . 'search_string'))) { ?>
                         <input type="hidden" name="<?php echo htmlspecialchars($key)?>" value="<?php echo htmlspecialchars($val)?>" />
                     <?php } ?>
                 <?php } ?>
                 <div class="input-append">
-                  <input type="search" class="span2 search-query" name="m<?php echo (int)$mtype->id?>search_string" value="<?php echo htmlspecialchars($VIEW->nav['m' . (int)$mtype->id . 'search_string'])?>" />
+                  <input type="search" class="span2 search-query" name="m<?php echo (int)$mtype->id?>search_string" value="<?php echo htmlspecialchars(\RAAS\CMS\ViewSub_Main::i()->nav['m' . (int)$mtype->id . 'search_string'])?>" />
                   <button type="submit" class="btn"><i class="icon-search"></i></button>
                 </div>
               </form>
