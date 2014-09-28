@@ -24,7 +24,7 @@
 <?php } elseif ($Set) { ?>
     <?php foreach ($Set as $row) { ?>
         <article class="article">
-          <h3 class="article__title"><?php echo htmlspecialchars($row->name)?></h3>
+          <h3 class="article__title"><a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>"><?php echo htmlspecialchars($row->name)?></a></h3>
           <?php if (strtotime($row->date) > 0) { ?>
               <p class="article__date"><?php echo date('d', strtotime($row->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->date))] . ' ' . date('Y', strtotime($row->date))?></p>
           <?php } ?>
