@@ -28,8 +28,7 @@ class EditMaterialForm extends \RAAS\Form
 
         $CONTENT = array();
         $temp = new Page();
-        $CONTENT['cats'] = array('Set' => $temp->children);
-        
+        $CONTENT['cats'] = array('Set' => $temp->children, 'additional' => function($row) { return array('data-group' => $row->template); });
         if ($Parent->id) {
             $title = $Item->id ? $this->view->_('EDITING_PAGE') : $this->view->_('CREATING_PAGE');
         } else {
@@ -92,7 +91,7 @@ class EditMaterialForm extends \RAAS\Form
                         'required' => 'required', 
                         'children' => $CONTENT['cats'], 
                         'default' => array((int)$Parent->id),
-                        'import' => function($Field) { return $Field->Form->Item->pages_ids; }
+                        'import' => function($Field) { return $Field->Form->Item->pages_ids; },
                     )
                 )
             ));

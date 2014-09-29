@@ -43,7 +43,7 @@ class EditBlockForm extends \RAAS\Form
         parent::__construct($arr);
         $this->meta['CONTENT'] = array();
         $temp = new Page();
-        $this->meta['CONTENT']['cats'] = array('Set' => $temp->children);
+        $this->meta['CONTENT']['cats'] = array('Set' => $temp->children, 'additional' => function($row) { return array('data-group' => $row->template); });
         foreach ($this->meta['Parent']->Template->locations as $key => $val) {
             $this->meta['CONTENT']['locations'][] = array('value' => $key, 'caption' => $key);
         }
@@ -181,13 +181,13 @@ class EditBlockForm extends \RAAS\Form
             'caption' => $this->view->_('PAGES'), 
             'multiple' => 'multiple', 
             'children' => $this->meta['CONTENT']['cats'],
-            'check' =>function($Field) {
+            'check' => function($Field) {
                 if (!isset($_POST['cats']) || !$_POST['cats']) {
                     return array('name' => 'MISSED', 'value' => $Field->name, 'description' => 'ERR_NO_PAGES');
                 }
             },
             'import' => function($Field) { return $Field->Form->Item->pages_ids; },
-            'default' => array((int)$this->meta['Parent']->id)
+            'default' => array((int)$this->meta['Parent']->id),
         ));
         return $tab;
     }
