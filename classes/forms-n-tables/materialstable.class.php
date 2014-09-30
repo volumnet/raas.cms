@@ -53,8 +53,7 @@ class MaterialsTable extends \RAAS\Table
         }
         $columns[' '] = array('callback' => function ($row) use ($view) { return rowContextMenu($view->getMaterialContextMenu($row)); });
 
-        $arr = $params;
-        $arr['columns'] = $columns;
+        $arr = array_merge(array('columns' => $columns), $params);
         parent::__construct($arr);
     }
 }
