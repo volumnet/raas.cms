@@ -25,10 +25,13 @@
                     <?php if ($Page->pid) { ?>
                         <h1><?php echo htmlspecialchars($Page->name)?></h1>
                     <?php } ?>
-                    <?php if (count($Page->parents) > 1) { ?>
+                    <?php if ((count($Page->parents) + (bool)$Page->Material->id) > 1) { ?>
                         <ol class="breadcrumb">
                           <?php foreach ($Page->parents as $row) { ?>
                               <li><a href="<?php echo htmlspecialchars($row->url)?>"><?php echo htmlspecialchars($row->name)?></a></li>
+                          <?php } ?>
+                          <?php if ($Page->Material->id) { ?>
+                              <li><a href="<?php echo htmlspecialchars($Page->url)?>"><?php echo htmlspecialchars($Page->oldName)?></a></li>
                           <?php } ?>
                         </ol>
                     <?php } ?>

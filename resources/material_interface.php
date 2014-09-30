@@ -43,8 +43,10 @@ if (isset($IN['id'])) {
 }
 if ($Item->id) {
     $OUT['Item'] = $Item;
+    $Page->Material = $Item;
     foreach (array('name', 'meta_title', 'meta_keywords', 'meta_description') as $key) {
         if ($Item->$key) {
+            $Page->{'old' . ucfirst($key)} = $Page->$key;
             $Page->$key = $Item->$key;
         }
     }

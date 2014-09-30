@@ -93,12 +93,12 @@ if ($Form->id) {
             switch ($Form->antispam) {
                 case 'captcha':
                     if (!isset($_POST[$Form->antispam_field_name], $_SESSION['captcha_keystring']) || ($_POST[$Form->antispam_field_name] != $_SESSION['captcha_keystring'])) {
-                        $localError[$row->urn] = ERR_CAPTCHA_FIELD_INVALID;
+                        $localError[$Form->antispam_field_name] = ERR_CAPTCHA_FIELD_INVALID;
                     }
                     break;
                 case 'hidden':
                     if (isset($_POST[$Form->antispam_field_name]) && $_POST[$Form->antispam_field_name]) {
-                        $localError[$row->urn] = ERR_CAPTCHA_FIELD_INVALID;
+                        $localError[$Form->antispam_field_name] = ERR_CAPTCHA_FIELD_INVALID;
                     }
                     break;
             }
