@@ -123,7 +123,7 @@ class EditBlockMaterialForm extends EditBlockForm
             'children' => array(
                 'sort_var_name' => array('name' => 'sort_var_name', 'placeholder' => $this->view->_('SORTING_VAR'), 'class' => 'span2'),
                 'order_var_name' => array('name' => 'order_var_name', 'placeholder' => $this->view->_('ORDER_VAR'), 'class' => 'span2'),
-                'sort_field_default' => array('type' => 'select', 'name' => 'sort_field_default', 'children' => $this->meta['CONTENT']['fields'], 'class' => 'span2'),
+                'sort_field_default' => array('type' => 'select', 'name' => 'sort_field_default', 'children' => $this->meta['CONTENT']['fields'], 'class' => 'span2 jsMaterialTypeField'),
                 'sort_order_default' => array('type' => 'select', 'name' => 'sort_order_default', 'children' => $this->meta['CONTENT']['orders'], 'class' => 'span2')
             )
         ));

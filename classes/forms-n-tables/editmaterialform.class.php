@@ -68,7 +68,7 @@ class EditMaterialForm extends \RAAS\Form
         $defaultParams = array(
             'Item' => $Item, 
             'parentUrl' => $this->view->url . '&id=' . $Parent->id . '#_' . $Type->urn, 
-            'caption' => $Item->id ? $Item->name : $this->_('CREATING_MATERIAL'),
+            'caption' => $Item->id ? $Item->name : $this->view->_('CREATING_MATERIAL'),
             'children' => array($commonTab, $seoTab, $serviceTab),
             'export' => function($Form) use ($Parent) {
                 $Form->exportDefault();
