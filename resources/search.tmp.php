@@ -5,25 +5,27 @@
           <li class="search-result">
             <?php if ($row instanceof \RAAS\CMS\Page) { ?>
                 <article class="article">
-                  <h2 class="article-title text-normal"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></h2>
-                  <div class="text">
+                  <h3 class="article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></h3>
+                  <div class="article__text">
                     <?php echo htmlspecialchars(\SOME\Text::cuttext(html_entity_decode(strip_tags($row->location('content')), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
-                    <p><a href="<?php echo $row->url?>" class="read-more">Подробней…</a></p>
+                    <p><a href="<?php echo $row->url?>" class="article__read-more">Подробней...</a></p>
                   </div>
                 </article>
             <?php } elseif ($row instanceof \RAAS\CMS\Material) { ?>
                 <article class="article">
-                  <h2 class="article-title text-normal"><a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>"><?php echo htmlspecialchars($row->name)?></a></h2>
+                  <h3 class="article__title"><a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>"><?php echo htmlspecialchars($row->name)?></a></h3>
                   <?php if (strtotime($row->date) > 0) { ?>
-                      <p class="date"><small><?php echo date('d', strtotime($row->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->date))] . ' ' . date('Y', strtotime($row->date))?></small></p>
+                      <p class="article__date"><?php echo date('d', strtotime($row->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->date))] . ' ' . date('Y', strtotime($row->date))?></p>
                   <?php } ?>
                   <?php if ($row->visImages) { ?>
-                      <a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>" class="context-image thumbnail w130 zoom-in pull-left">
-                        <img src="/<?php echo htmlspecialchars(addslashes($row->visImages[0]->tnURL))?>" /></a>
+                      <div class="article__image">
+                        <a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>">
+                          <img src="/<?php echo htmlspecialchars(addslashes($row->visImages[0]->tnURL))?>" /></a>
+                      </div>
                   <?php } ?>
-                  <div class="text">
+                  <div class="article__text">
                     <?php echo htmlspecialchars(\SOME\Text::cuttext(html_entity_decode(strip_tags($row->description), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
-                    <p><a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>" class="read-more">Подробней…</a></p>
+                    <p><a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>" class="article__read-more">Подробней...</a></p>
                   </div>
                 </article>
             <?php } ?>

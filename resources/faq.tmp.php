@@ -1,13 +1,13 @@
 <?php if ($Set) { ?>
     <?php foreach ($Set as $row) { ?>
         <article class="article faq">
-          <p class="faqheader"><small><?php echo date('d', strtotime($row->post_date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->post_date))] . ' ' . date('Y', strtotime($row->post_date))?></small><?php echo (strlen($row->name) > 1 && !is_numeric($row->name)) ? ', ' . htmlspecialchars($row->name) : ''?></p>
-          <div class="text">
+          <p class="article__date"><?php echo date('d', strtotime($row->post_date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->post_date))] . ' ' . date('Y', strtotime($row->post_date))?><?php echo (strlen($row->name) > 1 && !is_numeric($row->name)) ? ', ' . htmlspecialchars($row->name) : ''?></p>
+          <div class="article__text">
             <strong>Вопрос:</strong> <?php echo htmlspecialchars($row->description)?>
           </div>
           <?php if ($row->answer) { ?>
               <br />
-              <div class="text">
+              <div class="article__text faq__answer">
                 <strong>Ответ:</strong> <?php echo htmlspecialchars($row->answer)?>
               </div>
           <?php } ?>

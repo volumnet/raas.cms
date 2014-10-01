@@ -1,7 +1,7 @@
 <?php if ($Item) { ?>
     <article class="article article_opened">
       <?php if (strtotime($Item->date) > 0) { ?>
-          <p class="article__date"><small><?php echo date('d', strtotime($Item->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($Item->date))] . ' ' . date('Y', strtotime($Item->date))?></small></p>
+          <p class="article__date"><?php echo date('d', strtotime($Item->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($Item->date))] . ' ' . date('Y', strtotime($Item->date))?></p>
       <?php } ?>
       <?php if ($Item->visImages) { ?>
           <div class="article__image">
