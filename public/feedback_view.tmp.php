@@ -97,7 +97,7 @@
   <?php } ?>
   <div class="control-group">
     <label class="control-label"><?php echo CMS\IP_ADDRESS?>:</label>
-    <div class="controls"><a href="http://whois.net/ip-address-lookup/<?php echo htmlspecialchars($Item->ip)?>"><?php echo htmlspecialchars($Item->ip)?></a></div>
+    <div class="controls"><a href="https://www.nic.ru/whois/?query=<?php echo htmlspecialchars(urlencode($Item->ip))?>"><?php echo htmlspecialchars($Item->ip)?></a></div>
   </div>
   <div class="control-group">
     <label class="control-label"><?php echo CMS\USER_AGENT?>:</label> <div class="controls"><?php echo htmlspecialchars($Item->user_agent)?></div>
