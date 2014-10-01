@@ -68,7 +68,7 @@ class SubsectionsTable extends \RAAS\Table
                     'callback' => function($row) use ($col) { return $row->fields[$col->urn]->doRich(); }   
                 );
             }
-            // $columns[' '] = array('callback' => function ($row, $i) use ($view, $params) { print_r ($params); exit; return rowContextMenu($view->getPageContextMenu($row, $i, count($params['Set']))); });
+            $columns[' '] = array('callback' => function ($row, $i) use ($view, $params) { return rowContextMenu($view->getPageContextMenu($row, $i, count($params['Set']))); });
         }
         $arr = $params;
         $arr['columns'] = $columns;
