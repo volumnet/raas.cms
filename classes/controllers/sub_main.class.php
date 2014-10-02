@@ -57,6 +57,9 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
 
     protected function show_page()
     {
+        if (isset($_POST['priority']) && is_array($_POST['priority'])) {
+            $this->model->setMaterialsPriority((array)$_POST['priority']);
+        }
         $Page = new Page($this->id);
         $OUT = array();
         $OUT = array_merge($OUT, $this->model->show_page());

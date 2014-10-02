@@ -265,8 +265,11 @@ class Package extends \RAAS\Package
                 case 'name': case 'urn': case 'modify_date':
                     $_sort = $sort;
                     break;
+                case 'priority':
+                    $_sort = 'NOT priority, priority';
+                    break;
                 default:
-                    $_sort = 'post_date';
+                    $_sort = $sort = 'post_date';
                     break;
             }
             if (isset($order) && ($order == 'desc')) {
@@ -280,7 +283,7 @@ class Package extends \RAAS\Package
             $SQL_query .= " ORDER BY " . $_sort . " " . strtoupper($_order);
             $Set = Material::getSQLSet($SQL_query, $Pages);
         }
-        return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $_sort, 'order' => $_order);
+        return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $_order);
     }
     
     public function feedback()
@@ -343,6 +346,14 @@ class Package extends \RAAS\Package
             $Item2->urn = '_' . $Item2->urn . '_';
         }
         return $Item2;
+    }
+
+
+    public function setMaterialsPriority(array $priorities = array())
+    {
+        foreach ($priorities as $key => $val) {
+            $this->SQL->update(Material::_tablename(), "id = " . (int)$key, array('priority' => (int)$val));
+        }
     }
 
 

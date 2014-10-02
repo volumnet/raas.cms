@@ -40,7 +40,8 @@ class EditBlockMaterialForm extends EditBlockForm
             array('value' => 'urn', 'caption' => $this->view->_('URN')),
             array('value' => 'description', 'caption' => $this->view->_('DESCRIPTION')),
             array('value' => 'post_date', 'caption' => $this->view->_('CREATED_BY')),
-            array('value' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'))
+            array('value' => 'modify_date', 'caption' => $this->view->_('EDITED_BY')),
+            array('value' => 'priority', 'caption' => $this->view->_('PRIORITY'))
         );
         if ($this->Item->id) {
             $Material_Type = $this->Item->Material_Type;

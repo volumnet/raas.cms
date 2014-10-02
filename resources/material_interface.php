@@ -10,6 +10,8 @@ $getField = function($field, $as, array &$SQL_from) {
     $sort = '';
     if (in_array($field, array('name', 'urn', 'description', 'post_date', 'modify_date'))) {
         $sort = "tM." . $field;
+    } elseif ($field == 'priority') {
+        $sort = "NOT tM.priority, tM.priority";
     } elseif (is_numeric($field)) {
         if (!isset($SQL_from[$as]) || !$SQL_from[$as]) {
             $SQL_from[$as] = " JOIN " . Field::data_table . " AS " . $as . " ON " . $as . ".pid = tM.id AND " . $as . ".fid = " . (int)$field;

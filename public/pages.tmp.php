@@ -87,7 +87,7 @@ function displayLocation($VIEW, $loc, $Item)
               if ($MSet[$mtype->urn]) {
                   $Table = $MTable[$mtype->urn];
                   $pagesHash = '_' . $mtype->urn;
-                  include \RAAS\Application::i()->view->context->tmp('/table.tmp.php');
+                  include \RAAS\Application::i()->view->context->tmp('materialstable.tmp.php');
                   ?>
               <?php } ?>
             </div>

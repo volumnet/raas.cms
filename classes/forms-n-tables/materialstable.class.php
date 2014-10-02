@@ -51,6 +51,13 @@ class MaterialsTable extends \RAAS\Table
                 'callback' => function($row) use ($col) { return $row->fields[$col->urn]->doRich(); }
             );
         }
+        $columns['priority'] = array(
+            'caption' => $this->view->_('PRIORITY'),
+            'sortable' => Column::SORTABLE_REVERSABLE,
+            'callback' => function($row) { 
+                return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . ($row->priority ? (int)$row->priority : '') . '" class="span1" min="0" />';
+            }
+        );
         $columns[' '] = array('callback' => function ($row) use ($view) { return rowContextMenu($view->getMaterialContextMenu($row)); });
 
         $arr = array_merge(array('columns' => $columns), $params);

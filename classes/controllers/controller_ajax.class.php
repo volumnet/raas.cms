@@ -27,6 +27,7 @@ class Controller_Ajax extends Abstract_Controller
             (object)array('id' => 'description', 'name' => $this->view->_('DESCRIPTION')),
             (object)array('id' => 'post_date', 'name' => $this->view->_('CREATED_BY')),
             (object)array('id' => 'modify_date', 'name' => $this->view->_('EDITED_BY'))
+            (object)array('id' => 'priority', 'name' => $this->view->_('PRIORITY'))
         );
         $Set = array_merge(
             $Set, array_values(array_filter($Material_Type->fields, function($x) { return !($x->multiple || in_array($x->datatype, array('file', 'image'))); }))
