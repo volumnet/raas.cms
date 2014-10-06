@@ -43,7 +43,7 @@ $OUT = array();
 if (isset($IN['id'])) {
     $Item = new Material($IN['id']);
 }
-if ($Item->id) {
+if ($Item->id && ($Item->pid == $config['material_type'])) {
     $OUT['Item'] = $Item;
     $Page->Material = $Item;
     foreach (array('name', 'meta_title', 'meta_keywords', 'meta_description') as $key) {
