@@ -85,10 +85,13 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'move_up_page_field': case 'move_down_page_field': case 'delete_page_field': case 'show_in_table_page_field':
                 if (strstr($this->action, 'form')) {
                     $Item = new Form_Field((int)$this->id);
+                    $Parent = $Item->Owner;
                 } elseif (strstr($this->action, 'material')) {
                     $Item = new Material_Field((int)$this->id);
+                    $Parent = $Item->Owner;
                 } else {
                     $Item = new Page_Field((int)$this->id);
+                    $Parent = null;
                 }
                 $f = str_replace('_field', '', str_replace('_material', '', str_replace('_page', '', str_replace('_form', '', $this->action))));
                 if (strstr($this->action, 'form')) {
@@ -98,11 +101,22 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 } else {
                     $url2 .= '&action=pages_fields';
                 }
-                StdSub::$f($Item, $this->url . $url2);
+                StdSub::$f($Item, $this->url . $url2, true, true, $Parent);
                 break;
             case 'delete_material_type':
                 $Item = new Material_Type((int)$this->id);
                 StdSub::delete($Item, $this->url . '&action=material_types');
+                break;
+            case 'webmaster_faq':
+                $w = new Webmaster();
+                $w->createFAQ($this->view->_('FAQ'), 'faq');
+                new Redirector(\SOME\HTTP::queryString('action='));
+                break;
+            case 'webmaster_search':
+                $w = new Webmaster();
+                $w->createSearch();
+                new Redirector(\SOME\HTTP::queryString('action='));
+                break;
                 break;
             default:
                 $this->view->dev();
