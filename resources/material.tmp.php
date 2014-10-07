@@ -6,7 +6,7 @@
       <?php if ($Item->visImages) { ?>
           <div class="article__image">
             <a href="/<?php echo $Item->visImages[0]->fileURL?>">
-              <img src="/<?php echo $Item->visImages[0]->tnURL?>" /></a>
+              <img src="/<?php echo $Item->visImages[0]->tnURL?>" alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $row->name)?>" /></a>
           </div>
       <?php } ?>
       <div class="article__text"><?php echo $Item->description?></div>
@@ -15,7 +15,7 @@
             <?php for ($i = 1; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
                 <div class="col-sm-4 col-md-3 col-xs-6">
                   <a href="/<?php echo htmlspecialchars(addslashes($row->fileURL))?>">
-                    <img src="/<?php echo htmlspecialchars(addslashes($row->tnURL))?>" /></a>
+                    <img src="/<?php echo htmlspecialchars(addslashes($row->tnURL))?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
                 </div>
             <?php } ?>
           </div>
@@ -31,7 +31,7 @@
           <?php if ($row->visImages) { ?>
               <div class="article__image">
                 <a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>">
-                  <img src="/<?php echo htmlspecialchars(addslashes($row->visImages[0]->tnURL))?>" /></a>
+                  <img src="/<?php echo htmlspecialchars(addslashes($row->visImages[0]->tnURL))?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
               </div>
           <?php } ?>
           <div class="article__text">

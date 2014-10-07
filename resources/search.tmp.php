@@ -20,7 +20,7 @@
                   <?php if ($row->visImages) { ?>
                       <div class="article__image">
                         <a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>">
-                          <img src="/<?php echo htmlspecialchars(addslashes($row->visImages[0]->tnURL))?>" /></a>
+                          <img src="/<?php echo htmlspecialchars(addslashes($row->visImages[0]->tnURL))?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
                       </div>
                   <?php } ?>
                   <div class="article__text">
