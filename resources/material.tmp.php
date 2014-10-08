@@ -11,7 +11,8 @@
       <?php } ?>
       <div class="article__text"><?php echo $Item->description?></div>
       <?php if (count($Item->visImages) > 1) { ?>
-          <div class="clearfix"><h2>Фотографии</h2></div>
+          <div class="clearfix"></div>
+          <h2>Фотографии</h2>
           <div class="article__images">
             <?php for ($i = 1; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
                 <a href="/<?php echo htmlspecialchars(addslashes($row->fileURL))?>">
