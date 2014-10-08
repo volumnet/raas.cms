@@ -11,12 +11,11 @@
       <?php } ?>
       <div class="article__text"><?php echo $Item->description?></div>
       <?php if (count($Item->visImages) > 1) { ?>
-          <div class="article__images row">
+          <div class="clearfix"><h2>Фотографии</h2></div>
+          <div class="article__images">
             <?php for ($i = 1; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
-                <div class="col-sm-4 col-md-3 col-xs-6">
-                  <a href="/<?php echo htmlspecialchars(addslashes($row->fileURL))?>">
-                    <img src="/<?php echo htmlspecialchars(addslashes($row->tnURL))?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
-                </div>
+                <a href="/<?php echo htmlspecialchars(addslashes($row->fileURL))?>">
+                  <img src="/<?php echo htmlspecialchars(addslashes($row->tnURL))?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
             <?php } ?>
           </div>
       <?php } ?>
