@@ -13,10 +13,12 @@
       <?php if (count($Item->visImages) > 1) { ?>
           <div class="clearfix"></div>
           <h2>Фотографии</h2>
-          <div class="article__images">
+          <div class="article__images row">
             <?php for ($i = 1; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
-                <a href="/<?php echo htmlspecialchars(addslashes($row->fileURL))?>">
-                  <img src="/<?php echo htmlspecialchars(addslashes($row->tnURL))?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
+                <div class="col-sm-4 col-md-3 col-xs-6">
+                  <a href="/<?php echo htmlspecialchars(addslashes($row->fileURL))?>" class="article__images__image">
+                    <img src="/<?php echo htmlspecialchars(addslashes($row->tnURL))?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
+                </div>
             <?php } ?>
           </div>
       <?php } ?>
