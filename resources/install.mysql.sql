@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_form (
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_html (
   id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'ID#',
   description mediumtext COMMENT 'Text',
-  wysiwyg TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'WYSIWYG editor on',
+  wysiwyg tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'WYSIWYG editor on',
   PRIMARY KEY (id)
 ) COMMENT='HTML blocks';
 
@@ -132,8 +132,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_data (
   PRIMARY KEY (pid,fid,fii),
   KEY pid (pid),
   KEY fid (fid),
-  KEY fii (fii) -- ,
-  -- FULLTEXT KEY `value` (`value`)
+  KEY fii (fii)
 ) COMMENT='Pages fields';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_dictionaries (
@@ -178,6 +177,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   multiple tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Multiple data',
   source_type enum('','ini','csv','xml','sql','php','dictionary') NOT NULL DEFAULT '' COMMENT 'Source type',
   `source` mediumtext COMMENT 'Source',
+  defval text COMMENT 'Default value',
   min_val float NOT NULL DEFAULT '0' COMMENT 'Minimal value',
   max_val float NOT NULL DEFAULT '0' COMMENT 'Maximal value',
   placeholder varchar(255) NOT NULL DEFAULT '' COMMENT 'Placeholder',
@@ -217,6 +217,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   meta_title varchar(255) NOT NULL DEFAULT '' COMMENT 'Meta title',
   meta_description text COMMENT 'Meta description',
   meta_keywords text COMMENT 'Meta keywords',
+  priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
   PRIMARY KEY (id),
   KEY pid (pid),
   KEY author_id (author_id),
@@ -322,33 +323,6 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippet_folders (
   KEY pid (pid)
 ) COMMENT='Snippet folders';
 
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (
-  id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
-  post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Registration date',
-  vis TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Active',
-  new TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'New',
-  activated TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Activated',
-  login varchar(255) NOT NULL DEFAULT '' COMMENT 'Login',
-  password_md5 varchar(255) NOT NULL DEFAULT '' COMMENT 'Password MD5',
-  email varchar(255) NOT NULL DEFAULT '' COMMENT 'E-mail',
-  lang varchar(255) NOT NULL DEFAULT 'ru' COMMENT 'Language',
-  PRIMARY KEY (id),
-  INDEX (login),
-  INDEX (email),
-  INDEX (post_date),
-  INDEX (vis),
-  INDEX (new),
-  INDEX (activated)
-) COMMENT='Users';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users_social (
-    uid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'User ID#',
-    url varchar(255) NOT NULL DEFAULT '' COMMENT 'Social network page URL',
-    PRIMARY KEY (uid, url),
-    KEY uid (uid),
-    KEY url (url)
-) COMMENT 'Users social networks associations';
-
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
@@ -361,3 +335,30 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   PRIMARY KEY (id),
   KEY background (background)
 ) COMMENT='Templates';
+
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (
+  id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+  post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Registration date',
+  vis tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Active',
+  `new` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'New',
+  activated tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Activated',
+  login varchar(255) NOT NULL DEFAULT '' COMMENT 'Login',
+  password_md5 varchar(255) NOT NULL DEFAULT '' COMMENT 'Password MD5',
+  email varchar(255) NOT NULL DEFAULT '' COMMENT 'E-mail',
+  lang varchar(255) NOT NULL DEFAULT 'ru' COMMENT 'Language',
+  PRIMARY KEY (id),
+  KEY login (login),
+  KEY email (email),
+  KEY post_date (post_date),
+  KEY vis (vis),
+  KEY `new` (`new`),
+  KEY activated (activated)
+) COMMENT='Users';
+
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users_social (
+  uid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'User ID#',
+  url varchar(255) NOT NULL DEFAULT '' COMMENT 'Social network page URL',
+  PRIMARY KEY (uid,url),
+  KEY uid (uid),
+  KEY url (url)
+) COMMENT='Users social networks associations';
