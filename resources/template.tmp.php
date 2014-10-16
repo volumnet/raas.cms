@@ -18,7 +18,7 @@
           <?php if (count($Page->locationBlocksText['left'])) { ?>
               <aside class="location_left col-sm-4"><?php echo $Page->location('left')?></aside>
           <?php } ?>
-          <?php if (count($Page->locationBlocksText['center'])) { ?>
+          <?php if (count($Page->locationBlocksText['content'])) { ?>
               <section class="location_content col-sm-<?php echo (3 - (int)(bool)count($Page->locationBlocksText['left']) - (int)(bool)count($Page->locationBlocksText['right'])) * 4?>">
                 <?php 
                 if (!$Page->pid) { 
