@@ -542,7 +542,7 @@ class Webmaster
         $FRM->create_feedback = 0;
         $FRM->signature = 0;
         $FRM->antispam = 'hidden';
-        $FRM->antispam_field_name = 'name';
+        $FRM->antispam_field_name = '_name';
         $FRM->interface_id = (int)$S->id;
         $FRM->commit();
 
@@ -640,7 +640,7 @@ class Webmaster
         $FRM->create_feedback = 1;
         $FRM->signature = 0;
         $FRM->antispam = 'hidden';
-        $FRM->antispam_field_name = 'name';
+        $FRM->antispam_field_name = '_name';
         $FRM->interface_id = (int)$S->id;
         $FRM->commit();
 
