@@ -18,7 +18,7 @@ jQuery(function($) {
             if ($('#antispam').val() == 'captcha') {
                 $('#antispam_field_name').val('captcha');
             } else if ($('#antispam').val() == 'hidden') {
-                $('#antispam_field_name').val('name');
+                $('#antispam_field_name').val('_name');
             }
         } else {
             $('#antispam_field_name').attr('disabled', 'disabled');
