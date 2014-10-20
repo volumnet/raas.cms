@@ -52,9 +52,9 @@ final class Controller_Frontend extends Abstract_Controller
     {
         if (!$this->getCache()) {
             $p = pathinfo($_SERVER['REQUEST_URI']);
-            if (preg_match('/(\\d+)x(\\d+)(_(\\w+))?$/i', $p['basename'], $regs) && is_file($f = ltrim($p['dirname'] . '/' . $p['filename'], '/'))) {
+            if (preg_match('/(\\d+|auto)x(\\d+|auto)(_(\\w+))?$/i', $p['basename'], $regs) && is_file($f = ltrim($p['dirname'] . '/' . $p['filename'], '/'))) {
                 if ($s = getimagesize($f)) {
-                    $this->getThumbnail($f, $regs[1], $regs[2], $regs[4]);
+                    $this->getThumbnail($f, ($regs[1] != 'auto') ? (int)$regs[1] : null, ($regs[2] != 'auto') ? (int)$regs[2] : null, $regs[4]);
                     exit;
                 }
             }
@@ -164,7 +164,7 @@ final class Controller_Frontend extends Abstract_Controller
             $mode = \SOME\Thumbnail::THUMBNAIL_CROP;
         }
         ob_start();
-        \SOME\Thumbnail::make($filename, null, $w ? $w : INF, $h ? $h : INT, $mode, true, false, 90);
+        \SOME\Thumbnail::make($filename, null, $w ? $w : INF, $h ? $h : INF, $mode, true, false, 90);
         $content = ob_get_contents();
         $headers = (array)headers_list();
         ob_end_flush();
