@@ -26,10 +26,6 @@
 <?php } elseif ($Set) { ?>
     <?php foreach ($Set as $row) { ?>
         <article class="article">
-          <h3 class="article__title"><a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>"><?php echo htmlspecialchars($row->name)?></a></h3>
-          <?php if (strtotime($row->date) > 0) { ?>
-              <p class="article__date"><?php echo date('d', strtotime($row->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->date))] . ' ' . date('Y', strtotime($row->date))?></p>
-          <?php } ?>
           <?php if ($row->visImages) { ?>
               <div class="article__image">
                 <a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>">
@@ -37,6 +33,10 @@
               </div>
           <?php } ?>
           <div class="article__text">
+            <h3 class="article__title"><a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>"><?php echo htmlspecialchars($row->name)?></a></h3>
+            <?php if (strtotime($row->date) > 0) { ?>
+                <p class="article__date"><?php echo date('d', strtotime($row->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->date))] . ' ' . date('Y', strtotime($row->date))?></p>
+            <?php } ?>
             <?php echo htmlspecialchars(\SOME\Text::cuttext(html_entity_decode(strip_tags($row->description), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
             <p><a href="<?php echo $Page->url?>?id=<?php echo (int)$row->id?>" class="article__read-more">Подробней…</a></p>
           </div>
