@@ -1,7 +1,10 @@
 <?php if ($Set) { ?>
     <?php foreach ($Set as $row) { ?>
         <article class="article faq">
-          <p class="article__date"><?php echo date('d', strtotime($row->post_date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->post_date))] . ' ' . date('Y', strtotime($row->post_date))?><?php echo (strlen($row->name) > 1 && !is_numeric($row->name)) ? ', ' . htmlspecialchars($row->name) : ''?></p>
+          <p class="article__date"><?php echo date('d', strtotime($row->post_date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->post_date))] . ' ' . date('Y', strtotime($row->post_date))?></p>
+          <?php if (strlen($row->name) > 1 && !is_numeric($row->name)) { ?>
+              <h3 class="article__title"><?php echo htmlspecialchars($row->name)?></h3>
+          <?php } ?>
           <div class="article__text">
             <strong>Вопрос:</strong> <?php echo htmlspecialchars($row->description)?>
           </div>
