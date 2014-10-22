@@ -69,7 +69,7 @@ class EditBlockForm extends \RAAS\Form
             foreach ($x->children as $row) {
                 if ($row->urn != '__RAAS_views') {
                     $o = new Option(array('value' => '', 'caption' => $row->name, 'disabled' => 'disabled'));
-                    $o->children = $wf($row);
+                    $o->__set('children', $wf($row));
                     $temp[] = $o;
                 }
             }
@@ -98,7 +98,7 @@ class EditBlockForm extends \RAAS\Form
             foreach ($x->children as $row) {
                 if ($row->urn != '__RAAS_interfaces') {
                     $o = new Option(array('value' => '', 'caption' => $row->name, 'disabled' => 'disabled'));
-                    $o->children = $wf($row);
+                    $o->__set('children', $wf($row));
                     $temp[] = $o;
                 }
             }
