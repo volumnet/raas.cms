@@ -3,7 +3,6 @@
 <html>
   <head>
     <?php echo eval('?' . '>' . Snippet::importByURN('head')->description)?>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
     <?php echo $Page->location('head_counters')?>
   </head>
   <body>
