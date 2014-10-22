@@ -42,8 +42,18 @@ $getOrder = function($relation, $var) {
 $OUT = array();
 if (isset($IN['id'])) {
     $Item = new Material($IN['id']);
+    if (((int)$Item->id != (int)$IN['id']) || ($Item->pid != $config['material_type'])) {
+        $Page = $Page->getCodePage(404);
+        // header("HTTP/1.1 301 Moved Permanently");
+        // header('Location: http://' . $_SERVER['HTTP_HOST'] . $Page->url); 
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        \RAAS\Controller_Frontend::i()->processPage($Page);
+        exit;
+    }
 }
-if ($Item->id && ($Item->pid == $config['material_type'])) {
+if ($Item->id) {
     $OUT['Item'] = $Item;
     $Page->Material = $Item;
     foreach (array('name', 'meta_title', 'meta_keywords', 'meta_description') as $key) {

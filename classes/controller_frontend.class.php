@@ -117,6 +117,12 @@ final class Controller_Frontend extends Abstract_Controller
         if ((trim($Page->url, '/') != trim(str_replace('\\', '/', $url), '/')) && !$Page->nat) {
             $Page = $Page->getCodePage(404);
         }
+        $this->processPage($Page);
+    }
+
+
+    public function processPage(Page $Page)
+    {
         ob_clean();
         $Page->process();
         if ($Page->cache) {
