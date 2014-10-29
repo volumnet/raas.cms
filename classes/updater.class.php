@@ -653,7 +653,7 @@ class Updater extends \RAAS\Updater
         $SQL_query = "SELECT COUNT(*)
                         FROM " . \SOME\SOME::_dbprefix() . "cms_snippets AS tS
                    LEFT JOIN " . \SOME\SOME::_dbprefix() . "cms_snippet_folders AS tSF ON tSF.id = tS.pid
-                       WHERE NOT tS.locked AND tSF.urn != '__RAAS_interfaces' AND (tS.description LIKE '%href=\"%->id%\"%' OR tS.description LIKE '%<loc>%?id=%</loc>')";
+                       WHERE NOT tS.locked AND tSF.urn != '__RAAS_interfaces' AND (tS.description LIKE '%href=\"%?id=%->id%\"%' OR tS.description LIKE '%<loc>%?id=%</loc>')";
         if ((int)$this->SQL->getvalue($SQL_query)) {
             $rep = array();
             $rep['href="<' . '?php echo $Page->url?' . '>?id=<' . '?php echo (int)$row->id?' . '>"'] = 'href="<' . '?php echo $Page->url . $row->urn?' . '>/"';
