@@ -316,7 +316,7 @@ class Package extends \RAAS\Package
         if (is_dir($this->cacheDir)) {
             $dir = \SOME\File::scandir($this->cacheDir);
             foreach ($dir as $f) {
-                if (is_file($this->cacheDir . '/' . $f) && preg_match('/^' . preg_quote($this->cachePrefix) . '(.*?)\\.(.*?)\\.php$/i', $f)) {
+                if (is_file($this->cacheDir . '/' . $f) && preg_match('/^' . preg_quote($this->cachePrefix) . '(.*?)\\.php$/i', $f)) {
                     unlink($this->cacheDir . '/' . $f);
                 }
             }

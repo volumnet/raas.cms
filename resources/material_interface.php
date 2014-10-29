@@ -40,28 +40,33 @@ $getOrder = function($relation, $var) {
 };
 
 $OUT = array();
-if (isset($IN['id'])) {
-    $Item = new Material($IN['id']);
-    if (((int)$Item->id != (int)$IN['id']) || ($Item->pid != $config['material_type'])) {
-        $Page = $Page->getCodePage(404);
-        // header("HTTP/1.1 301 Moved Permanently");
-        // header('Location: http://' . $_SERVER['HTTP_HOST'] . $Page->url); 
-        while (ob_get_level()) {
-            ob_end_clean();
-        }
-        \RAAS\Controller_Frontend::i()->processPage($Page);
+if (!$Page->Material && isset($IN['id'])) {
+    // Старый способ - по id
+    $Page->Material = $Item = new Material($IN['id']);
+    if (((int)$Item->id == (int)$IN['id']) && ($Item->pid == $config['material_type'])) {
+        // Если материал действительно к месту, перенаправляем на новый адрес
+        header("HTTP/1.1 301 Moved Permanently");
+        header('Location: http://' . $_SERVER['HTTP_HOST'] . $Page->url . $Item->urn . '/'); 
         exit;
+    } else {
+        // Такого материала нет, возвращаем (не обрабатываем). Далее контроллер перекинет на 404
+        return;
     }
 }
-if ($Item->id) {
+if ($Page->Material && $Block->nat) {
+    $Item = $Page->Material;
+    if ($Item->pid != $config['material_type']) {
+        // Если материал не к месту, возвращаем (не обрабатываем). Далее контроллер перекинет на 404
+        return;
+    }
     $OUT['Item'] = $Item;
-    $Page->Material = $Item;
     foreach (array('name', 'meta_title', 'meta_keywords', 'meta_description') as $key) {
         if ($Item->$key) {
             $Page->{'old' . ucfirst($key)} = $Page->$key;
             $Page->$key = $Item->$key;
         }
     }
+    $Item->proceed = true;
 } else {
     $SQL_from = $SQL_where = array();
     $sort = $order = "";

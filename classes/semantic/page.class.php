@@ -110,6 +110,14 @@ class Page extends \SOME\SOME
                 $url = implode('/', $this->URLArray);
                 return $url ? '/' . $url . '/' : '/';
                 break;
+            case 'additionalURL':
+                $url = preg_replace('/^' . preg_quote($this->url, '/') . '/ui', '', $this->initialURL);
+                return $url;
+            case 'additionalURLArray':
+                $url = trim($this->additionalURL, '/');
+                $url = trim($url);
+                $urlArray = explode('/', $url);
+                return $urlArray;
             case 'blocksByLocations':
                 $blocks = array();
                 foreach ($this->blocksOrdered as $row) {
@@ -223,6 +231,7 @@ class Page extends \SOME\SOME
     
     public function process()
     {
+        ob_start();
         if ($this->response_code && ($this->response_code != 200)) {
             header('HTTP/1.0 ' . Page::$httpStatuses[(int)$this->response_code]);
             header('Status: ' . Page::$httpStatuses[(int)$this->response_code]);
@@ -239,6 +248,9 @@ class Page extends \SOME\SOME
             }
             eval('?' . '>' . $this->Template->description);
         }
+        $content = ob_get_contents();
+        ob_end_clean();
+        return $content;
     }
     
     

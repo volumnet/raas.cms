@@ -6,7 +6,7 @@ $showMenu = function(\RAAS\CMS\Page $page) use (&$showMenu) {
         if (!$row->response_code) {
             $text .= '<url><loc>http://' . htmlspecialchars($_SERVER['HTTP_HOST'] . $row->url) . '</loc></url>';
             foreach ($row->affectedMaterials as $row2) {
-                $text .= '<url><loc>http://' . htmlspecialchars($_SERVER['HTTP_HOST'] . $row->url) . '?id=' . (int)$row2->id . '</loc></url>';
+                $text .= '<url><loc>http://' . htmlspecialchars($_SERVER['HTTP_HOST'] . $row->url . $row->urn) . '/</loc></url>';
             }
             $text .= $showMenu($row);
         }

@@ -13,6 +13,7 @@ class Updater extends \RAAS\Updater
         $this->update20140706();
         $this->update20140717();
         $this->update20140910();
+        $this->update20141029();
     }
 
 
@@ -643,6 +644,28 @@ class Updater extends \RAAS\Updater
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials
                             ADD priority INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Priority'";
             $this->SQL->query($SQL_query);
+        }
+    }
+
+
+    protected function update20141029()
+    {
+        $SQL_query = "SELECT COUNT(*)
+                        FROM " . \SOME\SOME::_dbprefix() . "cms_snippets AS tS
+                   LEFT JOIN " . \SOME\SOME::_dbprefix() . "cms_snippet_folders AS tSF ON tSF.id = tS.pid
+                       WHERE NOT tS.locked AND tSF.urn != '__RAAS_interfaces' AND (tS.description LIKE '%href=\"%->id%\"%' OR tS.description LIKE '%<loc>%?id=%</loc>')";
+        if ((int)$this->SQL->getvalue($SQL_query)) {
+            $rep = array();
+            $rep['href="<' . '?php echo $Page->url?' . '>?id=<' . '?php echo (int)$row->id?' . '>"'] = 'href="<' . '?php echo $Page->url . $row->urn?' . '>/"';
+            $rep['?id=<' . '?php echo (int)$row->id?' . '>"'] = '<' . '?php echo $row->urn?' . '>/"';
+            $rep['<loc>http://\' . htmlspecialchars($_SERVER[\'HTTP_HOST\'] . $row->url) . \'?id=\' . (int)$row2->id . \'</loc>'] = '<loc>http://\' . htmlspecialchars($_SERVER[\'HTTP_HOST\'] . $row->url . $row2->urn) . \'/</loc>';
+            foreach ($rep as $key => $val) {
+                $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_snippets AS tS
+                           LEFT JOIN " . \SOME\SOME::_dbprefix() . "cms_snippet_folders AS tSF ON tSF.id = tS.pid
+                                 SET tS.description = REPLACE(tS.description, ?, ?) 
+                               WHERE NOT tS.locked AND tSF.urn != '__RAAS_interfaces'";
+                $this->SQL->query(array($SQL_query, $key, $val));
+            }
         }
     }
 }

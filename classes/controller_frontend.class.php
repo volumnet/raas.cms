@@ -2,6 +2,7 @@
 namespace RAAS;
 
 use \RAAS\CMS\Page;
+use \RAAS\CMS\Material;
 use \RAAS\CMS\User AS CMSUser;
 use \RAAS\CMS\Auth;
 
@@ -103,47 +104,54 @@ final class Controller_Frontend extends Abstract_Controller
     
     protected function fork()
     {
-        ob_start();
         $url = parse_url($_SERVER['REQUEST_URI']);
         $url = $url['path'];
+        $url = str_replace('\\', '/', $url);
         $Page = Page::importByURL('http://' . $_SERVER['HTTP_HOST'] . $url);
+        $doCache = (bool)(int)$Page->cache;
+        $Page->initialURL = $url;
 
+        // Ищем материал, только если добавочный URN один
+        if (count($Page->additionalURLArray) == 1) {
+            $Material = Material::importByURN($Page->additionalURLArray[0]);
+            if ($Material && $Material->id) {
+                $Page->Material = $Material;
+            }
+        }
+        if (!$Page->Material && $Page->additionalURL && !$Page->nat) {
+            // Нет материала, но есть добавочный URL без трансляции адресов
+            $Page = $Page->getCodePage(404);
+            $Page->cache = (bool)(int)$Page->cache || $doCache;
+        }
+        
         $this->exportLang($this->application, $Page->lang);
         $this->exportLang($this->model, $Page->lang);
         foreach ($this->model->modules as $mod) {
             $this->exportLang($mod, $Page->lang);
         }
 
-        if ((trim($Page->url, '/') != trim(str_replace('\\', '/', $url), '/')) && !$Page->nat) {
+        $content = $Page->process();
+
+        if ($Page->Material && !$Page->Material->proceed) {
+            // Материал заявлен, но не обработан
             $Page = $Page->getCodePage(404);
+            $Page->cache = (bool)(int)$Page->cache || $doCache;
+            $content = $Page->process();
         }
-        $this->processPage($Page);
-    }
 
-
-    public function processPage(Page $Page)
-    {
-        ob_clean();
-        $Page->process();
-        if ($Page->cache) {
-            $content = ob_get_contents();
-            $headers = (array)headers_list();
-        }
-        ob_end_flush();
-        if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET')) {
-            if ($content) {
-                $this->saveCache((int)$Page->id, $content, $headers);
-            }
+        echo $content;
+        if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET') && $content) {
+            $this->saveCache($content, (array)headers_list());
         }
     }
 
 
-    protected function saveCache($id, $content = '', array $headers = array())
+    protected function saveCache($content = '', array $headers = array(), $prefix = '')
     {
         if (!is_dir($this->model->cacheDir)) {
             @mkdir($this->model->cacheDir, 0777, true);
         }
-        $filename = $this->model->cachePrefix . $id . '.' . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        $filename = $this->model->cachePrefix . $prefix . '.' . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
         $replace = array();
         $replace['<' . '?'] = '<' . '?php echo "<" . "?";?' . '>';
         $replace['?' . '>'] = '<' . '?php echo "?" . ">";?' . '>';
@@ -175,7 +183,7 @@ final class Controller_Frontend extends Abstract_Controller
         $headers = (array)headers_list();
         ob_end_flush();
         if ($content) {
-            $this->saveCache('_tn', $content, $headers);
+            $this->saveCache($content, $headers, '_tn');
         }
     }
 
@@ -183,8 +191,7 @@ final class Controller_Frontend extends Abstract_Controller
     protected function getCache()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            $id = urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-            if ($f = glob($this->model->cacheDir . '/*.' . $id . '.php')) {
+            if ($f = glob($this->model->cacheDir . '/*.' . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) . '.php')) {
                 include $f[0];
                 exit;
             }

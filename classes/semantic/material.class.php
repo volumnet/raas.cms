@@ -5,7 +5,7 @@ class Material extends \SOME\SOME
 {
     protected static $tablename = 'cms_materials';
     protected static $defaultOrderBy = "post_date DESC";
-    protected static $cognizableVars = array('fields');
+    protected static $cognizableVars = array('fields', 'affectedPages');
 
     protected static $references = array(
         'material_type' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => true),
@@ -17,9 +17,20 @@ class Material extends \SOME\SOME
     public function __get($var)
     {
         switch ($var) {
+            case 'parents':
+                if ($this->pages) {
+                    return $this->pages;
+                } elseif ($this->affectedPages) {
+                    return $this->affectedPages;
+                } else {
+                    return array();
+                }
+                break;
             case 'parent':
                 if ($this->pages) {
                     return $this->pages[0];
+                } elseif ($this->affectedPages) {
+                    return $this->affectedPages[0];
                 } else {
                     return new Page();
                 }
@@ -91,6 +102,18 @@ class Material extends \SOME\SOME
     }
     
     
+    public static function importByURN($urn)
+    {
+        $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
+        $SQL_bind = array($urn);
+        if ($SQL_result = self::$SQL->getline(array($SQL_query, $SQL_bind))) {
+            return new self($SQL_result);
+        } else {
+            return new self();
+        }
+    }
+
+    
     protected function _fields()
     {
         $temp = $this->material_type->fields;
@@ -101,4 +124,19 @@ class Material extends \SOME\SOME
         }
         return $arr;
     }
+
+
+    protected function _affectedPages()
+    {
+        $SQL_query = "SELECT tP.*
+                        FROM " . Page::_tablename() . " AS tP
+                        JOIN " . self::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
+                        JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id
+                        JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.id = tB.id
+                        JOIN " . Material_Type::_tablename() . " AS tMt ON tMt.id = tBM.material_type
+                       WHERE tB.vis AND tB.nat AND tMt.id = " . (int)$this->pid;
+        $Set = Page::getSQLSet($SQL_query);
+        return $Set;
+    }
+
 }
