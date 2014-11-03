@@ -53,7 +53,6 @@ class MaterialsTable extends \RAAS\Table
         }
         $columns['priority'] = array(
             'caption' => $this->view->_('PRIORITY'),
-            'sortable' => Column::SORTABLE_REVERSABLE,
             'callback' => function($row) { 
                 return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . ($row->priority ? (int)$row->priority : '') . '" class="span1" min="0" />';
             }

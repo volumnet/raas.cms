@@ -76,6 +76,7 @@ class Block_Material extends Block
             'order_var_name' => (string)$this->order_var_name,
             'sort_field_default' => (string)$this->sort_field_default,
             'sort_order_default' => (string)$this->sort_order_default,
+            'legacy' => (int)$this->legacy,
         );
     }
 }

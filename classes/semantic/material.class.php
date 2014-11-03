@@ -26,14 +26,21 @@ class Material extends \SOME\SOME
                     return array();
                 }
                 break;
+            case 'parents_ids':
+                return array_map(function($x) { return (int)$x->id; }, $this->parents);
+                break;
             case 'parent':
-                if ($this->pages) {
-                    return $this->pages[0];
-                } elseif ($this->affectedPages) {
-                    return $this->affectedPages[0];
-                } else {
-                    return new Page();
+                if ($this->parents) {
+                    if ((int)$this->page_id && in_array($this->page_id, $this->parents_ids)) {
+                        return new Page((int)$this->page_id);
+                    } else {
+                        return $this->parents[0];
+                    }
                 }
+                return new Page();
+                break;
+            case 'url':
+                return $this->parent->url . $this->urn . '/';
                 break;
             default:
                 $val = parent::__get($var);

@@ -14,6 +14,7 @@ class Updater extends \RAAS\Updater
         $this->update20140717();
         $this->update20140910();
         $this->update20141029();
+        $this->update20141103();
     }
 
 
@@ -666,6 +667,33 @@ class Updater extends \RAAS\Updater
                                WHERE NOT tS.locked AND tSF.urn != '__RAAS_interfaces'";
                 $this->SQL->query(array($SQL_query, $key, $val));
             }
+        }
+    }
+
+
+    protected function update20141103()
+    {
+        if (!in_array('page_id', $this->columns(\SOME\SOME::_dbprefix() . "cms_materials"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials ADD page_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Default page ID#' AFTER pid";
+            $this->SQL->query($SQL_query);
+            $rep = array();
+            $rep['href="<' . '?php echo $Page->url . $row->urn?' . '>/"'] = 'href="<' . '?php echo $row->url?' . '>"';
+            $rep['$text .= \'<url><loc>http://\' . htmlspecialchars($_SERVER[\'HTTP_HOST\'] . $row->url . $row2->urn) . \'/</loc></url>\';'] = 'if ($row2->parent->id == $row->id) {' . "\n"
+                                                                                                                                             . '                    $text .= \'<url><loc>http://\' . htmlspecialchars($_SERVER[\'HTTP_HOST\'] . $row2->url) . \'</loc></url>\';' . "\n"
+                                                                                                                                             . '                }';
+            foreach ($rep as $key => $val) {
+                $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_snippets AS tS
+                           LEFT JOIN " . \SOME\SOME::_dbprefix() . "cms_snippet_folders AS tSF ON tSF.id = tS.pid
+                                 SET tS.description = REPLACE(tS.description, ?, ?) 
+                               WHERE NOT tS.locked AND tSF.urn != '__RAAS_interfaces'";
+                $this->SQL->query(array($SQL_query, $key, $val));
+            }
+        }
+        if (!in_array('legacy', $this->columns(\SOME\SOME::_dbprefix() . "cms_blocks_material"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks_material ADD legacy TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Redirect legacy addresses'";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_blocks_material SET legacy = 1 WHERE 1";
+            $this->SQL->query($SQL_query);
         }
     }
 }

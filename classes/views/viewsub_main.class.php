@@ -117,6 +117,7 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
         }
         $this->submenu = $this->pagesMenu(new Page(), $IN['Parent']);
         $this->js[] = $this->publicURL . '/field.inc.js';
+        $this->js[] = $this->publicURL . '/edit_material.js';
         $this->stdView->stdEdit($IN, 'getMaterialContextMenu');
     }
     

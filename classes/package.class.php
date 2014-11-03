@@ -265,9 +265,6 @@ class Package extends \RAAS\Package
                 case 'name': case 'urn': case 'modify_date':
                     $_sort = $sort;
                     break;
-                case 'priority':
-                    $_sort = 'NOT priority, priority';
-                    break;
                 default:
                     $_sort = $sort = 'post_date';
                     break;
@@ -280,7 +277,7 @@ class Package extends \RAAS\Package
                 $_order = 'asc';
             }
 
-            $SQL_query .= " ORDER BY " . $_sort . " " . strtoupper($_order);
+            $SQL_query .= " ORDER BY NOT priority, priority, " . $_sort . " " . strtoupper($_order);
             $Set = Material::getSQLSet($SQL_query, $Pages);
         }
         return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $_order);

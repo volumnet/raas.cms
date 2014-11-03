@@ -174,7 +174,10 @@ class Page extends \SOME\SOME
         if ($this->pid && !$this->urn && $this->name) {
             $this->urn = \SOME\Text::beautify($this->name);
         }
-        while ((int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . self::_tablename() . " WHERE urn = ? AND pid = ? AND id != ?", $this->urn, $this->pid, (int)$this->id))) {
+        while (
+            (int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . self::_tablename() . " WHERE urn = ? AND pid = ? AND id != ?", $this->urn, $this->pid, (int)$this->id)) ||
+            (int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . Material::_tablename() . " WHERE urn = ?", $this->urn))
+        ) {
             $this->urn = '_' . $this->urn . '_';
         }
         

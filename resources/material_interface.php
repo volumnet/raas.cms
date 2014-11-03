@@ -10,8 +10,6 @@ $getField = function($field, $as, array &$SQL_from) {
     $sort = '';
     if (in_array($field, array('name', 'urn', 'description', 'post_date', 'modify_date'))) {
         $sort = "tM." . $field;
-    } elseif ($field == 'priority') {
-        $sort = "NOT tM.priority, tM.priority";
     } elseif (is_numeric($field)) {
         if (!isset($SQL_from[$as]) || !$SQL_from[$as]) {
             $SQL_from[$as] = " JOIN " . Field::data_table . " AS " . $as . " ON " . $as . ".pid = tM.id AND " . $as . ".fid = " . (int)$field;
@@ -43,10 +41,10 @@ $OUT = array();
 if (!$Page->Material && isset($IN['id'])) {
     // Старый способ - по id
     $Page->Material = $Item = new Material($IN['id']);
-    if (((int)$Item->id == (int)$IN['id']) && ($Item->pid == $config['material_type'])) {
+    if (((int)$Item->id == (int)$IN['id']) && ($Item->pid == $config['material_type']) && (int)$config['legacy']) {
         // Если материал действительно к месту, перенаправляем на новый адрес
         header("HTTP/1.1 301 Moved Permanently");
-        header('Location: http://' . $_SERVER['HTTP_HOST'] . $Page->url . $Item->urn . '/'); 
+        header('Location: http://' . $_SERVER['HTTP_HOST'] . $Item->url); 
         exit;
     } else {
         // Такого материала нет, возвращаем (не обрабатываем). Далее контроллер перекинет на 404
@@ -58,6 +56,17 @@ if ($Page->Material && $Block->nat) {
     if ($Item->pid != $config['material_type']) {
         // Если материал не к месту, возвращаем (не обрабатываем). Далее контроллер перекинет на 404
         return;
+    }
+    if ($Page->initialURL != $Item->url) {
+        // Адреса не совпадают
+        if ((int)$config['legacy']) {
+            // Установлена переадресация
+            header("HTTP/1.1 301 Moved Permanently");
+            header('Location: http://' . $_SERVER['HTTP_HOST'] . $Item->url); 
+            exit;
+        } else {
+            return;
+        }
     }
     $OUT['Item'] = $Item;
     foreach (array('name', 'meta_title', 'meta_keywords', 'meta_description') as $key) {
@@ -133,7 +142,7 @@ if ($Page->Material && $Block->nat) {
     /*** QUERY ***/
     $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.* FROM " . Material::_tablename() . " AS tM " . implode(" ", $SQL_from)
                . ($SQL_where ? " WHERE " . implode(" AND ", $SQL_where) : "")
-               . " GROUP BY tM.id " . ($sort ? " ORDER BY " . $sort . $order : "");
+               . " GROUP BY tM.id ORDER BY NOT tM.priority, tM.priority ASC " . ($sort ? ", " . $sort . $order : "");
     $Pages = null;
     if (isset($config['pages_var_name'], $config['rows_per_page']) && (int)$config['rows_per_page']) {
         $Pages = new \SOME\Pages(isset($IN[$config['pages_var_name']]) ? (int)$IN[$config['pages_var_name']] : 1, (int)$config['rows_per_page']);

@@ -41,7 +41,6 @@ class EditBlockMaterialForm extends EditBlockForm
             array('value' => 'description', 'caption' => $this->view->_('DESCRIPTION')),
             array('value' => 'post_date', 'caption' => $this->view->_('CREATED_BY')),
             array('value' => 'modify_date', 'caption' => $this->view->_('EDITED_BY')),
-            array('value' => 'priority', 'caption' => $this->view->_('PRIORITY'))
         );
         if ($this->Item->id) {
             $Material_Type = $this->Item->Material_Type;
@@ -128,6 +127,7 @@ class EditBlockMaterialForm extends EditBlockForm
                 'sort_order_default' => array('type' => 'select', 'name' => 'sort_order_default', 'children' => $this->meta['CONTENT']['orders'], 'class' => 'span2')
             )
         ));
+        $tab->children[] = new RAASField(array('type' => 'checkbox', 'name' => 'legacy', 'caption' => $this->view->_('REDIRECT_LEGACY_ADDRESSES')));
         $tab->children[] = new RAASField(array('name' => 'params', 'caption' => $this->view->_('ADDITIONAL_PARAMS')));
         $tab->children[] = $this->getInterfaceField();
         return $tab;

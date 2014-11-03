@@ -26,9 +26,7 @@ class EditMaterialForm extends \RAAS\Form
         $Type = isset($params['Type']) ? $params['Type'] : null;
         $Parent = isset($params['Parent']) ? $params['Parent'] : null;
 
-        $CONTENT = array();
         $temp = new Page();
-        $CONTENT['cats'] = array('Set' => $temp->children, 'additional' => function($row) { return array('data-group' => $row->template); });
         if ($Parent->id) {
             $title = $Item->id ? $this->view->_('EDITING_PAGE') : $this->view->_('CREATING_PAGE');
         } else {
@@ -64,12 +62,46 @@ class EditMaterialForm extends \RAAS\Form
         foreach ($Item->fields as $row) {
             $commonTab->children[] = $row->Field;
         }
+        $pagesTab = new FormTab(array(
+            'name' => 'pages',
+            'caption' => $this->view->_('PAGES'),
+            'children' => array(
+                'page_id' => array(
+                    'type' => 'select', 
+                    'name' => 'page_id', 
+                    'caption' => $this->view->_('MAIN_PARENT_PAGE'),
+                    'children' => array(
+                        'Set' => $temp->children, 
+                        'additional' => function($row) use ($Item) { 
+                            $arr = array(); 
+                            if ($row->id && !in_array($row->id, $Item->parents_ids)) {
+                                $arr['style'] = 'display: none'; 
+                            } 
+                            return $arr;
+                        }
+                    ), 
+                    'placeholder' => $this->view->_('DEFAULT'),
+                )
+            )
+        ));
+        if (!$Type->global_type){
+            $pagesTab->children['cats'] = array(
+                'type' => 'checkbox', 
+                'multiple' => true, 
+                'name' => 'cats', 
+                'caption' => $this->view->_('PAGES'),
+                'required' => 'required', 
+                'children' => array('Set' => $temp->children, 'additional' => function($row) { return array('data-group' => $row->template); }), 
+                'default' => array((int)$Parent->id),
+                'import' => function($Field) { return $Field->Form->Item->pages_ids; },
+            );
+        }
 
         $defaultParams = array(
             'Item' => $Item, 
             'parentUrl' => $this->view->url . '&id=' . $Parent->id . '#_' . $Type->urn, 
             'caption' => $Item->id ? $Item->name : $this->view->_('CREATING_MATERIAL'),
-            'children' => array($commonTab, $seoTab, $serviceTab),
+            'children' => array($commonTab, $seoTab, $serviceTab, $pagesTab),
             'export' => function($Form) use ($Parent) {
                 $Form->exportDefault();
                 $Form->Item->editor_id = Application::i()->user->id;
@@ -78,24 +110,6 @@ class EditMaterialForm extends \RAAS\Form
                 }
             }
         );
-        if (!$Type->global_type){
-            $defaultParams['children'][] = new FormTab(array(
-                'name' => 'pages',
-                'caption' => $this->view->_('PAGES'),
-                'children' => array(
-                    array(
-                        'type' => 'checkbox', 
-                        'multiple' => true, 
-                        'name' => 'cats', 
-                        'caption' => $this->view->_('PAGES'),
-                        'required' => 'required', 
-                        'children' => $CONTENT['cats'], 
-                        'default' => array((int)$Parent->id),
-                        'import' => function($Field) { return $Field->Form->Item->pages_ids; },
-                    )
-                )
-            ));
-        }
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
     }

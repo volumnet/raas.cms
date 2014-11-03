@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_material (
   order_var_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Order var name',
   sort_field_default varchar(255) NOT NULL DEFAULT '' COMMENT 'Field for sorting by default',
   sort_order_default varchar(255) NOT NULL DEFAULT '' COMMENT 'Default order',
+  legacy tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Redirect legacy addresses',
   PRIMARY KEY (id),
   KEY material_type (material_type)
 ) COMMENT='Material blocks';
@@ -206,6 +207,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
+  page_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Default page ID#',
   vis tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Visibility',
   post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
   modify_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Modify date',
