@@ -616,7 +616,7 @@ class Webmaster
         $B->widget_id = $S->id;
         $B->cats = array($faqPage->id);
         $B->material_type = (int)$MT->id;
-        $B->nat = 1;
+        $B->nat = 0;
         $B->pages_var_name = 'page';
         $B->rows_per_page = 20;
         $B->sort_field_default = 'post_date';
