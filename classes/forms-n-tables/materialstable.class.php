@@ -44,12 +44,16 @@ class MaterialsTable extends \RAAS\Table
                 return '<span' . (!$row->vis ? ' class="muted"' : '') . '>' . (strtotime($row->modify_date) ? date(DATETIMEFORMAT, strtotime($row->modify_date)) : '') . '</span>';
             }
         );
+        $i = 0;
         foreach (array_filter($params['mtype']->fields, function($x) { return $x->show_in_table; }) as $key => $col) {
-            $columns[$col->urn] = array(
-                'caption' => $col->name,
-                'sortable' => Column::SORTABLE_REVERSABLE,
-                'callback' => function($row) use ($col) { return $row->fields[$col->urn]->doRich(); }
-            );
+            if ($i < 3) {
+                $columns[$col->urn] = array(
+                    'caption' => $col->name,
+                    'sortable' => Column::SORTABLE_REVERSABLE,
+                    'callback' => function($row) use ($col) { return $row->fields[$col->urn]->doRich(); }
+                );
+                $i++;
+            }
         }
         $columns['priority'] = array(
             'caption' => $this->view->_('PRIORITY'),

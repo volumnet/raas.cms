@@ -110,10 +110,10 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
         if ($IN['Parent']->id) {
             if ($IN['Parent']->parents) {
                 foreach ($IN['Parent']->parents as $row) {
-                    $this->path[] = array('href' => $this->url . '&id=' . (int)$row->id . '#_' . $IN['Type']->urn, 'name' => $row->name . ': ' . $IN['Type']->name);
+                    $this->path[] = array('href' => $this->url . '&id=' . (int)$row->id . '#_' . $IN['Type']->urn, 'name' => $row->name/* . ': ' . $IN['Type']->name*/);
                 }
             }
-            $this->path[] = array('href' => $this->url . '&id=' . (int)$IN['Parent']->id . '#_' . $IN['Type']->urn, 'name' => $IN['Parent']->name . ': ' . $IN['Type']->name);
+            $this->path[] = array('href' => $this->url . '&id=' . (int)$IN['Parent']->id . '#_' . $IN['Type']->urn, 'name' => $IN['Parent']->name/* . ': ' . $IN['Type']->name*/);
         }
         $this->submenu = $this->pagesMenu(new Page(), $IN['Parent']);
         $this->js[] = $this->publicURL . '/field.inc.js';
