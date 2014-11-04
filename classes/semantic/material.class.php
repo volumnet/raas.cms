@@ -39,9 +39,6 @@ class Material extends \SOME\SOME
                 }
                 return new Page();
                 break;
-            case 'url':
-                return $this->parent->url . $this->urn . '/';
-                break;
             default:
                 $val = parent::__get($var);
                 if ($val !== null) {
@@ -54,9 +51,13 @@ class Material extends \SOME\SOME
                     if (isset($this->fields[$var]) && ($this->fields[$var] instanceof Material_Field)) {
                         $temp = $this->fields[$var]->getValues();
                         if ($vis) {
-                            $temp = array_values(array_filter($temp, function($x) { return isset($x->vis) && $x->vis; }));
+                            $temp = array_values(array_filter((array)$temp, function($x) { return isset($x->vis) && $x->vis; }));
                         }
                         return $temp;
+                    }
+                    if ((strtolower($var) == 'url') && !isset($temp)) {
+                        // Размещаем сюда из-за большого количества баннеров, где URL задан явно
+                        return $this->parent->url . $this->urn . '/';
                     }
                 }
                 break;
