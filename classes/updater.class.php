@@ -13,13 +13,15 @@ class Updater extends \RAAS\Updater
         $this->update20140706();
         $this->update20140717();
         $this->update20140910();
-        $this->update20141029();
-        $this->update20141103();
+        $this->update20141104();
+        
     }
 
 
     public function postInstall()
     {
+        $this->update20141029();
+        $this->update20141103();
         $w = new Webmaster();
         $w->checkStdSnippets();
         if (!$this->SQL->getvalue("SELECT COUNT(*) FROM " . \SOME\SOME::_dbprefix() . "cms_pages")) {
@@ -693,6 +695,15 @@ class Updater extends \RAAS\Updater
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks_material ADD legacy TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Redirect legacy addresses'";
             $this->SQL->query($SQL_query);
             $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_blocks_material SET legacy = 1 WHERE 1";
+            $this->SQL->query($SQL_query);
+        }
+    }
+
+
+    protected function update20141104()
+    {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_material_types", $this->tables) && !in_array('pid', $this->columns(\SOME\SOME::_dbprefix() . "cms_material_types"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_material_types ADD pid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Parent type ID#' AFTER id";
             $this->SQL->query($SQL_query);
         }
     }

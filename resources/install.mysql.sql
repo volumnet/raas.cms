@@ -237,6 +237,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_pages_assoc (
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+  pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent type ID#',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   global_type tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Global materials',

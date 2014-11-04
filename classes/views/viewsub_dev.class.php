@@ -183,14 +183,20 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         foreach ($IN['Item']->fields as $row) {
             $Set[] = $row;
         }
-        $IN['Table'] = new FieldsTable(array_merge(
-            $IN, array('editAction' => 'edit_material_field', 'ctxMenu' => 'getMaterialFieldContextMenu', 'shift' => 2, 'Set' => $Set)
-        ));
+        $IN['Table'] = new MaterialFieldsTable(array_merge($IN, array('Set' => $Set)));
         $this->assignVars($IN);
         $this->title = $IN['Form']->caption;
         $this->template = 'form_table';
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
         $this->path[] = array('name' => $this->_('MATERIAL_TYPES'), 'href' => $this->url . '&action=material_types');
+        if ($IN['Parent']->id) {
+            if ($IN['Parent']->parents) {
+                foreach ($IN['Parent']->parents as $row) {
+                    $this->path[] = array('href' => $this->url . '&action=edit_material_type' . '&id=' . (int)$row->id, 'name' => $row->name);
+                }
+            }
+            $this->path[] = array('href' => $this->url . '&action=edit_material_type&id=' . (int)$IN['Parent']->id, 'name' => $IN['Parent']->name);
+        }
         $this->contextmenu = $this->getMaterialTypeContextMenu($IN['Item']);
     }
     
@@ -200,6 +206,11 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         $this->js[] = $this->publicURL . '/dev_edit_field.js';
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
         $this->path[] = array('name' => $this->_('MATERIAL_TYPES'), 'href' => $this->url . '&action=material_types');
+        if ($IN['Parent']->parents) {
+            foreach ($IN['Parent']->parents as $row) {
+                $this->path[] = array('href' => $this->url . '&action=edit_material_type' . '&id=' . (int)$row->id, 'name' => $row->name);
+            }
+        }
         $this->path[] = array('name' => $IN['Parent']->name, 'href' => $this->url . '&action=edit_material_type&id=' . (int)$IN['Parent']->id);
         $this->stdView->stdEdit($IN, 'getMaterialFieldContextMenu');
     }
@@ -397,6 +408,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             if ($this->action == 'edit_material_type') {
                 $arr[] = array('href' => $this->url . '&action=edit_material_field&pid=' . (int)$Item->id, 'name' => $this->_('CREATE_FIELD'), 'icon' => 'plus');
             }
+            $arr[] = array('href' => $this->url . '&action=edit_material_type&pid=' . (int)$Item->id, 'name' => $this->_('CREATE_CHILD_TYPE'), 'icon' => 'plus');
         }
         $arr = array_merge($arr, $this->stdView->stdContextMenu($Item, 0, 0, 'edit_material_type', 'material_types', 'delete_material_type'));
         return $arr;

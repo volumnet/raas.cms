@@ -1,37 +1,24 @@
 <?php
 namespace RAAS\CMS;
 
-class FieldsTable extends \RAAS\Table
+class MaterialFieldsTable extends FieldsTable
 {
-    public function __get($var)
-    {
-        switch ($var) {
-            case 'view':
-                return ViewSub_Dev::i();
-                break;
-            default:
-                return parent::__get($var);
-                break;
-        }
-    }
-
-
     public function __construct(array $params = array())
     {
         $view = $this->view;
-        $editAction = $params['editAction'];
-        $ctxMenu = $params['ctxMenu'];
-        $shift = isset($params['shift']) ? (int)$params['shift'] : 0;
+        $editAction = 'edit_material_field';
+        $ctxMenu = 'getMaterialFieldContextMenu';
+        $shift = 2 + count($params['Item']->fields) - count($params['Item']->selfFields);
         unset($params['editAction'], $params['ctxMenu'], $params['shift']);
         $defaultParams = array(
             'columns' => array(
                 'name' => array(
                     'caption' => $this->view->_('NAME'), 
-                    'callback' => function($row) use ($view, $editAction) { 
-                        if ($row->id) {
+                    'callback' => function($row) use ($view, $editAction, $params) { 
+                        if ($row->id && ($row->pid == $params['Item']->id)) {
                             return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>'; 
                         } else {
-                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>'; 
+                            return htmlspecialchars($row->name); 
                         }
                     }
                 ),
@@ -52,7 +39,13 @@ class FieldsTable extends \RAAS\Table
                     'title' => $this->view->_('SHOW_IN_TABLE'),
                     'callback' => function($row) { return $row->show_in_table ? '<i class="icon-ok"></i>' : ''; }
                 ),
-                ' ' => array('callback' => function ($row, $i) use ($view, $params, $ctxMenu, $shift) { return rowContextMenu($view->$ctxMenu($row, $i - $shift, count($params['Set']) - $shift)); })
+                ' ' => array(
+                    'callback' => function ($row, $i) use ($view, $params, $ctxMenu, $shift) { 
+                        if ($row->id && ($row->pid == $params['Item']->id)) {
+                            return rowContextMenu($view->$ctxMenu($row, $i - $shift, count($params['Set']) - $shift)); 
+                        }
+                    }
+                )
             ),
             'Set' => $params['Set'],
             'Pages' => $params['Pages'],

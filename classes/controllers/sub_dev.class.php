@@ -36,7 +36,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $this->view->snippets();
                 break;
             case 'material_types': 
-                $this->view->material_types(array('Set' => $this->model->material_types()));
+                $this->view->material_types();
                 break;
             case 'forms': 
                 $this->view->forms(array('Set' => $this->model->forms()));
@@ -275,17 +275,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     protected function edit_material_type()
     {
         $Item = new Material_Type((int)$this->id);
-        $Form = new RAASForm(array(
-            'Item' => $Item,
-            'caption' => $Item->id ? $Item->name : $this->view->_('CREATING_MATERIAL_TYPE'),
-            'parentUrl' => $this->url . '&action=material_types',
-            'children' => array(
-                array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'),
-                array('name' => 'urn', 'caption' => $this->view->_('URN')),
-                array('type' => 'checkbox', 'name' => 'global_type', 'caption' => $this->view->_('GLOBAL_MATERIALS'))
-            )
-        ));
-        $this->view->edit_material_type($Form->process());
+        $Parent = $Item->pid ? $Item->parent : new Material_Type(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
+        $Form = new EditMaterialTypeForm(array('Item' => $Item, 'Parent' => $Parent));
+        $this->view->edit_material_type(array_merge($Form->process(), array('Parent' => $Parent)));
     }
     
     

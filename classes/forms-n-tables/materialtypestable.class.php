@@ -20,11 +20,24 @@ class MaterialTypesTable extends \RAAS\Table
     public function __construct(array $params = array())
     {
         $view = $this->view;
+        $f = function(Material_Type $node) use (&$f)
+        {
+            static $level = 0;
+            $Set = array();
+            foreach ($node->children as $row) {
+                $row->level = $level;
+                $Set[] = $row;
+                $level++;
+                $Set = array_merge($Set, $f($row));
+                $level--;
+            }
+            return $Set;
+        };
         $columns = array();
         $columns['name'] = array(
             'caption' => $this->view->_('NAME'), 
             'callback' => function($row) use ($view) { 
-                return '<a href="' . $view->url . '&action=edit_material_type&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>'; 
+                return '<a style="padding-left: ' . ($row->level * 30) . 'px" href="' . $view->url . '&action=edit_material_type&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>'; 
             }
         );
         $columns['urn'] = array('caption' => $this->view->_('URN'));
@@ -35,7 +48,8 @@ class MaterialTypesTable extends \RAAS\Table
         );
         $columns[' '] = array('callback' => function ($row) use ($view) { return rowContextMenu($view->getMaterialTypeContextMenu($row)); });
         $defaultParams = array(
-            'emptyString' => $this->view->_('NO_MATERIAL_TYPES_FOUND')
+            'emptyString' => $this->view->_('NO_MATERIAL_TYPES_FOUND'),
+            'Set' => $f(new Material_Type())
         );
         $arr = array_merge($defaultParams, $params);
         $arr['columns'] = $columns;

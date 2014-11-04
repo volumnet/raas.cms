@@ -4,7 +4,12 @@ namespace RAAS\CMS;
 class Material_Type extends \SOME\SOME
 {
     protected static $tablename = 'cms_material_types';
-    protected static $cognizableVars = array('fields', 'affectedPages');
+    protected static $references = array(
+        'parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => true),
+    );
+    protected static $parents = array('parents' => 'parent');
+    protected static $children = array('children' => array('classname' => 'RAAS\\CMS\\Material_Type', 'FK' => 'pid'));
+    protected static $cognizableVars = array('fields', 'selfFields', 'affectedPages');
 
     public function commit()
     {
@@ -27,7 +32,7 @@ class Material_Type extends \SOME\SOME
     }
 
 
-    protected function _fields()
+    protected function _selfFields()
     {
         $SQL_query = "SELECT * FROM " . Material_Field::_tablename() . " WHERE classname = ? AND pid = ? ORDER BY priority";
         $SQL_bind = array(get_class($this), (int)$this->id);
@@ -38,6 +43,19 @@ class Material_Type extends \SOME\SOME
         }
         return $arr;
     }
+    
+    
+    protected function _fields()
+    {
+        $arr1 = array();
+        if ($this->parent->id) {
+            $arr1 = (array)$this->parent->fields;
+        }
+        $arr2 = (array)$this->selfFields;
+        $arr = array_merge($arr1, $arr2);
+        return $arr;
+    }
+    
     
     public static function importByURN($urn)
     {

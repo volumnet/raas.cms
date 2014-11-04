@@ -601,7 +601,7 @@ class Webmaster
         $B->vis = 1;
         $B->author_id = $B->editor_id = Application::i()->user->id;
         $B->cats = array($faqPage->id);
-        $B->form = $FRM ? $FRM[0]->id : 0;
+        $B->form = $FRM->id;
         $B->widget_id = $S->id;
         $B->interface_id = $I->id;
         $B->commit();
@@ -694,7 +694,7 @@ class Webmaster
         $B->vis = 1;
         $B->author_id = $B->editor_id = Application::i()->user->id;
         $B->cats = array($contacts->id);
-        $B->form = $FRM ? $FRM[0]->id : 0;
+        $B->form = $FRM->id;
         $B->widget_id = $S->id;
         $B->interface_id = $I->id;
         $B->commit();
