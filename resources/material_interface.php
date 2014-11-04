@@ -53,13 +53,9 @@ if (!$Page->Material && isset($IN['id'])) {
 }
 if ($Page->Material && $Block->nat) {
     $Item = $Page->Material;
-    if ($Item->pid != $config['material_type']) {
-        // Если материал не к месту, возвращаем (не обрабатываем). Далее контроллер перекинет на 404
-        return;
-    }
     if ($Page->initialURL != $Item->url) {
         // Адреса не совпадают
-        if ((int)$config['legacy']) {
+        if ((int)$config['legacy'] && ($Item->pid == $config['material_type'])) {
             // Установлена переадресация
             header("HTTP/1.1 301 Moved Permanently");
             header('Location: http://' . $_SERVER['HTTP_HOST'] . $Item->url); 
@@ -84,7 +80,8 @@ if ($Page->Material && $Block->nat) {
         $SQL_from['tMPA'] = " JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id ";
     }
     $SQL_where[] = " tM.vis ";
-    $SQL_where[] = " tM.pid = " . (int)$MType->id;
+    $types = array_merge(array((int)$MType->id), (array)$MType->all_children_ids);
+    $SQL_where[] = " tM.pid IN (" . implode(", ", $types) . ") ";
     if (!$MType->global_type) {
         $SQL_where[] = " tMPA.pid = " . (int)$Page->id;
     }

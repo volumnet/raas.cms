@@ -3,6 +3,7 @@ namespace RAAS\CMS;
 use \RAAS\Application;
 use \RAAS\FormTab;
 use \RAAS\FieldSet;
+use \RAAS\Field as RAASField;
 
 class EditMaterialForm extends \RAAS\Form
 {
@@ -32,14 +33,19 @@ class EditMaterialForm extends \RAAS\Form
         } else {
             $title = $Item->id ? $this->view->_('EDITING_SITE') : $this->view->_('CREATING_SITE');
         }
-        $commonTab = new FormTab(array(
-            'name' => 'common', 
-            'caption' => $this->view->_('GENERAL'), 
-            'children' => array(
-                array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'),
-                array('type' => 'htmlarea', 'name' => 'description', 'caption' => $this->view->_('DESCRIPTION'))
-            )
-        ));
+        $commonTab = new FormTab(array('name' => 'common', 'caption' => $this->view->_('GENERAL')));
+        if ($Type->children) {
+            $commonTab->children['pid'] = new RAASField(array(
+                'type' => 'select', 'name' => 'pid', 'caption' => $this->view->_('MATERIAL_TYPE'), 'children' => array('Set' => array($Type))
+            ));
+            if ($Item->id) {
+                $commonTab->children['pid']->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_EXISTING_CONFIRM')) . '\')) { this.form.submit(); }';
+            } else {
+                $commonTab->children['pid']->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_NEW_CONFIRM')) . '\')) { document.location.href = document.location.href.replace(/mtype=\\d+/, \'mtype=\' + this.value); }';
+            }
+        }
+        $commonTab->children['name'] = new RAASField(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
+        $commonTab->children['description'] = new RAASField(array('type' => 'htmlarea', 'name' => 'description', 'caption' => $this->view->_('DESCRIPTION')));
         $seoTab = new FormTab(array(
             'name' => 'seo', 
             'caption' => $this->view->_('SEO'), 

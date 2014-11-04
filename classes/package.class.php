@@ -237,7 +237,8 @@ class Package extends \RAAS\Package
         if (!$MType->global_type) {
             $SQL_query .= " LEFT JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id ";
         }
-        $SQL_query .= " WHERE tM.pid = " . (int)$MType->id;
+        $types = array_merge(array($MType->id), (array)$MType->all_children_ids);
+        $SQL_query .= " WHERE tM.pid IN (" . implode(", ", $types) . ")";
         if (!$MType->global_type) {
             $SQL_query .= " AND (tMPA.pid = " . (int)$this->controller->id . " OR tMPA.pid IS NULL) ";
         }

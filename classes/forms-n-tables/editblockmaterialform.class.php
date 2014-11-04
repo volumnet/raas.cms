@@ -17,7 +17,8 @@ class EditBlockMaterialForm extends EditBlockForm
     protected function getCommonTab()
     {
         $tab = parent::getCommonTab();
-        $this->meta['CONTENT']['material_types'] = array('Set' => Material_Type::getSet());
+        $row = new Material_Type();
+        $this->meta['CONTENT']['material_types'] = array('Set' => $row->children);
         $tab->children[] = new RAASField(array(
             'type' => 'select', 'name' => 'material_type', 'caption' => $this->view->_('MATERIAL_TYPE'), 'children' => $this->meta['CONTENT']['material_types']
         ));
