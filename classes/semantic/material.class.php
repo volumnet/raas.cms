@@ -5,7 +5,7 @@ class Material extends \SOME\SOME
 {
     protected static $tablename = 'cms_materials';
     protected static $defaultOrderBy = "post_date DESC";
-    protected static $cognizableVars = array('fields', 'affectedPages');
+    protected static $cognizableVars = array('fields', 'affectedPages', 'relatedMaterialTypes');
 
     protected static $references = array(
         'material_type' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => true),
@@ -145,6 +145,17 @@ class Material extends \SOME\SOME
                        WHERE tB.vis AND tB.nat AND tMt.id = " . (int)$this->pid;
         $Set = Page::getSQLSet($SQL_query);
         return $Set;
+    }
+
+
+    protected function _relatedMaterialTypes()
+    {
+        $ids = array_merge(array(0, (int)$this->material_type->id), (array)$this->material_type->parents_ids);
+        $SQL_query = "SELECT tMT.* 
+                        FROM " . Material_Type::_tablename() . " AS tMT
+                        JOIN " . Material_Field::_tablename() . " AS tF ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid = tMT.id
+                        WHERE tF.datatype = 'material' AND source IN (" . implode(", ", $ids) . ")";
+        return Material_Type::getSQLSet($SQL_query);
     }
 
 }

@@ -87,7 +87,6 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
             $MPages[$mtype->urn] = $temp['Pages'];
             $OUT['Morder'][$mtype->urn] = $temp['order'];
             $OUT['Msort'][$mtype->urn] = $temp['sort'];
-
         }
         $OUT['MSet'] = $MSet;
         $OUT['MPages'] = $MPages;
@@ -151,10 +150,15 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
     {
         $Item = new Material($this->id);
         $Type = (isset($Item->pid) && $Item->pid) ? $Item->material_type : new Material_Type(isset($_GET['mtype']) ? (int)$_GET['mtype'] : 0);
+        if (!$Type->id) {
+            new Redirector($this->url . '&id=' . (int)$Parent->id);
+        }
         if (!$Item->id) {
             $Item->pid = (int)$Type->id;
         }
         $Parent = new Page();
+        $OUT = array();
+        $MSet = $MPages = $Morder = $Msort = array();
         if ($Item->id) {
             if (isset($_GET['pid']) && in_array((int)$_GET['pid'], $Item->pages_ids)) {
                 $Parent = new Page((int)$_GET['pid']);
@@ -166,12 +170,38 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
         } elseif (isset($_GET['pid'])) {
             $Parent = new Page((int)$_GET['pid']);
         }
-        
-        if (!$Type->id) {
-            new Redirector($this->url . '&id=' . (int)$Parent->id);
+        foreach ($Item->relatedMaterialTypes as $mtype) {
+            foreach (array('sort', 'order') as $v) {
+                $var = 'm' . $mtype->id . $v;
+                if (isset($_GET[$var])) {
+                    $_COOKIE[$var] = $_GET[$var];
+                    setcookie($var, $_COOKIE[$var], time() + Application::i()->registryGet('cookieLifetime') * 86400, '/');
+                }
+            }
+            $temp = $this->model->getRelatedMaterials(
+                $Item, 
+                $mtype, 
+                isset($_GET['m' . $mtype->id . 'search_string']) ? $_GET['m' . $mtype->id . 'search_string'] : '', 
+                isset($_COOKIE['m' . $mtype->id . 'sort']) ? $_COOKIE['m' . $mtype->id . 'sort'] : 'post_date',
+                isset($_COOKIE['m' . $mtype->id . 'order']) ? $_COOKIE['m' . $mtype->id . 'order'] : 'asc',
+                isset($_GET['m' . $mtype->id . 'page']) ? (int)$_GET['m' . $mtype->id . 'page'] : 1
+            );
+            $MSet[$mtype->urn] = $temp['Set'];
+            $MPages[$mtype->urn] = $temp['Pages'];
+            $Morder[$mtype->urn] = $temp['order'];
+            $Msort[$mtype->urn] = $temp['sort'];
         }
-        $Form = new EditMaterialForm(array('Item' => $Item, 'Parent' => $Parent, 'Type' => $Type));
-        $this->view->edit_material(array_merge($Form->process(), array('Parent' => $Parent, 'Type' => $Type)));
+        $OUT['Morder'] = $Morder;
+        $OUT['Msort'] = $Msort;
+        $OUT['MSet'] = $MSet;
+        $OUT['MPages'] = $MPages;
+        $OUT['Parent'] = $Parent;
+        $OUT['Type'] = $Type;
+        $Form = new EditMaterialForm(array(
+            'Item' => $Item, 'Parent' => $Parent, 'Type' => $Type, 'MSet' => $MSet, 'MPages' => $MPages, 'Msort' => $Msort, 'Morder' => $Morder
+        ));
+        $OUT = array_merge($OUT, (array)$Form->process());
+        $this->view->edit_material($OUT);
     }
 
 }

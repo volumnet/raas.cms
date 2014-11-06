@@ -146,7 +146,7 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
     {
         $arr = array();
         if ($Item->id) {
-            $edit = ($this->action == 'edit_material');
+            $edit = (($this->action == 'edit_material') && ($this->id == $Item->id));
             if (!$edit) {
                 $arr[] = array('href' => $this->url . '&action=edit_material&id=' . (int)$Item->id . '&pid=' . (int)$this->id, 'name' => $this->_('EDIT'), 'icon' => 'edit');
             }

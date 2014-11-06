@@ -4,6 +4,7 @@ use \RAAS\Application;
 use \RAAS\FormTab;
 use \RAAS\FieldSet;
 use \RAAS\Field as RAASField;
+use \RAAS\Column;
 
 class EditMaterialForm extends \RAAS\Form
 {
@@ -25,6 +26,7 @@ class EditMaterialForm extends \RAAS\Form
         $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
         $Type = isset($params['Type']) ? $params['Type'] : null;
+        $related = isset($params['related']) ? $params['related'] : array();
         $Parent = isset($params['Parent']) ? $params['Parent'] : null;
 
         $temp = new Page();
@@ -102,12 +104,38 @@ class EditMaterialForm extends \RAAS\Form
                 'import' => function($Field) { return $Field->Form->Item->pages_ids; },
             );
         }
+        if ($Item->id) {
+            $mTabs = array();
+            foreach ($Item->relatedMaterialTypes as $mtype) {
+                if ($params['MSet'][$mtype->urn]) {
+                    $temp = new MaterialsRelatedTable(array(
+                        'Item' => $Item,
+                        'mtype' => $mtype,
+                        'hashTag' => $mtype->urn,
+                        'Set' => $params['MSet'][$mtype->urn],
+                        'Pages' => $params['MPages'][$mtype->urn], 
+                        'sortVar' => 'm' . $mtype->id . 'sort',
+                        'orderVar' => 'm' . $mtype->id . 'order',
+                        'pagesVar' => 'm' . $mtype->id . 'page',
+                        'sort' => $params['Msort'][$mtype->urn], 
+                        'order' => ((strtolower($params['Morder'][$mtype->urn]) == 'desc') ? Column::SORT_DESC : Column::SORT_ASC)
+                    ));
+                    $mTabs['_' . $mtype->urn] = new FormTab(array(
+                        'name' => '_' . $mtype->urn,
+                        'meta' => array('Table' => $temp, 'mtype' => $mtype),
+                        'caption' => $this->view->_($mtype->name),
+                        'template' => 'material_related.inc.php'
+                    ));
+                }
+            }
+        }
 
         $defaultParams = array(
             'Item' => $Item, 
+            'action' => '#',
             'parentUrl' => $this->view->url . '&id=' . $Parent->id . '#_' . $Type->urn, 
             'caption' => $Item->id ? $Item->name : $this->view->_('CREATING_MATERIAL'),
-            'children' => array($commonTab, $seoTab, $serviceTab, $pagesTab),
+            'children' => array_merge(array($commonTab, $seoTab, $serviceTab, $pagesTab), $mTabs),
             'export' => function($Form) use ($Parent) {
                 $Form->exportDefault();
                 $Form->Item->editor_id = Application::i()->user->id;

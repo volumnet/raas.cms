@@ -284,6 +284,67 @@ class Package extends \RAAS\Package
         return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $_order);
     }
     
+    
+    public function getRelatedMaterials(Material $Item, Material_Type $MType, $search_string = null, $sort = 'post_date', $order = 'asc', $page = 1)
+    {
+        $columns = array_filter($MType->fields, function($x) { return $x->show_in_table; });
+
+        $ids = array_merge(array(0, (int)$Item->material_type->id), (array)$Item->material_type->parents_ids);
+        $SQL_query = "SELECT tF.id
+                        FROM " . Material_Field::_tablename() . " AS tF 
+                       WHERE tF.classname = 'RAAS\\\\CMS\\\\Material_Type' 
+                         AND tF.pid = " . (int)$MType->id . " 
+                         AND tF.datatype = 'material' 
+                         AND source IN (" . implode(", ", $ids) . ")";
+        $fields = $this->SQL->getcol($SQL_query);
+
+        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.* FROM " . Material::_tablename() . " AS tM 
+                        JOIN " . Material_Field::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id";
+        $types = array_merge(array($MType->id), (array)$MType->all_children_ids);
+        $SQL_query .= " WHERE tM.pid IN (" . implode(", ", $types) . ") AND tD.fid IN (" . implode(", ", $fields) . ") AND tD.value = " . (int)$Item->id;
+        if ($search_string) {
+            $SQL_query .= " AND (
+                                    tM.name LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
+                                 OR tM.urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
+                            )";
+        }
+        $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
+        if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
+            $_sort = $row->urn;
+            $f = function($a, $b) use ($_sort) { return strcasecmp($a->fields[$_sort]->doRich(), $b->fields[$_sort]->doRich()); };
+            $Set = Material::getSQLSet($SQL_query);
+            if (isset($order) && ($order == 'desc')) {
+                $_order = 'desc';
+                usort($Set, function($b, $a) use ($f) { return $f($a, $b); });
+            } else {
+                $_order = 'asc';
+                usort($Set, $f);
+            }
+            $Set = \SOME\SOME::getArraySet($Set, $Pages);
+        } else {
+            switch ($sort) {
+                case 'name': case 'urn': case 'modify_date':
+                    $_sort = $sort;
+                    break;
+                default:
+                    $_sort = $sort = 'post_date';
+                    break;
+            }
+            if (isset($order) && ($order == 'desc')) {
+                $_order = 'desc';
+            } elseif (!isset($order) && in_array($sort, array('post_date', 'modify_date'))) {
+                $_order = 'desc';
+            } else {
+                $_order = 'asc';
+            }
+
+            $SQL_query .= " ORDER BY NOT priority, priority, " . $_sort . " " . strtoupper($_order);
+            $Set = Material::getSQLSet($SQL_query, $Pages);
+        }
+        return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $_order);
+    }
+    
+    
     public function feedback()
     {
         $Parent = new Form(isset($this->controller->nav['id']) ? (int)$this->controller->nav['id'] : 0);
