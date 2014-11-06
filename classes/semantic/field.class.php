@@ -45,7 +45,7 @@ abstract class Field extends \RAAS\CustomField
                         }
                         break;
                     case 'material':
-                        $f->template = 'materialfield.inc.php';
+                        $f->template = 'cms/field.inc.php';
                         break;
                 }
                 $f->oncommit = function($Field) use ($t) {
@@ -150,6 +150,9 @@ abstract class Field extends \RAAS\CustomField
                 } 
                 return $att;
                 break;
+            case 'material':
+                return new Material(parent::getValue($index));
+                break;
             default:
                 return parent::getValue($index);
                 break;
@@ -178,6 +181,9 @@ abstract class Field extends \RAAS\CustomField
                     return $att;
                 }, self::$SQL->getcol(array($SQL_query, $SQL_bind)));
                 return $values;
+                break;
+            case 'material':
+                return array_map(function($x) { return new Material($x); }, parent::getValues($forceArray));
                 break;
             default:
                 return parent::getValues($forceArray);

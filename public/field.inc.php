@@ -55,6 +55,55 @@ $_RAASForm_Checkbox = function (\RAAS\OptionCollection $options, $level = 0) use
 $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASForm_Attrs, &$_RAASForm_Options, &$_RAASForm_Checkbox) {
     $attrs = array();
     switch ($Field->type) { 
+        case 'material':
+            if ($Field->multiple) { 
+                ?>
+                <div data-role="raas-repo-block">
+                  <div data-role="raas-repo-container">
+                    <?php foreach ((array)$Field->Form->DATA[$Field->name] as $key => $val) { 
+                        $attrs = array(
+                          'datatype' => 'material', 
+                          'type' => 'hidden', 
+                          'data-field-id' => (int)$Field->Form->Item->fields[$Field->name]->id,
+                          'data-material-id' => $val->id, 
+                          'data-material-pid' => $val->parents[0]->id, 
+                          'data-material-name' => $val->name
+                        );
+                        ?>
+                        <div data-role="raas-repo-element"><input<?php echo $_RAASForm_Attrs($Field, array_merge($attrs, array('value' => $val->id)))?> /></div>
+                    <?php } ?>
+                  </div>
+                  <div data-role="raas-repo">
+                    <?php
+                    $attrs = array(
+                        'datatype' => 'material', 
+                        'type' => 'hidden', 
+                        'data-field-id' => (int)$Field->Form->Item->fields[$Field->name]->id,
+                        'data-material-id' => '', 
+                        'data-material-pid' => '', 
+                        'data-material-name' => ''
+                    );
+                    ?>
+                    <input<?php echo $_RAASForm_Attrs($Field, array_merge($attrs, array('disabled' => 'disabled', 'value' => '')))?> />
+                  </div>
+                </div>
+            <?php 
+            } else { 
+                $val = (int)$Field->Form->DATA[$Field->name];
+                $attrs = array(
+                    'datatype' => 'material', 
+                    'type' => 'hidden', 
+                    'value' => $val->id,
+                    'data-field-id' => (int)$Field->Form->Item->fields[$Field->name]->id,
+                    'data-material-id' => $val->id, 
+                    'data-material-pid' => $val->parents[0]->id, 
+                    'data-material-name' => $val->name
+                );
+                ?>
+                <input<?php echo $_RAASForm_Attrs($Field, array_merge($attrs, array('value' => $val->id)))?> />
+                <?php
+            }
+            break;
         case 'image': case 'file': 
             $attrs = array('type' => 'file');
             if ($Field->type == 'image') {
