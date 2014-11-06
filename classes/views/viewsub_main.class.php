@@ -46,7 +46,6 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
             $this->contextmenu = array(array('href' => $this->url . '&action=edit', 'name' => $this->_('CREATE_SITE')));
         }
         $this->template = $IN['Item']->id ? 'pages' : $IN['Table']->template;
-        $this->js[] = $this->publicURL . '/menu.inc.js';
     }
     
     

@@ -31,6 +31,9 @@ class EditFieldForm extends \RAAS\Form
         foreach (\RAAS\CMS\Field::$fieldTypes as $key) {
             $CONTENT['datatypes'][] = array('value' => $key, 'caption' => $this->view->_('DATATYPE_' . str_replace('-', '_', strtoupper($key))));
         }
+        if (($Parent instanceof Material_Type) || ($Parent instanceof Page)) {
+            $CONTENT['datatypes'][] = array('value' => 'material', 'caption' => $this->view->_('DATATYPE_MATERIAL'));
+        }
         foreach (\RAAS\CMS\Field::$sourceTypes as $key) {
             $CONTENT['sourcetypes'][] = array(
                 'value' => $key, 'caption' => $this->view->_('SOURCETYPE_' . strtoupper($key)), 'data-hint' => $this->view->_('SOURCETYPE_' . strtoupper($key) . '_HINT')

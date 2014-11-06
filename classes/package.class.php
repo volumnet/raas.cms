@@ -355,6 +355,32 @@ class Package extends \RAAS\Package
     }
 
 
+    public function getMaterialsBySearch($search, $mtype = 0, $limit = 10)
+    {
+        $Material_Type = new Material_Type((int)$mtype);
+        // $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM 
+        //                 JOIN " . Material_Field::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id
+        //                 JOIN " . Material_Field::_tablename() . " AS tF ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.id = tD.fid
+        //                WHERE (
+        //                         tM.name LIKE '%" . $this->SQL->escape_like($search) . "%' 
+        //                      OR tM.description LIKE '%" . $this->SQL->escape_like($search) . "%' 
+        //                      OR tD.value LIKE '%" . $this->SQL->escape_like($search) . "%'
+        //                 ) ";
+        $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM 
+                       WHERE (
+                                tM.name LIKE '%" . $this->SQL->escape_like($search) . "%' 
+                             OR tM.description LIKE '%" . $this->SQL->escape_like($search) . "%' 
+                        ) ";
+        if ($Material_Type->id) {
+            $ids = array_merge(array((int)$Material_Type->id), (array)$Material_Type->all_children_ids);
+            $SQL_query .= " AND tM.pid IN (" . implode(", ", $ids) . ") ";
+        }
+        $SQL_query .= " GROUP BY tM.id ORDER BY SUBSTRING(tM.name, 1, 8) LIMIT " . (int)$limit;
+        $Set = Material::getSQLSet($SQL_query);
+        return $Set;
+    }
+
+
     public function install()
     {
         if (!$this->registryGet('installDate')) {

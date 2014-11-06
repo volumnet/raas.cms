@@ -13,6 +13,11 @@ $_RAASForm_Field = function(\RAAS\Field $Field) use (&$_RAASForm_Attrs, &$_RAASF
         $Field->type = 'select';
         $Field->id = 'source_dictionary';
         $_RAASForm_Control($Field);
+        $Field->id = 'source_materials';
+        $row = new \RAAS\CMS\Material_Type();
+        $Field->children = array('Set' => $row->children);
+        $Field->placeholder = \RAAS\Application::i()->view->context->_('ALL_MATERIAL_TYPES');
+        $_RAASForm_Control($Field);
         ?>
       </div>
     </div>

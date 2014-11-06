@@ -44,6 +44,9 @@ abstract class Field extends \RAAS\CustomField
                             };
                         }
                         break;
+                    case 'material':
+                        $f->template = 'materialfield.inc.php';
+                        break;
                 }
                 $f->oncommit = function($Field) use ($t) {
                     switch ($t->datatype) {
