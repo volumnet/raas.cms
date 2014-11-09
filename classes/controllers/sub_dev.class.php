@@ -101,7 +101,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 } else {
                     $url2 .= '&action=pages_fields';
                 }
-                StdSub::$f($Item, $this->url . $url2, true, true, $Parent);
+                StdSub::$f($Item, $this->url . $url2, true, true, "pid = " . $Item->parent->id);
                 break;
             case 'delete_material_type':
                 $Item = new Material_Type((int)$this->id);

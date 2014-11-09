@@ -88,8 +88,7 @@ class Webmaster
             $f = $this->resourcesDir . '/template.tmp.php';
             $T->description = file_get_contents($f);
             $T->locations_info = '['
-                               .    '{"urn":"header","x":"0","y":"0","width":"640","height":"50"},'
-                               .    '{"urn":"menu_top","x":"0","y":"60","width":"640","height":"50"},'
+                               .    '{"urn":"header","x":"0","y":"0","width":"640","height":"110"},'
                                .    '{"urn":"left","x":"0","y":"120","width":"150","height":"220"},'
                                .    '{"urn":"content","x":"160","y":"120","width":"310","height":"220"},'
                                .    '{"urn":"right","x":"490","y":"120","width":"150","height":"220"},'
@@ -106,9 +105,11 @@ class Webmaster
         $snippets = array(
             'banners' => $this->view->_('BANNERS'), 
             'feedback' => $this->view->_('FEEDBACK'), 
+            'feedback_modal' => $this->view->_('FEEDBACK_MODAL'), 
             'head' => $this->view->_('HEAD_TAG'),
             'menu_content' => $this->view->_('SITEMAP'),
             'menu_top' => $this->view->_('TOP_MENU'),
+            'order_call_modal' => $this->view->_('ORDER_CALL_MODAL'), 
             'search' => $this->view->_('SITE_SEARCH'),
             'sitemap_xml' => $this->view->_('SITEMAP_XML'),
         );
@@ -193,6 +194,24 @@ class Webmaster
             $F->urn = '_description_';
             $F->required = 1;
             $F->datatype = 'textarea';
+            $F->commit();
+
+
+            $FRM = new \RAAS\CMS\Form();
+            $FRM->name = $this->view->_('ORDER_CALL');
+            $FRM->create_feedback = 1;
+            $FRM->signature = 0;
+            $FRM->antispam = 'hidden';
+            $FRM->antispam_field_name = '_name';
+            $FRM->interface_id = (int)$S->id;
+            $FRM->commit();
+
+            $F = new Form_Field();
+            $F->pid = $FRM->id;
+            $F->name = $this->view->_('PHONE');
+            $F->urn = 'phone';
+            $F->datatype = 'text';
+            $F->show_in_table = 1;
             $F->commit();
         }
 

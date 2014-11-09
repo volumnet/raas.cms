@@ -139,6 +139,10 @@ final class Controller_Frontend extends Abstract_Controller
             $content = $Page->process();
         }
 
+        $Page->visit();
+        if ($Page->Material && $Page->Material->proceed) {
+            $Page->Material->visit();
+        }
         echo $content;
         if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET') && $content) {
             $this->saveCache($content, (array)headers_list());
