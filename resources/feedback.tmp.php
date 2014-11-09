@@ -12,8 +12,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     echo json_encode($result);
     exit;
 } else { ?>
-    <a name="feedback"></a>
-    <div class="feedback">
+    <section class="">
       <form class="form-horizontal" data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">
         <?php include \RAAS\CMS\Package::i()->resourcesDir . '/form.inc.php'?>
         <div data-role="notifications" <?php echo ($success[(int)$Block->id] || $localError) ? '' : 'style="display: none"'?>>
@@ -54,5 +53,5 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
           </div>
         </div>
       </form>
-    </div>
+    </section>
 <?php } ?>

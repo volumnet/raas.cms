@@ -22,6 +22,7 @@ class Updater extends \RAAS\Updater
     {
         $this->update20141029();
         $this->update20141103();
+        $this->update20141109();
         $w = new Webmaster();
         $w->checkStdSnippets();
         if (!$this->SQL->getvalue("SELECT COUNT(*) FROM " . \SOME\SOME::_dbprefix() . "cms_pages")) {
@@ -704,6 +705,33 @@ class Updater extends \RAAS\Updater
     {
         if (in_array(\SOME\SOME::_dbprefix() . "cms_material_types", $this->tables) && !in_array('pid', $this->columns(\SOME\SOME::_dbprefix() . "cms_material_types"))) {
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_material_types ADD pid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Parent type ID#' AFTER id";
+            $this->SQL->query($SQL_query);
+        }
+    }
+
+
+    protected function update20141109()
+    {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_pages", $this->tables) && !in_array('visit_counter', $this->columns(\SOME\SOME::_dbprefix() . "cms_pages"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_pages
+                            ADD visit_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visit counter',
+                            ADD modify_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Modify counter',
+                            ADD changefreq ENUM('', 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never') NOT NULL DEFAULT '' COMMENT 'Change frequency', 
+                            ADD inherit_changefreq TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Inherit change frequency',
+                            ADD last_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
+                            ADD sitemaps_priority DECIMAL(8,2) UNSIGNED NOT NULL DEFAULT 0.5 COMMENT 'Sitemaps priority',
+                            ADD inherit_sitemaps_priority TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Inherit sitemaps priority'";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_pages SET last_modified = modify_date, modify_counter = (post_date != modify_date) WHERE 1";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials
+                            ADD visit_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visit counter',
+                            ADD modify_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Modify counter',
+                            ADD changefreq ENUM('', 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never') NOT NULL DEFAULT '' COMMENT 'Change frequency', 
+                            ADD last_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
+                            ADD sitemaps_priority DECIMAL(8,2) UNSIGNED NOT NULL DEFAULT 0.5 COMMENT 'Sitemaps priority'";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_materials SET last_modified = modify_date, modify_counter = (post_date != modify_date) WHERE 1";
             $this->SQL->query($SQL_query);
         }
     }

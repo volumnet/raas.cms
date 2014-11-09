@@ -67,6 +67,7 @@ class Material extends \SOME\SOME
     
     public function commit()
     {
+        $this->modify(false);
         $this->modify_date = date('Y-m-d H:i:s');
         if (!$this->id) {
             $this->post_date = $this->modify_date;
@@ -82,6 +83,32 @@ class Material extends \SOME\SOME
         }
         parent::commit();
         $this->exportPages();
+        $this->reload();
+        foreach ($this->parents as $row) {
+            $row->modify();
+        }
+    }
+    
+    
+    public function visit()
+    {
+        $this->visit_counter++;
+        parent::commit();
+    }
+
+
+    public function modify($commit = true)
+    {
+        $d0 = time();
+        $d1 = strtotime($this->modify_date);
+        $d2 = strtotime($this->last_modified);
+        if ((time() - $d1 >= 3600) && (time() - $d2 >= 3600)) {
+            $this->last_modified = date('Y-m-d H:i:s');
+            $this->modify_counter++;
+            if ($commit) {
+                parent::commit();
+            }
+        }
     }
     
     

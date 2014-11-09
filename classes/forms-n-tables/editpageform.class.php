@@ -37,7 +37,12 @@ class EditPageForm extends \RAAS\Form
             $title = $Item->id ? $this->view->_('EDITING_SITE') : $this->view->_('CREATING_SITE');
         }
         
-        $commonTab = new FormTab(array('name' => 'common', 'caption' => $this->view->_('GENERAL'), 'children' => array(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'))));
+        $commonTab = new FormTab(array(
+            'name' => 'common', 
+            'caption' => $this->view->_('GENERAL'), 
+            'children' => array(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'))
+        ));
+        $seoTab = new FormTab(array('name' => 'seo', 'caption' => $this->view->_('SEO'), 'children' => array()));
         $serviceTab = new FormTab(array(
             'name' => 'service', 
             'caption' => $this->view->_('SERVICE'), 
@@ -83,7 +88,7 @@ class EditPageForm extends \RAAS\Form
             $commonTab->children[] = array('name' => 'urn', 'caption' => $this->view->_('DOMAIN_NAMES'), 'required' => 'required');
         }
         foreach (array('meta_title', 'meta_description', 'meta_keywords') as $key) {
-            $commonTab->children[] = new FieldSet(array(
+            $seoTab->children[] = new FieldSet(array(
                 'template' => 'edit_page.inherit.php',
                 'children' => array(
                     array('name' => $key, 'caption' => $this->view->_(strtoupper($key)), 'default' => ($Parent->id ? $Parent->$key : '')), 
@@ -91,9 +96,51 @@ class EditPageForm extends \RAAS\Form
                 )
             ));
         }
+        $seoTab->children[] = new FieldSet(array(
+            'template' => 'edit_page.inherit.php',
+            'children' => array(
+                array(
+                    'type' => 'select',
+                    'name' => 'changefreq', 
+                    'caption' => $this->view->_('CHANGEFREQ'), 
+                    'placeholder' => $this->view->_('AUTOMATICALLY'),
+                    'children' => array(
+                        array('value' => 'always', 'caption' => $this->view->_('CHANGEFREQ_ALWAYS')),
+                        array('value' => 'hourly', 'caption' => $this->view->_('CHANGEFREQ_HOURLY')),
+                        array('value' => 'daily', 'caption' => $this->view->_('CHANGEFREQ_DAILY')),
+                        array('value' => 'weekly', 'caption' => $this->view->_('CHANGEFREQ_WEEKLY')),
+                        array('value' => 'monthly', 'caption' => $this->view->_('CHANGEFREQ_MONTHLY')),
+                        array('value' => 'yearly', 'caption' => $this->view->_('CHANGEFREQ_YEARLY')),
+                        array('value' => 'never', 'caption' => $this->view->_('CHANGEFREQ_NEVER'))
+                    )
+                ), 
+                array('type' => 'checkbox', 'name' => 'inherit_changefreq', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->inherit_changefreq : 1))
+            )
+        ));
+        $seoTab->children[] = new FieldSet(array(
+            'template' => 'edit_page.inherit.php',
+            'children' => array(
+                array(
+                    'type' => 'number', 
+                    'min' => 0,
+                    'step' => 0.1, 
+                    'max' => 1,
+                    'name' => 'sitemaps_priority', 
+                    'caption' => $this->view->_('SITEMAPS_PRIORITY'), 
+                    'default' => 0.5
+                ), 
+                array(
+                    'type' => 'checkbox', 
+                    'name' => 'inherit_sitemaps_priority', 
+                    'caption' => $this->view->_('INHERIT'), 
+                    'default' => ($Parent->id ? $Parent->inherit_sitemaps_priority : 1)
+                )
+            )
+        ));
         if ($Item->id) {
             $serviceTab->children[] = array('name' => 'post_date', 'caption' => $this->view->_('CREATED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
             $serviceTab->children[] = array('name' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
+            $serviceTab->children[] = array('name' => 'last_modified', 'caption' => $this->view->_('LAST_AFFECTED_MODIFICATION'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
         }
         foreach ($Item->fields as $row) {
             $f = $row->Field;
@@ -119,7 +166,7 @@ class EditPageForm extends \RAAS\Form
         $defaultParams = array(
             'parentUrl' => $this->view->url . '&id=%s#subsections', 
             'caption' => $title,
-            'children' => array($commonTab, $serviceTab),
+            'children' => array($commonTab, $seoTab, $serviceTab),
             'export' => function($Form) use ($Parent) {
                 $Form->exportDefault();
                 $Form->Item->editor_id = Application::i()->user->id;

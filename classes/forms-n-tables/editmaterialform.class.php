@@ -55,7 +55,31 @@ class EditMaterialForm extends \RAAS\Form
                 array('name' => 'urn', 'caption' => $this->view->_('URN')),
                 array('name' => 'meta_title', 'caption' => $this->view->_('META_TITLE')),
                 array('name' => 'meta_description', 'caption' => $this->view->_('META_DESCRIPTION')),
-                array('name' => 'meta_keywords', 'caption' => $this->view->_('META_KEYWORDS'))
+                array('name' => 'meta_keywords', 'caption' => $this->view->_('META_KEYWORDS')),
+                array(
+                    'type' => 'select',
+                    'name' => 'changefreq', 
+                    'caption' => $this->view->_('CHANGEFREQ'), 
+                    'placeholder' => $this->view->_('AUTOMATICALLY'),
+                    'children' => array(
+                        array('value' => 'always', 'caption' => $this->view->_('CHANGEFREQ_ALWAYS')),
+                        array('value' => 'hourly', 'caption' => $this->view->_('CHANGEFREQ_HOURLY')),
+                        array('value' => 'daily', 'caption' => $this->view->_('CHANGEFREQ_DAILY')),
+                        array('value' => 'weekly', 'caption' => $this->view->_('CHANGEFREQ_WEEKLY')),
+                        array('value' => 'monthly', 'caption' => $this->view->_('CHANGEFREQ_MONTHLY')),
+                        array('value' => 'yearly', 'caption' => $this->view->_('CHANGEFREQ_YEARLY')),
+                        array('value' => 'never', 'caption' => $this->view->_('CHANGEFREQ_NEVER'))
+                    )
+                ), 
+                array(
+                    'type' => 'number', 
+                    'min' => 0,
+                    'step' => 0.1, 
+                    'max' => 1,
+                    'name' => 'sitemaps_priority', 
+                    'caption' => $this->view->_('SITEMAPS_PRIORITY'), 
+                    'default' => 0.5
+                ), 
             )
         ));
         $serviceTab = new FormTab(array(
@@ -66,6 +90,7 @@ class EditMaterialForm extends \RAAS\Form
         if ($Item->id) {
             $serviceTab->children[] = array('name' => 'post_date', 'caption' => $this->view->_('CREATED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
             $serviceTab->children[] = array('name' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
+            $serviceTab->children[] = array('name' => 'last_modified', 'caption' => $this->view->_('LAST_AFFECTED_MODIFICATION'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
         }
         foreach ($Item->fields as $row) {
             $commonTab->children[] = $row->Field;

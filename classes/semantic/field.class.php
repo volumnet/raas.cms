@@ -150,6 +150,9 @@ abstract class Field extends \RAAS\CustomField
                 } 
                 return $att;
                 break;
+            case 'number':
+                return str_replace(',', '.', parent::getValue($index));
+                break;
             case 'material':
                 return new Material(parent::getValue($index));
                 break;
@@ -181,6 +184,9 @@ abstract class Field extends \RAAS\CustomField
                     return $att;
                 }, self::$SQL->getcol(array($SQL_query, $SQL_bind)));
                 return $values;
+                break;
+            case 'number':
+                return array_map(function($x) { return str_replace(',', '.', $x); }, parent::getValues($forceArray));
                 break;
             case 'material':
                 return array_map(function($x) { return new Material($x); }, parent::getValues($forceArray));

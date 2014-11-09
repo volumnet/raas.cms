@@ -105,6 +105,10 @@ abstract class Block extends \SOME\SOME
             self::$SQL->query("DELETE FROM " . static::$tablename2 . " WHERE id = " . (int)$this->id);
             self::$SQL->add(static::$tablename2, $arr);
         }
+        $this->reload();
+        foreach ($this->pages as $row) {
+            $row->modify();
+        }
     }
 
 

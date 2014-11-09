@@ -21,4 +21,4 @@ $showMenu = function(\RAAS\CMS\Menu $node, \RAAS\CMS\Page $current) use (&$showM
     return $text && $level ? '<ul>' . $text . '</ul>' : $text;
 };
 
-echo $showMenu($Item, $Page);
+echo '<nav class="">' . $showMenu($Item, $Page) . '</nav>';

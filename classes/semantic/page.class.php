@@ -82,6 +82,8 @@ class Page extends \SOME\SOME
         'inherit_meta_title' => 'meta_title', 
         'inherit_meta_description' => 'meta_description', 
         'inherit_meta_keywords' => 'meta_keywords', 
+        'inherit_changefreq' => 'changefreq', 
+        'inherit_sitemaps_priority' => 'sitemaps_priority', 
         'inherit_template' => 'template',
         'inherit_lang' => 'lang',
         'inherit_cache' => 'cache'
@@ -164,6 +166,7 @@ class Page extends \SOME\SOME
     public function commit()
     {
         $new = !$this->id;
+        $this->modify(false);
         $this->modify_date = date('Y-m-d H:i:s');
         if (!$this->id) {
             $this->post_date = $this->modify_date;
@@ -272,6 +275,28 @@ class Page extends \SOME\SOME
             }
         }
         return implode('', $this->locationBlocksText[$location]);
+    }
+
+
+    public function visit()
+    {
+        $this->visit_counter++;
+        parent::commit();
+    }
+
+
+    public function modify($commit = true)
+    {
+        $d0 = time();
+        $d1 = strtotime($this->modify_date);
+        $d2 = strtotime($this->last_modified);
+        if ((time() - $d1 >= 3600) && (time() - $d2 >= 3600)) {
+            $this->last_modified = date('Y-m-d H:i:s');
+            $this->modify_counter++;
+            if ($commit) {
+                parent::commit();
+            }
+        }
     }
     
     
