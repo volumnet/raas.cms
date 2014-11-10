@@ -109,7 +109,7 @@ if ($Page->Material && $Block->nat) {
             }
         }
         foreach ($SQL_array as $key => $arr) {
-            $SQL_where[$key] = $arr ? "(" . implode(" OR ", $arr) . ")" : "";
+            $SQL_where[$key] = $arr ? "(" . implode(" AND ", $arr) . ")" : "";
         }
     }
     
