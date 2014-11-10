@@ -18,7 +18,7 @@ $getField = function($field, $as, array &$SQL_from) {
     }
     return $sort;
 };
-$getOrder = function($relation, $var) {
+$getOrder = function($relation, $var) use ($IN) {
     $order = '';
     switch ((string)$relation) {
         case 'asc!':
