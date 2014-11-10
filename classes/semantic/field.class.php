@@ -238,4 +238,17 @@ abstract class Field extends \RAAS\CustomField
         $args[0]['where'][] = "classname = '" . static::$SQL->real_escape_string(static::$references['parent']['classname']) . "'";
         return call_user_func_array('parent::getSet', $args);
     }
+
+
+    public static function importByURN($urn)
+    {
+        $SQL_query = "SELECT * FROM " . self::_tablename() 
+                   . " WHERE urn = ? AND classname = '" . static::$SQL->real_escape_string(static::$references['parent']['classname']) . "'";
+        $SQL_bind = array($urn);
+        if ($SQL_result = self::$SQL->getline(array($SQL_query, $SQL_bind))) {
+            return new self($SQL_result);
+        } else {
+            return new self();
+        }
+    }
 }
