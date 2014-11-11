@@ -129,8 +129,8 @@ class EditMaterialForm extends \RAAS\Form
                 'import' => function($Field) { return $Field->Form->Item->pages_ids; },
             );
         }
+        $mTabs = array();
         if ($Item->id) {
-            $mTabs = array();
             foreach ($Item->relatedMaterialTypes as $mtype) {
                 if ($params['MSet'][$mtype->urn]) {
                     $temp = new MaterialsRelatedTable(array(
