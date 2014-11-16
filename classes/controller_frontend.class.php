@@ -145,7 +145,12 @@ final class Controller_Frontend extends Abstract_Controller
         }
         echo $content;
         if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET') && $content) {
-            $this->saveCache($content, (array)headers_list());
+            $headers = (array)headers_list();
+            if (($status1 = array_filter($headers, function($x) { return stristr($x, 'Status:'); })) && !($status2 = array_filter($headers, function($x) { return stristr($x, 'HTTP/1.'); }))) {
+                $status2 = array_map(function($x) { return str_ireplace('Status:', 'HTTP/1.0', $x); }, $status1);
+                $headers = array_merge($headers, $status2);
+            }
+            $this->saveCache($content, $headers);
         }
     }
 
