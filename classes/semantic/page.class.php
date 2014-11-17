@@ -280,8 +280,7 @@ class Page extends \SOME\SOME
 
     public function visit()
     {
-        $this->visit_counter++;
-        parent::commit();
+        self::$SQL->update(self::_tablename(), "id = " . (int)$this->id, array('visit_counter' => $this->visit_counter++));
     }
 
 
@@ -290,11 +289,12 @@ class Page extends \SOME\SOME
         $d0 = time();
         $d1 = strtotime($this->modify_date);
         $d2 = strtotime($this->last_modified);
+        $arr = array();
         if ((time() - $d1 >= 3600) && (time() - $d2 >= 3600)) {
-            $this->last_modified = date('Y-m-d H:i:s');
-            $this->modify_counter++;
+            $arr['last_modified'] = $this->last_modified = date('Y-m-d H:i:s');
+            $arr['modify_counter'] = $this->modify_counter++;
             if ($commit) {
-                parent::commit();
+                self::$SQL->update(self::_tablename(), "id = " . (int)$this->id, $arr);
             }
         }
     }
