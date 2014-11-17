@@ -18,9 +18,7 @@ class EditBlockSearchForm extends EditBlockForm
         $tab = parent::getCommonTab();
         $tmp_page = new Page();
         $this->meta['CONTENT']['pages'] = array('Set' => $tmp_page->children);
-        $this->meta['CONTENT']['material_types'] = array(
-            'Set' => array_merge(array(new Material_Type(array('id' => 0, 'name' => $this->view->_('PAGES')))), Material_Type::getSet())
-        );
+        $m = new Material_Type();
         foreach ($this->view->availableLanguages as $key => $val) {
             $this->meta['CONTENT']['languages'][] = array('value' => $key, 'caption' => $val);
         }
@@ -31,7 +29,7 @@ class EditBlockSearchForm extends EditBlockForm
             'name' => 'mtypes', 
             'caption' => $this->view->_('LIMIT_TO_MATERIAL_TYPES'), 
             'multiple' => 'multiple', 
-            'children' => $this->meta['CONTENT']['material_types']
+            'children' => array('Set' => $m->children)
         ));
         $tab->children[] = new RAASField(array(
             'type' => 'checkbox', 

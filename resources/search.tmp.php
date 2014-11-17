@@ -33,6 +33,21 @@
             </li>
         <?php } ?>
       </ol>
+      <?php include \RAAS\CMS\Package::i()->resourcesDir . '/pages.inc.php'?>
+      <?php if ($Pages->pages > 1) { ?>
+          <ul class="pagination pull-right">
+            <?php 
+            echo $outputNav(
+                $Pages, 
+                array(
+                    'pattern' => '<li><a href="' . \SOME\HTTP::queryString('page={link}') . '">{text}</a></li>', 
+                    'pattern_active' => '<li class="active"><a>{text}</a></li>',
+                    'ellipse' => '<li class="disabled"><a>...</a></li>'
+                )
+            );
+            ?>
+          </ul>
+      <?php } ?>
   <?php } elseif ($localError == 'NO_SEARCH_QUERY') { ?>
     <p><?php echo NO_SEARCH_QUERY?></p>
   <?php } elseif ($localError == 'SEARCH_QUERY_TOO_SHORT') { ?>
