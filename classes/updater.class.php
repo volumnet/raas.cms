@@ -548,7 +548,7 @@ class Updater extends \RAAS\Updater
                     }
                     $id = (int)$this->SQL->add(
                         \SOME\SOME::_dbprefix() . "cms_snippets",
-                        array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['interface'], 'locked' => 0)
+                        array('pid' => (int)Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['interface'], 'locked' => 0)
                     );
                     $this->SQL->update(\SOME\SOME::_dbprefix() . "cms_blocks", "id = " . (int)$row['id'], array('interface_id' => $id, 'interface' => ''));
                 }
@@ -562,7 +562,7 @@ class Updater extends \RAAS\Updater
                     }
                     $id = (int)$this->SQL->add(
                         \SOME\SOME::_dbprefix() . "cms_snippets",
-                        array('pid' => Snippet_Folder::importByURN('__RAAS_views')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['widget'], 'locked' => 0)
+                        array('pid' => (int)Snippet_Folder::importByURN('__RAAS_views')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['widget'], 'locked' => 0)
                     );
                     $this->SQL->update(\SOME\SOME::_dbprefix() . "cms_blocks", "id = " . (int)$row['id'], array('widget_id' => $id, 'widget' => ''));
                 }
@@ -588,7 +588,7 @@ class Updater extends \RAAS\Updater
                     }
                     $id = (int)$this->SQL->add(
                         \SOME\SOME::_dbprefix() . "cms_snippets",
-                        array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['description'], 'locked' => 0)
+                        array('pid' => (int)Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['description'], 'locked' => 0)
                     );
                     $this->SQL->update(\SOME\SOME::_dbprefix() . "cms_forms", "id = " . (int)$row['id'], array('interface_id' => $id, 'description' => ''));
                 }
