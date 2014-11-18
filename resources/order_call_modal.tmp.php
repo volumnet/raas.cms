@@ -12,7 +12,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     echo json_encode($result);
     exit;
 } else { ?>
-    <section class="">
+    <section class="order-call_modal">
       <div id="orderCallModal" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
         <div class="modal-dialog">
           <div class="modal-content">
