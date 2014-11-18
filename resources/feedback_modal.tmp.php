@@ -58,12 +58,14 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                             </div>
                           </div>
                       <?php } ?>
+                      <div class="form-group text-right">
+                        <div class="col-sm-12">
+                          <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo CANCEL?></button>
+                          <button class="btn btn-primary" type="submit"><?php echo SEND?></button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo CANCEL?></button>
-                  <button class="btn btn-primary" type="submit"><?php echo SEND?></button>
                 </div>
               </form>
             </div>
