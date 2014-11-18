@@ -192,11 +192,16 @@ class Page extends \SOME\SOME
         }
         if ($enableHeritage) {
             foreach ($this->children as $row) {
+                // 2014-11-18, AVS: добавлено, поскольку childrens создаются по SQL-запросу и массив properties у них нулевой, поэтому сравнивать проблематично
+                $row->reload(); 
                 foreach (self::$inheritedFields as $key => $val) {
-                    if ($this->updates[$key] && ($row->$key == $this->properties[$key])) {
+                    // Если наследуется и значение дочернего элемента совпадает со старым значением текущего
+                    // 2014-11-18, AVS: сменил $this->update[$key] на $this->$key, т.к. сам факт наследования не обязательно должен меняться
+                    if ($this->$key && ($row->$key == $this->properties[$key])) { 
                         $row->$val = $this->$val;
                     }
                 }
+                
                 $row->commit();
             }
         }

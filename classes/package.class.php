@@ -354,9 +354,11 @@ class Package extends \RAAS\Package
                    LEFT JOIN " . Field::_tablename() .  " AS tFi ON tFi.pid = tF.pid AND tFi.classname = 'RAAS\\\\CMS\\\\Form'
                    LEFT JOIN " . Feedback::_dbprefix() . "cms_data AS tD ON tD.pid = tF.id AND tD.fid = tFi.id
                        WHERE 1 ";
+        $columns = array();
         if ($Parent->id) {
             $SQL_query .= " AND tF.pid = " . (int)$Parent->id;
             $col_where .= " AND pid = " . (int)$Parent->id;
+            $columns = Form_Field::getSet(array('where' => $col_where));
         }
         if (isset($this->controller->nav['search_string']) && $this->controller->nav['search_string']) {
             $SQL_query .= " AND tD.value LIKE '%" . $this->SQL->escape_like($this->controller->nav['search_string']) . "%' ";
@@ -365,7 +367,6 @@ class Package extends \RAAS\Package
         $SQL_query .= " GROUP BY tF.id ORDER BY tF.post_date DESC ";
         $Pages = new \SOME\Pages(isset($this->controller->nav['page']) ? $this->controller->nav['page'] : 1, $this->registryGet('rowsPerPage'));
         $Set = Feedback::getSQLSet($SQL_query, $Pages);
-        $columns = Form_Field::getSet(array('where' => $col_where));
         return array('Set' => $Set, 'Pages' => $Pages, 'Parent' => $Parent, 'columns' => $columns);
     }
 
