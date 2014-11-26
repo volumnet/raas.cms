@@ -20,7 +20,7 @@ $_RAASForm_FieldSet = function(\RAAS\FieldSet $FieldSet) use (&$_RAASForm_Form_T
         <div class="control-group<?php echo $err ? ' error' : ''?>">
           <label class="control-label" for="<?php echo htmlspecialchars($Field->name)?>"><?php echo htmlspecialchars($Field->caption)?>:</label> 
           <div class="row">
-            <div class="span3" style="margin-left: 20px"><?php echo $_RAASForm_Control($Field, false)?></div> <div class="span2"><label class="checkbox"><?php echo $_RAASForm_Control($inheritField, false) . htmlspecialchars($inheritField->caption)?></label></div>
+            <div class="span5" style="margin-left: 20px"><?php echo $_RAASForm_Control($Field, false)?></div> <div class="span2"><label class="checkbox"><?php echo $_RAASForm_Control($inheritField, false) . htmlspecialchars($inheritField->caption)?></label></div>
           </div>
         </div>
         <div class="control-group<?php echo $err2 ? ' error' : ''?>">
@@ -33,7 +33,7 @@ $_RAASForm_FieldSet = function(\RAAS\FieldSet $FieldSet) use (&$_RAASForm_Form_T
         <div class="control-group<?php echo $err ? ' error' : ''?>">
           <div class="controls">
             <div class="row">
-              <div class="span3">
+              <div class="span5">
                 <label class="checkbox"<?php echo $Field->{'data-hint'} ? ' style="width: 174px;"' : ''?>><?php echo $_RAASForm_Control($Field, false)?> <?php echo htmlspecialchars($Field->caption)?></label>
               </div>
               <div class="span2"><label class="checkbox"><?php echo $_RAASForm_Control($inheritField, false) . htmlspecialchars($inheritField->caption)?></label></div>
@@ -47,7 +47,7 @@ $_RAASForm_FieldSet = function(\RAAS\FieldSet $FieldSet) use (&$_RAASForm_Form_T
           <label class="control-label" for="<?php echo htmlspecialchars($Field->name)?>"><?php echo htmlspecialchars($Field->caption ? $Field->caption . ':' : '')?></label> 
           <div class="controls">
             <div class="row">
-              <div class="span3" style="margin-left: 20px"><?php echo $_RAASForm_Control($Field, false)?></div> 
+              <div class="span5" style="margin-left: 20px"><?php echo $_RAASForm_Control($Field, false)?></div> 
               <div class="span2"><label class="checkbox"><?php echo $_RAASForm_Control($inheritField, false) . htmlspecialchars($inheritField->caption)?></label></div>
             </div>
           </div>
