@@ -54,8 +54,8 @@ class EditMaterialForm extends \RAAS\Form
             'children' => array(
                 array('name' => 'urn', 'class' => 'span5', 'caption' => $this->view->_('URN')),
                 array('name' => 'meta_title', 'class' => 'span5', 'caption' => $this->view->_('META_TITLE')),
-                array('name' => 'meta_description', 'class' => 'span5', 'caption' => $this->view->_('META_DESCRIPTION')),
-                array('name' => 'meta_keywords', 'class' => 'span5', 'caption' => $this->view->_('META_KEYWORDS')),
+                array('type' => 'textarea', 'name' => 'meta_description', 'class' => 'span5', 'rows' => 5, 'caption' => $this->view->_('META_DESCRIPTION')),
+                array('type' => 'textarea', 'name' => 'meta_keywords', 'class' => 'span5', 'rows' => 5, 'caption' => $this->view->_('META_KEYWORDS')),
                 array(
                     'type' => 'select',
                     'name' => 'changefreq', 

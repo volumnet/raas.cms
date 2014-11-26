@@ -87,11 +87,18 @@ class EditPageForm extends \RAAS\Form
         } else {
             $commonTab->children[] = array('name' => 'urn', 'class' => 'span5', 'caption' => $this->view->_('DOMAIN_NAMES'), 'required' => 'required');
         }
-        foreach (array('meta_title', 'meta_description', 'meta_keywords') as $key) {
+        $seoTab->children[] = new FieldSet(array(
+            'template' => 'edit_page.inherit.php',
+            'children' => array(
+                array('name' => 'meta_title', 'class' => 'span5', 'caption' => $this->view->_(strtoupper('meta_title')), 'default' => ($Parent->id ? $Parent->meta_title : '')), 
+                array('type' => 'checkbox', 'name' => 'inherit_meta_title', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->{'inherit_meta_title'} : 1))
+            )
+        ));
+        foreach (array('meta_description', 'meta_keywords') as $key) {
             $seoTab->children[] = new FieldSet(array(
                 'template' => 'edit_page.inherit.php',
                 'children' => array(
-                    array('name' => $key, 'class' => 'span5', 'caption' => $this->view->_(strtoupper($key)), 'default' => ($Parent->id ? $Parent->$key : '')), 
+                    array('type' => 'textarea', 'name' => $key, 'class' => 'span5', 'rows' => 5, 'caption' => $this->view->_(strtoupper($key)), 'default' => ($Parent->id ? $Parent->$key : '')), 
                     array('type' => 'checkbox', 'name' => 'inherit_' . $key, 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->{'inherit_' . $key} : 1))
                 )
             ));
