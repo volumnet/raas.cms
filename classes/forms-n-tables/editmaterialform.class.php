@@ -46,16 +46,16 @@ class EditMaterialForm extends \RAAS\Form
                 $commonTab->children['pid']->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_NEW_CONFIRM')) . '\')) { document.location.href = document.location.href.replace(/mtype=\\d+/, \'mtype=\' + this.value); }';
             }
         }
-        $commonTab->children['name'] = new RAASField(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
+        $commonTab->children['name'] = new RAASField(array('name' => 'name', 'class' => 'span5', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
         $commonTab->children['description'] = new RAASField(array('type' => 'htmlarea', 'name' => 'description', 'caption' => $this->view->_('DESCRIPTION')));
         $seoTab = new FormTab(array(
             'name' => 'seo', 
             'caption' => $this->view->_('SEO'), 
             'children' => array(
-                array('name' => 'urn', 'caption' => $this->view->_('URN')),
-                array('name' => 'meta_title', 'caption' => $this->view->_('META_TITLE')),
-                array('name' => 'meta_description', 'caption' => $this->view->_('META_DESCRIPTION')),
-                array('name' => 'meta_keywords', 'caption' => $this->view->_('META_KEYWORDS')),
+                array('name' => 'urn', 'class' => 'span5', 'caption' => $this->view->_('URN')),
+                array('name' => 'meta_title', 'class' => 'span5', 'caption' => $this->view->_('META_TITLE')),
+                array('type' => 'textarea', 'name' => 'meta_description', 'class' => 'span5', 'rows' => 5, 'caption' => $this->view->_('META_DESCRIPTION')),
+                array('type' => 'textarea', 'name' => 'meta_keywords', 'class' => 'span5', 'rows' => 5, 'caption' => $this->view->_('META_KEYWORDS')),
                 array(
                     'type' => 'select',
                     'name' => 'changefreq', 
@@ -73,6 +73,7 @@ class EditMaterialForm extends \RAAS\Form
                 ), 
                 array(
                     'type' => 'number', 
+                    'class' => 'span5',
                     'min' => 0,
                     'step' => 0.1, 
                     'max' => 1,
