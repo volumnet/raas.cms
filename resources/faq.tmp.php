@@ -1,4 +1,4 @@
-<section class="faq">
+<section class="materials faq">
   <?php if ($Set) { ?>
       <?php foreach ($Set as $row) { ?>
           <article class="article">

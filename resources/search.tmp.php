@@ -1,4 +1,4 @@
-<section class="search">
+<section class="search materials">
   <h3><?php echo sprintf(SEARCH_RESULTS_FOR_QUERY, $search_string)?></h3>
   <?php if ($Set) { ?>
       <ol>
