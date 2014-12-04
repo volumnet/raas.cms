@@ -6,7 +6,7 @@ $_RAASForm_FieldSet = function(\RAAS\FieldSet $FieldSet, $level = 0) use (&$_RAA
       <input type="hidden" name="width" id="width" value="<?php echo (int)$Item->width?>" />
       <input type="hidden" name="height" id="height" value="<?php echo (int)$Item->height?>" />
       <?php foreach ($Item->locations as $row) { ?>
-          <div class="cms-location" style="<?php echo htmlspecialchars($row->style)?>">
+          <div class="cms-location" style="<?php echo htmlspecialchars(str_replace('min-height', 'height', $row->style))?>">
             <h6><?php echo htmlspecialchars($row->urn)?></h6>
             <input type="hidden" class="jsLocationName" name="location[]" value="<?php echo htmlspecialchars($row->urn)?>" />
             <input type="hidden" class="jsLocationWidth" name="location-width[]" value="<?php echo (int)$row->width?>" />
