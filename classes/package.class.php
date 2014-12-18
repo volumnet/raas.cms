@@ -455,4 +455,12 @@ class Package extends \RAAS\Package
         }
         parent::install();
     }
+
+
+    public static function tn($filename, $w = null, $h = null, $mode = null)
+    {
+        $temp = pathinfo($filename);
+        $outputFile = ltrim($temp['dirname'] ? $temp['dirname'] . '/' : '') . $temp['filename'] . '.' . ($w ?: 'auto') . 'x' . ($h ?: 'auto') . ($mode ? '_' . $mode : '') . '.' . $temp['extension'];
+        return $outputFile;
+    }
 }

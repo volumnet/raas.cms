@@ -5,6 +5,7 @@ use \RAAS\CMS\Page;
 use \RAAS\CMS\Material;
 use \RAAS\CMS\User AS CMSUser;
 use \RAAS\CMS\Auth;
+use \RAAS\CMS\Package;
 
 final class Controller_Frontend extends Abstract_Controller
 {
@@ -53,10 +54,18 @@ final class Controller_Frontend extends Abstract_Controller
     {
         if (!$this->getCache()) {
             $p = pathinfo($_SERVER['REQUEST_URI']);
-            if (preg_match('/(\\d+|auto)x(\\d+|auto)(_(\\w+))?$/i', $p['basename'], $regs) && is_file($f = ltrim($p['dirname'] . '/' . $p['filename'], '/'))) {
-                if ($s = getimagesize($f)) {
-                    $this->getThumbnail($f, ($regs[1] != 'auto') ? (int)$regs[1] : null, ($regs[2] != 'auto') ? (int)$regs[2] : null, $regs[4]);
-                    exit;
+            if (preg_match('/(\\.(\\d+|auto)x(\\d+|auto)(_(\\w+))?)(\\.|$)/i', $p['basename'], $regs)) {
+                $width = ($regs[2] != 'auto') ? (int)$regs[2] : null;
+                $height = ($regs[3] != 'auto') ? (int)$regs[3] : null;
+                $mode = $regs[5];
+                $originalFile = str_replace($regs[1], '', $_SERVER['REQUEST_URI']);
+                $originalFile = ltrim($originalFile, '/');
+                $originalFile = rtrim($originalFile, '.');
+                if (is_file($originalFile)) {
+                    if ($s = getimagesize($originalFile)) {
+                        $this->getThumbnail($originalFile, $width, $height, $mode);
+                        exit;
+                    }
                 }
             }
             if ($this->checkCompatibility()) {
@@ -181,19 +190,20 @@ final class Controller_Frontend extends Abstract_Controller
 
     protected function getThumbnail($filename, $w = null, $h = null, $mode = null)
     {
-        if (defined('SOME\Thumbnail::THUMBNAIL_' . strtoupper($mode))) {
-            $mode = constant('SOME\Thumbnail::THUMBNAIL_' . strtoupper($mode));
-        } else {
-            $mode = \SOME\Thumbnail::THUMBNAIL_CROP;
+        $temp = pathinfo($filename);
+        $outputFile = Package::tn($filename, $w, $h, $mode);
+        $mime = \SOME\Graphics::extension_to_mime_type(strtolower($temp['extension']));
+        if (!is_file($outputFile)) {
+            if (defined('SOME\Thumbnail::THUMBNAIL_' . strtoupper($mode))) {
+                $mode = constant('SOME\Thumbnail::THUMBNAIL_' . strtoupper($mode));
+            } else {
+                $mode = \SOME\Thumbnail::THUMBNAIL_CROP;
+            }
+            \SOME\Thumbnail::make($filename, $outputFile, $w ?: INF, $h ?: INF, $mode, true, true, 90);
+            chmod($outputFile, 0777);
         }
-        ob_start();
-        \SOME\Thumbnail::make($filename, null, $w ? $w : INF, $h ? $h : INF, $mode, true, false, 90);
-        $content = ob_get_contents();
-        $headers = (array)headers_list();
-        ob_end_flush();
-        if ($content) {
-            $this->saveCache($content, $headers, '_tn');
-        }
+        header('Content-Type: ' . $mime);
+        readfile($outputFile);
     }
 
 
