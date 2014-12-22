@@ -3,6 +3,17 @@ namespace RAAS\CMS;
 
 class EditBlockHTMLForm extends EditBlockForm
 {
+    public function __construct(array $params = array())
+    {
+        parent::__construct($params);
+        unset(
+            $this->children['serviceTab']->children['cache_type'], 
+            $this->children['serviceTab']->children['cache_single_page'], 
+            $this->children['serviceTab']->children['cache_interface_id']
+        );
+    }
+
+
     protected function getCommonTab()
     {
         $tab = parent::getCommonTab();

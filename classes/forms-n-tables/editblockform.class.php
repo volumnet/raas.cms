@@ -4,6 +4,7 @@ use \RAAS\Application;
 use \RAAS\FormTab;
 use \RAAS\Field as RAASField;
 use \RAAS\Option;
+use \RAAS\FieldSet;
 
 class EditBlockForm extends \RAAS\Form
 {
@@ -51,14 +52,38 @@ class EditBlockForm extends \RAAS\Form
         $this->children['serviceTab'] = $this->getServiceTab();
         $this->children['pagesTab'] = $this->getPagesTab();
         if ($this->Item->id) {
-            $this->children['serviceTab']->children[] = new RAASField(array(
+            $this->children['serviceTab']->children['post_date'] = new RAASField(array(
                 'name' => 'post_date', 'caption' => $this->view->_('CREATED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php'
             ));
-            $this->children['serviceTab']->children[] = new RAASField(array(
+            $this->children['serviceTab']->children['modify_date'] = new RAASField(array(
                 'name' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php'
             ));
         }
         
+
+        $interfaceField = $this->getInterfaceField();
+        $interfaceField->name = 'cache_interface_id';
+        $interfaceField->caption = $this->view->_('CACHE_INTERFACE');
+        $interfaceField->placeholder = null;
+        $s = Snippet::importByURN('__RAAS_cache_interface');
+        $interfaceField->default = $s->id;
+        $interfaceField->required = false;
+
+        $this->children['serviceTab']->children['cache_type'] = array(
+            'type' => 'select', 
+            'name' => 'cache_type', 
+            'caption' => $this->view->_('CACHE_TYPE'), 
+            'children' => array(
+                array('value' => Block::CACHE_NONE, 'caption' => $this->view->_('_NONE')),
+                array('value' => Block::CACHE_DATA, 'caption' => $this->view->_('CACHE_DATA')),
+                array('value' => Block::CACHE_HTML, 'caption' => $this->view->_('CACHE_HTML')),
+            ),
+            'default' => Block::CACHE_NONE
+        );
+        $this->children['serviceTab']->children['cache_single_page'] = array(
+            'type' => 'checkbox', 'name' => 'cache_single_page', 'caption' => $this->view->_('CACHE_BY_SINGLE_PAGES')
+        );
+        $this->children['serviceTab']->children['cache_interface_id'] = $interfaceField;
     }
 
 

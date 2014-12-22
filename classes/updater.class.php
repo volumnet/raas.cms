@@ -14,7 +14,7 @@ class Updater extends \RAAS\Updater
         $this->update20140717();
         $this->update20140910();
         $this->update20141104();
-        
+        $this->update20141222();
     }
 
 
@@ -732,6 +732,19 @@ class Updater extends \RAAS\Updater
                             ADD sitemaps_priority DECIMAL(8,2) UNSIGNED NOT NULL DEFAULT 0.5 COMMENT 'Sitemaps priority'";
             $this->SQL->query($SQL_query);
             $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_materials SET last_modified = modify_date, modify_counter = (post_date != modify_date) WHERE 1";
+            $this->SQL->query($SQL_query);
+        }
+    }
+
+
+    protected function update20141222()
+    {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks", $this->tables) && !in_array('cache_type', $this->columns(\SOME\SOME::_dbprefix() . "cms_blocks"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks
+                            ADD cache_type TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache type',
+                            ADD cache_single_page TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache by single pages',
+                            ADD cache_interface_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache interface_id',
+                            ADD KEY (cache_interface_id)";
             $this->SQL->query($SQL_query);
         }
     }

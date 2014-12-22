@@ -233,7 +233,7 @@ final class Controller_Frontend extends Abstract_Controller
     protected function getCache()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            if ($f = glob($this->model->cacheDir . '/*.' . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) . '.php')) {
+            if ($f = glob($this->model->cacheDir . '/' . $this->model->cachePrefix . '.' . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) . '.php')) {
                 include $f[0];
                 exit;
             }

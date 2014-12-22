@@ -88,6 +88,13 @@ class Package extends \RAAS\Package
                 $text = file_get_contents($this->stdSearchViewFile);
                 return $text;
                 break;
+            case 'stdCacheInterfaceFile':
+                return $this->resourcesDir . '/cache_interface.php';
+                break;
+            case 'stdCacheInterface':
+                $text = file_get_contents($this->stdCacheInterfaceFile);
+                return $text;
+                break;
             default:
                 return parent::__get($var);
                 break;

@@ -3,6 +3,10 @@ namespace RAAS\CMS;
 
 abstract class Block extends \SOME\SOME
 {
+    const CACHE_NONE = 0;
+    const CACHE_DATA = 1;
+    const CACHE_HTML = 2;
+
     protected static $tablename = 'cms_blocks';
     protected static $tablename2;
     protected static $defaultOrderBy = "priority";
@@ -64,11 +68,17 @@ abstract class Block extends \SOME\SOME
             case 'Widget':
                 return new Snippet((int)$this->widget_id);
                 break;
+            case 'CacheInterface':
+                return new Snippet((int)$this->cache_interface_id);
+                break;
             case 'interface':
                 return $this->Interface->description;
                 break;
             case 'widget':
                 return $this->Widget->description;
+                break;
+            case 'cache_interface':
+                return $this->CacheInterface->description;
                 break;
             case 'parent':
                 if ($this->pages) {
@@ -188,11 +198,52 @@ abstract class Block extends \SOME\SOME
         $SITE = $Page->Domain;
         $Block = $this;
         $config = $this->getAddData();
-        $IN = (array)$this->processInterface($config, $Page);
-        $IN['config'] = $config;
-        $this->processWidget($IN, $Page);
+        
+        // Пытаемся прочесть из HTML-кэша
+        if ($this->cache_type == static::CACHE_HTML) {
+            $IN = (array)$this->loadCache($_SERVER['REQUEST_URI']);
+        }
+        if (!$IN) {
+            // Пытаемся прочесть из кэша данных
+            if ($this->cache_type == static::CACHE_DATA) {
+                $IN = (array)$this->loadCache($_SERVER['REQUEST_URI']);
+            }
+            if (!$IN) {
+                // Не удалось, загрузим интерфейс
+                $IN = (array)$this->processInterface($config, $Page);
+                $IN['config'] = $config;
+                if ($this->cache_type == static::CACHE_DATA) {
+                    // Запишем в кэш данных
+                    $this->processCache($IN, $Page);
+                }
+            }
+            ob_start();
+            $this->processWidget($IN, $Page);
+            if ($this->cache_type == static::CACHE_HTML) {
+                // Запишем в HTML-кэш
+                $this->processCache($IN, $Page);
+            }
+            ob_end_flush();
+        }
     }
-    
+
+
+    public function getCacheFile($url = null)
+    {
+        if ($this->cache_type != static::CACHE_NONE) {
+            if (!$url) {
+                $url = $_SERVER['REQUEST_URI'];
+            }
+            $filename = Package::i()->cacheDir . '/' . Package::i()->cachePrefix . '_block' . (int)$this->id;
+            if ($url && $this->cache_single_page) {
+                $filename .= '.' . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+            }
+            $filename .= '.php';
+            return $filename;
+        }
+        return null;
+    }
+
 
     protected function processInterface($config, $Page)
     {
@@ -216,6 +267,31 @@ abstract class Block extends \SOME\SOME
             $Widget = $this->Widget;
             eval('?' . '>' . $Widget->description);
         }
+    }
+
+
+    protected function processCache(array $IN = array(), $Page)
+    {
+        $SITE = $Page->Domain;
+        $Block = $this;
+        extract($IN);
+        if ($this->CacheInterface->id) {
+            $CacheInterface = $this->CacheInterface;
+            eval('?' . '>' . $CacheInterface->description);
+        }
+    }
+    
+
+    public function loadCache($url = null)
+    {
+        $OUT = array();
+        if ($this->cache_type != static::CACHE_NONE) {
+            $filename = $this->getCacheFile($url);
+            if (is_file($filename)) {
+                $OUT = include($filename);
+            }
+        }
+        return $OUT;
     }
     
 

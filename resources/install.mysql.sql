@@ -13,9 +13,15 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   params varchar(255) NOT NULL DEFAULT '' COMMENT 'Additional params',
   interface_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
   widget_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Widget ID#',
+  cache_type TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache type',
+  cache_single_page TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache by single pages',
+  cache_interface_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache interface_id',
   PRIMARY KEY (id),
   KEY author_id (author_id),
-  KEY editor_id (editor_id)
+  KEY editor_id (editor_id),
+  KEY interface_id (interface_id),
+  KEY widget_id (widget_id),
+  KEY cache_interface_id (cache_interface_id)
 ) COMMENT='Site pages';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_form (
