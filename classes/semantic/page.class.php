@@ -273,7 +273,9 @@ class Page extends \SOME\SOME
             foreach ($Set as $row) {
                 if ($row->vis) {
                     ob_start();
+                    $bst = microtime(true);
                     $row->process($this);
+                    \RAAS\Controller_Frontend::i()->diag ? \RAAS\Controller_Frontend::i()->diag->blockHandler($row, microtime(true) - $bst) : null;
                     $this->locationBlocksText[$location][] = ob_get_contents();
                     ob_end_clean();
                 }

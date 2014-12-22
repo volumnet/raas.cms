@@ -36,7 +36,8 @@ abstract class Abstract_Controller extends \RAAS\Abstract_Package_Controller
     {
         return array(
             array('type' => 'number', 'name' => 'tnsize', 'caption' => $this->view->_('THUMBNAIL_SIZE')),
-            array('type' => 'number', 'name' => 'maxsize', 'caption' => $this->view->_('MAX_IMAGE_SIZE'))
+            array('type' => 'number', 'name' => 'maxsize', 'caption' => $this->view->_('MAX_IMAGE_SIZE')),
+            array('type' => 'checkbox', 'name' => 'diag', 'caption' => $this->view->_('ENABLE_DIAGNOSTICS')),
         );
     }
 }

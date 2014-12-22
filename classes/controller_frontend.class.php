@@ -6,10 +6,12 @@ use \RAAS\CMS\Material;
 use \RAAS\CMS\User AS CMSUser;
 use \RAAS\CMS\Auth;
 use \RAAS\CMS\Package;
+use \RAAS\CMS\Diag;
 
 final class Controller_Frontend extends Abstract_Controller
 {
     private $user;
+    protected $diag = null;
     
     public function __get($var)
     {
@@ -23,6 +25,9 @@ final class Controller_Frontend extends Abstract_Controller
                     $this->user = $a->auth();
                 }
                 return $this->user;
+                break;
+            case 'diag':
+                return $this->diag;
                 break;
             default:
                 return parent::__get($var);
@@ -70,9 +75,22 @@ final class Controller_Frontend extends Abstract_Controller
             }
             if ($this->checkCompatibility()) {
                 if ($this->checkDB()) {
-                    if ($this->checkSOME()) {
-                        $this->fork();
+                    if (Package::i()->registryGet('diag')) {
+                        $this->diag = Diag::getInstance();
+                        if ($this->diag) {
+                            $this->application->SQL->query_handler = array($this->diag, 'queryHandler');
+                        }
+                        $pst = microtime(true);
                     }
+                    if ($this->checkSOME()) {
+                        $Page = $this->fork();
+                    }
+                }
+                if ($this->diag) {
+                    if ($Page) { 
+                        $this->diag->pageHandler($Page, microtime(true) - $pst);
+                    }
+                    $this->diag->save();
                 }
             }
         }
@@ -99,7 +117,11 @@ final class Controller_Frontend extends Abstract_Controller
     
     protected function checkDB()
     {
-        return ($this->application->DSN && $this->application->initDB());
+        if ($this->application->DSN) {
+            $ok = $this->application->initDB();
+            return $ok;
+        }
+        return false;
     }
     
     protected function checkSOME()
@@ -161,6 +183,7 @@ final class Controller_Frontend extends Abstract_Controller
             }
             $this->saveCache($content, $headers);
         }
+        return $Page;
     }
 
 

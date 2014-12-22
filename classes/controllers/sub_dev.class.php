@@ -22,7 +22,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         $this->view->submenu = $this->view->devMenu();
         switch ($this->action) {
             case 'edit_template': case 'edit_snippet_folder': case 'edit_snippet': case 'edit_material_type': case 'edit_form': case 'menus': case 'edit_menu': 
-            case 'move_menu': case 'dictionaries': case 'edit_dictionary': case 'move_dictionary': case 'copy_snippet': 
+            case 'move_menu': case 'dictionaries': case 'edit_dictionary': case 'move_dictionary': case 'copy_snippet': case 'diag':
                 $this->{$this->action}();
                 break;
             case 'edit_material_field': case 'edit_form_field': case 'edit_page_field': 
@@ -79,6 +79,12 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'delete_form':
                 $Item = new CMSForm((int)$this->id);
                 StdSub::delete($Item, $this->url . '&action=forms');
+                break;
+            case 'delete_diag':
+                $from = (strtotime($_GET['from']) > 0) ? date('Y-m-d', strtotime($_GET['from'])) : null;
+                $to = (strtotime($_GET['to']) > 0) ? date('Y-m-d', strtotime($_GET['to'])) : null;
+                Diag::deleteStat($from, $to);
+                new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=diag');
                 break;
             case 'move_up_material_field': case 'move_down_material_field': case 'delete_material_field': case 'show_in_table_material_field':
             case 'move_up_form_field': case 'move_down_form_field': case 'delete_form_field': case 'show_in_table_form_field':
@@ -323,5 +329,14 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         } else {
             $this->view->edit_page_field($OUT);
         }
+    }
+
+
+    protected function diag()
+    {
+        $from = date('Y-m-d', (strtotime($_GET['from']) > 0) ? strtotime($_GET['from']) : time());
+        $to = date('Y-m-d', (strtotime($_GET['to']) > 0) ? strtotime($_GET['to']) : time());
+        $Item = Diag::getMerged($from, $to);
+        $this->view->diag(array('Item' => $Item, 'from' => $from, 'to' => $to));
     }
 }

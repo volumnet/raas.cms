@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+use \RAAS\Application;
 
 class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 {
@@ -271,6 +272,30 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
+    public function diag(array $IN = array())
+    {
+        $IN['Form'] = new DiagForm(array('Item' => $IN['Item'], 'from' => $IN['from'], 'to' => $IN['to']));
+        $this->assignVars($IN);
+        $this->title = $IN['Form']->caption;
+        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
+        $this->contextmenu = array(
+            array(
+                'name' => $this->_('CLEAR_DIAGNOSTICS_PERIOD'), 
+                'href' => $this->url . '&action=delete_diag&from=' . $IN['from'] . '&to=' . $IN['to'], 
+                'icon' => 'remove', 
+                'onclick' => 'return confirm("' . addslashes($this->_('CLEAR_DIAGNOSTICS_CONFIRM')) . '")'
+            ),
+            array(
+                'name' => $this->_('CLEAR_DIAGNOSTICS_ALL'), 
+                'href' => $this->url . '&action=delete_diag', 
+                'icon' => 'remove', 
+                'onclick' => 'return confirm("' . addslashes($this->_('CLEAR_DIAGNOSTICS_CONFIRM')) . '")'
+            ),
+        );
+        $this->template = $IN['Form']->template;
+    }
+
+
     public function devMenu()
     {
         $submenu = array();
@@ -319,6 +344,9 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
                 null
             )
         );
+        if (Package::i()->registryGet('diag')) {
+            $submenu[] = array('href' => $this->url . '&action=diag',  'name' => $this->_('DIAGNOSTICS'));
+        }
         foreach ($this->model->modules as $module) {
             $NS = \SOME\Namespaces::getNS($module);
             $sub_classname = $NS . '\\Sub_Dev';
