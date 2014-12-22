@@ -1,7 +1,6 @@
 <?php
 namespace RAAS\CMS;
 
-$OUT = $IN;
 switch ($Block->cache_type) {
     case Block::CACHE_HTML:
         $cacheText = ob_get_contents();

@@ -214,7 +214,7 @@ abstract class Block extends \SOME\SOME
                 $IN['config'] = $config;
                 if ($this->cache_type == static::CACHE_DATA) {
                     // Запишем в кэш данных
-                    $this->processCache($IN, $Page);
+                    $IN = $this->processCache($IN, $Page);
                 }
             }
             ob_start();
@@ -275,10 +275,12 @@ abstract class Block extends \SOME\SOME
         $SITE = $Page->Domain;
         $Block = $this;
         extract($IN);
+        $OUT = $IN;
         if ($this->CacheInterface->id) {
             $CacheInterface = $this->CacheInterface;
             eval('?' . '>' . $CacheInterface->description);
         }
+        return $OUT;
     }
     
 
