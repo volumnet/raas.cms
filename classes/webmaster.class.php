@@ -462,6 +462,14 @@ class Webmaster
             $F->datatype = 'image';
             $F->commit();
 
+            $F = new Material_Field();
+            $F->pid = $MT->id;
+            $F->name = $this->view->_('BRIEF_TEXT');
+            $F->multiple = 0;
+            $F->urn = 'brief';
+            $F->datatype = 'textarea';
+            $F->commit();
+
             $VF = Snippet_Folder::importByURN('__RAAS_views');
             $temp = Snippet::importByURN($urn);
             if (!$temp->id) {
