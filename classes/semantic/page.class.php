@@ -358,7 +358,11 @@ class Page extends \SOME\SOME
                         JOIN " . Block::_tablename() . " AS tB ON tB.id = tBM.id
                         JOIN " . self::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.block_id = tB.id
                        WHERE tB.vis AND tB.nat AND tBPA.page_id = " . (int)$this->id;
-        $mts = Material_Type::getSQLSet($SQL_query);
+        $SQL_result = Material_Type::getSQLSet($SQL_query);
+        $mts = array();
+        foreach ($SQL_result as $row) {
+            $mts = array_merge($mts, array($row), (array)$row->all_children);
+        }
         $Set = array();
         // Глобальные
         if ($mts_global = array_map(function($x) { return (int)$x->id; }, array_values(array_filter($mts, function($x) { return $x->global_type; })))) {
