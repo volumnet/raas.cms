@@ -73,8 +73,9 @@ class Material extends \SOME\SOME
             $this->post_date = $this->modify_date;
         }
         if ($this->pid && !$this->urn && $this->name) {
-            $this->urn = \SOME\Text::beautify($this->name);
+            $this->urn = $this->name;
         }
+        $this->urn = \SOME\Text::beautify($this->urn);
         while (
             (int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . self::_tablename() . " WHERE urn = ? AND id != ?", $this->urn, (int)$this->id)) ||
             (int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . Page::_tablename() . " WHERE urn = ?", $this->urn))

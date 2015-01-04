@@ -175,8 +175,9 @@ class Page extends \SOME\SOME
             $this->priority = self::$SQL->getvalue("SELECT MAX(priority) FROM " . self::_tablename()) + 1;
         }
         if ($this->pid && !$this->urn && $this->name) {
-            $this->urn = \SOME\Text::beautify($this->name);
+            $this->urn = $this->name;
         }
+        $this->urn = \SOME\Text::beautify($this->urn);
         while (
             (int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . self::_tablename() . " WHERE urn = ? AND pid = ? AND id != ?", $this->urn, $this->pid, (int)$this->id)) ||
             (int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . Material::_tablename() . " WHERE urn = ?", $this->urn))
