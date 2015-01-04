@@ -217,7 +217,7 @@ class Webmaster
             $F = new Form_Field();
             $F->pid = $FRM->id;
             $F->name = $this->view->_('PHONE');
-            $F->urn = 'phone';
+            $F->urn = 'phone_call';
             $F->datatype = 'text';
             $F->show_in_table = 1;
             $F->commit();
