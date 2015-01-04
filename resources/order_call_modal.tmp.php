@@ -43,7 +43,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                       <?php if ($Form->antispam == 'hidden' && $Form->antispam_field_name) { ?>
                             <input type="text" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" value="<?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?>" style="position: absolute; left: -9999px" />
                       <?php } ?>
-                      <?php $row = $Form->fields['phone']; $row->placeholder = $row->name; ?>
+                      <?php $row = $Form->fields['phone_call']; $row->placeholder = $row->name; ?>
                       <div class="form-group">
                         <div class="col-xs-12 order-call__phone">
                           <?php $getField($row, $DATA)?>
