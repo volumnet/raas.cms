@@ -1,4 +1,4 @@
-<section class="materials">
+<div class="materials">
   <?php if ($Item) { ?>
       <article class="article article_opened">
         <?php if (strtotime($Item->date) > 0) { ?>
@@ -59,4 +59,4 @@
           </ul>
       <?php } ?>
   <?php } ?>
-</section>
+</div>

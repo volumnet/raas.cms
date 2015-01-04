@@ -1,5 +1,5 @@
 <?php if ($Set) { ?>
-    <section class="">
+    <div class="">
       <div id="carousel-main" data-ride="carousel" class="carousel slide hidden-xs">
         <ol class="carousel-indicators">
           <?php for ($i = 0; $i < count($Set); $i++) { $row = $Set[$i]; ?>
@@ -18,5 +18,5 @@
         <a href="#carousel-main" data-slide="prev" class="left carousel-control"><span class="glyphicon glyphicon-chevron-left"></span></a>
         <a href="#carousel-main" data-slide="next" class="right carousel-control"><span class="glyphicon glyphicon-chevron-right"></span></a>
       </div>
-    </section>
+    </div>
 <?php } ?>

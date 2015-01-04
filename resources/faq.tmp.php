@@ -1,4 +1,4 @@
-<section class="materials faq">
+<div class="materials faq">
   <?php if ($Set) { ?>
       <?php foreach ($Set as $row) { ?>
           <article class="article">
@@ -33,4 +33,4 @@
           </ul>
       <?php } ?>
   <?php } ?>
-</section>
+</div>

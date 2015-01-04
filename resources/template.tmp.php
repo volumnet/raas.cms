@@ -48,20 +48,20 @@ $sideColWidth = 3;
           } 
           ?> 
         </header>
-        <section class="main-container">
+        <div class="main-container">
           <div class="row">
             <?php if (count($Page->locationBlocksText['left'])) { ?>
                 <aside class="location_left col-sm-<?php echo $sideColWidth?>"><?php echo $Page->location('left')?></aside>
             <?php } ?>
             <?php if (!$Page->pid) { ?>
                 <?php if (count($Page->locationBlocksText['content'])) { ?>
-                    <section class="location_content col-sm-<?php echo 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $sideColWidth)?>">
+                    <div class="location_content col-sm-<?php echo 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $sideColWidth)?>">
                       <main class="block_content"><?php echo $Page->location('content')?></main>
-                    </section> 
+                    </div> 
                 <?php } ?>
             <?php } else { ?>
                 <?php if (count($Page->locationBlocksText['content'])) { ?>
-                    <section class="location_content col-sm-<?php echo 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $sideColWidth)?>">
+                    <div class="location_content col-sm-<?php echo 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $sideColWidth)?>">
                       <main class="block_content">
                         <h1><?php echo htmlspecialchars($Page->name)?></h1>
                         <?php if ((count($Page->parents) + (bool)$Page->Material->id) > 1) { ?>
@@ -76,14 +76,14 @@ $sideColWidth = 3;
                         <?php } ?>
                         <?php echo $Page->location('content')?>
                       </main>
-                    </section> 
+                    </div> 
                 <?php } ?>
             <?php } ?>
             <?php if (count($Page->locationBlocksText['right'])) { ?>
                 <aside class="location_right col-sm-<?php echo $sideColWidth?>"><?php echo $Page->location('right')?></aside>
             <?php } ?>
           </div>
-        </section>
+        </div>
         <footer class="location_footer">
           <div class="location_footer__inner">
             <div><?php echo $Page->location('footer')?></div>

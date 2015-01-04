@@ -1,4 +1,4 @@
-<section class="search materials">
+<div class="search materials">
   <h3><?php echo sprintf(SEARCH_RESULTS_FOR_QUERY, $search_string)?></h3>
   <?php if ($Set) { ?>
       <ol>
@@ -55,4 +55,4 @@
   <?php } elseif ($localError == 'NO_RESULTS_FOUND') { ?>
       <p><?php echo NO_RESULTS_FOUND?></p>
   <?php } ?>
-</section>
+</div>
