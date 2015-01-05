@@ -15,7 +15,7 @@ $showMenu = function($node, \RAAS\CMS\Page $current) use (&$showMenu) {
             $name = $row->name;
         } else {
             $active = ($row['url'] == $current->url);
-            $semiactive = (stristr($current->url, $row['url']));
+            $semiactive = ((stristr($current->url, $row['url']) !== false) && ($row['url'] != '/'));
             $url = $row['url'];
             $name = $row['name'];
         }
