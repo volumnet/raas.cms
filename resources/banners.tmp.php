@@ -1,11 +1,11 @@
 <?php if ($Set) { ?>
     <div class="">
       <div id="carousel-main" data-ride="carousel" class="carousel slide hidden-xs">
-        <ol class="carousel-indicators">
+        <div class="carousel-indicators">
           <?php for ($i = 0; $i < count($Set); $i++) { $row = $Set[$i]; ?>
-              <li data-target="#carousel-main" data-slide-to="<?php echo (int)$i?>" class="<?php echo !$i ? 'active' : ''?>"></li>
+              <div data-target="#carousel-main" data-slide-to="<?php echo (int)$i?>" class="<?php echo !$i ? 'active' : ''?>"></div>
           <?php } ?>
-        </ol>
+        </div>
         <div class="carousel-inner">
           <?php for ($i = 0; $i < count($Set); $i++) { $row = $Set[$i]; ?>
               <div class="item <?php echo !$i ? 'active' : ''?>">
