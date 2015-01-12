@@ -43,8 +43,8 @@ $sideColWidth = 3;
             <div class="col-sm-7"><div class="address"><?php echo $Page->locationBlocksText['header'][1]?></div></div>
           </div>
           <?php 
-          for ($i = (int)(!$Page->pid); $i < count($Page->locationBlocksText['content']); $i++) { 
-              echo $Page->locationBlocksText['content'][$i];
+          for ($i = (int)(!$Page->pid); $i < count($Page->locationBlocksText['header']); $i++) { 
+              echo $Page->locationBlocksText['header'][$i];
           } 
           ?> 
         </header>
