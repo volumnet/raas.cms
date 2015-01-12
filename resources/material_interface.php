@@ -85,9 +85,9 @@ if ($Page->Material && $Block->nat) {
     }
     
     /*** FILTERING ***/
-    if (isset($config['filter'])) {
+    if ($Block->filter) {
         $SQL_array = array();
-        foreach((array)$config['filter'] as $row) {
+        foreach((array)$Block->filter as $row) {
             if (isset($row['var'], $row['relation'], $row['field'], $IN[$row['var']])) {
                 $tmp_field = $getField($row['field'], 't' . $row['field'], $SQL_from);
                 switch ($row['relation']) {
@@ -112,8 +112,8 @@ if ($Page->Material && $Block->nat) {
     }
     
     /*** SORTING ***/
-    if (isset($config['sort_var_name'], $IN[(string)$config['sort_var_name']], $config['sort'])) {
-        foreach ((array)$config['sort'] as $row) {
+    if (isset($config['sort_var_name'], $IN[(string)$config['sort_var_name']]) && $Block->sort) {
+        foreach ((array)$Block->sort as $row) {
             if (isset($row['var'], $row['field']) && $IN[(string)$config['sort_var_name']] == $row['var']) {
                 $sort = $getField($row['field'], 'tOr', $SQL_from);
                 $order = $getOrder(isset($row['relation']) ? (string)$row['relation'] : '', isset($row['order_var_name']) ? (string)$row['order_var_name'] : '');
