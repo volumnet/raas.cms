@@ -2,6 +2,7 @@
 namespace RAAS\CMS;
 use \RAAS\StdSub;
 use \RAAS\Application;
+use \RAAS\Redirector;
 
 class Sub_Main extends \RAAS\Abstract_Sub_Controller
 {
