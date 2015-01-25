@@ -14,13 +14,32 @@ jQuery(function($) {
         } else {
             $('.control-group:has(#source_textarea)').fadeOut();
         }
+
+        // Значение по умолчанию
+        if ($.inArray($('#datatype').val(), ['file', 'image', 'material']) == -1) {
+            $('#defval').removeAttr('disabled');
+            $('.control-group:has(#defval)').fadeIn();
+        } else {
+            $('#defval').attr('disabled', 'disabled');
+            $('.control-group:has(#defval)').fadeOut();
+        }
         
+        // Обработчики
+        if ($.inArray($('#datatype').val(), ['file', 'image']) != -1) {
+            $('#preprocessor_id, #postprocessor_id').removeAttr('disabled');
+            $('.control-group:has(#preprocessor_id, #postprocessor_id)').fadeIn();
+        } else {
+            $('#preprocessor_id, #postprocessor_id').attr('disabled', 'disabled');
+            $('.control-group:has(#preprocessor_id, #postprocessor_id)').fadeOut();
+        }
+        
+
 
         // Если выбрали number или range, появляются минимальное и максимальное значения, для всех остальных исчезают
         if ($.inArray($('#datatype').val(), ['number', 'range']) != -1) {
-            $('#min_val, #max_val').removeAttr('disabled').closest('.control-group').fadeIn();
+            $('#min_val, #max_val, #step').removeAttr('disabled').closest('.control-group').fadeIn();
         } else {
-            $('#min_val, #max_val').attr('disabled', 'disabled').closest('.control-group').fadeOut();
+            $('#min_val, #max_val, #step').attr('disabled', 'disabled').closest('.control-group').fadeOut();
         }
         
         // Если выбрали radio, блокируется выбор multiple
@@ -50,6 +69,18 @@ jQuery(function($) {
     var checkSourceTypeHint = function() {
         $('.controls:has(#source_type) a[rel="popover"]').attr('data-content', $('#source_type option:selected').attr('data-hint')).popover('hide');
     };
+
+    var checkStep = function() {
+        var val = $('#step').val();
+        val = val.replace(/,/, '.');
+        val = val.replace(/[^\d\.]+/, '');
+        val = parseFloat(val);
+        if (isNaN(val) || !val) {
+            val = 1;
+        }
+        $('#step').val(val);
+        $('#min_val, #max_val').attr('step', val);
+    }
     
     $('#datatype').on('change', checkDataTypedRows);
     
@@ -59,7 +90,10 @@ jQuery(function($) {
         checkSourceTypeHint();
         checkDataTypedRows();
     });
+
+    $('#step').on('change', checkStep);
     
     checkDataTypedRows();
     checkSourceTypeHint();
+    checkStep();
 });

@@ -15,6 +15,7 @@ class Updater extends \RAAS\Updater
         $this->update20140910();
         $this->update20141104();
         $this->update20141222();
+        $this->update20150125();
     }
 
 
@@ -746,6 +747,29 @@ class Updater extends \RAAS\Updater
                             ADD cache_interface_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache interface_id',
                             ADD KEY (cache_interface_id)";
             $this->SQL->query($SQL_query);
+        }
+    }
+
+
+    protected function update20150125()
+    {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_fields", $this->tables)) {
+            if (!in_array('step', $this->columns(\SOME\SOME::_dbprefix() . "cms_fields"))) {
+                $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_fields ADD step FLOAT NOT NULL DEFAULT 0 COMMENT 'Step' AFTER max_val";
+                $this->SQL->query($SQL_query);
+            }
+            if (!in_array('preprocessor_id', $this->columns(\SOME\SOME::_dbprefix() . "cms_fields"))) {
+                $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_fields 
+                                ADD preprocessor_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Preprocessor interface ID#' AFTER step,
+                                ADD KEY (preprocessor_id)";
+                $this->SQL->query($SQL_query);
+            }
+            if (!in_array('postprocessor_id', $this->columns(\SOME\SOME::_dbprefix() . "cms_fields"))) {
+                $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_fields 
+                                ADD postprocessor_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Postprocessor interface ID#' AFTER preprocessor_id,
+                                ADD KEY (postprocessor_id)";
+                $this->SQL->query($SQL_query);
+            }
         }
     }
 }

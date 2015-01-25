@@ -187,6 +187,9 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   defval text COMMENT 'Default value',
   min_val float NOT NULL DEFAULT '0' COMMENT 'Minimal value',
   max_val float NOT NULL DEFAULT '0' COMMENT 'Maximal value',
+  step float NOT NULL DEFAULT '0' COMMENT 'Step',
+  preprocessor_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Preprocessor interface ID#',
+  postprocessor_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Postprocessor interface ID#',
   placeholder varchar(255) NOT NULL DEFAULT '' COMMENT 'Placeholder',
   show_in_table tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Show as table column',
   priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
@@ -194,7 +197,9 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   KEY pid (pid),
   KEY datatype (datatype),
   KEY classname (classname),
-  KEY classname_2 (classname,pid)
+  KEY classname_2 (classname,pid),
+  KEY (preprocessor_id),
+  KEY (postprocessor_id)
 ) COMMENT='Material fields';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (

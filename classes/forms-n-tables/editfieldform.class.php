@@ -39,6 +39,21 @@ class EditFieldForm extends \RAAS\Form
                 'value' => $key, 'caption' => $this->view->_('SOURCETYPE_' . strtoupper($key)), 'data-hint' => $this->view->_('SOURCETYPE_' . strtoupper($key) . '_HINT')
             );
         }
+        $wf = function(Snippet_Folder $x) use (&$wf) {
+            $temp = array();
+            foreach ($x->children as $row) {
+                if ($row->urn != '__RAAS_views') {
+                    $o = new Option(array('value' => '', 'caption' => $row->name, 'disabled' => 'disabled'));
+                    $o->__set('children', $wf($row));
+                    $temp[] = $o;
+                }
+            }
+            foreach ($x->snippets as $row) {
+                $temp[] = new Option(array('value' => $row->id, 'caption' => $row->name));
+            }
+            return $temp;
+        };
+
         $temp = new Dictionary();
         $CONTENT['dictionaries'] = array('Set' => array_merge(array(new Dictionary(array('id' => 0, 'name' => $this->view->_('SELECT_DICTIONARY')))), $temp->children), 'level' => 0);
         $defaultParams = array(
@@ -75,10 +90,29 @@ class EditFieldForm extends \RAAS\Form
                     'template' => 'cms/dev_edit_field.range.tmp.php', 
                     'caption' => $this->view->_('RANGE'),
                     'children' => array(
-                        array('type' => 'number', 'name' => 'min_val', 'class' => 'span1'), array('type' => 'number', 'name' => 'max_val', 'class' => 'span1')
+                        array('type' => 'number', 'name' => 'min_val', 'class' => 'span1'), 
+                        array('type' => 'number', 'name' => 'max_val', 'class' => 'span1'),
+                        array('type' => 'text', 'name' => 'step', 'class' => 'span1', 'default' => 1),
                     )
                 )),
+                array('name' => 'defval', 'caption' => $this->view->_('DEFAULT_VALUE')),
                 array('name' => 'placeholder', 'caption' => $this->view->_('PLACEHOLDER')),
+                array(
+                    'type' => 'select',
+                    'class' => 'input-xxlarge',
+                    'name' => 'preprocessor_id', 
+                    'caption' => $this->view->_('PREPROCESSOR'), 
+                    'placeholder' => $this->view->_('_NONE'), 
+                    'children' => $wf(new Snippet_Folder())
+                ),
+                array(
+                    'type' => 'select',
+                    'class' => 'input-xxlarge',
+                    'name' => 'postprocessor_id', 
+                    'caption' => $this->view->_('POSTPROCESSOR'), 
+                    'placeholder' => $this->view->_('_NONE'), 
+                    'children' => $wf(new Snippet_Folder())
+                ),
                 array('type' => 'checkbox', 'name' => 'show_in_table', 'caption' => $this->view->_('SHOW_IN_TABLE'))
             )
         );

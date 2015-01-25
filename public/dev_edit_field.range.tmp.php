@@ -10,7 +10,8 @@ $_RAASForm_FieldSet = function(\RAAS\FieldSet $FieldSet) use (&$_RAASForm_Attrs,
         $_RAASForm_Control($FieldSet->children[0]);
         echo ' — ';
         $_RAASForm_Control($FieldSet->children[1]);
-        ?>
+        echo ' ' . CMS\WITH_STEP . ' ';
+        $_RAASForm_Control($FieldSet->children[2]);?>
       </div>
     </div>
     <?php
