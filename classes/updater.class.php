@@ -478,7 +478,7 @@ class Updater extends \RAAS\Updater
 
                 $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_blocks AS tB
                                 JOIN " . \SOME\SOME::_dbprefix() . "cms_blocks_material AS tB2 ON tB.id = tB2.id
-                                 SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__RAAS_material_interface'), 0),
+                                 SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__raas_material_interface'), 0),
                                      tB.interface = tB2.interface,
                                      tB.widget_id = tB2.widget,
                                      tB.widget = tB2.description";
@@ -488,7 +488,7 @@ class Updater extends \RAAS\Updater
 
                 $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_blocks AS tB
                                 JOIN " . \SOME\SOME::_dbprefix() . "cms_blocks_menu AS tB2 ON tB.id = tB2.id
-                                 SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__RAAS_menu_interface'), 0),
+                                 SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__raas_menu_interface'), 0),
                                      tB.interface = tB2.interface,
                                      tB.widget_id = tB2.widget,
                                      tB.widget = tB2.description";
@@ -498,7 +498,7 @@ class Updater extends \RAAS\Updater
 
                 $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_blocks AS tB
                                 JOIN " . \SOME\SOME::_dbprefix() . "cms_blocks_form AS tB2 ON tB.id = tB2.id
-                                 SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__RAAS_form_interface'), 0),
+                                 SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__raas_form_interface'), 0),
                                      tB.interface = tB2.interface,
                                      tB.widget_id = tB2.widget,
                                      tB.widget = tB2.description";
@@ -508,7 +508,7 @@ class Updater extends \RAAS\Updater
 
                 $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_blocks AS tB
                                 JOIN " . \SOME\SOME::_dbprefix() . "cms_blocks_search AS tB2 ON tB.id = tB2.id
-                                 SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__RAAS_search_interface'), 0),
+                                 SET tB.interface_id = IF(tB2.std_interface, (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__raas_search_interface'), 0),
                                      tB.interface = tB2.interface,
                                      tB.widget_id = tB2.widget,
                                      tB.widget = tB2.description";
@@ -524,7 +524,7 @@ class Updater extends \RAAS\Updater
                 $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_forms ADD interface_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Interface ID#' AFTER std_template";
                 $this->SQL->query($SQL_query);
 
-                $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_forms SET interface_id = (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__RAAS_form_notify') 
+                $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_forms SET interface_id = (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__raas_form_notify') 
                                WHERE std_template";
                 $this->SQL->query($SQL_query);
 
@@ -549,7 +549,7 @@ class Updater extends \RAAS\Updater
                     }
                     $id = (int)$this->SQL->add(
                         \SOME\SOME::_dbprefix() . "cms_snippets",
-                        array('pid' => (int)Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['interface'], 'locked' => 0)
+                        array('pid' => (int)Snippet_Folder::importByURN('__raas_interfaces')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['interface'], 'locked' => 0)
                     );
                     $this->SQL->update(\SOME\SOME::_dbprefix() . "cms_blocks", "id = " . (int)$row['id'], array('interface_id' => $id, 'interface' => ''));
                 }
@@ -563,7 +563,7 @@ class Updater extends \RAAS\Updater
                     }
                     $id = (int)$this->SQL->add(
                         \SOME\SOME::_dbprefix() . "cms_snippets",
-                        array('pid' => (int)Snippet_Folder::importByURN('__RAAS_views')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['widget'], 'locked' => 0)
+                        array('pid' => (int)Snippet_Folder::importByURN('__raas_views')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['widget'], 'locked' => 0)
                     );
                     $this->SQL->update(\SOME\SOME::_dbprefix() . "cms_blocks", "id = " . (int)$row['id'], array('widget_id' => $id, 'widget' => ''));
                 }
@@ -589,7 +589,7 @@ class Updater extends \RAAS\Updater
                     }
                     $id = (int)$this->SQL->add(
                         \SOME\SOME::_dbprefix() . "cms_snippets",
-                        array('pid' => (int)Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['description'], 'locked' => 0)
+                        array('pid' => (int)Snippet_Folder::importByURN('__raas_interfaces')->id, 'urn' => $urn, 'name' => $row['name'], 'description' => $row['description'], 'locked' => 0)
                     );
                     $this->SQL->update(\SOME\SOME::_dbprefix() . "cms_forms", "id = " . (int)$row['id'], array('interface_id' => $id, 'description' => ''));
                 }
@@ -658,7 +658,7 @@ class Updater extends \RAAS\Updater
         $SQL_query = "SELECT COUNT(*)
                         FROM " . \SOME\SOME::_dbprefix() . "cms_snippets AS tS
                    LEFT JOIN " . \SOME\SOME::_dbprefix() . "cms_snippet_folders AS tSF ON tSF.id = tS.pid
-                       WHERE NOT tS.locked AND tSF.urn != '__RAAS_interfaces' AND (tS.description LIKE '%href=\"%?id=%->id%\"%' OR tS.description LIKE '%<loc>%?id=%</loc>')";
+                       WHERE NOT tS.locked AND tSF.urn != '__raas_interfaces' AND (tS.description LIKE '%href=\"%?id=%->id%\"%' OR tS.description LIKE '%<loc>%?id=%</loc>')";
         if ((int)$this->SQL->getvalue($SQL_query)) {
             $rep = array();
             $rep['href="<' . '?php echo $Page->url?' . '>?id=<' . '?php echo (int)$row->id?' . '>"'] = 'href="<' . '?php echo $Page->url . $row->urn?' . '>/"';
@@ -668,7 +668,7 @@ class Updater extends \RAAS\Updater
                 $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_snippets AS tS
                            LEFT JOIN " . \SOME\SOME::_dbprefix() . "cms_snippet_folders AS tSF ON tSF.id = tS.pid
                                  SET tS.description = REPLACE(tS.description, ?, ?) 
-                               WHERE NOT tS.locked AND tSF.urn != '__RAAS_interfaces'";
+                               WHERE NOT tS.locked AND tSF.urn != '__raas_interfaces'";
                 $this->SQL->query(array($SQL_query, $key, $val));
             }
         }
@@ -689,7 +689,7 @@ class Updater extends \RAAS\Updater
                 $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_snippets AS tS
                            LEFT JOIN " . \SOME\SOME::_dbprefix() . "cms_snippet_folders AS tSF ON tSF.id = tS.pid
                                  SET tS.description = REPLACE(tS.description, ?, ?) 
-                               WHERE NOT tS.locked AND tSF.urn != '__RAAS_interfaces'";
+                               WHERE NOT tS.locked AND tSF.urn != '__raas_interfaces'";
                 $this->SQL->query(array($SQL_query, $key, $val));
             }
         }

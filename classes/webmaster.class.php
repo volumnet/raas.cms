@@ -21,72 +21,72 @@ class Webmaster
      */
     public function checkStdSnippets()
     {
-        $Item = Snippet_Folder::importByURN('__RAAS_interfaces');
+        $Item = Snippet_Folder::importByURN('__raas_interfaces');
         if (!$Item->id) {
             $this->SQL->add(
                 \SOME\SOME::_dbprefix() . "cms_snippet_folders", 
-                array('urn' => '__RAAS_interfaces', 'name' => $this->view->_('INTERFACES'), 'pid' => 0, 'locked' => 1)
+                array('urn' => '__raas_interfaces', 'name' => $this->view->_('INTERFACES'), 'pid' => 0, 'locked' => 1)
             );
         }
-        $Item = Snippet_Folder::importByURN('__RAAS_views');
+        $Item = Snippet_Folder::importByURN('__raas_views');
         if (!$Item->id) {
             $this->SQL->add(
                 \SOME\SOME::_dbprefix() . "cms_snippet_folders", 
-                array('urn' => '__RAAS_views', 'name' => $this->view->_('VIEWS'), 'pid' => 0, 'locked' => 1)
+                array('urn' => '__raas_views', 'name' => $this->view->_('VIEWS'), 'pid' => 0, 'locked' => 1)
             );
         }
 
-        $Item = Snippet::importByURN('__RAAS_material_interface');
+        $Item = Snippet::importByURN('__raas_material_interface');
         if (!$Item->id) {
-            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_material_interface', 'locked' => 1));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__raas_interfaces')->id, 'urn' => '__raas_material_interface', 'locked' => 1));
         }
         $Item->name = $this->view->_('MATERIAL_STANDARD_INTERFACE');
         $Item->description = $this->stdMaterialInterface;
         $Item->commit();
 
-        $Item = Snippet::importByURN('__RAAS_form_interface');
+        $Item = Snippet::importByURN('__raas_form_interface');
         if (!$Item->id) {
-            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_form_interface', 'locked' => 1));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__raas_interfaces')->id, 'urn' => '__raas_form_interface', 'locked' => 1));
         }
         $Item->name = $this->view->_('FORM_STANDARD_INTERFACE');
         $Item->description = $this->stdFormInterface;
         $Item->commit();
 
-        $Item = Snippet::importByURN('__RAAS_menu_interface');
+        $Item = Snippet::importByURN('__raas_menu_interface');
         if (!$Item->id) {
-            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_menu_interface', 'locked' => 1));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__raas_interfaces')->id, 'urn' => '__raas_menu_interface', 'locked' => 1));
         }
         $Item->name = $this->view->_('MENU_STANDARD_INTERFACE');
         $Item->description = $this->stdMenuInterface;
         $Item->commit();
 
-        $Item = Snippet::importByURN('__RAAS_search_interface');
+        $Item = Snippet::importByURN('__raas_search_interface');
         if (!$Item->id) {
-            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_search_interface', 'locked' => 1));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__raas_interfaces')->id, 'urn' => '__raas_search_interface', 'locked' => 1));
         }
         $Item->name = $this->view->_('SEARCH_STANDARD_INTERFACE');
         $Item->description = $this->stdSearchInterface;
         $Item->commit();
 
-        $Item = Snippet::importByURN('__RAAS_form_notify');
+        $Item = Snippet::importByURN('__raas_form_notify');
         if (!$Item->id) {
-            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_form_notify', 'locked' => 1));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__raas_interfaces')->id, 'urn' => '__raas_form_notify', 'locked' => 1));
         }
         $Item->name = $this->view->_('FORM_STANDARD_NOTIFICATION');
         $Item->description = $this->stdFormTemplate;
         $Item->commit();
 
-        $Item = Snippet::importByURN('__RAAS_cache_interface');
+        $Item = Snippet::importByURN('__raas_cache_interface');
         if (!$Item->id) {
-            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_cache_interface', 'locked' => 1));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__raas_interfaces')->id, 'urn' => '__raas_cache_interface', 'locked' => 1));
         }
         $Item->name = $this->view->_('CACHE_STANDARD_INTERFACE');
         $Item->description = $this->stdCacheInterface;
         $Item->commit();
 
-        $Item = Snippet::importByURN('__RAAS_watermark_interface');
+        $Item = Snippet::importByURN('__raas_watermark_interface');
         if (!$Item->id) {
-            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_watermark_interface', 'locked' => 1));
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__raas_interfaces')->id, 'urn' => '__raas_watermark_interface', 'locked' => 1));
         }
         $Item->name = $this->view->_('WATERMARK_STANDARD_INTERFACE');
         $Item->description = $this->stdWatermarkInterface;
@@ -129,7 +129,7 @@ class Webmaster
             'search' => $this->view->_('SITE_SEARCH'),
             'sitemap_xml' => $this->view->_('SITEMAP_XML'),
         );
-        $VF = Snippet_Folder::importByURN('__RAAS_views');
+        $VF = Snippet_Folder::importByURN('__raas_views');
         foreach ($snippets as $urn => $name) {
             $temp = Snippet::importByURN($urn);
             if (!$temp->id) {
@@ -169,7 +169,7 @@ class Webmaster
 
         $temp = \RAAS\CMS\Form::getSet();
         if (!$temp) {
-            $S = Snippet::importByURN('__RAAS_form_notify');
+            $S = Snippet::importByURN('__raas_form_notify');
             $FRM = new \RAAS\CMS\Form();
             $FRM->name = $this->view->_('FEEDBACK');
             $FRM->create_feedback = 1;
@@ -260,7 +260,7 @@ class Webmaster
             $robots = $this->createPage(array('name' => $this->view->_('ROBOTS_TXT'), 'urn' => 'robots', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
 
             $MT = Material_Type::importByURN('banners');
-            $I = Snippet::importByURN('__RAAS_material_interface');
+            $I = Snippet::importByURN('__raas_material_interface');
             $S = Snippet::importByURN('banners');
             $B = new Block_Material();
             $B->location = 'content';
@@ -317,7 +317,7 @@ class Webmaster
             $B->commit();
 
             $FRM = Form::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('FEEDBACK')) . "'"));
-            $I = Snippet::importByURN('__RAAS_form_interface');
+            $I = Snippet::importByURN('__raas_form_interface');
             $S = Snippet::importByURN('feedback');
             $B = new Block_Form();
             $B->location = 'content';
@@ -341,7 +341,7 @@ class Webmaster
 
             $MNU = Menu::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('SITEMAP')) . "'"));
             $S = Snippet::importByURN('menu_content');
-            $I = Snippet::importByURN('__RAAS_menu_interface');
+            $I = Snippet::importByURN('__raas_menu_interface');
             $B = new Block_Menu();
             $B->location = 'content';
             $B->vis = 1;
@@ -478,7 +478,7 @@ class Webmaster
             $F->datatype = 'textarea';
             $F->commit();
 
-            $VF = Snippet_Folder::importByURN('__RAAS_views');
+            $VF = Snippet_Folder::importByURN('__raas_views');
             $temp = Snippet::importByURN($urn);
             if (!$temp->id) {
                 $S = new Snippet();
@@ -491,7 +491,7 @@ class Webmaster
             }
             
             $page = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);
-            $I = Snippet::importByURN('__RAAS_material_interface');
+            $I = Snippet::importByURN('__raas_material_interface');
             $S = Snippet::importByURN($urn);
             $B = new Block_Material();
             $B->location = 'content';
@@ -521,7 +521,7 @@ class Webmaster
         }
         $temp = Snippet::importByURN($urn);
         if (!$temp->id) {
-            $VF = Snippet_Folder::importByURN('__RAAS_views');
+            $VF = Snippet_Folder::importByURN('__raas_views');
             $temp = Snippet::importByURN($urn);
             if (!$temp->id) {
                 $S = new Snippet();
@@ -534,7 +534,7 @@ class Webmaster
             }
 
             $page = $this->createPage(array('name' => $name, 'urn' => $urn, 'response_code' => 200), $Site);
-            $I = Snippet::importByURN('__RAAS_search_interface');
+            $I = Snippet::importByURN('__raas_search_interface');
             $S = Snippet::importByURN($urn);
             $B = new Block_Search();
             $B->location = 'content';
@@ -578,7 +578,7 @@ class Webmaster
         $F->datatype = 'textarea';
         $F->commit();
 
-        $S = Snippet::importByURN('__RAAS_form_notify');
+        $S = Snippet::importByURN('__raas_form_notify');
         $FRM = new \RAAS\CMS\Form();
         $FRM->name = $name;
         $FRM->material_type = (int)$MT->id;
@@ -615,7 +615,7 @@ class Webmaster
         $F->show_in_table = 0;
         $F->commit();
 
-        $VF = Snippet_Folder::importByURN('__RAAS_views');
+        $VF = Snippet_Folder::importByURN('__raas_views');
         $temp = Snippet::importByURN('faq');
         if (!$temp->id) {
             $S = new Snippet();
@@ -637,7 +637,7 @@ class Webmaster
         $B->cats = array($faqPage->id);
         $B->commit();
 
-        $I = Snippet::importByURN('__RAAS_form_interface');
+        $I = Snippet::importByURN('__raas_form_interface');
         $S = Snippet::importByURN('feedback');
         $B = new Block_Form();
         $B->location = 'content';
@@ -649,7 +649,7 @@ class Webmaster
         $B->interface_id = $I->id;
         $B->commit();
 
-        $I = Snippet::importByURN('__RAAS_material_interface');
+        $I = Snippet::importByURN('__raas_material_interface');
         $S = Snippet::importByURN('faq');
         $B = new Block_Material();
         $B->location = 'content';
@@ -677,7 +677,7 @@ class Webmaster
         if ($Site->children) {
             $Site = $Site->children[0];
         }
-        $S = Snippet::importByURN('__RAAS_form_notify');
+        $S = Snippet::importByURN('__raas_form_notify');
         $FRM = new \RAAS\CMS\Form();
         $FRM->name = $name;
         $FRM->create_feedback = 1;
@@ -730,7 +730,7 @@ class Webmaster
         $B->cats = array($contacts->id);
         $B->commit();
 
-        $I = Snippet::importByURN('__RAAS_form_interface');
+        $I = Snippet::importByURN('__raas_form_interface');
         $S = Snippet::importByURN('feedback');
         $B = new Block_Form();
         $B->location = 'content';

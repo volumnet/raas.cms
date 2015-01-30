@@ -8,7 +8,7 @@ class EditBlockMaterialForm extends EditBlockForm
     protected function getInterfaceField()
     {
         $field = parent::getInterfaceField();
-        $snippet = Snippet::importByURN('__RAAS_material_interface');
+        $snippet = Snippet::importByURN('__raas_material_interface');
         $field->default = $snippet->id;
         return $field;
     }

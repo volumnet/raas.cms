@@ -31,7 +31,7 @@ class EditFormForm extends \RAAS\Form
         $wf = function(Snippet_Folder $x) use (&$wf) {
             $temp = array();
             foreach ($x->children as $row) {
-                if ($row->urn != '__RAAS_views') {
+                if (strtolower($row->urn) != '__raas_views') {
                     $o = new Option(array('value' => '', 'caption' => $row->name, 'disabled' => 'disabled'));
                     $o->__set('children', $wf($row));
                     $temp[] = $o;
@@ -72,7 +72,7 @@ class EditFormForm extends \RAAS\Form
                     'caption' => $view->_('INTERFACE'), 
                     'placeholder' => $view->_('_NONE'), 
                     'children' => $wf(new Snippet_Folder()),
-                    'default' => Snippet::importByURN('__RAAS_form_notify')->id,
+                    'default' => Snippet::importByURN('__raas_form_notify')->id,
                 ),
             )
         );

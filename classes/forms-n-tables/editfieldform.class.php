@@ -42,7 +42,7 @@ class EditFieldForm extends \RAAS\Form
         $wf = function(Snippet_Folder $x) use (&$wf) {
             $temp = array();
             foreach ($x->children as $row) {
-                if ($row->urn != '__RAAS_views') {
+                if (strtolower($row->urn) != '__raas_views') {
                     $o = new Option(array('value' => '', 'caption' => $row->name, 'disabled' => 'disabled'));
                     $o->__set('children', $wf($row));
                     $temp[] = $o;

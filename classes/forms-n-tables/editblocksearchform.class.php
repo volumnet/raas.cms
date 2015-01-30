@@ -7,7 +7,7 @@ class EditBlockSearchForm extends EditBlockForm
     protected function getInterfaceField()
     {
         $field = parent::getInterfaceField();
-        $snippet = Snippet::importByURN('__RAAS_search_interface');
+        $snippet = Snippet::importByURN('__raas_search_interface');
         $field->default = $snippet->id;
         return $field;
     }

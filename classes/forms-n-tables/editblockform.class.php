@@ -65,7 +65,7 @@ class EditBlockForm extends \RAAS\Form
         $interfaceField->name = 'cache_interface_id';
         $interfaceField->caption = $this->view->_('CACHE_INTERFACE');
         $interfaceField->placeholder = null;
-        $s = Snippet::importByURN('__RAAS_cache_interface');
+        $s = Snippet::importByURN('__raas_cache_interface');
         $interfaceField->default = $s->id;
         $interfaceField->required = false;
 
@@ -92,7 +92,7 @@ class EditBlockForm extends \RAAS\Form
         $wf = function(Snippet_Folder $x) use (&$wf) {
             $temp = array();
             foreach ($x->children as $row) {
-                if ($row->urn != '__RAAS_views') {
+                if (strtolower($row->urn) != '__raas_views') {
                     $o = new Option(array('value' => '', 'caption' => $row->name, 'disabled' => 'disabled'));
                     $o->__set('children', $wf($row));
                     $temp[] = $o;
@@ -121,7 +121,7 @@ class EditBlockForm extends \RAAS\Form
         $wf = function(Snippet_Folder $x) use (&$wf) {
             $temp = array();
             foreach ($x->children as $row) {
-                if ($row->urn != '__RAAS_interfaces') {
+                if (strtolower($row->urn) != '__raas_interfaces') {
                     $o = new Option(array('value' => '', 'caption' => $row->name, 'disabled' => 'disabled'));
                     $o->__set('children', $wf($row));
                     $temp[] = $o;
