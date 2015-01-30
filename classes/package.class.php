@@ -95,6 +95,13 @@ class Package extends \RAAS\Package
                 $text = file_get_contents($this->stdCacheInterfaceFile);
                 return $text;
                 break;
+            case 'stdWatermarkInterfaceFile':
+                return $this->resourcesDir . '/watermark_interface.php';
+                break;
+            case 'stdWatermarkInterface':
+                $text = file_get_contents($this->stdWatermarkInterfaceFile);
+                return $text;
+                break;
             default:
                 return parent::__get($var);
                 break;

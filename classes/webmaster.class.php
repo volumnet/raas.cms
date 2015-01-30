@@ -83,6 +83,14 @@ class Webmaster
         $Item->name = $this->view->_('CACHE_STANDARD_INTERFACE');
         $Item->description = $this->stdCacheInterface;
         $Item->commit();
+
+        $Item = Snippet::importByURN('__RAAS_watermark_interface');
+        if (!$Item->id) {
+            $Item = new Snippet(array('pid' => Snippet_Folder::importByURN('__RAAS_interfaces')->id, 'urn' => '__RAAS_watermark_interface', 'locked' => 1));
+        }
+        $Item->name = $this->view->_('WATERMARK_STANDARD_INTERFACE');
+        $Item->description = $this->stdWatermarkInterface;
+        $Item->commit();
     }
 
 

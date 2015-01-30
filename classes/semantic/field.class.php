@@ -8,6 +8,11 @@ abstract class Field extends \RAAS\CustomField
     const data_table = 'cms_data';
     const DictionaryClass = '\\RAAS\\CMS\\Dictionary';
     
+    protected static $references = array(
+        'Preprocessor' => array('FK' => 'preprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
+        'Postprocessor' => array('FK' => 'postprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
+    );
+
     protected static $tablename = 'cms_fields';
     
     public function __get($var)
@@ -49,8 +54,13 @@ abstract class Field extends \RAAS\CustomField
                         break;
                 }
                 $f->oncommit = function($Field) use ($t) {
+                    if ($t->Preprocessor->id) {
+                        $postProcess = false;
+                        eval('?' . '>' . $t->Preprocessor->description);
+                    }
                     switch ($t->datatype) {
                         case 'file': case 'image':
+                            $addedAttachments = array();
                             $t->deleteValues();
                             if ($Field->multiple) {
                                 foreach ($_FILES[$Field->name]['tmp_name'] as $key => $val) {
@@ -76,6 +86,7 @@ abstract class Field extends \RAAS\CustomField
                                             }
                                         }
                                         $att->commit();
+                                        $addedAttachments[] = $att;
                                         $row2['attachment'] = (int)$att->id;
                                         $t->addValue(json_encode($row2));
                                     } elseif ($row2['attachment']) {
@@ -106,6 +117,7 @@ abstract class Field extends \RAAS\CustomField
                                         }
                                     }
                                     $att->commit();
+                                    $addedAttachments[] = $att;
                                     $row2['attachment'] = (int)$att->id;
                                     $t->addValue(json_encode($row2));
                                 } elseif ($_POST[$Field->name . '@attachment']) {
@@ -124,6 +136,10 @@ abstract class Field extends \RAAS\CustomField
                                 }
                             }
                             break;
+                    }
+                    if ($t->Postprocessor->id) {
+                        $postProcess = true;
+                        eval('?' . '>' . $t->Postprocessor->description);
                     }
                 };
                 return $f;

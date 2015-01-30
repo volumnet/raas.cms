@@ -15,7 +15,10 @@ class Material_Type extends \SOME\SOME
     public function commit()
     {
         if (!$this->urn && $this->name) {
-            $this->urn = \SOME\Text::beautify($this->name);
+            $this->urn = $this->name;
+        }
+        if ($this->updates['urn']) {
+            $this->urn = \SOME\Text::beautify($this->urn);
         }
         while ((int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . self::_tablename() . " WHERE urn = ? AND id != ?", $this->urn, (int)$this->id))) {
             $this->urn = '_' . $this->urn . '_';

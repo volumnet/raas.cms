@@ -24,7 +24,10 @@ class User_Field extends Field
     public function commit()
     {
         if (!$this->urn && $this->name) {
-            $this->urn = \SOME\Text::beautify($this->name);
+            $this->urn = $this->name;
+        }
+        if ($this->updates['urn']) {
+            $this->urn = \SOME\Text::beautify($this->urn);
         }
         while (in_array($this->urn, array('login', 'password', 'social', 'email'))) {
             $this->urn = '_' . $this->urn . '_';
