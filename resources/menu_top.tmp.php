@@ -19,6 +19,14 @@ $showMenu = function($node, \RAAS\CMS\Page $current) use (&$showMenu) {
             $url = $row['url'];
             $name = $row['name'];
         }
+        if (1 || $semiactive) {
+            $level++;
+            $text .= $showMenu($row, $current);
+            $level--;
+        }
+        if (stristr($ch, 'class="active"') && !$semiactive) {
+            $semiactive = true;
+        }
         if ($active) {
             $text .= '<li class="active"><a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($name) . '</a>';
         } elseif ($semiactive) {
@@ -26,11 +34,7 @@ $showMenu = function($node, \RAAS\CMS\Page $current) use (&$showMenu) {
         } else {
             $text .= '<li><a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($name) . '</a>';
         }
-        if (1 || $semiactive) {
-            $level++;
-            $text .= $showMenu($row, $current);
-            $level--;
-        }
+        $text .= $ch;
         $text .= '</li>';
     }
     return $text ? '<ul>' . $text . '</ul>' : $text;
