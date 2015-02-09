@@ -1,12 +1,29 @@
 <?php
 namespace RAAS\CMS;
+use \RAAS\Attachment;
 
 class Page extends \SOME\SOME
 {
     protected static $tablename = 'cms_pages';
     protected static $defaultOrderBy = "priority";
     protected static $cognizableVars = array('blocksOrdered', 'fields', 'affectedMaterialTypes', 'affectedMaterials', 'Domain');
+    protected static $objectCascadeDelete = true;
+        
+    protected static $references = array(
+        'parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Page', 'cascade' => true),
+        'author' => array('FK' => 'author_id', 'classname' => 'RAAS\\User', 'cascade' => false),
+        'editor' => array('FK' => 'editor_id', 'classname' => 'RAAS\\User', 'cascade' => false),
+        'Template' => array('FK' => 'template', 'classname' => 'RAAS\\CMS\\Template', 'cascade' => false),
+    );
+    protected static $parents = array('parents' => 'parent');
+    protected static $children = array('children' => array('classname' => 'RAAS\\CMS\\Page', 'FK' => 'pid'));
+    protected static $links = array(
+        'blocks' => array('tablename' => 'cms_blocks_pages_assoc', 'field_from' => 'page_id', 'field_to' => 'block_id', 'classname' => 'RAAS\\CMS\\Block'),
+        'materials' => array('tablename' => 'cms_materials_pages_assoc', 'field_from' => 'pid', 'field_to' => 'id', 'classname' => 'RAAS\\CMS\\Material')
+    );
     
+    protected static $caches = array('pvis' => array('affected' => array('parent'), 'sql' => "IF(parent.id, (parent.vis AND parent.pvis), 1)"));
+
     public static $httpStatuses = array(
         100 => '100 Continue',
         101 => '101 Switching Protocols',
@@ -66,18 +83,6 @@ class Page extends \SOME\SOME
         510 => '510 Not Extended',
     );
 
-    protected static $references = array(
-        'parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Page', 'cascade' => true),
-        'author' => array('FK' => 'author_id', 'classname' => 'RAAS\\User', 'cascade' => false),
-        'editor' => array('FK' => 'editor_id', 'classname' => 'RAAS\\User', 'cascade' => false),
-        'Template' => array('FK' => 'template', 'classname' => 'RAAS\\CMS\\Template', 'cascade' => false),
-    );
-    protected static $parents = array('parents' => 'parent');
-    protected static $children = array('children' => array('classname' => 'RAAS\\CMS\\Page', 'FK' => 'pid'));
-    protected static $links = array('blocks' => array('tablename' => 'cms_blocks_pages_assoc', 'field_from' => 'page_id', 'field_to' => 'block_id', 'classname' => 'RAAS\\CMS\\Block'));
-    
-    protected static $caches = array('pvis' => array('affected' => array('parent'), 'sql' => "IF(parent.id, (parent.vis AND parent.pvis), 1)"));
-    
     protected static $inheritedFields = array(
         'inherit_meta_title' => 'meta_title', 
         'inherit_meta_description' => 'meta_description', 
@@ -310,6 +315,22 @@ class Page extends \SOME\SOME
     }
     
     
+    public static function delete(self $object)
+    {
+        foreach ($object->fields as $row) {
+            if (in_array($row->datatype, array('image', 'file'))) {
+                foreach ($row->getValues(true) as $att) {
+                    Attachment::delete($att);
+                }
+            }
+            $row->deleteValues();
+        }
+        parent::delete($object);
+        static::clearLostBlocks();
+        static::clearLostMaterials();
+    }
+    
+    
     protected function _blocksOrdered()
     {
         $SQL_query = "SELECT tB.*, tBPA.priority 
@@ -422,5 +443,44 @@ class Page extends \SOME\SOME
             }
         }
         return $Page;
+    }
+
+
+    /**
+     * Удаляем "ничейные" блоки
+     */
+    protected static function clearLostBlocks()
+    {
+        $SQL_query = "SELECT tB." . Block::_idN() . " FROM " . Block::_tablename() . " AS tB
+                        LEFT JOIN " . static::_dbprefix() . static::$links['blocks']['tablename'] . " AS tBPA ON tB." . Block::_idN() . " = tBPA." . static::$links['blocks']['field_to']
+                   . "  LEFT JOIN " . static::_tablename() . " AS tP ON tP." . static::_idN() . " = tBPA." . static::$links['blocks']['field_from']
+                   . " WHERE tP." . static::_idN() . " IS NULL ";
+        $SQL_result = static::$SQL->getcol($SQL_query);
+        if ($SQL_result) {
+            foreach ($SQL_result as $id) {
+                $row = Block::spawn($id);
+                $classname = get_class($row);
+                $classname::delete($row);
+            }
+        }
+    }
+
+
+    /**
+     * Удаляем "ничейные" материалы
+     */
+    protected static function clearLostMaterials()
+    {
+        $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM
+                        JOIN " . Material_Type::_tablename() . " AS tMT ON tMT.id = tM.pid 
+                   LEFT JOIN " . static::_dbprefix() . static::$links['materials']['tablename'] . " AS tMPA ON tM." . Material::_idN() . " = tMPA." . static::$links['materials']['field_to']
+                   . "  LEFT JOIN " . static::_tablename() . " AS tP ON tP." . static::_idN() . " = tMPA." . static::$links['materials']['field_from']
+                   . " WHERE NOT tMT.global_type AND tP." . static::_idN() . " IS NULL ";
+        $Set = Material::getSQLSet($SQL_query);
+        if ($Set) {
+            foreach ($Set as $row) {
+                Material::delete($row);
+            }
+        }
     }
 }

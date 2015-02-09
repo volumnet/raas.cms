@@ -1,11 +1,13 @@
 <?php
 namespace RAAS\CMS;
 use \RAAS\Application;
+use \RAAS\Attachment;
 
 class User extends \SOME\SOME
 {
     protected static $tablename = 'cms_users';
     protected static $defaultOrderBy = "login";
+    protected static $objectCascadeDelete = true;
     protected static $cognizableVars = array('fields');
 
     protected static $links = array('social' => array('tablename' => 'cms_users_social', 'field_from' => 'uid', 'field_to' => 'url'));
@@ -100,6 +102,11 @@ class User extends \SOME\SOME
     public static function delete(self $object)
     {
         foreach ($object->fields as $row) {
+            if (in_array($row->datatype, array('image', 'file'))) {
+                foreach ($row->getValues(true) as $att) {
+                    Attachment::delete($att);
+                }
+            }
             $row->deleteValues();
         }
         parent::delete($object);

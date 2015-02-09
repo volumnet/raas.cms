@@ -1,10 +1,12 @@
 <?php
 namespace RAAS\CMS;
+use \RAAS\Attachment;
 
 class Feedback extends \SOME\SOME
 {
     protected static $tablename = 'cms_feedback';
     protected static $defaultOrderBy = "post_date DESC";
+    protected static $objectCascadeDelete = true;
     protected static $cognizableVars = array('fields');
 
     protected static $references = array(
@@ -80,6 +82,11 @@ class Feedback extends \SOME\SOME
     public static function delete(self $object)
     {
         foreach ($object->fields as $row) {
+            if (in_array($row->datatype, array('image', 'file'))) {
+                foreach ($row->getValues(true) as $att) {
+                    Attachment::delete($att);
+                }
+            }
             $row->deleteValues();
         }
         parent::delete($object);

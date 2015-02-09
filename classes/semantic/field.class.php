@@ -7,6 +7,7 @@ abstract class Field extends \RAAS\CustomField
 {
     const data_table = 'cms_data';
     const DictionaryClass = '\\RAAS\\CMS\\Dictionary';
+    protected static $objectCascadeDelete = true;
     
     protected static $references = array(
         'Preprocessor' => array('FK' => 'preprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
@@ -159,7 +160,7 @@ abstract class Field extends \RAAS\CustomField
             case 'image': case 'file':
                 $SQL_query = "SELECT value FROM " . static::$dbprefix . static::data_table . " WHERE pid = ? AND fid = ? AND fii = ?";
                 $SQL_bind = array((int)$this->Owner->id, (int)$this->id, (int)$index);
-                $y = (array)json_decode(self::$SQL->getvalue(array($SQL_query, $SQL_bind)), true); 
+                $y = (array)json_decode(static::$SQL->getvalue(array($SQL_query, $SQL_bind)), true); 
                 $att = new Attachment((int)(isset($y['attachment']) ? $y['attachment'] : 0));
                 foreach ($y as $key => $val) {
                     $att->$key = $val;
@@ -198,7 +199,7 @@ abstract class Field extends \RAAS\CustomField
                         $att->$key = $val;
                     } 
                     return $att;
-                }, self::$SQL->getcol(array($SQL_query, $SQL_bind)));
+                }, static::$SQL->getcol(array($SQL_query, $SQL_bind)));
                 return $values;
                 break;
             case 'number':
@@ -218,11 +219,11 @@ abstract class Field extends \RAAS\CustomField
     {
         if (in_array($this->datatype, array('file', 'image'))) {
             $SQL_query = "SELECT value FROM " . static::$dbprefix . static::data_table . " WHERE fid = " . (int)$this->id;
-            $SQL_result = self::$SQL->getcol($SQL_query);
+            $SQL_result = static::$SQL->getcol($SQL_query);
             $SQL_result = array_map(function($x) { $x = @(array)json_decode($x, true); return @(int)$x['attachment']; }, $SQL_result);
             $SQL_result = array_filter($SQL_result, 'intval');
             $SQL_query = "SELECT * FROM " . Attachment::_tablename() . " 
-                           WHERE classname = '" . self::$SQL->real_escape_string(get_class($this)) . "' AND pid = " . (int)$this->id;
+                           WHERE classname = '" . static::$SQL->real_escape_string(get_class($this)) . "' AND pid = " . (int)$this->id;
             if ($SQL_result) {
                 $SQL_query .= " AND id NOT IN (" . implode(", ", $SQL_result) . ")";
             }
@@ -243,6 +244,17 @@ abstract class Field extends \RAAS\CustomField
     }
 
 
+    public static function delete(self $object)
+    {
+        $SQL_query = "DELETE FROM " . static::$dbprefix . static::data_table . " WHERE fid = " . (int)$this->id;
+        static::$SQL->query($SQL_query);
+        if (in_array($this->datatype, array('image', 'file'))) {
+            $this->clearLostAttachments();
+        }
+        parent::delete($object);
+    }
+    
+    
     public static function getSet()
     {
         $args = func_get_args();

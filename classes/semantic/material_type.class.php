@@ -5,6 +5,7 @@ class Material_Type extends \SOME\SOME
 {
     protected static $tablename = 'cms_material_types';
     protected static $defaultOrderBy = "name";
+    protected static $objectCascadeDelete = true;
     protected static $references = array(
         'parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => true),
     );

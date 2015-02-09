@@ -5,6 +5,7 @@ class Form extends \SOME\SOME
 {
     protected static $tablename = 'cms_forms';
     protected static $defaultOrderBy = "name";
+    protected static $objectCascadeDelete = true;
     protected static $cognizableVars = array('fields', 'unreadFeedbacks');
     protected static $references = array(
         'Material_Type' => array('FK' => 'material_type', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => false),
