@@ -344,7 +344,7 @@ class Page extends \SOME\SOME
     protected function _fields()
     {
         $arr = array();
-        $temp = Page_Field::getSet($SQL_query);
+        $temp = Page_Field::getSet();
         foreach ($temp as $row) {
             $row->Owner = $this;
             $arr[$row->urn] = $row;
