@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+use \RAAS\Attachment;
 
 class Package extends \RAAS\Package
 {
@@ -468,6 +469,7 @@ class Package extends \RAAS\Package
             }
         }
         parent::install();
+        Attachment::clearLostFiles($this->filesDir);
     }
 
 
