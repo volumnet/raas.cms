@@ -225,7 +225,7 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                 $Field->children[0] = new \RAAS\Option(array('caption' => $Field->placeholder, 'value' => ''));
             }
             if ($Field->multiple && !$Field->{'data-raas-multiselect'}) { 
-                $attrs = array_merge($attrs, array('disabled' => 'disabled', 'multiple' => false));
+                $attrs = array_merge($attrs, array('multiple' => false));
                 ?>
                 <div data-role="raas-repo-block">
                   <div data-role="raas-repo-container">
@@ -235,7 +235,7 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                         </div>
                     <?php } ?>
                   </div>
-                  <div data-role="raas-repo"><select<?php echo $_RAASForm_Attrs($Field, $attrs)?>><?php echo $_RAASForm_Options($Field->children)?></select></div>
+                  <div data-role="raas-repo"><select<?php echo $_RAASForm_Attrs($Field, array_merge($attrs, array('disabled' => 'disabled')))?>><?php echo $_RAASForm_Options($Field->children)?></select></div>
                 </div>
                 <?php 
             } else { 
