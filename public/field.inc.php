@@ -224,14 +224,14 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                 }
                 $Field->children[0] = new \RAAS\Option(array('caption' => $Field->placeholder, 'value' => ''));
             }
-            if ($Field->multiple) { 
+            if ($Field->multiple && !$Field->{'data-raas-multiselect'}) { 
                 $attrs = array_merge($attrs, array('disabled' => 'disabled', 'multiple' => false));
                 ?>
                 <div data-role="raas-repo-block">
                   <div data-role="raas-repo-container">
-                    <?php foreach ((array)$Field->Form->DATA[$Field->name] as $key => $val) { ?>
+                    <?php foreach ((array)$Field->Form->DATA[$Field->name] as $key => $val) { $Field->value = $val; ?>
                         <div data-role="raas-repo-element">
-                          <select<?php echo $_RAASForm_Attrs($Field, array_merge($attrs, array('value' => $val)))?>><?php echo $_RAASForm_Options($Field->children)?></select>
+                          <select<?php echo $_RAASForm_Attrs($Field, $attrs)?>><?php echo $_RAASForm_Options($Field->children)?></select>
                         </div>
                     <?php } ?>
                   </div>
