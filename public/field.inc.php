@@ -230,7 +230,9 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                 <div data-role="raas-repo-block">
                   <div data-role="raas-repo-container">
                     <?php foreach ((array)$Field->Form->DATA[$Field->name] as $key => $val) { ?>
-                        <div data-role="raas-repo-element"><input<?php echo $_RAASForm_Attrs($Field, array_merge($attrs, array('value' => $val)))?> /></div>
+                        <div data-role="raas-repo-element">
+                          <select<?php echo $_RAASForm_Attrs($Field, array_merge($attrs, array('value' => $val)))?>><?php echo $_RAASForm_Options($Field->children)?></select>
+                        </div>
                     <?php } ?>
                   </div>
                   <div data-role="raas-repo"><select<?php echo $_RAASForm_Attrs($Field, $attrs)?>><?php echo $_RAASForm_Options($Field->children)?></select></div>
