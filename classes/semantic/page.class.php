@@ -119,11 +119,14 @@ class Page extends \SOME\SOME
                 break;
             case 'additionalURL':
                 $url = preg_replace('/^' . preg_quote($this->url, '/') . '/ui', '', $this->initialURL);
+                $url = trim($url);
                 return $url;
             case 'additionalURLArray':
                 $url = trim($this->additionalURL, '/');
                 $url = trim($url);
                 $urlArray = explode('/', $url);
+                $urlArray = array_filter($urlArray, 'trim');
+                $urlArray = array_values($urlArray);
                 return $urlArray;
             case 'blocksByLocations':
                 $blocks = array();
