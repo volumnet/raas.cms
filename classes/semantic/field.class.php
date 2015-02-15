@@ -246,10 +246,10 @@ abstract class Field extends \RAAS\CustomField
 
     public static function delete(self $object)
     {
-        $SQL_query = "DELETE FROM " . static::$dbprefix . static::data_table . " WHERE fid = " . (int)$this->id;
+        $SQL_query = "DELETE FROM " . static::$dbprefix . static::data_table . " WHERE fid = " . (int)$object->id;
         static::$SQL->query($SQL_query);
-        if (in_array($this->datatype, array('image', 'file'))) {
-            $this->clearLostAttachments();
+        if (in_array($object->datatype, array('image', 'file'))) {
+            $object->clearLostAttachments();
         }
         parent::delete($object);
     }
