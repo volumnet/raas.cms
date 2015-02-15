@@ -224,9 +224,25 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                 }
                 $Field->children[0] = new \RAAS\Option(array('caption' => $Field->placeholder, 'value' => ''));
             }
-            ?>
-            <select<?php echo $_RAASForm_Attrs($Field, $attrs)?>><?php echo $_RAASForm_Options($Field->children)?></select>
-            <?php
+            if ($Field->multiple && !$Field->{'data-raas-multiselect'}) { 
+                $attrs = array_merge($attrs, array('multiple' => false));
+                ?>
+                <div data-role="raas-repo-block">
+                  <div data-role="raas-repo-container">
+                    <?php foreach ((array)$Field->Form->DATA[$Field->name] as $key => $val) { $Field->value = $val; ?>
+                        <div data-role="raas-repo-element">
+                          <select<?php echo $_RAASForm_Attrs($Field, $attrs)?>><?php echo $_RAASForm_Options($Field->children)?></select>
+                        </div>
+                    <?php } ?>
+                  </div>
+                  <div data-role="raas-repo"><select<?php echo $_RAASForm_Attrs($Field, array_merge($attrs, array('disabled' => 'disabled')))?>><?php echo $_RAASForm_Options($Field->children)?></select></div>
+                </div>
+                <?php 
+            } else { 
+                ?>
+                <select<?php echo $_RAASForm_Attrs($Field, $attrs)?>><?php echo $_RAASForm_Options($Field->children)?></select>
+                <?php
+            }
             break;
         case 'textarea': case 'htmlarea': case 'codearea':
             $attrs['type'] = false;

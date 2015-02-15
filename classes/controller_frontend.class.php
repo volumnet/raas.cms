@@ -75,14 +75,14 @@ final class Controller_Frontend extends Abstract_Controller
             }
             if ($this->checkCompatibility()) {
                 if ($this->checkDB()) {
-                    if (Package::i()->registryGet('diag')) {
-                        $this->diag = Diag::getInstance();
-                        if ($this->diag) {
-                            $this->application->SQL->query_handler = array($this->diag, 'queryHandler');
-                        }
-                        $pst = microtime(true);
-                    }
                     if ($this->checkSOME()) {
+                        if (Package::i()->registryGet('diag')) {
+                            $this->diag = Diag::getInstance();
+                            if ($this->diag) {
+                                $this->application->SQL->query_handler = array($this->diag, 'queryHandler');
+                            }
+                            $pst = microtime(true);
+                        }
                         $Page = $this->fork();
                     }
                 }
