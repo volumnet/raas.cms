@@ -11,7 +11,7 @@ class ViewSub_Feedback extends \RAAS\Abstract_Sub_View
     public function view(array $IN = array())
     {
         $this->assignVars($IN);
-        $this->title = $this->_('FEEDBACK');
+        $this->title = $IN['Form']->caption;
         $this->path[] = array('name' => $this->_('FEEDBACK'), 'href' => $this->url);
         $this->path[] = array('name' => $IN['Item']->parent->name, 'href' => $this->url . '&id=' . $IN['Item']->pid);
         foreach ((array)$IN['Forms'] as $row) {
@@ -22,7 +22,7 @@ class ViewSub_Feedback extends \RAAS\Abstract_Sub_View
             );
         }
         $this->contextmenu = $this->getFeedbackContextMenu($IN['Item']);
-        $this->template = 'feedback_view';
+        $this->template = $IN['Form']->template;
     }
 
 

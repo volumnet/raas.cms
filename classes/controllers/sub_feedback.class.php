@@ -66,6 +66,7 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
         $Item->commit();
         $OUT['Item'] = $Item;
         $OUT['Forms'] = $Forms;
+        $OUT['Form'] = new ViewFeedbackForm(array('Item' => $Item));
         $this->view->view($OUT);
     }
 }
