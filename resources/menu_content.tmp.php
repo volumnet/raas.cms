@@ -21,7 +21,7 @@ $showMenu = function($node, \RAAS\CMS\Page $current) use (&$showMenu) {
         }
         if (1 || $semiactive) {
             $level++;
-            $text .= $showMenu($row, $current);
+            $ch = $showMenu($row, $current);
             $level--;
         }
         if (stristr($ch, 'class="active"') && !$semiactive) {
