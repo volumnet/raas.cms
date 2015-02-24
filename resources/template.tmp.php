@@ -49,40 +49,38 @@ $sideColWidth = 3;
           ?> 
         </header>
         <div class="main-container">
-          <div class="row">
-            <?php if (count($Page->locationBlocksText['left'])) { ?>
-                <aside class="location_left col-sm-<?php echo $sideColWidth?>"><?php echo $Page->location('left')?></aside>
-            <?php } ?>
-            <?php if (!$Page->pid) { ?>
-                <?php if (count($Page->locationBlocksText['content'])) { ?>
-                    <div class="location_content col-sm-<?php echo 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $sideColWidth)?>">
-                      <main class="block_content"><?php echo $Page->location('content')?></main>
-                    </div> 
-                <?php } ?>
-            <?php } else { ?>
-                <?php if (count($Page->locationBlocksText['content'])) { ?>
-                    <div class="location_content col-sm-<?php echo 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $sideColWidth)?>">
-                      <main class="block_content">
-                        <h1><?php echo htmlspecialchars($Page->name)?></h1>
-                        <?php if ((count($Page->parents) + (bool)$Page->Material->id) > 1) { ?>
-                            <ol class="breadcrumb">
-                              <?php foreach ($Page->parents as $row) { ?>
-                                  <li><a href="<?php echo htmlspecialchars($row->url)?>"><?php echo htmlspecialchars($row->name)?></a></li>
-                              <?php } ?>
-                              <?php if ($Page->Material->id) { ?>
-                                  <li><a href="<?php echo htmlspecialchars($Page->url)?>"><?php echo htmlspecialchars($Page->oldName)?></a></li>
-                              <?php } ?>
-                            </ol>
-                        <?php } ?>
-                        <?php echo $Page->location('content')?>
-                      </main>
-                    </div> 
-                <?php } ?>
-            <?php } ?>
-            <?php if (count($Page->locationBlocksText['right'])) { ?>
-                <aside class="location_right col-sm-<?php echo $sideColWidth?>"><?php echo $Page->location('right')?></aside>
-            <?php } ?>
-          </div>
+          <?php if (count($Page->locationBlocksText['left'])) { ?>
+              <aside class="location_left col-sm-<?php echo $sideColWidth?>"><?php echo $Page->location('left')?></aside>
+          <?php } ?>
+          <?php if (!$Page->pid) { ?>
+              <?php if (count($Page->locationBlocksText['content'])) { ?>
+                  <div class="location_content col-sm-<?php echo 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $sideColWidth)?>">
+                    <main class="block_content"><?php echo $Page->location('content')?></main>
+                  </div> 
+              <?php } ?>
+          <?php } else { ?>
+              <?php if (count($Page->locationBlocksText['content'])) { ?>
+                  <div class="location_content col-sm-<?php echo 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $sideColWidth)?>">
+                    <main class="block_content">
+                      <h1><?php echo htmlspecialchars($Page->name)?></h1>
+                      <?php if ((count($Page->parents) + (bool)$Page->Material->id) > 1) { ?>
+                          <ol class="breadcrumb">
+                            <?php foreach ($Page->parents as $row) { ?>
+                                <li><a href="<?php echo htmlspecialchars($row->url)?>"><?php echo htmlspecialchars($row->name)?></a></li>
+                            <?php } ?>
+                            <?php if ($Page->Material->id) { ?>
+                                <li><a href="<?php echo htmlspecialchars($Page->url)?>"><?php echo htmlspecialchars($Page->oldName)?></a></li>
+                            <?php } ?>
+                          </ol>
+                      <?php } ?>
+                      <?php echo $Page->location('content')?>
+                    </main>
+                  </div> 
+              <?php } ?>
+          <?php } ?>
+          <?php if (count($Page->locationBlocksText['right'])) { ?>
+              <aside class="location_right col-sm-<?php echo $sideColWidth?>"><?php echo $Page->location('right')?></aside>
+          <?php } ?>
         </div>
         <footer class="location_footer">
           <div class="location_footer__inner">
