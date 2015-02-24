@@ -39,8 +39,8 @@ $sideColWidth = 3;
       <div class="container">
         <header class="location_header">
           <div class="row">
-            <div class="col-sm-5"><div class="logo"><?php echo $Page->locationBlocksText['header'][0]?></div></div>
-            <div class="col-sm-7"><div class="address"><?php echo $Page->locationBlocksText['header'][1]?></div></div>
+            <div class="col-sm-5"><?php echo $Page->locationBlocksText['header'][0]?></div>
+            <div class="col-sm-7"><?php echo $Page->locationBlocksText['header'][1]?></div>
           </div>
           <?php 
           for ($i = (int)(!$Page->pid); $i < count($Page->locationBlocksText['header']); $i++) { 
@@ -83,10 +83,8 @@ $sideColWidth = 3;
           <?php } ?>
         </div>
         <footer class="location_footer">
-          <div class="location_footer__inner">
-            <div><?php echo $Page->location('footer')?></div>
-            <p class="developer">Разработка и сопровождение сайта <a href="http://volumnet.ru" target="_blank">Volume Networks</a></p>
-          </div>
+          <div><?php echo $Page->location('footer')?></div>
+          <p class="developer">Разработка и сопровождение сайта <a href="http://volumnet.ru" target="_blank">Volume Networks</a></p>
         </footer>
       </div>
     </div>
