@@ -16,7 +16,11 @@ class Block_HTML extends Block
 
     public function process(Page $Page)
     {
-        echo $this->description;
+        if ($this->Interface->id || $this->Widget->id) {
+            return parent::process($Page);
+        } else {
+            echo $this->description;
+        }
     }
 
 

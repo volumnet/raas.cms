@@ -16,6 +16,7 @@ class Updater extends \RAAS\Updater
         $this->update20141104();
         $this->update20141222();
         $this->update20150125();
+        $this->update20150301();
     }
 
 
@@ -770,6 +771,24 @@ class Updater extends \RAAS\Updater
                                 ADD KEY (postprocessor_id)";
                 $this->SQL->query($SQL_query);
             }
+        }
+    }
+
+
+    protected function update20150301()
+    {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_pages", $this->tables) && !in_array('access', $this->columns(\SOME\SOME::_dbprefix() . "cms_pages"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_pages 
+                            ADD access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type',
+                            ADD inherit_access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Inherit access type'";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials
+                            ADD access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type'";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks
+                            ADD access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type',
+                            ADD vis_material TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visibility by material'";
+            $this->SQL->query($SQL_query);
         }
     }
 }

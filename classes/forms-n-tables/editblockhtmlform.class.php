@@ -14,6 +14,22 @@ class EditBlockHTMLForm extends EditBlockForm
     }
 
 
+    protected function getInterfaceField()
+    {
+        $field = parent::getInterfaceField();
+        $field->required = false;
+        return $field;
+    }
+
+
+    protected function getWidgetField()
+    {
+        $field = parent::getWidgetField();
+        $field->required = false;
+        return $field;
+    }
+
+
     protected function getCommonTab()
     {
         $tab = parent::getCommonTab();
@@ -23,6 +39,14 @@ class EditBlockHTMLForm extends EditBlockForm
             $tab->children[] = array('type' => 'codearea', 'name' => 'description', 'data-language' => 'html');
         }
         $tab->children[] = array('type' => 'checkbox', 'name' => 'wysiwyg', 'caption' => $this->view->_('USE_WYSIWYG_EDITOR'), 'default' => 1);
+        return $tab;
+    }
+
+    protected function getServiceTab()
+    {
+        $tab = parent::getServiceTab();
+        $tab->children[] = $this->getInterfaceField();
+        $tab->children[] = $this->getWidgetField();
         return $tab;
     }
 }
