@@ -78,8 +78,8 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     {
         $this->js[] = $this->publicURL . '/dev_edit_menu.js';
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
+        $this->path[] = array('href' => $this->url . '&action=menus', 'name' => $this->_('MENUS'));
         if ($IN['Parent']->id) {
-            $this->path[] = array('href' => $this->url . '&action=menus', 'name' => $this->_('MENUS'));
             if ($IN['Parent']->parents) {
                 foreach ($IN['Parent']->parents as $row) {
                     $this->path[] = array('href' => $this->url . '&action=menus' . '&id=' . (int)$row->id, 'name' => $row->name);
