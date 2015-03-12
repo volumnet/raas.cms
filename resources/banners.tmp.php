@@ -1,5 +1,5 @@
 <?php if ($Set) { ?>
-    <div class="">
+    <div class="banners">
       <div id="carousel-main" data-ride="carousel" class="carousel slide hidden-xs">
         <div class="carousel-indicators">
           <?php for ($i = 0; $i < count($Set); $i++) { $row = $Set[$i]; ?>

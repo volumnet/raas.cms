@@ -8,36 +8,29 @@ $showMenu = function($node, \RAAS\CMS\Page $current) use (&$showMenu) {
     }
     for ($i = 0; $i < count($children); $i++) {
         $row = $children[$i];
+        $level++;
+        $ch = $showMenu($row, $current);
+        $level--;
         if ($node instanceof \RAAS\CMS\Menu) {
-            $active = (($row->page_id == $current->id) || ($row->url == $current->url));
-            $semiactive = $row->findPage($current);
             $url = $row->url;
             $name = $row->name;
+            $active = (($row->page_id == $current->id) || ($row->url == $current->url));
+            $semiactive = $row->findPage($current);
         } else {
-            $active = ($row['url'] == $current->url);
-            $semiactive = ((stristr($current->url, $row['url']) !== false) && ($row['url'] != '/'));
             $url = $row['url'];
             $name = $row['name'];
+            $active = ($row['url'] == $current->url);
+            $semiactive = false;
         }
-        if (1 || $semiactive) {
-            $level++;
-            $ch = $showMenu($row, $current);
-            $level--;
-        }
-        if (stristr($ch, 'class="active"') && !$semiactive) {
+        if (stristr($ch, 'class="active"')) {
             $semiactive = true;
         }
-        if ($active) {
-            $text .= '<li class="active"><a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($name) . '</a>';
-        } elseif ($semiactive) {
-            $text .= '<li class="active"><a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($name) . '</a>';
-        } else {
-            $text .= '<li><a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($name) . '</a>';
-        }
-        $text .= $ch;
-        $text .= '</li>';
+        $text .= '<li' . ($active || $semiactive ? ' class="active"' : '') . '>'
+              .  '  <a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($name) . '</a>'
+              .     $ch
+              .  '</li>';
     }
     return $text ? '<ul>' . $text . '</ul>' : $text;
 };
 
-echo '<nav class="">' . $showMenu($menuArr ?: $Item, $Page) . '</nav>';
+echo '<nav class="menu_top">' . $showMenu($menuArr ?: $Item, $Page) . '</nav>';

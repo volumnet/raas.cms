@@ -12,6 +12,7 @@ class Package extends \RAAS\Package
 
     public function __get($var)
     {
+        $ua = $_SERVER['HTTP_USER_AGENT'];
         switch ($var) {
             case 'cacheDir':
                 return $this->application->baseDir . '/cache';
@@ -102,6 +103,36 @@ class Package extends \RAAS\Package
             case 'stdWatermarkInterface':
                 $text = file_get_contents($this->stdWatermarkInterfaceFile);
                 return $text;
+                break;
+            case 'isAndroid':
+                return (bool)stristr($ua, 'android');
+                break;
+            case 'isAndroidTablet':
+                return $this->isAndroid && !(bool)stristr($ua, 'mobile');
+                break;
+            case 'isAndroidPhone':
+                return $this->isAndroid && (bool)stristr($ua, 'mobile');
+                break;
+            case 'isIPad':
+                return (bool)stristr($ua, 'ipad');
+                break;
+            case 'isIPhone':
+                return (bool)stristr($ua, 'iphone');
+                break;
+            case 'isIPod':
+                return (bool)stristr($ua, 'ipod');
+                break;
+            case 'isApple':
+                return $this->iPad || $this->iPhone || $this->iPod;
+                break;
+            case 'isWindowsPhone':
+                return (bool)stristr($ua, 'windows') && (bool)stristr($ua, 'phone');
+                break;
+            case 'isPhone':
+                return $this->isAndroidPhone || $this->isWindowsPhone || $this->isIPhone || $this->isIPod;
+                break;
+            case 'isTablet':
+                return $this->isAndroidTablet || $this->isIPad;
                 break;
             default:
                 return parent::__get($var);
