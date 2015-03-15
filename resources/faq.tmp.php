@@ -1,18 +1,42 @@
 <div class="materials faq">
-  <?php if ($Set) { ?>
+  <?php if ($Item) { ?>
+      <article class="article_opened">
+        <?php if ($Item->image->id) { ?>
+            <div class="article__image">
+              <a href="/<?php echo $Item->image->fileURL?>">
+                <img src="/<?php echo $Item->image->tnURL?>" alt="<?php echo htmlspecialchars($Item->image->name ?: $row->name)?>" /></a>
+            </div>
+        <?php } ?>
+        <div class="article__date"><?php echo date('d', strtotime($row->post_date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->post_date))] . ' ' . date('Y', strtotime($row->post_date))?></div>
+        <div class="article__text faq__question">
+          <label class="faq__label">Вопрос:</label> <?php echo htmlspecialchars($Item->description)?>
+        </div>
+        <?php if ($Item->answer) { ?>
+            <div class="article__text faq__answer">
+              <label class="faq__label">Ответ:</label> <?php echo htmlspecialchars($Item->answer)?>
+            </div>
+        <?php } ?>
+      </article>
+  <?php } elseif ($Set) { ?> 
       <?php foreach ($Set as $row) { ?>
           <article class="article">
-            <p class="article__date"><?php echo date('d', strtotime($row->post_date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->post_date))] . ' ' . date('Y', strtotime($row->post_date))?></p>
+            <?php if ($Item->image->id) { ?>
+                <div class="article__image">
+                  <a href="/<?php echo $Item->image->fileURL?>">
+                    <img src="/<?php echo $Item->image->tnURL?>" alt="<?php echo htmlspecialchars($Item->image->name ?: $row->name)?>" /></a>
+                </div>
+            <?php } ?>
+            <div class="article__date"><?php echo date('d', strtotime($row->post_date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->post_date))] . ' ' . date('Y', strtotime($row->post_date))?></div>
             <?php if (strlen($row->name) > 1 && !is_numeric($row->name)) { ?>
                 <h3 class="article__title"><?php echo htmlspecialchars($row->name)?></h3>
             <?php } ?>
-            <div class="article__text">
-              <strong>Вопрос:</strong> <?php echo htmlspecialchars($row->description)?>
+            <div class="article__text faq__question">
+              <label class="faq__label">Вопрос:</label> <?php echo htmlspecialchars($row->description)?>
             </div>
             <?php if ($row->answer) { ?>
                 <br />
                 <div class="article__text faq__answer">
-                  <strong>Ответ:</strong> <?php echo htmlspecialchars($row->answer)?>
+                  <label class="faq__label">Ответ:</label> <?php echo htmlspecialchars($row->answer)?>
                 </div>
             <?php } ?>
           </article>

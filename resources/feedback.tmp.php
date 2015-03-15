@@ -12,7 +12,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     echo json_encode($result);
     exit;
 } else { ?>
-    <div class="">
+    <div class="feedback">
       <form class="form-horizontal" data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">
         <?php include \RAAS\CMS\Package::i()->resourcesDir . '/form.inc.php'?>
         <div data-role="notifications" <?php echo ($success[(int)$Block->id] || $localError) ? '' : 'style="display: none"'?>>
@@ -31,7 +31,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                 <input type="hidden" name="form_signature" value="<?php echo md5('form' . (int)$Form->id . (int)$Block->id)?>" />
           <?php } ?>
           <?php if ($Form->antispam == 'hidden' && $Form->antispam_field_name) { ?>
-                <input type="text" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" value="<?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?>" style="position: absolute; left: -9999px" />
+                <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" value="<?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?>" style="position: absolute; left: -9999px" />
           <?php } ?>
           <?php foreach ($Form->fields as $row) { ?>
               <div class="form-group">
@@ -44,7 +44,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                 <label for="name" class="control-label col-sm-3 col-md-2"><?php echo CAPTCHA?></label>
                 <div class="col-sm-9 col-md-4 <?php echo htmlspecialchars($Form->antispam_field_name)?>">
                   <img src="/assets/kcaptcha/?<?php echo session_name() . '=' . session_id()?>" /><br />
-                  <input type="text" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />
+                  <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />
                 </div>
               </div>
           <?php } ?>

@@ -1,8 +1,8 @@
 <div class="materials">
   <?php if ($Item) { ?>
-      <article class="article article_opened">
+      <article class="article_opened">
         <?php if (strtotime($Item->date) > 0) { ?>
-            <p class="article__date"><?php echo date('d', strtotime($Item->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($Item->date))] . ' ' . date('Y', strtotime($Item->date))?></p>
+            <div class="article__date"><?php echo date('d', strtotime($Item->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($Item->date))] . ' ' . date('Y', strtotime($Item->date))?></div>
         <?php } ?>
         <?php if ($Item->visImages) { ?>
             <div class="article__image">
@@ -14,13 +14,15 @@
         <?php if (count($Item->visImages) > 1) { ?>
             <div class="clearfix"></div>
             <h2>Фотографии</h2>
-            <div class="article__images row">
-              <?php for ($i = 1; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
-                  <div class="col-sm-4 col-md-3 col-xs-6">
-                    <a href="/<?php echo htmlspecialchars(addslashes($row->fileURL))?>" class="article__images__image">
-                      <img src="/<?php echo htmlspecialchars(addslashes($row->tnURL))?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
-                  </div>
-              <?php } ?>
+            <div class="article__images">
+              <div class="row">
+                <?php for ($i = 1; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
+                    <div class="col-sm-4 col-md-3 col-xs-6">
+                      <a href="/<?php echo htmlspecialchars(addslashes($row->fileURL))?>" class="article__images__image">
+                        <img src="/<?php echo htmlspecialchars(addslashes($row->tnURL))?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
+                    </div>
+                <?php } ?>
+              </div>
             </div>
         <?php } ?>
       </article>
@@ -36,10 +38,10 @@
             <div class="article__text">
               <h3 class="article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></h3>
               <?php if (strtotime($row->date) > 0) { ?>
-                  <p class="article__date"><?php echo date('d', strtotime($row->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->date))] . ' ' . date('Y', strtotime($row->date))?></p>
+                  <div class="article__date"><?php echo date('d', strtotime($row->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->date))] . ' ' . date('Y', strtotime($row->date))?></div>
               <?php } ?>
               <?php echo htmlspecialchars($row->brief ?: \SOME\Text::cuttext(html_entity_decode(strip_tags($row->description), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
-              <p><a href="<?php echo $row->url?>" class="article__read-more">Подробней…</a></p>
+              <div class="article__read-more"><a href="<?php echo $row->url?>">Подробней…</a></div>
             </div>
   				</article>
       <?php } ?>

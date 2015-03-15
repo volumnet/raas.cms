@@ -1,32 +1,7 @@
 <?php 
 namespace RAAS\CMS;
-if (!function_exists('RAAS\\CMS\\androidTablet')) {
-    function androidTablet($ua){ //Find out if it is a tablet 
-        if(strstr(strtolower($ua), 'android') ){//Search for android in user-agent 
-            if(!strstr(strtolower($ua), 'mobile')){ //If there is no ''mobile' in user-agent (Android have that on their phones, but not tablets) 
-                return true; 
-            } 
-        } 
-    } 
-}
-if (!function_exists('RAAS\\CMS\\isMobileUA')) {
-    function isMobileUA($ua)
-    { 
-        $iphone = strstr(strtolower($ua), 'mobile'); //Search for 'mobile' in user-agent (iPhone have that) 
-        $android = strstr(strtolower($ua), 'android'); //Search for 'android' in user-agent 
-        $windowsPhone = strstr(strtolower($ua), 'phone'); //Search for 'phone' in user-agent (Windows Phone uses that) 
-        $androidTablet = androidTablet($ua); //Do androidTablet function 
-        $ipad = strstr(strtolower($ua), 'ipad'); //Search for iPad in user-agent 
-        if($androidTablet || $ipad){ //If it's a tablet (iPad / Android) 
-            return false; 
-        } elseif(($iphone && !$ipad) || ($android && !$androidTablet) || $windowsPhone) { //If it's a phone and NOT a tablet 
-            return true; 
-        } 
-        return false; 
-    } 
-}
-$isMobile = isMobileUA($_SERVER['HTTP_USER_AGENT']);
-$sideColWidth = 3;
+$colspanSM = 4;
+$colspanMD = 3;
 ?>
 <!DOCTYPE html>
 <html>
@@ -39,8 +14,8 @@ $sideColWidth = 3;
       <div class="container">
         <header class="location_header">
           <div class="row">
-            <div class="col-sm-5"><?php echo $Page->locationBlocksText['header'][0]?></div>
-            <div class="col-sm-7"><?php echo $Page->locationBlocksText['header'][1]?></div>
+            <div class="col-sm-6"><?php echo $Page->locationBlocksText['header'][0]?></div>
+            <div class="col-sm-6"><?php echo $Page->locationBlocksText['header'][1]?></div>
           </div>
           <?php 
           for ($i = (int)(!$Page->pid); $i < count($Page->locationBlocksText['header']); $i++) { 
@@ -50,19 +25,16 @@ $sideColWidth = 3;
         </header>
         <div class="main-container">
           <?php if (count($Page->locationBlocksText['left'])) { ?>
-              <aside class="location_left col-sm-<?php echo $sideColWidth?>"><?php echo $Page->location('left')?></aside>
+              <aside class="location_left col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>"><?php echo $Page->location('left')?></aside>
           <?php } ?>
-          <?php if (!$Page->pid) { ?>
-              <?php if (count($Page->locationBlocksText['content'])) { ?>
-                  <div class="location_content col-sm-<?php echo 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $sideColWidth)?>">
-                    <main class="block_content"><?php echo $Page->location('content')?></main>
-                  </div> 
-              <?php } ?>
-          <?php } else { ?>
-              <?php if (count($Page->locationBlocksText['content'])) { ?>
-                  <div class="location_content col-sm-<?php echo 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $sideColWidth)?>">
-                    <main class="block_content">
-                      <h1><?php echo htmlspecialchars($Page->name)?></h1>
+          <?php if (count($Page->locationBlocksText['content'])) { 
+              $spanSM = 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $colspanSM);
+              $spanMD = 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $colspanMD);
+              ?>
+              <div class="location_content col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
+                <?php if (!$Page->pid) { ?>
+                    <?php echo $Page->location('content')?>
+                <?php } else { ?>
                       <?php if ((count($Page->parents) + (bool)$Page->Material->id) > 1) { ?>
                           <ol class="breadcrumb">
                             <?php foreach ($Page->parents as $row) { ?>
@@ -73,18 +45,26 @@ $sideColWidth = 3;
                             <?php } ?>
                           </ol>
                       <?php } ?>
+                      <h1><?php echo htmlspecialchars($Page->name)?></h1>
                       <?php echo $Page->location('content')?>
-                    </main>
-                  </div> 
-              <?php } ?>
+                <?php } ?>
+              </div>
           <?php } ?>
           <?php if (count($Page->locationBlocksText['right'])) { ?>
-              <aside class="location_right col-sm-<?php echo $sideColWidth?>"><?php echo $Page->location('right')?></aside>
+              <aside class="location_right col-sm-<?php echo $colspanSM?> col-sm-<?php echo $colspanMD?>"><?php echo $Page->location('right')?></aside>
           <?php } ?>
         </div>
         <footer class="location_footer">
-          <div><?php echo $Page->location('footer')?></div>
-          <p class="developer">Разработка и сопровождение сайта <a href="http://volumnet.ru" target="_blank">Volume Networks</a></p>
+          <div class="row">
+            <div class="col-sm-6"><?php echo $Page->locationBlocksText['footer'][0]?></div>
+            <div class="col-sm-6"><?php echo $Page->locationBlocksText['footer'][1]?></div>
+          </div>
+          <?php 
+          for ($i = (int)(!$Page->pid); $i < count($Page->locationBlocksText['footer']); $i++) { 
+              echo $Page->locationBlocksText['footer'][$i];
+          } 
+          ?> 
+          <div class="developer">Разработка и сопровождение сайта <a href="http://volumnet.ru" target="_blank">Volume Networks</a></div>
         </footer>
       </div>
     </div>
