@@ -777,17 +777,40 @@ class Updater extends \RAAS\Updater
 
     protected function update20150301()
     {
-        if (in_array(\SOME\SOME::_dbprefix() . "cms_pages", $this->tables) && !in_array('access', $this->columns(\SOME\SOME::_dbprefix() . "cms_pages"))) {
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_pages 
-                            ADD access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type',
-                            ADD inherit_access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Inherit access type'";
+        if (in_array(\SOME\SOME::_dbprefix() . "_blocks_groups_blacklist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "blocks_groups_blacklist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials
-                            ADD access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type'";
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "blocks_users_blacklist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks
-                            ADD access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type',
-                            ADD vis_material TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visibility by material'";
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "blocks_groups_whitelist";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "blocks_users_whitelist";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "materials_groups_blacklist";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "materials_users_blacklist";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "materials_groups_whitelist";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "materials_users_whitelist";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "pages_groups_blacklist";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "pages_users_blacklist";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "pages_groups_whitelist";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "pages_users_whitelist";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_pages DROP access, DROP inherit_access";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials DROP access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type'";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks DROP access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type'";
+            $this->SQL->query($SQL_query);
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_pages", $this->tables) && !in_array('vis_material', $this->columns(\SOME\SOME::_dbprefix() . "cms_pages"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks ADD vis_material TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visibility by material'";
             $this->SQL->query($SQL_query);
         }
     }
