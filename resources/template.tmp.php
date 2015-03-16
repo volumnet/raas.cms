@@ -18,7 +18,7 @@ $colspanMD = 3;
             <div class="col-sm-6"><?php echo $Page->locationBlocksText['header'][1]?></div>
           </div>
           <?php 
-          for ($i = (int)(!$Page->pid); $i < count($Page->locationBlocksText['header']); $i++) { 
+          for ($i = 2; $i < count($Page->locationBlocksText['header']); $i++) { 
               echo $Page->locationBlocksText['header'][$i];
           } 
           ?> 
@@ -60,7 +60,7 @@ $colspanMD = 3;
             <div class="col-sm-6"><?php echo $Page->locationBlocksText['footer'][1]?></div>
           </div>
           <?php 
-          for ($i = (int)(!$Page->pid); $i < count($Page->locationBlocksText['footer']); $i++) { 
+          for ($i = 2; $i < count($Page->locationBlocksText['footer']); $i++) { 
               echo $Page->locationBlocksText['footer'][$i];
           } 
           ?> 
