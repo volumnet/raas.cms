@@ -809,7 +809,7 @@ class Updater extends \RAAS\Updater
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks DROP access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type'";
             $this->SQL->query($SQL_query);
         }
-        if (in_array(\SOME\SOME::_dbprefix() . "cms_pages", $this->tables) && !in_array('vis_material', $this->columns(\SOME\SOME::_dbprefix() . "cms_pages"))) {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks", $this->tables) && !in_array('vis_material', $this->columns(\SOME\SOME::_dbprefix() . "cms_blocks"))) {
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks ADD vis_material TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visibility by material'";
             $this->SQL->query($SQL_query);
         }
