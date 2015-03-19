@@ -29,15 +29,15 @@ if (!$search_string) {
         // Получим начальные условия для страниц и материалов
         $SQL_where_pages = " AND tP.vis AND NOT tP.response_code ";
         $SQL_where_materials = " AND tM.vis ";
-        if ((array)$config['pages']) {
-            $SQL_where_pages .= " AND tP.id IN (" . implode(", ", array_map('intval', (array)$config['pages'])) . ") ";
+        if ((array)$Block->search_pages_ids) {
+            $SQL_where_pages .= " AND tP.id IN (" . implode(", ", array_map('intval', (array)$Block->search_pages_ids)) . ") ";
         }
-        if ($config['languages'] = array_filter((array)$config['languages'])) {
-            $temp = array_map(function($x) { return "'" . $SQL->real_escape_string($x) . "'"; }, (array)$config['languages']);
+        if ($languages = array_filter((array)$Block->languages)) {
+            $temp = array_map(function($x) use ($SQL) { return "'" . $SQL->real_escape_string($x) . "'"; }, (array)$languages);
             $SQL_where_pages .= " AND tP.lang IN (" . implode(", ", $temp) . ") ";
         }
-        if ((array)$config['material_types']) {
-            $SQL_where_materials .= " AND tM.pid IN (" . implode(", ", array_map('intval', (array)$config['material_types'])) . ") ";
+        if ((array)$Block->material_types_ids) {
+            $SQL_where_materials .= " AND tM.pid IN (" . implode(", ", array_map('intval', (array)$Block->material_types_ids)) . ") ";
         }
 
         // Получим допустимые поля данных для страниц и материалов
@@ -61,7 +61,7 @@ if (!$search_string) {
         }
         $SQL_query .= " ) AS c 
                         FROM " . Page::_tablename() . " AS tP 
-                       WHERE tP.vis AND NOT tP.response_code " . $SQL_where_pages . " AND (0 ";
+                       WHERE 1 " . $SQL_where_pages . " AND (0 ";
         foreach ($searchArray as $val) {
             $SQL_query .= " OR tP.name LIKE '%" . $SQL->escape_like($val) . "%'";
         }
@@ -80,7 +80,7 @@ if (!$search_string) {
             $SQL_query .= ") AS c 
                             FROM " . Page::_tablename() . " AS tP 
                             JOIN " . Material::_dbprefix() . "cms_data AS tD ON tD.pid = tP.id
-                           WHERE tP.vis AND NOT tP.response_code AND tD.fid IN (" . implode(", ", $pagesFields) . ") " . $SQL_where_pages . " AND (0 ";
+                           WHERE 1 AND tD.fid IN (" . implode(", ", $pagesFields) . ") " . $SQL_where_pages . " AND (0 ";
             foreach ($searchArray as $val) {
                 $SQL_query .= " OR tD.value LIKE '%" . $SQL->escape_like($val) . "%'";
             }
@@ -139,8 +139,8 @@ if (!$search_string) {
             if (!$MType->global_type) {
                 $SQL_query .= " JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id AND tP.id = tMPA.pid ";
             }
-            $SQL_query .= " WHERE tP.vis AND NOT tP.response_code AND tM.id IN (" . implode(", ", array_keys($arr)) . ")
-                         GROUP BY pid, mid";
+            $SQL_query .= " WHERE 1 " . $SQL_where_pages . " AND tM.id IN (" . implode(", ", array_keys($arr)) . ") ";
+            $SQL_query .= " GROUP BY pid, mid";
             $SQL_result = $SQL->get($SQL_query);
             $p = array_unique(array_map(function($x) { return $x['pid']; }, $SQL_result));
             $m = array_unique(array_map(function($x) { return $x['mid']; }, $SQL_result));
@@ -153,6 +153,27 @@ if (!$search_string) {
                 }
             }
         }
+
+        // 6. Выбираем блоки по HTML-коду
+        $SQL_query = "SELECT tP.id, (0";
+        foreach ($searchArray as $val) {
+            $SQL_query .= " + ((tBH.description LIKE '%" . $SQL->escape_like($val) . "%') * " . $pageDataRatio . ")";
+        }
+        $SQL_query .= ") AS c 
+                        FROM " . Page::_tablename() . " AS tP
+                        JOIN " . Block::_dbprefix() . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
+                        JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id AND tB.vis 
+                        JOIN " . Block::_dbprefix() . "cms_blocks_html AS tBH ON tBH.id = tB.id
+                       WHERE 1 " . $SQL_where_pages . " AND (0 ";
+        foreach ($searchArray as $val) {
+            $SQL_query .= " OR tBH.description LIKE '%" . $SQL->escape_like($val) . "%'";
+        }
+        $SQL_query .= " ) GROUP BY tP.id";
+        $SQL_result = $SQL->get($SQL_query);
+        foreach ($SQL_result as $row) {
+            $results['p' . $row['id']] += $row['c'];
+        }
+
 
         arsort($results);
         $Pages = null;
