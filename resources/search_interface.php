@@ -1,9 +1,9 @@
 <?php
 namespace RAAS\CMS;
 
-$pageNameRatio = 3;
+$pageNameRatio = 10;
 $pageDataRatio = 1;
-$materialNameRatio = 3;
+$materialNameRatio = 10;
 $materialDescriptionRatio = 1;
 $materialDataRatio = 1;
 $pageMaterialsRatio = 1;
@@ -124,7 +124,7 @@ if (!$search_string) {
         $SQL_query .= " ) ";
         $SQL_result = $SQL->get($SQL_query);
         foreach ($SQL_result as $row) {
-             $materials[$row['pid']][$row['id']] = $row['c'];
+             $materials[$row['pid']][$row['id']] += $row['c'];
         }
 
         // 5. Выбираем блоки по типам данных
