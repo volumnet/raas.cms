@@ -1,9 +1,9 @@
 <div class="search materials">
   <h3><?php echo sprintf(SEARCH_RESULTS_FOR_QUERY, $search_string)?></h3>
   <?php if ($Set) { ?>
-      <ol>
+      <div>
         <?php foreach ($Set as $row) { ?>
-            <li class="search-result">
+            <div class="search-result">
               <?php if ($row instanceof \RAAS\CMS\Page) { ?>
                   <article class="article">
                     <h3 class="article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></h3>
@@ -30,9 +30,9 @@
                     </div>
                   </article>
               <?php } ?>
-            </li>
+            </div>
         <?php } ?>
-      </ol>
+      </div>
       <?php include \RAAS\CMS\Package::i()->resourcesDir . '/pages.inc.php'?>
       <?php if ($Pages->pages > 1) { ?>
           <ul class="pagination pull-right">

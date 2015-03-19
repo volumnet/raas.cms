@@ -61,7 +61,7 @@ if (!$search_string) {
         }
         $SQL_query .= " ) AS c 
                         FROM " . Page::_tablename() . " AS tP 
-                       WHERE 1 " . $SQL_where_pages . " AND (0 ";
+                       WHERE tP.vis AND NOT tP.response_code " . $SQL_where_pages . " AND (0 ";
         foreach ($searchArray as $val) {
             $SQL_query .= " OR tP.name LIKE '%" . $SQL->escape_like($val) . "%'";
         }
@@ -72,21 +72,24 @@ if (!$search_string) {
         }
 
         // 2. Ищем страницы по данным
-        $SQL_query = "SELECT tP.id, (0";
-        foreach ($searchArray as $val) {
-            $SQL_query .= " + ((tD.value LIKE '%" . $SQL->escape_like($val) . "%') * " . $pageDataRatio . ")";
-        }
-        $SQL_query .= ") AS c 
-                        FROM " . Page::_tablename() . " AS tP 
-                        JOIN " . Material::_dbprefix() . "cms_data AS tD ON tD.pid = tP.id
-                       WHERE tD.fid IN (" . implode(", ", $pagesFields) . ") " . $SQL_where_pages . " AND (0 ";
-        foreach ($searchArray as $val) {
-            $SQL_query .= " OR tD.value LIKE '%" . $SQL->escape_like($val) . "%'";
-        }
-        $SQL_query .= " ) ";
-        $SQL_result = $SQL->get($SQL_query);
-        foreach ($SQL_result as $row) {
-            $results['p' . $row['id']] += $row['c'];
+        if ($pagesFields) {
+            $SQL_query = "SELECT tP.id, (0";
+            foreach ($searchArray as $val) {
+                $SQL_query .= " + ((tD.value LIKE '%" . $SQL->escape_like($val) . "%') * " . $pageDataRatio . ")";
+            }
+            $SQL_query .= ") AS c 
+                            FROM " . Page::_tablename() . " AS tP 
+                            JOIN " . Material::_dbprefix() . "cms_data AS tD ON tD.pid = tP.id
+                           WHERE tP.vis AND NOT tP.response_code AND tD.fid IN (" . implode(", ", $pagesFields) . ") " . $SQL_where_pages . " AND (0 ";
+            foreach ($searchArray as $val) {
+                $SQL_query .= " OR tD.value LIKE '%" . $SQL->escape_like($val) . "%'";
+            }
+            $SQL_query .= " ) ";
+
+            $SQL_result = $SQL->get($SQL_query);
+            foreach ($SQL_result as $row) {
+                $results['p' . $row['id']] += $row['c'];
+            }
         }
 
         // 3. Ищем все материалы по имени и описанию
@@ -136,7 +139,7 @@ if (!$search_string) {
             if (!$MType->global_type) {
                 $SQL_query .= " JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id AND tP.id = tMPA.pid ";
             }
-            $SQL_query .= " WHERE tM.id IN (" . implode(", ", array_keys($arr)) . ")
+            $SQL_query .= " WHERE tP.vis AND NOT tP.response_code AND tM.id IN (" . implode(", ", array_keys($arr)) . ")
                          GROUP BY pid, mid";
             $SQL_result = $SQL->get($SQL_query);
             $p = array_unique(array_map(function($x) { return $x['pid']; }, $SQL_result));
