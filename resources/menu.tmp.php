@@ -33,4 +33,4 @@ $showMenu = function($node, \RAAS\CMS\Page $current) use (&$showMenu) {
     return $text ? '<ul>' . $text . '</ul>' : $text;
 };
 
-echo '<nav class="menu_content">' . $showMenu($menuArr ?: $Item, $Page) . '</nav>';
+echo '<nav class="{MENU_NAME}">' . $showMenu($menuArr ?: $Item, $Page) . '</nav>';
