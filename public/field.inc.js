@@ -17,54 +17,9 @@ jQuery(function($) {
                 var url = '?p=' + p + '&sub=' + sub;
                 return url; 
             },
-            getCompletion: function(data) {
-                var Set = data.Set;
-                var i;
-                $('[data-role="material-field-autotext"]', $container).empty();
-                if (Set.length > 0) {
-                    for (i = 0; i < Set.length; i++) {
-                        var text = '<li>';
-                        text    += '  <a href="#" data-id="' + Set[i].id + '" data-pid="' + Set[i].pid + '">';
-                        if (Set[i].img) {
-                            text += '   <img src="' + Set[i].img + '" />';
-                        }
-                        text    += '    <span class="cms-material-field-autotext__name">' + Set[i].name + '</span>';
-                        text    += '    <span class="cms-material-field-autotext__description">' + Set[i].description + '</span>';
-                        text    += '  </a>';
-                        text    += '</li>';
-                        $('[data-role="material-field-autotext"]', $container).append(text);
-                    }
-                    $('[data-role="material-field-autotext"]', $container).show();
-                } else {
-                    methods.hideMaterialsList();
-                }
-            },
-            textOnChange: function() {
-                $container = $(this).closest('[data-role="material-field-container"]');
-                $thisObj = $container.find('input[type="hidden"]');
-                var text = $(this).val();
-                var id = parseInt($thisObj.attr('data-field-id'));
-                id = isNaN(id) ? 0 : id;
-                var url = 'ajax.php' + methods.getBaseURL() + '&action=get_materials_by_field&id=' + id + '&search_string=' + text;
-                window.clearTimeout(timeout_id);
-                timeout_id = window.setTimeout(function() { $.getJSON(url, methods.getCompletion) }, params.showInterval);
-            },
-            hideMaterialsList : function() {
-                $('[data-role="material-field-autotext"]', $container).hide();
-            },
             materialSelect : function(id, pid, name) {
                 $thisObj.val(id).attr({ 'data-material-id': id, 'data-material-pid': pid, 'data-material-name': name });
                 methods.checkIfExists();
-            },
-            materialOnClick: function() {
-                $container = $(this).closest('[data-role="material-field-container"]');
-                $thisObj = $container.find('input[type="hidden"]');
-                var id = $(this).attr('data-id');
-                var pid = $(this).attr('data-pid');
-                var name = $('.cms-material-field-autotext__name', this).text();
-                methods.materialSelect(id, pid, name);
-                methods.hideMaterialsList();
-                return false;
             },
             materialDelete : function() {
                 methods.materialSelect('', '', '');
@@ -72,7 +27,7 @@ jQuery(function($) {
                 methods.checkIfExists();
             },
             clearMaterialClick : function() {
-                $container = $(this).closest('[data-role="material-field-container"]');
+                $container = $(this).closest('[data-role="raas-autotext-container"]');
                 $thisObj = $container.find('input[type="hidden"]');
                 methods.materialDelete();
                 methods.hideMaterialsList();
@@ -86,28 +41,28 @@ jQuery(function($) {
                 pid = isNaN(pid) ? 0 : pid;
                 if (id > 0) {
                     var url = methods.getBaseURL() + '&action=edit_material&id=' + id + ((pid > 0) ? '&pid=' + pid : '');
-                    $('[data-role="material-field-link"]', $container).attr('href', url).text($thisObj.attr('data-material-name'));
+                    $('[data-role="raas-autotext-link"]', $container).attr('href', url).text($thisObj.attr('data-material-name'));
                     $('[data-role="material-field-with"]', $container).show();
                     $('[data-role="material-field-without"]', $container).hide();
                 } else {
-                    $('[data-role="material-field-link"]', $container).attr('href', '#').text('');
+                    $('[data-role="raas-autotext-link"]', $container).attr('href', '#').text('');
                     $('[data-role="material-field-with"]', $container).hide();
                     $('[data-role="material-field-without"]', $container).show();
                 }
             },
             wrap: function()
             {
-                $thisObj.wrap('<div data-role="material-field-container" class="cms-material-field-container"></div>');
-                $container = $thisObj.closest('[data-role="material-field-container"]');
+                $thisObj.wrap('<div data-role="raas-autotext-container" class="raas-autotext-container"></div>');
+                $container = $thisObj.closest('[data-role="raas-autotext-container"]');
                 
                 var text = '  <div data-role="material-field-with" style="display: none">';
-                text    += '    <a href="#" data-role="material-field-link" target="_blank"></a>';
+                text    += '    <a href="#" data-role="raas-autotext-link" target="_blank"></a>';
                 if ($thisObj.closest('[data-role="raas-repo-block"]').length == 0) {
-                    text += ' &nbsp; <a href="#" class="close" data-role="material-field-clear">&times;</a>';
+                    text += ' &nbsp; <a href="#" class="close" data-role="raas-autotext-clear">&times;</a>';
                 }
                 text    += '</div>';
                 text    += '<div data-role="material-field-without">';
-                text    += '  <input type="text"> <ul class="cms-material-field-autotext" style="display: none" data-role="material-field-autotext"></ul>';
+                text    += '  <input type="text">';
                 text    += '</div>';
                 $container.append(text);
             },
@@ -116,10 +71,17 @@ jQuery(function($) {
                 $thisObj = $(this);
                 methods.wrap();
                 methods.checkIfExists();
-                $container.on('keyup', '[data-role="material-field-without"] input:text', methods.textOnChange);
-                $('body').on('click', methods.hideMaterialsList);
-                $container.on('click', '[data-role="material-field-autotext"] a', methods.materialOnClick);
-                $container.on('click', '[data-role="material-field-clear"]', methods.clearMaterialClick)
+                $container.on('click', '[data-role="raas-autotext-clear"]', methods.clearMaterialClick);
+                $('[data-role="material-field-without"] input:text', $container).RAAS_autocompleter({
+                    url: 'ajax.php' + methods.getBaseURL() + '&action=get_materials_by_field&id=' + parseInt($thisObj.attr('data-field-id')) + '&search_string=',
+                    callback: function() {
+                        var id = $(this).attr('data-id');
+                        var pid = $(this).attr('data-pid');
+                        var name = $('.raas-autotext__name', this).text();
+                        methods.materialSelect(id, pid, name);
+                        return false;
+                    }
+                })
             },
         };
     
@@ -149,5 +111,6 @@ jQuery(function($) {
             $('input:checkbox[data-role="checkbox-shadow"]', $w).attr('checked', 'checked');
         }
     });
-    $('[datatype="material"]').each(function() { $(this).RAAS_CMS_materialField(); });
+    $('[datatype="material"]:not([disabled])').each(function() { $(this).RAAS_CMS_materialField(); });
+    $('body').on('RAAS_repo.add', '[data-role="raas-repo-element"]', function() { /*$(this).RAAS_CMS_materialField();*/ $('input:hidden', this).RAAS_CMS_materialField(); });
 });
