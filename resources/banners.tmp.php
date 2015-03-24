@@ -10,7 +10,7 @@
           <?php for ($i = 0; $i < count($Set); $i++) { $row = $Set[$i]; ?>
               <div class="item <?php echo !$i ? 'active' : ''?>">
                 <a <?php echo $row->url ? 'href="' . htmlspecialchars($row->url) . '"' : ''?>>
-                  <img src="/<?php echo htmlspecialchars(addslashes($row->image->fileURL))?>.1350x300" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" />
+                  <img src="/<?php echo htmlspecialchars(addslashes($row->image->fileURL))?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" />
                 </a>
               </div>
           <?php } ?>

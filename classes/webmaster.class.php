@@ -224,7 +224,7 @@ class Webmaster
                 $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 10, 'name' => $this->view->_('TOP_MENU'),));
                 $MNU->commit();
 
-                $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 10, 'name' => $this->view->_('BOTTOM_MENU'),));
+                $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 1, 'name' => $this->view->_('BOTTOM_MENU'),));
                 $MNU->commit();
 
                 $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 10, 'name' => $this->view->_('LEFT_MENU'),));
@@ -317,7 +317,7 @@ class Webmaster
             $B = new Block_HTML(array('name' => $this->view->_('ROBOTS_TXT'), 'description' => '', 'wysiwyg' => 0,));
             $this->createBlock($B, 'content', null, null, $robots);
 
-            $this->createNews($this->view->_('NEWS'), 'news');
+            $this->createNews($this->view->_('NEWS'), 'news', $this->view->_('NEWS_MAIN'));
         }
     }
 
@@ -386,7 +386,7 @@ class Webmaster
     }
 
 
-    public function createNews($name, $urn)
+    public function createNews($name, $urn, $nameMain)
     {
         $Site = new Page();
         if ($Site->children) {
@@ -413,6 +413,17 @@ class Webmaster
                 $S = new Snippet(array('name' => $name, 'urn' => $urn, 'pid' => $VF->id, 'description' => file_get_contents($f),));
                 $S->commit();
             }
+            if ($nameMain) {
+                $temp = Snippet::importByURN($urn . '_main');
+                if (!$temp->id) {
+                    $f = $this->resourcesDir . '/material_main.tmp.php';
+                    $text = file_get_contents($f);
+                    $text = str_ireplace('{BLOCK_NAME}', $urn . '_main', $text);
+                    $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
+                    $S = new Snippet(array('name' => $nameMain, 'urn' => $urn . '_main', 'pid' => $VF->id, 'description' => $text));
+                    $S->commit();
+                }
+            }
             
             $page = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);
             $blockMaterial = new Block_Material(array(
@@ -422,6 +433,53 @@ class Webmaster
                 'rows_per_page' => 20,
                 'sort_field_default' => $dateField->id,
                 'sort_order_default' => 'desc!',
+            ));
+            $this->createBlock($blockMaterial, 'content', '__raas_material_interface', $urn, $page);
+            if ($nameMain) {
+                $blockMaterial = new Block_Material(array(
+                    'material_type' => (int)$MT->id, 
+                    'nat' => 1,
+                    'pages_var_name' => '',
+                    'rows_per_page' => 3,
+                    'sort_field_default' => $dateField->id,
+                    'sort_order_default' => 'desc!',
+                ));
+                $this->createBlock($blockMaterial, 'content', '__raas_material_interface', $urn . '_main', $Site);
+            }
+        }
+    }
+
+
+    public function createPhotos($name, $urn)
+    {
+        $Site = new Page();
+        if ($Site->children) {
+            $Site = $Site->children[0];
+        }
+        $temp = Material_Type::importByURN($urn);
+        if (!$temp->id) {
+            $MT = new Material_Type(array('name' => $name, 'urn' => $urn, 'global_type' => 1,));
+            $MT->commit();
+
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('IMAGE'), 'multiple' => 1, 'urn' => 'images', 'datatype' => 'image',));
+            $F->commit();
+
+            $VF = Snippet_Folder::importByURN('__raas_views');
+            $temp = Snippet::importByURN($urn);
+            if (!$temp->id) {
+                $f = $this->resourcesDir . '/photos.tmp.php';
+                $S = new Snippet(array('name' => $name, 'urn' => $urn, 'pid' => $VF->id, 'description' => file_get_contents($f),));
+                $S->commit();
+            }
+            
+            $page = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);
+            $blockMaterial = new Block_Material(array(
+                'material_type' => (int)$MT->id, 
+                'nat' => 0,
+                'pages_var_name' => 'page',
+                'rows_per_page' => 20,
+                'sort_field_default' => 'post_date',
+                'sort_order_default' => 'asc!',
             ));
             $this->createBlock($blockMaterial, 'content', '__raas_material_interface', $urn, $page);
         }
@@ -452,8 +510,11 @@ class Webmaster
     }
 
 
-    public function createFAQ($name, $urn)
+    public function createFAQ($name, $urn, $mainName = null)
     {
+        if (!$mainName) {
+            $mainName = $name;
+        }
         $Site = new Page();
         if ($Site->children) {
             $Site = $Site->children[0];
@@ -493,10 +554,18 @@ class Webmaster
         $F->commit();
 
         $VF = Snippet_Folder::importByURN('__raas_views');
-        $temp = Snippet::importByURN('faq');
+        $temp = Snippet::importByURN($urn);
         if (!$temp->id) {
             $f = $this->resourcesDir . '/faq.tmp.php';
-            $S = new Snippet(array('name' => $this->view->_('FAQ'), 'urn' => 'faq', 'pid' => $VF->id, 'description' => file_get_contents($f),));
+            $S = new Snippet(array('name' => $name, 'urn' => $urn, 'pid' => $VF->id, 'description' => file_get_contents($f),));
+            $S->commit();
+        }
+        $temp = Snippet::importByURN($urn . '_main');
+        if (!$temp->id) {
+            $f = $this->resourcesDir . '/faq_main.tmp.php';
+            $text = file_get_contents($f);
+            $text = str_ireplace('{FAQ_NAME}', $name, $text);
+            $S = new Snippet(array('name' => $mainName, 'urn' => $urn . '_main', 'pid' => $VF->id, 'description' => $text));
             $S->commit();
         }
 
@@ -516,7 +585,17 @@ class Webmaster
             'sort_field_default' => 'post_date',
             'sort_order_default' => 'desc!',
         ));
-        $this->createBlock($B, 'content', '__raas_material_interface', 'faq', $faqPage);
+        $this->createBlock($B, 'content', '__raas_material_interface', $urn, $faqPage);
+
+        $B = new Block_Material(array(
+            'material_type' => (int)$MT->id, 
+            'nat' => 0,
+            'pages_var_name' => '',
+            'rows_per_page' => 3,
+            'sort_field_default' => 'post_date',
+            'sort_order_default' => 'desc!',
+        ));
+        $this->createBlock($B, 'content', '__raas_material_interface', $urn . '_main', $Site);
     }
 
 
