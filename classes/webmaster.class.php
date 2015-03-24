@@ -259,7 +259,7 @@ class Webmaster
             $MNU = Menu::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('BOTTOM_MENU')) . "'"));
             $MNU = $MNU ? $MNU[0] : null;
             $B = new Block_Menu(array('menu' => $MNU->id ?: 0, 'full_menu' => 1,));
-            $this->createBlock($B, 'left', '__raas_menu_interface', 'menu_bottom', $Site, true);
+            $this->createBlock($B, 'footer', '__raas_menu_interface', 'menu_bottom', $Site, true);
 
             $FRM = Form::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('FEEDBACK')) . "'"));
             $FRM = $FRM ? $FRM[0] : null;
@@ -282,13 +282,10 @@ class Webmaster
             ));
             $this->createBlock($B, 'content', '__raas_material_interface', 'banners', $Site);
 
-            $FRM = Form::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('FEEDBACK')) . "'"));
-            $FRM = $FRM ? $FRM[0] : null;
-            $B = new Block_Form(array('form' => $FRM->id ?: 0,));
-            $this->createBlock($B, 'content', '__raas_form_interface', 'feedback', $contacts);
-
-            $B = new Block_HTML(array('description' => $this->view->_('PAGE_UNDER_CONSTRUCTION'), 'wysiwyg' => 1,));
-            $this->createBlock($B, 'content', null, null, $p404);
+            $B = new Block_HTML(array(
+                'name' => $this->view->_('WELCOME'), 'description' => file_get_contents($this->resourcesDir . '/main.tmp.php'), 'wysiwyg' => 1,
+            ));
+            $this->createBlock($B, 'content', null, null, $Site);
 
             $B = new Block_HTML(array('name' => $this->view->_('MAP'), 'description' => file_get_contents($this->resourcesDir . '/map.tmp.php'), 'wysiwyg' => 0,));
             $this->createBlock($B, 'content', null, null, $contacts);
@@ -303,7 +300,7 @@ class Webmaster
 
             $FRM = Form::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('FEEDBACK')) . "'"));
             $FRM = $FRM ? $FRM[0] : null;
-            $B = new Block_Form(array('form' => $FRM->id ?: 0, ));
+            $B = new Block_Form(array('form' => $FRM->id ?: 0,));
             $this->createBlock($B, 'content', '__raas_form_interface', 'feedback', $contacts);
 
             $B = new Block_HTML(array('name' => $this->view->_('PAGE_404'), 'description' => $this->view->_('PAGE_404_TEXT'), 'wysiwyg' => 1,));
