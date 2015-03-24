@@ -64,7 +64,7 @@ abstract class Field extends \RAAS\CustomField
                             $addedAttachments = array();
                             $t->deleteValues();
                             if ($Field->multiple) {
-                                foreach ($_FILES[$Field->name]['tmp_name'] as $key => $val) {
+                                foreach ((array)$_FILES[$Field->name]['tmp_name'] as $key => $val) {
                                     $row2 = array(
                                         'vis' => (int)$_POST[$Field->name . '@vis'][$key], 
                                         'name' => (string)$_POST[$Field->name . '@name'][$key],

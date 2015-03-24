@@ -165,17 +165,18 @@ abstract class Block extends \SOME\SOME
                     ORDER BY tBPA.priority " . ($step < 0 ? "DESC" : "ASC") . (!is_infinite($step) ? " LIMIT " . abs((int)$step) : "");
         $swapwith = static::$SQL->get($SQL_query);
         $save_ok = true;
+        // 2015-03-12 AVS: закомментил page_id = ..., т.к. менять порядок на каждой странице не удобно
         if ($swapwith) {
             for ($i = 0; $i < count($swapwith); $i++) {
                 $swapId = static::$SQL->quote($swapwith[$i]['block_id']);
                 $swapPri = (int)($i ? $swapwith[$i - 1]['priority'] : (int)$priority);
                 $save_ok &= static::$SQL->update(
-                    self::$dbprefix . self::$links['pages']['tablename'], "page_id = " . (int)$Page->id . " AND block_id = " . $swapId, array('priority' => $swapPri)
+                    self::$dbprefix . self::$links['pages']['tablename'], /*"page_id = " . (int)$Page->id . " AND " .*/ " block_id = " . $swapId, array('priority' => $swapPri)
                 );
             }
             $priority = (int)$swapwith[count($swapwith) - 1]['priority'];
             static::$SQL->update(
-                self::$dbprefix . self::$links['pages']['tablename'], "page_id = " . (int)$Page->id . " AND block_id = " . $this->id, array('priority' => $priority)
+                self::$dbprefix . self::$links['pages']['tablename'], /*"page_id = " . (int)$Page->id . " AND " .*/ " block_id = " . $this->id, array('priority' => $priority)
             );
         }
         return $save_ok;

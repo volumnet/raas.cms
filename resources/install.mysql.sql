@@ -1,3 +1,22 @@
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+  page_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
+  material_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
+  block_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Block ID#',
+  allow TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '1 - allow, 0 - deny',
+  to_type TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'To (type)',
+  uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
+  gid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Group ID#',
+  priority INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Priority',
+  PRIMARY KEY (id),
+  KEY (page_id),
+  KEY (material_id),
+  KEY (block_id),
+  KEY (uid),
+  KEY (gid),
+  INDEX (priority)
+) COMMENT 'Site access';
+
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   location varchar(255) NOT NULL DEFAULT '' COMMENT 'Location',
@@ -16,7 +35,6 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   cache_type TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache type',
   cache_single_page TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache by single pages',
   cache_interface_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache interface_id',
-  access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type',
   vis_material TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visibility by material',
   PRIMARY KEY (id),
   KEY author_id (author_id),
@@ -25,38 +43,6 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   KEY widget_id (widget_id),
   KEY cache_interface_id (cache_interface_id)
 ) COMMENT='Site pages';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_groups_blacklist (
-  bid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Block ID#',
-  gid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Group ID#',
-  PRIMARY KEY (bid, gid),
-  KEY (bid),
-  KEY (gid)
-) COMMENT 'Blocks groups blacklist';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_users_blacklist (
-  bid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Block ID#',
-  uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
-  PRIMARY KEY (bid, uid),
-  KEY (bid),
-  KEY (uid)
-) COMMENT 'Blocks users blacklist';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_groups_whitelist (
-  bid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Block ID#',
-  gid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Group ID#',
-  PRIMARY KEY (bid, gid),
-  KEY (bid),
-  KEY (gid)
-) COMMENT 'Blocks groups whitelist';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_users_whitelist (
-  bid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Block ID#',
-  uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
-  PRIMARY KEY (bid, uid),
-  KEY (bid),
-  KEY (uid)
-) COMMENT 'Blocks users whitelist';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_form (
   id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'ID#',
@@ -279,45 +265,12 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   changefreq ENUM('', 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never') NOT NULL DEFAULT '' COMMENT 'Change frequency', 
   last_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
   sitemaps_priority DECIMAL(8,2) UNSIGNED NOT NULL DEFAULT 0.5 COMMENT 'Sitemaps priority',
-  access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type',
   PRIMARY KEY (id),
   KEY pid (pid),
   KEY author_id (author_id),
   KEY editor_id (editor_id),
   KEY urn (urn)
-) COMMENT='Translator exceptions';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_groups_blacklist (
-  mid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
-  gid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Group ID#',
-  PRIMARY KEY (mid, gid),
-  KEY (mid),
-  KEY (gid)
-) COMMENT 'Materials groups blacklist';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_users_blacklist (
-  mid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
-  uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
-  PRIMARY KEY (mid, uid),
-  KEY (mid),
-  KEY (uid)
-) COMMENT 'Materials users blacklist';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_groups_whitelist (
-  mid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
-  gid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Group ID#',
-  PRIMARY KEY (mid, gid),
-  KEY (mid),
-  KEY (gid)
-) COMMENT 'Materials groups whitelist';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_users_whitelist (
-  mid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
-  uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
-  PRIMARY KEY (mid, uid),
-  KEY (mid),
-  KEY (uid)
-) COMMENT 'Materials users whitelist';
+) COMMENT='Materials';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_pages_assoc (
   id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material ID#',
@@ -385,8 +338,6 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
   last_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
   sitemaps_priority DECIMAL(8,2) UNSIGNED NOT NULL DEFAULT 0.5 COMMENT 'Sitemaps priority',
   inherit_sitemaps_priority TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Inherit sitemaps priority',
-  access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type',
-  inherit_access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Inherit access type',
   PRIMARY KEY (id),
   KEY pid (pid),
   KEY author_id (author_id),
@@ -394,38 +345,6 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
   KEY urn (urn),
   KEY template (template)
 ) COMMENT='Site pages';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages_groups_blacklist (
-  pid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
-  gid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Group ID#',
-  PRIMARY KEY (pid, gid),
-  KEY (pid),
-  KEY (gid)
-) COMMENT 'Pages groups blacklist';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages_users_blacklist (
-  pid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
-  uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
-  PRIMARY KEY (pid, uid),
-  KEY (pid),
-  KEY (uid)
-) COMMENT 'Pages users blacklist';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages_groups_whitelist (
-  pid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
-  gid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Group ID#',
-  PRIMARY KEY (pid, gid),
-  KEY (pid),
-  KEY (gid)
-) COMMENT 'Pages groups whitelist';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages_users_whitelist (
-  pid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
-  uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
-  PRIMARY KEY (pid, uid),
-  KEY (pid),
-  KEY (uid)
-) COMMENT 'Pages users whitelist';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages_data (
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Page ID#',
