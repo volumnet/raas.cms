@@ -51,7 +51,7 @@ $colspanMD = 3;
               </div>
           <?php } ?>
           <?php if (count($Page->locationBlocksText['right'])) { ?>
-              <aside class="location_right col-sm-<?php echo $colspanSM?> col-sm-<?php echo $colspanMD?>"><?php echo $Page->location('right')?></aside>
+              <aside class="location_right col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>"><?php echo $Page->location('right')?></aside>
           <?php } ?>
         </div>
         <footer class="location_footer">
