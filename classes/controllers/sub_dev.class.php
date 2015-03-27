@@ -2,6 +2,7 @@
 namespace RAAS\CMS;
 use \RAAS\Redirector as Redirector;
 use \RAAS\Attachment as Attachment;
+use \RAAS\Application;
 use \ArrayObject as ArrayObject;
 use \RAAS\Field as RAASField;
 use \RAAS\FieldSet as FieldSet;
@@ -107,7 +108,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 } else {
                     $url2 .= '&action=pages_fields';
                 }
-                StdSub::$f($Item, $this->url . $url2, true, true, "pid = " . $Item->parent->id);
+                StdSub::$f($Item, $this->url . $url2, true, true, "pid = " . (int)$Item->parent->id . " AND classname = '" . Application::i()->SQL->real_escape_string($Item->classname) . "'");
                 break;
             case 'delete_material_type':
                 $Item = new Material_Type((int)$this->id);
@@ -115,14 +116,23 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 break;
             case 'webmaster_faq':
                 $w = new Webmaster();
-                $w->createFAQ($this->view->_('FAQ'), 'faq');
+                $w->createFAQ($this->view->_('FAQ'), 'faq', $this->view->_('FAQ_MAIN'));
+                new Redirector(\SOME\HTTP::queryString('action='));
+                break;
+            case 'webmaster_reviews':
+                $w = new Webmaster();
+                $w->createFAQ($this->view->_('REVIEWS'), 'reviews', $this->view->_('REVIEWS_MAIN'));
+                new Redirector(\SOME\HTTP::queryString('action='));
+                break;
+            case 'webmaster_photos':
+                $w = new Webmaster();
+                $w->createPhotos($this->view->_('PHOTOS'), 'photos');
                 new Redirector(\SOME\HTTP::queryString('action='));
                 break;
             case 'webmaster_search':
                 $w = new Webmaster();
                 $w->createSearch();
                 new Redirector(\SOME\HTTP::queryString('action='));
-                break;
                 break;
             default:
                 $this->view->dev();

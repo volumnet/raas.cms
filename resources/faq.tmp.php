@@ -8,12 +8,12 @@
             </div>
         <?php } ?>
         <div class="article__date"><?php echo date('d', strtotime($row->post_date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->post_date))] . ' ' . date('Y', strtotime($row->post_date))?></div>
-        <div class="article__text faq__question">
-          <label class="faq__label">Вопрос:</label> <?php echo htmlspecialchars($Item->description)?>
+        <div class="article__text article__question">
+          <label class="article__label">Вопрос:</label> <?php echo htmlspecialchars($Item->description)?>
         </div>
         <?php if ($Item->answer) { ?>
-            <div class="article__text faq__answer">
-              <label class="faq__label">Ответ:</label> <?php echo htmlspecialchars($Item->answer)?>
+            <div class="article__text article__answer">
+              <label class="article__label">Ответ:</label> <?php echo htmlspecialchars($Item->answer)?>
             </div>
         <?php } ?>
       </article>
@@ -30,13 +30,13 @@
             <?php if (strlen($row->name) > 1 && !is_numeric($row->name)) { ?>
                 <h3 class="article__title"><?php echo htmlspecialchars($row->name)?></h3>
             <?php } ?>
-            <div class="article__text faq__question">
-              <label class="faq__label">Вопрос:</label> <?php echo htmlspecialchars($row->description)?>
+            <div class="article__text article__question">
+              <label class="article__label">Вопрос:</label> <?php echo htmlspecialchars($row->description)?>
             </div>
             <?php if ($row->answer) { ?>
                 <br />
-                <div class="article__text faq__answer">
-                  <label class="faq__label">Ответ:</label> <?php echo htmlspecialchars($row->answer)?>
+                <div class="article__text article__answer">
+                  <label class="article__label">Ответ:</label> <?php echo htmlspecialchars($row->answer)?>
                 </div>
             <?php } ?>
           </article>

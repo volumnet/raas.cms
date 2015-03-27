@@ -56,11 +56,12 @@ $colspanMD = 3;
         </div>
         <footer class="location_footer">
           <div class="row">
-            <div class="col-sm-6"><?php echo $Page->locationBlocksText['footer'][0]?></div>
-            <div class="col-sm-6"><?php echo $Page->locationBlocksText['footer'][1]?></div>
+            <div class="col-sm-5"><?php echo $Page->locationBlocksText['footer'][0]?></div>
+            <div class="col-sm-2"><?php echo $Page->locationBlocksText['footer'][1]?></div>
+            <div class="col-sm-5"><?php echo $Page->locationBlocksText['footer'][2]?></div>
           </div>
           <?php 
-          for ($i = 2; $i < count($Page->locationBlocksText['footer']); $i++) { 
+          for ($i = 3; $i < count($Page->locationBlocksText['footer']); $i++) { 
               echo $Page->locationBlocksText['footer'][$i];
           } 
           ?> 

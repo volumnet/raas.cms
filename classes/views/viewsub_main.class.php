@@ -217,7 +217,7 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
                     );
                 }
                 $arr[] = array(
-                    'href' => $this->url . '&action=unassoc_block&id=' . (int)$Item->id . ($Page->id ? '&pid=' . (int)$Page->id : '') . ($edit ? '' : '&back=1'), 
+                    'href' => $this->url . '&action=delete_block&id=' . (int)$Item->id . ($edit ? '' : '&back=1'), 
                     'name' => $this->_('DELETE'), 
                     'icon' => 'remove',
                     'onclick' => 'return confirm(\'' . $this->_('DELETE_TEXT') . '\')'

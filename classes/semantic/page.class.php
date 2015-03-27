@@ -164,6 +164,9 @@ class Page extends \SOME\SOME
                             $temp = array_values(array_filter($temp, function($x) { return isset($x->vis) && $x->vis; }));
                         }
                         return $temp;
+                    } else {
+                        // 2015-03-02 AVS: из-за утечки памяти при ненулевом ->pid
+                        unset($this->fields);
                     }
                 }
                 break;

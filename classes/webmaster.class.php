@@ -123,11 +123,13 @@ class Webmaster
             'feedback' => $this->view->_('FEEDBACK'), 
             'feedback_modal' => $this->view->_('FEEDBACK_MODAL'), 
             'head' => $this->view->_('HEAD_TAG'),
-            'menu_content' => $this->view->_('SITEMAP'),
-            'menu_top' => $this->view->_('TOP_MENU'),
             'order_call_modal' => $this->view->_('ORDER_CALL_MODAL'), 
             'search' => $this->view->_('SITE_SEARCH'),
             'sitemap_xml' => $this->view->_('SITEMAP_XML'),
+            'menu_content' => $this->view->_('SITEMAP'),
+            'menu_top' => $this->view->_('TOP_MENU'),
+            'menu_left' => $this->view->_('LEFT_MENU'),
+            'menu_bottom' => $this->view->_('BOTTOM_MENU'),
         );
         $VF = Snippet_Folder::importByURN('__raas_views');
         foreach ($snippets as $urn => $name) {
@@ -137,257 +139,201 @@ class Webmaster
                 $S->name = $name;
                 $S->urn = $urn;
                 $S->pid = $VF->id;
-                $f = $this->resourcesDir . '/' . $urn . '.tmp.php';
-                $S->description = file_get_contents($f);
+                if (stristr($urn, 'menu_')) {
+                    $f = $this->resourcesDir . '/menu.tmp.php';
+                    $S->description = str_ireplace('{MENU_NAME}', $urn, file_get_contents($f));
+                } else {
+                    $f = $this->resourcesDir . '/' . $urn . '.tmp.php';
+                    $S->description = file_get_contents($f);
+                }
                 $S->commit();
             }
         }
 
-        $temp = Material_Type::importByURN('banners');
-        if (!$temp->id) {
-            $MT = new Material_Type();
-            $MT->name = $this->view->_('BANNERS');
-            $MT->urn = 'banners';
-            $MT->global_type = 1;
+        // Добавим типы материалов
+        $MT = Material_Type::importByURN('banners');
+        if (!$MT->id) {
+            $MT = new Material_Type(array('name' => $this->view->_('BANNERS'), 'urn' => 'banners', 'global_type' => 1,));
             $MT->commit();
 
-            $F = new Material_Field();
-            $F->pid = $MT->id;
-            $F->name = $this->view->_('URL');
-            $F->urn = 'url';
-            $F->datatype = 'text';
-            $F->show_in_table = 1;
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('URL'), 'urn' => 'url', 'datatype' => 'text', 'show_in_table' => 1,));
             $F->commit();
 
-            $F = new Material_Field();
-            $F->pid = $MT->id;
-            $F->name = $this->view->_('IMAGE');
-            $F->urn = 'image';
-            $F->datatype = 'image';
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('IMAGE'), 'urn' => 'image', 'datatype' => 'image',));
             $F->commit();
         }
 
+        // Добавим формы
         $temp = \RAAS\CMS\Form::getSet();
         if (!$temp) {
-            $S = Snippet::importByURN('__raas_form_notify');
-            $FRM = new \RAAS\CMS\Form();
-            $FRM->name = $this->view->_('FEEDBACK');
-            $FRM->create_feedback = 1;
-            $FRM->signature = 0;
-            $FRM->antispam = 'hidden';
-            $FRM->antispam_field_name = '_name';
-            $FRM->interface_id = (int)$S->id;
+            $snippetFormNotify = Snippet::importByURN('__raas_form_notify');
+            $FRM = new \RAAS\CMS\Form(array(
+                'name' => $this->view->_('FEEDBACK'), 
+                'create_feedback' => 1,
+                'signature' => 0,
+                'antispam' => 'hidden',
+                'antispam_field_name' => '_name',
+                'interface_id' => (int)$snippetFormNotify->id,
+            ));
             $FRM->commit();
 
-            $F = new Form_Field();
-            $F->pid = $FRM->id;
-            $F->name = $this->view->_('YOUR_NAME');
-            $F->urn = 'full_name';
-            $F->required = 1;
-            $F->datatype = 'text';
-            $F->show_in_table = 1;
+            $F = new Form_Field(array(
+                'pid' => $FRM->id, 'name' => $this->view->_('YOUR_NAME'), 'urn' => 'full_name', 'required' => 1, 'datatype' => 'text', 'show_in_table' => 1,
+            ));
             $F->commit();
 
-            $F = new Form_Field();
-            $F->pid = $FRM->id;
-            $F->name = $this->view->_('PHONE');
-            $F->urn = 'phone';
-            $F->datatype = 'text';
-            $F->show_in_table = 1;
+            $F = new Form_Field(array('pid' => $FRM->id, 'name' => $this->view->_('PHONE'), 'urn' => 'phone', 'datatype' => 'text', 'show_in_table' => 1,));
             $F->commit();
 
-            $F = new Form_Field();
-            $F->pid = $FRM->id;
-            $F->name = $this->view->_('EMAIL');
-            $F->urn = 'email';
-            $F->datatype = 'text';
-            $F->show_in_table = 1;
+            $F = new Form_Field(array('pid' => $FRM->id, 'name' => $this->view->_('EMAIL'), 'urn' => 'email', 'datatype' => 'text', 'show_in_table' => 1,));
             $F->commit();
 
-            $F = new Form_Field();
-            $F->pid = $FRM->id;
-            $F->name = $this->view->_('QUESTION_TEXT');
-            $F->urn = '_description_';
-            $F->required = 1;
-            $F->datatype = 'textarea';
+            $F = new Form_Field(array(
+                'pid' => $FRM->id, 'name' => $this->view->_('QUESTION_TEXT'), 'urn' => '_description_', 'required' => 1, 'datatype' => 'textarea',
+            ));
             $F->commit();
 
 
-            $FRM = new \RAAS\CMS\Form();
-            $FRM->name = $this->view->_('ORDER_CALL');
-            $FRM->create_feedback = 1;
-            $FRM->signature = 0;
-            $FRM->antispam = 'hidden';
-            $FRM->antispam_field_name = '_name';
-            $FRM->interface_id = (int)$S->id;
+            $FRM = new \RAAS\CMS\Form(array(
+                'name' => $this->view->_('ORDER_CALL'), 
+                'create_feedback' => 1,
+                'signature' => 0,
+                'antispam' => 'hidden',
+                'antispam_field_name' => '_name',
+                'interface_id' => (int)$snippetFormNotify->id,
+            ));
             $FRM->commit();
 
-            $F = new Form_Field();
-            $F->pid = $FRM->id;
-            $F->name = $this->view->_('PHONE');
-            $F->urn = 'phone_call';
-            $F->datatype = 'text';
-            $F->show_in_table = 1;
+            $F = new Form_Field(array('pid' => $FRM->id, 'name' => $this->view->_('PHONE'), 'urn' => 'phone_call', 'datatype' => 'text', 'show_in_table' => 1,));
             $F->commit();
         }
 
         if (!Page::getSet()) {
             $temp = Template::getSet();
+            $host = $_SERVER['HTTP_HOST'];
             $Site = $this->createPage(array(
-                'name' => $this->view->_('MAIN_PAGE'), 
-                'urn' =>  $_SERVER['HTTP_HOST'] . ' ' . $_SERVER['HTTP_HOST'] . '.volumnet.ru',
-                'template' => ($temp ? $temp[0]->id : 0)
+                'name' => $this->view->_('MAIN_PAGE'), 'urn' => $host . ' ' . $host . '.volumnet.ru', 'template' => ($temp ? $temp[0]->id : 0)
             ));
-
-            if (!Menu::getSet()) {
-                $M = new Menu();
-                $M->page_id = $Site->id;
-                $M->inherit = 10;
-                $M->name = $this->view->_('TOP_MENU');
-                $M->commit();
-
-                $M = new Menu();
-                $M->page_id = $Site->id;
-                $M->inherit = 10;
-                $M->name = $this->view->_('SITEMAP');
-                $M->commit();
-            }
-
             $contacts = $this->createPage(array('name' => $this->view->_('CONTACTS'), 'urn' => 'contacts'), $Site);
             $map = $this->createPage(array('name' => $this->view->_('SITEMAP'), 'urn' => 'map', 'response_code' => 200), $Site);
             $p404 = $this->createPage(array('name' => $this->view->_('PAGE_404'), 'urn' => '404', 'response_code' => 404), $Site);
             $sitemaps = $this->createPage(array('name' => $this->view->_('SITEMAP_XML'), 'urn' => 'sitemaps', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
             $robots = $this->createPage(array('name' => $this->view->_('ROBOTS_TXT'), 'urn' => 'robots', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
 
-            $MT = Material_Type::importByURN('banners');
-            $I = Snippet::importByURN('__raas_material_interface');
-            $S = Snippet::importByURN('banners');
-            $B = new Block_Material();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->interface_id = $I->id;
-            $B->widget_id = $S->id;
-            $B->cats = array((int)$Site->id);
-            $B->material_type = (int)$MT->id;
-            $B->nat = 0;
-            $B->pages_var_name = 'page';
-            $B->rows_per_page = 0;
-            $B->sort_field_default = $dateField->id;
-            $B->sort_order_default = 'desc!';
-            $B->commit();
+            if (!Menu::getSet()) {
+                $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 10, 'name' => $this->view->_('TOP_MENU'),));
+                $MNU->commit();
 
-            $B = new Block_HTML();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->description = $this->view->_('PAGE_UNDER_CONSTRUCTION');
-            $B->wysiwyg = 1;
-            $B->cats = array((int)$Site->id);
-            $B->commit();
+                $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 1, 'name' => $this->view->_('BOTTOM_MENU'),));
+                $MNU->commit();
 
-            $B = new Block_HTML();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->name = $this->view->_('MAP');
-            $B->description = file_get_contents($this->resourcesDir . '/map.tmp.php');
-            $B->wysiwyg = 0;
-            $B->cats = array($contacts->id);
-            $B->commit();
+                $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 10, 'name' => $this->view->_('LEFT_MENU'),));
+                $MNU->commit();
 
-            $B = new Block_HTML();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->name = $this->view->_('CONTACTS');
-            $B->description = file_get_contents($this->resourcesDir . '/contacts.tmp.php');
-            $B->wysiwyg = 1;
-            $B->cats = array($contacts->id);
-            $B->commit();
+                $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 10, 'name' => $this->view->_('SITEMAP'),));
+                $MNU->commit();
+            }
 
-            $B = new Block_HTML();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->name = $this->view->_('FEEDBACK');
-            $B->description = '<h3>' . $this->view->_('FEEDBACK') . '</h3>';
-            $B->wysiwyg = 1;
-            $B->cats = array($contacts->id);
-            $B->commit();
+            $B = new Block_HTML(array('name' => $this->view->_('LOGO'), 'description' => file_get_contents($this->resourcesDir . '/logo.tmp.php'), 'wysiwyg' => 1,));
+            $this->createBlock($B, 'header', null, null, $Site, true);
+
+            $B = new Block_HTML(array('name' => $this->view->_('CONTACTS'), 'description' => file_get_contents($this->resourcesDir . '/contacts_top.tmp.php'), 'wysiwyg' => 1,));
+            $this->createBlock($B, 'header', null, null, $Site, true);
+
+            $MNU = Menu::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('TOP_MENU')) . "'"));
+            $MNU = $MNU ? $MNU[0] : null;
+            $B = new Block_Menu(array('menu' => $MNU->id ?: 0, 'full_menu' => 1,));
+            $this->createBlock($B, 'header', '__raas_menu_interface', 'menu_top', $Site, true);
+
+            $MNU = Menu::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('LEFT_MENU')) . "'"));
+            $MNU = $MNU ? $MNU[0] : null;
+            $B = new Block_Menu(array('menu' => $MNU->id ?: 0, 'full_menu' => 1,));
+            $this->createBlock($B, 'left', '__raas_menu_interface', 'menu_left', $Site, true);
+
+            $B = new Block_HTML(array('name' => $this->view->_('COPYRIGHTS'), 'description' => file_get_contents($this->resourcesDir . '/copyrights.tmp.php'), 'wysiwyg' => 1,));
+            $this->createBlock($B, 'footer', null, null, $Site, true);
+
+            $B = new Block_HTML(array('name' => $this->view->_('SHARE'), 'description' => file_get_contents($this->resourcesDir . '/share.tmp.php'), 'wysiwyg' => 0,));
+            $this->createBlock($B, 'footer', null, null, $Site, true);
+
+            $MNU = Menu::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('BOTTOM_MENU')) . "'"));
+            $MNU = $MNU ? $MNU[0] : null;
+            $B = new Block_Menu(array('menu' => $MNU->id ?: 0, 'full_menu' => 1,));
+            $this->createBlock($B, 'footer', '__raas_menu_interface', 'menu_bottom', $Site, true);
 
             $FRM = Form::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('FEEDBACK')) . "'"));
-            $I = Snippet::importByURN('__raas_form_interface');
-            $S = Snippet::importByURN('feedback');
-            $B = new Block_Form();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->cats = array($contacts->id);
-            $B->form = $FRM ? $FRM[0]->id : 0;
-            $B->widget_id = $S->id;
-            $B->interface_id = $I->id;
-            $B->commit();
+            $FRM = $FRM ? $FRM[0] : null;
+            $B = new Block_Form(array('form' => $FRM->id ?: 0,));
+            $this->createBlock($B, 'footer_counters', '__raas_form_interface', 'feedback_modal', $Site, true);
 
-            $B = new Block_HTML();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->name = $this->view->_('PAGE_404');
-            $B->description = $this->view->_('PAGE_404_TEXT');
-            $B->wysiwyg = 1;
-            $B->cats = array($p404->id);
-            $B->commit();
+            $FRM = Form::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('ORDER_CALL')) . "'"));
+            $FRM = $FRM ? $FRM[0] : null;
+            $B = new Block_Form(array('form' => $FRM->id ?: 0,));
+            $this->createBlock($B, 'footer_counters', '__raas_form_interface', 'order_call_modal', $Site, true);
+
+            $MT = Material_Type::importByURN('banners');
+            $B = new Block_Material(array(
+                'material_type' => (int)$MT->id, 
+                'nat' => 0,
+                'pages_var_name' => 'page',
+                'rows_per_page' => 0,
+                'sort_field_default' => 'post_date',
+                'sort_order_default' => 'asc',
+            ));
+            $this->createBlock($B, 'content', '__raas_material_interface', 'banners', $Site);
+
+            $B = new Block_HTML(array(
+                'name' => $this->view->_('WELCOME'), 'description' => file_get_contents($this->resourcesDir . '/main.tmp.php'), 'wysiwyg' => 1,
+            ));
+            $this->createBlock($B, 'content', null, null, $Site);
+
+            $B = new Block_HTML(array('name' => $this->view->_('MAP'), 'description' => file_get_contents($this->resourcesDir . '/map.tmp.php'), 'wysiwyg' => 0,));
+            $this->createBlock($B, 'content', null, null, $contacts);
+
+            $B = new Block_HTML(array(
+                'name' => $this->view->_('CONTACTS'), 'description' => file_get_contents($this->resourcesDir . '/contacts.tmp.php'), 'wysiwyg' => 1,
+            ));
+            $this->createBlock($B, 'content', null, null, $contacts);
+
+            $B = new Block_HTML(array('name' => $this->view->_('FEEDBACK'), 'description' => '<h3>' . $this->view->_('FEEDBACK') . '</h3>', 'wysiwyg' => 1,));
+            $this->createBlock($B, 'content', null, null, $contacts);
+
+            $FRM = Form::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('FEEDBACK')) . "'"));
+            $FRM = $FRM ? $FRM[0] : null;
+            $B = new Block_Form(array('form' => $FRM->id ?: 0,));
+            $this->createBlock($B, 'content', '__raas_form_interface', 'feedback', $contacts);
+
+            $B = new Block_HTML(array('name' => $this->view->_('PAGE_404'), 'description' => $this->view->_('PAGE_404_TEXT'), 'wysiwyg' => 1,));
+            $this->createBlock($B, 'content', null, null, $p404);
 
             $MNU = Menu::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('SITEMAP')) . "'"));
-            $S = Snippet::importByURN('menu_content');
-            $I = Snippet::importByURN('__raas_menu_interface');
-            $B = new Block_Menu();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->widget_id = $S->id;
-            $B->interface_id = $I->id;
-            $B->menu = $MNU ? $MNU[0]->id : 0;
-            $B->full_menu = 1;
-            $B->cats = array($map->id);
-            $B->commit();
+            $MNU = $MNU ? $MNU[0] : null;
+            $B = new Block_Menu(array('menu' => $MNU->id ?: 0, 'full_menu' => 1, ));
+            $this->createBlock($B, 'content', '__raas_menu_interface', 'menu_content', $map);
 
-            $S = Snippet::importByURN('sitemap_xml');
-            $B = new Block_PHP();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->widget_id = $S->id;
-            $B->cats = array($sitemaps->id);
-            $B->name = $this->view->_('SITEMAP_XML');
-            $B->commit();
+            $B = new Block_PHP(array('name' => $this->view->_('SITEMAP_XML'),));
+            $this->createBlock($B, 'content', null, 'sitemap_xml', $sitemaps);
 
-            $B = new Block_HTML();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->cats = array($robots->id);
-            $B->name = $this->view->_('ROBOTS_TXT');
-            $B->description = '';
-            $B->wysiwyg = 0;
-            $B->commit();
+            $B = new Block_HTML(array('name' => $this->view->_('ROBOTS_TXT'), 'description' => '', 'wysiwyg' => 0,));
+            $this->createBlock($B, 'content', null, null, $robots);
 
-            $this->createNews($this->view->_('NEWS'), 'news');
+            $this->createNews($this->view->_('NEWS'), 'news', $this->view->_('NEWS_MAIN'));
         }
     }
 
 
     protected function createPage(array $params, Page $Parent = null)
     {
-        $P = new Page();
-        $P->vis = 1;
-        $P->author_id = $P->editor_id = Application::i()->user->id;
-        $P->cache = 1;
-        $P->inherit_cache = 1;
-        $P->inherit_template = 0;
-        $P->lang = 'ru';
-        $P->inherit_lang = 1;
+        $P = new Page(array(
+            'vis' => 1,
+            'author_id' => Application::i()->user->id,
+            'editor_id' => Application::i()->user->id,
+            'cache' => 1,
+            'inherit_cache' => 1,
+            'inherit_template' => 0,
+            'lang' => 'ru',
+            'inherit_lang' => 1,
+        ));
         if ($Parent) {
             $P->pid = $Parent->id;
             foreach ($Parent->getArrayCopy() as $key => $val) {
@@ -440,7 +386,7 @@ class Webmaster
     }
 
 
-    public function createNews($name, $urn)
+    public function createNews($name, $urn, $nameMain)
     {
         $Site = new Page();
         if ($Site->children) {
@@ -448,65 +394,94 @@ class Webmaster
         }
         $temp = Material_Type::importByURN($urn);
         if (!$temp->id) {
-            $MT = new Material_Type();
-            $MT->name = $name;
-            $MT->urn = $urn;
-            $MT->global_type = 1;
+            $MT = new Material_Type(array('name' => $name, 'urn' => $urn, 'global_type' => 1,));
             $MT->commit();
 
-            $dateField = new Material_Field();
-            $dateField->pid = $MT->id;
-            $dateField->name = $this->view->_('DATE');
-            $dateField->urn = 'date';
-            $dateField->datatype = 'date';
-            $dateField->show_in_table = 1;
+            $dateField = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('DATE'), 'urn' => 'date', 'datatype' => 'date', 'show_in_table' => 1,));
             $dateField->commit();
 
-            $F = new Material_Field();
-            $F->pid = $MT->id;
-            $F->name = $this->view->_('IMAGE');
-            $F->multiple = 1;
-            $F->urn = 'images';
-            $F->datatype = 'image';
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('IMAGE'), 'multiple' => 1, 'urn' => 'images', 'datatype' => 'image',));
             $F->commit();
 
-            $F = new Material_Field();
-            $F->pid = $MT->id;
-            $F->name = $this->view->_('BRIEF_TEXT');
-            $F->multiple = 0;
-            $F->urn = 'brief';
-            $F->datatype = 'textarea';
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('BRIEF_TEXT'), 'multiple' => 0, 'urn' => 'brief', 'datatype' => 'textarea',));
             $F->commit();
 
             $VF = Snippet_Folder::importByURN('__raas_views');
             $temp = Snippet::importByURN($urn);
             if (!$temp->id) {
-                $S = new Snippet();
-                $S->name = $name;
-                $S->urn = $urn;
-                $S->pid = $VF->id;
                 $f = $this->resourcesDir . '/material.tmp.php';
-                $S->description = file_get_contents($f);
+                $S = new Snippet(array('name' => $name, 'urn' => $urn, 'pid' => $VF->id, 'description' => file_get_contents($f),));
+                $S->commit();
+            }
+            if ($nameMain) {
+                $temp = Snippet::importByURN($urn . '_main');
+                if (!$temp->id) {
+                    $f = $this->resourcesDir . '/material_main.tmp.php';
+                    $text = file_get_contents($f);
+                    $text = str_ireplace('{BLOCK_NAME}', $urn . '_main', $text);
+                    $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
+                    $S = new Snippet(array('name' => $nameMain, 'urn' => $urn . '_main', 'pid' => $VF->id, 'description' => $text));
+                    $S->commit();
+                }
+            }
+            
+            $page = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);
+            $blockMaterial = new Block_Material(array(
+                'material_type' => (int)$MT->id, 
+                'nat' => 1,
+                'pages_var_name' => 'page',
+                'rows_per_page' => 20,
+                'sort_field_default' => $dateField->id,
+                'sort_order_default' => 'desc!',
+            ));
+            $this->createBlock($blockMaterial, 'content', '__raas_material_interface', $urn, $page);
+            if ($nameMain) {
+                $blockMaterial = new Block_Material(array(
+                    'material_type' => (int)$MT->id, 
+                    'nat' => 1,
+                    'pages_var_name' => '',
+                    'rows_per_page' => 3,
+                    'sort_field_default' => $dateField->id,
+                    'sort_order_default' => 'desc!',
+                ));
+                $this->createBlock($blockMaterial, 'content', '__raas_material_interface', $urn . '_main', $Site);
+            }
+        }
+    }
+
+
+    public function createPhotos($name, $urn)
+    {
+        $Site = new Page();
+        if ($Site->children) {
+            $Site = $Site->children[0];
+        }
+        $temp = Material_Type::importByURN($urn);
+        if (!$temp->id) {
+            $MT = new Material_Type(array('name' => $name, 'urn' => $urn, 'global_type' => 1,));
+            $MT->commit();
+
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('IMAGE'), 'multiple' => 1, 'urn' => 'images', 'datatype' => 'image',));
+            $F->commit();
+
+            $VF = Snippet_Folder::importByURN('__raas_views');
+            $temp = Snippet::importByURN($urn);
+            if (!$temp->id) {
+                $f = $this->resourcesDir . '/photos.tmp.php';
+                $S = new Snippet(array('name' => $name, 'urn' => $urn, 'pid' => $VF->id, 'description' => file_get_contents($f),));
                 $S->commit();
             }
             
             $page = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);
-            $I = Snippet::importByURN('__raas_material_interface');
-            $S = Snippet::importByURN($urn);
-            $B = new Block_Material();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->interface_id = $I->id;
-            $B->widget_id = $S->id;
-            $B->cats = array($page->id);
-            $B->material_type = (int)$MT->id;
-            $B->nat = 1;
-            $B->pages_var_name = 'page';
-            $B->rows_per_page = 20;
-            $B->sort_field_default = $dateField->id;
-            $B->sort_order_default = 'desc!';
-            $B->commit();
+            $blockMaterial = new Block_Material(array(
+                'material_type' => (int)$MT->id, 
+                'nat' => 0,
+                'pages_var_name' => 'page',
+                'rows_per_page' => 20,
+                'sort_field_default' => 'post_date',
+                'sort_order_default' => 'asc!',
+            ));
+            $this->createBlock($blockMaterial, 'content', '__raas_material_interface', $urn, $page);
         }
     }
 
@@ -524,147 +499,103 @@ class Webmaster
             $VF = Snippet_Folder::importByURN('__raas_views');
             $temp = Snippet::importByURN($urn);
             if (!$temp->id) {
-                $S = new Snippet();
-                $S->name = $name;
-                $S->urn = $urn;
-                $S->pid = $VF->id;
                 $f = $this->resourcesDir . '/' . $urn . '.tmp.php';
-                $S->description = file_get_contents($f);
+                $S = new Snippet(array('name' => $name, 'urn' => $urn, 'pid' => $VF->id, 'description' => file_get_contents($f),));
                 $S->commit();
             }
-
             $page = $this->createPage(array('name' => $name, 'urn' => $urn, 'response_code' => 200), $Site);
-            $I = Snippet::importByURN('__raas_search_interface');
-            $S = Snippet::importByURN($urn);
-            $B = new Block_Search();
-            $B->location = 'content';
-            $B->vis = 1;
-            $B->author_id = $B->editor_id = Application::i()->user->id;
-            $B->interface_id = $I->id;
-            $B->widget_id = $S->id;
-            $B->cats = array($page->id);
-            $B->search_var_name = 'search_string';
-            $B->min_length = 3;
-            $B->pages_var_name = 'page';
-            $B->rows_per_page = 20;
-            $B->commit();
+            $B = new Block_Search(array('search_var_name' => 'search_string', 'min_length' => 3, 'pages_var_name' => 'page', 'rows_per_page' => 20,));
+            $this->createBlock($B, 'content', '__raas_search_interface', $urn, $page);
         }
     }
 
 
-    public function createFAQ($name, $urn)
+    public function createFAQ($name, $urn, $mainName = null)
     {
+        if (!$mainName) {
+            $mainName = $name;
+        }
         $Site = new Page();
         if ($Site->children) {
             $Site = $Site->children[0];
         }
-        $MT = new Material_Type();
-        $MT->name = $name;
-        $MT->urn = $urn;
-        $MT->global_type = 1;
+        $MT = new Material_Type(array('name' => $name, 'urn' => $urn, 'global_type' => 1,));
         $MT->commit();
 
-        $F = new Material_Field();
-        $F->pid = $MT->id;
-        $F->name = $this->view->_('PHONE');
-        $F->urn = 'phone';
-        $F->datatype = 'text';
+        $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('PHONE'), 'urn' => 'phone', 'datatype' => 'text',));
         $F->commit();
 
-        $F = new Material_Field();
-        $F->pid = $MT->id;
-        $F->name = $this->view->_('ANSWER');
-        $F->urn = 'answer';
-        $F->datatype = 'textarea';
+        $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('ANSWER'), 'urn' => 'answer', 'datatype' => 'textarea',));
         $F->commit();
 
         $S = Snippet::importByURN('__raas_form_notify');
-        $FRM = new \RAAS\CMS\Form();
-        $FRM->name = $name;
-        $FRM->material_type = (int)$MT->id;
-        $FRM->create_feedback = 0;
-        $FRM->signature = 0;
-        $FRM->antispam = 'hidden';
-        $FRM->antispam_field_name = '_name';
-        $FRM->interface_id = (int)$S->id;
+        $FRM = new \RAAS\CMS\Form(array(
+            'name' => $name,
+            'material_type' => (int)$MT->id,
+            'create_feedback' => 0,
+            'signature' => 0,
+            'antispam' => 'hidden',
+            'antispam_field_name' => '_name',
+            'interface_id' => (int)$S->id,
+        ));
         $FRM->commit();
 
-        $F = new Form_Field();
-        $F->pid = $FRM->id;
-        $F->name = $this->view->_('YOUR_NAME');
-        $F->urn = 'name';
-        $F->required = 1;
-        $F->datatype = 'text';
-        $F->show_in_table = 1;
+        $F = new Form_Field(array(
+            'pid' => $FRM->id, 'name' => $this->view->_('YOUR_NAME'), 'urn' => 'name', 'required' => 1, 'datatype' => 'text', 'show_in_table' => 1,
+        ));
         $F->commit();
 
-        $F = new Form_Field();
-        $F->pid = $FRM->id;
-        $F->name = $this->view->_('PHONE');
-        $F->urn = 'phone';
-        $F->datatype = 'text';
-        $F->show_in_table = 1;
+        $F = new Form_Field(array('pid' => $FRM->id, 'name' => $this->view->_('PHONE'), 'urn' => 'phone', 'datatype' => 'text', 'show_in_table' => 1,));
         $F->commit();
 
-        $F = new Form_Field();
-        $F->pid = $FRM->id;
-        $F->name = $this->view->_('QUESTION_TEXT');
-        $F->urn = 'description';
-        $F->required = 1;
-        $F->datatype = 'textarea';
-        $F->show_in_table = 0;
+        $F = new Form_Field(array(
+            'pid' => $FRM->id, 'name' => $this->view->_('QUESTION_TEXT'), 'urn' => 'description', 'required' => 1, 'datatype' => 'textarea', 'show_in_table' => 0,
+        ));
         $F->commit();
 
         $VF = Snippet_Folder::importByURN('__raas_views');
-        $temp = Snippet::importByURN('faq');
+        $temp = Snippet::importByURN($urn);
         if (!$temp->id) {
-            $S = new Snippet();
-            $S->name = $this->view->_('FAQ');
-            $S->urn = 'faq';
-            $S->pid = $VF->id;
             $f = $this->resourcesDir . '/faq.tmp.php';
-            $S->description = file_get_contents($f);
+            $S = new Snippet(array('name' => $name, 'urn' => $urn, 'pid' => $VF->id, 'description' => file_get_contents($f),));
+            $S->commit();
+        }
+        $temp = Snippet::importByURN($urn . '_main');
+        if (!$temp->id) {
+            $f = $this->resourcesDir . '/faq_main.tmp.php';
+            $text = file_get_contents($f);
+            $text = str_ireplace('{FAQ_NAME}', $name, $text);
+            $S = new Snippet(array('name' => $mainName, 'urn' => $urn . '_main', 'pid' => $VF->id, 'description' => $text));
             $S->commit();
         }
 
         $faqPage = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);
         
-        $B = new Block_HTML();
-        $B->location = 'content';
-        $B->vis = 1;
-        $B->author_id = $B->editor_id = Application::i()->user->id;
-        $B->description = '<p>' . $this->view->_('YOU_CAN_ASK_YOUR_QUESTION') . '</p>';
-        $B->cats = array($faqPage->id);
-        $B->commit();
+        $B = new Block_HTML(array('description' => '<p>' . $this->view->_('YOU_CAN_ASK_YOUR_QUESTION') . '</p>',));
+        $this->createBlock($B, 'content', null, null, $faqPage);
 
-        $I = Snippet::importByURN('__raas_form_interface');
-        $S = Snippet::importByURN('feedback');
-        $B = new Block_Form();
-        $B->location = 'content';
-        $B->vis = 1;
-        $B->author_id = $B->editor_id = Application::i()->user->id;
-        $B->cats = array($faqPage->id);
-        $B->form = $FRM->id;
-        $B->widget_id = $S->id;
-        $B->interface_id = $I->id;
-        $B->commit();
+        $B = new Block_Form(array('form' => $FRM->id,));
+        $this->createBlock($B, 'content', '__raas_form_interface', 'feedback', $faqPage);
 
-        $I = Snippet::importByURN('__raas_material_interface');
-        $S = Snippet::importByURN('faq');
-        $B = new Block_Material();
-        $B->location = 'content';
-        $B->vis = 1;
-        $B->author_id = $B->editor_id = Application::i()->user->id;
-        $B->interface_id = $I->id;
-        $B->widget_id = $S->id;
-        $B->cats = array($faqPage->id);
-        $B->material_type = (int)$MT->id;
-        $B->nat = 0;
-        $B->pages_var_name = 'page';
-        $B->rows_per_page = 20;
-        $B->sort_field_default = 'post_date';
-        $B->sort_order_default = 'desc!';
-        $B->commit();
+        $B = new Block_Material(array(
+            'material_type' => (int)$MT->id, 
+            'nat' => 0,
+            'pages_var_name' => 'page',
+            'rows_per_page' => 20,
+            'sort_field_default' => 'post_date',
+            'sort_order_default' => 'desc!',
+        ));
+        $this->createBlock($B, 'content', '__raas_material_interface', $urn, $faqPage);
+
+        $B = new Block_Material(array(
+            'material_type' => (int)$MT->id, 
+            'nat' => 0,
+            'pages_var_name' => '',
+            'rows_per_page' => 3,
+            'sort_field_default' => 'post_date',
+            'sort_order_default' => 'desc!',
+        ));
+        $this->createBlock($B, 'content', '__raas_material_interface', $urn . '_main', $Site);
     }
 
 
@@ -678,68 +609,70 @@ class Webmaster
             $Site = $Site->children[0];
         }
         $S = Snippet::importByURN('__raas_form_notify');
-        $FRM = new \RAAS\CMS\Form();
-        $FRM->name = $name;
-        $FRM->create_feedback = 1;
-        $FRM->signature = 0;
-        $FRM->antispam = 'hidden';
-        $FRM->antispam_field_name = '_name';
-        $FRM->interface_id = (int)$S->id;
+        $FRM = new \RAAS\CMS\Form(array(
+            'name' => $name, 'create_feedback' => 1, 'signature' => 0, 'antispam' => 'hidden', 'antispam_field_name' => '_name', 'interface_id' => (int)$S->id,
+        ));
         $FRM->commit();
 
-        $F = new Form_Field();
-        $F->pid = $FRM->id;
-        $F->name = $this->view->_('YOUR_NAME');
-        $F->urn = 'full_name';
-        $F->required = 1;
-        $F->datatype = 'text';
-        $F->show_in_table = 1;
+        $F = new Form_Field(array(
+            'pid' => $FRM->id, 'name' => $this->view->_('YOUR_NAME'), 'urn' => 'full_name', 'required' => 1, 'datatype' => 'text', 'show_in_table' => 1,
+        ));
         $F->commit();
 
-        $F = new Form_Field();
-        $F->pid = $FRM->id;
-        $F->name = $this->view->_('PHONE');
-        $F->urn = 'phone';
-        $F->datatype = 'text';
-        $F->show_in_table = 1;
+        $F = new Form_Field(array('pid' => $FRM->id, 'name' => $this->view->_('PHONE'), 'urn' => 'phone', 'datatype' => 'text', 'show_in_table' => 1,));
         $F->commit();
 
-        $F = new Form_Field();
-        $F->pid = $FRM->id;
-        $F->name = $this->view->_('EMAIL');
-        $F->urn = 'email';
-        $F->datatype = 'text';
-        $F->show_in_table = 1;
+        $F = new Form_Field(array('pid' => $FRM->id, 'name' => $this->view->_('EMAIL'), 'urn' => 'email', 'datatype' => 'text', 'show_in_table' => 1,));
         $F->commit();
 
-        $F = new Form_Field();
-        $F->pid = $FRM->id;
-        $F->name = $this->view->_('QUESTION_TEXT');
-        $F->urn = '_description_';
-        $F->required = 1;
-        $F->datatype = 'textarea';
+        $F = new Form_Field(array('pid' => $FRM->id, 'name' => $this->view->_('QUESTION_TEXT'), 'urn' => '_description_', 'required' => 1, 'datatype' => 'textarea',));
         $F->commit();
 
         $contacts = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);
         
-        $B = new Block_HTML();
-        $B->location = 'content';
-        $B->vis = 1;
-        $B->author_id = $B->editor_id = Application::i()->user->id;
-        $B->description = '<h3>' . $this->view->_('FEEDBACK') . '</h3>';
-        $B->cats = array($contacts->id);
-        $B->commit();
+        $B = new Block_HTML(array('description' => '<h3>' . $this->view->_('FEEDBACK') . '</h3>',));
+        $this->createBlock($B, 'content', null, null, $contacts);
 
-        $I = Snippet::importByURN('__raas_form_interface');
-        $S = Snippet::importByURN('feedback');
-        $B = new Block_Form();
-        $B->location = 'content';
+        $B = new Block_Form(array('form' => $FRM->id,));
+        $this->createBlock($B, 'content', '__raas_form_interface', 'feedback', $contacts);
+    }
+
+
+    public function createBlock(Block $B, $location, $interface = null, $widget = null, $startPage, $inherit = false)
+    {
+        if (strtolower($type) == 'html') {
+            $classname = 'RAAS\\CMS\\Block_HTML';
+        } else {
+            $classname = 'RAAS\\CMS\\Block_' . ucfirst($type);
+        }
+
+        $B->location = $location;
         $B->vis = 1;
         $B->author_id = $B->editor_id = Application::i()->user->id;
-        $B->cats = array($contacts->id);
-        $B->form = $FRM->id;
-        $B->widget_id = $S->id;
-        $B->interface_id = $I->id;
+        if ($inherit) {
+            $cats = array_merge(array($startPage), (array)$startPage->all_children);
+            $cats = array_filter($cats, function($x) use ($startPage) { return $x->template == $startPage->template; });
+            $cats = array_values($cats);
+            $B->inherit = 1;
+        } else {
+            $cats = array($startPage);
+        }
+        $catsIds = array_map(function($x) { return (int)$x->id; }, $cats);
+        $B->cats = $catsIds;
+        $B->interface_id = 0;
+        $B->widget_id = 0;
+        if ($interface) {
+            $snippetInterface = Snippet::importByURN($interface);
+            if ($snippetInterface) {
+                $B->interface_id = (int)$snippetInterface->id;
+            }
+        }
+        if ($widget) {
+            $snippetWidget = Snippet::importByURN($widget);
+            if ($snippetWidget) {
+                $B->widget_id = (int)$snippetWidget->id;
+            }
+        }
         $B->commit();
     }
 }
