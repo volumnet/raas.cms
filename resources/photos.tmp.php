@@ -45,4 +45,4 @@
           </ul>
       <?php } ?>
   <?php } ?>
-</seciton>
+</div>
