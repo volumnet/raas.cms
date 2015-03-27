@@ -84,8 +84,8 @@ class Menu extends \SOME\SOME
             return $this;
         }
         foreach ($this->visSubMenu as $row) {
-            if ($row->findPage($Page)) {
-                return $row;
+            if ($row2 = $row->findPage($Page)) {
+                return $row2;
             }
         }
         return false;
