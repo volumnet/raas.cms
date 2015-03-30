@@ -10,7 +10,10 @@ class User extends \SOME\SOME
     protected static $objectCascadeDelete = true;
     protected static $cognizableVars = array('fields');
 
-    protected static $links = array('social' => array('tablename' => 'cms_users_social', 'field_from' => 'uid', 'field_to' => 'url'));
+    protected static $links = array(
+        'social' => array('tablename' => 'cms_users_social', 'field_from' => 'uid', 'field_to' => 'url'),
+        'groups' => array('tablename' => 'cms_users_groups_assoc', 'field_from' => 'uid', 'field_to' => 'gid', 'classname' => 'RAAS\\CMS\\Group')
+    );
 
     public function __get($var)
     {
@@ -110,6 +113,27 @@ class User extends \SOME\SOME
             $row->deleteValues();
         }
         parent::delete($object);
+    }    
+
+
+    public function associate(Group $Group)
+    {
+        if ($this->id && $Group->id) {
+            $SQL_query = " INSERT IGNORE INTO " . self::_dbprefix() . "cms_users_groups_assoc (uid, gid) "
+                       . " VALUES (" . (int)$this->id . ", " . (int)$Group->id . ") ";
+            self::$SQL->query($SQL_query);
+            $this->commit();
+        }
+    }
+
+    
+    public function deassociate(Group $Group)
+    {
+        if ($this->id && $Group->id) {
+            $SQL_query = " DELETE FROM " . self::_dbprefix() . "cms_users_groups_assoc WHERE uid = " . (int)$this->id . " AND gid = " . (int)$Group->id;
+            self::$SQL->query($SQL_query);
+            $this->commit();
+        }
     }
     
     

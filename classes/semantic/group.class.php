@@ -3,7 +3,7 @@ namespace RAAS\CMS;
 
 class Group extends \SOME\SOME
 {
-    protected static $tablename = 'groups';
+    protected static $tablename = 'cms_groups';
     protected static $defaultOrderBy = "name";
     protected static $cognizableVars = array();
 
