@@ -5,7 +5,6 @@ use \RAAS\CMS\Page;
 use \RAAS\CMS\Material;
 use \RAAS\CMS\User AS CMSUser;
 use \RAAS\CMS\Auth;
-use \RAAS\CMS\Package;
 use \RAAS\CMS\Diag;
 
 final class Controller_Frontend extends Abstract_Controller
@@ -76,7 +75,7 @@ final class Controller_Frontend extends Abstract_Controller
             if ($this->checkCompatibility()) {
                 if ($this->checkDB()) {
                     if ($this->checkSOME()) {
-                        if (Package::i()->registryGet('diag')) {
+                        if (\RAAS\CMS\Package::i()->registryGet('diag')) {
                             $this->diag = Diag::getInstance();
                             if ($this->diag) {
                                 $this->application->SQL->query_handler = array($this->diag, 'queryHandler');
@@ -214,7 +213,7 @@ final class Controller_Frontend extends Abstract_Controller
     protected function getThumbnail($filename, $w = null, $h = null, $mode = null)
     {
         $temp = pathinfo($filename);
-        $outputFile = Package::tn($filename, $w, $h, $mode);
+        $outputFile = \RAAS\CMS\Package::tn($filename, $w, $h, $mode);
         $mime = \SOME\Graphics::extension_to_mime_type(strtolower($temp['extension']));
         if (!is_file($outputFile)) {
             if (defined('SOME\Thumbnail::THUMBNAIL_' . strtoupper($mode))) {
