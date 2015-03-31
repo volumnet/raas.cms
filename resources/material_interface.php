@@ -12,7 +12,8 @@ $getField = function($field, $as, array &$SQL_from) {
         $sort = "tM." . $field;
     } elseif (is_numeric($field)) {
         if (!isset($SQL_from[$as]) || !$SQL_from[$as]) {
-            $SQL_from[$as] = " JOIN " . Field::data_table . " AS " . $as . " ON " . $as . ".pid = tM.id AND " . $as . ".fid = " . (int)$field;
+            // 2015-03-31, AVS: заменил JOIN на LEFT JOIN, т.к. если добавить новое поле и сделать сортировку по нему, материалы пропадают
+            $SQL_from[$as] = " LEFT JOIN " . Field::data_table . " AS " . $as . " ON " . $as . ".pid = tM.id AND " . $as . ".fid = " . (int)$field;
         }
         $sort = $as . ".value";
     }
