@@ -170,7 +170,7 @@ if ($Form->id) {
                                 if ($row->multiple) {
                                     foreach ($_FILES[$row->urn]['tmp_name'] as $key => $val) {
                                         $row2 = array(
-                                            'vis' => (int)$_POST[$row->urn . '@vis'][$key], 
+                                            'vis' => isset($_POST[$row->urn . '@vis'][$key]) ? (int)$_POST[$row->urn . '@vis'][$key] : 1, 
                                             'name' => (string)$_POST[$row->urn . '@name'][$key],
                                             'description' => (string)$_POST[$row->urn . '@description'][$key],
                                             'attachment' => (int)$_POST[$row->urn . '@attachment'][$key]
@@ -201,7 +201,7 @@ if ($Form->id) {
                                     }
                                 } else {
                                     $row2 = array(
-                                        'vis' => (int)$_POST[$row->urn . '@vis'], 
+                                        'vis' => isset($_POST[$row->urn . '@vis']) ? (int)$_POST[$row->urn . '@vis'] : 1, 
                                         'name' => (string)$_POST[$row->urn . '@name'], 
                                         'description' => (string)$_POST[$row->urn . '@description'],
                                         'attachment' => (int)$_POST[$row->urn . '@attachment']
