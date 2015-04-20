@@ -90,19 +90,12 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
                                   '</p>' : 
                                   ''
                               ) . 
-                          '<input type="hidden" name="' . htmlspecialchars($row->urn . '@attachment') . '" value="' . (int)(isset($DATA[$row->urn . '@attachment']) ? $DATA[$row->urn . '@attachment'] : 0) . '" />' .
                           '<input type="file"' .
                              ($row->datatype == 'image' ? ' accept="image/jpeg,image/png,image/gif"' : '') .
                              ' name="' . htmlspecialchars($row->urn) . '"' .
                              ' id="' . htmlspecialchars($row->urn) . '"' .
                              ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '') .
-                             ($row->required ? ' required1="required"' : '') . ' /><br /> ' .
-                          '<label>' .
-                            '<input type="checkbox" name="' . htmlspecialchars($row->urn . '@vis') . '" value="1" ' . (isset($DATA[$row->urn . '@vis']) && $DATA[$row->urn . '@vis'] ? 'checked="checked"' : '') . ' />' .
-                            VISIBLE . 
-                          '</label><br />' .
-                          '<input type="text" class="form-control" name="' . htmlspecialchars($row->urn . '@name') . '" value="' . htmlspecialchars(isset($DATA[$row->urn . '@name']) ? $DATA[$row->urn . '@name'] : '') . '" /><br />' .
-                          '<textarea class="form-control" name="' . htmlspecialchars($row->urn . '@description') . '">' . htmlspecialchars(isset($DATA[$row->urn . '@description']) ? $DATA[$row->urn . '@description'] : '') . '</textarea>' . 
+                             ($row->required ? ' required1="required"' : '') . ' /> ' .
                         '</div>' .
                      '</div>';
             }
