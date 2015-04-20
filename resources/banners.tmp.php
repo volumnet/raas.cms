@@ -15,8 +15,8 @@
               </div>
           <?php } ?>
         </div>
-        <a href="#carousel-main" data-slide="prev" class="left carousel-control"><span class="glyphicon glyphicon-chevron-left"></span></a>
-        <a href="#carousel-main" data-slide="next" class="right carousel-control"><span class="glyphicon glyphicon-chevron-right"></span></a>
+        <a href="#carousel-main" data-slide="prev" class="left carousel-control"><span class="fa fa-chevron-left"></span></a>
+        <a href="#carousel-main" data-slide="next" class="right carousel-control"><span class="fa fa-chevron-right"></span></a>
       </div>
     </div>
 <?php } ?>
