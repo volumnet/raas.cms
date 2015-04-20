@@ -207,7 +207,6 @@ if ($Form->id) {
                                         'attachment' => (int)$_POST[$row->urn . '@attachment']
                                     );
 
-                                    file_put_contents('aaa.txt', print_r (get_class($Object), 1) . (int)(is_uploaded_file($_FILES[$row->urn]['tmp_name']) && $row->validate($_FILES[$row->urn]['tmp_name'])) . "\n", FILE_APPEND);
                                     if (is_uploaded_file($_FILES[$row->urn]['tmp_name']) && $row->validate($_FILES[$row->urn]['tmp_name'])) {
                                         $att = new Attachment((int)$row2['attachment']);
                                         $att->upload = $_FILES[$row->urn]['tmp_name'];
