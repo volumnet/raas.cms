@@ -51,6 +51,8 @@ if ($Form->id) {
             $Material->pid = (int)$Form->Material_Type->id;
             $Material->vis = 0;
         }
+
+        // Проверка полей на корректность
         foreach ($Form->fields as $row) {
             switch ($row->datatype) {
                 case 'file': case 'image':
@@ -89,6 +91,8 @@ if ($Form->id) {
                     break;
             }
         }
+
+        // Проверка на антиспам
         if ($Form->antispam && $Form->antispam_field_name) {
             switch ($Form->antispam) {
                 case 'captcha':
@@ -103,6 +107,7 @@ if ($Form->id) {
                     break;
             }
         }
+
         if (!$localError) {
             if ((\RAAS\Controller_Frontend::i()->user instanceof \RAAS\CMS\User) && \RAAS\Controller_Frontend::i()->user->id) {
                 $Item->uid = (int)Controller_Frontend::i()->user->id;
@@ -124,6 +129,7 @@ if ($Form->id) {
             }
             
             foreach ($Objects as $Object) {
+                // Заполняем основные данные создаваемого материала
                 if ($Object instanceof Material) {
                     if (isset($Item->fields['_name_'])) {
                         $Object->name = $Item->fields['_name_']->getValue();
@@ -135,6 +141,8 @@ if ($Form->id) {
                     }
                 }
                 $Object->commit();
+
+                // Автоматически подставляем недостающие поля даты/времени у материала
                 if ($Object instanceof Material) {
                     foreach ($Object->fields as $fname => $temp) {
                         if (!isset($Item->fields[$fname])) {
@@ -152,6 +160,7 @@ if ($Form->id) {
                         }
                     }
                 }
+
                 foreach ($Item->fields as $fname => $temp) {
                     if (isset($Object->fields[$fname])) {
                         $row = $Object->fields[$fname];
@@ -181,6 +190,7 @@ if ($Form->id) {
                                                     $att->tnsize = $temp;
                                                 }
                                             }
+                                            $att->copy = true;
                                             $att->commit();
                                             $row2['attachment'] = (int)$att->id;
                                             $row->addValue(json_encode($row2));
@@ -196,6 +206,8 @@ if ($Form->id) {
                                         'description' => (string)$_POST[$row->urn . '@description'],
                                         'attachment' => (int)$_POST[$row->urn . '@attachment']
                                     );
+
+                                    file_put_contents('aaa.txt', print_r (get_class($Object), 1) . (int)(is_uploaded_file($_FILES[$row->urn]['tmp_name']) && $row->validate($_FILES[$row->urn]['tmp_name'])) . "\n", FILE_APPEND);
                                     if (is_uploaded_file($_FILES[$row->urn]['tmp_name']) && $row->validate($_FILES[$row->urn]['tmp_name'])) {
                                         $att = new Attachment((int)$row2['attachment']);
                                         $att->upload = $_FILES[$row->urn]['tmp_name'];
@@ -211,6 +223,7 @@ if ($Form->id) {
                                                 $att->tnsize = $temp;
                                             }
                                         }
+                                        $att->copy = true;
                                         $att->commit();
                                         $row2['attachment'] = (int)$att->id;
                                         $row->addValue(json_encode($row2));
@@ -235,6 +248,8 @@ if ($Form->id) {
                         }
                     }
                 }
+
+                // Заполняем данные пользователя в полях материала
                 if ($Object instanceof Material) {
                     if (isset($Object->fields['ip'])) {
                         $Object->fields['ip']->deleteValues();
