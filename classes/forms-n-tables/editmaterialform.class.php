@@ -29,12 +29,49 @@ class EditMaterialForm extends \RAAS\Form
         $related = isset($params['related']) ? $params['related'] : array();
         $Parent = isset($params['Parent']) ? $params['Parent'] : null;
 
-        $temp = new Page();
         if ($Parent->id) {
             $title = $Item->id ? $this->view->_('EDITING_PAGE') : $this->view->_('CREATING_PAGE');
         } else {
             $title = $Item->id ? $this->view->_('EDITING_SITE') : $this->view->_('CREATING_SITE');
         }
+        
+        $tabs = array();
+        $tabs['common'] = $this->getCommonTab($Item, $Type);
+        $tabs['seo'] = $this->getSeoTab();
+        if (isset(Application::i()->packages['cms']->modules['users'])) {
+            $tabs['access'] = new CMSAccessFormTab($params);
+        }
+        $tabs['service'] = $this->getServiceTab($Item, $Parent);
+        $tabs['pages'] = $this->getPagesTab($Item, $Parent, $Type);
+        if ($Item->id) {
+            foreach ($Item->relatedMaterialTypes as $mtype) {
+                if ($params['MSet'][$mtype->urn]) {
+                    $tabs['_' . $mtype->urn] = $this->getMTab($Item, $mtype, $params);
+                }
+            }
+        }
+
+        $defaultParams = array(
+            'Item' => $Item, 
+            'action' => '#',
+            'parentUrl' => $this->view->url . '&id=' . $Parent->id . '#_' . $Type->urn, 
+            'caption' => $Item->id ? $Item->name : $this->view->_('CREATING_MATERIAL'),
+            'children' => $tabs,
+            'export' => function($Form) use ($Parent) {
+                $Form->exportDefault();
+                $Form->Item->editor_id = Application::i()->user->id;
+                if (!$Form->Item->id) {
+                    $Form->Item->author_id = $Form->Item->editor_id;
+                }
+            }
+        );
+        $arr = array_merge($defaultParams, $params);
+        parent::__construct($arr);
+    }
+
+
+    private function getCommonTab($Item, $Type)
+    {
         $commonTab = new FormTab(array('name' => 'common', 'caption' => $this->view->_('GENERAL')));
         if ($Type->children) {
             $commonTab->children['pid'] = new RAASField(array(
@@ -48,6 +85,15 @@ class EditMaterialForm extends \RAAS\Form
         }
         $commonTab->children['name'] = new RAASField(array('name' => 'name', 'class' => 'span5', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
         $commonTab->children['description'] = new RAASField(array('type' => 'htmlarea', 'name' => 'description', 'caption' => $this->view->_('DESCRIPTION')));
+        foreach ($Item->fields as $row) {
+            $commonTab->children[] = $row->Field;
+        }
+        return $commonTab;
+    }
+
+
+    private function getSeoTab()
+    {
         $seoTab = new FormTab(array(
             'name' => 'seo', 
             'caption' => $this->view->_('SEO'), 
@@ -56,6 +102,9 @@ class EditMaterialForm extends \RAAS\Form
                 array('name' => 'meta_title', 'class' => 'span5', 'caption' => $this->view->_('META_TITLE')),
                 array('type' => 'textarea', 'name' => 'meta_description', 'class' => 'span5', 'rows' => 5, 'caption' => $this->view->_('META_DESCRIPTION')),
                 array('type' => 'textarea', 'name' => 'meta_keywords', 'class' => 'span5', 'rows' => 5, 'caption' => $this->view->_('META_KEYWORDS')),
+                array('name' => 'h1', 'caption' => $this->view->_('H1'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5'),
+                array('name' => 'menu_name', 'caption' => $this->view->_('MENU_NAME'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5'),
+                array('name' => 'breadcrumbs_name', 'caption' => $this->view->_('BREADCRUMBS_NAME'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5'),
                 array(
                     'type' => 'select',
                     'name' => 'changefreq', 
@@ -83,6 +132,12 @@ class EditMaterialForm extends \RAAS\Form
                 ), 
             )
         ));
+        return $seoTab;
+    }
+
+
+    private function getServiceTab($Item, $Parent)
+    {
         $serviceTab = new FormTab(array(
             'name' => 'service', 
             'caption' => $this->view->_('SERVICE'), 
@@ -93,9 +148,13 @@ class EditMaterialForm extends \RAAS\Form
             $serviceTab->children[] = array('name' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
             $serviceTab->children[] = array('name' => 'last_modified', 'caption' => $this->view->_('LAST_AFFECTED_MODIFICATION'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
         }
-        foreach ($Item->fields as $row) {
-            $commonTab->children[] = $row->Field;
-        }
+        return $serviceTab;
+    }
+
+
+    private function getPagesTab($Item, $Parent, $Type)
+    {
+        $temp = new Page();
         $pagesTab = new FormTab(array(
             'name' => 'pages',
             'caption' => $this->view->_('PAGES'),
@@ -130,47 +189,30 @@ class EditMaterialForm extends \RAAS\Form
                 'import' => function($Field) { return $Field->Form->Item->pages_ids; },
             );
         }
-        $mTabs = array();
-        if ($Item->id) {
-            foreach ($Item->relatedMaterialTypes as $mtype) {
-                if ($params['MSet'][$mtype->urn]) {
-                    $temp = new MaterialsRelatedTable(array(
-                        'Item' => $Item,
-                        'mtype' => $mtype,
-                        'hashTag' => $mtype->urn,
-                        'Set' => $params['MSet'][$mtype->urn],
-                        'Pages' => $params['MPages'][$mtype->urn], 
-                        'sortVar' => 'm' . $mtype->id . 'sort',
-                        'orderVar' => 'm' . $mtype->id . 'order',
-                        'pagesVar' => 'm' . $mtype->id . 'page',
-                        'sort' => $params['Msort'][$mtype->urn], 
-                        'order' => ((strtolower($params['Morder'][$mtype->urn]) == 'desc') ? Column::SORT_DESC : Column::SORT_ASC)
-                    ));
-                    $mTabs['_' . $mtype->urn] = new FormTab(array(
-                        'name' => '_' . $mtype->urn,
-                        'meta' => array('Table' => $temp, 'mtype' => $mtype),
-                        'caption' => $this->view->_($mtype->name),
-                        'template' => 'material_related.inc.php'
-                    ));
-                }
-            }
-        }
+        return $pagesTab;
+    }
 
-        $defaultParams = array(
-            'Item' => $Item, 
-            'action' => '#',
-            'parentUrl' => $this->view->url . '&id=' . $Parent->id . '#_' . $Type->urn, 
-            'caption' => $Item->id ? $Item->name : $this->view->_('CREATING_MATERIAL'),
-            'children' => array_merge(array($commonTab, $seoTab, $serviceTab, $pagesTab), $mTabs),
-            'export' => function($Form) use ($Parent) {
-                $Form->exportDefault();
-                $Form->Item->editor_id = Application::i()->user->id;
-                if (!$Form->Item->id) {
-                    $Form->Item->author_id = $Form->Item->editor_id;
-                }
-            }
-        );
-        $arr = array_merge($defaultParams, $params);
-        parent::__construct($arr);
+
+    private function getMTab($Item, $mtype, $params)
+    {
+        $temp = new MaterialsRelatedTable(array(
+            'Item' => $Item,
+            'mtype' => $mtype,
+            'hashTag' => $mtype->urn,
+            'Set' => $params['MSet'][$mtype->urn],
+            'Pages' => $params['MPages'][$mtype->urn], 
+            'sortVar' => 'm' . $mtype->id . 'sort',
+            'orderVar' => 'm' . $mtype->id . 'order',
+            'pagesVar' => 'm' . $mtype->id . 'page',
+            'sort' => $params['Msort'][$mtype->urn], 
+            'order' => ((strtolower($params['Morder'][$mtype->urn]) == 'desc') ? Column::SORT_DESC : Column::SORT_ASC)
+        ));
+        $tab = new FormTab(array(
+            'name' => '_' . $mtype->urn,
+            'meta' => array('Table' => $temp, 'mtype' => $mtype),
+            'caption' => $this->view->_($mtype->name),
+            'template' => 'material_related.inc.php'
+        ));
+        return $tab;
     }
 }

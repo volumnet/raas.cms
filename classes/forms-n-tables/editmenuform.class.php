@@ -41,7 +41,12 @@ class EditMenuForm extends \RAAS\Form
                     'default' => (int)$Parent->id
                 ),
                 array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1),
-                array('type' => 'select', 'name' => 'page_id', 'caption' => $this->view->_('PAGE'), 'children' => array('Set' => $CONTENT['pages'])),
+                array(
+                    'type' => 'select', 
+                    'name' => 'page_id', 
+                    'caption' => $this->view->_('PAGE'), 
+                    'children' => array('Set' => $CONTENT['pages'], 'additional' => function($x) { return array('caption' => $x->getMenuName()); })
+                ),
                 array(
                     'type' => 'number', 
                     'name' => 'inherit', 

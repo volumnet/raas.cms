@@ -112,5 +112,9 @@ jQuery(function($) {
         }
     });
     $('[datatype="material"]:not([disabled])').each(function() { $(this).RAAS_CMS_materialField(); });
-    $('body').on('RAAS_repo.add', '[data-role="raas-repo-element"]', function() { /*$(this).RAAS_CMS_materialField();*/ $('input:hidden', this).RAAS_CMS_materialField(); });
+    // 2015-05-04, AVS: заменили input:hidden на [datatype="material"], чтобы вызывалось только у соответствующих репозиториев;
+    // добавили each(), чтобы не вызывались на чужие типы полей
+    $('body').on('RAAS_repo.add', '[data-role="raas-repo-element"]', function() { 
+        $('[datatype="material"]', this).each(function() { $(this).RAAS_CMS_materialField() }); }
+    );
 });

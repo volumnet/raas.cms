@@ -2,7 +2,7 @@
 namespace RAAS\CMS;
 use \RAAS\Attachment;
 
-class Material extends \SOME\SOME
+class Material extends \SOME\SOME implements IAccessible
 {
     protected static $tablename = 'cms_materials';
     protected static $defaultOrderBy = "post_date DESC";
@@ -13,6 +13,9 @@ class Material extends \SOME\SOME
         'material_type' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => true),
         'author' => array('FK' => 'author_id', 'classname' => 'RAAS\\User', 'cascade' => false),
         'editor' => array('FK' => 'editor_id', 'classname' => 'RAAS\\User', 'cascade' => false),
+    );
+    protected static $children = array(
+        'access' => array('classname' => 'RAAS\\CMS\\CMSAccess', 'FK' => 'material_id'),
     );
     protected static $links = array('pages' => array('tablename' => 'cms_materials_pages_assoc', 'field_from' => 'id', 'field_to' => 'pid', 'classname' => 'RAAS\\CMS\\Page'));
     
@@ -114,6 +117,37 @@ class Material extends \SOME\SOME
                 parent::commit();
             }
         }
+    }
+
+
+    public function userHasAccess(User $user)
+    {
+        $a = CMSAccess::userHasCascadeAccess($this, $user);
+        return ($a >= 0);
+    }
+
+
+    public function currentUserHasAccess()
+    {
+        return $this->userHasAccess(Controller_Frontend::i()->user);
+    }
+
+
+    public function getH1()
+    {
+        return trim($this->h1) ?: trim($this->name);
+    }
+
+
+    public function getMenuName()
+    {
+        return trim($this->menu_name) ?: trim($this->name);
+    }
+    
+    
+    public function getBreadcrumbsName()
+    {
+        return trim($this->breadcrumbs_name) ?: trim($this->name);
     }
     
     

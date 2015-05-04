@@ -2,7 +2,7 @@
 namespace RAAS\CMS;
 use \RAAS\Attachment;
 
-class Page extends \SOME\SOME
+class Page extends \SOME\SOME implements IAccessible
 {
     protected static $tablename = 'cms_pages';
     protected static $defaultOrderBy = "priority";
@@ -16,7 +16,10 @@ class Page extends \SOME\SOME
         'Template' => array('FK' => 'template', 'classname' => 'RAAS\\CMS\\Template', 'cascade' => false),
     );
     protected static $parents = array('parents' => 'parent');
-    protected static $children = array('children' => array('classname' => 'RAAS\\CMS\\Page', 'FK' => 'pid'));
+    protected static $children = array(
+        'children' => array('classname' => 'RAAS\\CMS\\Page', 'FK' => 'pid'),
+        'access' => array('classname' => 'RAAS\\CMS\\CMSAccess', 'FK' => 'page_id'),
+    );
     protected static $links = array(
         'blocks' => array('tablename' => 'cms_blocks_pages_assoc', 'field_from' => 'page_id', 'field_to' => 'block_id', 'classname' => 'RAAS\\CMS\\Block'),
         'materials' => array('tablename' => 'cms_materials_pages_assoc', 'field_from' => 'pid', 'field_to' => 'id', 'classname' => 'RAAS\\CMS\\Material')
@@ -319,6 +322,52 @@ class Page extends \SOME\SOME
             }
         }
     }
+
+
+    public function userHasAccess(User $user)
+    {
+        $a = CMSAccess::userHasCascadeAccess($this, $user);
+        if ($a) {
+            return ($a > 0);
+        }
+        if ($this->parent->id) {
+            return $this->parent->userHasAccess($user);
+        }
+        return true;
+    }
+
+
+    public function currentUserHasAccess()
+    {
+        return $this->userHasAccess(Controller_Frontend::i()->user);
+    }
+
+
+    public function getH1($old = false)
+    {
+        if ($old && $this->Material->id) {
+            return trim($this->oldH1) ?: trim($this->oldName);
+        }
+        return trim($this->h1) ?: trim($this->name);
+    }
+
+
+    public function getMenuName($old = true)
+    {
+        if ($old && $this->Material->id) {
+            return trim($this->oldMenu_name) ?: trim($this->oldName);
+        }
+        return trim($this->menu_name) ?: trim($this->name);
+    }
+    
+    
+    public function getBreadcrumbsName($old = true)
+    {
+        if ($old && $this->Material->id) {
+            return trim($this->oldBreadcrumbs_name) ?: trim($this->oldName);
+        }
+        return trim($this->breadcrumbs_name) ?: trim($this->name);
+    }
     
     
     public static function delete(self $object)
@@ -410,12 +459,14 @@ class Page extends \SOME\SOME
         return $Set;
     }
 
+
     protected function _Domain()
     {
         $id = $this->pid ? $this->parents[0]->id : $this->id;
         return new static((int)$id);
     }
-    
+
+
     public static function importByURL($url)
     {
         if (!is_array($url)) {

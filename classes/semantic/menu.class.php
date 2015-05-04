@@ -38,7 +38,7 @@ class Menu extends \SOME\SOME
         if ($this->page_id) {
             $this->url = $this->page->url;
             if (!$this->name) {
-                $this->name = $this->page->name;
+                $this->name = $this->page->getMenuName();
             }
         }
         parent::commit();
@@ -60,7 +60,7 @@ class Menu extends \SOME\SOME
                     $row->pid = $this->id;
                     $row->vis = $row2->vis && $row2->pvis;
                     $row->pvis = $this->vis && $this->pvis;
-                    $row->name = $row2->name;
+                    $row->name = $row2->getMenuName();
                     $row->url = $row2->url;
                     $row->page_id = $row2->id;
                     $row->inherit = $this->inherit - 1;
@@ -113,7 +113,7 @@ class Menu extends \SOME\SOME
                     $row->pid = $this->id;
                     $row->vis = $row2->vis && $row2->pvis;
                     $row->pvis = $this->vis && $this->pvis;
-                    $row->name = $row2->name;
+                    $row->name = $row2->getMenuName();
                     $row->url = $row2->url;
                     $row->page_id = $row2->id;
                     $row->inherit = $this->inherit - 1;

@@ -17,6 +17,7 @@ class Updater extends \RAAS\Updater
         $this->update20141222();
         $this->update20150125();
         $this->update20150301();
+        $this->update20150504();
     }
 
 
@@ -777,41 +778,89 @@ class Updater extends \RAAS\Updater
 
     protected function update20150301()
     {
-        if (in_array(\SOME\SOME::_dbprefix() . "_blocks_groups_blacklist", $this->tables)) {
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "blocks_groups_blacklist";
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks_groups_blacklist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_blocks_groups_blacklist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "blocks_users_blacklist";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks_users_blacklist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_blocks_users_blacklist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "blocks_groups_whitelist";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks_groups_whitelist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_blocks_groups_whitelist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "blocks_users_whitelist";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks_users_whitelist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_blocks_users_whitelist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "materials_groups_blacklist";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_materials_groups_blacklist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_materials_groups_blacklist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "materials_users_blacklist";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_materials_users_blacklist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_materials_users_blacklist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "materials_groups_whitelist";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_materials_groups_whitelist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_materials_groups_whitelist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "materials_users_whitelist";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_materials_users_whitelist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_materials_users_whitelist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "pages_groups_blacklist";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_pages_groups_blacklist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_pages_groups_blacklist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "pages_users_blacklist";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_pages_users_blacklist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_pages_users_blacklist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "pages_groups_whitelist";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_pages_groups_whitelist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_pages_groups_whitelist";
             $this->SQL->query($SQL_query);
-            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "pages_users_whitelist";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_pages_users_whitelist", $this->tables)) {
+            $SQL_query = "DROP TABLE IF EXISTS " . \SOME\SOME::_dbprefix() . "cms_pages_users_whitelist";
             $this->SQL->query($SQL_query);
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_pages", $this->tables) && in_array('access', $this->columns(\SOME\SOME::_dbprefix() . "cms_pages"))) {
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_pages DROP access, DROP inherit_access";
             $this->SQL->query($SQL_query);
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials DROP access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type'";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_materials", $this->tables) && in_array('access', $this->columns(\SOME\SOME::_dbprefix() . "cms_materials"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials DROP access";
             $this->SQL->query($SQL_query);
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks DROP access TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Access type'";
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks", $this->tables) && in_array('access', $this->columns(\SOME\SOME::_dbprefix() . "cms_blocks"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks DROP access";
             $this->SQL->query($SQL_query);
         }
         if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks", $this->tables) && !in_array('vis_material', $this->columns(\SOME\SOME::_dbprefix() . "cms_blocks"))) {
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks ADD vis_material TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visibility by material'";
             $this->SQL->query($SQL_query);
         }
+    }
+
+
+    public function update20150504()
+    {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_pages", $this->tables) && !in_array('h1', $this->columns(\SOME\SOME::_dbprefix() . "cms_pages"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_pages 
+                            ADD h1 varchar(255) NOT NULL DEFAULT '' COMMENT 'H1 title' AFTER inherit_meta_keywords, 
+                            ADD menu_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Menu name' AFTER h1,
+                            ADD breadcrumbs_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Breadcrumbs name' AFTER menu_name";
+            $this->SQL->query($SQL_query);
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_materials", $this->tables) && !in_array('h1', $this->columns(\SOME\SOME::_dbprefix() . "cms_materials"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials 
+                            ADD h1 varchar(255) NOT NULL DEFAULT '' COMMENT 'H1 title' AFTER meta_keywords, 
+                            ADD menu_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Menu name' AFTER h1,
+                            ADD breadcrumbs_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Breadcrumbs name' AFTER menu_name";
+            $this->SQL->query($SQL_query);
+        }
+  
     }
 }

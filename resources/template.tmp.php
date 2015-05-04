@@ -38,14 +38,14 @@ $colspanMD = 3;
                       <?php if ((count($Page->parents) + (bool)$Page->Material->id) > 1) { ?>
                           <ol class="breadcrumb">
                             <?php foreach ($Page->parents as $row) { ?>
-                                <li><a href="<?php echo htmlspecialchars($row->url)?>"><?php echo htmlspecialchars($row->name)?></a></li>
+                                <li><a href="<?php echo htmlspecialchars($row->url)?>"><?php echo htmlspecialchars($row->getBreadcrumbsName())?></a></li>
                             <?php } ?>
                             <?php if ($Page->Material->id) { ?>
-                                <li><a href="<?php echo htmlspecialchars($Page->url)?>"><?php echo htmlspecialchars($Page->oldName)?></a></li>
+                                <li><a href="<?php echo htmlspecialchars($Page->url)?>"><?php echo htmlspecialchars($Page->getBreadcrumbsName())?></a></li>
                             <?php } ?>
                           </ol>
                       <?php } ?>
-                      <h1><?php echo htmlspecialchars($Page->name)?></h1>
+                      <h1><?php echo htmlspecialchars($Page->getH1())?></h1>
                       <?php echo $Page->location('content')?>
                 <?php } ?>
               </div>

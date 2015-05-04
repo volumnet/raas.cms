@@ -49,6 +49,9 @@ class EditBlockForm extends \RAAS\Form
             $this->meta['CONTENT']['locations'][] = array('value' => $key, 'caption' => $key);
         }
         $this->children['commonTab'] = $this->getCommonTab();
+        if (isset(Application::i()->packages['cms']->modules['users'])) {
+            $this->children['accessTab'] = new CMSAccessFormTab($params);
+        }
         $this->children['serviceTab'] = $this->getServiceTab();
         $this->children['pagesTab'] = $this->getPagesTab();
         if ($this->Item->id) {
@@ -180,7 +183,17 @@ class EditBlockForm extends \RAAS\Form
             'name' => 'service', 
             'caption' => $this->view->_('SERVICE'),
             'children' => array(
-                array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1)
+                array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1),
+                array(
+                    'type' => 'select',
+                    'name' => 'vis_material',
+                    'caption' => $this->view->_('VISIBILITY_WITH_ACTIVE_MATERIAL'),
+                    'children' => array(
+                        array('value' => Block::BYMATERIAL_BOTH, 'caption' => $this->view->_('BYMATERIAL_BOTH')),
+                        array('value' => Block::BYMATERIAL_WITH, 'caption' => $this->view->_('BYMATERIAL_WITH')),
+                        array('value' => Block::BYMATERIAL_WITHOUT, 'caption' => $this->view->_('BYMATERIAL_WITHOUT')),
+                    ),
+                )
             )
         ));
         return $tab;

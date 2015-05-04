@@ -1,11 +1,15 @@
 <?php
 namespace RAAS\CMS;
 
-abstract class Block extends \SOME\SOME
+abstract class Block extends \SOME\SOME implements IAccessible
 {
     const CACHE_NONE = 0;
     const CACHE_DATA = 1;
     const CACHE_HTML = 2;
+
+    const BYMATERIAL_BOTH = 0;
+    const BYMATERIAL_WITH = 1;
+    const BYMATERIAL_WITHOUT = 2;
 
     protected static $tablename = 'cms_blocks';
     protected static $tablename2;
@@ -17,7 +21,9 @@ abstract class Block extends \SOME\SOME
         'editor' => array('FK' => 'editor_id', 'classname' => 'RAAS\\User', 'cascade' => false),
     );
     protected static $parents = array();
-    protected static $children = array();
+    protected static $children = array(
+        'access' => array('classname' => 'RAAS\\CMS\\CMSAccess', 'FK' => 'block_id'),
+    );
     protected static $links = array('pages' => array('tablename' => 'cms_blocks_pages_assoc', 'field_from' => 'block_id', 'field_to' => 'page_id', 'classname' => 'RAAS\\CMS\\Page'));
     
     protected static $caches = array();
@@ -119,6 +125,19 @@ abstract class Block extends \SOME\SOME
         foreach ($this->pages as $row) {
             $row->modify();
         }
+    }
+
+
+    public function userHasAccess(User $user)
+    {
+        $a = CMSAccess::userHasCascadeAccess($this, $user);
+        return ($a >= 0);
+    }
+
+
+    public function currentUserHasAccess()
+    {
+        return $this->userHasAccess(Controller_Frontend::i()->user);
     }
 
 
