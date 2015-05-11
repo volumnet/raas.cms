@@ -17,7 +17,10 @@ class Material extends \SOME\SOME implements IAccessible
     protected static $children = array(
         'access' => array('classname' => 'RAAS\\CMS\\CMSAccess', 'FK' => 'material_id'),
     );
-    protected static $links = array('pages' => array('tablename' => 'cms_materials_pages_assoc', 'field_from' => 'id', 'field_to' => 'pid', 'classname' => 'RAAS\\CMS\\Page'));
+    protected static $links = array(
+        'pages' => array('tablename' => 'cms_materials_pages_assoc', 'field_from' => 'id', 'field_to' => 'pid', 'classname' => 'RAAS\\CMS\\Page'),
+        'allowedUsers' => array('tablename' => 'cms_access_materials_cache', 'field_from' => 'material_id', 'field_to' => 'uid', 'classname' => 'RAAS\\CMS\\User'),
+    );
     
     public function __get($var)
     {

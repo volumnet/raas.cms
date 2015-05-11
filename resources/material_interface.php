@@ -74,6 +74,10 @@ if ($Page->Material && $Block->nat) {
 } else {
     $SQL_from = $SQL_where = array();
     $sort = $order = "";
+    // Права доступа
+    $SQL_from['tA'] = " LEFT JOIN " . Material::_dbprefix() . "cms_access_materials_cache AS tA ON tA.material_id = tM.id AND tA.uid = " . (int)Controller_Frontend::i()->user->id;
+    $SQL_where[] = " (tA.allow OR (tA.allow IS NULL)) ";
+
     $MType = new Material_Type((int)$config['material_type']);
     if (!$MType->global_type) {
         $SQL_from['tMPA'] = " JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id ";
@@ -144,6 +148,7 @@ if ($Page->Material && $Block->nat) {
         $Pages = new \SOME\Pages(isset($IN[$config['pages_var_name']]) ? (int)$IN[$config['pages_var_name']] : 1, (int)$config['rows_per_page']);
     }
     $Set = Material::getSQLSet($SQL_query, $Pages);
+    $Set = array_filter($Set, function($x) { return $x->currentUserHasAccess(); });
     $OUT['Set'] = $Set;
     $OUT['MType'] = $MType;
     if ($Pages !== null) {

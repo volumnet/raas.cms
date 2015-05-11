@@ -3,7 +3,9 @@ namespace RAAS\CMS;
 $OUT = array();
 $f = function(\RAAS\CMS\Menu $node) use (&$f) {
     $temp = array();
-    foreach ($node->visSubMenu as $row) {
+    $children = $node->visSubMenu;
+    $children = array_filter($children, function($x) { return !$x->page->id || $x->page->currentUserHasAccess(); });
+    foreach ($children as $row) {
         $row2 = array('url' => $row->url, 'name' => $row->name, 'children' => $f($row));
         if ($row->page_id) {
             $row2['page_id'] = (int)$row->page_id;

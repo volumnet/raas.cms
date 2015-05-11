@@ -62,7 +62,7 @@ class CMSAccessFormTab extends \RAAS\FormTab
             },
             'oncommit' => function($FormTab) {
                 $Item = $FormTab->Form->Item;
-                if (isset($_POST['access_id']) && $Item->id) {
+                if ($Item->id) {
                     $FK = $Item->_children();
                     $FK = $FK['access']['FK'];
                     $presentIds = array_map('intval', (array)$_POST['access_id']);
@@ -86,6 +86,9 @@ class CMSAccessFormTab extends \RAAS\FormTab
                             $access->gid = (int)$_POST['access_gid'][$key];
                         }
                         $access->commit();
+                    }
+                    if ($Item instanceof Material) {
+                        CMSAccess::refreshMaterialsAccessCache(null, $Item);
                     }
                 }
             }

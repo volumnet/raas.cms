@@ -59,18 +59,7 @@ final class Controller_Frontend extends Abstract_Controller
         if (!$this->getCache()) {
             $p = pathinfo($_SERVER['REQUEST_URI']);
             if (preg_match('/(\\.(\\d+|auto)x(\\d+|auto)(_(\\w+))?)(\\.|$)/i', $p['basename'], $regs)) {
-                $width = ($regs[2] != 'auto') ? (int)$regs[2] : null;
-                $height = ($regs[3] != 'auto') ? (int)$regs[3] : null;
-                $mode = $regs[5];
-                $originalFile = str_replace($regs[1], '', $_SERVER['REQUEST_URI']);
-                $originalFile = ltrim($originalFile, '/');
-                $originalFile = rtrim($originalFile, '.');
-                if (is_file($originalFile)) {
-                    if ($s = getimagesize($originalFile)) {
-                        $this->getThumbnail($originalFile, $width, $height, $mode);
-                        exit;
-                    }
-                }
+                $this->parseThumbnail($regs);
             }
             if ($this->checkCompatibility()) {
                 if ($this->checkDB()) {
@@ -95,6 +84,7 @@ final class Controller_Frontend extends Abstract_Controller
         }
     }
     
+
     public function exportLang(IContext $Context, $language)
     {
         $filename = $Context->systemDir . '/languages/' . $language . '.ini';
@@ -109,11 +99,13 @@ final class Controller_Frontend extends Abstract_Controller
         }
     }
     
+
     protected function checkCompatibility()
     {
         return ($this->application->phpVersionCompatible && !$this->application->missedExt);
     }
     
+
     protected function checkDB()
     {
         if ($this->application->DSN) {
@@ -123,15 +115,18 @@ final class Controller_Frontend extends Abstract_Controller
         return false;
     }
     
+
     protected function checkSOME()
     {
         return $this->application->initSOME();
     }
         
+
     protected function configureDB()
     {
     }
     
+
     protected function fork()
     {
         $url = parse_url($_SERVER['REQUEST_URI']);
@@ -141,19 +136,9 @@ final class Controller_Frontend extends Abstract_Controller
         $doCache = (bool)(int)$Page->cache;
         $Page->initialURL = $url;
 
-        // Ищем материал, только если добавочный URN один
-        if (count($Page->additionalURLArray) == 1) {
-            $Material = Material::importByURN($Page->additionalURLArray[0]);
-            if ($Material && $Material->id) {
-                $Page->Material = $Material;
-            }
-        }
-        if (!$Page->Material && $Page->additionalURL && !$Page->nat) {
-            // Нет материала, но есть добавочный URL без трансляции адресов
-            $Page = $Page->getCodePage(404);
-            $Page->cache = (bool)(int)$Page->cache || $doCache;
-        }
-        
+        $Page = $this->checkPageRights($Page, $doCache);
+        $Page = $this->checkMaterial($Page, $doCache);
+
         $this->exportLang($this->application, $Page->lang);
         $this->exportLang($this->model, $Page->lang);
         foreach ($this->model->modules as $mod) {
@@ -186,6 +171,58 @@ final class Controller_Frontend extends Abstract_Controller
     }
 
 
+    /**
+     * Проверяет права доступа страницы
+     * @param Page $Page исходная страница
+     * @param bool $doCache есть ли кэширование
+     * @return Page страница, которая должна быть
+     */
+    private function checkPageRights(Page $Page, $doCache = false)
+    {
+        if ($Page->currentUserHasAccess()) {
+            return $Page;
+        }
+        $cp = $Page->getCodePage(403);
+        if (!$cp->id) {
+            $cp = $Page->getCodePage(404);
+        }
+        $cp->cache = (bool)(int)$cp->cache || $doCache;
+        return $cp;
+    }
+
+
+    /**
+     * Проверяет наличие и права доступа к материалу
+     * @param Page $Page исходная страница
+     * @param bool $doCache есть ли кэширование
+     * @return Page страница, которая должна быть
+     */
+    private function checkMaterial(Page $Page, $doCache = false)
+    {
+        if (count($Page->additionalURLArray) == 1) {
+            $Material = Material::importByURN($Page->additionalURLArray[0]);
+            if ($Material && $Material->id) {
+                $Page->Material = $Material;
+            }
+        }
+        if (!$Page->Material && $Page->additionalURL && !$Page->nat) {
+            // Нет материала, но есть добавочный URL без трансляции адресов
+            $cp = $Page->getCodePage(404);
+            $cp->cache = (bool)(int)$cp->cache || $doCache;
+            return $cp;
+        }
+        if ($Page->Material && !$Page->Material->currentUserHasAccess()) {
+            $cp = $Page->getCodePage(403);
+            if (!$cp->id) {
+                $cp = $Page->getCodePage(404);
+            }
+            $cp->cache = (bool)(int)$cp->cache || $doCache;
+            return $cp;
+        }
+        return $Page;
+    }
+
+
     protected function saveCache($content = '', array $headers = array(), $prefix = '')
     {
         if (!is_dir($this->model->cacheDir)) {
@@ -207,6 +244,27 @@ final class Controller_Frontend extends Abstract_Controller
         $text .= $content;
         file_put_contents($this->model->cacheDir . '/' . $filename . '.php', $text);
         chmod($this->model->cacheDir . '/' . $filename . '.php', 0777);
+    }
+
+
+    /**
+     * Разбор эскиза из адреса
+     * @param array $regs обработка регулярного выражения из адреса: '/(\\.(\\d+|auto)x(\\d+|auto)(_(\\w+))?)(\\.|$)/i'
+     */
+    private function parseThumbnail($regs)
+    {
+        $width = ($regs[2] != 'auto') ? (int)$regs[2] : null;
+        $height = ($regs[3] != 'auto') ? (int)$regs[3] : null;
+        $mode = $regs[5];
+        $originalFile = str_replace($regs[1], '', $_SERVER['REQUEST_URI']);
+        $originalFile = ltrim($originalFile, '/');
+        $originalFile = rtrim($originalFile, '.');
+        if (is_file($originalFile)) {
+            if ($s = getimagesize($originalFile)) {
+                $this->getThumbnail($originalFile, $width, $height, $mode);
+                exit;
+            }
+        }
     }
 
 

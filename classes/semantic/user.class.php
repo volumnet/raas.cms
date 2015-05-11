@@ -12,7 +12,8 @@ class User extends \SOME\SOME
 
     protected static $links = array(
         'social' => array('tablename' => 'cms_users_social', 'field_from' => 'uid', 'field_to' => 'url'),
-        'groups' => array('tablename' => 'cms_users_groups_assoc', 'field_from' => 'uid', 'field_to' => 'gid', 'classname' => 'RAAS\\CMS\\Group')
+        'groups' => array('tablename' => 'cms_users_groups_assoc', 'field_from' => 'uid', 'field_to' => 'gid', 'classname' => 'RAAS\\CMS\\Group'),
+        'allowedMaterials' => array('tablename' => 'cms_access_materials_cache', 'field_from' => 'uid', 'field_to' => 'material_id', 'classname' => 'RAAS\\CMS\\Material'),
     );
 
     public function __get($var)
@@ -123,6 +124,7 @@ class User extends \SOME\SOME
                        . " VALUES (" . (int)$this->id . ", " . (int)$Group->id . ") ";
             self::$SQL->query($SQL_query);
             $this->commit();
+            CMSAccess::refreshMaterialsAccessCache($this);
         }
     }
 
@@ -133,6 +135,7 @@ class User extends \SOME\SOME
             $SQL_query = " DELETE FROM " . self::_dbprefix() . "cms_users_groups_assoc WHERE uid = " . (int)$this->id . " AND gid = " . (int)$Group->id;
             self::$SQL->query($SQL_query);
             $this->commit();
+            CMSAccess::refreshMaterialsAccessCache($this);
         }
     }
     

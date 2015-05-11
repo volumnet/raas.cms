@@ -498,9 +498,10 @@ class Package extends \RAAS\Package
             if (!$this->registryGet('maxsize')) {
                 $this->registrySet('maxsize', 1920);
             }
+            parent::install();
+            Attachment::clearLostFiles($this->filesDir);
+            CMSAccess::refreshMaterialsAccessCache();
         }
-        parent::install();
-        Attachment::clearLostFiles($this->filesDir);
     }
 
 

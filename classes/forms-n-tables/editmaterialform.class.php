@@ -63,7 +63,7 @@ class EditMaterialForm extends \RAAS\Form
                 if (!$Form->Item->id) {
                     $Form->Item->author_id = $Form->Item->editor_id;
                 }
-            }
+            },
         );
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);

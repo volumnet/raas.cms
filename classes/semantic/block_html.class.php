@@ -16,6 +16,9 @@ class Block_HTML extends Block
 
     public function process(Page $Page)
     {
+        if (!$this->currentUserHasAccess() || !$this->tuneWithMaterial($Page)) {
+            return null;
+        }
         if ($this->Interface->id || $this->Widget->id) {
             return parent::process($Page);
         } else {

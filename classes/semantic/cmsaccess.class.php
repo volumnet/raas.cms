@@ -61,4 +61,47 @@ class CMSAccess extends \SOME\SOME
         }
         return 0;
     }
+
+
+    /**
+     * Обновляет кэш доступа к материалам
+     * @param User $user фильтр по пользователю
+     * @param Material $material фильтр по материалу
+     */
+    public static function refreshMaterialsAccessCache(User $user = null, Material $material = null)
+    {
+        $tablename = Material::_links();
+        $tablename = Material::_dbprefix() . $tablename['allowedUsers']['tablename'];
+        $SQL_query = "DELETE FROM " . $tablename . " WHERE 1";
+        if ($user->id) {
+            $SQL_query .= " AND uid = " . (int)$user->id;
+        }
+        if ($material->id) {
+            $SQL_query .= " AND material_id = " . (int)$material->id;
+        }
+        self::_SQL()->query($SQL_query);
+
+        if ((int)$user->id) {
+            $usersIds = array((int)$user->id);
+        } else {
+            $SQL_query = "SELECT tU.id FROM " . User::_tablename() . " AS tU WHERE 1";
+            $usersIds = self::_SQL()->getcol($SQL_query);
+            $usersIds[] = 0;
+        }
+
+        $SQL_query = "SELECT tM.id FROM " . Material::_tablename() . " AS tM JOIN " . self::_tablename() . " AS tA ON tA.material_id = tM.id WHERE 1";
+        if ((int)$material->id) {
+            $SQL_query .= " AND tM.id = " . (int)$material->id;
+        }
+        $SQL_query .= " GROUP BY tM.id";
+        $materialsIds = self::_SQL()->getcol($SQL_query);
+        foreach ($materialsIds as $mid) {
+            foreach ($usersIds as $uid) {
+                $row = new Material($mid);
+                $u = new User($uid);
+                $a = $row->userHasAccess($u);
+                self::_SQL()->add($tablename, array('uid' => (int)$u->id, 'material_id' => (int)$row->id, 'allow' => (int)$a));
+            }
+        }
+    }
 }

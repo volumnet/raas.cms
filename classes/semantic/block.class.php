@@ -141,6 +141,28 @@ abstract class Block extends \SOME\SOME implements IAccessible
     }
 
 
+    /**
+     * Проверяет совместимость с материалом
+     * @param Page $Page страница, на которой предполагается отобразиться блоку
+     * @return bool показывать ли блок
+     */
+    public function tuneWithMaterial(Page $Page)
+    {
+        switch ($this->vis_material) {
+            case self::BYMATERIAL_BOTH:
+                return true;
+                break;
+            case self::BYMATERIAL_WITH:
+                return (bool)$Page->Material->id;
+                break;
+            case self::BYMATERIAL_WITHOUT:
+                return !$Page->Material->id;
+                break;
+        }
+        return true;
+    }
+
+
     protected function getAddData()
     {}
     
@@ -215,6 +237,9 @@ abstract class Block extends \SOME\SOME implements IAccessible
 
     public function process(Page $Page)
     {
+        if (!$this->currentUserHasAccess() || !$this->tuneWithMaterial($Page)) {
+            return null;
+        }
         $SITE = $Page->Domain;
         $Block = $this;
         $config = $this->getAddData();

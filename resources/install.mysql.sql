@@ -17,6 +17,16 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access (
   INDEX (priority)
 ) COMMENT 'Site access';
 
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_materials_cache (
+  uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
+  material_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
+  allow TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '1 - allow, 0 - deny',
+  
+  PRIMARY KEY (uid, material_id),
+  KEY (uid),
+  KEY (material_id)
+) COMMENT 'Materials access cache';
+
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   location varchar(255) NOT NULL DEFAULT '' COMMENT 'Location',
