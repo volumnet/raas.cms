@@ -263,12 +263,15 @@ abstract class Block extends \SOME\SOME implements IAccessible
                 }
             }
             ob_start();
-            $this->processWidget($IN, $Page);
+            $data = $this->processWidget($IN, $Page);
             if ($this->cache_type == static::CACHE_HTML) {
                 // Запишем в HTML-кэш
                 $this->processCache($IN, $Page);
             }
             ob_end_flush();
+            if ($data) {
+                return $data;
+            }
         }
     }
 
