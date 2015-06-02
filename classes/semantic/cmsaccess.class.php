@@ -16,7 +16,7 @@ class CMSAccess extends \SOME\SOME
     protected static $references = array(
         'page' => array('FK' => 'page_id', 'classname' => 'RAAS\\CMS\\Page', 'cascade' => true),
         'material' => array('FK' => 'material_id', 'classname' => 'RAAS\\CMS\\Material', 'cascade' => true),
-        'block_id' => array('FK' => 'block_id', 'classname' => 'RAAS\\CMS\\Block', 'cascade' => true),
+        'block' => array('FK' => 'block_id', 'classname' => 'RAAS\\CMS\\Block', 'cascade' => true),
         'user' => array('FK' => 'uid', 'classname' => 'RAAS\\CMS\\User', 'cascade' => true),
         'group' => array('FK' => 'gid', 'classname' => 'RAAS\\CMS\\Group', 'cascade' => true),
     );
