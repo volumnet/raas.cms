@@ -7,7 +7,7 @@ class Package extends \RAAS\Package
     const templatesDir = 'templates';
     
     const version = '2013-12-01 18:23:01';
-    
+
     protected static $instance;
 
     public function __get($var)
@@ -417,16 +417,77 @@ class Package extends \RAAS\Package
     }
 
 
-    public function cleanCache()
+    public function clearCache($all = true)
     {
+        $files = array();
+        $t = $this->registryGet('clear_cache_by_time');
         if (is_dir($this->cacheDir)) {
             $dir = \SOME\File::scandir($this->cacheDir);
             foreach ($dir as $f) {
                 if (is_file($this->cacheDir . '/' . $f) && preg_match('/^' . preg_quote($this->cachePrefix) . '(.*?)\\.php$/i', $f)) {
-                    unlink($this->cacheDir . '/' . $f);
+                    $f = $this->cacheDir . '/' . $f;
+                    if ($all || !$t || (filemtime($f) < time() - ($t * 60))) {
+                        $files[] = $f;
+                    }
                 }
             }
         }
+        foreach ($files as $file) {
+            unlink($file);
+        }
+    }
+
+
+    /**
+     * Получает карту необходимых кэшей
+     */
+    public function getCacheMap()
+    {
+        $Set = array();
+        $siteMap = $siteMap2 = array();
+        $SQL_result = Page::_SQL()->get("SELECT * FROM " . Page::_tablename() . " WHERE vis AND NOT response_code");
+        foreach ($SQL_result as $row) {
+            $row = new Page($row);
+            $domainUrl = preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $row->Domain->urn) ? 'http://' . $_SERVER['HTTP_HOST'] : $row->domain;
+            $siteMap[$domainUrl . $row->url] = array('id' => $row->id, 'url' => $domainUrl . $row->url, 'name' => $row->name, 'cache' => $row->cache);
+            foreach ($row->affectedMaterials as $row2) {
+                $siteMap2[$domainUrl . $row2->url] = array('id' => $row->id, 'mid' => $row2->id, 'url' => $domainUrl . $row2->url, 'name' => $row2->name, 'cache' => $row->cache);
+                $row2->reload();
+            }
+            $row->reload();
+        }
+        $siteMap = array_merge($siteMap, $siteMap2);
+        unset($siteMap2);
+
+        $blocksData = Block::_SQL()->get("SELECT * FROM " . Block::_tablename() . " WHERE cache_type");
+        foreach ($blocksData as $block) {
+            $block = Block::spawn($block);
+            if ($block->cache_single_page) {
+                $blockPages = $siteMap;
+            } else {
+                $p = $block->pages[0];
+                $domainUrl = preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $p->Domain->urn) ? 'http://' . $_SERVER['HTTP_HOST'] : $p->domain;
+                $blockPages = array(array('id' => $p->id, 'name' => $p->name));
+            }
+            foreach ($blockPages as $mapRow) {
+                unset($mapRow['url'], $mapRow['cache'], $mapRow['name']);
+                $Set[] = array_merge(array('bid' => $block->id, 'name' => $block->name), $mapRow);
+            }
+        }
+
+        $pagesData = array_map(function($x) { $y = $x; unset($y['cache']); return $y; }, array_filter($siteMap, function($x) { return $x['cache']; }));
+        $Set = array_merge($Set, array_values($pagesData));
+
+        return $Set;
+    }
+
+
+    /**
+     * @deprecated 
+     */
+    public function cleanCache()
+    {
+        $this->clearCache();
     }
 
 

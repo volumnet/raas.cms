@@ -28,7 +28,9 @@ abstract class Abstract_Controller extends \RAAS\Abstract_Package_Controller
                 Sub_Main::i()->run();
                 break;
         }
-        $this->model->cleanCache();
+        if (!$this->model->registryGet('clear_cache_manually')) {
+            $this->model->clearCache();
+        }
     }
     
     
@@ -38,6 +40,8 @@ abstract class Abstract_Controller extends \RAAS\Abstract_Package_Controller
             array('type' => 'number', 'name' => 'tnsize', 'caption' => $this->view->_('THUMBNAIL_SIZE')),
             array('type' => 'number', 'name' => 'maxsize', 'caption' => $this->view->_('MAX_IMAGE_SIZE')),
             array('type' => 'checkbox', 'name' => 'diag', 'caption' => $this->view->_('ENABLE_DIAGNOSTICS')),
+            array('type' => 'checkbox', 'name' => 'clear_cache_manually', 'caption' => $this->view->_('CLEAR_CACHE_MANUALLY')),
+            array('type' => 'number', 'name' => 'clear_cache_by_time', 'caption' => $this->view->_('CLEAR_CACHE_BY_TIME')),
         );
     }
 }

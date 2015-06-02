@@ -296,6 +296,16 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
+    public function cache(array $IN = array())
+    {
+        $this->js[] = $this->publicURL . '/dev_cache.js';
+        $this->assignVars($IN);
+        $this->title = $this->_('CACHE_CONTROL');
+        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
+        $this->template = 'cache';
+    }
+
+
     public function devMenu()
     {
         $submenu = array();
@@ -346,6 +356,9 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         );
         if (Package::i()->registryGet('diag')) {
             $submenu[] = array('href' => $this->url . '&action=diag',  'name' => $this->_('DIAGNOSTICS'));
+        }
+        if (Package::i()->registryGet('clear_cache_manually')) {
+            $submenu[] = array('href' => $this->url . '&action=cache',  'name' => $this->_('CACHE_CONTROL'));
         }
         foreach ($this->model->modules as $module) {
             $NS = \SOME\Namespaces::getNS($module);

@@ -64,6 +64,9 @@ final class Controller_Frontend extends Abstract_Controller
             if ($this->checkCompatibility()) {
                 if ($this->checkDB()) {
                     if ($this->checkSOME()) {
+                        if ((int)$this->model->registryGet('clear_cache_by_time')) {
+                            $this->model->clearCache(false);
+                        }
                         if (\RAAS\CMS\Package::i()->registryGet('diag')) {
                             $this->diag = Diag::getInstance();
                             if ($this->diag) {

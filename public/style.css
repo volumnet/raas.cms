@@ -52,3 +52,5 @@ div.CodeMirror { height: 310px; border: 1px solid #ccc; border-radius: 5px; padd
 .cms-file-path img { max-width: 64px; max-height: 64px; margin: 0 3px 3px 0; }
 .cms-filecard { max-width: 230px; overflow: hidden; clear: right; }
 
+.cms-rebuild-cache { display: none; }
+.cms-rebuild-cache__possible-statuses { display: none; }

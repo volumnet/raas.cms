@@ -235,7 +235,7 @@ abstract class Block extends \SOME\SOME implements IAccessible
     }
     
 
-    public function process(Page $Page)
+    public function process(Page $Page, $nocache = false)
     {
         if (!$this->currentUserHasAccess() || !$this->tuneWithMaterial($Page)) {
             return null;
@@ -245,12 +245,12 @@ abstract class Block extends \SOME\SOME implements IAccessible
         $config = $this->getAddData();
         
         // Пытаемся прочесть из HTML-кэша
-        if ($this->cache_type == static::CACHE_HTML) {
+        if (!$nocache && ($this->cache_type == static::CACHE_HTML)) {
             $IN = (array)$this->loadCache($_SERVER['REQUEST_URI']);
         }
         if (!$IN) {
             // Пытаемся прочесть из кэша данных
-            if ($this->cache_type == static::CACHE_DATA) {
+            if (!$nocache && ($this->cache_type == static::CACHE_DATA)) {
                 $IN = (array)$this->loadCache($_SERVER['REQUEST_URI']);
             }
             if (!$IN) {

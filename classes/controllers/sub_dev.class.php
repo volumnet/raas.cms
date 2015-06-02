@@ -134,6 +134,22 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $w->createSearch();
                 new Redirector(\SOME\HTTP::queryString('action='));
                 break;
+            case 'clear_cache': 
+                if (Package::i()->registryGet('clear_cache_manually')) {
+                    $this->model->clearCache(true);
+                    new Redirector(\SOME\HTTP::queryString('action=cache'));
+                } else {
+                    new Redirector(\SOME\HTTP::queryString('action='));
+                }
+                break;
+            case 'cache':
+                if (Package::i()->registryGet('clear_cache_manually')) {
+                    // $this->model->getCacheMap();
+                    $this->view->cache();
+                } else {
+                    new Redirector(\SOME\HTTP::queryString('action='));
+                }
+                break;
             default:
                 $this->view->dev();
                 break;
