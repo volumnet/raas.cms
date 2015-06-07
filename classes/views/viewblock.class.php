@@ -68,7 +68,8 @@ abstract class ViewBlock
         return array(
             array(
                 'name' => $name, 
-                'href' => \SOME\HTTP::queryString('type=' . $type, false, $this->view->url . '&action=edit_block&pid=' . (int)$Page->id . '&loc=' . urlencode($Location->urn))
+                // Заменил $this->view на Package::i()->view, т.к. блоки создаются из основного пакета
+                'href' => \SOME\HTTP::queryString('type=' . $type, false, Package::i()->view->url . '&action=edit_block&pid=' . (int)$Page->id . '&loc=' . urlencode($Location->urn))
             )
         );
     }
