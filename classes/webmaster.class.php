@@ -170,7 +170,7 @@ class Webmaster
             $FRM = new \RAAS\CMS\Form(array(
                 'name' => $this->view->_('FEEDBACK'), 
                 'create_feedback' => 1,
-                'signature' => 0,
+                'signature' => 1,
                 'antispam' => 'hidden',
                 'antispam_field_name' => '_name',
                 'interface_id' => (int)$snippetFormNotify->id,
@@ -197,7 +197,7 @@ class Webmaster
             $FRM = new \RAAS\CMS\Form(array(
                 'name' => $this->view->_('ORDER_CALL'), 
                 'create_feedback' => 1,
-                'signature' => 0,
+                'signature' => 1,
                 'antispam' => 'hidden',
                 'antispam_field_name' => '_name',
                 'interface_id' => (int)$snippetFormNotify->id,
@@ -533,7 +533,7 @@ class Webmaster
             'name' => $name,
             'material_type' => (int)$MT->id,
             'create_feedback' => 0,
-            'signature' => 0,
+            'signature' => 1,
             'antispam' => 'hidden',
             'antispam_field_name' => '_name',
             'interface_id' => (int)$S->id,
@@ -610,7 +610,7 @@ class Webmaster
         }
         $S = Snippet::importByURN('__raas_form_notify');
         $FRM = new \RAAS\CMS\Form(array(
-            'name' => $name, 'create_feedback' => 1, 'signature' => 0, 'antispam' => 'hidden', 'antispam_field_name' => '_name', 'interface_id' => (int)$S->id,
+            'name' => $name, 'create_feedback' => 1, 'signature' => 1, 'antispam' => 'hidden', 'antispam_field_name' => '_name', 'interface_id' => (int)$S->id,
         ));
         $FRM->commit();
 
