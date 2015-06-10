@@ -27,8 +27,9 @@ abstract class ViewBlock
 
     public function renderBlock(Block $Item, Page $Page, Location $Location, $i = 0)
     {
+        // Заменил $this->view на Package::i()->view, т.к. блоки создаются из основного пакета
         $text .= '<div class="well well-small cms-block ' . static::blockListItemClass . '" id="block-' . (int)$Item->id . '" title="' . ($Item->title) . '">
-                    <a class="cms-block-name" href="' . $this->view->url . '&action=edit_block&id=' . (int)$Item->id . '&pid=' . (int)$Page->id . '">
+                    <a class="cms-block-name" href="' . Package::i()->view->url . '&action=edit_block&id=' . (int)$Item->id . '&pid=' . (int)$Page->id . '">
                       <span' . (!$Item->vis ? ' class="muted"' : '') . '>' . ($Item->title) . '</span>
                     </a>';
         if ($temp = ViewSub_Main::i()->getBlockContextMenu($Item, $Page, $i, count($Page->blocksByLocations[$Location->urn]))) {
