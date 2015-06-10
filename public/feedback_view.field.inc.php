@@ -59,6 +59,9 @@ $_RAASForm_Control = function(\RAAS\Field $Field) use (&$_RAASForm_Attrs, &$_RAA
                     }
                 }
                 echo '<a href="' . \RAAS\CMS\Sub_Main::i()->url . '&id=' . (int)$Item->page_id . '">' . htmlspecialchars($Item->page->name) . '</a>';
+                if ($Item->material->id) { 
+                    echo ' / <a href="' . \RAAS\CMS\Sub_Main::i()->url . '&action=edit_material&id=' . (int)$Item->material_id . '&pid=' . (int)$Item->page_id . '">' . htmlspecialchars($Item->material->name) . '</a>';
+                }
                 break;
             case 'vis':
                 if ($Item->viewer->id) {

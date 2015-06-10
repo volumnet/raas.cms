@@ -104,6 +104,9 @@ $emailField = function($field)
             <?php } ?>
         <?php } ?>
         <a href="<?php echo htmlspecialchars($Item->domain . $Item->page->url)?>"><?php echo htmlspecialchars($Item->page->name)?></a>
+        <?php if ($Item->material->id) { ?>
+            / <a href="<?php echo htmlspecialchars($Item->domain . $Item->material->url)?>"><?php echo htmlspecialchars($Item->material->name)?></a>
+        <?php } ?>
         <br />
         <?php echo FORM?>: 
         <?php if ($Item->parent->create_feedback) { ?>

@@ -116,8 +116,10 @@ if ($Form->id) {
             }
             // Для AJAX'а
             $Referer = \RAAS\CMS\Page::importByURL($_SERVER['HTTP_REFERER']);
-            $Item->page_id = (int)$Referer->id;
-            $Item->page_id = (int)$Page->id;
+            $Item->page_id = (int)$Referer->id ?: (int)$Page->id;
+            if ($Page->Material->id) {
+                $Item->material_id = (int)$Page->Material->id;
+            }
             $Item->ip = (string)$_SERVER['REMOTE_ADDR'];
             $Item->user_agent = (string)$_SERVER['HTTP_USER_AGENT'];
             $Objects = array($Item);

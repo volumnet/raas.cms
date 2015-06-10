@@ -89,7 +89,8 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                 </div>
             <?php 
             } else { 
-                $val = (int)$Field->Form->DATA[$Field->name];
+                // 2015-06-08, AVS: В выражении (int)$Field->Form->DATA[$Field->name] убрал (int), т.к. $val типа материал
+                $val = $Field->Form->DATA[$Field->name];
                 $attrs = array(
                     'datatype' => 'material', 
                     'type' => 'hidden', 
