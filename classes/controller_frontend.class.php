@@ -7,7 +7,7 @@ use \RAAS\CMS\User AS CMSUser;
 use \RAAS\CMS\Auth;
 use \RAAS\CMS\Diag;
 
-final class Controller_Frontend extends Abstract_Controller
+class Controller_Frontend extends Abstract_Controller
 {
     private $user;
     protected $diag = null;

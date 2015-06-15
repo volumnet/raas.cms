@@ -276,15 +276,16 @@ abstract class Block extends \SOME\SOME implements IAccessible
     }
 
 
-    public function getCacheFile($url = null)
+    public function getCacheFile($url = null, Page $Page = null)
     {
         if ($this->cache_type != static::CACHE_NONE) {
+            $domain = $Page ? str_replace('http://', '', $Page->domain) : $_SERVER['HTTP_HOST'];
             if (!$url) {
-                $url = $_SERVER['REQUEST_URI'];
+                $url = $Page ? $Page->url : $_SERVER['REQUEST_URI'];
             }
             $filename = Package::i()->cacheDir . '/' . Package::i()->cachePrefix . '_block' . (int)$this->id;
             if ($url && $this->cache_single_page) {
-                $filename .= '.' . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+                $filename .= '.' . urlencode($domain . $url);
             }
             $filename .= '.php';
             return $filename;

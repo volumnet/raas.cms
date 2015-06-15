@@ -11,15 +11,15 @@ jQuery(document).ready(function($) {
         var cacheMap = [];
         $('.cms-rebuild-cache', $obj).show();
         $('.alert', $obj).removeClass('alert-success').addClass('alert-info');
-        $('[data-role="status-text"]', $obj).text($('[data-role="status-text-clear-cache"]', $obj).text());
-        var dO = $.get('ajax.php?p=cms&action=clear_cache');
-        dO = dO.then(function() {
-            $('[data-role="status-text"]', $obj).text($('[data-role="status-text-get-map"]', $obj).text());
-            return $.getJSON('ajax.php?p=cms&action=get_cache_map');
-        })
+        $('[data-role="status-text"]', $obj).text($('[data-role="status-text-get-map"]', $obj).text());
+        
+        var dO = $.get('ajax.php?p=cms&action=get_cache_map');
         dO = dO.then(function(result) {
+            $('[data-role="status-text"]', $obj).text($('[data-role="status-text-clear-cache"]', $obj).text());
             cacheMap = result.Set;
-            // alert('aaa');
+            return $.getJSON('ajax.php?p=cms&action=clear_blocks_cache');
+        })
+        dO = dO.then(function() {
             $('[data-role="progress"]', $obj).text('0 / ' + cacheMap.length);
             $('.progress .bar', $obj).css('width', '0');
             var a = new $.Deferred();
@@ -28,18 +28,10 @@ jQuery(document).ready(function($) {
                 a = a.then((function(i) {
                     return function() {
                         var row = cacheMap[i];
-                        if (row.bid) {
-                               $('[data-role="status-text"]', $obj).text($('[data-role="status-text-rebuild-block"]', $obj).text() + ' "' + row.name + '"');
-                            var url = 'ajax.php?p=cms&action=rebuild_block_cache&id=' + row.bid ;
-                            if (row.id) {
-                                url += '&pid=' + row.id;
-                                if (row.mid) {
-                                    url += '&mid=' + row.mid;
-                                }
-                            }
-                        } else {
-                            $('[data-role="status-text"]', $obj).text($('[data-role="status-text-rebuild-page"]', $obj).text() + ' "' + row.name + '"'); 
-                            var url = row.url;
+                        $('[data-role="status-text"]', $obj).text($('[data-role="status-text-rebuild-page"]', $obj).text() + ' "' + row.name + '"');
+                        var url = 'ajax.php?p=cms&action=rebuild_page_cache&id=' + row.id;
+                        if (row.mid) {
+                            url += '&mid=' + row.mid;
                         }
                         console.log(url);
                         var b = $.get(url).then(function() {

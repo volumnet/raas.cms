@@ -152,6 +152,16 @@ class Page extends \SOME\SOME implements IAccessible
             case 'locationBlocksText':
                 return $this->locationBlocksText;
                 break;
+            case 'cacheFile':
+                $url = preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $this->Domain->urn) ? $_SERVER['HTTP_HOST'] : str_replace('http://', '', $this->domain);
+                if ($this->Material->id) {
+                    $url .= $this->Material->url;
+                } else {
+                    $url .= $this->url;
+                }
+                $url = Package::i()->cacheDir . '/' . Package::i()->cachePrefix . '.' . urlencode($url) . '.php';
+                return $url;
+                break;
             default:
                 $val = parent::__get($var);
                 if ($val !== null) {
@@ -292,7 +302,7 @@ class Page extends \SOME\SOME implements IAccessible
                     ob_start();
                     $bst = microtime(true);
                     $row->process($this);
-                    \RAAS\Controller_Frontend::i()->diag ? \RAAS\Controller_Frontend::i()->diag->blockHandler($row, microtime(true) - $bst) : null;
+                    Controller_Frontend::i()->diag ? Controller_Frontend::i()->diag->blockHandler($row, microtime(true) - $bst) : null;
                     $this->locationBlocksText[$location][] = ob_get_contents();
                     ob_end_clean();
                 }
@@ -500,6 +510,19 @@ class Page extends \SOME\SOME implements IAccessible
             }
         }
         return $Page;
+    }
+
+
+    public function rebuildCache()
+    {
+        @unlink($this->cacheFile);
+        $url = 'http://' . (preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $this->Domain->urn) ? $_SERVER['HTTP_HOST'] : str_replace('http://', '', $this->domain));
+        if ($this->Material->id) {
+            $url .= $this->Material->url;
+        } else {
+            $url .= $this->url;
+        }
+        file_get_contents($url);
     }
 
 

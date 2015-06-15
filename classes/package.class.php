@@ -438,46 +438,103 @@ class Package extends \RAAS\Package
     }
 
 
+    public function clearBlocksCache()
+    {
+        $files = array();
+        if (is_dir($this->cacheDir)) {
+            $dir = \SOME\File::scandir($this->cacheDir);
+            foreach ($dir as $f) {
+                if (is_file($this->cacheDir . '/' . $f) && preg_match('/^' . preg_quote($this->cachePrefix) . '_block(.*?)\\.php$/i', $f)) {
+                    $f = $this->cacheDir . '/' . $f;
+                    @unlink($f);
+                }
+            }
+        }
+    }
+
+
     /**
      * Получает карту необходимых кэшей
      */
     public function getCacheMap()
     {
         $Set = array();
-        $siteMap = $siteMap2 = array();
+        
+        // Строим полную карту сайта
+        $siteMap = array();
         $SQL_result = Page::_SQL()->get("SELECT * FROM " . Page::_tablename() . " WHERE vis AND NOT response_code");
         foreach ($SQL_result as $row) {
             $row = new Page($row);
             $domainUrl = preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $row->Domain->urn) ? 'http://' . $_SERVER['HTTP_HOST'] : $row->domain;
-            $siteMap[$domainUrl . $row->url] = array('id' => $row->id, 'url' => $domainUrl . $row->url, 'name' => $row->name, 'cache' => $row->cache);
+            $siteMap[(int)$row->id][0] = array('id' => $row->id, 'url' => $domainUrl . $row->url, 'name' => $row->name, 'cache' => $row->cache);
             foreach ($row->affectedMaterials as $row2) {
-                $siteMap2[$domainUrl . $row2->url] = array('id' => $row->id, 'mid' => $row2->id, 'url' => $domainUrl . $row2->url, 'name' => $row2->name, 'cache' => $row->cache);
+                $siteMap[(int)$row->id][(int)$row2->id] = array('id' => $row->id, 'mid' => $row2->id, 'url' => $domainUrl . $row2->url, 'name' => $row2->name, 'cache' => $row->cache);
                 $row2->reload();
             }
             $row->reload();
         }
-        $siteMap = array_merge($siteMap, $siteMap2);
-        unset($siteMap2);
 
+        // Страницы
+        foreach ($siteMap as $pid => $temp) {
+            foreach ($temp as $mid => $val) {
+                if ($val['cache']) {
+                    $Set[$pid][$mid] = $val;
+                }
+            }
+        }
+
+        // Блоки
         $blocksData = Block::_SQL()->get("SELECT * FROM " . Block::_tablename() . " WHERE cache_type");
         foreach ($blocksData as $block) {
             $block = Block::spawn($block);
             if ($block->cache_single_page) {
-                $blockPages = $siteMap;
+                // Блок везде разный. Нужны все страницы, на которых присутствует блок
+                foreach ($block->pages_ids as $pid) {
+                    foreach ($siteMap[$pid] as $mid => $val) {
+                        if (
+                            ($block->vis_material == Block::BYMATERIAL_BOTH) ||
+                            ($mid && ($block->vis_material == Block::BYMATERIAL_WITH)) || 
+                            (!$mid && ($block->vis_material == Block::BYMATERIAL_WITHOUT))
+                        ) {
+                            $Set[$pid][$mid] = $val;
+                        }
+                    }
+                }
             } else {
-                $p = $block->pages[0];
-                $domainUrl = preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $p->Domain->urn) ? 'http://' . $_SERVER['HTTP_HOST'] : $p->domain;
-                $blockPages = array(array('id' => $p->id, 'name' => $p->name));
-            }
-            foreach ($blockPages as $mapRow) {
-                unset($mapRow['url'], $mapRow['cache'], $mapRow['name']);
-                $Set[] = array_merge(array('bid' => $block->id, 'name' => $block->name), $mapRow);
+                // Блок везде одинаковый. Найдем хотя бы одну подходящую страницу
+                foreach ($block->pages_ids as $pid) {
+                    if (isset($Set[$pid])) {
+                        if (
+                            ($block->vis_material == Block::BYMATERIAL_BOTH) ||
+                            (($block->vis_material == Block::BYMATERIAL_WITH) && (array_keys($Set[$pid]) != array(0))) || 
+                            (($block->vis_material == Block::BYMATERIAL_WITHOUT) && isset($Set[$pid][0]))
+                        ) {
+                            continue;
+                        }
+                    }
+                }
+                $pid = $block->pages_ids[0];
+                if (($block->vis_material == Block::BYMATERIAL_BOTH) || ($block->vis_material == Block::BYMATERIAL_WITHOUT)) {
+                    $Set[$pid][0] = $siteMap[$pid][0];
+                } else {
+                    foreach ($siteMap[$pid] as $mid => $val) {
+                        if ($mid) {
+                            $Set[$pid][$mid] = $val;
+                            break;
+                        }
+                    }
+                }
             }
         }
 
-        $pagesData = array_map(function($x) { $y = $x; unset($y['cache']); return $y; }, array_filter($siteMap, function($x) { return $x['cache']; }));
-        $Set = array_merge($Set, array_values($pagesData));
-
+        $Set2 = array();
+        foreach ($Set as $pid => $temp) {
+            foreach ($temp as $mid => $val) {
+                unset($val['cache']);
+                $Set2[] = $val;
+            }
+        }
+        $Set = $Set2;
         return $Set;
     }
 

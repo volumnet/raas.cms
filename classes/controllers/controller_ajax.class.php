@@ -10,7 +10,7 @@ class Controller_Ajax extends Abstract_Controller
     protected function execute()
     {
         switch ($this->action) {
-            case 'material_fields': case 'get_materials_by_field': case 'rebuild_block_cache': case 'clear_cache': case 'get_cache_map':
+            case 'material_fields': case 'get_materials_by_field': case 'rebuild_page_cache': case 'clear_cache': case 'clear_blocks_cache': case 'get_cache_map':
                 $this->{$this->action}();
                 break;
         }
@@ -31,29 +31,22 @@ class Controller_Ajax extends Abstract_Controller
     }
 
 
-    protected function rebuild_block_cache()
+    protected function clear_blocks_cache()
     {
-        $Block = Block::spawn($this->id);
-        $Page = new Page($this->nav['pid']);
-        $url = $Page->url;
-        if (isset($this->nav['mid'])) {
-            $Material = new Material($this->nav['mid']);
+        $this->model->clearBlocksCache(true);
+        $this->view->clear_blocks_cache(array());
+    }
+
+
+    protected function rebuild_page_cache()
+    {
+        $Page = new Page($this->nav['id']);
+        $Material = isset($this->nav['mid']) ? new Material($this->nav['mid']) : null;
+        if ($Material->id) {
             $Page->Material = $Material;
-            foreach (array('name', 'meta_title', 'meta_keywords', 'meta_description') as $key) {
-                $Page->{'old' . ucfirst($key)} = $Page->$key;
-                $Page->$key = $Material->$key;
-            }
-            $Material->proceed = true;
-            $url = $Material->url;
         }
-        $oldServer = $_SERVER;
-        if (!preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $Page->Domain->urn)) {
-            $_SERVER['HTTP_HOST'] = $Page->domain;
-        }
-        $_SERVER['REQUEST_URI'] = $url;
-        $Block->process($Page, true);
-        $_SERVER = $oldServer;
-        $this->view->clear_cache(array());
+        $Page->rebuildCache();
+        $this->view->rebuild_page_cache(array());
     }
     
     
