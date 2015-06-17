@@ -83,6 +83,8 @@ if ($Page->Material && $Block->nat) {
         $SQL_from['tMPA'] = " JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id ";
     }
     $SQL_where[] = " tM.vis ";
+    $SQL_where[] = " (NOT tM.show_from OR tM.show_from <= NOW())";
+    $SQL_where[] = " (NOT tM.show_to OR tM.show_to >= NOW())";
     $types = array_merge(array((int)$MType->id), (array)$MType->all_children_ids);
     $SQL_where[] = " tM.pid IN (" . implode(", ", $types) . ") ";
     if (!$MType->global_type) {
