@@ -141,7 +141,11 @@ class EditMaterialForm extends \RAAS\Form
         $serviceTab = new FormTab(array(
             'name' => 'service', 
             'caption' => $this->view->_('SERVICE'), 
-            'children' => array(array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_($Parent->id ? 'VISIBLE' : 'IS_ACTIVE'), 'default' => 1))
+            'children' => array(
+                array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_($Parent->id ? 'VISIBLE' : 'IS_ACTIVE'), 'default' => 1),
+                array('type' => 'datetime', 'name' => 'show_from', 'caption' => $this->view->_('SHOW_FROM')),
+                array('type' => 'datetime', 'name' => 'show_to', 'caption' => $this->view->_('SHOW_TO')),
+            )
         ));
         if ($Item->id) {
             $serviceTab->children[] = array('name' => 'post_date', 'caption' => $this->view->_('CREATED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');

@@ -19,6 +19,7 @@ class Updater extends \RAAS\Updater
         $this->update20150301();
         $this->update20150504();
         $this->update20150610();
+        $this->update20150617();
     }
 
 
@@ -870,6 +871,23 @@ class Updater extends \RAAS\Updater
     {
         if (in_array(\SOME\SOME::_dbprefix() . "cms_feedback", $this->tables) && !in_array('material_id', $this->columns(\SOME\SOME::_dbprefix() . "cms_feedback"))) {
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_feedback ADD material_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#' AFTER page_id";
+            $this->SQL->query($SQL_query);
+        }
+    }
+
+
+    public function update20150617()
+    {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_materials", $this->tables) && !in_array('show_from', $this->columns(\SOME\SOME::_dbprefix() . "cms_materials"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials 
+                            ADD show_from DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish from date/time',
+                            ADD INDEX (show_from)";
+            $this->SQL->query($SQL_query);
+        }
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_materials", $this->tables) && !in_array('show_to', $this->columns(\SOME\SOME::_dbprefix() . "cms_materials"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials 
+                            ADD show_to DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish to date/time',
+                            ADD INDEX (show_to)";
             $this->SQL->query($SQL_query);
         }
     }

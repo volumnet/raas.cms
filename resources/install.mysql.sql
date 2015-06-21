@@ -1,31 +1,30 @@
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
-  page_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
-  material_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
-  block_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Block ID#',
-  allow TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '1 - allow, 0 - deny',
-  to_type TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'To (type)',
-  uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
-  gid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Group ID#',
-  priority INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Priority',
+  id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+  page_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Page ID#',
+  material_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material ID#',
+  block_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Block ID#',
+  allow tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - allow, 0 - deny',
+  to_type tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'To (type)',
+  uid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'User ID#',
+  gid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Group ID#',
+  priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
   PRIMARY KEY (id),
-  KEY (page_id),
-  KEY (material_id),
-  KEY (block_id),
-  KEY (uid),
-  KEY (gid),
-  INDEX (priority)
-) COMMENT 'Site access';
+  KEY page_id (page_id),
+  KEY material_id (material_id),
+  KEY block_id (block_id),
+  KEY uid (uid),
+  KEY gid (gid),
+  KEY priority (priority)
+) COMMENT='Site access';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_materials_cache (
-  uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
-  material_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
-  allow TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '1 - allow, 0 - deny',
-  
-  PRIMARY KEY (uid, material_id),
-  KEY (uid),
-  KEY (material_id)
-) COMMENT 'Materials access cache';
+  uid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'User ID#',
+  material_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material ID#',
+  allow tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - allow, 0 - deny',
+  PRIMARY KEY (uid,material_id),
+  KEY uid (uid),
+  KEY material_id (material_id)
+) COMMENT='Materials access cache';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -42,15 +41,13 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   params varchar(255) NOT NULL DEFAULT '' COMMENT 'Additional params',
   interface_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
   widget_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Widget ID#',
-  cache_type TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache type',
-  cache_single_page TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache by single pages',
-  cache_interface_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache interface_id',
-  vis_material TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visibility by material',
+  cache_type tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Cache type',
+  cache_single_page tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Cache by single pages',
+  cache_interface_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Cache interface_id',
+  vis_material tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Visibility by material',
   PRIMARY KEY (id),
   KEY author_id (author_id),
   KEY editor_id (editor_id),
-  KEY interface_id (interface_id),
-  KEY widget_id (widget_id),
   KEY cache_interface_id (cache_interface_id)
 ) COMMENT='Site pages';
 
@@ -63,7 +60,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_form (
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_html (
   id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'ID#',
-  description mediumtext COMMENT 'Text',
+  description text COMMENT 'Text',
   wysiwyg tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'WYSIWYG editor on',
   PRIMARY KEY (id)
 ) COMMENT='HTML blocks';
@@ -121,7 +118,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_pages_assoc (
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_php (
   id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'ID#',
-  description mediumtext COMMENT 'Code',
+  description text COMMENT 'Code',
   widget int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Widget ID#',
   PRIMARY KEY (id),
   KEY widget (widget)
@@ -164,7 +161,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_data (
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   fid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field ID#',
   fii int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field index',
-  `value` mediumtext COMMENT 'Value',
+  `value` text COMMENT 'Value',
   inherited tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Inherited',
   PRIMARY KEY (pid,fid,fii),
   KEY pid (pid),
@@ -192,8 +189,9 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_feedback (
   uid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Site user ID#',
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Form ID#',
   page_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Page ID#',
+  material_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material ID#',
   post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
-  vis int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Visited',
+  vis tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Visited',
   ip varchar(255) NOT NULL DEFAULT '0.0.0.0' COMMENT 'IP address',
   user_agent varchar(255) NOT NULL DEFAULT '0.0.0.0' COMMENT 'User Agent',
   PRIMARY KEY (id),
@@ -213,13 +211,13 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   maxlength int(255) NOT NULL,
   multiple tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Multiple data',
   source_type enum('','ini','csv','xml','sql','php','dictionary') NOT NULL DEFAULT '' COMMENT 'Source type',
-  `source` mediumtext COMMENT 'Source',
+  `source` text COMMENT 'Source',
   defval text COMMENT 'Default value',
   min_val float NOT NULL DEFAULT '0' COMMENT 'Minimal value',
   max_val float NOT NULL DEFAULT '0' COMMENT 'Maximal value',
   step float NOT NULL DEFAULT '0' COMMENT 'Step',
-  preprocessor_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Preprocessor interface ID#',
-  postprocessor_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Postprocessor interface ID#',
+  preprocessor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Preprocessor interface ID#',
+  postprocessor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Postprocessor interface ID#',
   placeholder varchar(255) NOT NULL DEFAULT '' COMMENT 'Placeholder',
   show_in_table tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Show as table column',
   priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
@@ -228,8 +226,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   KEY datatype (datatype),
   KEY classname (classname),
   KEY classname_2 (classname,pid),
-  KEY (preprocessor_id),
-  KEY (postprocessor_id)
+  KEY preprocessor_id (preprocessor_id),
+  KEY postprocessor_id (postprocessor_id)
 ) COMMENT='Material fields';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (
@@ -265,7 +263,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   editor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Editor ID#',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
-  description mediumtext COMMENT 'Description',
+  description text COMMENT 'Description',
   meta_title varchar(255) NOT NULL DEFAULT '' COMMENT 'Meta title',
   meta_description text COMMENT 'Meta description',
   meta_keywords text COMMENT 'Meta keywords',
@@ -273,17 +271,21 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   menu_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Menu name',
   breadcrumbs_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Breadcrumbs name',
   priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
-  visit_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visit counter',
-  modify_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Modify counter',
-  changefreq ENUM('', 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never') NOT NULL DEFAULT '' COMMENT 'Change frequency', 
-  last_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
-  sitemaps_priority DECIMAL(8,2) UNSIGNED NOT NULL DEFAULT 0.5 COMMENT 'Sitemaps priority',
+  visit_counter int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Visit counter',
+  modify_counter int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Modify counter',
+  changefreq enum('','always','hourly','daily','weekly','monthly','yearly','never') NOT NULL DEFAULT '' COMMENT 'Change frequency',
+  last_modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
+  sitemaps_priority decimal(8,2) unsigned NOT NULL DEFAULT '0.50' COMMENT 'Sitemaps priority',
+  show_from datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish from date/time',
+  show_to datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish to date/time',
   PRIMARY KEY (id),
   KEY pid (pid),
   KEY author_id (author_id),
   KEY editor_id (editor_id),
-  KEY urn (urn)
-) COMMENT='Materials';
+  KEY urn (urn),
+  KEY show_from (show_from),
+  KEY show_to (show_to)
+) COMMENT='Translator exceptions';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_pages_assoc (
   id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material ID#',
@@ -347,13 +349,13 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
   priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
   `cache` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Cache page',
   inherit_cache tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Inherit cache page',
-  visit_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visit counter',
-  modify_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Modify counter',
-  changefreq ENUM('', 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never') NOT NULL DEFAULT '' COMMENT 'Change frequency', 
-  inherit_changefreq TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Inherit change frequency',
-  last_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
-  sitemaps_priority DECIMAL(8,2) UNSIGNED NOT NULL DEFAULT 0.5 COMMENT 'Sitemaps priority',
-  inherit_sitemaps_priority TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Inherit sitemaps priority',
+  visit_counter int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Visit counter',
+  modify_counter int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Modify counter',
+  changefreq enum('','always','hourly','daily','weekly','monthly','yearly','never') NOT NULL DEFAULT '' COMMENT 'Change frequency',
+  inherit_changefreq tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Inherit change frequency',
+  last_modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
+  sitemaps_priority decimal(8,2) unsigned NOT NULL DEFAULT '0.50' COMMENT 'Sitemaps priority',
+  inherit_sitemaps_priority tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Inherit sitemaps priority',
   PRIMARY KEY (id),
   KEY pid (pid),
   KEY author_id (author_id),
@@ -366,7 +368,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages_data (
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Page ID#',
   fid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field ID#',
   fii int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field index',
-  `value` mediumtext COMMENT 'Value',
+  `value` text COMMENT 'Value',
   PRIMARY KEY (pid,fid,fii),
   KEY pid (pid),
   KEY fid (fid),
@@ -378,7 +380,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippets (
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
-  description mediumtext COMMENT 'Code',
+  description text COMMENT 'Code',
   locked tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Locked',
   PRIMARY KEY (id),
   KEY pid (pid)
@@ -397,7 +399,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippet_folders (
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
-  description mediumtext COMMENT 'Code',
+  description text COMMENT 'Code',
   width int(10) unsigned NOT NULL DEFAULT '640' COMMENT 'Width',
   height int(10) unsigned NOT NULL DEFAULT '1024' COMMENT 'Height',
   visual tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Template is visual',
@@ -409,16 +411,16 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
-  post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Registration date',
-  vis tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Active',
-  `new` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'New',
-  activated tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Activated',
   login varchar(255) NOT NULL DEFAULT '' COMMENT 'Login',
   password_md5 varchar(255) NOT NULL DEFAULT '' COMMENT 'Password MD5',
   email varchar(255) NOT NULL DEFAULT '' COMMENT 'E-mail',
+  post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Registration date',
+  vis tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Active',
   lang varchar(255) NOT NULL DEFAULT 'ru' COMMENT 'Language',
+  `new` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'New',
+  activated tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Activated',
   PRIMARY KEY (id),
-  KEY login (login),
+  KEY pid (login),
   KEY email (email),
   KEY post_date (post_date),
   KEY vis (vis),

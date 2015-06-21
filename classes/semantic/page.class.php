@@ -462,8 +462,12 @@ class Page extends \SOME\SOME implements IAccessible
             $SQL_query = "SELECT tM.* 
                             FROM " . Material::_tablename() . " AS tM 
                             JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id
-                           WHERE tM.vis AND tM.pid IN(" . implode(", ", $mts_nonGlobal) . ") AND tMPA.pid = " . (int)$this->id 
-                       . " GROUP BY tM.id";
+                           WHERE tM.vis 
+                             AND tM.pid IN(" . implode(", ", $mts_nonGlobal) . ") 
+                             AND tMPA.pid = " . (int)$this->id . "
+                             AND (NOT tM.show_from OR tM.show_from <= NOW())
+                             AND (NOT tM.show_to OR tM.show_to >= NOW())
+                        GROUP BY tM.id";
             $Set = array_merge($Set, Material::getSQLSet($SQL_query));
         }
         return $Set;

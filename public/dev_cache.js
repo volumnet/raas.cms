@@ -17,7 +17,7 @@ jQuery(document).ready(function($) {
         dO = dO.then(function(result) {
             $('[data-role="status-text"]', $obj).text($('[data-role="status-text-clear-cache"]', $obj).text());
             cacheMap = result.Set;
-            return $.getJSON('ajax.php?p=cms&action=clear_blocks_cache');
+            return $.getJSON('ajax.php?p=cms&action=clear_cache');
         })
         dO = dO.then(function() {
             $('[data-role="progress"]', $obj).text('0 / ' + cacheMap.length);

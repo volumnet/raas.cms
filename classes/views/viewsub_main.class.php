@@ -136,8 +136,32 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
             if ($Item->pid && ($this->action != 'move')) {
                 $arr[] = array('href' => $this->url . '&action=move&id=' . (int)$Item->id, 'name' => $this->_('MOVE'), 'icon' => 'share-alt');
             }
+
+
+            $edit = ($this->action == 'edit');
+            $showlist = (($this->action == '') && ($this->id != $Item->id));
+            if (!$edit) {
+                $arr[] = array('href' => $this->url . '&action=edit&id=' . (int)$Item->id, 'name' => $this->_('EDIT'), 'icon' => 'edit');
+            }
+            if ($Item->_defaultOrderBy() == 'priority') {
+                if ($i && 'move_up') {
+                    $arr[] = array(
+                        'href' => $this->url . '&action=move_up&id=' . (int)$Item->id . ($edit || $showlist ? '' : '&back=1'), 'name' => $this->_('MOVE_UP'), 'icon' => 'arrow-up'
+                    );
+                }
+                if (($i < $c - 1) && 'move_down') {
+                    $arr[] = array(
+                        'href' => $this->url . '&action=move_down&id=' . (int)$Item->id . ($edit || $showlist ? '' : '&back=1'), 'name' => $this->_('MOVE_DOWN'), 'icon' => 'arrow-down'
+                    );
+                }
+            }
+            $arr[] = array(
+                'href' => $this->url . '&action=delete&id=' . (int)$Item->id . ($showlist ? '&back=1' : ''), 
+                'name' => $this->_('DELETE'), 
+                'icon' => 'remove',
+                'onclick' => 'return confirm(\'' . $this->_('DELETE_TEXT') . '\')'
+            );
         }
-        $arr = array_merge($arr, $this->stdView->stdContextMenu($Item, $i, $c, 'edit', '', 'delete', 'move_up', 'move_down'));
         return $arr;
     }
     
