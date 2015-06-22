@@ -9,7 +9,7 @@
                 </div>
             <?php } ?>
             <?php if (strlen($row->name) > 1 && !is_numeric($row->name)) { ?>
-                <h3 class="article__title"><?php echo htmlspecialchars($row->name)?></h3>
+                <h3 class="article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></h3>
             <?php } ?>
             <div class="article__text article__question">
               <label class="article__label">Вопрос:</label> <?php echo htmlspecialchars($row->description)?>
