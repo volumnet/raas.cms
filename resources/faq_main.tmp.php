@@ -5,7 +5,7 @@
           <article class="article">
             <?php if ($row->image->id) { ?>
                 <div class="article__image">
-                  <a<img src="/<?php echo $row->image->tnURL?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" /></a>
+                  <a href="<?php echo htmlspecialchars($row->url)?>"><img src="/<?php echo $row->image->tnURL?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" /></a>
                 </div>
             <?php } ?>
             <?php if (strlen($row->name) > 1 && !is_numeric($row->name)) { ?>
