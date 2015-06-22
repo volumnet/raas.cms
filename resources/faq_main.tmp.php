@@ -3,9 +3,9 @@
       <h2>{FAQ_NAME}</h2>
       <?php foreach ($Set as $row) { ?>
           <article class="article">
-            <?php if ($Item->image->id) { ?>
+            <?php if ($row->image->id) { ?>
                 <div class="article__image">
-                  <a<img src="/<?php echo $Item->image->tnURL?>" alt="<?php echo htmlspecialchars($Item->image->name ?: $row->name)?>" /></a>
+                  <a<img src="/<?php echo $row->image->tnURL?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" /></a>
                 </div>
             <?php } ?>
             <?php if (strlen($row->name) > 1 && !is_numeric($row->name)) { ?>
