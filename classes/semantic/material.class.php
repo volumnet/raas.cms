@@ -65,7 +65,9 @@ class Material extends \SOME\SOME implements IAccessible
                     }
                     if ((strtolower($var) == 'url') && !isset($temp)) {
                         // Размещаем сюда из-за большого количества баннеров, где URL задан явно
-                        return $this->parent->url . $this->urn . '/';
+                        // 2015-06-21, AVS: заменили parent на affectedPages[0], т.к. зачастую, если новость задана и на главной и на странице новостей, 
+                        // url по умолчанию ведет на главную, где нет nat'а
+                        return $this->affectedPages[0]->url . $this->urn . '/';
                     }
                 }
                 break;
@@ -215,8 +217,12 @@ class Material extends \SOME\SOME implements IAccessible
                         JOIN " . self::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
                         JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id
                         JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.id = tB.id
-                        JOIN " . Material_Type::_tablename() . " AS tMt ON tMt.id = tBM.material_type
+                        JOIN " . Material_Type::_tablename() . " AS tMt ON tMt.id = tBM.material_type 
                        WHERE tB.vis AND tB.nat AND tMt.id = " . (int)$this->pid;
+        // 2015-06-21, AVS: добавил, т.к. иначе предлагает выбрать основную страницу из всех, на которых есть блок, без учета страниц материала
+        if ($this->pages) {
+            $SQL_query .= " AND tP.id IN (" . implode(", ", $this->pages_ids) . ")";
+        }
         $Set = Page::getSQLSet($SQL_query);
         return $Set;
     }

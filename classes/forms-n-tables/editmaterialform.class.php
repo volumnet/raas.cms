@@ -171,7 +171,8 @@ class EditMaterialForm extends \RAAS\Form
                         'Set' => $temp->children, 
                         'additional' => function($row) use ($Item) { 
                             $arr = array(); 
-                            if ($row->id && !in_array($row->id, $Item->parents_ids)) {
+                            $ids = array_map(function($x) { return $x->id; }, $Item->affectedPages);
+                            if ($row->id && !in_array($row->id, $ids)) {
                                 $arr['style'] = 'display: none'; 
                             } 
                             return $arr;
