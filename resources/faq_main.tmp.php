@@ -3,13 +3,13 @@
       <h2>{FAQ_NAME}</h2>
       <?php foreach ($Set as $row) { ?>
           <article class="article">
-            <?php if ($Item->image->id) { ?>
+            <?php if ($row->image->id) { ?>
                 <div class="article__image">
-                  <a<img src="/<?php echo $Item->image->tnURL?>" alt="<?php echo htmlspecialchars($Item->image->name ?: $row->name)?>" /></a>
+                  <a href="<?php echo htmlspecialchars($row->url)?>"><img src="/<?php echo $row->image->tnURL?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" /></a>
                 </div>
             <?php } ?>
             <?php if (strlen($row->name) > 1 && !is_numeric($row->name)) { ?>
-                <h3 class="article__title"><?php echo htmlspecialchars($row->name)?></h3>
+                <h3 class="article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></h3>
             <?php } ?>
             <div class="article__text article__question">
               <label class="article__label">Вопрос:</label> <?php echo htmlspecialchars($row->description)?>

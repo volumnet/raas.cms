@@ -17,7 +17,7 @@
               <?php echo htmlspecialchars($row->brief ?: \SOME\Text::cuttext(html_entity_decode(strip_tags($row->description), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
               <div class="article__read-more"><a href="<?php echo $row->url?>">Подробней…</a></div>
             </div>
-  				</article>
+          </article>
       <?php } ?>
     </div>
 <?php } ?>
