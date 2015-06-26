@@ -11,4 +11,5 @@
 <link rel='stylesheet' href='/css/style.css'>
 <!-- Core-->
 <script src="/js/application.js"></script>
+<script src="/js/bootstrap.carousel.swipe.js"></script>
 <script src="/js/script.js"></script>
