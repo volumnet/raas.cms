@@ -49,6 +49,7 @@ class Material extends \SOME\SOME implements IAccessible
                 break;
             default:
                 $val = parent::__get($var);
+                    // echo $var . ' = ' . $val; exit;
                 if ($val !== null) {
                     return $val;
                 } else {

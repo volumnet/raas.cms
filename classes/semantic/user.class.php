@@ -43,6 +43,14 @@ class User extends \SOME\SOME
                             $temp = array_values(array_filter($temp, function($x) { return isset($x->vis) && $x->vis; }));
                         }
                         return $temp;
+                    } elseif ($var == 'full_name') {
+                        $temp = array();
+                        foreach (array('last_name', 'first_name', 'second_name') as $key) {
+                            if (isset($this->fields[$key])) {
+                                $temp[] = $this->fields[$key]->doRich();
+                            }
+                        }
+                        return implode(' ', $temp);
                     }
                 }
                 break;

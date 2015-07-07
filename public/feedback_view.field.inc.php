@@ -49,7 +49,7 @@ $_RAASForm_Control = function(\RAAS\Field $Field) use (&$_RAASForm_Attrs, &$_RAA
                 break;
             case 'uid':
                 echo '<a href="?p=' . \RAAS\CMS\Package::i()->alias . '&m=users&action=edit&id=' . (int)$Item->uid . '">' . 
-                        htmlspecialchars($Item->user->full_name) . 
+                        htmlspecialchars($Item->user->full_name ?: ($Item->user->login ?: $Item->user->email)) . 
                      '</a>';
                 break;
             case 'page_id':
