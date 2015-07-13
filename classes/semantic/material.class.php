@@ -213,13 +213,17 @@ class Material extends \SOME\SOME implements IAccessible
 
     protected function _affectedPages()
     {
+        // 2015-07-13, AVS: Добавил, поменял tMt.id = " . (int)$this->pid в запросе на tMt.id IN (" . implode(", ", $types) . "), чтобы рассматривались
+        // также блоки, связанные с родительскими типами материалов
+        $MType = $this->material_type;
+        $types = array_merge(array((int)$MType->id), (array)$MType->parents_ids);
         $SQL_query = "SELECT tP.*
                         FROM " . Page::_tablename() . " AS tP
                         JOIN " . self::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
                         JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id
                         JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.id = tB.id
                         JOIN " . Material_Type::_tablename() . " AS tMt ON tMt.id = tBM.material_type 
-                       WHERE tB.vis AND tB.nat AND tMt.id = " . (int)$this->pid;
+                       WHERE tB.vis AND tB.nat AND tMt.id IN (" . implode(", ", $types) . ") ";
         // 2015-06-21, AVS: добавил, т.к. иначе предлагает выбрать основную страницу из всех, на которых есть блок, без учета страниц материала
         if ($this->pages) {
             $SQL_query .= " AND tP.id IN (" . implode(", ", $this->pages_ids) . ")";
