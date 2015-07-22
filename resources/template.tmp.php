@@ -36,12 +36,12 @@ $colspanMD = 3;
                   <?php if (!$Page->pid) { ?>
                       <?php echo $Page->location('content')?>
                   <?php } else { ?>
-                        <?php if ((count($Page->parents) + (bool)$Page->Material->id) > 1) { ?>
+                        <?php if ((count($Page->parents) + (bool)$Page->Material->id + (bool)$Page->Item->id) > 1) { ?>
                             <ol class="breadcrumb">
                               <?php foreach ($Page->parents as $row) { ?>
                                   <li><a href="<?php echo htmlspecialchars($row->url)?>"><?php echo htmlspecialchars($row->getBreadcrumbsName())?></a></li>
                               <?php } ?>
-                              <?php if ($Page->Material->id) { ?>
+                              <?php if ($Page->Material->id || $Page->Item->id) { ?>
                                   <li><a href="<?php echo htmlspecialchars($Page->url)?>"><?php echo htmlspecialchars($Page->getBreadcrumbsName())?></a></li>
                               <?php } ?>
                             </ol>

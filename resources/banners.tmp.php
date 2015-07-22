@@ -12,6 +12,12 @@
                 <a <?php echo $row->url ? 'href="' . htmlspecialchars($row->url) . '"' : ''?>>
                   <img src="/<?php echo htmlspecialchars(addslashes($row->image->fileURL))?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" />
                 </a>
+                <?php if ($row->name[0] != '.') { ?>
+                    <div class="banners__caption">
+                      <h3 class="banners__title"><?php echo htmlspecialchars($row->name)?></h3>
+                      <div class="banners__description"><?php echo $row->description?></div>
+                    </div>
+                <?php } ?>
               </div>
           <?php } ?>
         </div>

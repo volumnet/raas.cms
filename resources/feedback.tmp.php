@@ -1,5 +1,6 @@
-<?php namespace RAAS\CMS?>
 <?php 
+namespace RAAS\CMS;
+
 if ($_POST['AJAX'] && ($Item instanceof Feedback)) { 
     $result = array();
     if ($success[(int)$Block->id]) { 
