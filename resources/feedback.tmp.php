@@ -28,6 +28,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
         </div>
 
         <div data-role="feedback-form" <?php echo $success[(int)$Block->id] ? 'style="display: none"' : ''?>>
+          <p>Поля, помеченные звездочкой (*), обязательны для заполнения</p>
           <?php if ($Form->signature) { ?>
                 <input type="hidden" name="form_signature" value="<?php echo md5('form' . (int)$Form->id . (int)$Block->id)?>" />
           <?php } ?>
