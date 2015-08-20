@@ -296,7 +296,7 @@ class Page extends \SOME\SOME implements IAccessible
     {
         if (!isset($this->locationBlocksText[$location])) {
             $Location = new Location($this->Template, $location);
-            $Set = $this->blocksByLocations[$Location->urn];
+            $Set = (array)$this->blocksByLocations[$Location->urn];
             foreach ($Set as $row) {
                 if ($row->vis) {
                     ob_start();
@@ -308,7 +308,7 @@ class Page extends \SOME\SOME implements IAccessible
                 }
             }
         }
-        return implode('', $this->locationBlocksText[$location]);
+        return implode('', (array)$this->locationBlocksText[$location]);
     }
 
 
