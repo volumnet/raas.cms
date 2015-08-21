@@ -229,6 +229,23 @@ class Material extends \SOME\SOME implements IAccessible
             $SQL_query .= " AND tP.id IN (" . implode(", ", $this->pages_ids) . ")";
         }
         $Set = Page::getSQLSet($SQL_query);
+        // 2015-08-21, AVS: добавил сортировку, т.к. выбранная по умолчанию страница должна быть первой, 
+        // в частности для реализации $this->url, где используется $this->affectedPages[0]
+        if ($dpid = $this->page_id) {
+            usort(
+                $Set, 
+                function($a, $b) use ($dpid) { 
+                    if (($a->id == $dpid) && ($b->id != $dpid)) {
+                        return -1;
+                    } elseif (($b->id == $dpid) && ($a->id != $dpid)) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            );
+        }
+
         return $Set;
     }
 
