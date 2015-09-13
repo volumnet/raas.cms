@@ -465,6 +465,11 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
                 'href' => $this->url . '&action=show_in_table_material_field&id=' . (int)$Item->id . '&back=1', 
                 'icon' => $Item->show_in_table ? 'ok' : '',
             );
+            $arr[] = array(
+                'name' => $this->_('REQUIRED'), 
+                'href' => $this->url . '&action=required_material_field&id=' . (int)$Item->id . '&back=1', 
+                'icon' => $Item->required ? 'ok' : '',
+            );
         }
         $arr = array_merge(
             $arr, 
@@ -484,6 +489,11 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
                 'name' => $this->_('SHOW_IN_TABLE'), 
                 'href' => $this->url . '&action=show_in_table_page_field&id=' . (int)$Item->id . '&back=1', 
                 'icon' => $Item->show_in_table ? 'ok' : '',
+            );
+            $arr[] = array(
+                'name' => $this->_('REQUIRED'), 
+                'href' => $this->url . '&action=required_page_field&id=' . (int)$Item->id . '&back=1', 
+                'icon' => $Item->required ? 'ok' : '',
             );
         }
         $arr = array_merge(
@@ -513,6 +523,11 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
                 'name' => $this->_('SHOW_IN_TABLE'), 
                 'href' => $this->url . '&action=show_in_table_form_field&id=' . (int)$Item->id . '&back=1', 
                 'icon' => $Item->show_in_table ? 'ok' : '',
+            );
+            $arr[] = array(
+                'name' => $this->_('REQUIRED'), 
+                'href' => $this->url . '&action=required_form_field&id=' . (int)$Item->id . '&back=1', 
+                'icon' => $Item->required ? 'ok' : '',
             );
         }
         $arr = array_merge(

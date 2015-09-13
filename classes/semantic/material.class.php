@@ -1,6 +1,8 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Attachment;
+use \RAAS\Application;
 
 class Material extends \SOME\SOME implements IAccessible
 {
@@ -89,13 +91,20 @@ class Material extends \SOME\SOME implements IAccessible
         if ($this->updates['urn']) {
             $this->urn = \SOME\Text::beautify($this->urn);
         }
-        while (
-            (int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . self::_tablename() . " WHERE urn = ? AND id != ?", $this->urn, (int)$this->id)) ||
-            (int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . Page::_tablename() . " WHERE urn = ?", $this->urn))
-        ) {
-            $this->urn = '_' . $this->urn . '_';
+        $need2UpdateURN = false;
+        if ($this->checkForSimilarPages() || Package::i()->checkForSimilar($this)) {
+            $need2UpdateURN = true;
         }
         parent::commit();
+        if ($need2UpdateURN) {
+            if (!preg_match('/-\\d+$/', $this->urn)) {
+                $this->urn .= '-' . $this->id;
+            }
+            for ($i = 0; $this->checkForSimilarPages() || Package::i()->checkForSimilar($this); $i++) {
+                $this->urn = Application::i()->getNewURN($this->urn, !$i);
+            }
+            parent::commit();
+        }
         $this->exportPages();
         $this->reload();
         foreach ($this->parents as $row) {
@@ -260,4 +269,16 @@ class Material extends \SOME\SOME implements IAccessible
         return Material_Type::getSQLSet($SQL_query);
     }
 
+
+    /**
+     * Ищет страницы с таким же URN, как и текущий материал (для проверки на уникальность)
+     * @return bool TRUE, если есть страница с таким URN, как и текущий материал, FALSE в противном случае
+     */
+    protected function checkForSimilarPages()
+    {
+        $SQL_query = "SELECT COUNT(*) FROM " . Page::_tablename() . " WHERE urn = ?";
+        $SQL_result = self::$SQL->getvalue(array($SQL_query, $this->urn));
+        $c = (bool)(int)$SQL_result;
+        return $c;
+    }
 }

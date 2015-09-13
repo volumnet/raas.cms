@@ -43,14 +43,15 @@ div.CodeMirror { height: 310px; border: 1px solid #ccc; border-radius: 5px; padd
 .cms-field_repo { display: none; }
 
 
-.cms-file { background: #eee; max-width: 270px; padding: 5px; margin-top: 5px; border-radius: 5px; behavior: url("system/public/PIE.htc");  }
-.cms-file:first-child { margin-bottom: 0; }
-.cms-file-internal { overflow: hidden; vertical-align: top; }
-.cms-file input[type="file"] { display: block; }
-.cms-file input[type="text"], .cms-file textarea { display: block; width: 95% }
-.cms-file-path { margin: 0; }
-.cms-file-path img { max-width: 64px; max-height: 64px; margin: 0 3px 3px 0; }
-.cms-filecard { max-width: 230px; overflow: hidden; clear: right; }
+.cms-filecard { overflow: hidden; clear: right; padding: 10px 40px 10px 10px; position: relative; }
+.cms-filecard .close { float: none; position: absolute; top: 10px; right: 10px; }
+.cms-filecard__move { position: absolute; top: 40px; right: 10px; }
+.cms-filecard__image { max-width: 64px; float: left; margin: 0 20px 0 0; }
+.cms-filecard label.checkbox { display: inline-block; }
+.cms-filecard__fields { position: relative; }
+.cms-filecard__fields_image { margin-left: 84px; }
+.cms-filecard__fields input[type="text"], .cms-filecard__fields textarea { display: block; width: 100%; }
+.cms-filecard__fields input[type="text"] { margin-bottom: 5px; }
 
 .cms-rebuild-cache { display: none; }
 .cms-rebuild-cache__possible-statuses { display: none; }

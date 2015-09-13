@@ -1,6 +1,8 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Attachment;
+use \RAAS\Application;
 
 class Package extends \RAAS\Package
 {
@@ -628,5 +630,35 @@ class Package extends \RAAS\Package
         $temp = pathinfo($filename);
         $outputFile = ltrim($temp['dirname'] ? $temp['dirname'] . '/' : '') . $temp['filename'] . '.' . ($w ?: 'auto') . 'x' . ($h ?: 'auto') . ($mode ? '_' . $mode : '') . '.' . $temp['extension'];
         return $outputFile;
+    }
+
+
+    /**
+     * Ищет сущности с таким же URN, как и текущая (для проверки на уникальность)
+     * @param \SOME\SOME $Object сущность для проверки
+     * @return bool TRUE, если уже есть сущность с таким URN, как и текущий, FALSE в противном случае
+     */
+    public function checkForSimilar(\SOME\SOME $Object)
+    {
+        $classname = get_class($Object);
+        $SQL_query = "SELECT COUNT(*) FROM " . $classname::_tablename() . " WHERE urn = ? AND id != ?";
+        $SQL_result = $classname::_SQL()->getvalue(array($SQL_query, $Object->urn, (int)$Object->id));
+        $c = (bool)(int)$SQL_result;
+        return $c;
+    }
+
+
+    /**
+     * Меняет URN до тех пор, пока не находит уникальный
+     * @param \SOME\SOME $Object сущность для изменения URN
+     * @return string Назначенный URN
+     */
+    public function getUniqueURN(\SOME\SOME $Object)
+    {
+        $Object->urn = \SOME\Text::beautify($Object->urn);
+        for ($i = 0; $this->checkForSimilar($Object); $i++) {
+            $Object->urn = Application::i()->getNewURN($Object->urn, !$i);
+        }
+        return $Object->urn;
     }
 }

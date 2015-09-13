@@ -131,7 +131,7 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                   <?php } ?>
                   <a href="<?php echo htmlspecialchars($row->fileURL)?>" target="_blank" data-role="file-link">
                     <?php if ($Field->type == 'image') { ?> 
-                        <img src="<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars(basename($row->filename))?>" title="<?php echo htmlspecialchars(basename($row->filename))?>" />
+                        <img src="<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars(basename($row->filename))?>" title="<?php echo htmlspecialchars(basename($row->filename))?>" class="cms-filecard__image" />
                     <?php } else { ?>
                         <?php echo htmlspecialchars(basename($row->filename))?>
                     <?php } ?>
@@ -139,8 +139,10 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                   <input type="hidden" name="<?php echo htmlspecialchars($Field->name . '@attachment')?>" value="<?php echo (int)$DATA['attachment']?>" />
                   <input<?php echo $_RAASForm_Attrs($Field, $attrs)?> />
                   <label class="checkbox"><input type="checkbox" name="<?php echo htmlspecialchars($Field->name . '@vis')?>" value="1" <?php echo $DATA['vis'] ? 'checked="checked"' : ''?> /> <?php echo CMS\VISIBLE?></label>
-                  <input type="text" name="<?php echo htmlspecialchars($Field->name . '@name')?>" value="<?php echo htmlspecialchars($DATA['name'])?>" />
-                  <textarea name="<?php echo htmlspecialchars($Field->name . '@description')?>"><?php echo htmlspecialchars($DATA['description'])?></textarea>
+                  <div class="cms-filecard__fields<?php echo (($Field->type == 'image' && $row->id) ? ' cms-filecard__fields_image' : '')?>">
+                    <input type="text" name="<?php echo htmlspecialchars($Field->name . '@name')?>" value="<?php echo htmlspecialchars($DATA['name'])?>" placeholder="<?php echo $Field->type == 'image' ? CMS\IMG_NAME_ALT_TITLE : NAME?>" />
+                    <textarea name="<?php echo htmlspecialchars($Field->name . '@description')?>" placeholder="<?php echo DESCRIPTION?>"><?php echo htmlspecialchars($DATA['description'])?></textarea>
+                  </div>
                 </div>
                 <?php
             } else {
@@ -167,9 +169,10 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                             ?>
                             <div class="well cms-filecard" data-role="raas-repo-element">
                               <a class="close" data-role="raas-repo-del" href="#">&times;</a>
+                              <a href="#" data-role="raas-repo-move" class="cms-filecard__move"><i class="icon icon-resize-vertical"></i></a>
                               <a href="<?php echo htmlspecialchars($row->fileURL)?>" target="_blank">
                                 <?php if ($Field->type == 'image') { ?> 
-                                    <img src="<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars(basename($row->filename))?>" title="<?php echo htmlspecialchars(basename($row->filename))?>" />
+                                    <img src="<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars(basename($row->filename))?>" title="<?php echo htmlspecialchars(basename($row->filename))?>" class="cms-filecard__image" />
                                 <?php } else { ?>
                                     <?php echo htmlspecialchars(basename($row->filename))?>
                                 <?php } ?>
@@ -178,9 +181,10 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                               <input<?php echo $_RAASForm_Attrs($Field, $attrs)?> />
                               <label class="checkbox"><input type="checkbox" name="<?php echo htmlspecialchars($Field->name . '@vis[]')?>" value="1" <?php echo $DATA['vis'] ? 'checked="checked"' : ''?> /> <?php echo CMS\VISIBLE?></label>
                               <input type="checkbox" style="display: none" name="<?php echo htmlspecialchars($Field->name . '@vis[]')?>" value="0" data-role="checkbox-shadow" />
-                              <a href="#" data-role="raas-repo-move"><i class="icon icon-resize-vertical"></i></a>
-                              <input type="text" name="<?php echo htmlspecialchars($Field->name . '@name[]')?>" value="<?php echo htmlspecialchars($DATA['name'])?>" />
-                              <textarea name="<?php echo htmlspecialchars($Field->name . '@description[]')?>"><?php echo htmlspecialchars($DATA['description'])?></textarea>
+                              <div class="cms-filecard__fields<?php echo ($Field->type == 'image' ? ' cms-filecard__fields_image' : '')?>">
+                                <input type="text" name="<?php echo htmlspecialchars($Field->name . '@name[]')?>" value="<?php echo htmlspecialchars($DATA['name'])?>" placeholder="<?php echo $Field->type == 'image' ? CMS\IMG_NAME_ALT_TITLE : NAME?>" />
+                                <textarea name="<?php echo htmlspecialchars($Field->name . '@description[]')?>" placeholder="<?php echo DESCRIPTION?>"><?php echo htmlspecialchars($DATA['description'])?></textarea>
+                              </div>
                             </div>
                         <?php 
                         } 
@@ -189,12 +193,14 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                   </div>
                   <div class="well cms-filecard"<?php echo $Field->multiple ? ' data-role="raas-repo"' : ''?>>
                     <a class="close" data-role="raas-repo-del" href="#">&times;</a>
+                    <a href="#" data-role="raas-repo-move" class="cms-filecard__move"><i class="icon icon-resize-vertical"></i></a>
                     <input type="hidden" name="<?php echo htmlspecialchars($Field->name . '@attachment[]')?>" disabled="disabled" />
                     <input<?php echo $_RAASForm_Attrs($Field, array_merge($attrs, array('disabled' => 'disabled')))?> />
                     <label class="checkbox"><input type="checkbox" name="<?php echo htmlspecialchars($Field->name . '@vis[]')?>" value="1" disabled="disabled" checked="checked" /> <?php echo CMS\VISIBLE?></label>
-                    <a href="#" data-role="raas-repo-move"><i class="icon icon-resize-vertical"></i></a>
-                    <input type="text" name="<?php echo htmlspecialchars($Field->name . '@name[]')?>" disabled="disabled" />
-                    <textarea name="<?php echo htmlspecialchars($Field->name . '@description[]')?>"></textarea>
+                    <div class="cms-filecard__fields">
+                      <input type="text" name="<?php echo htmlspecialchars($Field->name . '@name[]')?>" placeholder="<?php echo $Field->type == 'image' ? CMS\IMG_NAME_ALT_TITLE : NAME?>" disabled="disabled" />
+                      <textarea name="<?php echo htmlspecialchars($Field->name . '@description[]')?>" placeholder="<?php echo DESCRIPTION?>"></textarea>
+                    </div>
                   </div>
                 </div>
                 <?php

@@ -244,6 +244,13 @@ abstract class Field extends \RAAS\CustomField
     }
 
 
+    public function required()
+    {
+        $this->required = (int)!(bool)$this->required;
+        $this->commit();
+    }
+
+
     public static function delete(self $object)
     {
         $SQL_query = "DELETE FROM " . static::$dbprefix . static::data_table . " WHERE fid = " . (int)$object->id;

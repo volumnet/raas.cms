@@ -1,6 +1,8 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Attachment;
+use \RAAS\Application;
 
 class Page extends \SOME\SOME implements IAccessible
 {
@@ -204,12 +206,10 @@ class Page extends \SOME\SOME implements IAccessible
         if ($this->updates['urn'] && $this->pid) {
             $this->urn = \SOME\Text::beautify($this->urn);
         }
-        while (
-            (int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . self::_tablename() . " WHERE urn = ? AND pid = ? AND id != ?", $this->urn, $this->pid, (int)$this->id)) ||
-            (int)self::$SQL->getvalue(array("SELECT COUNT(*) FROM " . Material::_tablename() . " WHERE urn = ?", $this->urn))
-        ) {
-            $this->urn = '_' . $this->urn . '_';
+        for ($i = 0; $this->checkForSimilarPages() || $this->checkForSimilarMaterials(); $i++) {
+            $this->urn = Application::i()->getNewURN($this->urn, !$i);
         }
+        
         
         $enableHeritage = false;
         foreach (self::$inheritedFields as $key => $val) {
@@ -566,5 +566,31 @@ class Page extends \SOME\SOME implements IAccessible
                 Material::delete($row);
             }
         }
+    }
+
+
+    /**
+     * Ищет страницы с таким же URN и родителем, как и текущая (для проверки на уникальность)
+     * @return bool TRUE, если в том же родительском разделе уже есть страница с таким URN, FALSE в противном случае
+     */
+    protected function checkForSimilarPages()
+    {
+        $SQL_query = "SELECT COUNT(*) FROM " . self::_tablename() . " WHERE urn = ? AND pid = ? AND id != ?";
+        $SQL_result = self::$SQL->getvalue(array($SQL_query, $this->urn, $this->pid, (int)$this->id));
+        $c = (bool)(int)$SQL_result;
+        return $c;
+    }
+
+
+    /**
+     * Ищет материалы с таким же URN, как и текущая страница (для проверки на уникальность)
+     * @return bool TRUE, если есть материал с таким URN, как и текущая страница, FALSE в противном случае
+     */
+    protected function checkForSimilarMaterials()
+    {
+        $SQL_query = "SELECT COUNT(*) FROM " . Material::_tablename() . " WHERE urn = ?";
+        $SQL_result = self::$SQL->getvalue(array($SQL_query, $this->urn));
+        $c = (bool)(int)$SQL_result;
+        return $c;
     }
 }

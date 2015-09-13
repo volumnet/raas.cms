@@ -24,7 +24,7 @@ class EditFormForm extends \RAAS\Form
         $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
         $CONTENT = array();
-        $CONTENT['material_types'] = array_merge(array(new Material_Type(array('id' => 0, 'name' => $view->_('_NONE')))), (array)Material_Type::getSet());
+        $CONTENT['material_types'] = (array)Material_Type::getSet();
         foreach (array('' => '_OFF', 'captcha' => 'CAPTCHA', 'hidden' => 'HIDDEN_FIELD') as $key => $val) {
             $CONTENT['antispam'][] = array('value' => $key, 'caption' => $view->_($val));
         }
@@ -50,7 +50,11 @@ class EditFormForm extends \RAAS\Form
             'children' => array(
                 array('name' => 'name', 'caption' => $view->_('NAME'), 'required' => 'required'),
                 array(
-                    'type' => 'select', 'name' => 'material_type', 'caption' => $view->_('MATERIAL_TYPE'), 'children' => array('Set' => $CONTENT['material_types'])
+                    'type' => 'select', 
+                    'name' => 'material_type', 
+                    'caption' => $view->_('MATERIAL_TYPE'), 
+                    'children' => array('Set' => $CONTENT['material_types']), 
+                    'placeholder' => $view->_('_NONE')
                 ),
                 array('type' => 'checkbox', 'name' => 'create_feedback', 'caption' => $view->_('CREATE_FEEDBACK'), 'default' => 1),
                 array('type' => 'checkbox', 'name' => 'signature', 'caption' => $view->_('REQUIRE_UNIQUE'), 'default' => 1),

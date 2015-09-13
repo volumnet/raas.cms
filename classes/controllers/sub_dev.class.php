@@ -87,9 +87,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 Diag::deleteStat($from, $to);
                 new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=diag');
                 break;
-            case 'move_up_material_field': case 'move_down_material_field': case 'delete_material_field': case 'show_in_table_material_field':
-            case 'move_up_form_field': case 'move_down_form_field': case 'delete_form_field': case 'show_in_table_form_field':
-            case 'move_up_page_field': case 'move_down_page_field': case 'delete_page_field': case 'show_in_table_page_field':
+            case 'move_up_material_field': case 'move_down_material_field': case 'delete_material_field': case 'show_in_table_material_field': case 'required_material_field':
+            case 'move_up_form_field': case 'move_down_form_field': case 'delete_form_field': case 'show_in_table_form_field': case 'required_form_field':
+            case 'move_up_page_field': case 'move_down_page_field': case 'delete_page_field': case 'show_in_table_page_field': case 'required_page_field':
                 if (strstr($this->action, 'form')) {
                     $Item = new Form_Field((int)$this->id);
                     $Parent = $Item->Owner;

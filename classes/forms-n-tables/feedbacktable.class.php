@@ -52,7 +52,47 @@ class FeedbackTable extends \RAAS\Table
         foreach ($params['columns'] as $key => $col) {
             $columns[$col->urn] = array(
                 'caption' => $col->name,
-                'callback' => function($row) use ($col) { if (isset($row->fields[$col->urn])) { $y = $row->fields[$col->urn]->doRich(); } return $y ? $y : ''; }
+                'callback' => function($row) use ($col) { 
+                    $text = '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '" title="' . htmlspecialchars($row->description) . '">';
+                    $f = $row->fields[$col->urn];
+                    switch ($f->datatype) {
+                        case 'htmlarea':
+                            $text .= strip_tags($f->doRich());
+                            break;
+                        case 'file':
+                            $v = $f->getValue();
+                            $text .= $v->name;
+                            break;
+                        case 'image':
+                            $v = $f->getValue();
+                            $text .= '<img src="/' . $v->tnURL . '" style="max-width: 48px;" />';
+                            break;
+                        case 'material':
+                            $v = $f->getValue();
+                            $m = new Material($v);
+                            if ($m->id) {
+                                $text .= htmlspecialchars($m->name);
+                            }
+                            break;
+                        case 'checkbox':
+                            if ($f->multiple) {
+                                $text .= $f->doRich();
+                            } else {
+                                if ((int)$f->getValue()) {
+                                    $text .= '<span class="icon icon-ok"></span>';
+                                }
+                            }
+                            break;
+                        default:
+                            if (isset($f)) { 
+                                $y = $f->doRich(); 
+                            } 
+                            $text .= $y ? $y : ''; 
+                            break;
+                    }
+                    $text .= '</a>';
+                    return $text;
+                }
             );
         }
         $columns[' '] = array('callback' => function ($row) use ($view) { return rowContextMenu($view->getFeedbackContextMenu($row)); });
