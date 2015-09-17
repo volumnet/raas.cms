@@ -125,7 +125,7 @@ if ($Form->id) {
             $Objects = array($Item);
             if ($Form->Material_Type->id) {
                 if (!$Form->Material_Type->global_type) {
-                    $Material->cats = array((int)$Page->id);
+                    $Material->cats = array((int)$Referer->id ?: (int)$Page->id);
                 }
                 $Objects[] = $Material;
             }
