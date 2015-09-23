@@ -20,6 +20,12 @@ class Menu extends \SOME\SOME
     public function __get($var)
     {
         switch ($var) {
+            case 'url': // 2015-09-23, AVS: сделал, чтобы при переносе страницы URL сохранялся
+                if ($this->page->id) {
+                    return $this->page->url;
+                }
+                return parent::__get($var);
+                break;
             case 'visSubMenu':
                 return array_values(array_filter($this->subMenu, function($x) { return $x->vis; }));
                 break;
