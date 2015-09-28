@@ -260,17 +260,4 @@ abstract class Field extends \RAAS\CustomField
         }
         parent::delete($object);
     }
-    
-    
-    public static function getSet()
-    {
-        $args = func_get_args();
-        if (!isset($args[0]['where'])) {
-            $args[0]['where'] = array();
-        } else {
-            $args[0]['where'] = (array)$args[0]['where'];
-        }
-        $args[0]['where'][] = "classname = '" . static::$SQL->real_escape_string(static::$references['parent']['classname']) . "'";
-        return call_user_func_array('parent::getSet', $args);
-    }
 }
