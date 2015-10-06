@@ -126,6 +126,7 @@ class Webmaster
             'order_call_modal' => $this->view->_('ORDER_CALL_MODAL'), 
             'search' => $this->view->_('SITE_SEARCH'),
             'sitemap_xml' => $this->view->_('SITEMAP_XML'),
+            'robots' => $this->view->_('ROBOTS_TXT'),
             'menu_content' => $this->view->_('SITEMAP'),
             'menu_top' => $this->view->_('TOP_MENU'),
             'menu_left' => $this->view->_('LEFT_MENU'),
@@ -315,7 +316,7 @@ class Webmaster
             $this->createBlock($B, 'content', null, 'sitemap_xml', $sitemaps);
 
             $B = new Block_HTML(array('name' => $this->view->_('ROBOTS_TXT'), 'description' => '', 'wysiwyg' => 0,));
-            $this->createBlock($B, 'content', null, null, $robots);
+            $this->createBlock($B, 'content', null, 'robots', $robots);
 
             $this->createNews($this->view->_('NEWS'), 'news', $this->view->_('NEWS_MAIN'));
         }
