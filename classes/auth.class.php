@@ -91,6 +91,8 @@ class Auth
         $this->user = new User();
         unset($_SESSION[self::SESSION_VAR], $_SESSION[static::SESSION_CONFIRMED_SOCIAL_VAR]);
         setcookie(self::COOKIE_VAR, $_COOKIE[self::COOKIE_VAR] = '', time() - Application::i()->registryGet('cookieLifetime') * 86400, '/');
+        setcookie(session_name(), $_COOKIE[session_name()] = '', time() - Application::i()->registryGet('cookieLifetime') * 86400, '/');
+        session_destroy();
     }
 
 
