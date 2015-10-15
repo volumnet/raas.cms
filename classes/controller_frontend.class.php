@@ -236,13 +236,12 @@ class Controller_Frontend extends Abstract_Controller
         $replace['<' . '?'] = '<' . '?php echo "<" . "?";?' . '>';
         $replace['?' . '>'] = '<' . '?php echo "?" . ">";?' . '>';
         $content = strtr($content, $replace);
+        $content = preg_replace('/(\\?\\>)(\\r|\\n|\\r\\n)/umi', '$1$2$2', $content);
         $text = '';
         if ($headers) {
             $text .= '<' . "?php\n";
             foreach ($headers as $header) {
-                if (!stristr($header, 'cookie')) {
-                    $text .= 'header("' . addslashes($header) . '");' . "\n";
-                }
+                $text .= 'header("' . addslashes($header) . '");' . "\n";
             }
             $text .= '?' . ">";
         }

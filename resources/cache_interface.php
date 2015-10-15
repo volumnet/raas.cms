@@ -13,6 +13,10 @@ switch ($Block->cache_type) {
         break;
 }
 if ($cacheText) {
+    $replace['<' . '?'] = '<' . '?php echo "<" . "?";?' . '>';
+    $replace['?' . '>'] = '<' . '?php echo "?" . ">";?' . '>';
+    $cacheText = strtr($cacheText, $replace);
+    $cacheText = preg_replace('/(\\?\\>)(\\r|\\n|\\r\\n)/umi', '$1$2$2', $cacheText);
     file_put_contents($Block->getCacheFile($_SERVER['REQUEST_URI']), $cacheText);
 }
 return $OUT;
