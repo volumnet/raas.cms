@@ -1,6 +1,6 @@
 <div class="materials faq">
   <?php if ($Item) { ?>
-      <article class="article_opened">
+      <div class="article_opened">
         <?php if ($Item->image->id) { ?>
             <div class="article__image">
               <a href="/<?php echo $Item->image->fileURL?>">
@@ -16,30 +16,29 @@
               <label class="article__label">Ответ:</label> <?php echo htmlspecialchars($Item->answer)?>
             </div>
         <?php } ?>
-      </article>
+      </div>
   <?php } elseif ($Set) { ?> 
       <?php foreach ($Set as $row) { ?>
-          <article class="article">
+          <div class="article">
             <?php if ($row->image->id) { ?>
                 <div class="article__image">
-                  <a href="/<?php echo $row->image->fileURL?>">
+                  <a href="<?php echo $row->url?>">
                     <img src="/<?php echo $row->image->tnURL?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" /></a>
                 </div>
             <?php } ?>
             <div class="article__date"><?php echo date('d', strtotime($row->post_date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->post_date))] . ' ' . date('Y', strtotime($row->post_date))?></div>
             <?php if (strlen($row->name) > 1 && !is_numeric($row->name)) { ?>
-                <h3 class="article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></h3>
+                <div class="h3 article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></div>
             <?php } ?>
             <div class="article__text article__question">
               <label class="article__label">Вопрос:</label> <?php echo htmlspecialchars($row->description)?>
             </div>
             <?php if ($row->answer) { ?>
-                <br />
                 <div class="article__text article__answer">
                   <label class="article__label">Ответ:</label> <?php echo htmlspecialchars($row->answer)?>
                 </div>
             <?php } ?>
-          </article>
+          </div>
       <?php } ?>
       <?php include \RAAS\CMS\Package::i()->resourcesDir . '/pages.inc.php'?>
       <?php if ($Pages->pages > 1) { ?>

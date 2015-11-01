@@ -1,6 +1,6 @@
 <div class="photos">
   <?php if ($Item) { ?>
-      <article class="article_opened">
+      <div class="article_opened">
         <div class="article__text"><?php echo $Item->description?></div>
         <?php if (count($Item->visImages) > 0) { ?>
             <div class="article__images row">
@@ -12,12 +12,12 @@
               <?php } ?>
             </div>
         <?php } ?>
-      </article>
+      </div>
   <?php } elseif ($Set) { ?>
       <?php foreach ($Set as $row) { ?>
-          <article class="article">
+          <div class="article">
             <?php if (count($row->visImages) > 0) { ?>
-                <h2 class="article__title"><a href="<?php echo htmlspecialchars($row->url)?>"><?php echo htmlspecialchars($row->name)?></a></h2>
+                <div class="h2 article__title"><a href="<?php echo htmlspecialchars($row->url)?>"><?php echo htmlspecialchars($row->name)?></a></div>
                 <div class="article__images row">
                   <?php for ($i = 0; $i < count($row->visImages); $i++) { $row2 = $row->visImages[$i]; ?>
                       <div class="col-sm-4 col-md-3 col-xs-6">
@@ -27,7 +27,7 @@
                   <?php } ?>
                 </div>
             <?php } ?>
-          </article>
+          </div>
       <?php } ?>
       <?php include \RAAS\CMS\Package::i()->resourcesDir . '/pages.inc.php'?>
       <?php if ($Pages->pages > 1) { ?>

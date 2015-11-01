@@ -1,15 +1,15 @@
 <?php if ($Set) { ?> 
     <div class="faq faq_main">
-      <h2>{FAQ_NAME}</h2>
+      <div class="h2">{FAQ_NAME}</div>
       <?php foreach ($Set as $row) { ?>
-          <article class="article">
+          <div class="article">
             <?php if ($row->image->id) { ?>
                 <div class="article__image">
                   <a href="<?php echo htmlspecialchars($row->url)?>"><img src="/<?php echo $row->image->tnURL?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" /></a>
                 </div>
             <?php } ?>
             <?php if (strlen($row->name) > 1 && !is_numeric($row->name)) { ?>
-                <h3 class="article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></h3>
+                <div class="h3 article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></div>
             <?php } ?>
             <div class="article__text article__question">
               <label class="article__label">Вопрос:</label> <?php echo htmlspecialchars($row->description)?>
@@ -20,7 +20,7 @@
                   <label class="article__label">Ответ:</label> <?php echo htmlspecialchars($row->answer)?>
                 </div>
             <?php } ?>
-          </article>
+          </div>
       <?php } ?>
     </div>
 <?php } ?>

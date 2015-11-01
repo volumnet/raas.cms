@@ -1,20 +1,20 @@
 <div class="search materials">
-  <h3><?php echo sprintf(SEARCH_RESULTS_FOR_QUERY, $search_string)?></h3>
+  <div class="h3"><?php echo sprintf(SEARCH_RESULTS_FOR_QUERY, $search_string)?></div>
   <?php if ($Set) { ?>
       <div>
         <?php foreach ($Set as $row) { ?>
             <div class="search-result">
               <?php if ($row instanceof \RAAS\CMS\Page) { ?>
-                  <article class="article">
-                    <h3 class="article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></h3>
+                  <div class="article">
+                    <div class="h3 article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></div>
                     <div class="article__text">
                       <?php echo htmlspecialchars(\SOME\Text::cuttext(html_entity_decode(strip_tags($row->location('content')), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
                       <p><a href="<?php echo $row->url?>" class="article__read-more">Подробней...</a></p>
                     </div>
-                  </article>
+                  </div>
               <?php } elseif ($row instanceof \RAAS\CMS\Material) { ?>
-                  <article class="article">
-                    <h3 class="article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></h3>
+                  <div class="article">
+                    <div class="h3 article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></div>
                     <?php if (strtotime($row->date) > 0) { ?>
                         <p class="article__date"><?php echo date('d', strtotime($row->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->date))] . ' ' . date('Y', strtotime($row->date))?></p>
                     <?php } ?>
@@ -28,7 +28,7 @@
                       <?php echo htmlspecialchars(\SOME\Text::cuttext(html_entity_decode(strip_tags($row->description), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
                       <p><a href="<?php echo $row->url?>" class="article__read-more">Подробней...</a></p>
                     </div>
-                  </article>
+                  </div>
               <?php } ?>
             </div>
         <?php } ?>

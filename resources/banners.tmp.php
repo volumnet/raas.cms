@@ -16,7 +16,7 @@
                 </a>
                 <?php if ($row->name[0] != '.') { ?>
                     <div class="banners__caption">
-                      <h3 class="banners__title"><?php echo htmlspecialchars($row->name)?></h3>
+                      <div class="h3 banners__title"><?php echo htmlspecialchars($row->name)?></div>
                       <div class="banners__description"><?php echo $row->description?></div>
                     </div>
                 <?php } ?>

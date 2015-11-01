@@ -19,7 +19,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
             <form data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">
               <div class="modal-header">
                 <button type="button" data-dismiss="modal" aria-hidden="true" class="close">×</button>
-                <h4 class="modal-title"><?php echo ORDER_CALL?></h4>
+                <div class="h4 modal-title"><?php echo ORDER_CALL?></div>
               </div>
               <div class="modal-body">
                 <div class="form-horizontal">

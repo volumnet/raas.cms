@@ -1,6 +1,6 @@
 <div class="materials">
   <?php if ($Item) { ?>
-      <article class="article_opened">
+      <div class="article_opened">
         <?php if (strtotime($Item->date) > 0) { ?>
             <div class="article__date"><?php echo date('d', strtotime($Item->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($Item->date))] . ' ' . date('Y', strtotime($Item->date))?></div>
         <?php } ?>
@@ -13,7 +13,7 @@
         <div class="article__text"><?php echo $Item->description?></div>
         <?php if (count($Item->visImages) > 1) { ?>
             <div class="clearfix"></div>
-            <h2>Фотографии</h2>
+            <div class="h2">Фотографии</div>
             <div class="article__images">
               <div class="row">
                 <?php for ($i = 1; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
@@ -25,10 +25,10 @@
               </div>
             </div>
         <?php } ?>
-      </article>
+      </div>
   <?php } elseif ($Set) { ?>
       <?php foreach ($Set as $row) { ?>
-          <article class="article">
+          <div class="article">
             <?php if ($row->visImages) { ?>
                 <div class="article__image">
                   <a href="<?php echo $row->url?>">
@@ -36,14 +36,14 @@
                 </div>
             <?php } ?>
             <div class="article__text">
-              <h3 class="article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></h3>
+              <div class="h3 article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></div>
               <?php if (strtotime($row->date) > 0) { ?>
                   <div class="article__date"><?php echo date('d', strtotime($row->date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->date))] . ' ' . date('Y', strtotime($row->date))?></div>
               <?php } ?>
               <?php echo htmlspecialchars($row->brief ?: \SOME\Text::cuttext(html_entity_decode(strip_tags($row->description), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
               <div class="article__read-more"><a href="<?php echo $row->url?>">Подробней…</a></div>
             </div>
-  				</article>
+  				</div>
       <?php } ?>
       <?php include \RAAS\CMS\Package::i()->resourcesDir . '/pages.inc.php'?>
       <?php if ($Pages->pages > 1) { ?>
