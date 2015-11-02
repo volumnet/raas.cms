@@ -48,7 +48,7 @@ class CMSAccess extends \SOME\SOME
     }
 
 
-    public function userHasCascadeAccess(\SOME\SOME $entity, User $user)
+    public static function userHasCascadeAccess(\SOME\SOME $entity, User $user)
     {
         if (is_array($entity->access)) {
             $accessSet = array_reverse($entity->access);
