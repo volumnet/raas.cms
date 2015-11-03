@@ -11,8 +11,8 @@ $colspanMD = 3;
   </head>
   <body>
     <div class="background-holder">
-      <div class="container">
-        <header class="location_header">
+      <header class="location_header">
+        <div class="container">
           <div class="row">
             <div class="col-sm-6"><?php echo $Page->locationBlocksText['header'][0]?></div>
             <div class="col-sm-6"><?php echo $Page->locationBlocksText['header'][1]?></div>
@@ -22,15 +22,20 @@ $colspanMD = 3;
               echo $Page->locationBlocksText['header'][$i];
           } 
           ?> 
-        </header>
-        <div class="main-container">
+        </div>
+      </header>
+      <div class="main-container">
+        <div class="container">
           <div class="row">
-            <?php if (count($Page->locationBlocksText['left'])) { ?>
-                <aside class="location_left col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>"><?php echo $Page->location('left')?></aside>
+            <?php 
+            $leftText = $Page->location('left');
+            $rightText = $Page->location('right');
+            if ($leftText) { ?>
+                <aside class="location_left col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>"><?php echo $leftText?></aside>
             <?php } ?>
             <?php if (count($Page->locationBlocksText['content'])) { 
-                $spanSM = 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $colspanSM);
-                $spanMD = 12 - (((int)(bool)count($Page->locationBlocksText['left']) + (int)(bool)count($Page->locationBlocksText['right'])) * $colspanMD);
+                $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
+                $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
                 ?>
                 <div class="location_content col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
                   <?php if (!$Page->pid) { ?>
@@ -51,11 +56,13 @@ $colspanMD = 3;
                   <?php } ?>
                 </div>
             <?php } ?>
-            <?php if (count($Page->locationBlocksText['right'])) { ?>
-                <aside class="location_right col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>"><?php echo $Page->location('right')?></aside>
+            <?php if ($rightText) { ?>
+                <aside class="location_right col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>"><?php echo $rightText?></aside>
             <?php } ?>
           </div>
         </div>
+      </div>
+      <div class="container">
         <footer class="location_footer">
           <div class="row">
             <div class="col-sm-5"><?php echo $Page->locationBlocksText['footer'][0]?></div>
