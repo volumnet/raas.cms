@@ -62,8 +62,8 @@ $colspanMD = 3;
           </div>
         </div>
       </div>
-      <div class="container">
-        <footer class="location_footer">
+      <footer class="location_footer">
+        <div class="container">
           <div class="row">
             <div class="col-sm-5"><?php echo $Page->locationBlocksText['footer'][0]?></div>
             <div class="col-sm-2"><?php echo $Page->locationBlocksText['footer'][1]?></div>
@@ -75,8 +75,8 @@ $colspanMD = 3;
           } 
           ?> 
           <div class="developer">Разработка и сопровождение сайта <a href="http://volumnet.ru" target="_blank">Volume Networks</a></div>
-        </footer>
-      </div>
+        </div>
+      </footer>
     </div>
     <?php echo $Page->location('footer_counters')?>
   </body>
