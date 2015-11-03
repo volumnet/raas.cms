@@ -241,7 +241,9 @@ class Controller_Frontend extends Abstract_Controller
         if ($headers) {
             $text .= '<' . "?php\n";
             foreach ($headers as $header) {
-                $text .= 'header("' . addslashes($header) . '");' . "\n";
+                if (!stristr($header, 'cookie')) {
+                    $text .= 'header("' . addslashes($header) . '");' . "\n";
+                }
             }
             $text .= '?' . ">";
         }
