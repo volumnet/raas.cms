@@ -3,12 +3,13 @@
       <div class="h2">{MATERIAL_NAME}</div>
       <?php foreach ($Set as $row) { ?>
           <div class="article">
-            <?php if ($row->visImages) { ?>
-                <div class="article__image">
-                  <a href="<?php echo $row->url?>">
-                    <img src="/<?php echo htmlspecialchars(addslashes($row->visImages[0]->tnURL))?>" alt="<?php echo htmlspecialchars($row->visImages[0]->name ?: $row->name)?>" /></a>
-                </div>
-            <?php } ?>
+            <div class="article__image<?php !$row->visImages ? ' article__image_noimage' : ''?>">
+              <a href="<?php echo $row->url?>">
+                <?php if ($row->visImages) { ?>
+                    <img src="/<?php echo htmlspecialchars(addslashes($row->visImages[0]->tnURL))?>" alt="<?php echo htmlspecialchars($row->visImages[0]->name ?: $row->name)?>" />
+                <?php } ?>
+              </a>
+            </div>
             <div class="article__text">
               <div class="h3 article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></div>
               <?php if (strtotime($row->date) > 0) { ?>
