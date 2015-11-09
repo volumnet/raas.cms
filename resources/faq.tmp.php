@@ -9,7 +9,7 @@
         <?php } ?>
         <div class="article__date"><?php echo date('d', strtotime($row->post_date)) . ' ' . \SOME\Text::$months[(int)date('m', strtotime($row->post_date))] . ' ' . date('Y', strtotime($row->post_date))?></div>
         <div class="article__text article__question">
-          <label class="article__label">Вопрос:</label> <?php echo htmlspecialchars($Item->description)?>
+          <label class="article__label">Вопрос:</label> <?php echo $Item->description?>
         </div>
         <?php if ($Item->answer) { ?>
             <div class="article__text article__answer">
@@ -31,7 +31,7 @@
                 <div class="h3 article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></div>
             <?php } ?>
             <div class="article__text article__question">
-              <label class="article__label">Вопрос:</label> <?php echo htmlspecialchars($row->description)?>
+              <label class="article__label">Вопрос:</label> <?php echo $row->description?>
             </div>
             <?php if ($row->answer) { ?>
                 <div class="article__text article__answer">

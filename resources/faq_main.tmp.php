@@ -12,7 +12,7 @@
                 <div class="h3 article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></div>
             <?php } ?>
             <div class="article__text article__question">
-              <label class="article__label">Вопрос:</label> <?php echo htmlspecialchars($row->description)?>
+              <label class="article__label">Вопрос:</label> <?php echo $row->description?>
             </div>
             <?php if ($row->answer) { ?>
                 <br />
