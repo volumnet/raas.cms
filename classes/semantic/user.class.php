@@ -20,13 +20,13 @@ class User extends \SOME\SOME
     {
         switch ($var) {
             case 'activationKey':
-                return $this->id . Application::md5It('activation' . $this->id . $this->login . $this->email . $this->password_md5);
+                return $this->id . Application::i()->md5It('activation' . $this->id . $this->login . $this->email . $this->password_md5);
                 break;
             case 'recoveryKey':
-                return $this->id . Application::md5It('recovery' . $this->id . $this->login . $this->email . $this->password_md5);
+                return $this->id . Application::i()->md5It('recovery' . $this->id . $this->login . $this->email . $this->password_md5);
                 break;
             case 'loginKey':
-                return $this->id . Application::md5It('login' . $this->id . $this->login . $this->email . $this->password_md5);
+                return $this->id . Application::i()->md5It('login' . $this->id . $this->login . $this->email . $this->password_md5);
                 break;
             default:
                 $val = parent::__get($var);
@@ -263,7 +263,7 @@ class User extends \SOME\SOME
         $Set = static::getSet(array('where' => "login = '" . $login . "'"));
         if ($Set) {
             $User = array_shift($Set);
-            if (Application::md5It($password) == $User->password_md5) {
+            if (Application::i()->md5It($password) == $User->password_md5) {
                 return $User;
             }
         }
