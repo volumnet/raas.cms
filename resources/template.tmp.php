@@ -84,7 +84,7 @@ $colspanMD = 3;
             } 
             ?>
           </div>
-          <div class="developer">Разработка и сопровождение сайта <a href="http://volumnet.ru" target="_blank">Volume Networks</a></div>
+          <div class="developer">Разработка и сопровождение сайта <a href="http://volumnet.ru" target="_blank">Volume&nbsp;Networks</a></div>
         </div>
       </footer>
     </div>
