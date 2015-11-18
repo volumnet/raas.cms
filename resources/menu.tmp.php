@@ -14,14 +14,12 @@ $showMenu = function($node, \RAAS\CMS\Page $current) use (&$showMenu) {
         if ($node instanceof \RAAS\CMS\Menu) {
             $url = $row->url;
             $name = $row->name;
-            $active = (($row->page_id == $current->id) || ($row->url == $current->url));
-            $semiactive = $row->findPage($current);
         } else {
             $url = $row['url'];
             $name = $row['name'];
-            $active = ($row['url'] == \SOME\HTTP::queryString('', true));
-            $semiactive = stristr(\SOME\HTTP::queryString('', true), $row['url']);
         }
+        $active = ($url == \SOME\HTTP::queryString('', true));
+        $semiactive = stristr(\SOME\HTTP::queryString('', true), $url);
         if (stristr($ch, 'class="active"')) {
             $semiactive = true;
         }
