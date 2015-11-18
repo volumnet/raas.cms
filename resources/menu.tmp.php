@@ -19,14 +19,14 @@ $showMenu = function($node, \RAAS\CMS\Page $current) use (&$showMenu) {
         } else {
             $url = $row['url'];
             $name = $row['name'];
-            $active = ($row['url'] == $current->url);
-            $semiactive = false;
+            $active = ($row['url'] == \SOME\HTTP::queryString('', true));
+            $semiactive = stristr(\SOME\HTTP::queryString('', true), $row['url']);
         }
         if (stristr($ch, 'class="active"')) {
             $semiactive = true;
         }
         $text .= '<li' . ($active || $semiactive ? ' class="active"' : '') . '>'
-              .  '  <a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($name) . '</a>'
+              .  '  <a' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>' . htmlspecialchars($name) . '</a>'
               .     $ch
               .  '</li>';
     }
