@@ -3,13 +3,20 @@ include \RAAS\Application::i()->context->view->tmp('field.inc.php');
 $_RAASForm_FieldSet = function(\RAAS\FieldSet $FieldSet) use (&$_RAASForm_Form_Tabbed, &$_RAASForm_Form_Plain, &$_RAASForm_Control, &$_RAASForm_Options) {
     $Field = $FieldSet->children[0];
     $inheritField = $FieldSet->children[1];
+    $dataHint = $Field->{'data-hint'};
+    unset($Field->{'data-hint'});
     $err = (bool)array_filter((array)$Field->Form->localError, function($x) use ($Field) { return $x['value'] == $Field->name; });
     if (in_array($Field->type, array('htmlarea', 'codearea'))) {
         ?>
         <div class="control-group<?php echo $err ? ' error' : ''?>">
           <?php if ($Field->caption) { ?>
               <label class="control-label" for="<?php echo htmlspecialchars($Field->name)?>"><?php echo htmlspecialchars($Field->caption)?>:</label> 
-              <div class="controls clearfix"><label class="checkbox"><?php echo $_RAASForm_Control($inheritField, false) . htmlspecialchars($inheritField->caption)?></label></div>
+              <div class="controls clearfix">
+                <label class="checkbox"><?php echo $_RAASForm_Control($inheritField, false) . htmlspecialchars($inheritField->caption)?></label>
+                <?php if ($dataHint) { ?>
+                    <a class="btn" href="#" rel="popover" data-content="<?php echo htmlspecialchars($dataHint)?>"><i class="icon-question-sign"></i></a>
+                <?php } ?>
+              </div>
           <?php } ?>
           <div class="clearfix"><?php echo $_RAASForm_Control($Field)?></div>
         </div>
@@ -36,7 +43,12 @@ $_RAASForm_FieldSet = function(\RAAS\FieldSet $FieldSet) use (&$_RAASForm_Form_T
               <div class="span5">
                 <label class="checkbox"<?php echo $Field->{'data-hint'} ? ' style="width: 174px;"' : ''?>><?php echo $_RAASForm_Control($Field, false)?> <?php echo htmlspecialchars($Field->caption)?></label>
               </div>
-              <div class="span2"><label class="checkbox"><?php echo $_RAASForm_Control($inheritField, false) . htmlspecialchars($inheritField->caption)?></label></div>
+              <div class="span2">
+                <label class="checkbox"><?php echo $_RAASForm_Control($inheritField, false) . htmlspecialchars($inheritField->caption)?></label>
+                <?php if ($dataHint) { ?>
+                    <a class="btn" href="#" rel="popover" data-content="<?php echo htmlspecialchars($dataHint)?>"><i class="icon-question-sign"></i></a>
+                <?php } ?>
+              </div>
             </div>
           </div>
         </div>
@@ -48,7 +60,12 @@ $_RAASForm_FieldSet = function(\RAAS\FieldSet $FieldSet) use (&$_RAASForm_Form_T
           <div class="controls">
             <div class="row">
               <div class="span5" style="margin-left: 20px"><?php echo $_RAASForm_Control($Field, false)?></div> 
-              <div class="span2"><label class="checkbox"><?php echo $_RAASForm_Control($inheritField, false) . htmlspecialchars($inheritField->caption)?></label></div>
+              <div class="span2">
+                <label class="checkbox"><?php echo $_RAASForm_Control($inheritField, false) . htmlspecialchars($inheritField->caption)?></label>
+                <?php if ($dataHint) { ?>
+                    <a class="btn" href="#" rel="popover" data-content="<?php echo htmlspecialchars($dataHint)?>"><i class="icon-question-sign"></i></a>
+                <?php } ?>
+              </div>
             </div>
           </div>
         </div>

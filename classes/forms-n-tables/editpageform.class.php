@@ -96,23 +96,72 @@ class EditPageForm extends \RAAS\Form
 
     private function getSeoTab($Parent)
     {
-        $seoTab = new FormTab(array('name' => 'seo', 'caption' => $this->view->_('SEO'), 'children' => array()));
+        $seoTab = new FormTab(
+            array(
+                'name' => 'seo', 
+                'caption' => $this->view->_('SEO'), 
+                'children' => array()
+            )
+        );
         $seoTab->children[] = new FieldSet(array(
             'template' => 'edit_page.inherit.php',
             'children' => array(
-                array('name' => 'meta_title', 'class' => 'span5', 'caption' => $this->view->_(strtoupper('meta_title')), 'default' => ($Parent->id ? $Parent->meta_title : '')), 
-                array('type' => 'checkbox', 'name' => 'inherit_meta_title', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->{'inherit_meta_title'} : 1))
+                array(
+                    'name' => 'meta_title', 
+                    'class' => 'span5', 
+                    'caption' => $this->view->_(strtoupper('meta_title')), 
+                    'data-hint' => sprintf($this->view->_('META_TITLE_RECOMMENDED_LIMIT'), SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT, SeoOptimizer::META_TITLE_WORDS_LIMIT),
+                    'data-recommended-limit' => SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
+                    'data-strict-limit' => SeoOptimizer::META_TITLE_STRICT_LIMIT,
+                    'data-words-limit' => SeoOptimizer::META_TITLE_WORDS_LIMIT,
+                ), 
+                array(
+                    'type' => 'checkbox', 
+                    'name' => 'inherit_meta_title', 
+                    'caption' => $this->view->_('INHERIT'), 
+                    'default' => ($Parent->id ? $Parent->{'inherit_meta_title'} : 1)
+                )
             )
         ));
-        foreach (array('meta_description', 'meta_keywords') as $key) {
-            $seoTab->children[] = new FieldSet(array(
-                'template' => 'edit_page.inherit.php',
-                'children' => array(
-                    array('type' => 'textarea', 'name' => $key, 'class' => 'span5', 'rows' => 5, 'caption' => $this->view->_(strtoupper($key)), 'default' => ($Parent->id ? $Parent->$key : '')), 
-                    array('type' => 'checkbox', 'name' => 'inherit_' . $key, 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->{'inherit_' . $key} : 1))
+        $seoTab->children[] = new FieldSet(array(
+            'template' => 'edit_page.inherit.php',
+            'children' => array(
+                array(
+                    'type' => 'textarea', 
+                    'name' => 'meta_description', 
+                    'class' => 'span5', 
+                    'rows' => 5, 
+                    'caption' => $this->view->_(strtoupper('meta_description')), 
+                    'data-hint' => sprintf($this->view->_('META_DESCRIPTION_RECOMMENDED_LIMIT'), SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT),
+                    'data-recommended-limit' => SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT,
+                    'data-strict-limit' => SeoOptimizer::META_DESCRIPTION_STRICT_LIMIT,
+                ),
+                array(
+                    'type' => 'checkbox', 
+                    'name' => 'inherit_meta_description', 
+                    'caption' => $this->view->_('INHERIT'), 
+                    'default' => ($Parent->id ? $Parent->{'inherit_meta_description'} : 1)
                 )
-            ));
-        }
+            )
+        ));
+        $seoTab->children[] = new FieldSet(array(
+            'template' => 'edit_page.inherit.php',
+            'children' => array(
+                array(
+                    'type' => 'textarea', 
+                    'name' => 'meta_keywords', 
+                    'class' => 'span5', 
+                    'rows' => 5, 
+                    'caption' => $this->view->_(strtoupper('meta_keywords')), 
+                ),
+                array(
+                    'type' => 'checkbox', 
+                    'name' => 'inherit_meta_keywords', 
+                    'caption' => $this->view->_('INHERIT'), 
+                    'default' => ($Parent->id ? $Parent->{'inherit_meta_keywords'} : 1)
+                )
+            )
+        ));
         $seoTab->children[] = array('name' => 'h1', 'caption' => $this->view->_('H1'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5');
         $seoTab->children[] = array('name' => 'menu_name', 'caption' => $this->view->_('MENU_NAME'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5');
         $seoTab->children[] = array('name' => 'breadcrumbs_name', 'caption' => $this->view->_('BREADCRUMBS_NAME'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5');

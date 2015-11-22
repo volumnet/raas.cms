@@ -1,0 +1,11 @@
+<?php
+namespace RAAS\CMS;
+
+class SeoOptimizer
+{
+    const META_TITLE_RECOMMENDED_LIMIT = 60;
+    const META_TITLE_STRICT_LIMIT = 75;
+    const META_TITLE_WORDS_LIMIT = 13;
+    const META_DESCRIPTION_RECOMMENDED_LIMIT = 140;
+    const META_DESCRIPTION_STRICT_LIMIT = 155;
+}
