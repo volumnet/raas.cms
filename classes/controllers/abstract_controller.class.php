@@ -39,6 +39,11 @@ abstract class Abstract_Controller extends \RAAS\Abstract_Package_Controller
         return array(
             array('type' => 'number', 'name' => 'tnsize', 'caption' => $this->view->_('THUMBNAIL_SIZE')),
             array('type' => 'number', 'name' => 'maxsize', 'caption' => $this->view->_('MAX_IMAGE_SIZE')),
+            array(
+                'name' => 'sms_gate', 
+                'caption' => $this->view->_('SMS_GATE'),
+                'data-hint' => $this->view->_('SMS_GATE_HINT'),
+            ),
             array('type' => 'checkbox', 'name' => 'diag', 'caption' => $this->view->_('ENABLE_DIAGNOSTICS')),
             array('type' => 'checkbox', 'name' => 'clear_cache_manually', 'caption' => $this->view->_('CLEAR_CACHE_MANUALLY')),
             array('type' => 'number', 'name' => 'clear_cache_by_time', 'caption' => $this->view->_('CLEAR_CACHE_BY_TIME')),

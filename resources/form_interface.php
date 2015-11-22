@@ -2,14 +2,19 @@
 namespace RAAS\CMS;
 use RAAS\Attachment;
 
+use \Mustache_Engine;
+
 $notify = function(Feedback $Item, Material $Material = null)
 {
     $temp = array_values(array_filter(array_map('trim', preg_split('/( |;|,)/', $Item->parent->email))));
-    $emails = array();
-    $sms = array();
+    $emails = $sms_emails = $sms_phones = array();
     foreach ($temp as $row) {
         if (($row[0] == '[') && ($row[strlen($row) - 1] == ']')) {
-            $sms[] = substr($row, 1, -1);
+            if (filter_var(substr($row, 1, -1), FILTER_VALIDATE_EMAIL)) {
+                $sms_emails[] = substr($row, 1, -1);
+            } elseif (preg_match('/(\\+)?\\d+/umi', substr($row, 1, -1))) {
+                $sms_phones[] = substr($row, 1, -1);
+            }
         } else {
             $emails[] = $row;
         }
@@ -29,13 +34,20 @@ $notify = function(Feedback $Item, Material $Material = null)
     $message_sms = ob_get_contents();
     ob_end_clean();
     
-    
     $subject = date(DATETIMEFORMAT) . ' ' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name);
     if ($emails) {
         \RAAS\Application::i()->sendmail($emails, $subject, $message, 'info@' . $_SERVER['HTTP_HOST'], 'RAAS.CMS');
     }
-    if ($sms) {
-        \RAAS\Application::i()->sendmail($sms, $subject, $message_sms, 'info@' . $_SERVER['HTTP_HOST'], 'RAAS.CMS', false);
+    if ($sms_emails) {
+        \RAAS\Application::i()->sendmail($sms_emails, $subject, $message_sms, 'info@' . $_SERVER['HTTP_HOST'], 'RAAS.CMS', false);
+    }
+    if ($sms_phones) {
+        $urlTemplate = Package::i()->registryGet('sms_gate');
+        $m = new Mustache_Engine();
+        foreach ($sms_phones as $phone) {
+            $url = $m->render($urlTemplate, array('PHONE' => urlencode($phone), 'TEXT' => urlencode($message_sms)));
+            $result = file_get_contents($url);
+        }
     }
 };
 
