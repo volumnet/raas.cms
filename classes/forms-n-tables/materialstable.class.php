@@ -30,8 +30,10 @@ class MaterialsTable extends \RAAS\Table
                     'callback' => function($row) use ($col, $view, $params) { 
                         $f = $row->fields[$col->urn];
                         $v = $f->getValue();
-                        return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . '&pid=' . (int)$params['Item']->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>
-                                  <img src="/' . $v->tnURL . '" style="max-width: 48px;" /></a>';
+                        if ($v->id) {
+                            return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . '&pid=' . (int)$params['Item']->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>
+                                      <img src="/' . $v->tnURL . '" style="max-width: 48px;" /></a>';
+                        }
                     }
                 );
                 $i++;
