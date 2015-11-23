@@ -13,10 +13,10 @@ switch ($Block->cache_type) {
         break;
 }
 if ($cacheText) {
-    $replace['<' . '?'] = '<' . '?php echo "<" . "?";?' . '>';
-    $replace['?' . '>'] = '<' . '?php echo "?" . ">";?' . '>';
-    $cacheText = strtr($cacheText, $replace);
-    $cacheText = preg_replace('/(\\?\\>)(\\r|\\n|\\r\\n)/umi', '$1$2$2', $cacheText);
+    // 2015-11-23, AVS: заменил, т.к. в кэше меню <?php так же заменяется и глючит
+    if ($Block->cache_type == Block::CACHE_HTML) {
+        $cacheText = preg_replace('/\\<\\?xml (.*?)\\?\\>/umi', '<?php echo \'<\' . \'?xml $1?\' . ">\\n"?' . '>', $cacheText);
+    }
     file_put_contents($Block->getCacheFile($_SERVER['REQUEST_URI']), $cacheText);
 }
 return $OUT;

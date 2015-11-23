@@ -233,10 +233,8 @@ class Controller_Frontend extends Abstract_Controller
         }
         $filename = $this->model->cachePrefix . $prefix . '.' . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
         $replace = array();
-        $replace['<' . '?'] = '<' . '?php echo "<" . "?";?' . '>';
-        $replace['?' . '>'] = '<' . '?php echo "?" . ">";?' . '>';
-        $content = strtr($content, $replace);
-        $content = preg_replace('/(\\?\\>)(\\r|\\n|\\r\\n)/umi', '$1$2$2', $content);
+        // 2015-11-23, AVS: заменил, т.к. в кэше меню <?php так же заменяется и глючит
+        $content = preg_replace('/\\<\\?xml (.*?)\\?\\>/umi', '<?php echo \'<\' . \'?xml $1?\' . ">\\n"?' . '>', $content);
         $text = '';
         if ($headers) {
             $text .= '<' . "?php\n";
