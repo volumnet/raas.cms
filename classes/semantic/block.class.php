@@ -253,6 +253,8 @@ abstract class Block extends \SOME\SOME implements IAccessible
             if (!$nocache && ($this->cache_type == static::CACHE_DATA)) {
                 $IN = (array)$this->loadCache($_SERVER['REQUEST_URI']);
             }
+            // 2015-11-23, AVS: перенес ob_start, т.к., допустим, у блока Яндекс-Маркета нет виджета, а только интерфейс
+            ob_start();
             if (!$IN) {
                 // Не удалось, загрузим интерфейс
                 $IN = (array)$this->processInterface($config, $Page);
@@ -262,7 +264,6 @@ abstract class Block extends \SOME\SOME implements IAccessible
                     $IN = $this->processCache($IN, $Page);
                 }
             }
-            ob_start();
             $data = $this->processWidget($IN, $Page);
             if ($this->cache_type == static::CACHE_HTML) {
                 // Запишем в HTML-кэш
