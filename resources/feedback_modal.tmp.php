@@ -20,7 +20,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
             <form data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">
               <div class="modal-header">
                 <button type="button" data-dismiss="modal" aria-hidden="true" class="close">×</button>
-                <div class="h4 modal-title"><?php echo FEEDBACK_HEADER?></div>
+                <div class="h4 modal-title"><?php echo htmlspecialchars($Block->name)?></div>
               </div>
               <div class="modal-body">
                 <div class="form-horizontal">
