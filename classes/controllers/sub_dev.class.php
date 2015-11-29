@@ -22,8 +22,11 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     {
         $this->view->submenu = $this->view->devMenu();
         switch ($this->action) {
-            case 'edit_template': case 'edit_snippet_folder': case 'edit_snippet': case 'edit_material_type': case 'edit_form': case 'menus': case 'edit_menu': 
-            case 'move_menu': case 'dictionaries': case 'edit_dictionary': case 'move_dictionary': case 'copy_snippet': case 'diag':
+            case 'edit_template': case 'edit_snippet_folder': case 'edit_snippet': 
+            case 'edit_material_type': case 'edit_form': case 'menus': 
+            case 'edit_menu': case 'move_menu': case 'dictionaries': 
+            case 'edit_dictionary': case 'move_dictionary': case 'copy_snippet': 
+            case 'diag': case 'pages_fields': case 'forms': case 'material_types':
                 $this->{$this->action}();
                 break;
             case 'edit_material_field': case 'edit_form_field': case 'edit_page_field': 
@@ -36,16 +39,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'snippets': 
                 $this->view->snippets();
                 break;
-            case 'material_types': 
-                $this->view->material_types();
-                break;
-            case 'forms': 
-                $this->view->forms(array('Set' => $this->model->forms()));
-                break;
-            case 'pages_fields':
-                $this->view->pages_fields(array('Set' => $this->model->dev_pages_fields()));
-                break;
-            case 'chvis_dictionary': case 'move_up_dictionary': case 'move_down_dictionary': case 'delete_dictionary': 
+            case 'chvis_dictionary': case 'delete_dictionary': 
                 $Item = new Dictionary((int)$this->id);
                 $f = str_replace('_dictionary', '', $this->action);
                 StdSub::$f($Item, $this->url . '&action=dictionaries&id=' . (int)$Item->pid);
@@ -87,9 +81,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 Diag::deleteStat($from, $to);
                 new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=diag');
                 break;
-            case 'move_up_material_field': case 'move_down_material_field': case 'delete_material_field': case 'show_in_table_material_field': case 'required_material_field':
-            case 'move_up_form_field': case 'move_down_form_field': case 'delete_form_field': case 'show_in_table_form_field': case 'required_form_field':
-            case 'move_up_page_field': case 'move_down_page_field': case 'delete_page_field': case 'show_in_table_page_field': case 'required_page_field':
+            case 'delete_material_field': case 'show_in_table_material_field': case 'required_material_field':
+            case 'delete_form_field': case 'show_in_table_form_field': case 'required_form_field':
+            case 'delete_page_field': case 'show_in_table_page_field': case 'required_page_field':
                 if (strstr($this->action, 'form')) {
                     $Item = new Form_Field((int)$this->id);
                     $Parent = $Item->Owner;
@@ -161,11 +155,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     {
         $Item = new Dictionary((int)$this->id);
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $localError = array();
             if ($Item->id) {
-                $localError = array();
-                if (!is_uploaded_file($_FILES['file']['tmp_name'])) {
-                    $localError[] = array('name' => 'MISSED', 'value' => 'file', 'description' => 'ERR_NO_FILE');
-                } else {
+                if (is_uploaded_file($_FILES['file']['tmp_name'])) {
                     $ext = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
                     if (!in_array($ext, Dictionary::$availableExtensions)) {
                         $localError[] = array(
@@ -174,12 +166,15 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                             'description' => sprintf($this->view->_('AVAILABLE_DICTIONARIES_FORMATS'), strtoupper(implode(', ', \RAAS\CMS\Dictionary::$availableExtensions)))
                         );
                     }
+                    if (!$localError) {
+                        $this->model->dev_dictionaries_loadFile($Item, $_FILES['file']);
+                    }
                 }
-                if (!$localError) {
-                    $this->model->dev_dictionaries_loadFile($Item, $_FILES['file']);
-                }
-                $OUT['localError'] = $localError;
             }
+            if (isset($_POST['priority']) && is_array($_POST['priority'])) {
+                $this->model->setEntitiesPriority('\RAAS\CMS\Dictionary', (array)$_POST['priority']);
+            }
+            $OUT['localError'] = $localError;
         }
         $OUT['Item'] = $Item;
         $OUT = array_merge($OUT, $this->model->dev_dictionaries());
@@ -217,8 +212,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         $Parent = $Item->pid ? $Item->parent : new Menu(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
         $OUT = array();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            if (isset($_POST['reorder']) && is_array($_POST['reorder'])) {
-                foreach ($_POST['reorder'] as $key => $val) {
+            if (isset($_POST['priority']) && is_array($_POST['priority'])) {
+                foreach ($_POST['priority'] as $key => $val) {
                     $row = new Menu($key);
                     if ($row->id) {
                         $row->priority = (int)$val;
@@ -302,22 +297,55 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         $Form = new CopySnippetForm(array('Item' => $Item));
         $this->view->edit_snippet($Form->process());
     }
+
+
+    protected function material_types()
+    {
+        $this->view->material_types();
+    }
     
     
     protected function edit_material_type()
     {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (isset($_POST['priority']) && is_array($_POST['priority'])) {
+                $this->model->setEntitiesPriority('\RAAS\CMS\Material_Field', (array)$_POST['priority']);
+            }
+        }
         $Item = new Material_Type((int)$this->id);
         $Parent = $Item->pid ? $Item->parent : new Material_Type(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
         $Form = new EditMaterialTypeForm(array('Item' => $Item, 'Parent' => $Parent));
         $this->view->edit_material_type(array_merge($Form->process(), array('Parent' => $Parent)));
     }
+
+
+    protected function forms()
+    {
+        $this->view->forms(array('Set' => $this->model->forms()));
+    }
     
     
     protected function edit_form()
     {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (isset($_POST['priority']) && is_array($_POST['priority'])) {
+                $this->model->setEntitiesPriority('\RAAS\CMS\Form_Field', (array)$_POST['priority']);
+            }
+        }
         $Item = new CMSForm((int)$this->id);
         $Form = new EditFormForm(array('Item' => $Item));
         $this->view->edit_form($Form->process());
+    }
+
+
+    protected function pages_fields()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (isset($_POST['priority']) && is_array($_POST['priority'])) {
+                $this->model->setEntitiesPriority('\RAAS\CMS\Page_Field', (array)$_POST['priority']);
+            }
+        }
+        $this->view->pages_fields(array('Set' => $this->model->dev_pages_fields()));
     }
     
     

@@ -36,6 +36,12 @@ class DictionariesTable extends \RAAS\Table
                      . '</a>'; 
             }
         );
+        $columns['priority'] = array(
+            'caption' => $this->view->_('PRIORITY'),
+            'callback' => function($row) { 
+                return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . ($row->priority ? (int)$row->priority : '') . '" class="span1" min="0" />';
+            }
+        );
         $columns[' '] = array(
             'callback' => function($row, $i) use ($view, $params) { return rowContextMenu($view->getDictionaryContextMenu($row, $i, count($params['Set']))); }
         );

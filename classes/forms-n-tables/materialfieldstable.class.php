@@ -39,6 +39,16 @@ class MaterialFieldsTable extends FieldsTable
                     'title' => $this->view->_('SHOW_IN_TABLE'),
                     'callback' => function($row) { return $row->show_in_table ? '<i class="icon-ok"></i>' : ''; }
                 ),
+                'priority' => array(
+                    'caption' => $this->view->_('PRIORITY'),
+                    'callback' => function($row) use ($params) { 
+                        if ($row->id && ($row->pid == $params['Item']->id)) {
+                            return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . ($row->priority ? (int)$row->priority : '') . '" class="span1" min="0" />';
+                        } elseif ($row->id) {
+                            return $row->priority;
+                        }
+                    }
+                ),
                 ' ' => array(
                     'callback' => function ($row, $i) use ($view, $params, $ctxMenu, $shift) { 
                         if ($row->id && ($row->pid == $params['Item']->id)) {

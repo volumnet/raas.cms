@@ -406,18 +406,6 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
                 'icon' => $Item->vis ? 'ok' : '',
                 'title' => $this->_($Item->vis ? 'HIDE' : 'SHOW')
             );
-            if (!$Item->parent->id || ($Item->parent->orderby == 'priority')) {
-                if ($i) {
-                    $arr[] = array(
-                        'href' => $this->url . '&action=move_up_dictionary&id=' . (int)$Item->id . ($edit || $showlist ? '' : '&back=1'), 'name' => $this->_('MOVE_UP'), 'icon' => 'arrow-up'
-                    );
-                }
-                if ($i < $c - 1) {
-                    $arr[] = array(
-                        'href' => $this->url . '&action=move_down_dictionary&id=' . (int)$Item->id . ($edit || $showlist ? '' : '&back=1'), 'name' => $this->_('MOVE_DOWN'), 'icon' => 'arrow-down'
-                    );
-                }
-            }
             if ($this->action != 'move_dictionary') {
                 $arr[] = array('href' => $this->url . '&action=move_dictionary&id=' . (int)$Item->id, 'name' => $this->_('MOVE'), 'icon' => 'share-alt');
             }
@@ -482,7 +470,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         $arr = array_merge(
             $arr, 
             $this->stdView->stdContextMenu(
-                $Item, $i, $c, 'edit_material_field', 'material_types', 'delete_material_field', 'move_up_material_field', 'move_down_material_field'
+                $Item, $i, $c, 'edit_material_field', 'material_types', 'delete_material_field'
             )
         );
         return $arr;
@@ -506,7 +494,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         }
         $arr = array_merge(
             $arr, 
-            $this->stdView->stdContextMenu($Item, $i, $c, 'edit_page_field', 'pages_fields', 'delete_page_field', 'move_up_page_field', 'move_down_page_field')
+            $this->stdView->stdContextMenu($Item, $i, $c, 'edit_page_field', 'pages_fields', 'delete_page_field')
         );
         return $arr;
     }
@@ -540,7 +528,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         }
         $arr = array_merge(
             $arr, 
-            $this->stdView->stdContextMenu($Item, $i, $c, 'edit_form_field', 'pages_fields', 'delete_form_field', 'move_up_form_field', 'move_down_form_field')
+            $this->stdView->stdContextMenu($Item, $i, $c, 'edit_form_field', 'pages_fields', 'delete_form_field')
         );
         return $arr;
     }

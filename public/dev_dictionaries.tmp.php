@@ -7,5 +7,5 @@
     </form>
 <?php 
 }
-include \RAAS\Application::i()->view->context->tmp('/table.tmp.php');
+include \RAAS\Application::i()->view->context->tmp('prioritytable.tmp.php');
 ?>

@@ -17,7 +17,7 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
             case 'edit_block': case 'edit_material': 
                 $this->{$this->action}();
                 break;
-            case 'chvis': case 'delete': case 'move_up': case 'move_down':
+            case 'chvis': case 'delete':
                 $Item = new Page((int)$this->id);
                 $f = $this->action;
                 StdSub::$f($Item, (isset($_GET['back']) ? 'history:back' : $this->url . '&id=' . (int)$Item->pid) . '#subsections', false);
@@ -59,7 +59,10 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
     protected function show_page()
     {
         if (isset($_POST['priority']) && is_array($_POST['priority'])) {
-            $this->model->setMaterialsPriority((array)$_POST['priority']);
+            $this->model->setEntitiesPriority('\RAAS\CMS\Material', (array)$_POST['priority']);
+        }
+        if (isset($_POST['page_priority']) && is_array($_POST['page_priority'])) {
+            $this->model->setEntitiesPriority('\RAAS\CMS\Page', (array)$_POST['page_priority']);
         }
         $Page = new Page($this->id);
         $OUT = array();

@@ -67,9 +67,9 @@ class MenusTable extends \RAAS\Table
         );
         $defaultParams['columns']['priority'] = array(
             'caption' => $this->view->_('PRIORITY'), 
-            'callback' => function($row) use ($view, $Item) { 
+            'callback' => function($row, $i) use ($view, $Item) { 
                 if ($row->realized || !$Item->id) {
-                    return '<input type="text" class="span1" maxlength="3" name="reorder[' . (int)$row->id . ']" value="' . (int)$row->priority . '" />';
+                    return '<input type="text" class="span1" maxlength="3" name="priority[' . (int)$row->id . ']" value="' . (($i + 1) * 10) . '" />';
                 } else {
                     return htmlspecialchars($row->priority); 
                 }

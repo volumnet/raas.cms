@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access (
   KEY block_id (block_id),
   KEY uid (uid),
   KEY gid (gid),
-  KEY priority (priority)
+  INDEX priority (priority)
 ) COMMENT='Site access';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_materials_cache (
@@ -113,7 +113,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_pages_assoc (
   priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
   PRIMARY KEY (block_id,page_id),
   KEY block_id (block_id),
-  KEY page_id (page_id)
+  KEY page_id (page_id),
+  INDEX priority (priority)
 ) COMMENT='Blocks to pages associations';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_php (
@@ -181,7 +182,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_dictionaries (
   PRIMARY KEY (id),
   KEY pid (pid),
   KEY urn (urn),
-  KEY orderby (orderby)
+  KEY orderby (orderby),
+  INDEX priority (priority)
 ) COMMENT='Dictionaries';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_feedback (
@@ -227,7 +229,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   KEY classname (classname),
   KEY classname_2 (classname,pid),
   KEY preprocessor_id (preprocessor_id),
-  KEY postprocessor_id (postprocessor_id)
+  KEY postprocessor_id (postprocessor_id),
+  INDEX priority (priority)
 ) COMMENT='Material fields';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (
@@ -288,7 +291,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   KEY editor_id (editor_id),
   KEY urn (urn),
   KEY show_from (show_from),
-  KEY show_to (show_to)
+  KEY show_to (show_to),
+  INDEX priority (priority)
 ) COMMENT='Translator exceptions';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_pages_assoc (
@@ -323,7 +327,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_menus (
   PRIMARY KEY (id),
   KEY pid (pid),
   KEY page_id (page_id),
-  INDEX (urn)
+  INDEX (urn),
+  INDEX priority (priority)
 ) COMMENT='Menus';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
@@ -367,7 +372,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
   KEY author_id (author_id),
   KEY editor_id (editor_id),
   KEY urn (urn),
-  KEY template (template)
+  KEY template (template),
+  INDEX priority (priority)
 ) COMMENT='Site pages';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages_data (

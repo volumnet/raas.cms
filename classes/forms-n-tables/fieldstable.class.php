@@ -52,10 +52,17 @@ class FieldsTable extends \RAAS\Table
                     'title' => $this->view->_('SHOW_IN_TABLE'),
                     'callback' => function($row) { return $row->show_in_table ? '<i class="icon-ok"></i>' : ''; }
                 ),
+                'priority' => array(
+                    'caption' => $this->view->_('PRIORITY'),
+                    'callback' => function($row, $i) { 
+                        return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . (($i + 1) * 10) . '" class="span1" min="0" />';
+                    }
+                ),
                 ' ' => array('callback' => function ($row, $i) use ($view, $params, $ctxMenu, $shift) { return rowContextMenu($view->$ctxMenu($row, $i - $shift, count($params['Set']) - $shift)); })
             ),
             'Set' => $params['Set'],
             'Pages' => $params['Pages'],
+            'template' => 'cms/prioritytable.tmp.php'
         );
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);

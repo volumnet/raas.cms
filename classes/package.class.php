@@ -202,17 +202,15 @@ class Package extends \RAAS\Package
     {
         $Parent = new Dictionary(isset($this->controller->nav['id']) ? (int)$this->controller->nav['id'] : 0);
         $SQL_query = "SELECT SQL_CALC_FOUND_ROWS * FROM " . Dictionary::_tablename() . " WHERE pid = " . (int)$Parent->id;
-        if ($Parent->orderby) {
+        if ($Parent->orderby && ($Parent->orderby != 'priority')) {
             $sort = $Parent->orderby;
-        } else {
-            $sort = 'priority';
         }
         if ($Parent->orderby && isset($this->controller->nav['order']) && ($this->controller->nav['order'] == 'desc')) {
             $order = 'desc';
         } else {
             $order = 'asc';
         }
-        $SQL_query .= " ORDER BY " . $sort . " " . strtoupper($order);
+        $SQL_query .= " ORDER BY priority " . strtoupper($order) . ($sort ? ", " . $sort . " " . strtoupper($order) : "");
         $Pages = new \SOME\Pages(isset($this->controller->nav['page']) ? $this->controller->nav['page'] : 1, $this->registryGet('rowsPerPage'));
         $Set = Dictionary::getSQLSet($SQL_query, $Pages);
         return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $order);
@@ -575,10 +573,10 @@ class Package extends \RAAS\Package
     }
 
 
-    public function setMaterialsPriority(array $priorities = array())
+    public function setEntitiesPriority($classname, array $priorities = array())
     {
         foreach ($priorities as $key => $val) {
-            $this->SQL->update(Material::_tablename(), "id = " . (int)$key, array('priority' => (int)$val));
+            $this->SQL->update($classname::_tablename(), "id = " . (int)$key, array('priority' => (int)$val));
         }
     }
 

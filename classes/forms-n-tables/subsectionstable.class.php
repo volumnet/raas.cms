@@ -38,6 +38,12 @@ class SubsectionsTable extends \RAAS\Table
                          . '</a>';
                 }
             );
+            $columns['priority'] = array(
+                'caption' => $this->view->_('PRIORITY'),
+                'callback' => function($row, $i) { 
+                    return '<input type="number" name="page_priority[' . (int)$row->id . ']" value="' . (($i + 1) * 10) . '" class="span1" min="0" />';
+                }
+            );
             foreach ($params['columns'] as $key => $col) {
                 $columns[$col->urn] = array('caption' => $col->name, 'callback' => function($row) use ($col) { return $row->fields[$col->urn]->doRich(); });
             }

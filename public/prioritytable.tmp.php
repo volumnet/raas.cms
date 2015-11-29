@@ -1,6 +1,6 @@
 <?php include \RAAS\CMS\ViewSub_Main::i()->tmp('/table.inc.php'); ?>
 <?php if ((array)$Table->Set || ($Table->emptyHeader && $Table->header)) { ?>
-    <form action="#_<?php echo htmlspecialchars($mtype->urn)?>" method="post">
+    <form action="" method="post">
       <table<?php echo $_RAASTable_Attrs($Table)?>>
         <?php if ($Table->header) { ?>
             <thead>
