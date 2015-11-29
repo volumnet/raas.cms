@@ -28,14 +28,14 @@ class DictionariesTable extends \RAAS\Table
                      . '</a>'; 
             }
         );
-        if ($params['Item']->id) {
-            $columns['urn'] = array(
-                'caption' => $this->view->_('VALUE'),
-                'callback' => function($row) { 
-                    return '<span class="' . (!$row->vis ? ' muted' : '') . ($row->pvis ? '' : ' cms-inpvis') . '">' . htmlspecialchars($row->urn) . '</span>'; 
-                }
-            );
-        }
+        $columns['urn'] = array(
+            'caption' => $this->view->_($params['Item']->id ? 'VALUE' : 'URN'),
+            'callback' => function($row) use ($view) { 
+                return '<a href="' . $view->url . '&action=dictionaries&id=' . (int)$row->id . '" class="' . (!$row->vis ? ' muted' : '') . ($row->pvis ? '' : ' cms-inpvis') . '">' 
+                     .    htmlspecialchars($row->urn) 
+                     . '</a>'; 
+            }
+        );
         $columns[' '] = array(
             'callback' => function($row, $i) use ($view, $params) { return rowContextMenu($view->getDictionaryContextMenu($row, $i, count($params['Set']))); }
         );

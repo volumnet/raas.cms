@@ -8,7 +8,6 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     
     public function dictionaries(array $IN = array())
     {
-        $view = $this;
         $IN['Table'] = new DictionariesTable($IN);
         $this->assignVars($IN);
         $this->title = $IN['Item']->id ? $IN['Item']->name : $this->_('DICTIONARIES');
@@ -58,6 +57,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     
     public function menus(array $IN = array())
     {
+        $IN['Table'] = new MenusTable($IN);
         $this->assignVars($IN);
         $this->title = $IN['Item']->id ? $IN['Item']->name : $this->_('MENUS');
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
@@ -116,8 +116,12 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     
     public function templates(array $IN = array())
     {
+        $IN['Table'] = new TemplatesTable($IN);
+        $this->assignVars($IN);
+        $this->title = $this->_('TEMPLATES');
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->stdView->stdShowlist($IN, 'TEMPLATES', 'edit_template', 'getTemplateContextMenu', 'NO_TEMPLATES_FOUND', 'ADD_TEMPLATE');
+        $this->contextmenu = array(array('href' => $this->url . '&action=edit_template', 'name' => $this->_('ADD_TEMPLATE'), 'icon' => 'plus'));
+        $this->template = $IN['Table']->template;
     }
     
     
@@ -219,8 +223,12 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     
     public function forms(array $IN = array())
     {
+        $IN['Table'] = new FormsTable($IN);
+        $this->assignVars($IN);
+        $this->title = $this->_('FORMS');
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->stdView->stdShowlist($IN, 'FORMS', 'edit_form', 'getFormContextMenu', 'NO_FORMS_FOUND', 'CREATE_FORM');
+        $this->contextmenu = array(array('href' => $this->url . '&action=edit_form', 'name' => $this->_('CREATE_FORM'), 'icon' => 'plus'));
+        $this->template = $IN['Table']->template;
     }
     
     

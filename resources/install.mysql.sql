@@ -233,6 +233,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
+  urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   material_type int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material type',
   create_feedback int(10) unsigned NOT NULL DEFAULT '1' COMMENT 'Create feedback',
   email varchar(255) NOT NULL DEFAULT '' COMMENT 'Contact e-mail',
@@ -240,16 +241,19 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (
   antispam varchar(255) NOT NULL DEFAULT '' COMMENT 'Use anti-spam',
   antispam_field_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Anti-spam field name',
   interface_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  INDEX (urn)
 ) COMMENT='Forms';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_groups (
   id smallint(5) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   pid smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent group ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
+  urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   description text COMMENT 'Description',
   PRIMARY KEY (id),
-  KEY pid (pid)
+  KEY pid (pid),
+  INDEX (urn)
 ) COMMENT='Groups of users';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
@@ -311,13 +315,15 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_menus (
   vis tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Visibility',
   pvis tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Parent visibility',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
+  urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   url varchar(255) NOT NULL DEFAULT '' COMMENT 'URL',
   page_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Page ID#',
   inherit tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Nesting level',
   priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
   PRIMARY KEY (id),
   KEY pid (pid),
-  KEY page_id (page_id)
+  KEY page_id (page_id),
+  INDEX (urn)
 ) COMMENT='Menus';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
@@ -399,6 +405,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippet_folders (
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
+  urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   description text COMMENT 'Code',
   width int(10) unsigned NOT NULL DEFAULT '640' COMMENT 'Width',
   height int(10) unsigned NOT NULL DEFAULT '1024' COMMENT 'Height',
@@ -406,7 +413,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   background int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Background attachment ID#',
   locations_info text COMMENT 'Locations info',
   PRIMARY KEY (id),
-  KEY background (background)
+  KEY background (background),
+  INDEX (urn)
 ) COMMENT='Templates';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (

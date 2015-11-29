@@ -12,12 +12,32 @@ class Form extends \SOME\SOME
         'Interface' => array('FK' => 'interface_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
     );
 
+    public function commit()
+    {
+        if (!$this->urn && $this->name) {
+            $this->urn = $this->name;
+        }
+        Package::i()->getUniqueURN($this);
+        parent::commit();
+    }
+    
+
     public static function delete(self $object)
     {
         foreach ($object->fields as $row) {
             Form_Field::delete($row);
         }
         parent::delete($object);
+    }
+    
+    
+    public static function importByURN($urn = '')
+    {
+        $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
+        if ($SQL_result = self::$SQL->getline(array($SQL_query, $urn))) {
+            return new self($SQL_result);
+        }
+        return null;
     }
 
 

@@ -33,9 +33,7 @@ class EditDictionaryForm extends \RAAS\Form
         );
         $defaultParams['children'][] = array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1);
         $defaultParams['children'][] = array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required');
-        if ($Parent->id) {
-            $defaultParams['children'][] = array('name' => 'urn', 'caption' => $this->view->_('VALUE'));
-        }
+        $defaultParams['children'][] = array('name' => 'urn', 'caption' => $this->view->_($Parent->id ? 'VALUE' : 'URN'));
         $defaultParams['children'][] = array('type' => 'radio', 'name' => 'orderby', 'children' => $CONTENT['orderBy'], 'default' => 'priority');
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);

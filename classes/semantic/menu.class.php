@@ -47,6 +47,12 @@ class Menu extends \SOME\SOME
                 $this->name = $this->page->getMenuName();
             }
         }
+        if (!$this->pid) {
+            if (!$this->urn && $this->name) {
+                $this->urn = $this->name;
+            }
+            Package::i()->getUniqueURN($this);
+        }
         parent::commit();
     }
     
@@ -95,6 +101,16 @@ class Menu extends \SOME\SOME
             }
         }
         return false;
+    }
+    
+    
+    public static function importByURN($urn = '')
+    {
+        $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
+        if ($SQL_result = self::$SQL->getline(array($SQL_query, $urn))) {
+            return new self($SQL_result);
+        }
+        return null;
     }
     
     

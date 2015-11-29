@@ -25,6 +25,7 @@ class EditTemplateForm extends \RAAS\Form
         $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
         $NameField = new RAASField(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
+        $UrnField = new RAASField(array('name' => 'urn', 'caption' => $view->_('URN')));
         $DescriptionField = new RAASField(array('type' => 'codearea', 'name' => 'description', 'caption' => $this->view->_('TEMPLATE_CODE'), 'required' => 'required'));
         $BackgroundField = new RAASField(array(
             'type' => 'image', 
@@ -37,7 +38,7 @@ class EditTemplateForm extends \RAAS\Form
         );
         if ($Item->id) {
             $defaultParams['children'] = array(
-                new FormTab(array('name' => 'edit', 'caption' => $this->view->_('EDITING'), 'children' => array($NameField, $DescriptionField))),
+                new FormTab(array('name' => 'edit', 'caption' => $this->view->_('EDITING'), 'children' => array($NameField, $UrnField, $DescriptionField))),
                 new FormTab(array(
                     'name' => 'layout',
                     'caption' => $this->view->_('LAYOUT'),

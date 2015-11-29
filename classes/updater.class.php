@@ -20,6 +20,7 @@ class Updater extends \RAAS\Updater
         $this->update20150504();
         $this->update20150610();
         $this->update20150617();
+        $this->update20151129();
     }
 
 
@@ -888,6 +889,53 @@ class Updater extends \RAAS\Updater
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials 
                             ADD show_to DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish to date/time',
                             ADD INDEX (show_to)";
+            $this->SQL->query($SQL_query);
+        }
+    }
+
+
+    public function update20151129()
+    {
+        if (!in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_forms"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_forms 
+                            ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
+                            ADD INDEX (urn)";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_forms SET urn = 'feedback' WHERE (urn = '') AND (name = 'Обратная связь' OR name = 'Feedback')";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_forms SET urn = 'order_call' WHERE (urn = '') AND (name = 'Заказать звонок' OR name = 'Order call')";
+            $this->SQL->query($SQL_query);
+        }
+        if (!in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_groups"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_groups 
+                            ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
+                            ADD INDEX (urn)";
+            $this->SQL->query($SQL_query);
+        }
+        if (!in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_menus"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_menus 
+                            ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
+                            ADD INDEX (urn)";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_menus SET urn = 'top' WHERE (NOT pid) AND (urn = '') AND (name = 'Верхнее меню' OR name = 'Top menu')";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_menus SET urn = 'bottom' WHERE (NOT pid) AND (urn = '') AND (name = 'Нижнее меню' OR name = 'Bottom menu')";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_menus SET urn = 'left' WHERE (NOT pid) AND (urn = '') AND (name = 'Левое меню' OR name = 'Left menu')";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_menus SET urn = 'right' WHERE (NOT pid) AND (urn = '') AND (name = 'Правое меню' OR name = 'Right menu')";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_menus SET urn = 'main' WHERE (NOT pid) AND (urn = '') AND (name = 'Главное меню' OR name = 'Main menu')";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_menus SET urn = 'sitemap' WHERE (NOT pid) AND (urn = '') AND (name = 'Карта сайта' OR name = 'Sitemap')";
+            $this->SQL->query($SQL_query);
+        }
+        if (!in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_templates"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_templates 
+                            ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
+                            ADD INDEX (urn)";
+            $this->SQL->query($SQL_query);
+            $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_templates SET urn = 'main' WHERE (urn = '') AND (name = 'Главная' OR name = 'Main')";
             $this->SQL->query($SQL_query);
         }
     }

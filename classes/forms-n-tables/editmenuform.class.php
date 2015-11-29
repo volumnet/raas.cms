@@ -32,43 +32,60 @@ class EditMenuForm extends \RAAS\Form
                     $Form->Item->pid = (int)$Parent->id;
                 }
             },
-            'children' => array(
-                array(
-                    'type' => 'hidden', 
-                    'name' => 'pid', 
-                    'export' => 'is_null', 
-                    'import' => function() use ($Parent) { return (int)$Parent->id; }, 
-                    'default' => (int)$Parent->id
-                ),
-                array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1),
-                array(
-                    'type' => 'select', 
-                    'name' => 'page_id', 
-                    'caption' => $this->view->_('PAGE'), 
-                    'children' => array('Set' => $CONTENT['pages'], 'additional' => function($x) { return array('caption' => $x->getMenuName()); })
-                ),
-                array(
-                    'type' => 'number', 
-                    'name' => 'inherit', 
-                    'caption' => $this->view->_('INHERIT_LEVEL'), 
-                    'check' => function($Field) use ($Parent) {  
-                        if (!$Parent->id && (int)$_POST['page_id'] && !(isset($_POST['inherit']) && (int)$_POST['inherit'])) {
-                            return array('name' => 'MISSED', 'value' => $Field->name, 'description' => 'ERR_NO_MENU_INHERIT');
-                        }
-                    },
-                ),
-                array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'),
-                array(
-                    'name' => 'url', 
-                    'caption' => $this->view->_('URL'), 
-                    'check' => function($Field) use ($Parent) {
-                        if ($Parent->id && !(int)$_POST['page_id'] && !trim($_POST['url'])) {
-                            return array('name' => 'MISSED', 'value' => $Field->name, 'description' => 'ERR_NO_URL');
-                        }
-                    }
-                ),
-                
-            )
+            'children' => array()
+        );
+        $defaultParams['children']['pid'] = array(
+            'type' => 'hidden', 
+            'name' => 'pid', 
+            'export' => 'is_null', 
+            'import' => function() use ($Parent) { return (int)$Parent->id; }, 
+            'default' => (int)$Parent->id
+        );
+        $defaultParams['children']['vis'] = array(
+            'type' => 'checkbox', 
+            'name' => 'vis', 
+            'caption' => $this->view->_('VISIBLE'), 
+            'default' => 1
+        );
+        $defaultParams['children']['page_id'] = array(
+            'type' => 'select', 
+            'name' => 'page_id', 
+            'caption' => $this->view->_('PAGE'), 
+            'children' => array('Set' => $CONTENT['pages'], 'additional' => function($x) { return array('caption' => $x->getMenuName()); })
+        );
+        $defaultParams['children']['inherit'] = array(
+            'type' => 'number', 
+            'name' => 'inherit', 
+            'caption' => $this->view->_('INHERIT_LEVEL'), 
+            'check' => function($Field) use ($Parent) {  
+                if (!$Parent->id && (int)$_POST['page_id'] && !(isset($_POST['inherit']) && (int)$_POST['inherit'])) {
+                    return array(
+                        'name' => 'MISSED', 
+                        'value' => $Field->name, 
+                        'description' => 'ERR_NO_MENU_INHERIT'
+                    );
+                }
+            },
+        );
+        $defaultParams['children']['name'] = array(
+            'name' => 'name', 
+            'caption' => $this->view->_('NAME'), 
+            'required' => 'required'
+        );
+        if (!$Item->pid) {
+            $defaultParams['children']['urn'] = array(
+                'name' => 'urn', 
+                'caption' => $view->_('URN')
+            );
+        }
+        $defaultParams['children']['url'] = array(
+            'name' => 'url', 
+            'caption' => $this->view->_('URL'), 
+            'check' => function($Field) use ($Parent) {
+                if ($Parent->id && !(int)$_POST['page_id'] && !trim($_POST['url'])) {
+                    return array('name' => 'MISSED', 'value' => $Field->name, 'description' => 'ERR_NO_URL');
+                }
+            }
         );
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);

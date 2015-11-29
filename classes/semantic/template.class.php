@@ -35,6 +35,10 @@ class Template extends \SOME\SOME
     
     public function commit()
     {
+        if (!$this->urn && $this->name) {
+            $this->urn = $this->name;
+        }
+        Package::i()->getUniqueURN($this);
         $this->width = min($this->width, 680);
         //$this->height = min($this->height, 1024);
         if ($this->locs) {
@@ -68,6 +72,17 @@ class Template extends \SOME\SOME
         $this->background = 0;
         $this->commit();
     }
+    
+    
+    public static function importByURN($urn = '')
+    {
+        $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
+        if ($SQL_result = self::$SQL->getline(array($SQL_query, $urn))) {
+            return new self($SQL_result);
+        }
+        return null;
+    }
+    
     
     public function _locations()
     {

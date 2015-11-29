@@ -1,40 +1,48 @@
-<?php if ($Set) { ?> 
+<?php include \RAAS\CMS\ViewSub_Main::i()->tmp('/table.inc.php'); ?>
+<?php if ((array)$Table->Set || ($Table->emptyHeader && $Table->header)) { ?>
     <form action="" method="post">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <?php foreach (array('name' => NAME, 'url' => CMS\URL, 'priority' => CMS\PRIOR) as $key => $val) { ?>
-                <th><?php echo $val?></th>
-            <?php } ?>
-            <th style="width: 120px;"><?php echo MANAGEMENT?></th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php for($i = 0, $j = 0; $i < count($Set); $i++) { $row = $Set[$i]; ?>
+      <table<?php echo $_RAASTable_Attrs($Table)?>>
+        <?php if ($Table->header) { ?>
+            <thead>
               <tr>
-                <?php if ($row->realized || !$Item->id) { $j++?>
-                    <td>
-                      <a href="?p=<?php echo $VIEW->packageName?>&sub=<?php echo $VIEW->sub?>&action=menus&id=<?php echo (int)$row->id?>" class="<?php echo (!$row->vis ? ' muted' : '') . ($row->pvis ? '' : ' cms-inpvis')?>">
-                        <?php echo htmlspecialchars($row->name)?>
-                      </a>
-                    </td>
-                    <td class="<?php echo (!$row->vis ? ' muted' : '') . ($row->pvis ? '' : ' cms-inpvis')?>"><?php echo htmlspecialchars($row->url)?></td>
-                    <td><input type="text" class="span1" maxlength="3" name="reorder[<?php echo (int)$row->id?>]" value="<?php echo (int)$row->priority?>" /></td>
-                    <td><?php echo rowContextMenu(\RAAS\CMS\ViewSub_Dev::i()->getMenuContextMenu($row, $i, count($Set)))?></td>
-                <?php } else { ?>
-                    <td><?php echo htmlspecialchars($row->name)?></td>
-                    <td><?php echo htmlspecialchars($row->url)?></td>
-                    <td><?php echo htmlspecialchars($row->priority)?></td>
-                    <td>&nbsp;</td>
-                <?php } ?>
+                <?php 
+                foreach ($Table->columns as $key => $col) { 
+                    include \RAAS\Application::i()->view->context->tmp('/column.inc.php');
+                    if ($col->template) {
+                        include \RAAS\Application::i()->view->context->tmp($col->template);
+                    }
+                    $_RAASTable_Header($col, $key);
+                } 
+                ?>
+              </tr>
+            </thead>
+        <?php } ?>
+        <?php if ((array)$Table->Set) { ?>
+            <tbody>
+              <?php 
+              for ($i = 0; $i < count($Table->rows); $i++) { 
+                  $row = $Table->rows[$i];
+                  include \RAAS\Application::i()->view->context->tmp('/row.inc.php');
+                  if ($row->template) {
+                      include \RAAS\Application::i()->view->context->tmp($row->template);
+                  }
+                  $_RAASTable_Row($row, $i);
+                  ?>
+              <?php } ?>
+            </tbody>
+        <?php } ?>
+        <tfoot>
+          <?php if ($Table->meta['realizedCounter']) { ?>
+              <tr>
+                <td colspan="<?php echo 2 + (int)(!$Item->id)?>">&nbsp;</td>
+                <td><input type="submit" class="btn" value="<?php echo DO_UPDATE?>" /></td>
+                <td>&nbsp;</td>
               </tr>
           <?php } ?>
-          <?php if ($j) { ?>
-              <tr><td>&nbsp;</td><td>&nbsp;</td><td><input type="submit" class="btn" value="<?php echo DO_UPDATE?>" /></td><td>&nbsp;</td></tr>
-          <?php } ?>
-        </tbody>
+        </tfoot>
       </table>
     </form>
-<?php } elseif ($Item->id) { ?>
-    <?php echo CMS\NO_NOTES_FOUND?>
+<?php } ?>
+<?php if (!(array)$Table->Set && $Table->emptyString) { ?>
+  <p><?php echo htmlspecialchars($Table->emptyString)?></p>
 <?php } ?>

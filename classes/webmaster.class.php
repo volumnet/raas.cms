@@ -101,6 +101,7 @@ class Webmaster
         if (!$temp) {
             $T = new Template();
             $T->name = $this->view->_('MAIN_PAGE');
+            $T->urn = 'main';
             $f = $this->resourcesDir . '/template.tmp.php';
             $T->description = file_get_contents($f);
             $T->locations_info = '['
@@ -170,6 +171,7 @@ class Webmaster
             $snippetFormNotify = Snippet::importByURN('__raas_form_notify');
             $FRM = new \RAAS\CMS\Form(array(
                 'name' => $this->view->_('FEEDBACK'), 
+                'urn' => 'feedback',
                 'create_feedback' => 1,
                 'signature' => 1,
                 'antispam' => 'hidden',
@@ -197,6 +199,7 @@ class Webmaster
 
             $FRM = new \RAAS\CMS\Form(array(
                 'name' => $this->view->_('ORDER_CALL'), 
+                'urn' => 'order_call',
                 'create_feedback' => 1,
                 'signature' => 1,
                 'antispam' => 'hidden',
@@ -222,16 +225,16 @@ class Webmaster
             $robots = $this->createPage(array('name' => $this->view->_('ROBOTS_TXT'), 'urn' => 'robots', 'template' => 0, 'cache' => 0, 'response_code' => 200), $Site);
 
             if (!Menu::getSet()) {
-                $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 10, 'name' => $this->view->_('TOP_MENU'),));
+                $MNU = new Menu(array('page_id' => $Site->id, 'urn' => 'top', 'inherit' => 10, 'name' => $this->view->_('TOP_MENU'),));
                 $MNU->commit();
 
-                $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 1, 'name' => $this->view->_('BOTTOM_MENU'),));
+                $MNU = new Menu(array('page_id' => $Site->id, 'urn' => 'bottom', 'inherit' => 1, 'name' => $this->view->_('BOTTOM_MENU'),));
                 $MNU->commit();
 
-                $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 10, 'name' => $this->view->_('LEFT_MENU'),));
+                $MNU = new Menu(array('page_id' => $Site->id, 'urn' => 'left', 'inherit' => 10, 'name' => $this->view->_('LEFT_MENU'),));
                 $MNU->commit();
 
-                $MNU = new Menu(array('page_id' => $Site->id, 'inherit' => 10, 'name' => $this->view->_('SITEMAP'),));
+                $MNU = new Menu(array('page_id' => $Site->id, 'urn' => 'sitemap', 'inherit' => 10, 'name' => $this->view->_('SITEMAP'),));
                 $MNU->commit();
             }
 

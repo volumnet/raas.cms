@@ -49,6 +49,7 @@ class EditFormForm extends \RAAS\Form
             'parentUrl' => Sub_Dev::i()->url . '&action=forms',
             'children' => array(
                 array('name' => 'name', 'caption' => $view->_('NAME'), 'required' => 'required'),
+                array('name' => 'urn', 'caption' => $view->_('URN')),
                 array(
                     'type' => 'select', 
                     'name' => 'material_type', 

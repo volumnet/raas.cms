@@ -20,6 +20,7 @@ class Snippet extends \SOME\SOME
         parent::commit();
     }
     
+    
     public static function importByURN($urn = '')
     {
         $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
