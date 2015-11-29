@@ -104,7 +104,7 @@ class EditMaterialTypeForm extends \RAAS\Form
                 array('type' => 'checkbox', 'name' => 'global_type', 'caption' => $this->view->_('GLOBAL_MATERIALS'))
             )
         );
-        if (!$Item->id) {
+        if (!$Item->id && !$Parent->id) {
             $defaultParams['children']['template'] = array(
                 'type' => 'select', 
                 'name' => 'template', 
