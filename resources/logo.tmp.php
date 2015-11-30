@@ -1,1 +1,4 @@
-<div class="logo"><a href="/"><img alt="" src="/files/cms/common/image/logo.png" /></a> <div class="logo__slogan">&nbsp;</div></div>
+<?php
+$text = $Block->description;
+$text = str_replace(' href="' . htmlspecialchars($Page->initialURL) . '"', '', $text);
+echo $text;

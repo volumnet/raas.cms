@@ -127,6 +127,7 @@ class Webmaster
             'order_call_modal' => $this->view->_('ORDER_CALL_MODAL'), 
             'search' => $this->view->_('SITE_SEARCH'),
             'sitemap_xml' => $this->view->_('SITEMAP_XML'),
+            'logo' => $this->view->_('LOGO'),
             'robots' => $this->view->_('ROBOTS_TXT'),
             'menu_content' => $this->view->_('SITEMAP'),
             'menu_top' => $this->view->_('TOP_MENU'),
@@ -238,8 +239,8 @@ class Webmaster
                 $MNU->commit();
             }
 
-            $B = new Block_HTML(array('name' => $this->view->_('LOGO'), 'description' => file_get_contents($this->resourcesDir . '/logo.tmp.php'), 'wysiwyg' => 1,));
-            $this->createBlock($B, 'header', null, null, $Site, true);
+            $B = new Block_HTML(array('name' => $this->view->_('LOGO'), 'description' => file_get_contents($this->resourcesDir . '/logo_block.tmp.php'), 'wysiwyg' => 1,));
+            $this->createBlock($B, 'header', null, 'logo', $Site, true);
 
             $B = new Block_HTML(array('name' => $this->view->_('CONTACTS'), 'description' => file_get_contents($this->resourcesDir . '/contacts_top.tmp.php'), 'wysiwyg' => 1,));
             $this->createBlock($B, 'header', null, null, $Site, true);
