@@ -896,7 +896,7 @@ class Updater extends \RAAS\Updater
 
     public function update20151129()
     {
-        if (!in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_forms"))) {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_forms", $this->tables) && !in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_forms"))) {
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_forms 
                             ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
                             ADD INDEX (urn)";
@@ -906,13 +906,13 @@ class Updater extends \RAAS\Updater
             $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_forms SET urn = 'order_call' WHERE (urn = '') AND (name = 'Заказать звонок' OR name = 'Order call')";
             $this->SQL->query($SQL_query);
         }
-        if (!in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_groups"))) {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_groups", $this->tables) && !in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_groups"))) {
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_groups 
                             ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
                             ADD INDEX (urn)";
             $this->SQL->query($SQL_query);
         }
-        if (!in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_menus"))) {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_menus", $this->tables) && !in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_menus"))) {
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_menus 
                             ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
                             ADD INDEX (urn)";
@@ -930,7 +930,7 @@ class Updater extends \RAAS\Updater
             $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_menus SET urn = 'sitemap' WHERE (NOT pid) AND (urn = '') AND (name = 'Карта сайта' OR name = 'Sitemap')";
             $this->SQL->query($SQL_query);
         }
-        if (!in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_templates"))) {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_templates", $this->tables) && !in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_templates"))) {
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_templates 
                             ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
                             ADD INDEX (urn)";
