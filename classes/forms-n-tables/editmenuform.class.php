@@ -72,7 +72,7 @@ class EditMenuForm extends \RAAS\Form
             'caption' => $this->view->_('NAME'), 
             'required' => 'required'
         );
-        if (!$Item->pid) {
+        if (!$Parent->id) {
             $defaultParams['children']['urn'] = array(
                 'name' => 'urn', 
                 'caption' => $view->_('URN')
