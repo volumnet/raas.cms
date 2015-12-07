@@ -46,7 +46,7 @@ class EditMaterialTypeForm extends \RAAS\Form
             'oncommit' => function() use ($view, $Item) {
                 if ($_POST['template']) {
                     switch ($_POST['template']) {
-                        case self::MATERIAL_TYPE_TEMPLATE_NEWS:
+                        case EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_NEWS:
                             $dateField = new Material_Field(array('pid' => $Item->id, 'name' => $this->view->_('DATE'), 'urn' => 'date', 'datatype' => 'date', 'show_in_table' => 1,));
                             $dateField->commit();
 
@@ -56,7 +56,7 @@ class EditMaterialTypeForm extends \RAAS\Form
                             $F = new Material_Field(array('pid' => $Item->id, 'name' => $this->view->_('BRIEF_TEXT'), 'multiple' => 0, 'urn' => 'brief', 'datatype' => 'textarea',));
                             $F->commit();
                             break;
-                        case self::MATERIAL_TYPE_TEMPLATE_BANNERS:
+                        case EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_BANNERS:
                             $F = new Material_Field(array('pid' => $Item->id, 'name' => $this->view->_('URL'), 'urn' => 'url', 'datatype' => 'text', 'show_in_table' => 1,));
                             $F->commit();
 
@@ -70,7 +70,7 @@ class EditMaterialTypeForm extends \RAAS\Form
                     $urn = $Item->urn;
                     $pid = Snippet_Folder::importByURN('__raas_views')->id;
                     $name = $Item->name;
-                    if ($add | self::CREATE_MATERIAL_TYPE_SIMPLE) {
+                    if ($add | EditMaterialTypeForm::CREATE_MATERIAL_TYPE_SIMPLE) {
                         $f = Package::i()->resourcesDir . '/material_main.tmp.php';
                         $text = file_get_contents($f);
                         $text = str_ireplace('{BLOCK_NAME}', $urn . '_main', $text);
@@ -83,7 +83,7 @@ class EditMaterialTypeForm extends \RAAS\Form
                         $s->description = $text;
                         $s->commit();
                     }
-                    if ($add | self::CREATE_MATERIAL_TYPE_EXTENDED) {
+                    if ($add | EditMaterialTypeForm::CREATE_MATERIAL_TYPE_EXTENDED) {
                         $f = Package::i()->resourcesDir . '/material.tmp.php';
                         $text = file_get_contents($f);
                         $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
@@ -110,9 +110,9 @@ class EditMaterialTypeForm extends \RAAS\Form
                 'name' => 'template', 
                 'caption' => $this->view->_('MATERIAL_TYPE_TEMPLATE'),
                 'children' => array(
-                    array('value' => self::MATERIAL_TYPE_TEMPLATE_NONE, 'caption' => $this->view->_('_NONE')),
-                    array('value' => self::MATERIAL_TYPE_TEMPLATE_NEWS, 'caption' => $this->view->_('NEWS')),
-                    array('value' => self::MATERIAL_TYPE_TEMPLATE_BANNERS, 'caption' => $this->view->_('BANNERS')),
+                    array('value' => EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_NONE, 'caption' => $this->view->_('_NONE')),
+                    array('value' => EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_NEWS, 'caption' => $this->view->_('NEWS')),
+                    array('value' => EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_BANNERS, 'caption' => $this->view->_('BANNERS')),
                 )
             );
             $defaultParams['children']['add_snippet'] = array(
@@ -120,10 +120,10 @@ class EditMaterialTypeForm extends \RAAS\Form
                 'name' => 'add_snippet', 
                 'caption' => $this->view->_('ADD_SNIPPET_FOR_THIS_TYPE'),
                 'children' => array(
-                    array('value' => self::CREATE_MATERIAL_TYPE_NONE, 'caption' => $this->view->_('_NONE')),
-                    array('value' => self::CREATE_MATERIAL_TYPE_SIMPLE, 'caption' => $this->view->_('ADD_SNIPPET_FOR_THIS_TYPE_SIMPLE_FOR_MAIN')),
-                    array('value' => self::CREATE_MATERIAL_TYPE_EXTENDED, 'caption' => $this->view->_('ADD_SNIPPET_FOR_THIS_TYPE_EXTENDED')),
-                    array('value' => self::CREATE_MATERIAL_TYPE_BOTH, 'caption' => $this->view->_('ADD_SNIPPET_FOR_THIS_TYPE_BOTH'))
+                    array('value' => EditMaterialTypeForm::CREATE_MATERIAL_TYPE_NONE, 'caption' => $this->view->_('_NONE')),
+                    array('value' => EditMaterialTypeForm::CREATE_MATERIAL_TYPE_SIMPLE, 'caption' => $this->view->_('ADD_SNIPPET_FOR_THIS_TYPE_SIMPLE_FOR_MAIN')),
+                    array('value' => EditMaterialTypeForm::CREATE_MATERIAL_TYPE_EXTENDED, 'caption' => $this->view->_('ADD_SNIPPET_FOR_THIS_TYPE_EXTENDED')),
+                    array('value' => EditMaterialTypeForm::CREATE_MATERIAL_TYPE_BOTH, 'caption' => $this->view->_('ADD_SNIPPET_FOR_THIS_TYPE_BOTH'))
                 )
             );
         }
