@@ -47,20 +47,20 @@ class EditMaterialTypeForm extends \RAAS\Form
                 if ($_POST['template']) {
                     switch ($_POST['template']) {
                         case EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_NEWS:
-                            $dateField = new Material_Field(array('pid' => $Item->id, 'name' => $this->view->_('DATE'), 'urn' => 'date', 'datatype' => 'date', 'show_in_table' => 1,));
+                            $dateField = new Material_Field(array('pid' => $Item->id, 'name' => $view->_('DATE'), 'urn' => 'date', 'datatype' => 'date', 'show_in_table' => 1,));
                             $dateField->commit();
 
-                            $F = new Material_Field(array('pid' => $Item->id, 'name' => $this->view->_('IMAGE'), 'multiple' => 1, 'urn' => 'images', 'datatype' => 'image',));
+                            $F = new Material_Field(array('pid' => $Item->id, 'name' => $view->_('IMAGE'), 'multiple' => 1, 'urn' => 'images', 'datatype' => 'image',));
                             $F->commit();
 
-                            $F = new Material_Field(array('pid' => $Item->id, 'name' => $this->view->_('BRIEF_TEXT'), 'multiple' => 0, 'urn' => 'brief', 'datatype' => 'textarea',));
+                            $F = new Material_Field(array('pid' => $Item->id, 'name' => $view->_('BRIEF_TEXT'), 'multiple' => 0, 'urn' => 'brief', 'datatype' => 'textarea',));
                             $F->commit();
                             break;
                         case EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_BANNERS:
-                            $F = new Material_Field(array('pid' => $Item->id, 'name' => $this->view->_('URL'), 'urn' => 'url', 'datatype' => 'text', 'show_in_table' => 1,));
+                            $F = new Material_Field(array('pid' => $Item->id, 'name' => $view->_('URL'), 'urn' => 'url', 'datatype' => 'text', 'show_in_table' => 1,));
                             $F->commit();
 
-                            $F = new Material_Field(array('pid' => $Item->id, 'name' => $this->view->_('IMAGE'), 'urn' => 'image', 'datatype' => 'image',));
+                            $F = new Material_Field(array('pid' => $Item->id, 'name' => $view->_('IMAGE'), 'urn' => 'image', 'datatype' => 'image',));
                             $F->commit();
                             break;
                     }
