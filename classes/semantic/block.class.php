@@ -237,7 +237,7 @@ abstract class Block extends \SOME\SOME implements IAccessible
 
     public function process(Page $Page, $nocache = false)
     {
-        if (!$this->currentUserHasAccess() || !$this->tuneWithMaterial($Page)) {
+        if (!$this->currentUserHasAccess()) {
             return null;
         }
         $SITE = $Page->Domain;

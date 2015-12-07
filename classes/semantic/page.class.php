@@ -297,14 +297,20 @@ class Page extends \SOME\SOME implements IAccessible
         if (!isset($this->locationBlocksText[$location])) {
             $Location = new Location($this->Template, $location);
             $Set = (array)$this->blocksByLocations[$Location->urn];
+            $texts = array();
             foreach ($Set as $row) {
                 if ($row->vis) {
                     ob_start();
                     $bst = microtime(true);
                     $row->process($this);
                     Controller_Frontend::i()->diag ? Controller_Frontend::i()->diag->blockHandler($row, microtime(true) - $bst) : null;
-                    $this->locationBlocksText[$location][] = ob_get_contents();
+                    $texts[$row->id] = ob_get_contents();
                     ob_end_clean();
+                }
+            }
+            foreach ($Set as $row) {
+                if ($row->tuneWithMaterial($this)) {
+                    $this->locationBlocksText[$location][] = $texts[$row->id];
                 }
             }
         }
