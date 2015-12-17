@@ -92,12 +92,7 @@ class Updater extends \RAAS\Updater
             }
         }
         if (!is_file($this->filesDir . '/.htaccess')) {
-            $text = "Options -ExecCgi -Includes -Indexes\n"
-                  . "RemoveHandler .phtml .php .php3 .php4 .php5 .php6 .phps .cgi .exe .pl .asp .aspx .shtml .shtm .fcgi .fpl .jsp .htm .html .wml\n"
-                  . "AddType \"text/html\" .php .cgi .pl .fcgi .fpl .phtml .shtml .php2 .php3 .php4 .php5 .asp .jsp\n"
-                  . "RemoveType php\n"
-                  . "\n"
-                  . "<IfModule mod_php4.c>\n"
+            $text = "<IfModule mod_php4.c>\n"
                   . "php_flag engine 0\n"
                   . "</IfModule>\n"
                   . "\n"
