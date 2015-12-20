@@ -40,40 +40,70 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $this->view->snippets();
                 break;
             case 'chvis_dictionary': case 'delete_dictionary': 
-                $Item = new Dictionary((int)$this->id);
+                $items = array();
+                $ids = (array)$_GET['id'];
+                if (in_array('all', $ids, true)) {
+                    $pids = (array)$_GET['pid'];
+                    $pids = array_filter($pids, 'trim');
+                    $pids = array_map('intval', $pids);
+                    if ($pids) {
+                        $items = Dictionary::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
+                    }
+                } else {
+                    $items = array_map(function($x) { return new Dictionary((int)$x); }, $ids);
+                }
+                $items = array_values($items);
+                $Item = isset($items[0]) ? $items[0] : new Dictionary();
                 $f = str_replace('_dictionary', '', $this->action);
-                StdSub::$f($Item, $this->url . '&action=dictionaries&id=' . (int)$Item->pid);
+                StdSub::$f($items, $this->url . '&action=dictionaries&id=' . (int)$Item->pid);
                 break;
             case 'chvis_menu': case 'delete_menu': case 'realize_menu': 
-                $Item = new Menu((int)$this->id);
+                $items = array();
+                $ids = (array)$_GET['id'];
+                if (in_array('all', $ids, true)) {
+                    $pids = (array)$_GET['pid'];
+                    $pids = array_filter($pids, 'trim');
+                    $pids = array_map('intval', $pids);
+                    if ($pids) {
+                        $items = Menu::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
+                    }
+                } else {
+                    $items = array_map(function($x) { return new Menu((int)$x); }, $ids);
+                }
+                $items = array_values($items);
+                $Item = isset($items[0]) ? $items[0] : new Menu();
                 $f = str_replace('_menu', '', $this->action);
-                StdSub::$f($Item, $this->url . '&action=menus&id=' . (int)$Item->id);
+                StdSub::$f($items, $this->url . '&action=menus&id=' . (int)$Item->id);
                 break;
             case 'delete_template_image': 
                 $Item = new Template((int)$this->id);
                 StdSub::deleteBackground($Item, ($_GET['back'] ? 'history:back' : $this->url . '&action=edit_template&id=' . (int)$Item->id) . '#layout', false);
                 break;
             case 'delete_template': 
-                $Item = new Template((int)$this->id);
-                StdSub::delete($Item, $this->url . '&action=templates');
+                $ids = (array)$_GET['id'];
+                $items = array_map(function($x) { return new Template((int)$x); }, $ids);
+                $items = array_values($items);
+                StdSub::delete($items, $this->url . '&action=templates');
                 break;
             case 'delete_snippet_folder': 
-                $Item = new Snippet_Folder((int)$this->id);
-                if ($Item->locked) {
-                    exit;
-                }
-                StdSub::delete($Item, $this->url . '&action=snippets');
+                $ids = (array)$_GET['id'];
+                $items = array_map(function($x) { return new Snippet_Folder((int)$x); }, $ids);
+                $items = array_filter($items, function($x) { return !$x->locked; });
+                $items = array_values($items);
+                StdSub::delete($items, $this->url . '&action=snippets');
                 break;
             case 'delete_snippet':
-                $Item = new Snippet((int)$this->id);
-                if ($Item->locked) {
-                    exit;
-                }
-                StdSub::delete($Item, $this->url . '&action=snippets');
+                $ids = (array)$_GET['id'];
+                $items = array_map(function($x) { return new Snippet((int)$x); }, $ids);
+                $items = array_filter($items, function($x) { return !$x->locked; });
+                $items = array_values($items);
+                StdSub::delete($items, $this->url . '&action=snippets');
                 break;
             case 'delete_form':
-                $Item = new CMSForm((int)$this->id);
-                StdSub::delete($Item, $this->url . '&action=forms');
+                $ids = (array)$_GET['id'];
+                $items = array_map(function($x) { return new CMSForm((int)$x); }, $ids);
+                $items = array_values($items);
+                StdSub::delete($items, $this->url . '&action=forms');
                 break;
             case 'delete_diag':
                 $from = (strtotime($_GET['from']) > 0) ? date('Y-m-d', strtotime($_GET['from'])) : null;
@@ -85,15 +115,31 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'delete_form_field': case 'show_in_table_form_field': case 'required_form_field':
             case 'delete_page_field': case 'show_in_table_page_field': case 'required_page_field':
                 if (strstr($this->action, 'form')) {
-                    $Item = new Form_Field((int)$this->id);
-                    $Parent = $Item->Owner;
+                    $classname = 'RAAS\\CMS\\Form_Field';
+                    $parentClassname = 'RAAS\\CMS\\Form';
                 } elseif (strstr($this->action, 'material')) {
-                    $Item = new Material_Field((int)$this->id);
-                    $Parent = $Item->Owner;
+                    $classname = 'RAAS\\CMS\\Material_Field';
+                    $parentClassname = 'RAAS\\CMS\\Material';
                 } else {
-                    $Item = new Page_Field((int)$this->id);
-                    $Parent = null;
+                    $classname = 'RAAS\\CMS\\Page_Field';
+                    $parentClassname = 'RAAS\\CMS\\Material_Type';
                 }
+                $items = $where = array();
+                $ids = (array)$_GET['id'];
+                if (in_array('all', $ids, true)) {
+                    $where[] = "classname = '" . Application::i()->SQL->real_escape_string($parentClassname) . "'";
+                    $pids = (array)$_GET['pid'];
+                    $pids = array_filter($pids, 'trim');
+                    $pids = array_map('intval', $pids);
+                    if ($pids) {
+                        $where[] = "pid IN (" . implode(", ", $pids) . ")";
+                        $items = $classname::getSet(array('where' => $where));
+                    }
+                } else {
+                    $items = array_map(function($x) use ($classname) { return new $classname((int)$x); }, $ids);
+                }
+                $items = array_values($items);
+                $Item = isset($items[0]) ? $items[0] : new $classname();
                 $f = str_replace('_field', '', str_replace('_material', '', str_replace('_page', '', str_replace('_form', '', $this->action))));
                 if (strstr($this->action, 'form')) {
                     $url2 .= '&action=edit_form&id=' . (int)$Item->parent->id;
@@ -102,11 +148,13 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 } else {
                     $url2 .= '&action=pages_fields';
                 }
-                StdSub::$f($Item, $this->url . $url2, true, true, "pid = " . (int)$Item->parent->id . " AND classname = '" . Application::i()->SQL->real_escape_string($Item->classname) . "'");
+                StdSub::$f($items, $this->url . $url2);
                 break;
             case 'delete_material_type':
-                $Item = new Material_Type((int)$this->id);
-                StdSub::delete($Item, $this->url . '&action=material_types');
+                $ids = (array)$_GET['id'];
+                $items = array_map(function($x) { return new Material_Type((int)$x); }, $ids);
+                $items = array_values($items);
+                StdSub::delete($items, $this->url . '&action=material_types');
                 break;
             case 'webmaster_faq':
                 $w = new Webmaster();
