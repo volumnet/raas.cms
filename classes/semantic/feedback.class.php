@@ -42,7 +42,7 @@ class Feedback extends \SOME\SOME
                             case 'htmlarea':
                                 $arr[$key] = strip_tags($val);
                                 break;
-                            case 'file': case 'image':
+                            case 'file': case 'image': case 'material':
                                 break;
                             default:
                                 if (!$field->multiple && ($field->datatype == 'checkbox')) {
