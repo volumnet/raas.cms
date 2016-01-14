@@ -279,7 +279,13 @@ class Package extends \RAAS\Package
     {
         $columns = array_filter($MType->fields, function($x) { return $x->show_in_table; });
 
-        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.* FROM " . Material::_tablename() . " AS tM ";
+        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.* 
+                        FROM " . Material::_tablename() . " AS tM ";
+        // 2016-01-14, AVS: добавил поиск по данным
+        if ($search_string) {
+            $SQL_query .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id
+                            LEFT JOIN " . Material_Field::_tablename() . " AS tF ON tD.fid = tF.id ";
+        }
         if (!$MType->global_type) {
             $SQL_query .= " LEFT JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id ";
         }
@@ -288,12 +294,16 @@ class Package extends \RAAS\Package
         if (!$MType->global_type) {
             $SQL_query .= " AND (tMPA.pid = " . (int)$this->controller->id . " OR tMPA.pid IS NULL) ";
         }
+        // 2016-01-14, AVS: добавил поиск по данным
         if ($search_string) {
-            $SQL_query .= " AND (
-                                    name LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
-                                 OR urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
+            $SQL_query .= " AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid
+                            AND (
+                                    tM.name LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
+                                 OR tM.urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
+                                 OR tD.value LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
                             )";
         }
+        $SQL_query .= " GROUP BY tM.id ";
         $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
@@ -310,10 +320,11 @@ class Package extends \RAAS\Package
         } else {
             switch ($sort) {
                 case 'name': case 'urn': case 'modify_date':
-                    $_sort = $sort;
+                    $_sort = 'tM.' . $sort;
                     break;
                 default:
-                    $_sort = $sort = 'post_date';
+                    $sort = 'post_date';
+                    $_sort = 'tM.post_date';
                     break;
             }
             if (isset($order) && ($order == 'desc')) {
@@ -324,7 +335,7 @@ class Package extends \RAAS\Package
                 $_order = 'asc';
             }
 
-            $SQL_query .= " ORDER BY NOT priority, priority, " . $_sort . " " . strtoupper($_order);
+            $SQL_query .= " ORDER BY NOT tM.priority, tM.priority, " . $_sort . " " . strtoupper($_order);
             $Set = Material::getSQLSet($SQL_query, $Pages);
         }
         return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $_order);
@@ -346,12 +357,19 @@ class Package extends \RAAS\Package
 
         $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.* FROM " . Material::_tablename() . " AS tM 
                         JOIN " . Material_Field::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id";
+        // 2016-01-14, AVS: добавил поиск по данным
+        if ($search_string) {
+            $SQL_query .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::data_table . " AS tD2 ON tD2.pid = tM.id
+                            LEFT JOIN " . Material_Field::_tablename() . " AS tF2 ON tD2.fid = tF2.id ";
+        }
         $types = array_merge(array($MType->id), (array)$MType->all_children_ids);
         $SQL_query .= " WHERE tM.pid IN (" . implode(", ", $types) . ") AND tD.fid IN (" . implode(", ", $fields) . ") AND tD.value = " . (int)$Item->id;
         if ($search_string) {
-            $SQL_query .= " AND (
+            $SQL_query .= " AND tF2.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF2.pid
+                            AND (
                                     tM.name LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
                                  OR tM.urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
+                                 OR tD2.value LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
                             )";
         }
         $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
@@ -370,10 +388,11 @@ class Package extends \RAAS\Package
         } else {
             switch ($sort) {
                 case 'name': case 'urn': case 'modify_date':
-                    $_sort = $sort;
+                    $_sort = "tM." . $sort;
                     break;
                 default:
-                    $_sort = $sort = 'post_date';
+                    $sort = 'post_date';
+                    $_sort = 'tM.post_date';
                     break;
             }
             if (isset($order) && ($order == 'desc')) {
@@ -384,7 +403,7 @@ class Package extends \RAAS\Package
                 $_order = 'asc';
             }
 
-            $SQL_query .= " ORDER BY NOT priority, priority, " . $_sort . " " . strtoupper($_order);
+            $SQL_query .= " ORDER BY NOT tM.priority, tM.priority, " . $_sort . " " . strtoupper($_order);
             $Set = Material::getSQLSet($SQL_query, $Pages);
         }
         return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $_order);
@@ -398,7 +417,7 @@ class Package extends \RAAS\Package
         $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tF.* 
                         FROM " . Feedback::_tablename() .  " AS tF
                    LEFT JOIN " . Field::_tablename() .  " AS tFi ON tFi.pid = tF.pid AND tFi.classname = 'RAAS\\\\CMS\\\\Form'
-                   LEFT JOIN " . Feedback::_dbprefix() . "cms_data AS tD ON tD.pid = tF.id AND tD.fid = tFi.id
+                   LEFT JOIN " . Feedback::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tF.id AND tD.fid = tFi.id
                        WHERE 1 ";
         $columns = array();
         if ($Parent->id) {
@@ -581,27 +600,30 @@ class Package extends \RAAS\Package
     }
 
 
-    public function getMaterialsBySearch($search, $mtype = 0, $limit = 10)
+    public function getMaterialsBySearch($search, $mtype = 0, $limit = 50)
     {
+        // 2016-01-14, AVS: Сделал $limit 50 вместо 10
         $Material_Type = new Material_Type((int)$mtype);
+        // 2016-01-14, AVS: сделал поиск по данным вместо названия. Возможно, вызовет перегруз, но нужно тогда решать вопрос с базой
+        $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM 
+                        JOIN " . Material_Field::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id
+                        JOIN " . Material_Field::_tablename() . " AS tF ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.id = tD.fid
+                       WHERE (
+                                tM.name LIKE '%" . $this->SQL->escape_like($search) . "%' 
+                             OR tM.urn LIKE '%" . $this->SQL->escape_like($search) . "%' 
+                             OR tM.description LIKE '%" . $this->SQL->escape_like($search) . "%' 
+                             OR tD.value LIKE '%" . $this->SQL->escape_like($search) . "%'
+                        ) ";
         // $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM 
-        //                 JOIN " . Material_Field::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id
-        //                 JOIN " . Material_Field::_tablename() . " AS tF ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.id = tD.fid
         //                WHERE (
         //                         tM.name LIKE '%" . $this->SQL->escape_like($search) . "%' 
         //                      OR tM.description LIKE '%" . $this->SQL->escape_like($search) . "%' 
-        //                      OR tD.value LIKE '%" . $this->SQL->escape_like($search) . "%'
         //                 ) ";
-        $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM 
-                       WHERE (
-                                tM.name LIKE '%" . $this->SQL->escape_like($search) . "%' 
-                             OR tM.description LIKE '%" . $this->SQL->escape_like($search) . "%' 
-                        ) ";
         if ($Material_Type->id) {
             $ids = array_merge(array((int)$Material_Type->id), (array)$Material_Type->all_children_ids);
             $SQL_query .= " AND tM.pid IN (" . implode(", ", $ids) . ") ";
         }
-        $SQL_query .= " GROUP BY tM.id ORDER BY SUBSTRING(tM.name, 1, 8) LIMIT " . (int)$limit;
+        $SQL_query .= " GROUP BY tM.id ORDER BY tM.name LIMIT " . (int)$limit;
         $Set = Material::getSQLSet($SQL_query);
         return $Set;
     }
