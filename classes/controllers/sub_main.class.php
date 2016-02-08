@@ -172,13 +172,26 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
     
     protected function move_page()
     {
-        $Item = new Page((int)$this->id);
-        if ($Item->id && $Item->pid) {
-            if (isset($_GET['pid'])) {
-                $Parent = new Page((int)$_GET['pid']);
-                StdSub::move($Item, $Parent, $this->url . '&id=%s#subsections');
+        $items = array();
+        $ids = (array)$_GET['id'];
+        if (in_array('all', $ids, true)) {
+            $pids = (array)$_GET['pid'];
+            $pids = array_filter($pids, 'trim');
+            $pids = array_map('intval', $pids);
+            if ($pids) {
+                $items = Page::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
+            }
+        } else {
+            $items = array_map(function($x) { return new Page((int)$x); }, $ids);
+        }
+        $items = array_values($items);
+        $Item = isset($items[0]) ? $items[0] : new Page();
+        if ($items) {
+            if (isset($_GET['new_pid'])) {
+                $Parent = new Page((int)$_GET['new_pid']);
+                StdSub::move($items, $Parent, $this->url . '&id=%s#subsections');
             } else {
-                $this->view->move_page(array('Item' => $Item));
+                $this->view->move_page(array('Item' => $Item, 'items' => $items));
                 return;
             }
         }

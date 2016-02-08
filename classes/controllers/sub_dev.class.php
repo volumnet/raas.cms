@@ -39,7 +39,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'snippets': 
                 $this->view->snippets();
                 break;
-            case 'chvis_dictionary': case 'delete_dictionary': 
+            case 'chvis_dictionary': case 'vis_dictionary': case 'invis_dictionary': case 'delete_dictionary': 
                 $items = array();
                 $ids = (array)$_GET['id'];
                 if (in_array('all', $ids, true)) {
@@ -57,7 +57,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $f = str_replace('_dictionary', '', $this->action);
                 StdSub::$f($items, $this->url . '&action=dictionaries&id=' . (int)$Item->pid);
                 break;
-            case 'chvis_menu': case 'delete_menu': case 'realize_menu': 
+            case 'chvis_menu': case 'vis_menu': case 'invis_menu': case 'delete_menu': case 'realize_menu': 
                 $items = array();
                 $ids = (array)$_GET['id'];
                 if (in_array('all', $ids, true)) {
@@ -119,7 +119,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                     $parentClassname = 'RAAS\\CMS\\Form';
                 } elseif (strstr($this->action, 'material')) {
                     $classname = 'RAAS\\CMS\\Material_Field';
-                    $parentClassname = 'RAAS\\CMS\\Material';
+                    $parentClassname = 'RAAS\\CMS\\Material_Type';
                 } else {
                     $classname = 'RAAS\\CMS\\Page_Field';
                     $parentClassname = 'RAAS\\CMS\\Material_Type';
@@ -133,6 +133,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                     $pids = array_map('intval', $pids);
                     if ($pids) {
                         $where[] = "pid IN (" . implode(", ", $pids) . ")";
+                        $items = $classname::getSet(array('where' => $where));
+                    } elseif ($classname == 'RAAS\\CMS\\Page_Field') {
                         $items = $classname::getSet(array('where' => $where));
                     }
                 } else {
@@ -241,12 +243,26 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     
     protected function move_dictionary()
     {
-        $Item = new Dictionary((int)$this->id);
-        if ($Item->id) {
-            if (isset($_GET['pid'])) {
-                StdSub::move($Item, new Dictionary((int)$_GET['pid']), $this->url . '&action=dictionaries&id=%s');
+        $items = array();
+        $ids = (array)$_GET['id'];
+        if (in_array('all', $ids, true)) {
+            $pids = (array)$_GET['pid'];
+            $pids = array_filter($pids, 'trim');
+            $pids = array_map('intval', $pids);
+            if ($pids) {
+                $items = Dictionary::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
+            }
+        } else {
+            $items = array_map(function($x) { return new Dictionary((int)$x); }, $ids);
+        }
+        $items = array_values($items);
+        $Item = isset($items[0]) ? $items[0] : new Dictionary();
+
+        if ($items) {
+            if (isset($_GET['new_pid'])) {
+                StdSub::move($items, new Dictionary((int)$_GET['new_pid']), $this->url . '&action=dictionaries&id=%s');
             } else {
-                $this->view->move_dictionary(array('Item' => $Item));
+                $this->view->move_dictionary(array('Item' => $Item, 'items' => $items));
                 return;
             }
         }
@@ -294,12 +310,26 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     
     protected function move_menu()
     {
-        $Item = new Menu((int)$this->id);
-        if ($Item->id) {
-            if (isset($_GET['pid'])) {
-                StdSub::move($Item, new Menu((int)$_GET['pid']), $this->url . '&action=menus&id=%s');
+        $items = array();
+        $ids = (array)$_GET['id'];
+        if (in_array('all', $ids, true)) {
+            $pids = (array)$_GET['pid'];
+            $pids = array_filter($pids, 'trim');
+            $pids = array_map('intval', $pids);
+            if ($pids) {
+                $items = Menu::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
+            }
+        } else {
+            $items = array_map(function($x) { return new Menu((int)$x); }, $ids);
+        }
+        $items = array_values($items);
+        $Item = isset($items[0]) ? $items[0] : new Menu();
+        
+        if ($items) {
+            if (isset($_GET['new_pid'])) {
+                StdSub::move($items, new Menu((int)$_GET['new_pid']), $this->url . '&action=menus&id=%s');
             } else {
-                $this->view->move_menu(array('Item' => $Item));
+                $this->view->move_menu(array('Item' => $Item, 'items' => $items));
                 return;
             }
         }

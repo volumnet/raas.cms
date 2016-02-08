@@ -77,6 +77,9 @@ class SubsectionsTable extends \RAAS\Table
             $columns[' '] = array('callback' => function ($row, $i) use ($view, $params) { return rowContextMenu($view->getPageContextMenu($row, $i, count($params['Set']))); });
         }
         $arr = $params;
+        $arr['data-role'] = 'multitable';
+        $arr['meta']['allContextMenu'] = $view->getAllPagesContextMenu();
+        $arr['meta']['allValue'] = 'all&pid=' . (int)$params['Item']->id;
         $arr['columns'] = $columns;
         parent::__construct($arr);
         if ($params['Item']->id) {

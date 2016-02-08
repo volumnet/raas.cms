@@ -10,6 +10,7 @@ class View_Web extends \RAAS\Package_View_Web
     
     public function header()
     {
+        $this->js[] = $this->publicURL . '/multitable.js';
         $this->css[] = $this->publicURL . '/style.css';
         $c = Feedback::unreadFeedbacks();
         $this->menu[] = array('href' => $this->url . '&sub=main', 'name' => $this->_('PAGES'), 'active' => (!$this->sub || ($this->sub == 'main')) && !$this->moduleName);

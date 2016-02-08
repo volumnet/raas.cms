@@ -48,6 +48,11 @@ class DictionariesTable extends \RAAS\Table
         $defaultParams = array(
             'emptyString' => $this->view->_('NO_NOTES_FOUND'),
             'template' => 'dev_dictionaries',
+            'data-role' => 'multitable',
+            'meta' => array(
+                'allContextMenu' => $view->getAllDictionariesContextMenu(),
+                'allValue' => 'all&pid=' . (int)$params['Item']->id,
+            ),
         );
         $arr = array_merge($defaultParams, $params);
         $arr['columns'] = $columns;

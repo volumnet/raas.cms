@@ -113,7 +113,17 @@ class MaterialsTable extends \RAAS\Table
         );
         $columns[' '] = array('callback' => function ($row) use ($view) { return rowContextMenu($view->getMaterialContextMenu($row)); });
 
-        $arr = array_merge(array('columns' => $columns), $params);
+        $arr = array_merge(
+            array(
+                'meta' => array(
+                    'allContextMenu' => $view->getAllMaterialsContextMenu(),
+                    'allValue' => 'all&mtype=' . (int)$params['mtype']->id,
+                ),
+                'data-role' => 'multitable',
+                'columns' => $columns
+            ), 
+            $params
+        );
         parent::__construct($arr);
     }
 }

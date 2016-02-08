@@ -1,20 +1,20 @@
 <?php
-function showMoveMenu(\RAAS\CMS\Menu $node, \RAAS\CMS\Menu $current)
+function showMoveMenu(\RAAS\CMS\Menu $node, array $ids, array $pids, array $actives)
 {
     static $level = 0;
     foreach ($node->children as $row) {
-        $active = in_array($row->id, array_merge(array($current->id), (array)$current->parents_ids));
+        $active = in_array($row->id, $actives);
         $text .= '<li class="' . ((!$row->vis || !$row->pvis) ? ' cms-invis' : '') . (!$row->pvis ? ' cms-inpvis' : '') . ($active ? ' active' : '') . '">';
-        if ($current->pid == $row->id) {
+        if (in_array($row->id, $pids)) {
             $text .= '<span>' . htmlspecialchars($row->name) . '</span>';
-        } elseif ($current->id == $row->id) {
+        } elseif (in_array($row->id, $ids)) {
             $text .= '<b>' . htmlspecialchars($row->name) . '</b>';
         } else {
-            $text .= '<a href="' . \SOME\HTTP::queryString('pid=' . (int)$row->id) . '">' . htmlspecialchars($row->name) . '</a>';
+            $text .= '<a href="' . \SOME\HTTP::queryString('new_pid=' . (int)$row->id) . '">' . htmlspecialchars($row->name) . '</a>';
         }
-        if ($current->id != $row->id) {
+        if (!in_array($row->id, $ids)) {
             $level++;
-            $text .= showMoveMenu($row, $current);
+            $text .= showMoveMenu($row, $ids, $pids, $actives);
             $level--;
         }
         $text .= '</li>'; 
@@ -32,9 +32,9 @@ function showMoveMenu(\RAAS\CMS\Menu $node, \RAAS\CMS\Menu $current)
     <?php if (!$Item->pid) { ?>
         <span><?php echo CMS\ROOT_SECTION?></span>
     <?php } else { ?>
-        <a href="<?php echo \SOME\HTTP::queryString('pid=0')?>"><?php echo CMS\ROOT_SECTION?></a>
+        <a href="<?php echo \SOME\HTTP::queryString('new_pid=0')?>"><?php echo CMS\ROOT_SECTION?></a>
     <?php } ?>
-    <?php echo showMoveMenu(new \RAAS\CMS\Menu(), $Item)?>
+    <?php echo showMoveMenu(new \RAAS\CMS\Menu(), $ids, $pids, $actives)?>
   </li>
 </ul>
 <script>

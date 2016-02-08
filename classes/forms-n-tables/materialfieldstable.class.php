@@ -11,6 +11,11 @@ class MaterialFieldsTable extends FieldsTable
         $shift = 2 + count($params['Item']->fields) - count($params['Item']->selfFields);
         unset($params['editAction'], $params['ctxMenu'], $params['shift']);
         $defaultParams = array(
+            'meta' => array(
+                'allContextMenu' => $view->getAllMaterialFieldsContextMenu(),
+                'allValue' => 'all' . ($params['Item'] ? '&pid=' . (int)$params['Item']->id : ''),
+            ),
+            'data-role' => 'multitable',
             'columns' => array(
                 'name' => array(
                     'caption' => $this->view->_('NAME'), 

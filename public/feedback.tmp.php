@@ -9,4 +9,4 @@
     <button type="submit" class="btn"><i class="icon-search"></i></button>
   </div>
 </form>
-<?php include \RAAS\Application::i()->view->context->tmp('/table.tmp.php'); ?>
+<?php include \RAAS\Application::i()->view->context->tmp('multitable.tmp.php'); ?>

@@ -103,7 +103,12 @@ class FeedbackTable extends \RAAS\Table
             'emptyString' => $this->view->_('NO_NOTES_FOUND'),
             'callback' => function($Row) { if (!$Row->source->vis) { $Row->class = 'info'; } },
             'Set' => $params['Set'],
-            'template' => 'feedback'
+            'template' => 'feedback',
+            'data-role' => 'multitable',
+            'meta' => array(
+                'allContextMenu' => $view->getAllFeedbacksContextMenu(),
+            ),
+            
         );
         unset($params['columns']);
 

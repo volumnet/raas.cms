@@ -21,9 +21,16 @@ class FieldsTable extends \RAAS\Table
         $view = $this->view;
         $editAction = $params['editAction'];
         $ctxMenu = $params['ctxMenu'];
+        $allCtxMenu = str_replace('get', 'getAll', $ctxMenu);
+        $allCtxMenu = str_replace('ContextMenu', 'sContextMenu', $allCtxMenu);
         $shift = isset($params['shift']) ? (int)$params['shift'] : 0;
         unset($params['editAction'], $params['ctxMenu'], $params['shift']);
         $defaultParams = array(
+            'meta' => array(
+                'allContextMenu' => ($ctxMenu && $allCtxMenu) ? $view->$allCtxMenu() : null,
+                'allValue' => 'all' . ($params['Item'] ? '&pid=' . (int)$params['Item']->id : ''),
+            ),
+            'data-role' => 'multitable',
             'columns' => array(
                 'name' => array(
                     'caption' => $this->view->_('NAME'), 

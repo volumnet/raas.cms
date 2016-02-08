@@ -1,20 +1,20 @@
 <?php
-function showMoveMenu(\RAAS\CMS\Page $node, \RAAS\CMS\Page $current)
+function showMoveMenu(\RAAS\CMS\Page $node, array $ids, array $pids, array $actives)
 {
     static $level = 0;
     foreach ($node->children as $row) {
-        $active = in_array($row->id, array_merge(array($current->id), (array)$current->parents_ids));
+        $active = in_array($row->id, $actives);
         $text .= '<li class="' . ((!$row->vis || !$row->pvis) ? ' cms-invis' : '') . (!$row->pvis ? ' cms-inpvis' : '') . ($active ? ' active' : '') . '">';
-        if ($current->pid == $row->id) {
+        if (in_array($row->id, $pids)) {
             $text .= '<span>' . htmlspecialchars($row->name) . '</span>';
-        } elseif ($current->id == $row->id) {
+        } elseif (in_array($row->id, $ids)) {
             $text .= '<b>' . htmlspecialchars($row->name) . '</b>';
         } else {
-            $text .= '<a href="' . \SOME\HTTP::queryString('pid=' . (int)$row->id) . '">' . htmlspecialchars($row->name) . '</a>';
+            $text .= '<a href="' . \SOME\HTTP::queryString('new_pid=' . (int)$row->id) . '">' . htmlspecialchars($row->name) . '</a>';
         }
-        if ($current->id != $row->id) {
+        if (!in_array($row->id, $ids)) {
             $level++;
-            $text .= showMoveMenu($row, $current);
+            $text .= showMoveMenu($row, $ids, $pids, $actives);
             $level--;
         }
         $text .= '</li>'; 
@@ -31,7 +31,7 @@ function showMoveMenu(\RAAS\CMS\Page $node, \RAAS\CMS\Page $current)
 }
 ?>
 <p><?php echo CMS\CHOOSE_NEW_PARENT?>:</p>
-<?php echo showMoveMenu(new \RAAS\CMS\Page(), $Item)?>
+<?php echo showMoveMenu(new \RAAS\CMS\Page(), $ids, $pids, $actives)?>
 <script>
 jQuery(document).ready(function($) {
     $('[data-role="move-menu"]').RAAS_menuTree();
