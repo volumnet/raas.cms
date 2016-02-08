@@ -129,7 +129,7 @@ function displayLocation($VIEW, $loc, $Item)
                   <i class="icon icon-plus"></i> <?php echo CMS\CREATE_MATERIAL?>
                 </a>
               </p>
-              <form class="form-search" action="" method="get">
+              <form class="form-search" action="#_<?php echo htmlspecialchars($mtype->urn)?>" method="get">
                 <?php foreach (\RAAS\CMS\ViewSub_Main::i()->nav as $key => $val) { ?>
                     <?php if (!in_array($key, array('page', 'm' . (int)$mtype->id . 'search_string'))) { ?>
                         <input type="hidden" name="<?php echo htmlspecialchars($key)?>" value="<?php echo htmlspecialchars($val)?>" />
