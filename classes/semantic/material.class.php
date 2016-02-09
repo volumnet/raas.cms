@@ -70,7 +70,9 @@ class Material extends \SOME\SOME implements IAccessible
                         // Размещаем сюда из-за большого количества баннеров, где URL задан явно
                         // 2015-06-21, AVS: заменили parent на affectedPages[0], т.к. зачастую, если новость задана и на главной и на странице новостей, 
                         // url по умолчанию ведет на главную, где нет nat'а
-                        return $this->affectedPages[0]->url . $this->urn . '/';
+                        // 2016-02-09, AVS: делаем проверку, а вообще есть ли affectedPages
+                        // Если нет, то и URL у материала по сути нет
+                        return $this->affectedPages ? ($this->affectedPages[0]->url . $this->urn . '/') : null;
                     }
                 }
                 break;
