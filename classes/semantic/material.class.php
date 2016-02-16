@@ -214,7 +214,7 @@ class Material extends \SOME\SOME implements IAccessible
     {
         $temp = $this->material_type->fields;
         $arr = array();
-        foreach ($temp as $row) {
+        foreach ((array)$temp as $row) {
             $row->Owner = $this;
             $arr[$row->urn] = $row;
         }
