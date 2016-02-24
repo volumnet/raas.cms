@@ -24,8 +24,15 @@ class MenusTable extends \RAAS\Table
         $defaultParams = array(
             'columns' => array(),
             'emptyString' => $this->view->_('NO_NOTES_FOUND'),
-            'meta' => array('realizedCounter' => 0)
+            'data-role' => 'multitable',
+            'meta' => array(
+                'realizedCounter' => 0,
+            )
         );
+        if ($Item->id) {
+            $defaultParams['meta']['allContextMenu'] = $view->getAllMenusContextMenu();
+            $defaultParams['meta']['allValue'] = 'all&pid=' . (int)$params['Item']->id;
+        }
         $defaultParams['columns']['name'] = array(
             'caption' => $this->view->_('NAME'), 
             'callback' => function($row) use ($view, $Item, $thisObj) { 

@@ -68,6 +68,11 @@ function displayLocation($VIEW, $loc, $Item)
               <?php if ($Table->header) { ?>
                   <thead>
                     <tr>
+                      <th>
+                        <?php if ($Table->meta['allValue']) { ?>
+                            <input type="checkbox" data-role="checkbox-all" value="<?php echo htmlspecialchars($Table->meta['allValue'])?>">
+                        <?php } ?>
+                      </th>
                       <?php 
                       foreach ($Table->columns as $key => $col) { 
                           include \RAAS\Application::i()->view->context->tmp('/column.inc.php');
@@ -85,7 +90,7 @@ function displayLocation($VIEW, $loc, $Item)
                     <?php 
                     for ($i = 0; $i < count($Table->rows); $i++) { 
                         $row = $Table->rows[$i];
-                        include \RAAS\Application::i()->view->context->tmp('/row.inc.php');
+                        include \RAAS\CMS\Package::i()->view->context->tmp('multirow.inc.php');
                         if ($row->template) {
                             include \RAAS\Application::i()->view->context->tmp($row->template);
                         }
@@ -96,7 +101,8 @@ function displayLocation($VIEW, $loc, $Item)
               <?php } ?>
               <tfoot>
                 <tr>
-                  <td colspan="<?php echo (count($Table->columns) - 2)?>">&nbsp;</td>
+                  <td colspan="2"><?php echo rowContextMenu($Table->meta['allContextMenu'], \RAAS\Application::i()->view->context->_('WITH_SELECTED'), '', 'btn-mini')?></td>
+                  <td colspan="<?php echo (count($Table->columns) - 3)?>">&nbsp;</td>
                   <td><input type="submit" class="btn btn-small btn-default" style="width: 70px; padding: 2px 0;" value="<?php echo DO_UPDATE?>" /></td>
                   <td></td>
                 </tr>
@@ -123,7 +129,7 @@ function displayLocation($VIEW, $loc, $Item)
                   <i class="icon icon-plus"></i> <?php echo CMS\CREATE_MATERIAL?>
                 </a>
               </p>
-              <form class="form-search" action="" method="get">
+              <form class="form-search" action="#_<?php echo htmlspecialchars($mtype->urn)?>" method="get">
                 <?php foreach (\RAAS\CMS\ViewSub_Main::i()->nav as $key => $val) { ?>
                     <?php if (!in_array($key, array('page', 'm' . (int)$mtype->id . 'search_string'))) { ?>
                         <input type="hidden" name="<?php echo htmlspecialchars($key)?>" value="<?php echo htmlspecialchars($val)?>" />

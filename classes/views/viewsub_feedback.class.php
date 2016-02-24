@@ -48,6 +48,25 @@ class ViewSub_Feedback extends \RAAS\Abstract_Sub_View
     }
     
     
+    public function getAllFeedbacksContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('MARK_AS_UNREAD'), 
+            'href' => $this->url . '&action=chvis&back=1', 
+            'icon' => 'eye-close', 
+            'title' => $this->_('MARK_AS_UNREAD')
+        );
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
+        return $arr;
+    }
+    
+    
     public function feedback(array $IN = array())
     {
         $view = $this;

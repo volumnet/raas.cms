@@ -1,19 +1,20 @@
 <?php
-function showMoveMenu(\RAAS\CMS\Dictionary $node, \RAAS\CMS\Dictionary $current)
+function showMoveMenu(\RAAS\CMS\Dictionary $node, array $ids, array $pids, array $actives)
 {
     static $level = 0;
     foreach ($node->children as $row) {
-        $text .= '<li class="' . ((!$row->vis || !$row->pvis) ? ' cms-invis' : '') . (!$row->pvis ? ' cms-inpvis' : '') . '">';
-        if (($current->pid == $row->id)) {
+        $active = in_array($row->id, $actives);
+        $text .= '<li class="' . ((!$row->vis || !$row->pvis) ? ' cms-invis' : '') . (!$row->pvis ? ' cms-inpvis' : '') . ($active ? ' active' : '') . '">';
+        if (in_array($row->id, $pids)) {
             $text .= '<span>' . htmlspecialchars($row->name) . '</span>';
-        } elseif (($current->id == $row->id)) {
+        } elseif (in_array($row->id, $ids)) {
             $text .= '<b>' . htmlspecialchars($row->name) . '</b>';
         } else {
-            $text .= '<a href="' . \SOME\HTTP::queryString('pid=' . (int)$row->id) . '">' . htmlspecialchars($row->name) . '</a>';
+            $text .= '<a href="' . \SOME\HTTP::queryString('new_pid=' . (int)$row->id) . '">' . htmlspecialchars($row->name) . '</a>';
         }
-        if ($current->id != $row->id) {
+        if (!in_array($row->id, $ids)) {
             $level++;
-            $text .= showMoveMenu($row, $current);
+            $text .= showMoveMenu($row, $ids, $pids, $actives);
             $level--;
         }
         $text .= '</li>'; 
@@ -26,13 +27,13 @@ function showMoveMenu(\RAAS\CMS\Dictionary $node, \RAAS\CMS\Dictionary $current)
 }
 ?>
 <p><?php echo CMS\CHOOSE_NEW_PARENT?>:</p>
-<ul class="tree" data-raas-role="tree">
+<ul class="tree" data-raas-role="tree" style="margin-bottom: 20px">
   <li>
     <?php if (!$Item->pid) { ?>
         <span><?php echo CMS\ROOT_SECTION?></span>
     <?php } else { ?>
-        <a href="<?php echo \SOME\HTTP::queryString('pid=0')?>"><?php echo CMS\ROOT_SECTION?></a>
+        <a href="<?php echo \SOME\HTTP::queryString('new_pid=0')?>"><?php echo CMS\ROOT_SECTION?></a>
     <?php } ?>
-    <?php echo showMoveMenu(new \RAAS\CMS\Dictionary(), $Item)?>
+    <?php echo showMoveMenu(new \RAAS\CMS\Dictionary(), $ids, $pids, $actives)?>
   </li>
 </ul>

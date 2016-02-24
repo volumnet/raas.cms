@@ -41,6 +41,22 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     
     public function move_dictionary(array $IN = array())
     {
+        $ids = array_map(function($x) { return (int)$x->id; }, $IN['items']);
+        $ids = array_unique($ids);
+        $ids = array_values($ids);
+        $pids = array_map(function($x) { return (int)$x->pid; }, $IN['items']);
+        $pids = array_unique($pids);
+        $pids = array_values($pids);
+        $actives = array();
+        foreach ($IN['items'] as $row) {
+            $actives = array_merge($actives, array($row->id), (array)$row->parents_ids);
+        }
+        $actives = array_unique($actives);
+        $actives = array_values($actives);
+        $IN['ids'] = $ids;
+        $IN['pids'] = $pids;
+        $IN['actives'] = $actives;
+
         $this->assignVars($IN);
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
         $this->path[] = array('href' => $this->url . '&action=dictionaries', 'name' => $this->_('DICTIONARIES'));
@@ -50,6 +66,9 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             }
         }
         $this->path[] = array('href' => $this->url . '&action=dictionaries' . '&id=' . (int)$IN['Item']->id, 'name' => $IN['Item']->name);
+        if (count($IN['items']) == 1) {
+            $this->contextmenu = $this->getDictionaryContextMenu($IN['Item']);
+        }
         $this->title = $this->_('MOVING_NOTE');
         $this->template = 'dev_move_dictionary';
     }
@@ -93,6 +112,22 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     
     public function move_menu(array $IN = array())
     {
+        $ids = array_map(function($x) { return (int)$x->id; }, $IN['items']);
+        $ids = array_unique($ids);
+        $ids = array_values($ids);
+        $pids = array_map(function($x) { return (int)$x->pid; }, $IN['items']);
+        $pids = array_unique($pids);
+        $pids = array_values($pids);
+        $actives = array();
+        foreach ($IN['items'] as $row) {
+            $actives = array_merge($actives, array($row->id), (array)$row->parents_ids);
+        }
+        $actives = array_unique($actives);
+        $actives = array_values($actives);
+        $IN['ids'] = $ids;
+        $IN['pids'] = $pids;
+        $IN['actives'] = $actives;
+
         $this->assignVars($IN);
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
         $this->path[] = array('href' => $this->url . '&action=menus', 'name' => $this->_('MENUS'));
@@ -102,6 +137,9 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             }
         }
         $this->path[] = array('href' => $this->url . '&action=menus' . '&id=' . (int)$IN['Item']->id, 'name' => $IN['Item']->name);
+        if (count($IN['items']) == 1) {
+            $this->contextmenu = $this->getMenuContextMenu($IN['Item']);
+        }
         $this->title = $this->_('MOVING_NOTE');
         $this->template = 'dev_move_menu';
     }
@@ -386,6 +424,19 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     {
         return $this->stdView->stdContextMenu($Item, 0, 0, 'edit_template', 'templates', 'delete_template');
     }
+
+
+    public function getAllTemplatesContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete_template&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
+        return $arr;
+    }
     
     
     public function getDictionaryContextMenu(Dictionary $Item, $i = 0, $c = 0) 
@@ -417,11 +468,54 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
     
     
+    public function getAllDictionariesContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('SHOW'), 
+            'href' => $this->url . '&action=vis_dictionary&back=1', 
+            'icon' => 'eye-open', 
+            'title' => $this->_('SHOW')
+        );
+        $arr[] = array(
+            'name' => $this->_('HIDE'), 
+            'href' => $this->url . '&action=invis_dictionary&back=1', 
+            'icon' => 'eye-close', 
+            'title' => $this->_('HIDE')
+        );
+        $arr[] = array(
+            'name' => $this->_('MOVE'), 
+            'href' => $this->url . '&action=move_dictionary', 
+            'icon' => 'share-alt'
+        );
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete_dictionary&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
+        return $arr;
+    }
+    
+    
     public function getSnippetFolderContextMenu(Snippet_Folder $Item)
     {
         if (!$Item->locked) {
             $arr = $this->stdView->stdContextMenu($Item, 0, 0, 'edit_snippet_folder', 'snippets', 'delete_snippet_folder');
         }
+        return $arr;
+    }
+    
+    
+    public function getAllSnippetFoldersContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete_snippet_folder&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
         return $arr;
     }
     
@@ -438,6 +532,19 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
     
     
+    public function getAllSnippetsContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete_snippet&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
+        return $arr;
+    }
+    
+    
     public function getMaterialTypeContextMenu(Material_Type $Item)
     {
         $arr = array();
@@ -448,6 +555,19 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             $arr[] = array('href' => $this->url . '&action=edit_material_type&pid=' . (int)$Item->id, 'name' => $this->_('CREATE_CHILD_TYPE'), 'icon' => 'plus');
         }
         $arr = array_merge($arr, $this->stdView->stdContextMenu($Item, 0, 0, 'edit_material_type', 'material_types', 'delete_material_type'));
+        return $arr;
+    }
+    
+    
+    public function getAllMaterialTypesContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete_material_type&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
         return $arr;
     }
     
@@ -477,6 +597,29 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
     
     
+    public function getAllMaterialFieldsContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('SHOW_IN_TABLE'), 
+            'href' => $this->url . '&action=show_in_table_material_field&back=1', 
+            'icon' => 'align-justify',
+        );
+        $arr[] = array(
+            'name' => $this->_('REQUIRED'), 
+            'href' => $this->url . '&action=required_material_field&back=1', 
+            'icon' => 'asterisk',
+        );
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete_material_field&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
+        return $arr;
+    }
+    
+    
     public function getPageFieldContextMenu(Page_Field $Item, $i = 0, $c = 0) 
     {
         $arr = array();
@@ -500,6 +643,29 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
     
     
+    public function getAllPageFieldsContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('SHOW_IN_TABLE'), 
+            'href' => $this->url . '&action=show_in_table_page_field&back=1', 
+            'icon' => 'align-justify',
+        );
+        $arr[] = array(
+            'name' => $this->_('REQUIRED'), 
+            'href' => $this->url . '&action=required_page_field&back=1', 
+            'icon' => 'asterisk',
+        );
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete_page_field&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
+        return $arr;
+    }
+    
+    
     public function getFormContextMenu(Form $Item) 
     {
         $arr = array();
@@ -507,6 +673,19 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             $arr[] = array('href' => $this->url . '&action=edit_form_field&pid=' . (int)$Item->id, 'name' => $this->_('CREATE_FIELD'), 'icon' => 'plus');
         }
         $arr = array_merge($arr, $this->stdView->stdContextMenu($Item, $i, $c, 'edit_form', 'forms', 'delete_form'));
+        return $arr;
+    }
+    
+    
+    public function getAllFormsContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete_form&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
         return $arr;
     }
     
@@ -529,6 +708,29 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         $arr = array_merge(
             $arr, 
             $this->stdView->stdContextMenu($Item, $i, $c, 'edit_form_field', 'pages_fields', 'delete_form_field')
+        );
+        return $arr;
+    }
+    
+    
+    public function getAllFormFieldsContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('SHOW_IN_TABLE'), 
+            'href' => $this->url . '&action=show_in_table_form_field&back=1', 
+            'icon' => 'align-justify',
+        );
+        $arr[] = array(
+            'name' => $this->_('REQUIRED'), 
+            'href' => $this->url . '&action=required_form_field&back=1', 
+            'icon' => 'asterisk',
+        );
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete_form_field&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
         );
         return $arr;
     }
@@ -573,6 +775,36 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         } elseif (!$edit) {
             $arr[] = array('href' => $this->url . '&action=edit_menu', 'name' => $this->_('CREATE_NOTE'), 'icon' => 'plus');
         }
+        return $arr;
+    }
+    
+    
+    public function getAllMenusContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('SHOW'), 
+            'href' => $this->url . '&action=vis_menu&back=1', 
+            'icon' => 'eye-open', 
+            'title' => $this->_('SHOW')
+        );
+        $arr[] = array(
+            'name' => $this->_('HIDE'), 
+            'href' => $this->url . '&action=invis_menu&back=1', 
+            'icon' => 'eye-close', 
+            'title' => $this->_('HIDE')
+        );
+        $arr[] = array(
+            'name' => $this->_('MOVE'), 
+            'href' => $this->url . '&action=move_menu', 
+            'icon' => 'share-alt'
+        );
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete_menu&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
         return $arr;
     }
 }

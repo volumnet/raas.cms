@@ -10,6 +10,11 @@ $_RAASForm_FormTab = function(\RAAS\FormTab $FormTab) use (&$_RAASForm_Form_Tabb
           <?php if ($Table->header) { ?>
               <thead>
                 <tr>
+                  <th>
+                    <?php if ($Table->meta['allValue']) { ?>
+                        <input type="checkbox" data-role="checkbox-all" value="<?php echo htmlspecialchars($Table->meta['allValue'])?>">
+                    <?php } ?>
+                  </th>
                   <?php 
                   foreach ($Table->columns as $key => $col) { 
                       include \RAAS\Application::i()->view->context->tmp('/column.inc.php');
@@ -27,7 +32,7 @@ $_RAASForm_FormTab = function(\RAAS\FormTab $FormTab) use (&$_RAASForm_Form_Tabb
                 <?php 
                 for ($i = 0; $i < count($Table->rows); $i++) { 
                     $row = $Table->rows[$i];
-                    include \RAAS\Application::i()->view->context->tmp('/row.inc.php');
+                    include \RAAS\CMS\Package::i()->view->context->tmp('multirow.inc.php');
                     if ($row->template) {
                         include \RAAS\Application::i()->view->context->tmp($row->template);
                     }
@@ -36,6 +41,11 @@ $_RAASForm_FormTab = function(\RAAS\FormTab $FormTab) use (&$_RAASForm_Form_Tabb
                 <?php } ?>
               </tbody>
           <?php } ?>
+          <tfoot>
+            <tr>
+              <td colspan="2"><?php echo rowContextMenu($Table->meta['allContextMenu'], \RAAS\Application::i()->view->context->_('WITH_SELECTED'), '', 'btn-mini')?></td>
+            </tr>
+          </tfoot>
         </table>
     <?php } ?>
     <?php if (!(array)$Table->Set && $Table->emptyString) { ?>

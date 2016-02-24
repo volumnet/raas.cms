@@ -32,6 +32,9 @@ $_RAASForm_Control = function(\RAAS\Field $Field) use (&$_RAASForm_Attrs, &$_RAA
                 case 'htmlarea':
                     $arr[$key] = '<div>' . $val . '</div>';
                     break;
+                case 'material':
+                    $arr[$key] .= '<a href="?p=cms&action=edit_material&id=' . $val->id . '" target="_blank">' . htmlspecialchars($val->name) . '</a>';
+                    break;
                 default:
                     if (!$f->multiple && ($f->datatype == 'checkbox')) {
                         $arr[$key] = $val ? _YES : _NO;

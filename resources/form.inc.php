@@ -195,6 +195,31 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             }
             break;
             break;
+        case 'material':
+            $temp = '<input type="hidden" '
+                  .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
+                  .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn) . '"' : '');
+            if ($row->multiple) {
+                echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
+                for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
+                    echo '<div class="jsField" data-role="raas-repo-element">' . 
+                            '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
+                            $temp . ' value="' . htmlspecialchars(isset($DATA[$row->urn][$i]) ? (string)$DATA[$row->urn][$i] : '') . '"' . ' />' . 
+                            '<div class="control-label form-material-name" style="text-align: left" data-role="material-name"></div>' .
+                            '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
+                         '</div>';
+                }
+                echo  '<div class="jsRepo cms-field_repo" data-role="raas-repo" style="display: none">' . $temp . ' disabled="disabled"' . ' /> ' .
+                        '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" title="' . DELETE . '">&times;</a>' .
+                        '<div class="control-label form-material-name" style="text-align: left" data-role="material-name"></div>' .
+                        '<span class="icon cms-move" title="' . MOVE . '"></span>' .
+                      '</div>';
+                echo '</div>';
+            } else {
+                echo $temp . ' value="' . htmlspecialchars(isset($DATA[$row->urn]) ? (string)$DATA[$row->urn] : '') . '"' . ' />' . 
+                     '<div class="control-label form-material-name" style="text-align: left" data-role="material-name"></div>';
+            }
+            break;
         default: 
             $temp = '<input type="' . $row->datatype . '" class="form-control"'
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'

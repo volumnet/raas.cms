@@ -49,7 +49,7 @@ class MaterialTypesTable extends \RAAS\Table
         $columns[' '] = array('callback' => function ($row) use ($view) { return rowContextMenu($view->getMaterialTypeContextMenu($row)); });
         $defaultParams = array(
             'emptyString' => $this->view->_('NO_MATERIAL_TYPES_FOUND'),
-            'Set' => $f(new Material_Type())
+            'Set' => $f(new Material_Type()),
         );
         $arr = array_merge($defaultParams, $params);
         $arr['columns'] = $columns;

@@ -42,7 +42,7 @@ class Feedback extends \SOME\SOME
                             case 'htmlarea':
                                 $arr[$key] = strip_tags($val);
                                 break;
-                            case 'file': case 'image':
+                            case 'file': case 'image': case 'material':
                                 break;
                             default:
                                 if (!$field->multiple && ($field->datatype == 'checkbox')) {
@@ -66,7 +66,22 @@ class Feedback extends \SOME\SOME
                 return $text;
                 break;
             default:
-                return parent::__get($var);
+                $val = parent::__get($var);
+                if ($val !== null) {
+                    return $val;
+                } else {
+                    if (substr($var, 0, 3) == 'vis') {
+                        $var = strtolower(substr($var, 3));
+                        $vis = true;
+                    }
+                    if (isset($this->fields[$var]) && ($this->fields[$var] instanceof Form_Field)) {
+                        $temp = $this->fields[$var]->getValues();
+                        if ($vis) {
+                            $temp = array_values(array_filter((array)$temp, function($x) { return isset($x->vis) && $x->vis; }));
+                        }
+                        return $temp;
+                    }
+                }
                 break;
         }
     }

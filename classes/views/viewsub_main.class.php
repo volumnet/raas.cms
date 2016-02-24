@@ -72,6 +72,22 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
     
     public function move_page(array $IN = array())
     {
+        $ids = array_map(function($x) { return (int)$x->id; }, $IN['items']);
+        $ids = array_unique($ids);
+        $ids = array_values($ids);
+        $pids = array_map(function($x) { return (int)$x->pid; }, $IN['items']);
+        $pids = array_unique($pids);
+        $pids = array_values($pids);
+        $actives = array();
+        foreach ($IN['items'] as $row) {
+            $actives = array_merge($actives, array($row->id), (array)$row->parents_ids);
+        }
+        $actives = array_unique($actives);
+        $actives = array_values($actives);
+        $IN['ids'] = $ids;
+        $IN['pids'] = $pids;
+        $IN['actives'] = $actives;
+
         $this->assignVars($IN);
         $this->path[] = array('href' => $this->url, 'name' => $this->_('PAGES'));
         if ($IN['Item']->parents) {
@@ -80,9 +96,13 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
             }
         }
         $this->path[] = array('href' => $this->url . '&id=' . (int)$IN['Item']->id, 'name' => $IN['Item']->name);
-        $this->submenu = $this->pagesMenu(new Page(), $IN['Item']);
+        if (count($IN['items']) == 1) {
+            $this->contextmenu = $this->getPageContextMenu($IN['Item']);
+            $this->submenu = $this->pagesMenu(new Page(), $IN['Item']);
+        } else {
+            $this->submenu = $this->pagesMenu(new Page(), null);
+        }
         $this->title = $this->_('MOVING_PAGE');
-        $this->contextmenu = $this->getPageContextMenu($IN['Item']);
         $this->template = 'move_page';
     }
     
@@ -154,6 +174,36 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
         }
         return $arr;
     }
+
+
+    public function getAllPagesContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('SHOW'), 
+            'href' => $this->url . '&action=vis&back=1', 
+            'icon' => 'eye-open', 
+            'title' => $this->_('SHOW')
+        );
+        $arr[] = array(
+            'name' => $this->_('HIDE'), 
+            'href' => $this->url . '&action=invis&back=1', 
+            'icon' => 'eye-close', 
+            'title' => $this->_('HIDE')
+        );
+        $arr[] = array(
+            'name' => $this->_('MOVE'), 
+            'href' => $this->url . '&action=move', 
+            'icon' => 'share-alt'
+        );
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
+        return $arr;
+    }
     
     
     public function getMaterialContextMenu(Material $Item)
@@ -186,6 +236,31 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
                 'onclick' => 'return confirm(\'' . $this->_('DELETE_TEXT') . '\')'
             );
         }
+        return $arr;
+    }
+    
+    
+    public function getAllMaterialsContextMenu()
+    {
+        $arr = array();
+        $arr[] = array(
+            'name' => $this->_('SHOW'), 
+            'href' => $this->url . '&action=vis_material&back=1', 
+            'icon' => 'eye-open', 
+            'title' => $this->_('SHOW')
+        );
+        $arr[] = array(
+            'name' => $this->_('HIDE'), 
+            'href' => $this->url . '&action=invis_material&back=1', 
+            'icon' => 'eye-close', 
+            'title' => $this->_('HIDE')
+        );
+        $arr[] = array(
+            'name' => $this->_('DELETE'), 
+            'href' => $this->url . '&action=delete_material&back=1', 
+            'icon' => 'remove', 
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
+        );
         return $arr;
     }
     
