@@ -204,7 +204,8 @@ class Controller_Frontend extends Abstract_Controller
     {
         if (count($Page->additionalURLArray) == 1) {
             $Material = Material::importByURN($Page->additionalURLArray[0]);
-            if ($Material && $Material->id) {
+            // 2016-02-24, AVS: Добавил проверку in_array(...), т.к. странице присваивались материалы, которых на ней в принципе быть не может
+            if ($Material && $Material->id && in_array($Page->id, array_map(function($x) { return $x->id; }, $Material->affectedPages))) {
                 $Page->Material = $Material;
             }
         }
