@@ -229,6 +229,9 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
                     'title' => $this->_('SHOW')
                 );
             }
+            if ($Item->id) {
+                $arr[] = array('href' => $this->url . '&action=copy_material&id=' . (int)$Item->id, 'name' => $this->_('COPY'), 'icon' => 'tags');
+            }
             $arr[] = array(
                 'href' => $this->url . '&action=delete_material&id=' . (int)$Item->id . (!$edit ? '&back=1' : (isset($_GET['pid']) ? '&pid=' . (int)$_GET['pid'] : '')), 
                 'name' => $this->_('DELETE'), 
