@@ -16,7 +16,7 @@ class CopyMaterialForm extends EditMaterialForm
         parent::__construct($params);
         $this->caption = $this->view->_('COPY_MATERIAL');
         $this->meta['Original'] = $Original = $params['Original'];
-        $this->children['copy'] = $this->getCopyTab();
+        $this->children['copy'] = $this->getCopyTab($Original);
         $Item = isset($params['Item']) ? $params['Item'] : null;
         $this->defaultize($this, $Original);
     }
@@ -50,7 +50,7 @@ class CopyMaterialForm extends EditMaterialForm
     } 
 
 
-    protected function getCopyTab()
+    protected function getCopyTab(Material $Original)
     {
         $copyTab = new FormTab(array('name' => 'copy', 'caption' => $this->view->_('COPY_PARAMS')));
         $copyTab->children['copy_links'] = new RAASField(array(
@@ -58,7 +58,7 @@ class CopyMaterialForm extends EditMaterialForm
             'name' => 'copy_links', 
             'caption' => $this->view->_('COPY_MATERIAL_LINKS'), 
         ));
-        $copyTab->oncommit = function($FormTab) {
+        $copyTab->oncommit = function($FormTab) use ($Original) {
             $Item = $FormTab->Form->Item;
             if ($_POST['copy_links']) {
                 // Получим все родительские типы материалов
@@ -73,11 +73,23 @@ class CopyMaterialForm extends EditMaterialForm
                 $fieldsIds = Application::i()->SQL->getcol($SQL_query);
                 if ($fieldsIds) {
                     // Скопируем значения для данного материала
-                    $SQL_query = "INSERT INTO cms_data (pid, fid, fii, value) 
-                                  SELECT pid, fid, fii, " . (int)$Item->id . " AS value
+                    $SQL_query = "SELECT *
                                     FROM cms_data
-                                   WHERE fid IN (" . implode(", ", $fieldsIds) . ")";
-                    Application::i()->SQL->query($SQL_query);
+                                   WHERE fid IN (" . implode(", ", $fieldsIds) . ")
+                                     AND value = " . (int)$Original->id;
+                    $SQL_result = Application::i()->SQL->get($SQL_query);
+                    $ai = $arr = array();
+                    foreach ($SQL_result as $row) {
+                        $SQL_query = "SELECT MAX(fii) FROM cms_data WHERE pid = " . (int)$row['pid'] . " AND fid = " . (int)$row['fid'];
+                        $ai[(int)$row['pid'] . '.' . (int)$row['fid']] = (int)Application::i()->SQL->getvalue($SQL_query);
+                        $arr[] = array(
+                            'pid' => (int)$row['pid'], 
+                            'fid' => (int)$row['fid'], 
+                            'fii' => ++$ai[(int)$row['pid'] . '.' . (int)$row['fid']],
+                            'value' => (int)$Item->id
+                        );
+                    }
+                    Application::i()->SQL->add('cms_data', $arr);
                 }
             }
         };
