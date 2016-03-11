@@ -7,6 +7,7 @@ class MaterialsRelatedTable extends MaterialsTable
     public function __construct(array $params = array())
     {
         parent::__construct($params);
-        unset($this->columns['priority'], $this->columns[' ']);
+        // 2016-03-11, AVS: убрал удаление контекстного меню — непонятно, зачем удалял, клиентам неудобно админить отзывы
+        unset($this->columns['priority']/*, $this->columns[' ']*/);
     }
 }
