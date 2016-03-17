@@ -55,9 +55,6 @@ class EditMaterialTypeForm extends \RAAS\Form
 
                             $F = new Material_Field(array('pid' => $Item->id, 'name' => $view->_('BRIEF_TEXT'), 'multiple' => 0, 'urn' => 'brief', 'datatype' => 'textarea',));
                             $F->commit();
-
-                            $F = new Material_Field(array('pid' => $Item->id, 'name' => $view->_('NO_INDEX'), 'multiple' => 0, 'urn' => 'noindex', 'datatype' => 'checkbox',));
-                            $F->commit();
                             break;
                         case EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_BANNERS:
                             $F = new Material_Field(array('pid' => $Item->id, 'name' => $view->_('URL'), 'urn' => 'url', 'datatype' => 'text', 'show_in_table' => 1,));
