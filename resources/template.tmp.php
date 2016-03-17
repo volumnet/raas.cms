@@ -4,6 +4,9 @@ $colspanSM = 4;
 $colspanMD = 3;
 ?>
 <!DOCTYPE html>
+<?php if ($Page->noindex || $Page->Material->noindex) { ?>
+    <!--noindex--> 
+<?php } ?>
 <html>
   <head>
     <?php echo eval('?' . '>' . Snippet::importByURN('head')->description)?>
@@ -91,3 +94,6 @@ $colspanMD = 3;
     <?php echo $Page->location('footer_counters')?>
   </body>
 </html>
+<?php if ($Page->noindex || $Page->Material->noindex) { ?>
+    <!--/noindex--> 
+<?php } ?>

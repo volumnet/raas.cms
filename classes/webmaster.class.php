@@ -118,6 +118,15 @@ class Webmaster
             $T->commit();
         }
 
+
+        // Добавим поля страниц
+        $pf = new Page_Field(array('name' => $this->view->_('DESCRIPTION'), 'urn' => '_description_', 'datatype' => 'htmlarea'));
+        $pf->commit();
+        $pf = new Page_Field(array('name' => $this->view->_('IMAGE'), 'urn' => 'image', 'datatype' => 'image'));
+        $pf->commit();
+        $pf = new Page_Field(array('name' => $this->view->_('NO_INDEX'), 'urn' => 'noindex', 'datatype' => 'checkbox'));
+        $pf->commit();
+
         // Добавим виджеты
         $snippets = array(
             'banners' => $this->view->_('BANNERS'), 
@@ -319,7 +328,10 @@ class Webmaster
             $B = new Block_PHP(array('name' => $this->view->_('SITEMAP_XML'),));
             $this->createBlock($B, 'content', null, 'sitemap_xml', $sitemaps);
 
-            $B = new Block_HTML(array('name' => $this->view->_('ROBOTS_TXT'), 'description' => '', 'wysiwyg' => 0,));
+            $robotsTXT =file_get_contents($this->resourcesDir . '/robots.txt');
+            $m = new \Mustache_Engine();
+            $robotsTXT = $m->render($robotsTXT, array('host' => $_SERVER['HTTP_HOST']));
+            $B = new Block_HTML(array('name' => $this->view->_('ROBOTS_TXT'), 'description' => $robotsTXT, 'wysiwyg' => 0,));
             $this->createBlock($B, 'content', null, 'robots', $robots);
 
             $this->createNews($this->view->_('NEWS'), 'news', $this->view->_('NEWS_MAIN'));
@@ -409,6 +421,9 @@ class Webmaster
             $F->commit();
 
             $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('BRIEF_TEXT'), 'multiple' => 0, 'urn' => 'brief', 'datatype' => 'textarea',));
+            $F->commit();
+
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('NO_INDEX'), 'urn' => 'noindex', 'datatype' => 'checkbox'));
             $F->commit();
 
             $VF = Snippet_Folder::importByURN('__raas_views');
