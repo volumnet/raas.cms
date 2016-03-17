@@ -12,6 +12,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     echo json_encode($result);
     exit;
 } else { ?>
+    <!--noindex-->
     <div class="order-call order-call_modal">
       <div id="orderCallModal" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
         <div class="modal-dialog">
@@ -66,4 +67,5 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
         </div>
       </div>
     </div>
+    <!--/noindex-->
 <?php } ?>

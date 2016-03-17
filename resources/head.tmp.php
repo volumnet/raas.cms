@@ -13,3 +13,6 @@
 <script src="/js/application.js"></script>
 <script src="/js/bootstrap.carousel.swipe.js"></script>
 <script src="/js/script.js"></script>
+<?php if (\SOME\HTTP::queryString()) { ?>
+    <link rel="canonical" href="http://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))?>">
+<?php } ?>
