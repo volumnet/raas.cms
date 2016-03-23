@@ -122,7 +122,7 @@ class Webmaster
         // Добавим поля страниц
         $pf = new Page_Field(array('name' => $this->view->_('DESCRIPTION'), 'urn' => '_description_', 'datatype' => 'htmlarea'));
         $pf->commit();
-        $pf = new Page_Field(array('name' => $this->view->_('IMAGE'), 'urn' => 'image', 'datatype' => 'image', 'show_in_table' => 1));
+        $pf = new Page_Field(array('name' => $this->view->_('IMAGE'), 'urn' => 'image', 'datatype' => 'image'));
         $pf->commit();
         $pf = new Page_Field(array('name' => $this->view->_('NO_INDEX'), 'urn' => 'noindex', 'datatype' => 'checkbox'));
         $pf->commit();
