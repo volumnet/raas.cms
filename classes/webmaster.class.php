@@ -122,7 +122,7 @@ class Webmaster
         // Добавим поля страниц
         $pf = new Page_Field(array('name' => $this->view->_('DESCRIPTION'), 'urn' => '_description_', 'datatype' => 'htmlarea'));
         $pf->commit();
-        $pf = new Page_Field(array('name' => $this->view->_('IMAGE'), 'urn' => 'image', 'datatype' => 'image'));
+        $pf = new Page_Field(array('name' => $this->view->_('IMAGE'), 'urn' => 'image', 'datatype' => 'image', 'show_in_table' => 1));
         $pf->commit();
         $pf = new Page_Field(array('name' => $this->view->_('NO_INDEX'), 'urn' => 'noindex', 'datatype' => 'checkbox'));
         $pf->commit();
@@ -171,7 +171,7 @@ class Webmaster
             $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('URL'), 'urn' => 'url', 'datatype' => 'text', 'show_in_table' => 1,));
             $F->commit();
 
-            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('IMAGE'), 'urn' => 'image', 'datatype' => 'image',));
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('IMAGE'), 'urn' => 'image', 'datatype' => 'image', 'show_in_table' => 1,));
             $F->commit();
         }
 
@@ -417,7 +417,7 @@ class Webmaster
             $dateField = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('DATE'), 'urn' => 'date', 'datatype' => 'date', 'show_in_table' => 1,));
             $dateField->commit();
 
-            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('IMAGE'), 'multiple' => 1, 'urn' => 'images', 'datatype' => 'image',));
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('IMAGE'), 'multiple' => 1, 'urn' => 'images', 'datatype' => 'image', 'show_in_table' => 1,));
             $F->commit();
 
             $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('BRIEF_TEXT'), 'multiple' => 0, 'urn' => 'brief', 'datatype' => 'textarea',));
