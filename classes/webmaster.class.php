@@ -481,7 +481,7 @@ class Webmaster
             $MT = new Material_Type(array('name' => $name, 'urn' => $urn, 'global_type' => 1,));
             $MT->commit();
 
-            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('IMAGE'), 'multiple' => 1, 'urn' => 'images', 'datatype' => 'image',));
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('IMAGE'), 'multiple' => 1, 'urn' => 'images', 'datatype' => 'image', 'show_in_table' => 1,));
             $F->commit();
 
             $VF = Snippet_Folder::importByURN('__raas_views');
