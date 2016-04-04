@@ -38,7 +38,7 @@ class FeedbackTable extends \RAAS\Table
         $columns['name'] = array(
             'caption' => $this->view->_('PAGE'),
             'callback' => function($row) use ($view) { 
-                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' . htmlspecialchars($row->page->name) . '</a>';
+                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' . htmlspecialchars($row->material->id ? $row->material->name : $row->page->name) . '</a>';
             }
         );
         $columns['ip'] = array(
