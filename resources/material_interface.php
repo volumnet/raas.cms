@@ -66,7 +66,7 @@ if ($Page->Material && $Block->nat) {
         }
     }
     $OUT['Item'] = $Item;
-    foreach (array('name', 'meta_title', 'meta_keywords', 'meta_description') as $key) {
+    foreach (array('name', 'meta_title', 'meta_keywords', 'meta_description', 'h1') as $key) {
         $Page->{'old' . ucfirst($key)} = $Page->$key;
         $Page->$key = $Item->$key;
     }
