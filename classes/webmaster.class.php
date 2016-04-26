@@ -109,24 +109,24 @@ class Webmaster
             $f = $this->resourcesDir . '/template.tmp.php';
             $T->description = file_get_contents($f);
             $T->locations_info = '['
-                               .    '{"urn":"logo","x":"0","y":"0","width":"150","height":"120"},'
-                               .    '{"urn":"contacts_top","x":"490","y":"0","width":"150","height":"120"},'
-                               .    '{"urn":"menu_top","x":"0","y":"130","width":"640","height":"60"},'
-                               .    '{"urn":"banners","x":"0","y":"200","width":"640","height":"60"},'
-                               .    '{"urn":"left","x":"0","y":"270","width":"150","height":"220"},'
-                               .    '{"urn":"content","x":"160","y":"270","width":"320","height":"220"},'
-                               .    '{"urn":"right","x":"490","y":"270","width":"150","height":"220"},'
-                               .    '{"urn":"content2","x":"0","y":"500","width":"640","height":"90"},'
-                               .    '{"urn":"content3","x":"160","y":"600","width":"320","height":"90"},'
-                               .    '{"urn":"content4","x":"0","y":"700","width":"640","height":"90"},'
-                               .    '{"urn":"content5","x":"160","y":"800","width":"320","height":"90"},'
-                               .    '{"urn":"share","x":"160","y":"900","width":"320","height":"60"},'
-                               .    '{"urn":"copyrights","x":"0","y":"960","width":"150","height":"120"},'
-                               .    '{"urn":"menu_bottom","x":"490","y":"960","width":"150","height":"120"},'
-                               .    '{"urn":"head_counters","x":"0","y":"1090","width":"315","height":"220"},'
-                               .    '{"urn":"footer_counters","x":"325","y":"1090","width":"315","height":"220"}'
+                               .    '{"urn":"logo","x":"10","y":"0","width":"150","height":"120"},'
+                               .    '{"urn":"contacts_top","x":"500","y":"0","width":"150","height":"120"},'
+                               .    '{"urn":"menu_top","x":"10","y":"130","width":"640","height":"60"},'
+                               .    '{"urn":"banners","x":"10","y":"200","width":"640","height":"60"},'
+                               .    '{"urn":"left","x":"10","y":"270","width":"150","height":"220"},'
+                               .    '{"urn":"content","x":"170","y":"270","width":"320","height":"220"},'
+                               .    '{"urn":"right","x":"500","y":"270","width":"150","height":"220"},'
+                               .    '{"urn":"content2","x":"10","y":"500","width":"640","height":"90"},'
+                               .    '{"urn":"content3","x":"170","y":"600","width":"320","height":"90"},'
+                               .    '{"urn":"content4","x":"10","y":"700","width":"640","height":"90"},'
+                               .    '{"urn":"content5","x":"170","y":"800","width":"320","height":"90"},'
+                               .    '{"urn":"share","x":"170","y":"900","width":"320","height":"60"},'
+                               .    '{"urn":"copyrights","x":"10","y":"960","width":"150","height":"120"},'
+                               .    '{"urn":"menu_bottom","x":"500","y":"960","width":"150","height":"120"},'
+                               .    '{"urn":"head_counters","x":"10","y":"1090","width":"315","height":"220"},'
+                               .    '{"urn":"footer_counters","x":"335","y":"1090","width":"315","height":"220"}'
                                . ']';
-            $T->width = 640;
+            $T->width = 660;
             $T->height = 1320;
             $T->commit();
         }
