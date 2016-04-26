@@ -3,7 +3,7 @@
   position: relative; min-width: 200px; min-height: 200px;
   border: 1px solid #ccc; background-repeat: no-repeat; 
   -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; box-shadow: 5px 5px 15px rgba(0,0,0,0.5); 
- 
+  overflow: hidden;
 }
 
 .cms-location__outer { position: absolute; cursor: pointer; }

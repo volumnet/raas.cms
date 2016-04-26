@@ -57,7 +57,7 @@ jQuery(function($) {
         resize: function(event, ui) {
             $('input#width').val(parseInt($(this).css('width')));
             $('input#height').val(parseInt($(this).css('height')));
-            adjustLocations();
+            // adjustLocations();
         }
     };
     var locationResizeConfig = {
