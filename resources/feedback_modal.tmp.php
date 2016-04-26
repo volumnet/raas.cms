@@ -15,7 +15,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
 } else { ?>
     <!--noindex-->
     <div class="feedback_modal">
-      <div id="feedbackModal" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
+      <div id="<?php echo htmlspecialchars($Widget->urn)?>" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
         <div class="modal-dialog">
           <div class="modal-content">
             <form data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">

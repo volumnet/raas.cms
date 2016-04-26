@@ -1,7 +1,33 @@
 <?php 
 namespace RAAS\CMS;
+
 $colspanSM = 4;
 $colspanMD = 3;
+
+$bgPage = $Page;
+while (!$bgPage->background->id && $bgPage->pid) {
+    $bgPage = $bgPage->parent;
+}
+$bg = $bgPage->background;
+unset($bgPage);
+
+$separateScripts = function($text)
+{
+    $rx = '/\\<script.*?\\>.*?\\<\\/script\\>/umis';
+    $scripts = '';
+    $result = $text;
+    if (preg_match_all($rx, $text, $regs)) {
+        foreach ($regs[0] as $i => $script) {
+            if (!preg_match('/maps.*?yandex.*constructor?/umis', $script)) {
+                $scripts .= $script . "\n";
+                $result = str_replace($script, '', $result);
+            }
+        }
+    }
+    return array($result, $scripts);
+}; 
+
+ob_start(); 
 ?>
 <!DOCTYPE html>
 <?php if ($Page->noindex || $Page->Material->noindex) { ?>
@@ -13,19 +39,29 @@ $colspanMD = 3;
     <?php echo $Page->location('head_counters')?>
   </head>
   <body<?php echo !$Page->pid ? ' class="body_main"' : ''?>>
-    <div class="background-holder">
+    <div id="top"></div>
+    <div class="background-holder"<?php echo $bg->id ? ' style="background-image: url(\'/' . htmlspecialchars($bg->fileURL) . '\')"' : ''?>>
       <header class="location_header">
         <div class="container">
           <div class="location_header__inner">
             <div class="row">
-              <div class="col-sm-6"><?php echo $Page->locationBlocksText['header'][0]?></div>
-              <div class="col-sm-6"><?php echo $Page->locationBlocksText['header'][1]?></div>
+              <div class="col-sm-6">
+                <div class="location_logo">
+                  <?php echo $Page->location('logo')?>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="location_contacts_top">
+                  <?php echo $Page->location('contacts_top')?>
+                </div>
+              </div>
             </div>
-            <?php 
-            for ($i = 2; $i < count($Page->locationBlocksText['header']); $i++) { 
-                echo $Page->locationBlocksText['header'][$i];
-            } 
-            ?> 
+            <div class="location_menu_top">
+              <?php echo $Page->location('menu_top')?>
+            </div>
+            <div class="location_banners">
+              <?php echo $Page->location('banners')?>
+            </div>
           </div>
         </div>
       </header>
@@ -61,6 +97,7 @@ $colspanMD = 3;
                           <?php } ?>
                           <h1><?php echo htmlspecialchars($Page->getH1())?></h1>
                           <?php echo $Page->location('content')?>
+                          <?php echo $Page->location('share')?>
                     <?php } ?>
                   </div>
                 </div>
@@ -72,26 +109,47 @@ $colspanMD = 3;
             <?php } ?>
           </div>
         </div>
+        <?php if ($text = $Page->location('content2')) { ?>
+            <div class="location_content2"><?php echo $text?></div>
+        <?php } ?>
+        <?php if ($text = $Page->location('content3')) { ?>
+            <div class="location_content3">
+              <div class="container">
+                <div class="location_content3__inner"><?php echo $text?></div>
+              </div>
+            </div>
+        <?php } ?>
+        <?php if ($text = $Page->location('content4')) { ?>
+            <div class="location_content4"><?php echo $text?></div>
+        <?php } ?>
+        <div class="location_content4"></div>
+        <?php if ($text = $Page->location('content5')) { ?>
+            <div class="location_content5">
+              <div class="container">
+                <div class="location_content5__inner"><?php echo $text?></div>
+              </div>
+            </div>
+        <?php } ?>
       </div>
       <footer class="location_footer">
         <div class="container">
           <div class="location_footer__inner">
             <div class="row">
-              <div class="col-sm-5"><?php echo $Page->locationBlocksText['footer'][0]?></div>
-              <div class="col-sm-2"><?php echo $Page->locationBlocksText['footer'][1]?></div>
-              <div class="col-sm-5"><?php echo $Page->locationBlocksText['footer'][2]?></div>
+              <div class="col-sm-6"><?php echo $Page->location('copyrights')?></div>
+              <div class="col-sm-6"><?php echo $Page->location('menu_bottom')?></div>
             </div>
-            <?php 
-            for ($i = 3; $i < count($Page->locationBlocksText['footer']); $i++) { 
-                echo $Page->locationBlocksText['footer'][$i];
-            } 
-            ?>
           </div>
           <div class="developer">Разработка и сопровождение сайта <a href="http://volumnet.ru" target="_blank">Volume&nbsp;Networks</a></div>
         </div>
       </footer>
     </div>
-    <?php echo $Page->location('footer_counters')?>
+    <?php 
+    echo $Page->location('footer_counters');
+    $content = ob_get_contents();
+    ob_end_clean();
+    $content = $separateScripts($content);
+    echo $content[0] . $content[1];
+    ?> 
   </body>
 </html>
 <?php if ($Page->noindex || $Page->Material->noindex) { ?>

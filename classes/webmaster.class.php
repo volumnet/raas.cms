@@ -1,6 +1,10 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Application;
+use \RAAS\Attachment;
+use \SOME\SOME;
+use Mustache_Engine;
 
 class Webmaster 
 {
@@ -10,7 +14,7 @@ class Webmaster
     {
         switch ($var) {
             default:
-                return \RAAS\CMS\Package::i()->__get($var);
+                return Package::i()->__get($var);
                 break;
         }
     }
@@ -24,14 +28,14 @@ class Webmaster
         $Item = Snippet_Folder::importByURN('__raas_interfaces');
         if (!$Item->id) {
             $this->SQL->add(
-                \SOME\SOME::_dbprefix() . "cms_snippet_folders", 
+                SOME::_dbprefix() . "cms_snippet_folders", 
                 array('urn' => '__raas_interfaces', 'name' => $this->view->_('INTERFACES'), 'pid' => 0, 'locked' => 1)
             );
         }
         $Item = Snippet_Folder::importByURN('__raas_views');
         if (!$Item->id) {
             $this->SQL->add(
-                \SOME\SOME::_dbprefix() . "cms_snippet_folders", 
+                SOME::_dbprefix() . "cms_snippet_folders", 
                 array('urn' => '__raas_views', 'name' => $this->view->_('VIEWS'), 'pid' => 0, 'locked' => 1)
             );
         }
@@ -105,16 +109,25 @@ class Webmaster
             $f = $this->resourcesDir . '/template.tmp.php';
             $T->description = file_get_contents($f);
             $T->locations_info = '['
-                               .    '{"urn":"header","x":"0","y":"0","width":"640","height":"110"},'
-                               .    '{"urn":"left","x":"0","y":"120","width":"150","height":"220"},'
-                               .    '{"urn":"content","x":"160","y":"120","width":"310","height":"220"},'
-                               .    '{"urn":"right","x":"490","y":"120","width":"150","height":"220"},'
-                               .    '{"urn":"footer","x":"0","y":"350","width":"640","height":"50"},'
-                               .    '{"urn":"head_counters","x":"0","y":"410","width":"315","height":"50"},'
-                               .    '{"urn":"footer_counters","x":"325","y":"410","width":"315","height":"50"}'
+                               .    '{"urn":"logo","x":"0","y":"0","width":"150","height":"120"},'
+                               .    '{"urn":"contacts_top","x":"490","y":"0","width":"150","height":"120"},'
+                               .    '{"urn":"menu_top","x":"0","y":"130","width":"640","height":"60"},'
+                               .    '{"urn":"banners","x":"0","y":"200","width":"640","height":"60"},'
+                               .    '{"urn":"left","x":"0","y":"270","width":"150","height":"220"},'
+                               .    '{"urn":"content","x":"160","y":"270","width":"320","height":"220"},'
+                               .    '{"urn":"right","x":"490","y":"270","width":"150","height":"220"},'
+                               .    '{"urn":"content2","x":"0","y":"500","width":"640","height":"90"},'
+                               .    '{"urn":"content3","x":"160","y":"600","width":"320","height":"90"},'
+                               .    '{"urn":"content4","x":"0","y":"700","width":"640","height":"90"},'
+                               .    '{"urn":"content5","x":"160","y":"800","width":"320","height":"90"},'
+                               .    '{"urn":"share","x":"160","y":"900","width":"320","height":"60"},'
+                               .    '{"urn":"copyrights","x":"0","y":"960","width":"150","height":"120"},'
+                               .    '{"urn":"menu_bottom","x":"490","y":"960","width":"150","height":"120"},'
+                               .    '{"urn":"head_counters","x":"0","y":"1090","width":"315","height":"220"},'
+                               .    '{"urn":"footer_counters","x":"325","y":"1090","width":"315","height":"220"}'
                                . ']';
             $T->width = 640;
-            $T->height = 480;
+            $T->height = 1320;
             $T->commit();
         }
 
@@ -126,6 +139,9 @@ class Webmaster
         $pf->commit();
         $pf = new Page_Field(array('name' => $this->view->_('NO_INDEX'), 'urn' => 'noindex', 'datatype' => 'checkbox'));
         $pf->commit();
+        $pf = new Page_Field(array('name' => $this->view->_('BACKGROUND'), 'urn' => 'background', 'datatype' => 'image'));
+        $pf->commit();
+        
 
         // Добавим виджеты
         $snippets = array(
@@ -134,7 +150,7 @@ class Webmaster
             'feedback_modal' => $this->view->_('FEEDBACK_MODAL'), 
             'head' => $this->view->_('HEAD_TAG'),
             'order_call_modal' => $this->view->_('ORDER_CALL_MODAL'), 
-            'search' => $this->view->_('SITE_SEARCH'),
+            // 'search' => $this->view->_('SITE_SEARCH'),
             'sitemap_xml' => $this->view->_('SITEMAP_XML'),
             'logo' => $this->view->_('LOGO'),
             'robots' => $this->view->_('ROBOTS_TXT'),
@@ -176,10 +192,10 @@ class Webmaster
         }
 
         // Добавим формы
-        $temp = \RAAS\CMS\Form::getSet();
+        $temp = Form::getSet();
         if (!$temp) {
             $snippetFormNotify = Snippet::importByURN('__raas_form_notify');
-            $FRM = new \RAAS\CMS\Form(array(
+            $FRM = new Form(array(
                 'name' => $this->view->_('FEEDBACK'), 
                 'urn' => 'feedback',
                 'create_feedback' => 1,
@@ -207,7 +223,7 @@ class Webmaster
             $F->commit();
 
 
-            $FRM = new \RAAS\CMS\Form(array(
+            $FRM = new Form(array(
                 'name' => $this->view->_('ORDER_CALL'), 
                 'urn' => 'order_call',
                 'create_feedback' => 1,
@@ -228,6 +244,13 @@ class Webmaster
             $Site = $this->createPage(array(
                 'name' => $this->view->_('MAIN_PAGE'), 'urn' => $host . ' ' . $host . '.volumnet.ru', 'template' => ($temp ? $temp[0]->id : 0)
             ));
+            $about = $this->createPage(array('name' => $this->view->_('ABOUT_US'), 'urn' => 'about'), $Site, true);
+            $services = $this->createPage(array('name' => $this->view->_('OUR_SERVICES'), 'urn' => 'services'), $Site, true);
+            for ($i = 1; $i <= 3; $i++) {
+                $service = $this->createPage(array('name' => $this->view->_('OUR_SERVICE') . ' ' . $i, 'urn' => 'service' . $i), $services, true);
+            }
+
+            $this->createNews($this->view->_('NEWS'), 'news', $this->view->_('NEWS_MAIN'));
             $contacts = $this->createPage(array('name' => $this->view->_('CONTACTS'), 'urn' => 'contacts'), $Site);
             $map = $this->createPage(array('name' => $this->view->_('SITEMAP'), 'urn' => 'map', 'response_code' => 200), $Site);
             $p404 = $this->createPage(array('name' => $this->view->_('PAGE_404'), 'urn' => '404', 'response_code' => 404), $Site);
@@ -241,39 +264,39 @@ class Webmaster
                 $MNU = new Menu(array('page_id' => $Site->id, 'urn' => 'bottom', 'inherit' => 1, 'name' => $this->view->_('BOTTOM_MENU'),));
                 $MNU->commit();
 
-                $MNU = new Menu(array('page_id' => $Site->id, 'urn' => 'left', 'inherit' => 10, 'name' => $this->view->_('LEFT_MENU'),));
-                $MNU->commit();
+                // $MNU = new Menu(array('page_id' => $Site->id, 'urn' => 'left', 'inherit' => 10, 'name' => $this->view->_('LEFT_MENU'),));
+                // $MNU->commit();
 
                 $MNU = new Menu(array('page_id' => $Site->id, 'urn' => 'sitemap', 'inherit' => 10, 'name' => $this->view->_('SITEMAP'),));
                 $MNU->commit();
             }
 
             $B = new Block_HTML(array('name' => $this->view->_('LOGO'), 'description' => file_get_contents($this->resourcesDir . '/logo_block.tmp.php'), 'wysiwyg' => 1,));
-            $this->createBlock($B, 'header', null, 'logo', $Site, true);
+            $this->createBlock($B, 'logo', null, 'logo', $Site, true);
 
-            $B = new Block_HTML(array('name' => $this->view->_('CONTACTS'), 'description' => file_get_contents($this->resourcesDir . '/contacts_top.tmp.php'), 'wysiwyg' => 1,));
-            $this->createBlock($B, 'header', null, null, $Site, true);
+            $B = new Block_HTML(array('name' => $this->view->_('CONTACTS'), 'description' => file_get_contents($this->resourcesDir . '/contacts_top.tmp.php'), 'wysiwyg' => 0,));
+            $this->createBlock($B, 'contacts_top', null, null, $Site, true);
 
             $MNU = Menu::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('TOP_MENU')) . "'"));
             $MNU = $MNU ? $MNU[0] : null;
             $B = new Block_Menu(array('menu' => $MNU->id ?: 0, 'full_menu' => 1,));
-            $this->createBlock($B, 'header', '__raas_menu_interface', 'menu_top', $Site, true);
+            $this->createBlock($B, 'menu_top', '__raas_menu_interface', 'menu_top', $Site, true);
 
-            $MNU = Menu::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('LEFT_MENU')) . "'"));
-            $MNU = $MNU ? $MNU[0] : null;
-            $B = new Block_Menu(array('menu' => $MNU->id ?: 0, 'full_menu' => 1,));
-            $this->createBlock($B, 'left', '__raas_menu_interface', 'menu_left', $Site, true);
+            // $MNU = Menu::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('LEFT_MENU')) . "'"));
+            // $MNU = $MNU ? $MNU[0] : null;
+            // $B = new Block_Menu(array('menu' => $MNU->id ?: 0, 'full_menu' => 1,));
+            // $this->createBlock($B, 'left', '__raas_menu_interface', 'menu_left', $Site, true);
 
             $B = new Block_HTML(array('name' => $this->view->_('COPYRIGHTS'), 'description' => file_get_contents($this->resourcesDir . '/copyrights.tmp.php'), 'wysiwyg' => 1,));
-            $this->createBlock($B, 'footer', null, null, $Site, true);
+            $this->createBlock($B, 'copyrights', null, null, $Site, true);
 
             $B = new Block_HTML(array('name' => $this->view->_('SHARE'), 'description' => file_get_contents($this->resourcesDir . '/share.tmp.php'), 'wysiwyg' => 0,));
-            $this->createBlock($B, 'footer', null, null, $Site, true);
+            $this->createBlock($B, 'share', null, null, $Site, true);
 
             $MNU = Menu::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('BOTTOM_MENU')) . "'"));
             $MNU = $MNU ? $MNU[0] : null;
             $B = new Block_Menu(array('menu' => $MNU->id ?: 0, 'full_menu' => 1,));
-            $this->createBlock($B, 'footer', '__raas_menu_interface', 'menu_bottom', $Site, true);
+            $this->createBlock($B, 'menu_bottom', '__raas_menu_interface', 'menu_bottom', $Site, true);
 
             $FRM = Form::getSet(array('where' => "name = '" . $this->SQL->real_escape_string($this->view->_('FEEDBACK')) . "'"));
             $FRM = $FRM ? $FRM[0] : null;
@@ -285,6 +308,15 @@ class Webmaster
             $B = new Block_Form(array('form' => $FRM->id ?: 0,));
             $this->createBlock($B, 'footer_counters', '__raas_form_interface', 'order_call_modal', $Site, true);
 
+            $B = new Block_HTML(array('name' => $this->view->_('YANDEX_METRIKA'), 'description' => '', 'wysiwyg' => 0,));
+            $this->createBlock($B, 'footer_counters', null, null, $Site, true);
+
+            $B = new Block_HTML(array('name' => $this->view->_('GOOGLE_ANALYTICS'), 'description' => '', 'wysiwyg' => 0,));
+            $this->createBlock($B, 'head_counters', null, null, $Site, true);
+
+            $B = new Block_HTML(array('name' => $this->view->_('TRIGGERS'), 'description' => file_get_contents($this->resourcesDir . '/triggers.tmp.php'), 'wysiwyg' => 0,));
+            $this->createBlock($B, 'footer_counters', null, null, $Site, true);
+
             $MT = Material_Type::importByURN('banners');
             $B = new Block_Material(array(
                 'material_type' => (int)$MT->id, 
@@ -294,7 +326,37 @@ class Webmaster
                 'sort_field_default' => 'post_date',
                 'sort_order_default' => 'asc',
             ));
-            $this->createBlock($B, 'content', '__raas_material_interface', 'banners', $Site);
+            $this->createBlock($B, 'banners', '__raas_material_interface', 'banners', $Site);
+            // Создадим материалы
+            $fpr = new FishPhotosRetreiver();
+            $fyrr = new FishYandexReferatsRetreiver();
+            $images = $fpr->retreive(3);
+            $i = 0;
+            foreach ($images as $filename => $origFilename) {
+                $temp = $fyrr;
+                $Item = new Material(array(
+                    'pid' => (int)$MT->id, 
+                    'vis' => 1, 
+                    'name' => $temp['name'], 
+                    'description' => $temp['brief'], 
+                    'priority' => (++$i) * 10, 
+                    'sitemaps_priority' => 0.5
+                ));
+                $Item->commit();
+                $att = new Attachment();
+                $att->upload = $filename;
+                $att->filename = $origFilename;
+                $type = getimagesize($filename);
+                $att->mime = image_type_to_mime_type($type[2]);
+                $att->parent = $Item->fields['image'];
+                $att->image = 1;
+                $att->maxWidth = $att->maxHeight = 1920;
+                $att->tnsize = 300;
+                $att->commit();
+                $row = array('vis' => 1, 'name' => '', 'description' => '', 'attachment' => (int)$att->id);
+                $Item->fields['image']->addValue(json_encode($row));
+                $Item->fields['url']->addValue('#');
+            }
 
             $B = new Block_HTML(array(
                 'name' => $this->view->_('WELCOME'), 'description' => file_get_contents($this->resourcesDir . '/main.tmp.php'), 'wysiwyg' => 1,
@@ -305,7 +367,7 @@ class Webmaster
             $this->createBlock($B, 'content', null, null, $contacts);
 
             $B = new Block_HTML(array(
-                'name' => $this->view->_('CONTACTS'), 'description' => file_get_contents($this->resourcesDir . '/contacts.tmp.php'), 'wysiwyg' => 1,
+                'name' => $this->view->_('CONTACTS'), 'description' => file_get_contents($this->resourcesDir . '/contacts.tmp.php'), 'wysiwyg' => 0,
             ));
             $this->createBlock($B, 'content', null, null, $contacts);
 
@@ -326,20 +388,19 @@ class Webmaster
             $this->createBlock($B, 'content', '__raas_menu_interface', 'menu_content', $map);
 
             $B = new Block_PHP(array('name' => $this->view->_('SITEMAP_XML'),));
-            $this->createBlock($B, 'content', null, 'sitemap_xml', $sitemaps);
+            $this->createBlock($B, '', null, 'sitemap_xml', $sitemaps);
 
             $robotsTXT =file_get_contents($this->resourcesDir . '/robots.txt');
-            $m = new \Mustache_Engine();
+            $m = new Mustache_Engine();
             $robotsTXT = $m->render($robotsTXT, array('host' => $_SERVER['HTTP_HOST']));
             $B = new Block_HTML(array('name' => $this->view->_('ROBOTS_TXT'), 'description' => $robotsTXT, 'wysiwyg' => 0,));
-            $this->createBlock($B, 'content', null, 'robots', $robots);
+            $this->createBlock($B, '', null, 'robots', $robots);
 
-            $this->createNews($this->view->_('NEWS'), 'news', $this->view->_('NEWS_MAIN'));
         }
     }
 
 
-    protected function createPage(array $params, Page $Parent = null)
+    protected function createPage(array $params, Page $Parent = null, $addUnderConstruction = false)
     {
         $P = new Page(array(
             'vis' => 1,
@@ -363,43 +424,15 @@ class Webmaster
             $P->$key = $val;
         }
         $P->commit();
+        if ($addUnderConstruction) {
+            $B = new Block_HTML(array(
+                'name' => $this->view->_('TEXT_BLOCK'), 
+                'description' => '<p>' . $this->view->_('PAGE_UNDER_CONSTRUCTION') . '</p>',
+                'wysiwyg' => 1,
+            ));
+            $this->createBlock($B, 'content', null, null, $P);
+        }
         return $P;
-    }
-
-
-    public function createInfos($infos)
-    {
-        $Site = new Page();
-        if ($Site->children) {
-            $Site = $Site->children[0];
-        }
-        $infos = preg_split('/\\r\\n|\\r|\\n/i', trim($infos));
-        $temp = array();
-        $backtrace = array();
-        for ($i = 0; $i < count($infos); $i++) {
-            preg_match('/^(\\-*)(.*?)$/i', $infos[$i], $regs);
-            $step = strlen($regs[1]);
-            list($name, $urn) = preg_split('/(:|;)/i', $regs[2]);
-            $name = trim($name);
-            $urn = trim($urn);
-
-            if ($step > 0 && $backtrace && is_array($backtrace)) {
-                $backtrace = array_slice((array)$backtrace, 0, $step);
-                $context = $backtrace[count((array)$backtrace) - 1];
-            } else {
-                $backtrace = array();
-                $context = 0;
-            }
-            $Parent = (int)$context ? new Page((int)$context) : $Site;
-            $arr = array();
-            $arr['name'] = $name;
-            if ($urn) {
-                $arr['urn'] = $urn;
-            }
-            $Page = $this->createPage(array('name' => $name, 'urn' => $urn), $Parent);
-            $context = (int)$Page->id;
-            $backtrace[] = $context;
-        }
     }
 
 
@@ -464,7 +497,56 @@ class Webmaster
                     'sort_field_default' => $dateField->id,
                     'sort_order_default' => 'desc!',
                 ));
-                $this->createBlock($blockMaterial, 'content', '__raas_material_interface', $urn . '_main', $Site);
+                $this->createBlock($blockMaterial, 'left', '__raas_material_interface', $urn . '_main', $Site);
+            }
+
+            // Создадим материалы
+            $fpr = new FishPhotosRetreiver();
+            $fyrr = new FishYandexReferatsRetreiver();
+            $images = $fpr->retreive(3);
+            $i = 0;
+            foreach ($images as $filename => $origFilename) {
+                $temp = $fyrr->retreive();
+                $Item = new Material(array(
+                    'pid' => (int)$MT->id, 
+                    'vis' => 1, 
+                    'name' => $temp['name'], 
+                    'description' => $temp['text'], 
+                    'priority' => (++$i) * 10, 
+                    'sitemaps_priority' => 0.5
+                ));
+                $Item->commit();
+                $Item->fields['date']->addValue(date('Y-m-d H:i', time() - rand(0, 86400 * 7)));
+                $att = new Attachment();
+                $att->upload = $filename;
+                $att->filename = $origFilename;
+                $type = getimagesize($filename);
+                $att->mime = image_type_to_mime_type($type[2]);
+                $att->parent = $Item->fields['images'];
+                $att->image = 1;
+                $att->maxWidth = $att->maxHeight = 1920;
+                $att->tnsize = 300;
+                $att->commit();
+                $row = array('vis' => 1, 'name' => '', 'description' => '', 'attachment' => (int)$att->id);
+                $Item->fields['images']->addValue(json_encode($row));
+                $Item->fields['brief']->addValue($temp['brief']);
+                if (!$i) {
+                    $additionalImages = $fpr->retreive(4);
+                    foreach ($additionalImages as $key => $val) {
+                        $att = new Attachment();
+                        $att->upload = $key;
+                        $att->filename = $val;
+                        $type = getimagesize($key);
+                        $att->mime = image_type_to_mime_type($type[2]);
+                        $att->parent = $Item->fields['images'];
+                        $att->image = 1;
+                        $att->maxWidth = $att->maxHeight = 1920;
+                        $att->tnsize = 300;
+                        $att->commit();
+                        $row = array('vis' => 1, 'name' => '', 'description' => '', 'attachment' => (int)$att->id);
+                        $Item->fields['image']->addValue(json_encode($row));
+                    }
+                }
             }
         }
     }
@@ -508,7 +590,7 @@ class Webmaster
 
     public function createSearch()
     {
-        $name = $this->view->_('SEARCH');
+        $name = $this->view->_('SITE_SEARCH');
         $urn = 'search';
         $Site = new Page();
         if ($Site->children) {
@@ -523,9 +605,16 @@ class Webmaster
                 $S = new Snippet(array('name' => $name, 'urn' => $urn, 'pid' => $VF->id, 'description' => file_get_contents($f),));
                 $S->commit();
             }
+            if (!$temp->id) {
+                $f = $this->resourcesDir . '/search_form.tmp.php';
+                $S = new Snippet(array('name' => $this->view->_('SEARCH_FORM'), 'urn' => 'search_form', 'pid' => $VF->id, 'description' => file_get_contents($f),));
+                $S->commit();
+            }
             $page = $this->createPage(array('name' => $name, 'urn' => $urn, 'response_code' => 200), $Site);
             $B = new Block_Search(array('search_var_name' => 'search_string', 'min_length' => 3, 'pages_var_name' => 'page', 'rows_per_page' => 20,));
             $this->createBlock($B, 'content', '__raas_search_interface', $urn, $page);
+            $B = new Block_PHP();
+            $this->createBlock($B, 'contacts_top', '', 'search_form', $Site, true);
         }
     }
 
@@ -539,39 +628,73 @@ class Webmaster
         if ($Site->children) {
             $Site = $Site->children[0];
         }
-        $MT = new Material_Type(array('name' => $name, 'urn' => $urn, 'global_type' => 1,));
-        $MT->commit();
+        $MT = Material_Type::importByURN($urn);
+        if (!$MT->id) {
+            $MT = new Material_Type(array('name' => $name, 'urn' => $urn, 'global_type' => 1,));
+            $MT->commit();
 
-        $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('PHONE'), 'urn' => 'phone', 'datatype' => 'text',));
-        $F->commit();
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('DATE'), 'urn' => 'date', 'datatype' => 'date',));
+            $F->commit();
 
-        $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('ANSWER'), 'urn' => 'answer', 'datatype' => 'textarea',));
-        $F->commit();
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('PHONE'), 'urn' => 'phone', 'datatype' => 'text',));
+            $F->commit();
+
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('EMAIL'), 'urn' => 'email', 'datatype' => 'email',));
+            $F->commit();
+
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('IMAGE'), 'urn' => 'image', 'datatype' => 'image', 'show_in_table' => 0,));
+            $F->commit();
+
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('ANSWER_DATE'), 'urn' => 'answer_date', 'datatype' => 'date',));
+            $F->commit();
+
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('ANSWER_NAME'), 'urn' => 'answer_name', 'datatype' => 'text',));
+            $F->commit();
+
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('ANSWER_GENDER'), 'urn' => 'answer_gender', 'datatype' => 'select', 'source_type' => 'ini', 'source' => '0 = "' . $this->view->_('FEMALE') . '"' . "\n" . '1 = "' . $this->view->_('MALE') . '"'));
+            $F->commit();
+
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('ANSWER_IMAGE'), 'urn' => 'answer_image', 'datatype' => 'image', 'show_in_table' => 0,));
+            $F->commit();
+
+            $F = new Material_Field(array('pid' => $MT->id, 'name' => $this->view->_('ANSWER'), 'urn' => 'answer', 'datatype' => 'htmlarea',));
+            $F->commit();
+        }
 
         $S = Snippet::importByURN('__raas_form_notify');
-        $FRM = new \RAAS\CMS\Form(array(
-            'name' => $name,
-            'material_type' => (int)$MT->id,
-            'create_feedback' => 0,
-            'signature' => 1,
-            'antispam' => 'hidden',
-            'antispam_field_name' => '_name',
-            'interface_id' => (int)$S->id,
-        ));
-        $FRM->commit();
+        $FRM = Form::importByURN($urn);
+        if (!$FRM->id) {
+            $FRM = new Form(array(
+                'name' => $name,
+                'urn' => $urn,
+                'material_type' => (int)$MT->id,
+                'create_feedback' => 0,
+                'signature' => 1,
+                'antispam' => 'hidden',
+                'antispam_field_name' => '_name',
+                'interface_id' => (int)$S->id,
+            ));
+            $FRM->commit();
 
-        $F = new Form_Field(array(
-            'pid' => $FRM->id, 'name' => $this->view->_('YOUR_NAME'), 'urn' => 'name', 'required' => 1, 'datatype' => 'text', 'show_in_table' => 1,
-        ));
-        $F->commit();
+            $F = new Form_Field(array(
+                'pid' => $FRM->id, 'name' => $this->view->_('YOUR_NAME'), 'urn' => 'name', 'required' => 1, 'datatype' => 'text', 'show_in_table' => 1,
+            ));
+            $F->commit();
 
-        $F = new Form_Field(array('pid' => $FRM->id, 'name' => $this->view->_('PHONE'), 'urn' => 'phone', 'datatype' => 'text', 'show_in_table' => 1,));
-        $F->commit();
+            $F = new Form_Field(array('pid' => $FRM->id, 'name' => $this->view->_('PHONE'), 'urn' => 'phone', 'datatype' => 'text', 'show_in_table' => 1,));
+            $F->commit();
 
-        $F = new Form_Field(array(
-            'pid' => $FRM->id, 'name' => $this->view->_('QUESTION_TEXT'), 'urn' => 'description', 'required' => 1, 'datatype' => 'textarea', 'show_in_table' => 0,
-        ));
-        $F->commit();
+            $F = new Form_Field(array('pid' => $FRM->id, 'name' => $this->view->_('EMAIL'), 'urn' => 'email', 'datatype' => 'email', 'show_in_table' => 0,));
+            $F->commit();
+
+            $F = new Form_Field(array('pid' => $FRM->id, 'name' => $this->view->_('YOUR_PHOTO'), 'urn' => 'image', 'datatype' => 'image', 'show_in_table' => 0,));
+            $F->commit();
+
+            $F = new Form_Field(array(
+                'pid' => $FRM->id, 'name' => $this->view->_('QUESTION_TEXT'), 'urn' => 'description', 'required' => 1, 'datatype' => 'textarea', 'show_in_table' => 0,
+            ));
+            $F->commit();
+        }
 
         $VF = Snippet_Folder::importByURN('__raas_views');
         $temp = Snippet::importByURN($urn);
@@ -591,21 +714,22 @@ class Webmaster
 
         $faqPage = $this->createPage(array('name' => $name, 'urn' => $urn), $Site);
         
+        $B = new Block_Material(array(
+            'material_type' => (int)$MT->id, 
+            'nat' => 1,
+            'pages_var_name' => 'page',
+            'rows_per_page' => 20,
+            'sort_field_default' => 'post_date',
+            'sort_order_default' => 'desc!',
+        ));
+        $this->createBlock($B, 'left', '__raas_material_interface', $urn, $faqPage);
+
         $B = new Block_HTML(array('description' => '<p>' . $this->view->_('YOU_CAN_ASK_YOUR_QUESTION') . '</p>',));
         $this->createBlock($B, 'content', null, null, $faqPage);
 
         $B = new Block_Form(array('form' => $FRM->id,));
         $this->createBlock($B, 'content', '__raas_form_interface', 'feedback', $faqPage);
 
-        $B = new Block_Material(array(
-            'material_type' => (int)$MT->id, 
-            'nat' => 0,
-            'pages_var_name' => 'page',
-            'rows_per_page' => 20,
-            'sort_field_default' => 'post_date',
-            'sort_order_default' => 'desc!',
-        ));
-        $this->createBlock($B, 'content', '__raas_material_interface', $urn, $faqPage);
 
         $B = new Block_Material(array(
             'material_type' => (int)$MT->id, 
@@ -616,6 +740,57 @@ class Webmaster
             'sort_order_default' => 'desc!',
         ));
         $this->createBlock($B, 'content', '__raas_material_interface', $urn . '_main', $Site);
+
+        // Создадим материалы
+        $frur = new FishRandomUserRetreiver();
+        $fyrr = new FishYandexReferatsRetreiver();
+        for ($i = 0; $i < 3; $i++) {
+            $user = $frur->retreive();
+            $answer = $frur->retreive();
+            $temp = $fyrr->retreive();
+            $Item = new Material(array(
+                'pid' => (int)$MT->id, 
+                'vis' => 1, 
+                'name' => $user['name']['first'] . ' ' . $user['name']['last'], 
+                'description' => $temp['name'], 
+                'priority' => ($i + 1) * 10, 
+                'sitemaps_priority' => 0.5
+            ));
+            $Item->commit();
+            $t = time() - 86400 * rand(1, 7);
+            $t1 = $t + rand(0, 86400);
+            $Item->fields['date']->addValue(date('Y-m-d', $t));
+            $Item->fields['phone']->addValue($user['phone']);
+            $Item->fields['email']->addValue($user['email']);
+            $Item->fields['answer_date']->addValue(date('Y-m-d', $t1));
+            $Item->fields['answer_name']->addValue($answer['name']['first'] . ' ' . $answer['name']['last']);
+            $Item->fields['answer_gender']->addValue((int)($answer['gender'] == 'male'));
+            $Item->fields['answer']->addValue($temp['text']);
+            $att = new Attachment();
+            $att->upload = $user['pic']['filepath'];
+            $att->filename = $user['pic']['name'];
+            $type = getimagesize($user['pic']['filepath']);
+            $att->mime = image_type_to_mime_type($type[2]);
+            $att->parent = $Item->fields['image'];
+            $att->image = 1;
+            $att->maxWidth = $att->maxHeight = 1920;
+            $att->tnsize = 300;
+            $att->commit();
+            $row = array('vis' => 1, 'name' => '', 'description' => '', 'attachment' => (int)$att->id);
+            $Item->fields['image']->addValue(json_encode($row));
+            $att = new Attachment();
+            $att->upload = $answer['pic']['filepath'];
+            $att->filename = $answer['pic']['name'];
+            $type = getimagesize($answer['pic']['filepath']);
+            $att->mime = image_type_to_mime_type($type[2]);
+            $att->parent = $Item->fields['image'];
+            $att->image = 1;
+            $att->maxWidth = $att->maxHeight = 1920;
+            $att->tnsize = 300;
+            $att->commit();
+            $row = array('vis' => 1, 'name' => '', 'description' => '', 'attachment' => (int)$att->id);
+            $Item->fields['answer_image']->addValue(json_encode($row));
+        }
     }
 
 
@@ -629,7 +804,7 @@ class Webmaster
             $Site = $Site->children[0];
         }
         $S = Snippet::importByURN('__raas_form_notify');
-        $FRM = new \RAAS\CMS\Form(array(
+        $FRM = new Form(array(
             'name' => $name, 'create_feedback' => 1, 'signature' => 1, 'antispam' => 'hidden', 'antispam_field_name' => '_name', 'interface_id' => (int)$S->id,
         ));
         $FRM->commit();
