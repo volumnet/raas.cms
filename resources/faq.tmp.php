@@ -4,7 +4,7 @@ namespace RAAS\CMS;
 use \SOME\Text;
 use \SOME\HTTP;
 
-if ($Item) { 
+if ($Item) {
     ?>
     <div class="faq">
       <div class="article_opened">
@@ -78,8 +78,7 @@ if ($Item) {
               <?php } ?>
               <div class="article__title">
                 <a class="article__name"<?php echo $Block->nat ? ' href="' . htmlspecialchars($row->url) . '"' : ''?>>
-                  <?php echo htmlspecialchars($row->name)?>
-                </a>
+                  <?php echo htmlspecialchars($row->name)?></a>
                 <?php 
                 $t = strtotime($row->date);
                 if ($t <= 0) {
@@ -97,7 +96,7 @@ if ($Item) {
               </div>
             </div>
             <?php if ($row->answer) { ?>
-                <div class="article__text article__answer">
+                <div class="article__text article__answer<?php echo !$Block->nat ? ' article__answer_slider' : ''?>">
                   <?php if ($row->answer_image->id) { ?>
                       <div class="article__image">
                         <a<?php echo $Block->nat ? ' href="' . htmlspecialchars($row->url) . '"' : ''?>>
@@ -125,12 +124,25 @@ if ($Item) {
                     <?php } ?>
                   </div>
                   <div class="article__description">
-                    <?php echo $row->answer?>
+                    <div class="article__description__brief">
+                      <?php echo Text::cuttext(html_entity_decode(strip_tags($row->answer), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...')?>
+                    </div>
+                    <?php if (!$Block->nat) { ?>
+                        <div class="article__description__full"><?php echo $row->answer?></div>
+                    <?php } ?>
+                  </div>
+                  <div class="article__more">
+                    <?php if ($Block->nat) { ?>
+                        <a<?php echo $Block->nat ? ' href="' . htmlspecialchars($row->url) . '"' : ' class="article__more__trigger" data-show="' . READ_ANSWER . '" data-hide="' . HIDE . '"'?>>
+                          <?php echo READ_ANSWER?>
+                        </a>
+                    <?php } ?>
                   </div>
                 </div>
             <?php } ?>
           </div>
       <?php } ?>
+      <script src="/js/faq.js"></script>
     </div>
     <?php include Package::i()->resourcesDir . '/pages.inc.php'?>
     <?php if ($Pages->pages > 1) { ?>

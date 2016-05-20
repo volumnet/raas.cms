@@ -5,7 +5,7 @@ use \SOME\Text;
 use \SOME\HTTP;
 
 ?>
-<div class="search">
+<div class="search materials">
   <div class="search__title">
     <?php echo sprintf(SEARCH_RESULTS_FOR_QUERY, $search_string)?>
   </div>
@@ -31,7 +31,7 @@ use \SOME\HTTP;
                       <div class="article__description">
                         <?php echo htmlspecialchars(Text::cuttext(html_entity_decode(strip_tags($row->location('content')), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
                       </div>
-                      <div class="article__read-more">
+                      <div class="article__more">
                         <a href="<?php echo htmlspecialchars($row->url)?>">
                           <?php echo SHOW_MORE?>
                         </a>
@@ -55,7 +55,7 @@ use \SOME\HTTP;
                       <div class="article__description">
                         <?php echo htmlspecialchars(Text::cuttext(html_entity_decode(strip_tags($row->description), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
                       </div>
-                      <div class="article__read-more">
+                      <div class="article__more">
                         <a href="<?php echo htmlspecialchars($row->url)?>">
                           <?php echo SHOW_MORE?>
                         </a>

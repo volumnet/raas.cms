@@ -1,9 +1,9 @@
-<?php 
+<?php
 namespace RAAS\CMS;
 
 use \SOME\HTTP;
 
-if ($Item) { 
+if ($Item) {
     ?>
     <div class="photos">
       <div class="article_opened">
@@ -11,7 +11,7 @@ if ($Item) {
         <?php if (count($Item->visImages) > 0) { ?>
             <div class="article__images row">
               <?php for ($i = 0; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
-                  <div class="col-sm-4 col-md-3 col-xs-6">
+                  <div class="col-sm-4 col-md-3 col-xs-4">
                     <a href="/<?php echo htmlspecialchars($row->fileURL)?>" rel="prettyPhoto[g<?php echo (int)$Item->id?>]" class="article__images__image">
                       <img src="/<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
                   </div>
@@ -34,7 +34,7 @@ if ($Item) {
             <?php if (count($row->visImages) > 0) { ?>
                 <div class="article__images row">
                   <?php for ($i = 0; $i < count($row->visImages); $i++) { $row2 = $row->visImages[$i]; ?>
-                      <div class="col-sm-4 col-md-3 col-xs-6">
+                      <div class="col-sm-3 col-lg-2 col-xs-4">
                         <a href="/<?php echo htmlspecialchars($row2->fileURL)?>" rel="prettyPhoto[gallery<?php echo (int)$row->id?>]" class="article__images__image">
                           <img src="/<?php echo htmlspecialchars($row2->tnURL)?>" alt="<?php echo htmlspecialchars($row2->name)?>" /></a>
                       </div>
@@ -47,11 +47,11 @@ if ($Item) {
     <?php include Package::i()->resourcesDir . '/pages.inc.php'?>
     <?php if ($Pages->pages > 1) { ?>
         <ul class="pagination pull-right">
-          <?php 
+          <?php
           echo $outputNav(
-              $Pages, 
+              $Pages,
               array(
-                  'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>', 
+                  'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>',
                   'pattern_active' => '<li class="active"><a>{text}</a></li>',
                   'ellipse' => '<li class="disabled"><a>...</a></li>'
               )

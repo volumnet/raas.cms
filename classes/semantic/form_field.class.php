@@ -8,7 +8,7 @@ class Form_Field extends Field
         'Preprocessor' => array('FK' => 'preprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
         'Postprocessor' => array('FK' => 'postprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
     );
-    
+
     public function __set($var, $val)
     {
         switch ($var) {

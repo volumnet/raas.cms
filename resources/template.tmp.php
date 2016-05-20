@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace RAAS\CMS;
 
 $colspanSM = 4;
@@ -25,13 +25,13 @@ $separateScripts = function($text)
         }
     }
     return array($result, $scripts);
-}; 
+};
 
-ob_start(); 
+ob_start();
 ?>
 <!DOCTYPE html>
 <?php if ($Page->noindex || $Page->Material->noindex) { ?>
-    <!--noindex--> 
+    <!--noindex-->
 <?php } ?>
 <html>
   <head>
@@ -39,8 +39,7 @@ ob_start();
     <?php echo $Page->location('head_counters')?>
   </head>
   <body<?php echo !$Page->pid ? ' class="body_main"' : ''?>>
-    <div id="top"></div>
-    <div class="background-holder"<?php echo $bg->id ? ' style="background-image: url(\'/' . htmlspecialchars($bg->fileURL) . '\')"' : ''?>>
+    <div id="top" class="background-holder"<?php echo $bg->id ? ' style="background-image: url(\'/' . htmlspecialchars($bg->fileURL) . '\')"' : ''?>>
       <header class="location_header">
         <div class="container">
           <div class="location_header__inner">
@@ -56,19 +55,22 @@ ob_start();
                 </div>
               </div>
             </div>
-            <div class="location_menu_top">
-              <?php echo $Page->location('menu_top')?>
+          </div>
+          <div class="location_menu_top">
+            <div class="row">
+              <div class="col-sm-9"><?php echo $Page->location('menu_top')?></div>
+              <div class="col-sm-3"><?php echo $Page->location('search_form')?></div>
             </div>
-            <div class="location_banners">
-              <?php echo $Page->location('banners')?>
-            </div>
+          </div>
+          <div class="location_banners">
+            <?php echo $Page->location('banners')?>
           </div>
         </div>
       </header>
       <div class="main-container">
         <div class="container">
           <div class="row">
-            <?php 
+            <?php
             $leftText = $Page->location('left');
             $rightText = $Page->location('right');
             if ($leftText) { ?>
@@ -76,7 +78,7 @@ ob_start();
                   <div class="location_left__inner"><?php echo $leftText?></div>
                 </aside>
             <?php } ?>
-            <?php if (count($Page->locationBlocksText['content'])) { 
+            <?php if (count($Page->locationBlocksText['content'])) {
                 $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
                 $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
                 ?>
@@ -143,15 +145,15 @@ ob_start();
         </div>
       </footer>
     </div>
-    <?php 
+    <?php
     echo $Page->location('footer_counters');
     $content = ob_get_contents();
     ob_end_clean();
     $content = $separateScripts($content);
     echo $content[0] . $content[1];
-    ?> 
+    ?>
   </body>
 </html>
 <?php if ($Page->noindex || $Page->Material->noindex) { ?>
-    <!--/noindex--> 
+    <!--/noindex-->
 <?php } ?>

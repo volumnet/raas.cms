@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\IContext;
 
 class Updater extends \RAAS\Updater
@@ -30,9 +31,10 @@ class Updater extends \RAAS\Updater
         $this->update20141103();
         $this->update20141109();
         $w = new Webmaster();
-        $w->checkStdSnippets();
         if (!$this->SQL->getvalue("SELECT COUNT(*) FROM " . \SOME\SOME::_dbprefix() . "cms_pages")) {
             $w->createSite();
+        } else {
+            $w->checkStdInterfaces();
         }
     }
 
@@ -56,7 +58,12 @@ class Updater extends \RAAS\Updater
 
         // Добавляем возможность формам генерировать материалы
         if (in_array(\SOME\SOME::_dbprefix() . "cms_forms", $tables)) {
-            $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_forms"));
+            $columns = array_map(
+                function ($x) {
+                    return $x['Field'];
+                },
+                $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_forms")
+            );
             if (!in_array('material_type', $columns)) {
                 $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_forms ADD material_type INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type' AFTER name";
                 $this->SQL->query($SQL_query);
@@ -68,7 +75,12 @@ class Updater extends \RAAS\Updater
 
         // Добавляем кэширование к страницам
         if (in_array(\SOME\SOME::_dbprefix() . "cms_pages", $tables)) {
-            $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_pages"));
+            $columns = array_map(
+                function ($x) {
+                    return $x['Field'];
+                },
+                $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_pages")
+            );
             if (!in_array('cache', $columns)) {
                 $this->SQL->query("ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_pages ADD cache TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cache page'");
             }
@@ -79,7 +91,12 @@ class Updater extends \RAAS\Updater
 
         // Добавляем возможность показывать настраиваемые поля в таблицах в админке
         if (in_array(\SOME\SOME::_dbprefix() . "cms_fields", $tables)) {
-            $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_fields"));
+            $columns = array_map(
+                function ($x) {
+                    return $x['Field'];
+                },
+                $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_fields")
+            );
             if (!in_array('show_in_table', $columns)) {
                 $this->SQL->query("ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_fields ADD show_in_table TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Show as table column' AFTER placeholder");
             }
@@ -104,7 +121,12 @@ class Updater extends \RAAS\Updater
 
         // Разделяем блоки
         if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks", $tables)) {
-            $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_blocks"));
+            $columns = array_map(
+                function ($x) {
+                    return $x['Field'];
+                },
+                $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_blocks")
+            );
             $tables = $this->SQL->getcol("SHOW TABLES");
             if (in_array('description', $columns) && !in_array(\SOME\SOME::_dbprefix() . 'cms_blocks_php', $tables)) {
                 $this->SQL->query("UPDATE " . \SOME\SOME::_dbprefix() . "cms_blocks SET description = REPLACE(description, '\\\\/files\\\\/common', '\\\\/')");
@@ -142,7 +164,7 @@ class Updater extends \RAAS\Updater
                         order_var_name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Order var name',
                         sort_field_default VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Field for sorting by default',
                         sort_order_default VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Default order',
-                        
+
                         PRIMARY KEY (id),
                         KEY (material_type),
                         KEY (widget)
@@ -156,7 +178,7 @@ class Updater extends \RAAS\Updater
                         relation ENUM('=', 'LIKE', 'CONTAINED', 'FULLTEXT', '<=', '>=') NOT NULL DEFAULT '=' COMMENT 'Relation',
                         field VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Field',
                         priority INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Priority',
-                        
+
                         KEY (id),
                         INDEX (priority)
                     ) COMMENT 'Material blocks filtering';";
@@ -169,7 +191,7 @@ class Updater extends \RAAS\Updater
                         field VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Field',
                         relation ENUM('asc!', 'desc!', 'asc', 'desc') NOT NULL DEFAULT 'asc!' COMMENT 'Relation',
                         priority INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Priority',
-                        
+
                         KEY (id),
                         INDEX (priority)
                     ) COMMENT 'Material blocks sorting';";
@@ -183,7 +205,7 @@ class Updater extends \RAAS\Updater
                         interface MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Interface code',
                         widget INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Snippet ID#',
                         description MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Snippet code',
-                        
+
                         PRIMARY KEY (id),
                         KEY (form),
                         KEY (widget)
@@ -199,7 +221,7 @@ class Updater extends \RAAS\Updater
                         interface MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Interface code',
                         widget INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Snippet ID#',
                         description MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Snippet code',
-                        
+
                         PRIMARY KEY (id),
                         KEY (menu),
                         KEY (widget)
@@ -217,7 +239,7 @@ class Updater extends \RAAS\Updater
                         interface MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Interface code',
                         widget INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Snippet ID#',
                         description MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Snippet code',
-                        
+
                         PRIMARY KEY (id),
                         KEY (widget)
                     ) COMMENT 'Search blocks';";
@@ -267,15 +289,20 @@ class Updater extends \RAAS\Updater
                         case 'php':
                             $this->SQL->query("DELETE FROM " . \SOME\SOME::_dbprefix() . "cms_blocks_php WHERE id = " . (int)$arr['id']);
                             $this->SQL->add(
-                                \SOME\SOME::_dbprefix() . 'cms_blocks_php', array('id' => (int)$arr['id'], 'description' => (string)$temp['description'], 'widget' => (int)$temp['widget'])
+                                \SOME\SOME::_dbprefix() . 'cms_blocks_php',
+                                array(
+                                    'id' => (int)$arr['id'],
+                                    'description' => (string)$temp['description'],
+                                    'widget' => (int)$temp['widget']
+                                )
                             );
                             break;
                         case 'material':
                             $this->SQL->query("DELETE FROM " . \SOME\SOME::_dbprefix() . "cms_blocks_material WHERE id = " . (int)$arr['id']);
                             $this->SQL->add(
-                                \SOME\SOME::_dbprefix() . 'cms_blocks_material', 
+                                \SOME\SOME::_dbprefix() . 'cms_blocks_material',
                                 array(
-                                    'id' => (int)$arr['id'], 
+                                    'id' => (int)$arr['id'],
                                     'material_type' => (int)$temp['material_type'],
                                     'std_interface' => (int)$temp['std_interface'],
                                     'interface' => (string)$temp['interface'],
@@ -293,7 +320,7 @@ class Updater extends \RAAS\Updater
                             for ($i = 0; $i < count($temp['filter']); $i++) {
                                 if ($row = $temp['filter'][$i]) {
                                     $arr2[] = array(
-                                        'id' => (int)$arr['id'], 
+                                        'id' => (int)$arr['id'],
                                         'var' => (string)$row['var'],
                                         'relation' => (string)$row['relation'],
                                         'field' => (string)$row['field'],
@@ -309,7 +336,7 @@ class Updater extends \RAAS\Updater
                             for ($i = 0; $i < count($temp['sort']); $i++) {
                                 if ($row = $temp['sort'][$i]) {
                                     $arr2[] = array(
-                                        'id' => (int)$arr['id'], 
+                                        'id' => (int)$arr['id'],
                                         'var' => (string)$row['var'],
                                         'field' => (string)$row['field'],
                                         'relation' => (string)$row['relation'],
@@ -325,9 +352,9 @@ class Updater extends \RAAS\Updater
                         case 'form':
                             $this->SQL->query("DELETE FROM " . \SOME\SOME::_dbprefix() . "cms_blocks_form WHERE id = " . (int)$arr['id']);
                             $this->SQL->add(
-                                \SOME\SOME::_dbprefix() . 'cms_blocks_form', 
+                                \SOME\SOME::_dbprefix() . 'cms_blocks_form',
                                 array(
-                                    'id' => (int)$arr['id'], 
+                                    'id' => (int)$arr['id'],
                                     'form' => (int)$temp['form'],
                                     'std_interface' => (int)$temp['std_interface'],
                                     'interface' => (string)$temp['interface'],
@@ -339,9 +366,9 @@ class Updater extends \RAAS\Updater
                         case 'menu':
                             $this->SQL->query("DELETE FROM " . \SOME\SOME::_dbprefix() . "cms_blocks_menu WHERE id = " . (int)$arr['id']);
                             $this->SQL->add(
-                                \SOME\SOME::_dbprefix() . 'cms_blocks_menu', 
+                                \SOME\SOME::_dbprefix() . 'cms_blocks_menu',
                                 array(
-                                    'id' => (int)$arr['id'], 
+                                    'id' => (int)$arr['id'],
                                     'menu' => (int)$temp['menu'],
                                     'full_menu' => (int)$temp['full_menu'],
                                     'std_interface' => (int)$temp['std_interface'],
@@ -354,9 +381,9 @@ class Updater extends \RAAS\Updater
                         case 'search':
                             $this->SQL->query("DELETE FROM " . \SOME\SOME::_dbprefix() . "cms_blocks_search WHERE id = " . (int)$arr['id']);
                             $this->SQL->add(
-                                \SOME\SOME::_dbprefix() . 'cms_blocks_search', 
+                                \SOME\SOME::_dbprefix() . 'cms_blocks_search',
                                 array(
-                                    'id' => (int)$arr['id'], 
+                                    'id' => (int)$arr['id'],
                                     'search_var_name' => (string)$temp['search_var_name'],
                                     'min_length' => (int)$temp['min_length'],
                                     'pages_var_name' => (string)$temp['pages_var_name'],
@@ -401,14 +428,14 @@ class Updater extends \RAAS\Updater
                     }
                 }
                 $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_blocks
-                                 SET block_type = CASE block_type 
-                                WHEN 'html' THEN 'RAAS\\\\CMS\\\\Block_HTML' 
+                                 SET block_type = CASE block_type
+                                WHEN 'html' THEN 'RAAS\\\\CMS\\\\Block_HTML'
                                 WHEN 'php' THEN 'RAAS\\\\CMS\\\\Block_PHP'
                                 WHEN 'material' THEN 'RAAS\\\\CMS\\\\Block_Material'
                                 WHEN 'form' THEN 'RAAS\\\\CMS\\\\Block_Form'
                                 WHEN 'menu' THEN 'RAAS\\\\CMS\\\\Block_Menu'
                                 WHEN 'search' THEN 'RAAS\\\\CMS\\\\Block_Search'
-                                 END 
+                                 END
                                WHERE 1;";
                 $this->SQL->query($SQL_query);
                 $this->SQL->query("ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks DROP description");
@@ -421,7 +448,12 @@ class Updater extends \RAAS\Updater
     {
         // Создаем блокированные сниппеты
         if (in_array(\SOME\SOME::_dbprefix() . "cms_snippets", $this->tables)) {
-            $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_snippets"));
+            $columns = array_map(
+                function ($x) {
+                    return $x['Field'];
+                },
+                $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_snippets")
+            );
             if (!in_array('locked', $columns)) {
                 $this->SQL->query("ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_snippets ADD locked TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Locked'");
             }
@@ -429,12 +461,22 @@ class Updater extends \RAAS\Updater
 
         // Создаем блокированные папки сниппетов и URN у папок сниппетов
         if (in_array(\SOME\SOME::_dbprefix() . "cms_snippet_folders", $this->tables)) {
-            $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_snippet_folders"));
+            $columns = array_map(
+                function ($x) {
+                    return $x['Field'];
+                },
+                $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_snippet_folders")
+            );
             if (!in_array('locked', $columns)) {
                 $this->SQL->query("ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_snippet_folders ADD locked TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Locked'");
             }
-        
-            $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_snippet_folders"));
+
+            $columns = array_map(
+                function ($x) {
+                    return $x['Field'];
+                },
+                $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_snippet_folders")
+            );
             if (!in_array('urn', $columns)) {
                 $this->SQL->query("ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_snippet_folders ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER id");
             }
@@ -447,9 +489,14 @@ class Updater extends \RAAS\Updater
     {
         // Обновляем привязку к сниппетам у блоков
         if (in_array(\SOME\SOME::_dbprefix() . "cms_blocks", $this->tables)) {
-            $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_blocks"));
+            $columns = array_map(
+                function ($x) {
+                    return $x['Field'];
+                },
+                $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_blocks")
+            );
             if (!in_array('widget_id', $columns)) {
-                $SQL_query .= "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks 
+                $SQL_query .= "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_blocks
                                        ADD interface_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Interface ID#',
                                        ADD interface MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Interface code',
                                        ADD widget_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Widget ID#',
@@ -519,12 +566,17 @@ class Updater extends \RAAS\Updater
         }
 
         if (in_array(\SOME\SOME::_dbprefix() . "cms_forms", $this->tables)) {
-            $columns = array_map(function($x) { return $x['Field']; }, $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_forms"));
+            $columns = array_map(
+                function ($x) {
+                    return $x['Field'];
+                },
+                $this->SQL->get("SHOW FIELDS FROM " . \SOME\SOME::_dbprefix() . "cms_forms")
+            );
             if (!in_array('interface_id', $columns)) {
                 $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_forms ADD interface_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Interface ID#' AFTER std_template";
                 $this->SQL->query($SQL_query);
 
-                $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_forms SET interface_id = (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__raas_form_notify') 
+                $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_forms SET interface_id = (SELECT id FROM " . \SOME\SOME::_dbprefix() . "cms_snippets WHERE urn = '__raas_form_notify')
                                WHERE std_template";
                 $this->SQL->query($SQL_query);
 
@@ -568,7 +620,7 @@ class Updater extends \RAAS\Updater
                     $this->SQL->update(\SOME\SOME::_dbprefix() . "cms_blocks", "id = " . (int)$row['id'], array('widget_id' => $id, 'widget' => ''));
                 }
 
-                $SQL_query = "INSERT INTO " . \SOME\SOME::_dbprefix() . "cms_blocks_html (id, description) 
+                $SQL_query = "INSERT INTO " . \SOME\SOME::_dbprefix() . "cms_blocks_html (id, description)
                               SELECT id, widget FROM " . \SOME\SOME::_dbprefix() . "cms_blocks WHERE block_type = 'RAAS\\\\CMS\\\\Block_HTML'";
                 $this->SQL->query($SQL_query);
 
@@ -613,8 +665,8 @@ class Updater extends \RAAS\Updater
     protected function update20140717()
     {
         if (in_array(\SOME\SOME::_dbprefix() . "cms_users", $this->tables) && !in_array('email', $this->columns(\SOME\SOME::_dbprefix() . "cms_users"))) {
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_users ADD email VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'E-mail', 
-                          ADD INDEX (email), 
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_users ADD email VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'E-mail',
+                          ADD INDEX (email),
                           ADD post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Registration date',
                           ADD INDEX (post_date),
                           ADD vis TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Active',
@@ -629,7 +681,7 @@ class Updater extends \RAAS\Updater
             $this->SQL->query($SQL_query);
         }
         if (in_array(\SOME\SOME::_dbprefix() . "cms_users", $this->tables) && !in_array('new', $this->columns(\SOME\SOME::_dbprefix() . "cms_users"))) {
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_users 
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_users
                             ADD new TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'New',
                             ADD activated TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Activated',
                             ADD INDEX(new),
@@ -667,7 +719,7 @@ class Updater extends \RAAS\Updater
             foreach ($rep as $key => $val) {
                 $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_snippets AS tS
                            LEFT JOIN " . \SOME\SOME::_dbprefix() . "cms_snippet_folders AS tSF ON tSF.id = tS.pid
-                                 SET tS.description = REPLACE(tS.description, ?, ?) 
+                                 SET tS.description = REPLACE(tS.description, ?, ?)
                                WHERE NOT tS.locked AND tSF.urn != '__raas_interfaces'";
                 $this->SQL->query(array($SQL_query, $key, $val));
             }
@@ -688,7 +740,7 @@ class Updater extends \RAAS\Updater
             foreach ($rep as $key => $val) {
                 $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_snippets AS tS
                            LEFT JOIN " . \SOME\SOME::_dbprefix() . "cms_snippet_folders AS tSF ON tSF.id = tS.pid
-                                 SET tS.description = REPLACE(tS.description, ?, ?) 
+                                 SET tS.description = REPLACE(tS.description, ?, ?)
                                WHERE NOT tS.locked AND tSF.urn != '__raas_interfaces'";
                 $this->SQL->query(array($SQL_query, $key, $val));
             }
@@ -717,7 +769,7 @@ class Updater extends \RAAS\Updater
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_pages
                             ADD visit_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visit counter',
                             ADD modify_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Modify counter',
-                            ADD changefreq ENUM('', 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never') NOT NULL DEFAULT '' COMMENT 'Change frequency', 
+                            ADD changefreq ENUM('', 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never') NOT NULL DEFAULT '' COMMENT 'Change frequency',
                             ADD inherit_changefreq TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Inherit change frequency',
                             ADD last_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
                             ADD sitemaps_priority DECIMAL(8,2) UNSIGNED NOT NULL DEFAULT 0.5 COMMENT 'Sitemaps priority',
@@ -728,7 +780,7 @@ class Updater extends \RAAS\Updater
             $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials
                             ADD visit_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Visit counter',
                             ADD modify_counter INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Modify counter',
-                            ADD changefreq ENUM('', 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never') NOT NULL DEFAULT '' COMMENT 'Change frequency', 
+                            ADD changefreq ENUM('', 'always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never') NOT NULL DEFAULT '' COMMENT 'Change frequency',
                             ADD last_modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
                             ADD sitemaps_priority DECIMAL(8,2) UNSIGNED NOT NULL DEFAULT 0.5 COMMENT 'Sitemaps priority'";
             $this->SQL->query($SQL_query);
@@ -759,13 +811,13 @@ class Updater extends \RAAS\Updater
                 $this->SQL->query($SQL_query);
             }
             if (!in_array('preprocessor_id', $this->columns(\SOME\SOME::_dbprefix() . "cms_fields"))) {
-                $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_fields 
+                $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_fields
                                 ADD preprocessor_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Preprocessor interface ID#' AFTER step,
                                 ADD KEY (preprocessor_id)";
                 $this->SQL->query($SQL_query);
             }
             if (!in_array('postprocessor_id', $this->columns(\SOME\SOME::_dbprefix() . "cms_fields"))) {
-                $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_fields 
+                $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_fields
                                 ADD postprocessor_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Postprocessor interface ID#' AFTER preprocessor_id,
                                 ADD KEY (postprocessor_id)";
                 $this->SQL->query($SQL_query);
@@ -846,20 +898,20 @@ class Updater extends \RAAS\Updater
     public function update20150504()
     {
         if (in_array(\SOME\SOME::_dbprefix() . "cms_pages", $this->tables) && !in_array('h1', $this->columns(\SOME\SOME::_dbprefix() . "cms_pages"))) {
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_pages 
-                            ADD h1 varchar(255) NOT NULL DEFAULT '' COMMENT 'H1 title' AFTER inherit_meta_keywords, 
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_pages
+                            ADD h1 varchar(255) NOT NULL DEFAULT '' COMMENT 'H1 title' AFTER inherit_meta_keywords,
                             ADD menu_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Menu name' AFTER h1,
                             ADD breadcrumbs_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Breadcrumbs name' AFTER menu_name";
             $this->SQL->query($SQL_query);
         }
         if (in_array(\SOME\SOME::_dbprefix() . "cms_materials", $this->tables) && !in_array('h1', $this->columns(\SOME\SOME::_dbprefix() . "cms_materials"))) {
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials 
-                            ADD h1 varchar(255) NOT NULL DEFAULT '' COMMENT 'H1 title' AFTER meta_keywords, 
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials
+                            ADD h1 varchar(255) NOT NULL DEFAULT '' COMMENT 'H1 title' AFTER meta_keywords,
                             ADD menu_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Menu name' AFTER h1,
                             ADD breadcrumbs_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Breadcrumbs name' AFTER menu_name";
             $this->SQL->query($SQL_query);
         }
-  
+
     }
 
 
@@ -875,13 +927,13 @@ class Updater extends \RAAS\Updater
     public function update20150617()
     {
         if (in_array(\SOME\SOME::_dbprefix() . "cms_materials", $this->tables) && !in_array('show_from', $this->columns(\SOME\SOME::_dbprefix() . "cms_materials"))) {
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials 
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials
                             ADD show_from DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish from date/time',
                             ADD INDEX (show_from)";
             $this->SQL->query($SQL_query);
         }
         if (in_array(\SOME\SOME::_dbprefix() . "cms_materials", $this->tables) && !in_array('show_to', $this->columns(\SOME\SOME::_dbprefix() . "cms_materials"))) {
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials 
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_materials
                             ADD show_to DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish to date/time',
                             ADD INDEX (show_to)";
             $this->SQL->query($SQL_query);
@@ -892,7 +944,7 @@ class Updater extends \RAAS\Updater
     public function update20151129()
     {
         if (in_array(\SOME\SOME::_dbprefix() . "cms_forms", $this->tables) && !in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_forms"))) {
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_forms 
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_forms
                             ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
                             ADD INDEX (urn)";
             $this->SQL->query($SQL_query);
@@ -902,13 +954,13 @@ class Updater extends \RAAS\Updater
             $this->SQL->query($SQL_query);
         }
         if (in_array(\SOME\SOME::_dbprefix() . "cms_groups", $this->tables) && !in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_groups"))) {
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_groups 
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_groups
                             ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
                             ADD INDEX (urn)";
             $this->SQL->query($SQL_query);
         }
         if (in_array(\SOME\SOME::_dbprefix() . "cms_menus", $this->tables) && !in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_menus"))) {
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_menus 
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_menus
                             ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
                             ADD INDEX (urn)";
             $this->SQL->query($SQL_query);
@@ -926,7 +978,7 @@ class Updater extends \RAAS\Updater
             $this->SQL->query($SQL_query);
         }
         if (in_array(\SOME\SOME::_dbprefix() . "cms_templates", $this->tables) && !in_array('urn', $this->columns(\SOME\SOME::_dbprefix() . "cms_templates"))) {
-            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_templates 
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_templates
                             ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
                             ADD INDEX (urn)";
             $this->SQL->query($SQL_query);

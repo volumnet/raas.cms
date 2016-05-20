@@ -4,7 +4,7 @@ namespace RAAS\CMS;
 use \SOME\Text;
 use \SOME\HTTP;
 
-if ($Item) { 
+if ($Item) {
     ?>
     <div class="materials">
       <div class="article_opened">
@@ -20,16 +20,16 @@ if ($Item) {
         <div class="article__text">
           <div class="article__description">
             <?php echo $Item->description?>
-          </div> 
+          </div>
         </div>
         <?php if (count($Item->visImages) > 1) { ?>
             <div class="article__images">
-              <div class="article__images__title">
+              <div class="h2 article__images__title">
                 Фотографии
               </div>
               <div class="row">
                 <?php for ($i = 1; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
-                    <div class="col-sm-4 col-md-3 col-xs-6">
+                    <div class="col-sm-3 col-lg-2 col-xs-4">
                       <a href="/<?php echo htmlspecialchars($row->fileURL)?>" class="article__images__image">
                         <img src="/<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
                     </div>
@@ -65,7 +65,7 @@ if ($Item) {
                 <?php echo htmlspecialchars($row->brief ?: Text::cuttext(html_entity_decode(strip_tags($row->description), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
               </div>
               <?php if ($Block->nat) { ?>
-                  <div class="article__read-more">
+                  <div class="article__more">
                     <a href="<?php echo htmlspecialchars($row->url)?>">
                       <?php echo SHOW_MORE?>
                     </a>
@@ -78,11 +78,11 @@ if ($Item) {
     <?php include Package::i()->resourcesDir . '/pages.inc.php'?>
     <?php if ($Pages->pages > 1) { ?>
         <ul class="pagination pull-right">
-          <?php 
+          <?php
           echo $outputNav(
-              $Pages, 
+              $Pages,
               array(
-                  'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>', 
+                  'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>',
                   'pattern_active' => '<li class="active"><a>{text}</a></li>',
                   'ellipse' => '<li class="disabled"><a>...</a></li>'
               )

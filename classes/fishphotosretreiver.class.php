@@ -5,11 +5,8 @@ class FishPhotosRetreiver
 {
     public function retreive($number)
     {
-        $file = Package::i()->resourcesDir . '/photos.txt';
-        $photosURLs = file($file);
-        $photosURLs = array_map('trim', $photosURLs);
-        $photosURLs = array_filter($photosURLs, 'trim');
-        $photosURLs = array_values($photosURLs);
+        $file = 'fish';
+        $photosURLs = glob('fish/*.jpg');
         shuffle($photosURLs);
         $retreived = array();
         for ($i = 0; ($i < count($photosURLs)) && (count($retreived) < $number); $i++) {

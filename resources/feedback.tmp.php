@@ -51,7 +51,9 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
               </div>
           <?php } ?>
           <div class="form-group">
-            <div class="col-sm-9 col-md-4 col-sm-offset-3 col-md-offset-2"><button class="btn btn-default" type="submit"><?php echo SEND?></button></div>
+            <div class="col-sm-9 col-md-4 col-sm-offset-3 col-md-offset-2">
+              <button class="btn btn-primary" type="submit"><?php echo SEND?></button>
+            </div>
           </div>
         </div>
       </form>
