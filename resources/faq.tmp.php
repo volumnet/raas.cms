@@ -15,12 +15,12 @@ if ($Item) {
               </div>
           <?php } ?>
           <div class="article__title">
-            <?php 
+            <?php
             $t = strtotime($Item->date);
             if ($t <= 0) {
                 $t = strtotime($Item->post_date);
             }
-            if ($t > 0) { 
+            if ($t > 0) {
                 ?>
                 <span class="article__date">
                   <?php echo date('d', $t) . ' ' . Text::$months[(int)date('m', $t)] . ' ' . date('Y', $t)?>
@@ -46,12 +46,12 @@ if ($Item) {
                       <?php echo ANSWER?>
                   <?php } ?>
                 </span>
-                <?php 
+                <?php
                 $t = strtotime($Item->answer_date);
                 if ($t <= 0) {
                     $t = strtotime($Item->modify_date);
                 }
-                if ($t > 0) { 
+                if ($t > 0) {
                     ?>
                     <span class="article__date">
                       <?php echo date('d', $t) . ' ' . Text::$months[(int)date('m', $t)] . ' ' . date('Y', $t)?>
@@ -65,7 +65,7 @@ if ($Item) {
         <?php } ?>
       </div>
     </div>
-<?php } elseif ($Set) { ?> 
+<?php } elseif ($Set) { ?>
     <div class="faq">
       <?php foreach ($Set as $row) { ?>
           <div class="article">
@@ -79,12 +79,12 @@ if ($Item) {
               <div class="article__title">
                 <a class="article__name"<?php echo $Block->nat ? ' href="' . htmlspecialchars($row->url) . '"' : ''?>>
                   <?php echo htmlspecialchars($row->name)?></a>
-                <?php 
+                <?php
                 $t = strtotime($row->date);
                 if ($t <= 0) {
                     $t = strtotime($row->post_date);
                 }
-                if ($t > 0) { 
+                if ($t > 0) {
                     ?>
                     <span class="article__date">
                       <?php echo date('d', $t) . ' ' . Text::$months[(int)date('m', $t)] . ' ' . date('Y', $t)?>
@@ -111,12 +111,12 @@ if ($Item) {
                           <?php echo ANSWER?>
                       <?php } ?>
                     </a>
-                    <?php 
+                    <?php
                     $t = strtotime($row->answer_date);
                     if ($t <= 0) {
                         $t = strtotime($row->modify_date);
                     }
-                    if ($t > 0) { 
+                    if ($t > 0) {
                         ?>
                         <span class="article__date">
                           <?php echo date('d', $t) . ' ' . Text::$months[(int)date('m', $t)] . ' ' . date('Y', $t)?>
@@ -132,7 +132,7 @@ if ($Item) {
                     <?php } ?>
                   </div>
                   <div class="article__more">
-                    <?php if ($Block->nat) { ?>
+                    <?php if ($Block->nat && (mb_strlen(html_entity_decode(strip_tags($row->answer), ENT_COMPAT | ENT_HTML5, 'UTF-8')) > 256)) { ?>
                         <a<?php echo $Block->nat ? ' href="' . htmlspecialchars($row->url) . '"' : ' class="article__more__trigger" data-show="' . READ_ANSWER . '" data-hide="' . HIDE . '"'?>>
                           <?php echo READ_ANSWER?>
                         </a>
@@ -147,11 +147,11 @@ if ($Item) {
     <?php include Package::i()->resourcesDir . '/pages.inc.php'?>
     <?php if ($Pages->pages > 1) { ?>
         <ul class="pagination pull-right">
-          <?php 
+          <?php
           echo $outputNav(
-              $Pages, 
+              $Pages,
               array(
-                  'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>', 
+                  'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>',
                   'pattern_active' => '<li class="active"><span>{text}</span></li>',
                   'ellipse' => '<li class="disabled"><a>...</a></li>'
               )

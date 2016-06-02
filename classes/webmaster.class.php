@@ -1097,7 +1097,7 @@ class Webmaster
             ));
             $this->createBlock($B, 'content', '__raas_material_interface', $urn, $faqPage);
 
-            $B = new Block_HTML(array('description' => '<p>' . $this->view->_('YOU_CAN_ASK_YOUR_QUESTION') . '</p>',));
+            $B = new Block_HTML(array('description' => '<p>' . $this->view->_($urn == 'reviews' ? 'YOU_CAN_LEAVE_YOUR_RESPONSE' : 'YOU_CAN_ASK_YOUR_QUESTION') . '</p>',));
             $this->createBlock($B, 'content', null, null, $faqPage);
 
             $B = new Block_Form(array('form' => $FRM->id,));

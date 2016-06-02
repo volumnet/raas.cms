@@ -1,9 +1,9 @@
-<?php 
+<?php
 namespace RAAS\CMS;
 
-if ($_POST['AJAX'] && ($Item instanceof Feedback)) { 
+if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     $result = array();
-    if ($success[(int)$Block->id]) { 
+    if ($success[(int)$Block->id]) {
         $result['success'] = 1;
     }
     if ($localError) {
@@ -37,8 +37,20 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
           <?php } ?>
           <?php foreach ($Form->fields as $row) { ?>
               <div class="form-group">
-                <label for="<?php echo htmlspecialchars($row->urn)?>" class="control-label col-sm-3 col-md-2"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?></label>
-                <div class="col-sm-9 col-md-4"><?php $getField($row, $DATA)?></div>
+                <label for="<?php echo htmlspecialchars($row->urn . $row->id)?>" class="control-label col-sm-3 col-md-2"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?></label>
+                <div class="col-sm-9 col-md-4">
+                  <?php
+                  ob_start();
+                  $getField($row, $DATA);
+                  $temp = ob_get_contents();
+                  ob_end_clean();
+                  $temp = preg_replace('/id="(.*?)"/umi', 'id="${1}' . (int)$row->id . '"', $temp);
+                  if (($row->datatype == 'select') && $row->required && !$row->placeholder) {
+                      $temp = str_replace('required="required"', '', $temp);
+                  }
+                  echo $temp;
+                  ?>
+                </div>
               </div>
           <?php } ?>
           <?php if ($Form->antispam == 'captcha' && $Form->antispam_field_name) { ?>
