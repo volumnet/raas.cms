@@ -6,8 +6,8 @@ $getSelect = function(\RAAS\CMS\Field $Item, array $DATA, $current = 0, $placeho
         $text .= '<option value="" ' . (!$current ? 'selected="selected"' : '') . '>' . htmlspecialchars($placeholder ? $placeholder : '--') . '</option>';
     }
     foreach ($DATA as $key => $val) {
-        $text .= '<option value="' . htmlspecialchars($key) . '" ' . ($current == $key ? 'selected="selected"' : '') . '>' 
-              .     str_repeat('&nbsp;', $level * 5) . htmlspecialchars(isset($val['name']) ? $val['name'] : '') 
+        $text .= '<option value="' . htmlspecialchars($key) . '" ' . ($current == $key ? 'selected="selected"' : '') . '>'
+              .     str_repeat('&nbsp;', $level * 5) . htmlspecialchars(isset($val['name']) ? $val['name'] : '')
               . '</option>';
         if (isset($val['children']) && is_array($val['children'])) {
             $level++;
@@ -21,9 +21,9 @@ $getSelect = function(\RAAS\CMS\Field $Item, array $DATA, $current = 0, $placeho
 $getCheckbox = function(\RAAS\CMS\Field $Item, array $DATA, $current = 0, $placeholder = '') use (&$getCheckbox) {
     static $level = 0;
     $temp = '<input type="' . $Item->datatype . '" '
-          .       ' name="' . htmlspecialchars($Item->urn) . ((($Item->datatype == 'checkbox') && $Item->multiple) ? '[]' : '') . '"' 
+          .       ' name="' . htmlspecialchars($Item->urn) . ((($Item->datatype == 'checkbox') && $Item->multiple) ? '[]' : '') . '"'
           .       ($Item->required ? ' required="required"' : '');
-    
+
     $text = '';
     if (($Item->datatype == 'radio') && !$Item->required && !$level) {
         $text .= '<li>'
@@ -32,8 +32,8 @@ $getCheckbox = function(\RAAS\CMS\Field $Item, array $DATA, $current = 0, $place
     }
     foreach ($DATA as $key => $val) {
         $text .= '<li>'
-              .  '  <label>' 
-              .       $temp . ' value="' . htmlspecialchars($key) . '" ' . (($Item->multiple ? in_array($key, (array)$current) : ($current == $key)) ? 'checked="checked"' : '') . '> '  
+              .  '  <label>'
+              .       $temp . ' value="' . htmlspecialchars($key) . '" ' . (($Item->multiple ? in_array($key, (array)$current) : ($current == $key)) ? 'checked="checked"' : '') . '> '
               .       htmlspecialchars(isset($val['name']) ? $val['name'] : '')
               .  '  </label>';
         if (isset($val['children']) && is_array($val['children'])) {
@@ -47,12 +47,12 @@ $getCheckbox = function(\RAAS\CMS\Field $Item, array $DATA, $current = 0, $place
 };
 
 $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getCheckbox, $getSelect)  {
-    switch ($row->datatype) { 
-        case 'image': case 'file': 
+    switch ($row->datatype) {
+        case 'image': case 'file':
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
-                    echo '<div class="jsField cms-file" data-role="raas-repo-element">' . 
+                    echo '<div class="jsField cms-file" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn . '@attachment']) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             '<div class="cms-file-internal">
                               <input type="file"' .
@@ -63,9 +63,9 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
                             '</div>' .
                          '</div>';
                 }
-                echo  '<div class="jsRepo cms-field_repo cms-file" data-role="raas-repo" style="display: none">' . 
+                echo  '<div class="jsRepo cms-field_repo cms-file" data-role="raas-repo" style="display: none">' .
                         '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" title="' . DELETE . '">&times;</a>' .
-                         '<div class="cms-file-internal">' . 
+                         '<div class="cms-file-internal">' .
                           '<input type="file" disabled="disabled" ' .
                              ($row->datatype == 'image' ? ' accept="image/jpeg,image/png,image/gif"' : '') .
                              ' name="' . htmlspecialchars($row->urn) . '[]"' .
@@ -76,20 +76,20 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
                 echo '</div>';
             } else {
                 echo '<div class="jsField cms-file" data-role="raas-repo-element">' .
-                        '<div class="cms-file-internal">' . 
+                        '<div class="cms-file-internal">' .
                            (
-                                  isset($DATA[$row->urn . '@file']) ? 
-                                  '<p class="jsFilePath cms-file-path">' . 
-                                    '<a href="' . htmlspecialchars($DATA[$row->urn . '@file']) . '">' . 
+                                  isset($DATA[$row->urn . '@file']) ?
+                                  '<p class="jsFilePath cms-file-path">' .
+                                    '<a href="' . htmlspecialchars($DATA[$row->urn . '@file']) . '">' .
                                         (
-                                            $row->datatype == 'image' ? 
-                                            '<img src="' . htmlspecialchars($DATA[$row->urn]->tnURL) . '" alt="' . htmlspecialchars(basename($DATA[$row->urn . '@file'])) . '" title="' . htmlspecialchars(basename($DATA[$row->urn . '@file'])) . '" />' : 
+                                            $row->datatype == 'image' ?
+                                            '<img src="' . htmlspecialchars($DATA[$row->urn]->tnURL) . '" alt="' . htmlspecialchars(basename($DATA[$row->urn . '@file'])) . '" title="' . htmlspecialchars(basename($DATA[$row->urn . '@file'])) . '" />' :
                                             htmlspecialchars(basename($DATA[$row->urn . '@file'][$i]))
-                                        ) . 
-                                    '</a>' . 
-                                  '</p>' : 
+                                        ) .
+                                    '</a>' .
+                                  '</p>' :
                                   ''
-                              ) . 
+                              ) .
                           '<input type="file"' .
                              ($row->datatype == 'image' ? ' accept="image/jpeg,image/png,image/gif"' : '') .
                              ' name="' . htmlspecialchars($row->urn) . '"' .
@@ -104,11 +104,11 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             if ($row->multiple) {
                 echo $getCheckbox($row, $row->stdSource, $DATA[$row->urn], $row->placeholder);
             } else {
-                echo '<input type="' . $row->datatype . '" ' . 
-                            'name="' . htmlspecialchars($row->urn) . '" ' . 
+                echo '<input type="' . $row->datatype . '" ' .
+                            'name="' . htmlspecialchars($row->urn) . '" ' .
                             'id="' . htmlspecialchars($row->urn) . '"' .
                               ($row->required ? ' required="required"' : '') . ' ' .
-                            'value="1" ' . 
+                            'value="1" ' .
                             (isset($DATA[$row->urn]) && $DATA[$row->urn] ? 'checked="checked"' : '') . ' />';
             }
             break;
@@ -123,7 +123,7 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
-                    echo '<div class="jsField" data-role="raas-repo-element">' . 
+                    echo '<div class="jsField" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             $temp . '>' . $getSelect($row, $row->stdSource, $DATA[$row->urn][$i], $row->placeholder) . '</select>' .
                             '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
@@ -148,7 +148,7 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
-                    echo '<div class="jsField" data-role="raas-repo-element">' . 
+                    echo '<div class="jsField" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             $temp . ' id="' . htmlspecialchars($row->urn . '@' . $i) . '">' . htmlspecialchars(isset($DATA[$row->urn][$i]) ? (string)$DATA[$row->urn][$i] : '') . '</textarea>' .
                             ($row->datatype != 'htmlarea' ? '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' : '') .
@@ -179,7 +179,7 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
-                    echo '<div class="jsField" data-role="raas-repo-element">' . 
+                    echo '<div class="jsField" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             $temp . ' /> ' . $temp2 . ' /> ' .
                             '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
@@ -202,9 +202,9 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
-                    echo '<div class="jsField" data-role="raas-repo-element">' . 
+                    echo '<div class="jsField" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
-                            $temp . ' value="' . htmlspecialchars(isset($DATA[$row->urn][$i]) ? (string)$DATA[$row->urn][$i] : '') . '"' . ' />' . 
+                            $temp . ' value="' . htmlspecialchars(isset($DATA[$row->urn][$i]) ? (string)$DATA[$row->urn][$i] : '') . '"' . ' />' .
                             '<div class="control-label form-material-name" style="text-align: left" data-role="material-name"></div>' .
                             '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
                          '</div>';
@@ -216,11 +216,11 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
                       '</div>';
                 echo '</div>';
             } else {
-                echo $temp . ' value="' . htmlspecialchars(isset($DATA[$row->urn]) ? (string)$DATA[$row->urn] : '') . '"' . ' />' . 
+                echo $temp . ' value="' . htmlspecialchars(isset($DATA[$row->urn]) ? (string)$DATA[$row->urn] : '') . '"' . ' />' .
                      '<div class="control-label form-material-name" style="text-align: left" data-role="material-name"></div>';
             }
             break;
-        default: 
+        default:
             $temp = '<input type="' . $row->datatype . '" class="form-control"'
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
                   .       ($row->min_val ? ' min="' . (float)$row->min_val . '"' : '')
@@ -232,7 +232,7 @@ $getField = function(\RAAS\CMS\Field $row, array $DATA = array()) use (&$getChec
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
-                    echo '<div class="jsField" data-role="raas-repo-element">' . 
+                    echo '<div class="jsField" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             $temp . ' value="' . htmlspecialchars(isset($DATA[$row->urn][$i]) ? (string)$DATA[$row->urn][$i] : '') . '"' . ' /> ' .
                             '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
