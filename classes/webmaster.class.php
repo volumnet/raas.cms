@@ -104,7 +104,7 @@ class Webmaster
         if (!$Item->id) {
             $Item = new Snippet(array('pid' => $parent->id, 'urn' => $urn, 'locked' => (int)$locked));
         }
-        if (!$locked || !$Item->id) {
+        if ($locked || !$Item->id) {
             $Item->name = $this->view->_($name);
             $Item->description = $description;
         }

@@ -31,10 +31,9 @@ class Updater extends \RAAS\Updater
         $this->update20141103();
         $this->update20141109();
         $w = new Webmaster();
+        $w->checkStdInterfaces();
         if (!$this->SQL->getvalue("SELECT COUNT(*) FROM " . \SOME\SOME::_dbprefix() . "cms_pages")) {
             $w->createSite();
-        } else {
-            $w->checkStdInterfaces();
         }
     }
 
