@@ -1,7 +1,7 @@
-<?php 
+<?php
 namespace RAAS\CMS;
 
-if ($Set) { 
+if ($Set) {
     ?>
     <div class="banners">
       <div id="banners<?php echo (int)$Block->id?>" data-ride="carousel" class="carousel slide banners__inner">

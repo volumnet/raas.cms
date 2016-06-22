@@ -41,16 +41,16 @@ if (!$search_string) {
         }
 
         // Получим допустимые поля данных для страниц и материалов
-        $SQL_query = "SELECT tF.id 
-                        FROM " . Material_Field::_tablename() . " AS tF 
-                       WHERE tF.pid = 0 
-                         AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type' 
+        $SQL_query = "SELECT tF.id
+                        FROM " . Material_Field::_tablename() . " AS tF
+                       WHERE tF.pid = 0
+                         AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type'
                          AND tF.datatype IN ('text', 'tel', 'email', 'url', 'textarea', 'htmlarea') ";
         $pagesFields = $SQL->getcol($SQL_query);
-        $SQL_query = "SELECT tF.id 
-                        FROM " . Material_Field::_tablename() . " AS tF 
-                       WHERE tF.pid 
-                         AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type' 
+        $SQL_query = "SELECT tF.id
+                        FROM " . Material_Field::_tablename() . " AS tF
+                       WHERE tF.pid
+                         AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type'
                          AND tF.datatype IN ('text', 'tel', 'email', 'url', 'textarea', 'htmlarea') ";
         $materialFields = $SQL->getcol($SQL_query);
 
@@ -59,8 +59,8 @@ if (!$search_string) {
         foreach ($searchArray as $val) {
             $SQL_query .= " + ((tP.name LIKE '%" . $SQL->escape_like($val) . "%') * " . $pageNameRatio . ") ";
         }
-        $SQL_query .= " ) AS c 
-                        FROM " . Page::_tablename() . " AS tP 
+        $SQL_query .= " ) AS c
+                        FROM " . Page::_tablename() . " AS tP
                        WHERE 1 " . $SQL_where_pages . " AND (0 ";
         foreach ($searchArray as $val) {
             $SQL_query .= " OR tP.name LIKE '%" . $SQL->escape_like($val) . "%'";
@@ -77,8 +77,8 @@ if (!$search_string) {
             foreach ($searchArray as $val) {
                 $SQL_query .= " + ((tD.value LIKE '%" . $SQL->escape_like($val) . "%') * " . $pageDataRatio . ")";
             }
-            $SQL_query .= ") AS c 
-                            FROM " . Page::_tablename() . " AS tP 
+            $SQL_query .= ") AS c
+                            FROM " . Page::_tablename() . " AS tP
                             JOIN " . Material::_dbprefix() . "cms_data AS tD ON tD.pid = tP.id
                            WHERE 1 AND tD.fid IN (" . implode(", ", $pagesFields) . ") " . $SQL_where_pages . " AND (0 ";
             foreach ($searchArray as $val) {
@@ -95,10 +95,10 @@ if (!$search_string) {
         // 3. Ищем все материалы по имени и описанию
         $SQL_query = "SELECT tM.id, tM.pid, (0";
         foreach ($searchArray as $val) {
-            $SQL_query .= " + ((tM.name LIKE '%" . $SQL->escape_like($val) . "%') * " . $materialNameRatio . ") 
+            $SQL_query .= " + ((tM.name LIKE '%" . $SQL->escape_like($val) . "%') * " . $materialNameRatio . ")
                             + ((tM.description LIKE '%" . $SQL->escape_like($val) . "%') * " . $materialDescriptionRatio . ")";
         }
-        $SQL_query .= " ) AS c 
+        $SQL_query .= " ) AS c
                         FROM " . Material::_tablename() . " AS tM WHERE 1 " . $SQL_where_materials . " AND (0 ";
         foreach ($searchArray as $val) {
             $SQL_query .= " OR tM.name LIKE '%" . $SQL->escape_like($val) . "%' OR tM.description LIKE '%" . $SQL->escape_like($val) . "%' ";
@@ -114,7 +114,7 @@ if (!$search_string) {
         foreach ($searchArray as $val) {
             $SQL_query .= " + ((tD.value LIKE '%" . $SQL->escape_like($val) . "%') * " . $materialDataRatio . ")";
         }
-        $SQL_query .= ") AS c 
+        $SQL_query .= ") AS c
                        FROM " . Material::_tablename() . " AS tM
                        JOIN " . Material::_dbprefix() . "cms_data AS tD ON tD.pid = tM.id
                       WHERE tD.fid IN (" . implode(", ", $materialFields) . ") " . $SQL_where_materials . " AND (0 ";
@@ -131,7 +131,7 @@ if (!$search_string) {
         foreach ($materials as $mtype => $arr) {
             $MType = new Material_Type((int)$mtype);
             $SQL_query = "SELECT tP.id AS pid, IF(tB.nat, tM.id, 0) AS mid
-                            FROM " . Material::_tablename() . " AS tM 
+                            FROM " . Material::_tablename() . " AS tM
                             JOIN " . Page::_tablename() . " AS tP
                             JOIN " . Block::_dbprefix() . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
                             JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.material_type IN (" . implode(", ", array_merge(array((int)$MType->id), (array)$MType->parents_ids)) . ") AND tBM.id = tBPA.block_id
@@ -159,10 +159,10 @@ if (!$search_string) {
         foreach ($searchArray as $val) {
             $SQL_query .= " + ((tBH.description LIKE '%" . $SQL->escape_like($val) . "%') * " . $pageDataRatio . ")";
         }
-        $SQL_query .= ") AS c 
+        $SQL_query .= ") AS c
                         FROM " . Page::_tablename() . " AS tP
                         JOIN " . Block::_dbprefix() . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
-                        JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id AND tB.vis 
+                        JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id AND tB.vis
                         JOIN " . Block::_dbprefix() . "cms_blocks_html AS tBH ON tBH.id = tB.id
                        WHERE 1 " . $SQL_where_pages . " AND (0 ";
         foreach ($searchArray as $val) {
@@ -180,13 +180,13 @@ if (!$search_string) {
         if (isset($config['pages_var_name'], $config['rows_per_page']) && (int)$config['rows_per_page']) {
             $Pages = new \SOME\Pages(isset($IN[$config['pages_var_name']]) ? (int)$IN[$config['pages_var_name']] : 1, (int)$config['rows_per_page']);
         }
-        $f = function($x) { 
+        $f = function($x) {
             if ($x[0] == 'm') {
                 $row = new \RAAS\CMS\Material(substr($x, 1));
             } else {
                 $row = new \RAAS\CMS\Page(substr($x, 1));
             }
-            return $row; 
+            return $row;
         };
         $Set = \SOME\SOME::getArraySet(array_keys($results), $Pages, $f);
         if (!$Set) {

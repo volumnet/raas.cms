@@ -1,8 +1,8 @@
 <?php namespace RAAS\CMS?>
-<?php 
-if ($_POST['AJAX'] && ($Item instanceof Feedback)) { 
+<?php
+if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     $result = array();
-    if ($success[(int)$Block->id]) { 
+    if ($success[(int)$Block->id]) {
         $result['success'] = 1;
     }
     if ($localError) {

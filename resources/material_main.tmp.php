@@ -1,11 +1,11 @@
-<?php 
+<?php
 namespace RAAS\CMS;
 
 use \SOME\Text;
 
 $translateAddresses = true;
 
-if ($Set) { 
+if ($Set) {
     ?>
     <div class="{BLOCK_NAME} block_left">
       <div class="{BLOCK_NAME}__title block_left__title"><a href="/{BLOCK_NAME}/">{MATERIAL_NAME}</a></div>

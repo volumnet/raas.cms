@@ -2,14 +2,14 @@
   <div itemscope="" itemtype="http://schema.org/Organization">
     <p>
       <strong>Адрес: </strong>
-      <span itemprop="address" itemscope="" itemtype="http://schema.org/PostalAddress"> 
-        <span itemprop="postalCode">620000</span>, 
-        <span itemprop="addressLocality">г. Екатеринбург</span>, 
+      <span itemprop="address" itemscope="" itemtype="http://schema.org/PostalAddress">
+        <span itemprop="postalCode">620000</span>,
+        <span itemprop="addressLocality">г. Екатеринбург</span>,
         <span itemprop="streetAddress">ул. ..., 0</span>, оф. 0 (0 этаж)
       </span>
     </p>
     <p>
-      <strong>Телефон: </strong> 
+      <strong>Телефон: </strong>
       <span itemprop="telephone">+7 999 000-00-00</span>
     </p>
     <p>

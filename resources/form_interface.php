@@ -22,18 +22,18 @@ $notify = function(Feedback $Item, Material $Material = null)
     if ($Item->parent->Interface->id) {
         $template = $Item->parent->Interface->description;
     }
-    
+
     ob_start();
     eval('?' . '>' . $template);
     $message = ob_get_contents();
     ob_end_clean();
-    
+
     ob_start();
     $SMS = true;
     eval('?' . '>' . $template);
     $message_sms = ob_get_contents();
     ob_end_clean();
-    
+
     $subject = date(DATETIMEFORMAT) . ' ' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name);
     if ($emails) {
         \RAAS\Application::i()->sendmail($emails, $subject, $message, 'info@' . $_SERVER['HTTP_HOST'], 'RAAS.CMS');
@@ -141,7 +141,7 @@ if ($Form->id) {
                 }
                 $Objects[] = $Material;
             }
-            
+
             foreach ($Objects as $Object) {
                 // Заполняем основные данные создаваемого материала
                 if ($Object instanceof Material) {
@@ -184,7 +184,7 @@ if ($Form->id) {
                                 if ($row->multiple) {
                                     foreach ($_FILES[$row->urn]['tmp_name'] as $key => $val) {
                                         $row2 = array(
-                                            'vis' => isset($_POST[$row->urn . '@vis'][$key]) ? (int)$_POST[$row->urn . '@vis'][$key] : 1, 
+                                            'vis' => isset($_POST[$row->urn . '@vis'][$key]) ? (int)$_POST[$row->urn . '@vis'][$key] : 1,
                                             'name' => (string)$_POST[$row->urn . '@name'][$key],
                                             'description' => (string)$_POST[$row->urn . '@description'][$key],
                                             'attachment' => (int)$_POST[$row->urn . '@attachment'][$key]
@@ -215,8 +215,8 @@ if ($Form->id) {
                                     }
                                 } else {
                                     $row2 = array(
-                                        'vis' => isset($_POST[$row->urn . '@vis']) ? (int)$_POST[$row->urn . '@vis'] : 1, 
-                                        'name' => (string)$_POST[$row->urn . '@name'], 
+                                        'vis' => isset($_POST[$row->urn . '@vis']) ? (int)$_POST[$row->urn . '@vis'] : 1,
+                                        'name' => (string)$_POST[$row->urn . '@name'],
                                         'description' => (string)$_POST[$row->urn . '@description'],
                                         'attachment' => (int)$_POST[$row->urn . '@attachment']
                                     );

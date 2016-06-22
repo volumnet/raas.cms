@@ -5,8 +5,8 @@ use \SOME\Text;
 
 $translateAddresses = true;
 
-if ($Set) { 
-    ?> 
+if ($Set) {
+    ?>
     <div class="faq_main block_left">
       <div class="faq_main__title block_left__title"><a href="/{BLOCK_NAME}/">{FAQ_NAME}</a></div>
       <div class="block_left__inner">
@@ -22,12 +22,12 @@ if ($Set) {
                 <div class="article__title">
                   <a class="article__name"<?php echo $translateAddresses ? ' href="' . htmlspecialchars($row->url) . '"' : ''?>>
                     <?php echo htmlspecialchars($row->name)?></a>,
-                  <?php 
+                  <?php
                   $t = strtotime($row->date);
                   if ($t <= 0) {
                       $t = strtotime($row->post_date);
                   }
-                  if ($t > 0) { 
+                  if ($t > 0) {
                       ?>
                       <span class="article__date">
                         <?php echo date('d.m.Y', $t)?>

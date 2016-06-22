@@ -1,5 +1,5 @@
 <?php
-$outputNav = function($Pages, array $options = array()) 
+$outputNav = function($Pages, array $options = array())
 {
     $pages_list = array();
     $default = array();
@@ -12,7 +12,7 @@ $outputNav = function($Pages, array $options = array())
     $default['sep'] = ' ';
     $options = array_merge($default, $options);
     extract($options);
-    
+
     if ($Pages->page > 1) {
         $pages_list[] = strtr($pattern, array(urlencode('{link}') => $Pages->page - 1, '{text}' => $prev));
     }
@@ -46,7 +46,7 @@ $outputNav = function($Pages, array $options = array())
     if ($Pages->page < $Pages->pages) {
         $pages_list[] = strtr($pattern, array(urlencode('{link}') => $Pages->page + 1, '{text}' => $next));
     }
-    
+
     $pages_list = implode($sep, $pages_list);
     return $pages_list;
 };
