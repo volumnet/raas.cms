@@ -165,31 +165,38 @@ class Package extends \RAAS\Package
     public function show_page()
     {
         $Parent = new Page((isset($this->controller->nav['id']) ? (int)$this->controller->nav['id'] : 0));
-        $columns = array_filter($Parent->fields, function($x) { return $x->show_in_table; });
+        $columns = array_filter(
+            $Parent->fields,
+            function ($x) {
+                return $x->show_in_table;
+            }
+        );
         $Set = $Parent->children;
         if (isset($this->controller->nav['id'])) {
-            $f = function($a, $b) { return $a->priority - $b->priority; };
             $sort = 'priority';
         } else {
-            $f = function($a, $b) { return strcasecmp($a->urn, $b->urn); };
             $sort = 'urn';
             if (isset($this->controller->nav['sort'])) {
                 if (isset($columns[$this->controller->nav['sort']]) && ($row = $columns[$this->controller->nav['sort']])) {
                     $sort = $row->urn;
-                    $f = function($a, $b) use ($sort) { return strcasecmp($a->fields[$sort]->doRich(), $b->fields[$sort]->doRich()); };
                 } else {
                     switch ($this->controller->nav['sort']) {
                         case 'name':
                             $sort = 'name';
-                            $f = function($a, $b) { return strcasecmp($a->name, $b->name); };
                             break;
                     }
                 }
             }
         }
+        $f = $this->getCompareFunction($sort);
         if (!isset($this->controller->nav['id']) && isset($this->controller->nav['order']) && ($this->controller->nav['order'] == 'desc')) {
             $order = 'desc';
-            usort($Set, function($b, $a) use ($f) { return $f($a, $b); });
+            usort(
+                $Set,
+                function ($b, $a) use ($f) {
+                    return $f($a, $b);
+                }
+            );
         } else {
             $order = 'asc';
             usort($Set, $f);
@@ -277,7 +284,12 @@ class Package extends \RAAS\Package
 
     public function getPageMaterials(Page $Page, Material_Type $MType, $search_string = null, $sort = 'post_date', $order = 'asc', $page = 1)
     {
-        $columns = array_filter($MType->fields, function($x) { return $x->show_in_table; });
+        $columns = array_filter(
+            $MType->fields,
+            function ($x) {
+                return $x->show_in_table;
+            }
+        );
 
         $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.*
                         FROM " . Material::_tablename() . " AS tM ";
@@ -307,17 +319,16 @@ class Package extends \RAAS\Package
         $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
-            $f = function($a, $b) use ($_sort) {
-                if (is_object($a->fields[$_sort]->doRich()) || is_object($b->fields[$_sort]->doRich())) {
-                    return ((bool)$a->fields[$_sort]->doRich()) - ((bool)$b->fields[$_sort]->doRich());
-                } else {
-                    return strcasecmp($a->fields[$_sort]->doRich(), $b->fields[$_sort]->doRich());
-                }
-            };
+            $f = $this->getCompareFunction($_sort);
             $Set = Material::getSQLSet($SQL_query);
             if (isset($order) && ($order == 'desc')) {
                 $_order = 'desc';
-                usort($Set, function($b, $a) use ($f) { return $f($a, $b); });
+                usort(
+                    $Set,
+                    function ($b, $a) use ($f) {
+                        return $f($a, $b);
+                    }
+                );
             } else {
                 $_order = 'asc';
                 usort($Set, $f);
@@ -325,7 +336,9 @@ class Package extends \RAAS\Package
             $Set = \SOME\SOME::getArraySet($Set, $Pages);
         } else {
             switch ($sort) {
-                case 'name': case 'urn': case 'modify_date':
+                case 'name':
+                case 'urn':
+                case 'modify_date':
                     $_sort = 'tM.' . $sort;
                     break;
                 default:
@@ -350,7 +363,12 @@ class Package extends \RAAS\Package
 
     public function getRelatedMaterials(Material $Item, Material_Type $MType, $search_string = null, $sort = 'post_date', $order = 'asc', $page = 1)
     {
-        $columns = array_filter($MType->fields, function($x) { return $x->show_in_table; });
+        $columns = array_filter(
+            $MType->fields,
+            function ($x) {
+                return $x->show_in_table;
+            }
+        );
 
         $ids = array_merge(array(0, (int)$Item->material_type->id), (array)$Item->material_type->parents_ids);
         $SQL_query = "SELECT tF.id
@@ -381,11 +399,16 @@ class Package extends \RAAS\Package
         $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
-            $f = function($a, $b) use ($_sort) { return strcasecmp($a->fields[$_sort]->doRich(), $b->fields[$_sort]->doRich()); };
+            $f = $this->getCompareFunction($_sort);
             $Set = Material::getSQLSet($SQL_query);
             if (isset($order) && ($order == 'desc')) {
                 $_order = 'desc';
-                usort($Set, function($b, $a) use ($f) { return $f($a, $b); });
+                usort(
+                    $Set,
+                    function ($b, $a) use ($f) {
+                        return $f($a, $b);
+                    }
+                );
             } else {
                 $_order = 'asc';
                 usort($Set, $f);
@@ -393,7 +416,9 @@ class Package extends \RAAS\Package
             $Set = \SOME\SOME::getArraySet($Set, $Pages);
         } else {
             switch ($sort) {
-                case 'name': case 'urn': case 'modify_date':
+                case 'name':
+                case 'urn':
+                case 'modify_date':
                     $_sort = "tM." . $sort;
                     break;
                 default:
@@ -516,8 +541,7 @@ class Package extends \RAAS\Package
                 // Блок везде разный. Нужны все страницы, на которых присутствует блок
                 foreach ($block->pages_ids as $pid) {
                     foreach ($siteMap[$pid] as $mid => $val) {
-                        if (
-                            ($block->vis_material == Block::BYMATERIAL_BOTH) ||
+                        if (($block->vis_material == Block::BYMATERIAL_BOTH) ||
                             ($mid && ($block->vis_material == Block::BYMATERIAL_WITH)) ||
                             (!$mid && ($block->vis_material == Block::BYMATERIAL_WITHOUT))
                         ) {
@@ -529,8 +553,7 @@ class Package extends \RAAS\Package
                 // Блок везде одинаковый. Найдем хотя бы одну подходящую страницу
                 foreach ($block->pages_ids as $pid) {
                     if (isset($Set[$pid])) {
-                        if (
-                            ($block->vis_material == Block::BYMATERIAL_BOTH) ||
+                        if (($block->vis_material == Block::BYMATERIAL_BOTH) ||
                             (($block->vis_material == Block::BYMATERIAL_WITH) && (array_keys($Set[$pid]) != array(0))) ||
                             (($block->vis_material == Block::BYMATERIAL_WITHOUT) && isset($Set[$pid][0]))
                         ) {
@@ -686,5 +709,32 @@ class Package extends \RAAS\Package
             $Object->urn = Application::i()->getNewURN($Object->urn, !$i);
         }
         return $Object->urn;
+    }
+
+
+    /**
+     * Возвращает функцию сравнения для полей
+     * @param string $key поле для сравнения
+     * @return callable
+     */
+    public function getCompareFunction($key)
+    {
+        if (in_array($key, array('urn', 'name'))) {
+            return function ($a, $b) use ($key) {
+                return strcasecmp($a->$key, $b->$key);
+            };
+        } elseif (in_array($key, array('priority'))) {
+            return function ($a, $b) use ($key) {
+                return (int)$a->$key - (int)$b->$key;
+            };
+        } else {
+            return function ($a, $b) use ($key) {
+                if (is_object($a->fields[$key]->doRich()) || is_object($b->fields[$key]->doRich())) {
+                    return ((bool)$a->fields[$key]->doRich()) - ((bool)$b->fields[$key]->doRich());
+                } else {
+                    return strcasecmp($a->fields[$key]->doRich(), $b->fields[$key]->doRich());
+                }
+            };
+        }
     }
 }
