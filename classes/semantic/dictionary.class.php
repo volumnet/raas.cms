@@ -10,6 +10,19 @@ class Dictionary extends \RAAS\Dictionary
     protected static $children = array('children' => array('classname' => 'RAAS\\CMS\\Dictionary', 'FK' => 'pid'));
     protected static $caches = array('pvis' => array('affected' => array('parent'), 'sql' => "IF(parent.id, (parent.vis AND parent.pvis), 1)"));
 
+    public function __get($var)
+    {
+        switch ($var) {
+            case 'visChildren':
+                return array_values(array_filter($this->children, function($x) { return $x->vis; }));
+                break;
+            default:
+                return parent::__get($var);
+                break;
+        }
+    }
+    
+    
     public function commit()
     {
         if (!$this->pid) {

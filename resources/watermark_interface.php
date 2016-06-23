@@ -1,5 +1,5 @@
 <?php
-$processImage = function($filename, $watermarkFilename, $ratio = 0.5, $quality = 90) 
+$processImage = function($filename, $watermarkFilename, $ratio = 0.5, $quality = 90)
 {
     list($sourceImgWidth, $sourceImgHeight, $sourceImgType) = @getimagesize($filename);
     list($waterMarkImgWidth, $waterMarkImgHeight, $waterMarkImgType) = @getimagesize($watermarkFilename);

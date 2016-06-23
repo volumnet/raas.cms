@@ -1,26 +1,50 @@
-<?php if ($Set) { ?> 
-    <div class="faq faq_main">
-      <div class="h2">{FAQ_NAME}</div>
-      <?php foreach ($Set as $row) { ?>
-          <div class="article">
-            <?php if ($row->image->id) { ?>
-                <div class="article__image">
-                  <a href="<?php echo htmlspecialchars($row->url)?>"><img src="/<?php echo $row->image->tnURL?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" /></a>
+<?php
+namespace RAAS\CMS;
+
+use \SOME\Text;
+
+$translateAddresses = true;
+
+if ($Set) {
+    ?>
+    <div class="faq_main block_left">
+      <div class="faq_main__title block_left__title"><a href="/{BLOCK_NAME}/">{FAQ_NAME}</a></div>
+      <div class="block_left__inner">
+        <?php foreach ($Set as $row) { ?>
+            <div class="article">
+              <div class="article__text article__question">
+                <?php if ($row->image->id) { ?>
+                    <div class="article__image">
+                      <a<?php echo $translateAddresses ? ' href="' . htmlspecialchars($row->url) . '"' : ''?>>
+                        <img src="/<?php echo htmlspecialchars($row->image->tnURL)?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" /></a>
+                    </div>
+                <?php } ?>
+                <div class="article__title">
+                  <a class="article__name"<?php echo $translateAddresses ? ' href="' . htmlspecialchars($row->url) . '"' : ''?>>
+                    <?php echo htmlspecialchars($row->name)?></a>,
+                  <?php
+                  $t = strtotime($row->date);
+                  if ($t <= 0) {
+                      $t = strtotime($row->post_date);
+                  }
+                  if ($t > 0) {
+                      ?>
+                      <span class="article__date">
+                        <?php echo date('d.m.Y', $t)?>
+                      </span>
+                  <?php } ?>
                 </div>
-            <?php } ?>
-            <?php if (strlen($row->name) > 1 && !is_numeric($row->name)) { ?>
-                <div class="h3 article__title"><a href="<?php echo $row->url?>"><?php echo htmlspecialchars($row->name)?></a></div>
-            <?php } ?>
-            <div class="article__text article__question">
-              <label class="article__label">Вопрос:</label> <?php echo $row->description?>
+                <div class="article__description">
+                  <?php echo $row->description?>
+                </div>
+                <div class="article__more">
+                  <a href="<?php echo $translateAddresses ? htmlspecialchars($row->url) : '/{BLOCK_NAME}/'?>">
+                    <?php echo READ_ANSWER?>
+                  </a>
+                </div>
+              </div>
             </div>
-            <?php if ($row->answer) { ?>
-                <br />
-                <div class="article__text article__answer">
-                  <label class="article__label">Ответ:</label> <?php echo htmlspecialchars($row->answer)?>
-                </div>
-            <?php } ?>
-          </div>
-      <?php } ?>
+        <?php } ?>
+      </div>
     </div>
 <?php } ?>

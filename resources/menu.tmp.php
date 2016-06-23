@@ -19,7 +19,7 @@ $showMenu = function($node, \RAAS\CMS\Page $current) use (&$showMenu) {
             $name = $row['name'];
         }
         $active = ($url == \SOME\HTTP::queryString('', true));
-        $semiactive = stristr(\SOME\HTTP::queryString('', true), $url);
+        $semiactive = stristr(\SOME\HTTP::queryString('', true), $url) && ($url != '/');
         if (stristr($ch, 'class="active"')) {
             $semiactive = true;
         }

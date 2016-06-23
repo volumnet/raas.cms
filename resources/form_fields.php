@@ -97,10 +97,10 @@ $emailField = function($field)
       <small>
         <?php echo IP_ADDRESS?>: <?php echo htmlspecialchars($Item->ip)?><br />
         <?php echo USER_AGENT?>: <?php echo htmlspecialchars($Item->user_agent)?><br />
-        <?php echo PAGE?>: 
+        <?php echo PAGE?>:
         <?php if ($Item->page->parents) { ?>
             <?php foreach ($Item->page->parents as $row) { ?>
-                <a href="<?php echo htmlspecialchars($Item->domain . $row->url)?>"><?php echo htmlspecialchars($row->name)?></a> / 
+                <a href="<?php echo htmlspecialchars($Item->domain . $row->url)?>"><?php echo htmlspecialchars($row->name)?></a> /
             <?php } ?>
         <?php } ?>
         <a href="<?php echo htmlspecialchars($Item->domain . $Item->page->url)?>"><?php echo htmlspecialchars($Item->page->name)?></a>
@@ -108,7 +108,7 @@ $emailField = function($field)
             / <a href="<?php echo htmlspecialchars($Item->domain . $Item->material->url)?>"><?php echo htmlspecialchars($Item->material->name)?></a>
         <?php } ?>
         <br />
-        <?php echo FORM?>: 
+        <?php echo FORM?>:
         <?php if ($Item->parent->create_feedback) { ?>
             <a href="<?php echo htmlspecialchars($Item->domain . '/admin/?p=cms&sub=feedback&id=' . $Item->parent->id)?>"><?php echo htmlspecialchars($Item->parent->name)?></a>
         <?php } else { ?>

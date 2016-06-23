@@ -5,8 +5,8 @@ jQuery(function($) {
         delay: 125,
         minTemplateWidth: 200,
         minTemplateHeight: 200,
-        minLocationWidth: 100,
-        minLocationHeight: 20
+        minLocationWidth: 140,
+        minLocationHeight: 60
     };
             
             
@@ -22,7 +22,7 @@ jQuery(function($) {
     var adjustLocations = function () {
         var W = $('.cms-template').innerWidth();
         var H = $('.cms-template').innerHeight();
-        $('.cms-location').each(function() {
+        $('.cms-location__outer').each(function() {
             var w = $(this).outerWidth();
             var h = $(this).outerHeight();
             var x = parseInt($(this).css('left'));
@@ -57,7 +57,7 @@ jQuery(function($) {
         resize: function(event, ui) {
             $('input#width').val(parseInt($(this).css('width')));
             $('input#height').val(parseInt($(this).css('height')));
-            adjustLocations();
+            // adjustLocations();
         }
     };
     var locationResizeConfig = {
@@ -79,5 +79,5 @@ jQuery(function($) {
     };
     
     $('.cms-template').resizable(templateResizeConfig);
-    $('.cms-location').resizable(locationResizeConfig).draggable(locationDragConfig);    
+    $('.cms-location__outer').resizable(locationResizeConfig).draggable(locationDragConfig);    
 });
