@@ -188,19 +188,15 @@ class Package extends \RAAS\Package
                 }
             }
         }
-        $f = $this->getCompareFunction($sort);
         if (!isset($this->controller->nav['id']) && isset($this->controller->nav['order']) && ($this->controller->nav['order'] == 'desc')) {
             $order = 'desc';
-            usort(
-                $Set,
-                function ($b, $a) use ($f) {
-                    return $f($a, $b);
-                }
-            );
+            $reverse = true;
         } else {
             $order = 'asc';
-            usort($Set, $f);
+            $reverse = false;
         }
+        $f = $this->getCompareFunction($sort, $reverse);
+        usort($Set, $f);
         return array('Set' => $Set, 'sort' => $sort, 'order' => $order, 'columns' => $columns);
     }
 
@@ -319,20 +315,16 @@ class Package extends \RAAS\Package
         $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
-            $f = $this->getCompareFunction($_sort);
             $Set = Material::getSQLSet($SQL_query);
             if (isset($order) && ($order == 'desc')) {
                 $_order = 'desc';
-                usort(
-                    $Set,
-                    function ($b, $a) use ($f) {
-                        return $f($a, $b);
-                    }
-                );
+                $reverse = true;
             } else {
                 $_order = 'asc';
-                usort($Set, $f);
+                $reverse = false;
             }
+            $f = $this->getCompareFunction($_sort, $reverse, true);
+            usort($Set, $f);
             $Set = \SOME\SOME::getArraySet($Set, $Pages);
         } else {
             switch ($sort) {
@@ -399,20 +391,16 @@ class Package extends \RAAS\Package
         $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
-            $f = $this->getCompareFunction($_sort);
             $Set = Material::getSQLSet($SQL_query);
             if (isset($order) && ($order == 'desc')) {
                 $_order = 'desc';
-                usort(
-                    $Set,
-                    function ($b, $a) use ($f) {
-                        return $f($a, $b);
-                    }
-                );
+                $reverse = true;
             } else {
                 $_order = 'asc';
-                usort($Set, $f);
+                $reverse = false;
             }
+            $f = $this->getCompareFunction($_sort, $reverse, true);
+            usort($Set, $f);
             $Set = \SOME\SOME::getArraySet($Set, $Pages);
         } else {
             switch ($sort) {
@@ -717,24 +705,22 @@ class Package extends \RAAS\Package
      * @param string $key поле для сравнения
      * @return callable
      */
-    public function getCompareFunction($key)
+    public function getCompareFunction($key, $reverse = false, $priorityFirst = false)
     {
-        if (in_array($key, array('urn', 'name'))) {
-            return function ($a, $b) use ($key) {
-                return strcasecmp($a->$key, $b->$key);
-            };
-        } elseif (in_array($key, array('priority'))) {
-            return function ($a, $b) use ($key) {
-                return (int)$a->$key - (int)$b->$key;
-            };
-        } else {
-            return function ($a, $b) use ($key) {
-                if (is_object($a->fields[$key]->doRich()) || is_object($b->fields[$key]->doRich())) {
-                    return ((bool)$a->fields[$key]->doRich()) - ((bool)$b->fields[$key]->doRich());
-                } else {
-                    return strcasecmp($a->fields[$key]->doRich(), $b->fields[$key]->doRich());
-                }
-            };
-        }
+        return function ($a, $b) use ($key, $reverse, $priorityFirst) {
+            if ($priorityFirst && ($a->priority != $b->priority)) {
+                return (int)$a->priority - (int)$b->priority;
+            }
+            if (in_array($key, array('urn', 'name'))) {
+                $c = strcasecmp($a->$key, $b->$key);
+            } elseif (in_array($key, array('priority'))) {
+                $c = ((int)$a->$key - (int)$b->$key);
+            } elseif (is_object($a->fields[$key]->doRich()) || is_object($b->fields[$key]->doRich())) {
+                $c = ((bool)$a->fields[$key]->doRich() - (bool)$b->fields[$key]->doRich());
+            } else {
+                $c = strcasecmp($a->fields[$key]->doRich(), $b->fields[$key]->doRich());
+            }
+            return ($reverse ? -1 : 1) * $c;
+        };
     }
 }
