@@ -14,7 +14,7 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
             case 'edit': case 'move':
                 $this->{$this->action . '_page'}();
                 break;
-            case 'edit_block': case 'edit_material': 
+            case 'edit_block': case 'edit_material': case 'copy_material':
                 $this->{$this->action}();
                 break;
             case 'chvis': case 'delete': case 'vis': case 'invis':
@@ -256,5 +256,35 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
         $OUT = array_merge($OUT, (array)$Form->process());
         $this->view->edit_material($OUT);
     }
+
+
+    protected function copy_material()
+    {
+        $Original = $Item = new Material((int)$this->id);
+        if (!$Item->id) {
+            new Redirector($this->url);
+        }
+        $Type = $Item->material_type;
+        if (isset($_GET['pid']) && in_array((int)$_GET['pid'], $Item->pages_ids)) {
+            $Parent = new Page((int)$_GET['pid']);
+        } elseif ($Item->pages) {
+            $Parent = new Page($Item->pages_ids[0]);
+        } else {
+            $Parent = new Page((int)$_GET['pid']);
+        }
+        $OUT = array();
+        $OUT['Parent'] = $Parent;
+        $OUT['Original'] = $Original;
+        $OUT['Type'] = $Type;
+        $Item = $this->model->copyItem($Item);
+        $Form = new CopyMaterialForm(array(
+            'Item' => $Item, 'Parent' => $Parent, 'Type' => $Type, 'Original' => $Original,
+        ));
+        $OUT = array_merge($OUT, (array)$Form->process());
+        $this->view->edit_material($OUT);
+    }
+
+
+    
 
 }

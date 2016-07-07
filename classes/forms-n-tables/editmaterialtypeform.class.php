@@ -70,7 +70,7 @@ class EditMaterialTypeForm extends \RAAS\Form
                     $urn = $Item->urn;
                     $pid = Snippet_Folder::importByURN('__raas_views')->id;
                     $name = $Item->name;
-                    if ($add | EditMaterialTypeForm::CREATE_MATERIAL_TYPE_SIMPLE) {
+                    if ($add & EditMaterialTypeForm::CREATE_MATERIAL_TYPE_SIMPLE) {
                         $f = Package::i()->resourcesDir . '/material_main.tmp.php';
                         $text = file_get_contents($f);
                         $text = str_ireplace('{BLOCK_NAME}', $urn . '_main', $text);
@@ -83,7 +83,7 @@ class EditMaterialTypeForm extends \RAAS\Form
                         $s->description = $text;
                         $s->commit();
                     }
-                    if ($add | EditMaterialTypeForm::CREATE_MATERIAL_TYPE_EXTENDED) {
+                    if ($add & EditMaterialTypeForm::CREATE_MATERIAL_TYPE_EXTENDED) {
                         $f = Package::i()->resourcesDir . '/material.tmp.php';
                         $text = file_get_contents($f);
                         $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
@@ -101,7 +101,7 @@ class EditMaterialTypeForm extends \RAAS\Form
             'children' => array(
                 array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'),
                 array('name' => 'urn', 'caption' => $this->view->_('URN')),
-                array('type' => 'checkbox', 'name' => 'global_type', 'caption' => $this->view->_('GLOBAL_MATERIALS'))
+                array('type' => 'checkbox', 'name' => 'global_type', 'caption' => $this->view->_('GLOBAL_MATERIALS'), 'default' => 1)
             )
         );
         if (!$Item->id && !$Parent->id) {

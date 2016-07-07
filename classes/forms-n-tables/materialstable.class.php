@@ -117,7 +117,7 @@ class MaterialsTable extends \RAAS\Table
             array(
                 'meta' => array(
                     'allContextMenu' => $view->getAllMaterialsContextMenu(),
-                    'allValue' => 'all&mtype=' . (int)$params['mtype']->id,
+                    'allValue' => 'all&mtype=' . (int)$params['mtype']->id . '&pid=' . (int)$params['Item']->id,
                 ),
                 'data-role' => 'multitable',
                 'columns' => $columns

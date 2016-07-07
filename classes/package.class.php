@@ -7,7 +7,7 @@ use \RAAS\Application;
 class Package extends \RAAS\Package
 {
     const templatesDir = 'templates';
-    
+
     const version = '2013-12-01 18:23:01';
 
     protected static $instance;
@@ -141,8 +141,8 @@ class Package extends \RAAS\Package
                 break;
         }
     }
-    
-    
+
+
     public function init()
     {
         $_SESSION['KCFINDER']['uploadURL'] = '/files/cms/common/';
@@ -160,28 +160,29 @@ class Package extends \RAAS\Package
             }
         }
     }
-    
-    
+
+
     public function show_page()
     {
         $Parent = new Page((isset($this->controller->nav['id']) ? (int)$this->controller->nav['id'] : 0));
-        $columns = array_filter($Parent->fields, function($x) { return $x->show_in_table; });
+        $columns = array_filter(
+            $Parent->fields,
+            function ($x) {
+                return $x->show_in_table;
+            }
+        );
         $Set = $Parent->children;
         if (isset($this->controller->nav['id'])) {
-            $f = function($a, $b) { return $a->priority - $b->priority; };
             $sort = 'priority';
         } else {
-            $f = function($a, $b) { return strcasecmp($a->urn, $b->urn); };
             $sort = 'urn';
             if (isset($this->controller->nav['sort'])) {
                 if (isset($columns[$this->controller->nav['sort']]) && ($row = $columns[$this->controller->nav['sort']])) {
                     $sort = $row->urn;
-                    $f = function($a, $b) use ($sort) { return strcasecmp($a->fields[$sort]->doRich(), $b->fields[$sort]->doRich()); };
                 } else {
                     switch ($this->controller->nav['sort']) {
                         case 'name':
                             $sort = 'name';
-                            $f = function($a, $b) { return strcasecmp($a->name, $b->name); };
                             break;
                     }
                 }
@@ -189,15 +190,17 @@ class Package extends \RAAS\Package
         }
         if (!isset($this->controller->nav['id']) && isset($this->controller->nav['order']) && ($this->controller->nav['order'] == 'desc')) {
             $order = 'desc';
-            usort($Set, function($b, $a) use ($f) { return $f($a, $b); });
+            $reverse = true;
         } else {
             $order = 'asc';
-            usort($Set, $f);
+            $reverse = false;
         }
+        $f = $this->getCompareFunction($sort, $reverse);
+        usort($Set, $f);
         return array('Set' => $Set, 'sort' => $sort, 'order' => $order, 'columns' => $columns);
     }
-    
-    
+
+
     public function dev_dictionaries()
     {
         $Parent = new Dictionary(isset($this->controller->nav['id']) ? (int)$this->controller->nav['id'] : 0);
@@ -215,8 +218,8 @@ class Package extends \RAAS\Package
         $Set = Dictionary::getSQLSet($SQL_query, $Pages);
         return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $order);
     }
-    
-    
+
+
     public function dev_dictionaries_loadFile(Dictionary $Item, $file)
     {
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
@@ -243,43 +246,48 @@ class Package extends \RAAS\Package
                 break;
         }
     }
-    
-    
+
+
     public function dev_templates()
     {
         return Template::getSet();
     }
-    
-    
+
+
     public function material_types()
     {
         return Material_Type::getSet();
     }
-    
-    
+
+
     public function forms()
     {
         return Form::getSet();
     }
-    
-    
+
+
     public function dev_pages_fields()
     {
         return Page_Field::getSet();
     }
-    
-    
+
+
     public function getDictionaries()
     {
         return Dictionary::getSet(array('where' => "NOT pid"));
     }
-    
-    
+
+
     public function getPageMaterials(Page $Page, Material_Type $MType, $search_string = null, $sort = 'post_date', $order = 'asc', $page = 1)
     {
-        $columns = array_filter($MType->fields, function($x) { return $x->show_in_table; });
+        $columns = array_filter(
+            $MType->fields,
+            function ($x) {
+                return $x->show_in_table;
+            }
+        );
 
-        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.* 
+        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.*
                         FROM " . Material::_tablename() . " AS tM ";
         // 2016-01-14, AVS: добавил поиск по данным
         if ($search_string) {
@@ -298,28 +306,31 @@ class Package extends \RAAS\Package
         if ($search_string) {
             $SQL_query .= " AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid
                             AND (
-                                    tM.name LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
-                                 OR tM.urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
-                                 OR tD.value LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
+                                    tM.name LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
+                                 OR tM.urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
+                                 OR tD.value LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
                             )";
         }
         $SQL_query .= " GROUP BY tM.id ";
         $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
-            $f = function($a, $b) use ($_sort) { return strcasecmp($a->fields[$_sort]->doRich(), $b->fields[$_sort]->doRich()); };
             $Set = Material::getSQLSet($SQL_query);
             if (isset($order) && ($order == 'desc')) {
                 $_order = 'desc';
-                usort($Set, function($b, $a) use ($f) { return $f($a, $b); });
+                $reverse = true;
             } else {
                 $_order = 'asc';
-                usort($Set, $f);
+                $reverse = false;
             }
+            $f = $this->getCompareFunction($_sort, $reverse, true);
+            usort($Set, $f);
             $Set = \SOME\SOME::getArraySet($Set, $Pages);
         } else {
             switch ($sort) {
-                case 'name': case 'urn': case 'modify_date':
+                case 'name':
+                case 'urn':
+                case 'modify_date':
                     $_sort = 'tM.' . $sort;
                     break;
                 default:
@@ -340,22 +351,27 @@ class Package extends \RAAS\Package
         }
         return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $_order);
     }
-    
-    
+
+
     public function getRelatedMaterials(Material $Item, Material_Type $MType, $search_string = null, $sort = 'post_date', $order = 'asc', $page = 1)
     {
-        $columns = array_filter($MType->fields, function($x) { return $x->show_in_table; });
+        $columns = array_filter(
+            $MType->fields,
+            function ($x) {
+                return $x->show_in_table;
+            }
+        );
 
         $ids = array_merge(array(0, (int)$Item->material_type->id), (array)$Item->material_type->parents_ids);
         $SQL_query = "SELECT tF.id
-                        FROM " . Material_Field::_tablename() . " AS tF 
-                       WHERE tF.classname = 'RAAS\\\\CMS\\\\Material_Type' 
-                         AND tF.pid = " . (int)$MType->id . " 
-                         AND tF.datatype = 'material' 
+                        FROM " . Material_Field::_tablename() . " AS tF
+                       WHERE tF.classname = 'RAAS\\\\CMS\\\\Material_Type'
+                         AND tF.pid = " . (int)$MType->id . "
+                         AND tF.datatype = 'material'
                          AND source IN (" . implode(", ", $ids) . ")";
         $fields = $this->SQL->getcol($SQL_query);
 
-        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.* FROM " . Material::_tablename() . " AS tM 
+        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.* FROM " . Material::_tablename() . " AS tM
                         JOIN " . Material_Field::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id";
         // 2016-01-14, AVS: добавил поиск по данным
         if ($search_string) {
@@ -367,27 +383,30 @@ class Package extends \RAAS\Package
         if ($search_string) {
             $SQL_query .= " AND tF2.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF2.pid
                             AND (
-                                    tM.name LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
-                                 OR tM.urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
-                                 OR tD2.value LIKE '%" . $this->SQL->real_escape_string($search_string) . "%' 
+                                    tM.name LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
+                                 OR tM.urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
+                                 OR tD2.value LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
                             )";
         }
         $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
-            $f = function($a, $b) use ($_sort) { return strcasecmp($a->fields[$_sort]->doRich(), $b->fields[$_sort]->doRich()); };
             $Set = Material::getSQLSet($SQL_query);
             if (isset($order) && ($order == 'desc')) {
                 $_order = 'desc';
-                usort($Set, function($b, $a) use ($f) { return $f($a, $b); });
+                $reverse = true;
             } else {
                 $_order = 'asc';
-                usort($Set, $f);
+                $reverse = false;
             }
+            $f = $this->getCompareFunction($_sort, $reverse, true);
+            usort($Set, $f);
             $Set = \SOME\SOME::getArraySet($Set, $Pages);
         } else {
             switch ($sort) {
-                case 'name': case 'urn': case 'modify_date':
+                case 'name':
+                case 'urn':
+                case 'modify_date':
                     $_sort = "tM." . $sort;
                     break;
                 default:
@@ -408,13 +427,13 @@ class Package extends \RAAS\Package
         }
         return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $_order);
     }
-    
-    
+
+
     public function feedback()
     {
         $Parent = new Form(isset($this->controller->nav['id']) ? (int)$this->controller->nav['id'] : 0);
-        $col_where = "classname = 'RAAS\\\\CMS\\\\Form' AND show_in_table";        
-        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tF.* 
+        $col_where = "classname = 'RAAS\\\\CMS\\\\Form' AND show_in_table";
+        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tF.*
                         FROM " . Feedback::_tablename() .  " AS tF
                    LEFT JOIN " . Field::_tablename() .  " AS tFi ON tFi.pid = tF.pid AND tFi.classname = 'RAAS\\\\CMS\\\\Form'
                    LEFT JOIN " . Feedback::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tF.id AND tD.fid = tFi.id
@@ -428,7 +447,7 @@ class Package extends \RAAS\Package
         if (isset($this->controller->nav['search_string']) && $this->controller->nav['search_string']) {
             $SQL_query .= " AND tD.value LIKE '%" . $this->SQL->escape_like($this->controller->nav['search_string']) . "%' ";
         }
-        
+
         $SQL_query .= " GROUP BY tF.id ORDER BY tF.post_date DESC ";
         $Pages = new \SOME\Pages(isset($this->controller->nav['page']) ? $this->controller->nav['page'] : 1, $this->registryGet('rowsPerPage'));
         $Set = Feedback::getSQLSet($SQL_query, $Pages);
@@ -478,7 +497,7 @@ class Package extends \RAAS\Package
     public function getCacheMap()
     {
         $Set = array();
-        
+
         // Строим полную карту сайта
         $siteMap = array();
         $SQL_result = Page::_SQL()->get("SELECT * FROM " . Page::_tablename() . " WHERE vis AND NOT response_code");
@@ -510,9 +529,8 @@ class Package extends \RAAS\Package
                 // Блок везде разный. Нужны все страницы, на которых присутствует блок
                 foreach ($block->pages_ids as $pid) {
                     foreach ($siteMap[$pid] as $mid => $val) {
-                        if (
-                            ($block->vis_material == Block::BYMATERIAL_BOTH) ||
-                            ($mid && ($block->vis_material == Block::BYMATERIAL_WITH)) || 
+                        if (($block->vis_material == Block::BYMATERIAL_BOTH) ||
+                            ($mid && ($block->vis_material == Block::BYMATERIAL_WITH)) ||
                             (!$mid && ($block->vis_material == Block::BYMATERIAL_WITHOUT))
                         ) {
                             $Set[$pid][$mid] = $val;
@@ -523,9 +541,8 @@ class Package extends \RAAS\Package
                 // Блок везде одинаковый. Найдем хотя бы одну подходящую страницу
                 foreach ($block->pages_ids as $pid) {
                     if (isset($Set[$pid])) {
-                        if (
-                            ($block->vis_material == Block::BYMATERIAL_BOTH) ||
-                            (($block->vis_material == Block::BYMATERIAL_WITH) && (array_keys($Set[$pid]) != array(0))) || 
+                        if (($block->vis_material == Block::BYMATERIAL_BOTH) ||
+                            (($block->vis_material == Block::BYMATERIAL_WITH) && (array_keys($Set[$pid]) != array(0))) ||
                             (($block->vis_material == Block::BYMATERIAL_WITHOUT) && isset($Set[$pid][0]))
                         ) {
                             continue;
@@ -559,7 +576,7 @@ class Package extends \RAAS\Package
 
 
     /**
-     * @deprecated 
+     * @deprecated
      */
     public function cleanCache()
     {
@@ -605,19 +622,19 @@ class Package extends \RAAS\Package
         // 2016-01-14, AVS: Сделал $limit 50 вместо 10
         $Material_Type = new Material_Type((int)$mtype);
         // 2016-01-14, AVS: сделал поиск по данным вместо названия. Возможно, вызовет перегруз, но нужно тогда решать вопрос с базой
-        $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM 
+        $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM
                         JOIN " . Material_Field::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id
                         JOIN " . Material_Field::_tablename() . " AS tF ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.id = tD.fid
                        WHERE (
-                                tM.name LIKE '%" . $this->SQL->escape_like($search) . "%' 
-                             OR tM.urn LIKE '%" . $this->SQL->escape_like($search) . "%' 
-                             OR tM.description LIKE '%" . $this->SQL->escape_like($search) . "%' 
+                                tM.name LIKE '%" . $this->SQL->escape_like($search) . "%'
+                             OR tM.urn LIKE '%" . $this->SQL->escape_like($search) . "%'
+                             OR tM.description LIKE '%" . $this->SQL->escape_like($search) . "%'
                              OR tD.value LIKE '%" . $this->SQL->escape_like($search) . "%'
                         ) ";
-        // $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM 
+        // $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM
         //                WHERE (
-        //                         tM.name LIKE '%" . $this->SQL->escape_like($search) . "%' 
-        //                      OR tM.description LIKE '%" . $this->SQL->escape_like($search) . "%' 
+        //                         tM.name LIKE '%" . $this->SQL->escape_like($search) . "%'
+        //                      OR tM.description LIKE '%" . $this->SQL->escape_like($search) . "%'
         //                 ) ";
         if ($Material_Type->id) {
             $ids = array_merge(array((int)$Material_Type->id), (array)$Material_Type->all_children_ids);
@@ -680,5 +697,30 @@ class Package extends \RAAS\Package
             $Object->urn = Application::i()->getNewURN($Object->urn, !$i);
         }
         return $Object->urn;
+    }
+
+
+    /**
+     * Возвращает функцию сравнения для полей
+     * @param string $key поле для сравнения
+     * @return callable
+     */
+    public function getCompareFunction($key, $reverse = false, $priorityFirst = false)
+    {
+        return function ($a, $b) use ($key, $reverse, $priorityFirst) {
+            if ($priorityFirst && ($a->priority != $b->priority)) {
+                return (int)$a->priority - (int)$b->priority;
+            }
+            if (in_array($key, array('urn', 'name'))) {
+                $c = strcasecmp($a->$key, $b->$key);
+            } elseif (in_array($key, array('priority'))) {
+                $c = ((int)$a->$key - (int)$b->$key);
+            } elseif (is_object($a->fields[$key]->doRich()) || is_object($b->fields[$key]->doRich())) {
+                $c = ((bool)$a->fields[$key]->doRich() - (bool)$b->fields[$key]->doRich());
+            } else {
+                $c = strcasecmp($a->fields[$key]->doRich(), $b->fields[$key]->doRich());
+            }
+            return ($reverse ? -1 : 1) * $c;
+        };
     }
 }

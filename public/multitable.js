@@ -8,6 +8,14 @@ jQuery(document).ready(function($) {
         var $menuItems = $('.dropdown-menu li a', $menu);
 
         var check = function () {
+            if ($all.is(':checked')) {
+                $checkbox.each(function() {
+                    if (!$(this).is(':checked')) {
+                        $all.removeAttr('checked');
+                        return false;
+                    }
+                })
+            }
             var ids = '';
             if ($all.is(':checked')) {
                 ids += '&id=' + $all.val();

@@ -8,7 +8,7 @@ class Page_Field extends Field
         'Preprocessor' => array('FK' => 'preprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
         'Postprocessor' => array('FK' => 'postprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
     );
-    
+
     public function __set($var, $val)
     {
         switch ($var) {
@@ -33,5 +33,15 @@ class Page_Field extends Field
         }
         $args[0]['where'][] = "NOT pid";
         return call_user_func_array('parent::getSet', $args);
+    }
+
+
+    public static function importByURN($urn = '')
+    {
+        $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ? AND classname = 'RAAS\\\\CMS\\\\Material_Type' AND NOT pid";
+        if ($SQL_result = self::$SQL->getline(array($SQL_query, $urn))) {
+            return new self($SQL_result);
+        }
+        return null;
     }
 }

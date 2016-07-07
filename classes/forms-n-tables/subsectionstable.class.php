@@ -22,6 +22,23 @@ class SubsectionsTable extends \RAAS\Table
         $view = $this->view;
         $columns = array();
         if ($params['Item']->id) {
+            $i = 0;
+            foreach (array_filter(Page_Field::getSet(), function($x) { return ($x->datatype == 'image') && $x->show_in_table; }) as $key => $col) {
+                if ($i < 3) {
+                    $columns[$col->urn] = array(
+                        'caption' => $col->name,
+                        'callback' => function($row) use ($col, $view, $params) { 
+                            $f = $row->fields[$col->urn];
+                            $v = $f->getValue();
+                            if ($v->id) {
+                                return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . '&pid=' . (int)$params['Item']->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>
+                                          <img src="/' . $v->tnURL . '" style="max-width: 48px;" /></a>';
+                            }
+                        }
+                    );
+                    $i++;
+                }
+            }
             $columns['name'] = array(
                 'caption' => $this->view->_('NAME'),
                 'callback' => function($row) use ($view) { 
@@ -38,15 +55,54 @@ class SubsectionsTable extends \RAAS\Table
                          . '</a>';
                 }
             );
+            foreach (array_filter(Page_Field::getSet(), function($x) { return ($x->datatype != 'image') && $x->show_in_table; }) as $key => $col) {
+                if ($i < 3) {
+                    $columns[$col->urn] = array(
+                        'caption' => $col->name,
+                        'callback' => function($row) use ($col, $view) { 
+                            $f = $row->fields[$col->urn];
+                            switch ($f->datatype) {
+                                case 'htmlarea':
+                                    return strip_tags($f->doRich());
+                                    break;
+                                case 'file':
+                                    $v = $f->getValue();
+                                    return '<a href="/' . $view->fileURL . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' . htmlspecialchars($row->name) . '</a>';
+                                    break;
+                                case 'material':
+                                    $v = $f->getValue();
+                                    $m = new Material($v);
+                                    if ($m->id) {
+                                        return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$m->id . '" ' . (!$m->vis ? 'class="muted"' : '') . '>' 
+                                             .    htmlspecialchars($m->name) 
+                                             . '</a>';
+                                    }
+                                    break;
+                                case 'checkbox':
+                                    if ($f->multiple) {
+                                        return $f->doRich();
+                                    } else {
+                                        if ((int)$f->getValue()) {
+                                            return '<span class="icon icon-ok"></span>';
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    return $f->doRich(); 
+                                    break;
+                            }
+                            
+                        }
+                    );
+                    $i++;
+                }
+            }
             $columns['priority'] = array(
                 'caption' => $this->view->_('PRIORITY'),
                 'callback' => function($row, $i) { 
                     return '<input type="number" name="page_priority[' . (int)$row->id . ']" value="' . (($i + 1) * 10) . '" class="span1" min="0" />';
                 }
             );
-            foreach ($params['columns'] as $key => $col) {
-                $columns[$col->urn] = array('caption' => $col->name, 'callback' => function($row) use ($col) { return $row->fields[$col->urn]->doRich(); });
-            }
             $columns[' '] = array('callback' => function ($row, $i) use ($view, $params) { return rowContextMenu($view->getPageContextMenu($row, $i, count($params['Set']))); });
         } else {
             $columns['name'] = array(
@@ -67,13 +123,6 @@ class SubsectionsTable extends \RAAS\Table
                          . '</a>';
                 }
             );
-            foreach ($params['columns'] as $key => $col) {
-                $columns[$col->urn] = array(
-                    'caption' => $col->name,
-                    'sortable' => Column::SORTABLE_REVERSABLE,
-                    'callback' => function($row) use ($col) { return $row->fields[$col->urn]->doRich(); }   
-                );
-            }
             $columns[' '] = array('callback' => function ($row, $i) use ($view, $params) { return rowContextMenu($view->getPageContextMenu($row, $i, count($params['Set']))); });
         }
         $arr = $params;

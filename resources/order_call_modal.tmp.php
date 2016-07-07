@@ -1,8 +1,8 @@
 <?php namespace RAAS\CMS?>
-<?php 
-if ($_POST['AJAX'] && ($Item instanceof Feedback)) { 
+<?php
+if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     $result = array();
-    if ($success[(int)$Block->id]) { 
+    if ($success[(int)$Block->id]) {
         $result['success'] = 1;
     }
     if ($localError) {
@@ -12,8 +12,9 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     echo json_encode($result);
     exit;
 } else { ?>
+    <!--noindex-->
     <div class="order-call order-call_modal">
-      <div id="orderCallModal" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
+      <div id="<?php echo htmlspecialchars($Widget->urn)?>" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
         <div class="modal-dialog">
           <div class="modal-content">
             <form data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">
@@ -66,4 +67,5 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
         </div>
       </div>
     </div>
+    <!--/noindex-->
 <?php } ?>

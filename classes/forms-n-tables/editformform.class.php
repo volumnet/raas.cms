@@ -60,9 +60,9 @@ class EditFormForm extends \RAAS\Form
                 array('type' => 'checkbox', 'name' => 'create_feedback', 'caption' => $view->_('CREATE_FEEDBACK'), 'default' => 1),
                 array('type' => 'checkbox', 'name' => 'signature', 'caption' => $view->_('REQUIRE_UNIQUE'), 'default' => 1),
                 array(
-                    'type' => 'select', 'name' => 'antispam', 'caption' => $view->_('ANTISPAM_FIELD'), 'children' => $CONTENT['antispam'], 'default' => 'captcha'
+                    'type' => 'select', 'name' => 'antispam', 'caption' => $view->_('ANTISPAM_FIELD'), 'children' => $CONTENT['antispam'], 'default' => 'hidden'
                 ),
-                array('name' => 'antispam_field_name', 'caption' => $view->_('ANTISPAM_VARIABLE'), 'default' => 'captcha'),
+                array('name' => 'antispam_field_name', 'caption' => $view->_('ANTISPAM_VARIABLE'), 'default' => '_name'),
                 array(
                     'name' => 'email', 
                     'caption' => $view->_('EMAIL_TO_SEND_NOTIFY'), 

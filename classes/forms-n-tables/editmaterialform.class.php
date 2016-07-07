@@ -63,6 +63,9 @@ class EditMaterialForm extends \RAAS\Form
                 if (!$Form->Item->id) {
                     $Form->Item->author_id = $Form->Item->editor_id;
                 }
+                if (!$Form->Item->urn && isset($_POST['article']) && \SOME\Text::beautify($_POST['article'])) {
+                    $Form->Item->urn = \SOME\Text::beautify($_POST['article']);
+                }
             },
         );
         $arr = array_merge($defaultParams, $params);
