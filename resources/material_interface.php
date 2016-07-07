@@ -15,7 +15,12 @@ $getField = function($field, $as, array &$SQL_from) {
             // 2015-03-31, AVS: заменил JOIN на LEFT JOIN, т.к. если добавить новое поле и сделать сортировку по нему, материалы пропадают
             $SQL_from[$as] = " LEFT JOIN " . Field::data_table . " AS `" . $as . "` ON `" . $as . "`.pid = tM.id AND `" . $as . "`.fid = " . (int)$field;
         }
-        $sort = $as . ".value";
+        $Field = new Material_Field((int)$field);
+        if ($Field->datatype == 'number') {
+            $sort = "CAST(" . $as . ".value AS UNSIGNED)";
+        } else {
+            $sort = $as . ".value";
+        }
     }
     return $sort;
 };
@@ -45,7 +50,7 @@ if (!$Page->Material && isset($IN['id'])) {
     if (((int)$Item->id == (int)$IN['id']) && ($Item->pid == $config['material_type']) && (int)$config['legacy']) {
         // Если материал действительно к месту, перенаправляем на новый адрес
         header("HTTP/1.1 301 Moved Permanently");
-        header('Location: http://' . $_SERVER['HTTP_HOST'] . $Item->url); 
+        header('Location: http://' . $_SERVER['HTTP_HOST'] . $Item->url);
         exit;
     } else {
         // Такого материала нет, возвращаем (не обрабатываем). Далее контроллер перекинет на 404
@@ -59,7 +64,7 @@ if ($Page->Material && $Block->nat) {
         if ((int)$config['legacy'] && ($Item->pid == $config['material_type'])) {
             // Установлена переадресация
             header("HTTP/1.1 301 Moved Permanently");
-            header('Location: http://' . $_SERVER['HTTP_HOST'] . $Item->url); 
+            header('Location: http://' . $_SERVER['HTTP_HOST'] . $Item->url);
             exit;
         } else {
             return;
@@ -90,7 +95,7 @@ if ($Page->Material && $Block->nat) {
     if (!$MType->global_type) {
         $SQL_where[] = " tMPA.pid = " . (int)$Page->id;
     }
-    
+
     /*** FILTERING ***/
     if ($Block->filter) {
         $SQL_array = array();
@@ -117,7 +122,7 @@ if ($Page->Material && $Block->nat) {
             $SQL_where[$key] = $arr ? "(" . implode(" AND ", $arr) . ")" : "";
         }
     }
-    
+
     /*** SORTING ***/
     if (isset($config['sort_var_name'], $IN[(string)$config['sort_var_name']]) && $Block->sort) {
         foreach ((array)$Block->sort as $row) {
@@ -140,7 +145,7 @@ if ($Page->Material && $Block->nat) {
     if ($order) {
         $OUT['order'] = $order;
     }
-    
+
     /*** QUERY ***/
     $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.* FROM " . Material::_tablename() . " AS tM " . implode(" ", $SQL_from)
                . ($SQL_where ? " WHERE " . implode(" AND ", $SQL_where) : "")
@@ -156,6 +161,6 @@ if ($Page->Material && $Block->nat) {
     if ($Pages !== null) {
         $OUT['Pages'] = $Pages;
     }
-    
+
 }
 return $OUT;
