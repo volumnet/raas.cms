@@ -11,7 +11,7 @@ class Controller_Frontend extends Abstract_Controller
 {
     private $user;
     protected $diag = null;
-    
+
     public function __get($var)
     {
         switch ($var) {
@@ -33,7 +33,7 @@ class Controller_Frontend extends Abstract_Controller
                 break;
         }
     }
-    
+
     public function __set($var, $val)
     {
         switch ($var) {
@@ -47,13 +47,13 @@ class Controller_Frontend extends Abstract_Controller
                 break;
         }
     }
-    
+
     protected static $instance;
-    
+
     protected function init()
     {
     }
-    
+
     public function run()
     {
         if (!$this->getCache()) {
@@ -78,7 +78,7 @@ class Controller_Frontend extends Abstract_Controller
                     }
                 }
                 if ($this->diag) {
-                    if ($Page) { 
+                    if ($Page) {
                         $this->diag->pageHandler($Page, microtime(true) - $pst);
                     }
                     $this->diag->save();
@@ -86,7 +86,7 @@ class Controller_Frontend extends Abstract_Controller
             }
         }
     }
-    
+
 
     public function exportLang(IContext $Context, $language)
     {
@@ -101,13 +101,13 @@ class Controller_Frontend extends Abstract_Controller
             }
         }
     }
-    
+
 
     protected function checkCompatibility()
     {
         return ($this->application->phpVersionCompatible && !$this->application->missedExt);
     }
-    
+
 
     protected function checkDB()
     {
@@ -117,18 +117,18 @@ class Controller_Frontend extends Abstract_Controller
         }
         return false;
     }
-    
+
 
     protected function checkSOME()
     {
         return $this->application->initSOME();
     }
-        
+
 
     protected function configureDB()
     {
     }
-    
+
 
     protected function fork()
     {
