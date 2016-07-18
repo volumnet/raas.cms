@@ -484,13 +484,6 @@ class Webmaster
             ));
             $this->createBlock($B, 'copyrights', null, null, $this->Site, true);
 
-            $B = new Block_HTML(array(
-                'name' => $this->view->_('SHARE'),
-                'description' => file_get_contents($this->resourcesDir . '/share.tmp.php'),
-                'wysiwyg' => 0,
-            ));
-            $this->createBlock($B, 'share', null, null, $this->Site, true, array($this->Site->id));
-
             $B = new Block_Form(array('form' => $forms['feedback']->id ?: 0,));
             $this->createBlock($B, 'footer_counters', '__raas_form_interface', 'feedback_modal', $this->Site, true);
 
@@ -733,6 +726,13 @@ class Webmaster
             copy(Package::i()->resourcesDir . '/logo.png', Package::i()->filesDir . '/image/logo.png');
             chmod(Package::i()->filesDir . '/image/logo.png', 0777);
         }
+
+        $B = new Block_HTML(array(
+            'name' => $this->view->_('SHARE'),
+            'description' => file_get_contents($this->resourcesDir . '/share.tmp.php'),
+            'wysiwyg' => 0,
+        ));
+        $this->createBlock($B, 'share', null, null, $this->Site, true);
     }
 
 
@@ -1188,5 +1188,6 @@ class Webmaster
             }
         }
         $B->commit();
+        return $B;
     }
 }

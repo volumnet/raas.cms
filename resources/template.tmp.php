@@ -124,7 +124,6 @@ ob_start();
         <?php if ($text = $Page->location('content4')) { ?>
             <div class="location_content4"><?php echo $text?></div>
         <?php } ?>
-        <div class="location_content4"></div>
         <?php if ($text = $Page->location('content5')) { ?>
             <div class="location_content5">
               <div class="container">
