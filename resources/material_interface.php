@@ -15,7 +15,12 @@ $getField = function($field, $as, array &$SQL_from) {
             // 2015-03-31, AVS: заменил JOIN на LEFT JOIN, т.к. если добавить новое поле и сделать сортировку по нему, материалы пропадают
             $SQL_from[$as] = " LEFT JOIN " . Field::data_table . " AS `" . $as . "` ON `" . $as . "`.pid = tM.id AND `" . $as . "`.fid = " . (int)$field;
         }
-        $sort = $as . ".value";
+        $Field = new Material_Field((int)$field);
+        if ($Field->datatype == 'number') {
+            $sort = "CAST(" . $as . ".value AS UNSIGNED)";
+        } else {
+            $sort = $as . ".value";
+        }
     }
     return $sort;
 };
