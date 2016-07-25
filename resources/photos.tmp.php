@@ -12,7 +12,7 @@ if ($Item) {
             <div class="article__images row">
               <?php for ($i = 0; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
                   <div class="col-sm-4 col-md-3 col-xs-4">
-                    <a href="/<?php echo htmlspecialchars($row->fileURL)?>" rel="prettyPhoto[g<?php echo (int)$Item->id?>]" class="article__images__image">
+                    <a href="/<?php echo htmlspecialchars($row->fileURL)?>" data-lightbox-gallery="gallery" class="article__images__image">
                       <img src="/<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
                   </div>
               <?php } ?>
@@ -35,7 +35,7 @@ if ($Item) {
                 <div class="article__images row">
                   <?php for ($i = 0; $i < count($row->visImages); $i++) { $row2 = $row->visImages[$i]; ?>
                       <div class="col-sm-3 col-lg-2 col-xs-4">
-                        <a href="/<?php echo htmlspecialchars($row2->fileURL)?>" rel="prettyPhoto[gallery<?php echo (int)$row->id?>]" class="article__images__image">
+                        <a href="/<?php echo htmlspecialchars($row2->fileURL)?>" data-lightbox-gallery="gallery" class="article__images__image">
                           <img src="/<?php echo htmlspecialchars($row2->tnURL)?>" alt="<?php echo htmlspecialchars($row2->name)?>" /></a>
                       </div>
                   <?php } ?>
