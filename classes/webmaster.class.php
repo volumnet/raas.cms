@@ -231,6 +231,7 @@ class Webmaster
             'logo' => $this->view->_('LOGO'),
             'features_main' => $this->view->_('FEATURES_MAIN'),
             'robots' => $this->view->_('ROBOTS_TXT'),
+            'custom_css' => $this->view->_('CUSTOM_CSS'),
             'menu_content' => $this->view->_('SITEMAP'),
             'menu_top' => $this->view->_('TOP_MENU'),
             // 'menu_left' => $this->view->_('LEFT_MENU'),
@@ -723,14 +724,33 @@ class Webmaster
         if ($temp) {
             $robots = $temp[0];
         } else {
-            $robots = $this->createPage(array('name' => $this->view->_('ROBOTS_TXT'), 'urn' => 'robots', 'template' => 0, 'cache' => 0, 'response_code' => 200), $this->Site);
+            $robots = $this->createPage(array('name' => $this->view->_('ROBOTS_TXT'), 'urn' => 'robots', 'template' => 0, 'cache' => 1, 'response_code' => 200), $this->Site);
             $robotsTXT = file_get_contents($this->resourcesDir . '/robots.txt');
             $m = new Mustache_Engine();
-            $robotsTXT = $m->render($robotsTXT, array('host' => $_SERVER['HTTP_HOST']));
+            $robotsTXT = $m->render($robotsTXT, array('HOST' => $_SERVER['HTTP_HOST']));
             $B = new Block_HTML(array('name' => $this->view->_('ROBOTS_TXT'), 'description' => $robotsTXT, 'wysiwyg' => 0,));
             $this->createBlock($B, '', null, 'robots', $robots);
         }
         return $robots;
+    }
+
+
+    /**
+     * Создание custom.css
+     * @return Page Созданная или существующая страница
+     */
+    public function createCustomCss()
+    {
+        $temp = Page::getSet(array('where' => array("pid = " . (int)$this->Site->id, "urn = 'custom_css'")));
+        if ($temp) {
+            $customCss = $temp[0];
+        } else {
+            $customCss = $this->createPage(array('name' => $this->view->_('CUSTOM_CSS'), 'urn' => 'custom_css', 'template' => 0, 'cache' => 1, 'response_code' => 200), $this->Site);
+            $m = new Mustache_Engine();
+            $B = new Block_HTML(array('name' => $this->view->_('CUSTOM_CSS'), 'description' => '', 'wysiwyg' => 0,));
+            $this->createBlock($B, '', null, 'custom_css', $customCss);
+        }
+        return $customCss;
     }
 
 
@@ -764,6 +784,7 @@ class Webmaster
         $map = $this->createMap($menus['sitemap']);
         $sitemaps = $this->createSitemapsXml();
         $robots = $this->createRobotsTxt();
+        $customCss = $this->createCustomCss();
 
         $temp = Page::getSet(array('where' => array("pid = " . (int)$this->Site->id, "urn = 'ajax'")));
         if ($temp) {

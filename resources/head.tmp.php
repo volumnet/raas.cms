@@ -9,6 +9,7 @@
 <meta name="viewport" content="width=device-width">
 <link rel='stylesheet' href='/css/application.css'>
 <link rel='stylesheet' href='/css/style.css'>
+<link rel='stylesheet' href='/custom.css'>
 <!-- Core-->
 <script src="/js/application.js"></script>
 <script src="/js/bootstrap.carousel.swipe.js"></script>
