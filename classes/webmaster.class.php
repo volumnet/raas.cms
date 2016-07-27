@@ -229,6 +229,7 @@ class Webmaster
             // 'search' => $this->view->_('SITE_SEARCH'),
             'sitemap_xml' => $this->view->_('SITEMAP_XML'),
             'logo' => $this->view->_('LOGO'),
+            'features_main' => $this->view->_('FEATURES_MAIN'),
             'robots' => $this->view->_('ROBOTS_TXT'),
             'menu_content' => $this->view->_('SITEMAP'),
             'menu_top' => $this->view->_('TOP_MENU'),
@@ -434,6 +435,61 @@ class Webmaster
 
 
     /**
+     * Добавим особенности
+     */
+    public function createFeatures()
+    {
+        $MT = Material_Type::importByURN('features');
+        if (!$MT->id) {
+            $MT = new Material_Type(array('name' => $this->view->_('FEATURES'), 'urn' => 'features', 'global_type' => 1));
+            $MT->commit();
+
+            $F = new Material_Field(array(
+                'pid' => $MT->id,
+                'name' => $this->view->_('IMAGE'),
+                'urn' => 'image',
+                'datatype' => 'image',
+                'show_in_table' => 1,
+            ));
+            $F->commit();
+
+            $F = new Material_Field(array(
+                'pid' => $MT->id,
+                'name' => $this->view->_('ICON'),
+                'urn' => 'icon',
+                'datatype' => 'text',
+                'show_in_table' => 1,
+            ));
+            $F->commit();
+
+            $B = new Block_Material(array(
+                'material_type' => (int)$MT->id,
+                'nat' => 0,
+                'pages_var_name' => 'page',
+                'rows_per_page' => 0,
+                'sort_field_default' => 'post_date',
+                'sort_order_default' => 'asc',
+            ));
+            $this->createBlock($B, 'content', '__raas_material_interface', 'features_main', $this->Site);
+            // Создадим материалы
+            $icons = array('smile-o', 'thumbs-o-up', 'rub');
+            for ($i = 0; $i < 3; $i++) {
+                $Item = new Material(array(
+                    'pid' => (int)$MT->id,
+                    'vis' => 1,
+                    'name' => $this->view->_('FEATURE_' . ($i + 1)),
+                    'description' => $this->view->_('FEATURE_' . ($i + 1) . '_TEXT'),
+                    'priority' => ($i + 1) * 10,
+                    'sitemaps_priority' => 0.5
+                ));
+                $Item->commit();
+                $Item->fields['icon']->addValue($icons[$i]);
+            }
+        }
+    }
+
+
+    /**
      * Создаем главную страницу
      * @param Template $template Шаблон
      * @param array[Form] $forms массив форм
@@ -509,6 +565,8 @@ class Webmaster
                 'wysiwyg' => 1,
             ));
             $this->createBlock($B, 'content', null, null, $this->Site);
+
+            $this->createFeatures();
         }
         return $this->Site;
     }
@@ -705,6 +763,7 @@ class Webmaster
         $p404 = $this->create404();
         $map = $this->createMap($menus['sitemap']);
         $sitemaps = $this->createSitemapsXml();
+        $robots = $this->createRobotsTxt();
 
         $temp = Page::getSet(array('where' => array("pid = " . (int)$this->Site->id, "urn = 'ajax'")));
         if ($temp) {
