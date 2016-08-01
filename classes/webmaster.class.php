@@ -886,7 +886,7 @@ class Webmaster
         if (!$S->id) {
             $f = $this->resourcesDir . '/material.tmp.php';
             $text = file_get_contents($f);
-            $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
+            $text = str_ireplace('{BLOCK_NAME}', str_replace('_main', '', $urn), $text);
             $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
             $S = new Snippet(array('name' => $name, 'urn' => $urn, 'pid' => $VF->id, 'description' => $text));
             $S->commit();
