@@ -368,9 +368,20 @@ class Webmaster
             $menus[$row['urn']] = $MNU;
         }
 
-        $B = new Block_Menu(array('menu' => (int)$menus['top']->id, 'full_menu' => 1));
+        $stdCacheInterface = Snippet::importByURN('__raas_cache_interface');
+        $B = new Block_Menu(array(
+            'menu' => (int)$menus['top']->id,
+            'full_menu' => 1,
+            'cache_type' => Block::CACHE_DATA,
+            'cache_interface_id' => (int)$stdCacheInterface->id
+        ));
         $this->createBlock($B, 'menu_top', '__raas_menu_interface', 'menu_top', $this->Site, true);
-        $B = new Block_Menu(array('menu' => (int)$menus['bottom']->id, 'full_menu' => 1));
+        $B = new Block_Menu(array(
+            'menu' => (int)$menus['bottom']->id,
+            'full_menu' => 1,
+            'cache_type' => Block::CACHE_DATA,
+            'cache_interface_id' => (int)$stdCacheInterface->id
+        ));
         $this->createBlock($B, 'menu_bottom', '__raas_menu_interface', 'menu_bottom', $this->Site, true);
         return $menus;
     }
@@ -886,7 +897,7 @@ class Webmaster
         if (!$S->id) {
             $f = $this->resourcesDir . '/material.tmp.php';
             $text = file_get_contents($f);
-            $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
+            $text = str_ireplace('{BLOCK_NAME}', str_replace('_main', '', $urn), $text);
             $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
             $S = new Snippet(array('name' => $name, 'urn' => $urn, 'pid' => $VF->id, 'description' => $text));
             $S->commit();
