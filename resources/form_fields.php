@@ -73,6 +73,7 @@ $emailField = function($field)
 };
 ?>
 <?php if ($SMS) {
+    echo date(DATETIMEFORMAT) . ' ' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name) . "\n";
     foreach ($Item->fields as $field) {
         echo $smsField($field);
     }
