@@ -28,7 +28,7 @@ $processImage = function($filename, $watermarkFilename, $ratio = 0.5, $quality =
     return true;
 };
 
-$watermarkImage = 'images/watermark.png';
+$watermarkImage = 'files/cms/common/images/watermark.png';
 if (($t->datatype == 'image') && is_file($watermarkImage)) {
     $files = array();
     if ($postProcess) {
