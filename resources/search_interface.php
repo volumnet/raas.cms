@@ -19,7 +19,12 @@ if (!$search_string) {
     $searchArray = array_map('trim', $searchArray);
     $searchArray = array_filter($searchArray);
     if (isset($config['min_length']) && (int)$config['min_length']) {
-        $searchArray = array_filter($searchArray, function($x) use ($config) { return (mb_strlen($x) >= (int)$config['min_length']); });
+        $searchArray = array_filter(
+            $searchArray,
+            function ($x) use ($config) {
+                return (mb_strlen($x) >= (int)$config['min_length']);
+            }
+        );
     }
     if (!$searchArray) {
         $OUT['localError'] = 'SEARCH_QUERY_TOO_SHORT';
@@ -33,7 +38,12 @@ if (!$search_string) {
             $SQL_where_pages .= " AND tP.id IN (" . implode(", ", array_map('intval', (array)$Block->search_pages_ids)) . ") ";
         }
         if ($languages = array_filter((array)$Block->languages)) {
-            $temp = array_map(function($x) use ($SQL) { return "'" . $SQL->real_escape_string($x) . "'"; }, (array)$languages);
+            $temp = array_map(
+                function ($x) use ($SQL) {
+                    return "'" . $SQL->real_escape_string($x) . "'";
+                },
+                (array)$languages
+            );
             $SQL_where_pages .= " AND tP.lang IN (" . implode(", ", $temp) . ") ";
         }
         if ((array)$Block->material_types_ids) {
@@ -96,12 +106,12 @@ if (!$search_string) {
         $SQL_query = "SELECT tM.id, tM.pid, (0";
         foreach ($searchArray as $val) {
             $SQL_query .= " + ((tM.name LIKE '%" . $SQL->escape_like($val) . "%') * " . $materialNameRatio . ")
-                            + ((tM.description LIKE '%" . $SQL->escape_like($val) . "%') * " . $materialDescriptionRatio . ")";
+                            + ((IF(tM.description IS NULL, '', tM.description) LIKE '%" . $SQL->escape_like($val) . "%') * " . $materialDescriptionRatio . ")";
         }
         $SQL_query .= " ) AS c
                         FROM " . Material::_tablename() . " AS tM WHERE 1 " . $SQL_where_materials . " AND (0 ";
         foreach ($searchArray as $val) {
-            $SQL_query .= " OR tM.name LIKE '%" . $SQL->escape_like($val) . "%' OR tM.description LIKE '%" . $SQL->escape_like($val) . "%' ";
+            $SQL_query .= " OR tM.name LIKE '%" . $SQL->escape_like($val) . "%' OR IF(tM.description IS NULL, '', tM.description) LIKE '%" . $SQL->escape_like($val) . "%' ";
         }
         $SQL_query .= " ) ";
         $SQL_result = $SQL->get($SQL_query);
@@ -142,8 +152,22 @@ if (!$search_string) {
             $SQL_query .= " WHERE 1 " . $SQL_where_pages . " AND tM.id IN (" . implode(", ", array_keys($arr)) . ") ";
             $SQL_query .= " GROUP BY pid, mid";
             $SQL_result = $SQL->get($SQL_query);
-            $p = array_unique(array_map(function($x) { return $x['pid']; }, $SQL_result));
-            $m = array_unique(array_map(function($x) { return $x['mid']; }, $SQL_result));
+            $p = array_unique(
+                array_map(
+                    function ($x) {
+                        return $x['pid'];
+                    },
+                    $SQL_result
+                )
+            );
+            $m = array_unique(
+                array_map(
+                    function ($x) {
+                        return $x['mid'];
+                    },
+                    $SQL_result
+                )
+            );
             foreach ($p as $val) {
                 $results['p' . $val] += $pageMaterialsRatio;
             }
@@ -157,7 +181,7 @@ if (!$search_string) {
         // 6. Выбираем блоки по HTML-коду
         $SQL_query = "SELECT tP.id, (0";
         foreach ($searchArray as $val) {
-            $SQL_query .= " + ((tBH.description LIKE '%" . $SQL->escape_like($val) . "%') * " . $pageDataRatio . ")";
+            $SQL_query .= " + ((IF(tBH.description IS NULL, '', tBH.description) LIKE '%" . $SQL->escape_like($val) . "%') * " . $pageDataRatio . ")";
         }
         $SQL_query .= ") AS c
                         FROM " . Page::_tablename() . " AS tP
@@ -166,7 +190,7 @@ if (!$search_string) {
                         JOIN " . Block::_dbprefix() . "cms_blocks_html AS tBH ON tBH.id = tB.id
                        WHERE 1 " . $SQL_where_pages . " AND (0 ";
         foreach ($searchArray as $val) {
-            $SQL_query .= " OR tBH.description LIKE '%" . $SQL->escape_like($val) . "%'";
+            $SQL_query .= " OR IF(tBH.description IS NULL, '', tBH.description) LIKE '%" . $SQL->escape_like($val) . "%'";
         }
         $SQL_query .= " ) GROUP BY tP.id";
         $SQL_result = $SQL->get($SQL_query);
@@ -180,7 +204,7 @@ if (!$search_string) {
         if (isset($config['pages_var_name'], $config['rows_per_page']) && (int)$config['rows_per_page']) {
             $Pages = new \SOME\Pages(isset($IN[$config['pages_var_name']]) ? (int)$IN[$config['pages_var_name']] : 1, (int)$config['rows_per_page']);
         }
-        $f = function($x) {
+        $f = function ($x) {
             if ($x[0] == 'm') {
                 $row = new \RAAS\CMS\Material(substr($x, 1));
             } else {
