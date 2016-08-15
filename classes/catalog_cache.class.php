@@ -52,9 +52,11 @@ class Catalog_Cache
         if (!$this->_mtype->global_type) {
             $SQL_what['pages_ids'] = "GROUP_CONCAT(DISTINCT tMPA.pid SEPARATOR '@@@') AS pages_ids";
         }
-        foreach ($this->_mtype->fields as $row) {
-            $tmp_field = $this->getField($row->id, 'var' . $row->id, $SQL_from);
-            $SQL_what[$row->urn] = "GROUP_CONCAT(DISTINCT " . $tmp_field . " SEPARATOR '@@@') AS `" . Field::_SQL()->real_escape_string($row->urn) . "`";
+        foreach (array_merge(array($this->_mtype), (array)$this->_mtype->children) as $mtype) {
+            foreach ($mtype->selfFields as $row) {
+                $tmp_field = $this->getField($row->id, 'var' . $row->id, $SQL_from);
+                $SQL_what[$row->urn] = "GROUP_CONCAT(DISTINCT " . $tmp_field . " SEPARATOR '@@@') AS `" . Field::_SQL()->real_escape_string($row->urn) . "`";
+            }
         }
 
         /*** QUERY ***/
