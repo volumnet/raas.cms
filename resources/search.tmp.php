@@ -7,7 +7,7 @@ use \SOME\HTTP;
 ?>
 <div class="search materials">
   <div class="search__title">
-    <?php echo htmlspecialchars(sprintf(SEARCH_RESULTS_FOR_QUERY, $search_string))?>
+    <?php echo sprintf(SEARCH_RESULTS_FOR_QUERY, htmlspecialchars($search_string))?>
   </div>
   <?php if ($Set) { ?>
       <div>
