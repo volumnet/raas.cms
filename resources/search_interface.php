@@ -7,6 +7,7 @@ $materialNameRatio = 10;
 $materialDescriptionRatio = 1;
 $materialDataRatio = 1;
 $pageMaterialsRatio = 1;
+$searchLimit = 100;
 $SQL = \RAAS\Application::i()->SQL;
 
 $IN = (array)$_GET;
@@ -71,14 +72,14 @@ if (!$search_string) {
         }
         $SQL_query .= " ) AS c
                         FROM " . Page::_tablename() . " AS tP
-                   LEFT JOIN " . Page::_dbprefix() . "cms_access_pages_cache AS tA ON tA.page_id = tP.id AND tA.uid = " . (int)Controller_Frontend::i()->user->id . "
-                       WHERE (tA.allow OR (tA.allow IS NULL))
+                       WHERE 1
                          " . $SQL_where_pages . "
                          AND (0 ";
         foreach ($searchArray as $val) {
             $SQL_query .= " OR tP.name LIKE '%" . $SQL->escape_like($val) . "%'";
         }
-        $SQL_query .= " ) ";
+        $SQL_query .= " ) LIMIT " . $searchLimit;
+        // echo $SQL_query; exit;
         $SQL_result = $SQL->get($SQL_query);
         foreach ($SQL_result as $row) {
             $results['p' . $row['id']] += $row['c'];
@@ -93,16 +94,15 @@ if (!$search_string) {
             $SQL_query .= ") AS c
                             FROM " . Page::_tablename() . " AS tP
                             JOIN " . Material::_dbprefix() . "cms_data AS tD ON tD.pid = tP.id
-                       LEFT JOIN " . Page::_dbprefix() . "cms_access_pages_cache AS tA ON tA.page_id = tP.id AND tA.uid = " . (int)Controller_Frontend::i()->user->id . "
-                           WHERE (tA.allow OR (tA.allow IS NULL))
+                           WHERE 1
                              AND tD.fid IN (" . implode(", ", $pagesFields) . ")
                              " . $SQL_where_pages . "
                              AND (0 ";
             foreach ($searchArray as $val) {
                 $SQL_query .= " OR tD.value LIKE '%" . $SQL->escape_like($val) . "%'";
             }
-            $SQL_query .= " ) ";
-
+            $SQL_query .= " ) LIMIT " . $searchLimit;
+            // echo $SQL_query; exit;
             $SQL_result = $SQL->get($SQL_query);
             foreach ($SQL_result as $row) {
                 $results['p' . $row['id']] += $row['c'];
@@ -117,14 +117,14 @@ if (!$search_string) {
         }
         $SQL_query .= " ) AS c
                         FROM " . Material::_tablename() . " AS tM
-                   LEFT JOIN " . Material::_dbprefix() . "cms_access_materials_cache AS tA ON tA.material_id = tM.id AND tA.uid = " . (int)Controller_Frontend::i()->user->id . "
-                       WHERE (tA.allow OR (tA.allow IS NULL))
+                       WHERE 1
                          " . $SQL_where_materials . "
                          AND (0 ";
         foreach ($searchArray as $val) {
             $SQL_query .= " OR tM.name LIKE '%" . $SQL->escape_like($val) . "%' OR IF(tM.description IS NULL, '', tM.description) LIKE '%" . $SQL->escape_like($val) . "%' ";
         }
-        $SQL_query .= " ) ";
+        $SQL_query .= " ) LIMIT " . $searchLimit;
+        // echo $SQL_query; exit;
         $SQL_result = $SQL->get($SQL_query);
         foreach ($SQL_result as $row) {
             $materials[$row['pid']][$row['id']] = $row['c'];
@@ -138,15 +138,15 @@ if (!$search_string) {
         $SQL_query .= ") AS c
                        FROM " . Material::_tablename() . " AS tM
                        JOIN " . Material::_dbprefix() . "cms_data AS tD ON tD.pid = tM.id
-                  LEFT JOIN " . Material::_dbprefix() . "cms_access_materials_cache AS tA ON tA.material_id = tM.id AND tA.uid = " . (int)Controller_Frontend::i()->user->id . "
-                      WHERE (tA.allow OR (tA.allow IS NULL))
+                      WHERE 1
                         AND tD.fid IN (" . implode(", ", $materialFields) . ")
                         " . $SQL_where_materials . "
                         AND (0 ";
         foreach ($searchArray as $val) {
             $SQL_query .= " OR tD.value LIKE '%" . $SQL->escape_like($val) . "%'";
         }
-        $SQL_query .= " ) ";
+        $SQL_query .= " ) LIMIT " . $searchLimit;
+        // echo $SQL_query; exit;
         $SQL_result = $SQL->get($SQL_query);
         foreach ($SQL_result as $row) {
              $materials[$row['pid']][$row['id']] += $row['c'];
@@ -160,19 +160,16 @@ if (!$search_string) {
                             JOIN " . Page::_tablename() . " AS tP
                             JOIN " . Block::_dbprefix() . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
                             JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.material_type IN (" . implode(", ", array_merge(array((int)$MType->id), (array)$MType->parents_ids)) . ") AND tBM.id = tBPA.block_id
-                            JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id AND tB.vis
-                       LEFT JOIN " . Page::_dbprefix() .     "cms_access_pages_cache     AS tAP ON tA.page_id     = tP.id AND tAP.uid = " . (int)Controller_Frontend::i()->user->id . "
-                       LEFT JOIN " . Material::_dbprefix() . "cms_access_materials_cache AS tAM ON tA.material_id = tM.id AND tAM.uid = " . (int)Controller_Frontend::i()->user->id . "
-                       LEFT JOIN " . Block::_dbprefix() .    "cms_access_blocks_cache    AS tAB ON tAB.block_id   = tB.id AND tAB.uid = " . (int)Controller_Frontend::i()->user->id;
+                            JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id AND tB.vis ";
             if (!$MType->global_type) {
                 $SQL_query .= " JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id AND tP.id = tMPA.pid ";
             }
-            $SQL_query .= " WHERE (tAP.allow OR (tAP.allow IS NULL))
-                              AND (tAM.allow OR (tAM.allow IS NULL))
-                              AND (tAB.allow OR (tAB.allow IS NULL))
+            $SQL_query .= " WHERE 1
                               " . $SQL_where_pages . "
                               AND tM.id IN (" . implode(", ", array_keys($arr)) . ") ";
-            $SQL_query .= " GROUP BY pid, mid";
+            $SQL_query .= " GROUP BY pid, mid
+                            LIMIT " . $searchLimit;
+            // echo $SQL_query; exit;
             $SQL_result = $SQL->get($SQL_query);
             $p = array_unique(
                 array_map(
@@ -210,16 +207,15 @@ if (!$search_string) {
                         JOIN " . Block::_dbprefix() . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
                         JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id AND tB.vis
                         JOIN " . Block::_dbprefix() . "cms_blocks_html AS tBH ON tBH.id = tB.id
-                   LEFT JOIN " . Page::_dbprefix() .     "cms_access_pages_cache     AS tAP ON tA.page_id     = tP.id AND tAP.uid = " . (int)Controller_Frontend::i()->user->id . "
-                   LEFT JOIN " . Block::_dbprefix() .    "cms_access_blocks_cache    AS tAB ON tAB.block_id   = tB.id AND tAB.uid = " . (int)Controller_Frontend::i()->user->id . "
-                       WHERE (tAP.allow OR (tAP.allow IS NULL))
-                         AND (tAB.allow OR (tAB.allow IS NULL))
+                       WHERE 1
                          " . $SQL_where_pages . "
                          AND (0 ";
         foreach ($searchArray as $val) {
             $SQL_query .= " OR IF(tBH.description IS NULL, '', tBH.description) LIKE '%" . $SQL->escape_like($val) . "%'";
         }
-        $SQL_query .= " ) GROUP BY tP.id";
+        $SQL_query .= " ) GROUP BY tP.id
+                          LIMIT " . $searchLimit;
+        // echo $SQL_query; exit;
         $SQL_result = $SQL->get($SQL_query);
         foreach ($SQL_result as $row) {
             $results['p' . $row['id']] += $row['c'];
@@ -231,15 +227,31 @@ if (!$search_string) {
         if (isset($config['pages_var_name'], $config['rows_per_page']) && (int)$config['rows_per_page']) {
             $Pages = new \SOME\Pages(isset($IN[$config['pages_var_name']]) ? (int)$IN[$config['pages_var_name']] : 1, (int)$config['rows_per_page']);
         }
-        $f = function ($x) {
-            if ($x[0] == 'm') {
-                $row = new \RAAS\CMS\Material(substr($x, 1));
-            } else {
-                $row = new \RAAS\CMS\Page(substr($x, 1));
+        $Set = array_keys($results);
+        $Set = array_slice($Set, 0, $searchLimit);
+        $Set = array_filter(
+            $Set,
+            function ($x) {
+                if ($x[0] == 'm') {
+                    $row = new \RAAS\CMS\Material(substr($x, 1));
+                } else {
+                    $row = new \RAAS\CMS\Page(substr($x, 1));
+                }
+                return $row->currentUserHasAccess() && $row->parent->currentUserHasAccess();
             }
-            return $row;
-        };
-        $Set = \SOME\SOME::getArraySet(array_keys($results), $Pages, $f);
+        );
+        $Set = \SOME\SOME::getArraySet(
+            $Set,
+            $Pages,
+            function ($x) {
+                if ($x[0] == 'm') {
+                    $row = new \RAAS\CMS\Material(substr($x, 1));
+                } else {
+                    $row = new \RAAS\CMS\Page(substr($x, 1));
+                }
+                return $row;
+            }
+        );
         if (!$Set) {
             $OUT['localError'] = 'NO_RESULTS_FOUND';
         }
