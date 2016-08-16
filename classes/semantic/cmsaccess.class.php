@@ -183,7 +183,7 @@ class CMSAccess extends \SOME\SOME
         $blocksIds = self::_SQL()->getcol($SQL_query);
         foreach ($blocksIds as $bid) {
             foreach ($usersIds as $uid) {
-                $row = new Block($bid);
+                $row = Block::spawn($bid);
                 $u = new User($uid);
                 $a = $row->userHasAccess($u);
                 self::_SQL()->add($tablename, array('uid' => (int)$u->id, 'block_id' => (int)$row->id, 'allow' => (int)$a));
