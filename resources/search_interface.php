@@ -234,10 +234,11 @@ if (!$search_string) {
             function ($x) {
                 if ($x[0] == 'm') {
                     $row = new \RAAS\CMS\Material(substr($x, 1));
+                    return $row->currentUserHasAccess() && $row->parent->currentUserHasAccess();
                 } else {
                     $row = new \RAAS\CMS\Page(substr($x, 1));
+                    return $row->currentUserHasAccess();
                 }
-                return $row->currentUserHasAccess() && $row->parent->currentUserHasAccess();
             }
         );
         $Set = \SOME\SOME::getArraySet(
