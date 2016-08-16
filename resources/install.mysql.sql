@@ -17,6 +17,15 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access (
   INDEX priority (priority)
 ) COMMENT='Site access';
 
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_blocks_cache (
+  uid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'User ID#',
+  block_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Block ID#',
+  allow tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - allow, 0 - deny',
+  PRIMARY KEY (uid,block_id),
+  KEY uid (uid),
+  KEY block_id (block_id)
+) COMMENT='Blocks access cache';
+
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_materials_cache (
   uid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'User ID#',
   material_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material ID#',
@@ -25,6 +34,15 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_materials_cache (
   KEY uid (uid),
   KEY material_id (material_id)
 ) COMMENT='Materials access cache';
+
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_pages_cache (
+  uid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'User ID#',
+  page_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Page ID#',
+  allow tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - allow, 0 - deny',
+  PRIMARY KEY (uid,page_id),
+  KEY uid (uid),
+  KEY page_id (page_id)
+) COMMENT='Pages access cache';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
