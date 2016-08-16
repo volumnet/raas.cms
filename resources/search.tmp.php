@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace RAAS\CMS;
 
 use \SOME\Text;
@@ -7,7 +7,7 @@ use \SOME\HTTP;
 ?>
 <div class="search materials">
   <div class="search__title">
-    <?php echo sprintf(SEARCH_RESULTS_FOR_QUERY, $search_string)?>
+    <?php echo htmlspecialchars(sprintf(SEARCH_RESULTS_FOR_QUERY, $search_string))?>
   </div>
   <?php if ($Set) { ?>
       <div>
@@ -69,11 +69,11 @@ use \SOME\HTTP;
       <?php include Package::i()->resourcesDir . '/pages.inc.php'?>
       <?php if ($Pages->pages > 1) { ?>
           <ul class="pagination pull-right">
-            <?php 
+            <?php
             echo $outputNav(
-                $Pages, 
+                $Pages,
                 array(
-                    'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>', 
+                    'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>',
                     'pattern_active' => '<li class="active"><a>{text}</a></li>',
                     'ellipse' => '<li class="disabled"><a>...</a></li>'
                 )
