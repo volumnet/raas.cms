@@ -908,7 +908,7 @@ class Webmaster
             if (!$SM->id) {
                 $f = $this->resourcesDir . '/material_main.tmp.php';
                 $text = file_get_contents($f);
-                $text = str_ireplace('{BLOCK_NAME}', $urn . '_main', $text);
+                $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
                 $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
                 $SM = new Snippet(
                     array('name' => $nameMain, 'urn' => $urn . '_main', 'pid' => $VF->id, 'description' => $text)
