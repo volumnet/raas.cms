@@ -33,7 +33,7 @@ ob_start();
 <?php if ($Page->noindex || $Page->Material->noindex) { ?>
     <!--noindex-->
 <?php } ?>
-<html>
+<html lang="<?php echo htmlspecialchars($Page->lang)?>">
   <head>
     <?php echo eval('?' . '>' . Snippet::importByURN('head')->description)?>
     <?php echo $Page->location('head_counters')?>
