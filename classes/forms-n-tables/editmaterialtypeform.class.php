@@ -14,7 +14,7 @@ class EditMaterialTypeForm extends \RAAS\Form
     const MATERIAL_TYPE_TEMPLATE_NONE = '';
     const MATERIAL_TYPE_TEMPLATE_NEWS = 'news';
     const MATERIAL_TYPE_TEMPLATE_BANNERS = 'banners';
-    
+
     public function __get($var)
     {
         switch ($var) {
@@ -33,7 +33,7 @@ class EditMaterialTypeForm extends \RAAS\Form
         $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
         $Parent = isset($params['Parent']) ? $params['Parent'] : null;
-        
+
         $defaultParams = array(
             'caption' => $Item->id ? $Item->name : $this->view->_('CREATING_MATERIAL_TYPE'),
             'parentUrl' => Sub_Dev::i()->url . '&action=material_types',
@@ -41,6 +41,9 @@ class EditMaterialTypeForm extends \RAAS\Form
                 $Form->exportDefault();
                 if (!$Form->Item->id) {
                     $Form->Item->pid = (int)$Parent->id;
+                }
+                if ($Parent->id) {
+                    $Form->Item->global_type = $Parent->global_type;
                 }
             },
             'oncommit' => function() use ($view, $Item) {
@@ -101,13 +104,19 @@ class EditMaterialTypeForm extends \RAAS\Form
             'children' => array(
                 array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'),
                 array('name' => 'urn', 'caption' => $this->view->_('URN')),
-                array('type' => 'checkbox', 'name' => 'global_type', 'caption' => $this->view->_('GLOBAL_MATERIALS'), 'default' => 1)
+                array(
+                    'type' => 'checkbox',
+                    'name' => 'global_type',
+                    'caption' => $this->view->_('GLOBAL_MATERIALS'),
+                    'default' => $Parent->id ? $Parent->global_type : 1,
+                    'disabled' => (bool)$Parent->id
+                )
             )
         );
         if (!$Item->id && !$Parent->id) {
             $defaultParams['children']['template'] = array(
-                'type' => 'select', 
-                'name' => 'template', 
+                'type' => 'select',
+                'name' => 'template',
                 'caption' => $this->view->_('MATERIAL_TYPE_TEMPLATE'),
                 'children' => array(
                     array('value' => EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_NONE, 'caption' => $this->view->_('_NONE')),
@@ -116,8 +125,8 @@ class EditMaterialTypeForm extends \RAAS\Form
                 )
             );
             $defaultParams['children']['add_snippet'] = array(
-                'type' => 'select', 
-                'name' => 'add_snippet', 
+                'type' => 'select',
+                'name' => 'add_snippet',
                 'caption' => $this->view->_('ADD_SNIPPET_FOR_THIS_TYPE'),
                 'children' => array(
                     array('value' => EditMaterialTypeForm::CREATE_MATERIAL_TYPE_NONE, 'caption' => $this->view->_('_NONE')),
