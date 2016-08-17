@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Attachment;
 
 class Catalog_Cache
@@ -14,7 +15,8 @@ class Catalog_Cache
     public function __get($var)
     {
         switch ($var) {
-            case 'data': case 'mtype':
+            case 'data':
+            case 'mtype':
                 return $this->{'_' . $var};
                 break;
         }
@@ -39,7 +41,7 @@ class Catalog_Cache
         $SQL_from = $SQL_where = array();
         $sort = $order = "";
         if (!$this->_mtype->global_type) {
-            $SQL_from['tMPA'] = " JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id ";
+            $SQL_from['tMPA'] = " LEFT JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id ";
         }
         $SQL_where[] = " tM.vis ";
         $types = array_merge(array((int)$this->_mtype->id), (array)$this->_mtype->all_children_ids);
@@ -68,21 +70,24 @@ class Catalog_Cache
         // echo $SQL_query; exit;
         $SQL_result = Material::_SQL()->get($SQL_query);
         // print_r ($SQL_result); exit;
-        $SQL_result = array_map(function($x) use ($t) {
-            $y = $x;
-            foreach ($y as $key => $val) {
-                if (stristr($val, '@@@')) {
-                    $y[$key] = explode('@@@', $val);
-                    $y[$key] = array_unique($y[$key]);
-                    $y[$key] = array_values($y[$key]);
-                    if (count($y[$key]) == 1) {
-                        $y[$key] = array_shift($y[$key]);
+        $SQL_result = array_map(
+            function ($x) use ($t) {
+                $y = $x;
+                foreach ($y as $key => $val) {
+                    if (stristr($val, '@@@')) {
+                        $y[$key] = explode('@@@', $val);
+                        $y[$key] = array_unique($y[$key]);
+                        $y[$key] = array_values($y[$key]);
+                        if (count($y[$key]) == 1) {
+                            $y[$key] = array_shift($y[$key]);
+                        }
                     }
+                    $y[$key] = $t->checkDeepNumeric($y[$key], $key);
                 }
-                $y[$key] = $t->checkDeepNumeric($y[$key], $key);
-            }
-            return $y;
-        }, $SQL_result);
+                return $y;
+            },
+            $SQL_result
+        );
 
         // print_r ($SQL_result); exit;
 
@@ -91,7 +96,8 @@ class Catalog_Cache
     }
 
 
-    protected function getField($field, $as, array &$SQL_from) {
+    protected function getField($field, $as, array &$SQL_from)
+    {
         $sort = '';
         if (in_array($field, array('name', 'urn', 'description', 'post_date', 'modify_date'))) {
             $sort = "tM." . $field;
@@ -105,7 +111,6 @@ class Catalog_Cache
             } else {
                 $sort = $as . ".value";
             }
-
         }
         return $sort;
     }
