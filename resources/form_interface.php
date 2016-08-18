@@ -1,11 +1,10 @@
 <?php
 namespace RAAS\CMS;
-use RAAS\Attachment;
 
+use RAAS\Attachment;
 use \Mustache_Engine;
 
-$notify = function(Feedback $Item, Material $Material = null)
-{
+$notify = function (Feedback $Item, Material $Material = null) {
     $temp = array_values(array_filter(array_map('trim', preg_split('/( |;|,)/', $Item->parent->email))));
     $emails = $sms_emails = $sms_phones = array();
     foreach ($temp as $row) {
@@ -36,10 +35,10 @@ $notify = function(Feedback $Item, Material $Material = null)
 
     $subject = date(DATETIMEFORMAT) . ' ' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name);
     if ($emails) {
-        \RAAS\Application::i()->sendmail($emails, $subject, $message, 'info@' . $_SERVER['HTTP_HOST'], 'RAAS.CMS');
+        \RAAS\Application::i()->sendmail($emails, $subject, $message, $this->view->_('ADMINISTRATION_OF_SITE') . ' ' . $_SERVER['HTTP_HOST'], 'info@' . $_SERVER['HTTP_HOST']);
     }
     if ($sms_emails) {
-        \RAAS\Application::i()->sendmail($sms_emails, $subject, $message_sms, 'info@' . $_SERVER['HTTP_HOST'], 'RAAS.CMS', false);
+        \RAAS\Application::i()->sendmail($sms_emails, $subject, $message_sms, $this->view->_('ADMINISTRATION_OF_SITE') . ' ' . $_SERVER['HTTP_HOST'], 'info@' . $_SERVER['HTTP_HOST'], false);
     }
     if ($sms_phones) {
         $urlTemplate = Package::i()->registryGet('sms_gate');
@@ -67,7 +66,8 @@ if ($Form->id) {
         // Проверка полей на корректность
         foreach ($Form->fields as $row) {
             switch ($row->datatype) {
-                case 'file': case 'image':
+                case 'file':
+                case 'image':
                     $val = isset($_FILES[$row->urn]['tmp_name']) ? $_FILES[$row->urn]['tmp_name'] : null;
                     if ($val && $row->multiple) {
                         $val = (array)$val;
@@ -161,7 +161,8 @@ if ($Form->id) {
                     foreach ($Object->fields as $fname => $temp) {
                         if (!isset($Item->fields[$fname])) {
                             switch ($temp->datatype) {
-                                case 'datetime': case 'datetime-local':
+                                case 'datetime':
+                                case 'datetime-local':
                                     $temp->addValue(date('Y-m-d H:i:s'));
                                     break;
                                 case 'date':
@@ -179,7 +180,8 @@ if ($Form->id) {
                     if (isset($Object->fields[$fname])) {
                         $row = $Object->fields[$fname];
                         switch ($row->datatype) {
-                            case 'file': case 'image':
+                            case 'file':
+                            case 'image':
                                 $row->deleteValues();
                                 if ($row->multiple) {
                                     foreach ($_FILES[$row->urn]['tmp_name'] as $key => $val) {
