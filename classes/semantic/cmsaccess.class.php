@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace RAAS\CMS;
 
 class CMSAccess extends \SOME\SOME
@@ -64,6 +64,49 @@ class CMSAccess extends \SOME\SOME
 
 
     /**
+     * Обновляет кэш доступа к страницам
+     * @param User $user фильтр по пользователю
+     * @param Page $page фильтр по странице
+     */
+    public static function refreshPagesAccessCache(User $user = null, Page $page = null)
+    {
+        $tablename = Page::_links();
+        $tablename = Page::_dbprefix() . $tablename['allowedUsers']['tablename'];
+        $SQL_query = "DELETE FROM " . $tablename . " WHERE 1";
+        if ($user->id) {
+            $SQL_query .= " AND uid = " . (int)$user->id;
+        }
+        if ($page->id) {
+            $SQL_query .= " AND page_id = " . (int)$page->id;
+        }
+        self::_SQL()->query($SQL_query);
+
+        if ((int)$user->id) {
+            $usersIds = array((int)$user->id);
+        } else {
+            $SQL_query = "SELECT tU.id FROM " . User::_tablename() . " AS tU WHERE 1";
+            $usersIds = self::_SQL()->getcol($SQL_query);
+            $usersIds[] = 0;
+        }
+
+        $SQL_query = "SELECT tP.id FROM " . Page::_tablename() . " AS tP JOIN " . self::_tablename() . " AS tA ON tA.page_id = tP.id WHERE 1";
+        if ((int)$page->id) {
+            $SQL_query .= " AND tP.id = " . (int)$page->id;
+        }
+        $SQL_query .= " GROUP BY tP.id";
+        $pagesIds = self::_SQL()->getcol($SQL_query);
+        foreach ($pagesIds as $pid) {
+            foreach ($usersIds as $uid) {
+                $row = new Page($pid);
+                $u = new User($uid);
+                $a = $row->userHasAccess($u);
+                self::_SQL()->add($tablename, array('uid' => (int)$u->id, 'page_id' => (int)$row->id, 'allow' => (int)$a));
+            }
+        }
+    }
+
+
+    /**
      * Обновляет кэш доступа к материалам
      * @param User $user фильтр по пользователю
      * @param Material $material фильтр по материалу
@@ -101,6 +144,49 @@ class CMSAccess extends \SOME\SOME
                 $u = new User($uid);
                 $a = $row->userHasAccess($u);
                 self::_SQL()->add($tablename, array('uid' => (int)$u->id, 'material_id' => (int)$row->id, 'allow' => (int)$a));
+            }
+        }
+    }
+
+
+    /**
+     * Обновляет кэш доступа к блокам
+     * @param User $user фильтр по пользователю
+     * @param Block $block фильтр по блоку
+     */
+    public static function refreshBlocksAccessCache(User $user = null, Block $block = null)
+    {
+        $tablename = Block::_links();
+        $tablename = Block::_dbprefix() . $tablename['allowedUsers']['tablename'];
+        $SQL_query = "DELETE FROM " . $tablename . " WHERE 1";
+        if ($user->id) {
+            $SQL_query .= " AND uid = " . (int)$user->id;
+        }
+        if ($block->id) {
+            $SQL_query .= " AND block_id = " . (int)$block->id;
+        }
+        self::_SQL()->query($SQL_query);
+
+        if ((int)$user->id) {
+            $usersIds = array((int)$user->id);
+        } else {
+            $SQL_query = "SELECT tU.id FROM " . User::_tablename() . " AS tU WHERE 1";
+            $usersIds = self::_SQL()->getcol($SQL_query);
+            $usersIds[] = 0;
+        }
+
+        $SQL_query = "SELECT tM.id FROM " . Block::_tablename() . " AS tM JOIN " . self::_tablename() . " AS tA ON tA.block_id = tM.id WHERE 1";
+        if ((int)$block->id) {
+            $SQL_query .= " AND tM.id = " . (int)$block->id;
+        }
+        $SQL_query .= " GROUP BY tM.id";
+        $blocksIds = self::_SQL()->getcol($SQL_query);
+        foreach ($blocksIds as $bid) {
+            foreach ($usersIds as $uid) {
+                $row = Block::spawn($bid);
+                $u = new User($uid);
+                $a = $row->userHasAccess($u);
+                self::_SQL()->add($tablename, array('uid' => (int)$u->id, 'block_id' => (int)$row->id, 'allow' => (int)$a));
             }
         }
     }

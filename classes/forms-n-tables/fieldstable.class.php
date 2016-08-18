@@ -33,25 +33,25 @@ class FieldsTable extends \RAAS\Table
             'data-role' => 'multitable',
             'columns' => array(
                 'name' => array(
-                    'caption' => $this->view->_('NAME'), 
-                    'callback' => function($row) use ($view, $editAction) { 
+                    'caption' => $this->view->_('NAME'),
+                    'callback' => function($row) use ($view, $editAction) {
                         if ($row->id) {
-                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>'; 
+                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>';
                         } else {
-                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>'; 
+                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>';
                         }
                     }
                 ),
                 'urn' => array(
                     'caption' => $this->view->_('URN'),
-                    'callback' => function($row) use ($view) { 
-                        return htmlspecialchars($row->urn) 
-                             . ($row->multiple ? '<strong title="' . $view->_('MULTIPLE') . '">[]</strong>' : '') 
-                             . ($row->required ? ' <span class="text-error" title="' . $view->_('REQUIRED') . '">*</span>' : ''); 
+                    'callback' => function($row) use ($view) {
+                        return htmlspecialchars($row->urn)
+                             . ($row->multiple ? '<strong title="' . $view->_('MULTIPLE') . '">[]</strong>' : '')
+                             . ($row->required ? ' <span class="text-error" title="' . $view->_('REQUIRED') . '">*</span>' : '');
                     }
                 ),
                 'datatype' => array(
-                    'caption' => $this->view->_('DATATYPE'), 
+                    'caption' => $this->view->_('DATATYPE'),
                     'callback' => function($row) use ($view) { return htmlspecialchars($view->_('DATATYPE_' . str_replace('-', '_', strtoupper($row->datatype)))); }
                 ),
                 'show_in_table' => array(
@@ -61,7 +61,7 @@ class FieldsTable extends \RAAS\Table
                 ),
                 'priority' => array(
                     'caption' => $this->view->_('PRIORITY'),
-                    'callback' => function($row, $i) { 
+                    'callback' => function($row, $i) {
                         return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . (($i + 1) * 10) . '" class="span1" min="0" />';
                     }
                 ),

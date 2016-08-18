@@ -657,7 +657,9 @@ class Package extends \RAAS\Package
             }
             parent::install();
             Attachment::clearLostFiles($this->filesDir);
+            CMSAccess::refreshPagesAccessCache();
             CMSAccess::refreshMaterialsAccessCache();
+            CMSAccess::refreshBlocksAccessCache();
         }
     }
 
