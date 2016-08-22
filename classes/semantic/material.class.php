@@ -180,6 +180,46 @@ class Material extends \SOME\SOME implements IAccessible
     }
 
 
+    /**
+     * Ассоциировать материал со страницей. Работает только для неглобальных материалов
+     * @param Page $page Страница, на которую нужно разместить материал
+     * @return bool true в случае успешного завершения, false в случае неудачи
+     */
+    public function assoc(Page $page)
+    {
+        if ($this->material_type->global_type) {
+            return false;
+        }
+        if (in_array($page->id, (array)$this->pages_ids)) {
+            return false;
+        }
+        $arr = array('id' => (int)$this->id, 'pid' => (int)$page->id);
+        self::$SQL->add(self::$dbprefix . self::$links['pages']['tablename'], $arr);
+        return true;
+    }
+
+
+    /**
+     * Убрать материал со страницы. Работает только для неглобальных материалов
+     * @param Page $page Страница, на которую нужно разместить материал
+     * @return bool true в случае успешного завершения, false в случае неудачи
+     */
+    public function deassoc(Page $page)
+    {
+        if ($this->material_type->global_type) {
+            return false;
+        }
+        if (!in_array($page->id, (array)$this->pages_ids)) {
+            return false;
+        }
+        $SQL_query = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename']
+                   . " WHERE id = " . (int)$this->id
+                   . "   AND pid = " . (int)$page->id;
+        self::$SQL->query($SQL_query);
+        return true;
+    }
+
+
     private function exportPages()
     {
         if ($this->cats) {
