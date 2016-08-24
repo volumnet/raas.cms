@@ -65,7 +65,7 @@
                   <?php
                   for ($i = 0; $i < count($Table->rows); $i++) {
                       $row = $Table->rows[$i];
-                      include \RAAS\CMS\Package::i()->view->context->tmp('multirow.inc.php');
+                      include \RAAS\CMS\Package::i()->view->tmp('multirow.inc.php');
                       if ($row->template) {
                           include \RAAS\Application::i()->view->context->tmp($row->template);
                       }
