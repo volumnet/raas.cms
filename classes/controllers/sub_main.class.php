@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\StdSub;
 use \RAAS\Application;
 use \RAAS\Redirector;
@@ -7,17 +8,24 @@ use \RAAS\Redirector;
 class Sub_Main extends \RAAS\Abstract_Sub_Controller
 {
     protected static $instance;
-    
+
     public function run()
     {
         switch ($this->action) {
-            case 'edit': case 'move':
+            case 'edit':
+            case 'move':
                 $this->{$this->action . '_page'}();
                 break;
-            case 'edit_block': case 'edit_material': case 'copy_material':
+            case 'edit_block':
+            case 'edit_material':
+            case 'copy_material':
+            case 'move_material':
                 $this->{$this->action}();
                 break;
-            case 'chvis': case 'delete': case 'vis': case 'invis':
+            case 'chvis':
+            case 'delete':
+            case 'vis':
+            case 'invis':
                 $items = array();
                 $ids = (array)$_GET['id'];
                 if (in_array('all', $ids, true)) {
@@ -28,20 +36,27 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
                         $items = Page::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
                     }
                 } else {
-                    $items = array_map(function($x) { return new Page((int)$x); }, $ids);
+                    $items = array_map(
+                        function ($x) {
+                            return new Page((int)$x);
+                        },
+                        $ids
+                    );
                 }
                 $items = array_values($items);
                 $Item = isset($items[0]) ? $items[0] : new Page();
                 $f = $this->action;
                 StdSub::$f($items, (isset($_GET['back']) ? 'history:back' : $this->url . '&id=' . (int)$Item->pid) . '#subsections', false);
                 break;
-            case 'chvis_block': case 'delete_block':
+            case 'chvis_block':
+            case 'delete_block':
                 $Item = Block::spawn((int)$this->id);
                 $Page = new Page((int)(isset($_GET['pid']) ? $_GET['pid'] : 0));
                 $f = str_replace('_block', '', $this->action);
                 StdSub::$f($Item, $this->url . '&id=' . (int)$Item->pid, true, true, $Page);
                 break;
-            case 'move_up_block': case 'move_down_block':
+            case 'move_up_block':
+            case 'move_down_block':
                 $Item = Block::spawn((int)$this->id);
                 $Page = new Page((int)(isset($_GET['pid']) ? $_GET['pid'] : 0));
                 $step = (isset($_GET['step']) && (int)$_GET['step']) ? abs((int)$_GET['step']) : 1;
@@ -56,7 +71,10 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
                 $Page = new Page(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
                 StdSub::unassoc($Item, $this->url . '&id=' . (int)$pid, true, isset($_GET['pid']) && $Page->id, $Page);
                 break;
-            case 'delete_material': case 'chvis_material': case 'vis_material': case 'invis_material':
+            case 'delete_material':
+            case 'chvis_material':
+            case 'vis_material':
+            case 'invis_material':
                 $items = array();
                 $ids = (array)$_GET['id'];
                 $pids = (array)$_GET['pid'];
@@ -76,7 +94,12 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
                     }
                     $items = Material::getSet(array('where' => $where, 'orderBy' => "id"));
                 } else {
-                    $items = array_map(function($x) { return new Material((int)$x); }, $ids);
+                    $items = array_map(
+                        function ($x) {
+                            return new Material((int)$x);
+                        },
+                        $ids
+                    );
                 }
                 $items = array_values($items);
                 $Item = isset($items[0]) ? $items[0] : new Material();
@@ -116,9 +139,9 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
             }
 
             $temp = $this->model->getPageMaterials(
-                $Page, 
-                $mtype, 
-                isset($_GET['m' . $mtype->id . 'search_string']) ? $_GET['m' . $mtype->id . 'search_string'] : '', 
+                $Page,
+                $mtype,
+                isset($_GET['m' . $mtype->id . 'search_string']) ? $_GET['m' . $mtype->id . 'search_string'] : '',
                 isset($_COOKIE['m' . $mtype->id . 'sort']) ? $_COOKIE['m' . $mtype->id . 'sort'] : 'post_date',
                 isset($_COOKIE['m' . $mtype->id . 'order']) ? $_COOKIE['m' . $mtype->id . 'order'] : 'asc',
                 isset($_GET['m' . $mtype->id . 'page']) ? (int)$_GET['m' . $mtype->id . 'page'] : 1
@@ -132,8 +155,8 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
         $OUT['MPages'] = $MPages;
         $this->view->show_page($OUT);
     }
-    
-    
+
+
     protected function edit_page()
     {
         $Item = new Page((int)$this->id);
@@ -141,8 +164,8 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
         $Form = new EditPageForm(array('Item' => $Item, 'Parent' => $Parent));
         $this->view->edit_page(array_merge($Form->process(), array('Parent' => $Parent)));
     }
-    
-    
+
+
     protected function edit_block()
     {
         if ($this->id) {
@@ -164,12 +187,12 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
             new Redirector($this->url);
         }
         $arr = array('Item' => $Item, 'meta' => array('Parent' => $Parent));
-        
+
         $Form = $blockType->getForm($arr);
         $this->view->edit_block(array_merge($Form->process(), array('Parent' => $Parent)));
     }
-    
-    
+
+
     protected function move_page()
     {
         $items = array();
@@ -182,7 +205,12 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
                 $items = Page::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
             }
         } else {
-            $items = array_map(function($x) { return new Page((int)$x); }, $ids);
+            $items = array_map(
+                function ($x) {
+                    return new Page((int)$x);
+                },
+                $ids
+            );
         }
         $items = array_values($items);
         $Item = isset($items[0]) ? $items[0] : new Page();
@@ -197,8 +225,8 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
         }
         new Redirector('history:back#subsections');
     }
-    
-    
+
+
     protected function edit_material()
     {
         $Item = new Material($this->id);
@@ -232,9 +260,9 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
                 }
             }
             $temp = $this->model->getRelatedMaterials(
-                $Item, 
-                $mtype, 
-                isset($_GET['m' . $mtype->id . 'search_string']) ? $_GET['m' . $mtype->id . 'search_string'] : '', 
+                $Item,
+                $mtype,
+                isset($_GET['m' . $mtype->id . 'search_string']) ? $_GET['m' . $mtype->id . 'search_string'] : '',
                 isset($_COOKIE['m' . $mtype->id . 'sort']) ? $_COOKIE['m' . $mtype->id . 'sort'] : 'post_date',
                 isset($_COOKIE['m' . $mtype->id . 'order']) ? $_COOKIE['m' . $mtype->id . 'order'] : 'asc',
                 isset($_GET['m' . $mtype->id . 'page']) ? (int)$_GET['m' . $mtype->id . 'page'] : 1
@@ -285,6 +313,58 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
     }
 
 
-    
+    protected function move_material()
+    {
+        $items = array();
+        $ids = (array)$_GET['id'];
+        $pids = (array)$_GET['pid'];
+        $pids = array_filter($pids, 'trim');
+        $mtype = new Material_Type((int)$_GET['mtype']);
+        if ($mtype->global_type) {
+            new Redirector('history:back#_' . $mtype->urn);
+        }
 
+        if (in_array('all', $ids, true)) {
+            $mtypes = array_merge(array($mtype->id), (array)$mtype->all_children_ids);
+            $where = array("Material.pid IN (" . implode(", ", $mtypes) . ")");
+            if (!$mtype->global_type) {
+                if (in_array('all', $pids, true)) {
+                } elseif ($pids) {
+                    $pids = array_map('intval', $pids);
+                    $where[] = "pages___LINK.pid IN (" . implode(", ", $pids) . ")";
+                } else {
+                    $where[] = "pages___LINK.pid IN (0)";
+                }
+            }
+            $items = Material::getSet(array('where' => $where, 'orderBy' => "id"));
+        } else {
+            $items = array_map(
+                function ($x) {
+                    return new Material((int)$x);
+                },
+                $ids
+            );
+        }
+        $items = array_values($items);
+        $Item = isset($items[0]) ? $items[0] : new Material();
+        $mtype = $Item->material_type;
+        $pid = ($mtype->global_type || $pids ? array_shift($pids) : (int)$Item->pages_ids[0]);
+        $oldPage = new Page($pid);
+        if ($items) {
+            if (isset($_GET['new_pid'])) {
+                $Parent = new Page((int)$_GET['new_pid']);
+                foreach ($items as $row) {
+                    if ($_GET['move']) {
+                        $row->deassoc($oldPage);
+                    }
+                    $row->assoc($Parent);
+                }
+                new Redirector($this->url . '&id=' . (int)$Parent->id . '#_' . $mtype->urn);
+            } else {
+                $this->view->move_material(array('Item' => $Item, 'items' => $items, 'mtype' => $mtype, 'page' => $oldPage));
+                return;
+            }
+        }
+        new Redirector('history:back#_' . $mtype->urn);
+    }
 }

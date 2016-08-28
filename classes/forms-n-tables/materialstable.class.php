@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Column;
 
 class MaterialsTable extends \RAAS\Table
@@ -22,12 +23,17 @@ class MaterialsTable extends \RAAS\Table
         $view = $this->view;
         $columns = array();
         $i = 0;
-        foreach (array_filter($params['mtype']->fields, function($x) { return ($x->datatype == 'image') && $x->show_in_table; }) as $key => $col) {
+        foreach (array_filter(
+            $params['mtype']->fields,
+            function ($x) {
+                return ($x->datatype == 'image') && $x->show_in_table;
+            }
+        ) as $key => $col) {
             if ($i < 3) {
                 $columns[$col->urn] = array(
                     'caption' => $col->name,
                     'sortable' => Column::SORTABLE_REVERSABLE,
-                    'callback' => function($row) use ($col, $view, $params) { 
+                    'callback' => function ($row) use ($col, $view, $params) {
                         $f = $row->fields[$col->urn];
                         $v = $f->getValue();
                         if ($v->id) {
@@ -42,32 +48,37 @@ class MaterialsTable extends \RAAS\Table
         $columns['name'] = array(
             'caption' => $this->view->_('NAME'),
             'sortable' => Column::SORTABLE_REVERSABLE,
-            'callback' => function($row) use ($view, $params) { 
-                return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . '&pid=' . (int)$params['Item']->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' 
-                     .    htmlspecialchars($row->name) 
+            'callback' => function ($row) use ($view, $params) {
+                return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . '&pid=' . (int)$params['Item']->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>'
+                     .    htmlspecialchars($row->name)
                      . '</a>';
             }
         );
         $columns['post_date'] = array(
             'caption' => $this->view->_('CREATED_BY'),
             'sortable' => Column::SORTABLE_REVERSABLE,
-            'callback' => function($row) use ($view) { 
+            'callback' => function ($row) use ($view) {
                 return '<span' . (!$row->vis ? ' class="muted"' : '') . '>' . (strtotime($row->post_date) ? date(DATETIMEFORMAT, strtotime($row->post_date)) : '') . '</span>';
             }
         );
         $columns['modify_date'] = array(
             'caption' => $this->view->_('EDITED_BY'),
             'sortable' => Column::SORTABLE_REVERSABLE,
-            'callback' => function($row) use ($view) { 
+            'callback' => function ($row) use ($view) {
                 return '<span' . (!$row->vis ? ' class="muted"' : '') . '>' . (strtotime($row->modify_date) ? date(DATETIMEFORMAT, strtotime($row->modify_date)) : '') . '</span>';
             }
         );
-        foreach (array_filter($params['mtype']->fields, function($x) { return ($x->datatype != 'image') && $x->show_in_table; }) as $key => $col) {
+        foreach (array_filter(
+            $params['mtype']->fields,
+            function ($x) {
+                return ($x->datatype != 'image') && $x->show_in_table;
+            }
+        ) as $key => $col) {
             if ($i < 3) {
                 $columns[$col->urn] = array(
                     'caption' => $col->name,
                     'sortable' => Column::SORTABLE_REVERSABLE,
-                    'callback' => function($row) use ($col, $view) { 
+                    'callback' => function ($row) use ($col, $view) {
                         $f = $row->fields[$col->urn];
                         switch ($f->datatype) {
                             case 'htmlarea':
@@ -81,8 +92,8 @@ class MaterialsTable extends \RAAS\Table
                                 $v = $f->getValue();
                                 $m = new Material($v);
                                 if ($m->id) {
-                                    return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$m->id . '" ' . (!$m->vis ? 'class="muted"' : '') . '>' 
-                                         .    htmlspecialchars($m->name) 
+                                    return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$m->id . '" ' . (!$m->vis ? 'class="muted"' : '') . '>'
+                                         .    htmlspecialchars($m->name)
                                          . '</a>';
                                 }
                                 break;
@@ -96,10 +107,10 @@ class MaterialsTable extends \RAAS\Table
                                 }
                                 break;
                             default:
-                                return $f->doRich(); 
+                                return $f->doRich();
                                 break;
                         }
-                        
+
                     }
                 );
                 $i++;
@@ -107,21 +118,25 @@ class MaterialsTable extends \RAAS\Table
         }
         $columns['priority'] = array(
             'caption' => $this->view->_('PRIORITY'),
-            'callback' => function($row) { 
+            'callback' => function ($row) {
                 return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . ($row->priority ? (int)$row->priority : '') . '" class="span1" min="0" />';
             }
         );
-        $columns[' '] = array('callback' => function ($row) use ($view) { return rowContextMenu($view->getMaterialContextMenu($row)); });
+        $columns[' '] = array(
+            'callback' => function ($row) use ($view) {
+                return rowContextMenu($view->getMaterialContextMenu($row));
+            }
+        );
 
         $arr = array_merge(
             array(
                 'meta' => array(
-                    'allContextMenu' => $view->getAllMaterialsContextMenu(),
+                    'allContextMenu' => $view->getAllMaterialsContextMenu($params['mtype']),
                     'allValue' => 'all&mtype=' . (int)$params['mtype']->id . '&pid=' . (int)$params['Item']->id,
                 ),
                 'data-role' => 'multitable',
                 'columns' => $columns
-            ), 
+            ),
             $params
         );
         parent::__construct($arr);

@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\FormTab;
 
 class CMSAccessFormTab extends \RAAS\FormTab
@@ -47,7 +48,7 @@ class CMSAccessFormTab extends \RAAS\FormTab
                 'access_uid' => array('name' => 'access_uid', 'multiple' => true),
                 'access_gid' => array('type' => 'select', 'name' => 'access_gid', 'multiple' => true, 'children' => $CONTENT['access_gid']),
             ),
-            'import' => function($FormTab) {
+            'import' => function ($FormTab) {
                 $DATA = array();
                 if ($FormTab->Form->Item->access) {
                     foreach ((array)$FormTab->Form->Item->access as $row) {
@@ -60,7 +61,7 @@ class CMSAccessFormTab extends \RAAS\FormTab
                 }
                 return $DATA;
             },
-            'oncommit' => function($FormTab) {
+            'oncommit' => function ($FormTab) {
                 $Item = $FormTab->Form->Item;
                 if ($Item->id) {
                     $FK = $Item->_children();
@@ -69,7 +70,7 @@ class CMSAccessFormTab extends \RAAS\FormTab
                     $presentIds = array_filter($presentIds);
                     $presentIds[] = 0;
                     $presentIds = array_unique($presentIds);
-                    $SQL_query = "DELETE FROM " . CMSAccess::_tablename() 
+                    $SQL_query = "DELETE FROM " . CMSAccess::_tablename()
                                . " WHERE " . $FK . " = " . (int)$Item->id . " AND id NOT IN (" . implode(", ", $presentIds) . ")";
                     $Item->_SQL()->query($SQL_query);
                     foreach ((array)$_POST['access_id'] as $key => $val) {
@@ -87,8 +88,12 @@ class CMSAccessFormTab extends \RAAS\FormTab
                         }
                         $access->commit();
                     }
-                    if ($Item instanceof Material) {
+                    if ($Item instanceof Page) {
+                        CMSAccess::refreshPagesAccessCache(null, $Item);
+                    } elseif ($Item instanceof Material) {
                         CMSAccess::refreshMaterialsAccessCache(null, $Item);
+                    } elseif ($Item instanceof Block) {
+                        CMSAccess::refreshBlocksAccessCache(null, $Item);
                     }
                 }
             }

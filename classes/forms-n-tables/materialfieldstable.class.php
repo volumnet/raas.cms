@@ -18,25 +18,25 @@ class MaterialFieldsTable extends FieldsTable
             'data-role' => 'multitable',
             'columns' => array(
                 'name' => array(
-                    'caption' => $this->view->_('NAME'), 
-                    'callback' => function($row) use ($view, $editAction, $params) { 
+                    'caption' => $this->view->_('NAME'),
+                    'callback' => function($row) use ($view, $editAction, $params) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
-                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>'; 
+                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' . htmlspecialchars($row->name) . '</a>';
                         } else {
-                            return htmlspecialchars($row->name); 
+                            return htmlspecialchars($row->name);
                         }
                     }
                 ),
                 'urn' => array(
                     'caption' => $this->view->_('URN'),
-                    'callback' => function($row) use ($view) { 
-                        return htmlspecialchars($row->urn) 
-                             . ($row->multiple ? '<strong title="' . $view->_('MULTIPLE') . '">[]</strong>' : '') 
-                             . ($row->required ? ' <span class="text-error" title="' . $view->_('REQUIRED') . '">*</span>' : ''); 
+                    'callback' => function($row) use ($view) {
+                        return htmlspecialchars($row->urn)
+                             . ($row->multiple ? '<strong title="' . $view->_('MULTIPLE') . '">[]</strong>' : '')
+                             . ($row->required ? ' <span class="text-error" title="' . $view->_('REQUIRED') . '">*</span>' : '');
                     }
                 ),
                 'datatype' => array(
-                    'caption' => $this->view->_('DATATYPE'), 
+                    'caption' => $this->view->_('DATATYPE'),
                     'callback' => function($row) use ($view) { return htmlspecialchars($view->_('DATATYPE_' . str_replace('-', '_', strtoupper($row->datatype)))); }
                 ),
                 'show_in_table' => array(
@@ -46,7 +46,7 @@ class MaterialFieldsTable extends FieldsTable
                 ),
                 'priority' => array(
                     'caption' => $this->view->_('PRIORITY'),
-                    'callback' => function($row) use ($params) { 
+                    'callback' => function($row) use ($params) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
                             return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . ($row->priority ? (int)$row->priority : '') . '" class="span1" min="0" />';
                         } elseif ($row->id) {
@@ -55,9 +55,9 @@ class MaterialFieldsTable extends FieldsTable
                     }
                 ),
                 ' ' => array(
-                    'callback' => function ($row, $i) use ($view, $params, $ctxMenu, $shift) { 
+                    'callback' => function ($row, $i) use ($view, $params, $ctxMenu, $shift) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
-                            return rowContextMenu($view->$ctxMenu($row, $i - $shift, count($params['Set']) - $shift)); 
+                            return rowContextMenu($view->$ctxMenu($row, $i - $shift, count($params['Set']) - $shift));
                         }
                     }
                 )

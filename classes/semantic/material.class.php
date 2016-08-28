@@ -23,7 +23,7 @@ class Material extends \SOME\SOME implements IAccessible
         'pages' => array('tablename' => 'cms_materials_pages_assoc', 'field_from' => 'id', 'field_to' => 'pid', 'classname' => 'RAAS\\CMS\\Page'),
         'allowedUsers' => array('tablename' => 'cms_access_materials_cache', 'field_from' => 'material_id', 'field_to' => 'uid', 'classname' => 'RAAS\\CMS\\User'),
     );
-    
+
     public function __get($var)
     {
         switch ($var) {
@@ -37,7 +37,12 @@ class Material extends \SOME\SOME implements IAccessible
                 }
                 break;
             case 'parents_ids':
-                return array_map(function($x) { return (int)$x->id; }, $this->parents);
+                return array_map(
+                    function ($x) {
+                        return (int)$x->id;
+                    },
+                    $this->parents
+                );
                 break;
             case 'parent':
                 if ($this->parents) {
@@ -62,13 +67,20 @@ class Material extends \SOME\SOME implements IAccessible
                     if (isset($this->fields[$var]) && ($this->fields[$var] instanceof Material_Field)) {
                         $temp = $this->fields[$var]->getValues();
                         if ($vis) {
-                            $temp = array_values(array_filter((array)$temp, function($x) { return isset($x->vis) && $x->vis; }));
+                            $temp = array_values(
+                                array_filter(
+                                    (array)$temp,
+                                    function ($x) {
+                                        return isset($x->vis) && $x->vis;
+                                    }
+                                )
+                            );
                         }
                         return $temp;
                     }
                     if ((strtolower($var) == 'url') && !isset($temp)) {
                         // Размещаем сюда из-за большого количества баннеров, где URL задан явно
-                        // 2015-06-21, AVS: заменили parent на affectedPages[0], т.к. зачастую, если новость задана и на главной и на странице новостей, 
+                        // 2015-06-21, AVS: заменили parent на affectedPages[0], т.к. зачастую, если новость задана и на главной и на странице новостей,
                         // url по умолчанию ведет на главную, где нет nat'а
                         // 2016-02-09, AVS: делаем проверку, а вообще есть ли affectedPages
                         // Если нет, то и URL у материала по сути нет
@@ -78,8 +90,8 @@ class Material extends \SOME\SOME implements IAccessible
                 break;
         }
     }
-    
-    
+
+
     public function commit()
     {
         $this->modify(false);
@@ -113,8 +125,8 @@ class Material extends \SOME\SOME implements IAccessible
             $row->modify();
         }
     }
-    
-    
+
+
     public function visit()
     {
         $this->visit_counter++;
@@ -160,21 +172,66 @@ class Material extends \SOME\SOME implements IAccessible
     {
         return trim($this->menu_name) ?: trim($this->name);
     }
-    
-    
+
+
     public function getBreadcrumbsName()
     {
         return trim($this->breadcrumbs_name) ?: trim($this->name);
     }
-    
-    
+
+
+    /**
+     * Ассоциировать материал со страницей. Работает только для неглобальных материалов
+     * @param Page $page Страница, на которую нужно разместить материал
+     * @return bool true в случае успешного завершения, false в случае неудачи
+     */
+    public function assoc(Page $page)
+    {
+        if ($this->material_type->global_type) {
+            return false;
+        }
+        if (in_array($page->id, (array)$this->pages_ids)) {
+            return false;
+        }
+        $arr = array('id' => (int)$this->id, 'pid' => (int)$page->id);
+        self::$SQL->add(self::$dbprefix . self::$links['pages']['tablename'], $arr);
+        return true;
+    }
+
+
+    /**
+     * Убрать материал со страницы. Работает только для неглобальных материалов
+     * @param Page $page Страница, на которую нужно разместить материал
+     * @return bool true в случае успешного завершения, false в случае неудачи
+     */
+    public function deassoc(Page $page)
+    {
+        if ($this->material_type->global_type) {
+            return false;
+        }
+        if (!in_array($page->id, (array)$this->pages_ids)) {
+            return false;
+        }
+        $SQL_query = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename']
+                   . " WHERE id = " . (int)$this->id
+                   . "   AND pid = " . (int)$page->id;
+        self::$SQL->query($SQL_query);
+        return true;
+    }
+
+
     private function exportPages()
     {
         if ($this->cats) {
             $SQL_query = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename'] . " WHERE id = " . (int)$this->id;
             self::$SQL->query($SQL_query);
             $id = (int)$this->id;
-            $arr = array_map(function($x) use ($id) { return array('id' => $id, 'pid' => $x); }, (array)$this->cats);
+            $arr = array_map(
+                function ($x) use ($id) {
+                    return array('id' => $id, 'pid' => $x);
+                },
+                (array)$this->cats
+            );
             unset($this->cats);
             self::$SQL->add(self::$dbprefix . self::$links['pages']['tablename'], $arr);
         } elseif ($this->material_type->global_type) {
@@ -182,8 +239,8 @@ class Material extends \SOME\SOME implements IAccessible
             self::$SQL->query($SQL_query);
         }
     }
-    
-    
+
+
     public static function delete(self $object)
     {
         foreach ($object->fields as $row) {
@@ -196,8 +253,8 @@ class Material extends \SOME\SOME implements IAccessible
         }
         parent::delete($object);
     }
-    
-    
+
+
     public static function importByURN($urn)
     {
         $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
@@ -209,7 +266,7 @@ class Material extends \SOME\SOME implements IAccessible
         }
     }
 
-    
+
     protected function _fields()
     {
         $temp = $this->material_type->fields;
@@ -233,19 +290,19 @@ class Material extends \SOME\SOME implements IAccessible
                         JOIN " . self::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
                         JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id
                         JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.id = tB.id
-                        JOIN " . Material_Type::_tablename() . " AS tMt ON tMt.id = tBM.material_type 
+                        JOIN " . Material_Type::_tablename() . " AS tMt ON tMt.id = tBM.material_type
                        WHERE tB.vis AND tB.nat AND tMt.id IN (" . implode(", ", $types) . ") ";
         // 2015-06-21, AVS: добавил, т.к. иначе предлагает выбрать основную страницу из всех, на которых есть блок, без учета страниц материала
         if ($this->pages) {
             $SQL_query .= " AND tP.id IN (" . implode(", ", $this->pages_ids) . ")";
         }
         $Set = Page::getSQLSet($SQL_query);
-        // 2015-08-21, AVS: добавил сортировку, т.к. выбранная по умолчанию страница должна быть первой, 
+        // 2015-08-21, AVS: добавил сортировку, т.к. выбранная по умолчанию страница должна быть первой,
         // в частности для реализации $this->url, где используется $this->affectedPages[0]
         if ($dpid = $this->page_id) {
             usort(
-                $Set, 
-                function($a, $b) use ($dpid) { 
+                $Set,
+                function ($a, $b) use ($dpid) {
                     if (($a->id == $dpid) && ($b->id != $dpid)) {
                         return -1;
                     } elseif (($b->id == $dpid) && ($a->id != $dpid)) {
@@ -264,7 +321,7 @@ class Material extends \SOME\SOME implements IAccessible
     protected function _relatedMaterialTypes()
     {
         $ids = array_merge(array(0, (int)$this->material_type->id), (array)$this->material_type->parents_ids);
-        $SQL_query = "SELECT tMT.* 
+        $SQL_query = "SELECT tMT.*
                         FROM " . Material_Type::_tablename() . " AS tMT
                         JOIN " . Material_Field::_tablename() . " AS tF ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid = tMT.id
                         WHERE tF.datatype = 'material' AND source IN (" . implode(", ", $ids) . ")";

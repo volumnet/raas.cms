@@ -1,12 +1,13 @@
 <?php
 namespace RAAS\CMS;
+
 $IN = (array)$_GET;
 if (!$Block->nat) {
     unset($IN['id']);
 }
 parse_str(trim($Block->params), $temp);
 $IN = array_merge($IN, (array)$temp);
-$getField = function($field, $as, array &$SQL_from) {
+$getField = function ($field, $as, array &$SQL_from) {
     $sort = '';
     if (in_array($field, array('name', 'urn', 'description', 'post_date', 'modify_date'))) {
         $sort = "tM." . $field;
@@ -15,11 +16,16 @@ $getField = function($field, $as, array &$SQL_from) {
             // 2015-03-31, AVS: заменил JOIN на LEFT JOIN, т.к. если добавить новое поле и сделать сортировку по нему, материалы пропадают
             $SQL_from[$as] = " LEFT JOIN " . Field::data_table . " AS `" . $as . "` ON `" . $as . "`.pid = tM.id AND `" . $as . "`.fid = " . (int)$field;
         }
-        $sort = $as . ".value";
+        $Field = new Material_Field((int)$field);
+        if ($Field->datatype == 'number') {
+            $sort = "CAST(" . $as . ".value AS UNSIGNED)";
+        } else {
+            $sort = $as . ".value";
+        }
     }
     return $sort;
 };
-$getOrder = function($relation, $var) use ($IN) {
+$getOrder = function ($relation, $var) use ($IN) {
     $order = '';
     switch ((string)$relation) {
         case 'asc!':
@@ -94,11 +100,13 @@ if ($Page->Material && $Block->nat) {
     /*** FILTERING ***/
     if ($Block->filter) {
         $SQL_array = array();
-        foreach((array)$Block->filter as $row) {
+        foreach ((array)$Block->filter as $row) {
             if (isset($row['var'], $row['relation'], $row['field'], $IN[$row['var']])) {
                 $tmp_field = $getField($row['field'], 't' . $row['field'], $SQL_from);
                 switch ($row['relation']) {
-                    case '=': case '<=': case '>=':
+                    case '=':
+                    case '<=':
+                    case '>=':
                         $SQL_array[$row['var']][] = "(" . $tmp_field . " " . $row['relation'] . " '" . Field::_SQL()->real_escape_string($IN[$row['var']]) . "')";
                         break;
                     case 'LIKE':
@@ -150,12 +158,16 @@ if ($Page->Material && $Block->nat) {
         $Pages = new \SOME\Pages(isset($IN[$config['pages_var_name']]) ? (int)$IN[$config['pages_var_name']] : 1, (int)$config['rows_per_page']);
     }
     $Set = Material::getSQLSet($SQL_query, $Pages);
-    $Set = array_filter($Set, function($x) { return $x->currentUserHasAccess(); });
+    $Set = array_filter(
+        $Set,
+        function ($x) {
+            return $x->currentUserHasAccess();
+        }
+    );
     $OUT['Set'] = $Set;
     $OUT['MType'] = $MType;
     if ($Pages !== null) {
         $OUT['Pages'] = $Pages;
     }
-
 }
 return $OUT;

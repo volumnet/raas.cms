@@ -24,10 +24,13 @@ abstract class Block extends \SOME\SOME implements IAccessible
     protected static $children = array(
         'access' => array('classname' => 'RAAS\\CMS\\CMSAccess', 'FK' => 'block_id'),
     );
-    protected static $links = array('pages' => array('tablename' => 'cms_blocks_pages_assoc', 'field_from' => 'block_id', 'field_to' => 'page_id', 'classname' => 'RAAS\\CMS\\Page'));
-    
+    protected static $links = array(
+        'pages' => array('tablename' => 'cms_blocks_pages_assoc', 'field_from' => 'block_id', 'field_to' => 'page_id', 'classname' => 'RAAS\\CMS\\Page'),
+        'allowedUsers' => array('tablename' => 'cms_access_blocks_cache', 'field_from' => 'block_id', 'field_to' => 'uid', 'classname' => 'RAAS\\CMS\\User'),
+    );
+
     protected static $caches = array();
-    
+
     public static function spawn($import_data)
     {
         if (is_array($import_data)) {
@@ -107,8 +110,8 @@ abstract class Block extends \SOME\SOME implements IAccessible
                 break;
         }
     }
-    
-    
+
+
     public function commit()
     {
         $this->modify_date = date('Y-m-d H:i:s');
@@ -164,8 +167,10 @@ abstract class Block extends \SOME\SOME implements IAccessible
 
 
     protected function getAddData()
-    {}
-    
+    {
+
+    }
+
 
     private function exportPages()
     {
@@ -174,7 +179,7 @@ abstract class Block extends \SOME\SOME implements IAccessible
             $old_ids = array_diff($this->pages_ids, $ids);
             $new_ids = array_diff($ids, $this->pages_ids);
             if ($old_ids) {
-                $SQL_query = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename'] . " 
+                $SQL_query = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename'] . "
                                WHERE block_id = " . (int)$this->id . " AND page_id IN (" . implode(", ", array_map('intval', $old_ids)) . ")";
                 self::$SQL->query($SQL_query);
             }
@@ -189,20 +194,20 @@ abstract class Block extends \SOME\SOME implements IAccessible
             }
         }
     }
-    
-    
+
+
     public function swap($step, Page $Page)
     {
-        $SQL_query = "SELECT priority FROM " . self::$dbprefix . self::$links['pages']['tablename'] 
+        $SQL_query = "SELECT priority FROM " . self::$dbprefix . self::$links['pages']['tablename']
                    . " WHERE block_id = " . (int)$this->id . " AND page_id = " . (int)$Page->id;
         $priority = (int)self::$SQL->getvalue($SQL_query);
-        
-        $SQL_query = "SELECT tBPA.block_id, tBPA.priority 
+
+        $SQL_query = "SELECT tBPA.block_id, tBPA.priority
                         FROM " . self::$dbprefix . self::$links['pages']['tablename'] . " AS tBPA
-                        JOIN " . self::_tablename() . " AS tB ON tB.id = tBPA.block_id 
-                       WHERE tBPA.priority " . ($step < 0 ? "<" : ">") . " " . (int)$priority . " 
-                         AND tBPA.page_id = " . (int)$Page->id . " 
-                         AND tB.location = '" . self::$SQL->real_escape_string($this->location) . "' 
+                        JOIN " . self::_tablename() . " AS tB ON tB.id = tBPA.block_id
+                       WHERE tBPA.priority " . ($step < 0 ? "<" : ">") . " " . (int)$priority . "
+                         AND tBPA.page_id = " . (int)$Page->id . "
+                         AND tB.location = '" . self::$SQL->real_escape_string($this->location) . "'
                     ORDER BY tBPA.priority " . ($step < 0 ? "DESC" : "ASC") . (!is_infinite($step) ? " LIMIT " . abs((int)$step) : "");
         $swapwith = static::$SQL->get($SQL_query);
         $save_ok = true;
@@ -212,17 +217,21 @@ abstract class Block extends \SOME\SOME implements IAccessible
                 $swapId = static::$SQL->quote($swapwith[$i]['block_id']);
                 $swapPri = (int)($i ? $swapwith[$i - 1]['priority'] : (int)$priority);
                 $save_ok &= static::$SQL->update(
-                    self::$dbprefix . self::$links['pages']['tablename'], /*"page_id = " . (int)$Page->id . " AND " .*/ " block_id = " . $swapId, array('priority' => $swapPri)
+                    self::$dbprefix . self::$links['pages']['tablename'],
+                    /*"page_id = " . (int)$Page->id . " AND " .*/ " block_id = " . $swapId,
+                    array('priority' => $swapPri)
                 );
             }
             $priority = (int)$swapwith[count($swapwith) - 1]['priority'];
             static::$SQL->update(
-                self::$dbprefix . self::$links['pages']['tablename'], /*"page_id = " . (int)$Page->id . " AND " .*/ " block_id = " . $this->id, array('priority' => $priority)
+                self::$dbprefix . self::$links['pages']['tablename'],
+                /*"page_id = " . (int)$Page->id . " AND " .*/ " block_id = " . $this->id,
+                array('priority' => $priority)
             );
         }
         return $save_ok;
     }
-    
+
 
     public function unassoc(Page $Page)
     {
@@ -233,7 +242,7 @@ abstract class Block extends \SOME\SOME implements IAccessible
             self::delete($this);
         }
     }
-    
+
 
     public function process(Page $Page, $nocache = false)
     {
@@ -243,7 +252,7 @@ abstract class Block extends \SOME\SOME implements IAccessible
         $SITE = $Page->Domain;
         $Block = $this;
         $config = $this->getAddData();
-        
+
         // Пытаемся прочесть из HTML-кэша
         if (!$nocache && ($this->cache_type == static::CACHE_HTML)) {
             $IN = (array)$this->loadCache($_SERVER['REQUEST_URI']);
@@ -306,9 +315,9 @@ abstract class Block extends \SOME\SOME implements IAccessible
         }
         return $OUT;
     }
-    
 
-    protected function processWidget(array $IN = array(), $Page)
+
+    protected function processWidget(array $IN = array(), $Page = null)
     {
         $SITE = $Page->Domain;
         $Block = $this;
@@ -320,7 +329,7 @@ abstract class Block extends \SOME\SOME implements IAccessible
     }
 
 
-    protected function processCache(array $IN = array(), $Page)
+    protected function processCache(array $IN = array(), $Page = null)
     {
         $SITE = $Page->Domain;
         $Block = $this;
@@ -332,7 +341,7 @@ abstract class Block extends \SOME\SOME implements IAccessible
         }
         return $OUT;
     }
-    
+
 
     public function loadCache($url = null)
     {
@@ -345,7 +354,7 @@ abstract class Block extends \SOME\SOME implements IAccessible
         }
         return $OUT;
     }
-    
+
 
     protected function _Location()
     {

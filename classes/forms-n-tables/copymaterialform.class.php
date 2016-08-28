@@ -33,7 +33,9 @@ class CopyMaterialForm extends EditMaterialForm
             if ($el->name == 'cats') {
                 $el->default = $Item->pages_ids;
             } elseif ($el->name == 'access_id') {
-                $el->default = array_fill(0, count($Item->access), '');
+                if (count($Item->access)) {
+                    $el->default = array_fill(0, count($Item->access), '');
+                }
             } elseif ($el->name == 'access_allow') {
                 $el->default = array_map(function($x) { return (int)$x->allow; }, (array)$Item->access);
             } elseif ($el->name == 'access_to_type') {
@@ -47,16 +49,16 @@ class CopyMaterialForm extends EditMaterialForm
                 $el->default = $Item->{$el->name};
             }
         }
-    } 
+    }
 
 
     protected function getCopyTab(Material $Original)
     {
         $copyTab = new FormTab(array('name' => 'copy', 'caption' => $this->view->_('COPY_PARAMS')));
         $copyTab->children['copy_links'] = new RAASField(array(
-            'type' => 'checkbox', 
-            'name' => 'copy_links', 
-            'caption' => $this->view->_('COPY_MATERIAL_LINKS'), 
+            'type' => 'checkbox',
+            'name' => 'copy_links',
+            'caption' => $this->view->_('COPY_MATERIAL_LINKS'),
         ));
         $copyTab->oncommit = function($FormTab) use ($Original) {
             $Item = $FormTab->Form->Item;
@@ -66,8 +68,8 @@ class CopyMaterialForm extends EditMaterialForm
                 $mtypes = array_map(function($x) { return (int)$x->id; }, $mtypes);
                 // Получим всевозможные множественные поля типа материалов, которые могут ссылаться на данный материал
                 $SQL_query = "SELECT id
-                                FROM " . Field::_tablename() . " 
-                               WHERE datatype = 'material' 
+                                FROM " . Field::_tablename() . "
+                               WHERE datatype = 'material'
                                  AND multiple
                                  AND ((NOT source) OR (source IN (" . implode(", ", $mtypes) . ")))";
                 $fieldsIds = Application::i()->SQL->getcol($SQL_query);
@@ -83,8 +85,8 @@ class CopyMaterialForm extends EditMaterialForm
                         $SQL_query = "SELECT MAX(fii) FROM cms_data WHERE pid = " . (int)$row['pid'] . " AND fid = " . (int)$row['fid'];
                         $ai[(int)$row['pid'] . '.' . (int)$row['fid']] = (int)Application::i()->SQL->getvalue($SQL_query);
                         $arr[] = array(
-                            'pid' => (int)$row['pid'], 
-                            'fid' => (int)$row['fid'], 
+                            'pid' => (int)$row['pid'],
+                            'fid' => (int)$row['fid'],
                             'fii' => ++$ai[(int)$row['pid'] . '.' . (int)$row['fid']],
                             'value' => (int)$Item->id
                         );
@@ -97,5 +99,5 @@ class CopyMaterialForm extends EditMaterialForm
     }
 
 
-    
+
 }

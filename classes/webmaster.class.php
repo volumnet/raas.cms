@@ -229,7 +229,9 @@ class Webmaster
             // 'search' => $this->view->_('SITE_SEARCH'),
             'sitemap_xml' => $this->view->_('SITEMAP_XML'),
             'logo' => $this->view->_('LOGO'),
+            'features_main' => $this->view->_('FEATURES_MAIN'),
             'robots' => $this->view->_('ROBOTS_TXT'),
+            'custom_css' => $this->view->_('CUSTOM_CSS'),
             'menu_content' => $this->view->_('SITEMAP'),
             'menu_top' => $this->view->_('TOP_MENU'),
             // 'menu_left' => $this->view->_('LEFT_MENU'),
@@ -366,9 +368,20 @@ class Webmaster
             $menus[$row['urn']] = $MNU;
         }
 
-        $B = new Block_Menu(array('menu' => (int)$menus['top']->id, 'full_menu' => 1));
+        $stdCacheInterface = Snippet::importByURN('__raas_cache_interface');
+        $B = new Block_Menu(array(
+            'menu' => (int)$menus['top']->id,
+            'full_menu' => 1,
+            'cache_type' => Block::CACHE_DATA,
+            'cache_interface_id' => (int)$stdCacheInterface->id
+        ));
         $this->createBlock($B, 'menu_top', '__raas_menu_interface', 'menu_top', $this->Site, true);
-        $B = new Block_Menu(array('menu' => (int)$menus['bottom']->id, 'full_menu' => 1));
+        $B = new Block_Menu(array(
+            'menu' => (int)$menus['bottom']->id,
+            'full_menu' => 1,
+            'cache_type' => Block::CACHE_DATA,
+            'cache_interface_id' => (int)$stdCacheInterface->id
+        ));
         $this->createBlock($B, 'menu_bottom', '__raas_menu_interface', 'menu_bottom', $this->Site, true);
         return $menus;
     }
@@ -434,6 +447,61 @@ class Webmaster
 
 
     /**
+     * Добавим особенности
+     */
+    public function createFeatures()
+    {
+        $MT = Material_Type::importByURN('features');
+        if (!$MT->id) {
+            $MT = new Material_Type(array('name' => $this->view->_('FEATURES'), 'urn' => 'features', 'global_type' => 1));
+            $MT->commit();
+
+            $F = new Material_Field(array(
+                'pid' => $MT->id,
+                'name' => $this->view->_('IMAGE'),
+                'urn' => 'image',
+                'datatype' => 'image',
+                'show_in_table' => 1,
+            ));
+            $F->commit();
+
+            $F = new Material_Field(array(
+                'pid' => $MT->id,
+                'name' => $this->view->_('ICON'),
+                'urn' => 'icon',
+                'datatype' => 'text',
+                'show_in_table' => 1,
+            ));
+            $F->commit();
+
+            $B = new Block_Material(array(
+                'material_type' => (int)$MT->id,
+                'nat' => 0,
+                'pages_var_name' => 'page',
+                'rows_per_page' => 0,
+                'sort_field_default' => 'post_date',
+                'sort_order_default' => 'asc',
+            ));
+            $this->createBlock($B, 'content', '__raas_material_interface', 'features_main', $this->Site);
+            // Создадим материалы
+            $icons = array('smile-o', 'thumbs-o-up', 'rub');
+            for ($i = 0; $i < 3; $i++) {
+                $Item = new Material(array(
+                    'pid' => (int)$MT->id,
+                    'vis' => 1,
+                    'name' => $this->view->_('FEATURE_' . ($i + 1)),
+                    'description' => $this->view->_('FEATURE_' . ($i + 1) . '_TEXT'),
+                    'priority' => ($i + 1) * 10,
+                    'sitemaps_priority' => 0.5
+                ));
+                $Item->commit();
+                $Item->fields['icon']->addValue($icons[$i]);
+            }
+        }
+    }
+
+
+    /**
      * Создаем главную страницу
      * @param Template $template Шаблон
      * @param array[Form] $forms массив форм
@@ -484,13 +552,6 @@ class Webmaster
             ));
             $this->createBlock($B, 'copyrights', null, null, $this->Site, true);
 
-            $B = new Block_HTML(array(
-                'name' => $this->view->_('SHARE'),
-                'description' => file_get_contents($this->resourcesDir . '/share.tmp.php'),
-                'wysiwyg' => 0,
-            ));
-            $this->createBlock($B, 'share', null, null, $this->Site, true, array($this->Site->id));
-
             $B = new Block_Form(array('form' => $forms['feedback']->id ?: 0,));
             $this->createBlock($B, 'footer_counters', '__raas_form_interface', 'feedback_modal', $this->Site, true);
 
@@ -516,6 +577,8 @@ class Webmaster
                 'wysiwyg' => 1,
             ));
             $this->createBlock($B, 'content', null, null, $this->Site);
+
+            $this->createFeatures();
         }
         return $this->Site;
     }
@@ -672,14 +735,33 @@ class Webmaster
         if ($temp) {
             $robots = $temp[0];
         } else {
-            $robots = $this->createPage(array('name' => $this->view->_('ROBOTS_TXT'), 'urn' => 'robots', 'template' => 0, 'cache' => 0, 'response_code' => 200), $this->Site);
+            $robots = $this->createPage(array('name' => $this->view->_('ROBOTS_TXT'), 'urn' => 'robots', 'template' => 0, 'cache' => 1, 'response_code' => 200), $this->Site);
             $robotsTXT = file_get_contents($this->resourcesDir . '/robots.txt');
             $m = new Mustache_Engine();
-            $robotsTXT = $m->render($robotsTXT, array('host' => $_SERVER['HTTP_HOST']));
+            $robotsTXT = $m->render($robotsTXT, array('HOST' => $_SERVER['HTTP_HOST']));
             $B = new Block_HTML(array('name' => $this->view->_('ROBOTS_TXT'), 'description' => $robotsTXT, 'wysiwyg' => 0,));
             $this->createBlock($B, '', null, 'robots', $robots);
         }
         return $robots;
+    }
+
+
+    /**
+     * Создание custom.css
+     * @return Page Созданная или существующая страница
+     */
+    public function createCustomCss()
+    {
+        $temp = Page::getSet(array('where' => array("pid = " . (int)$this->Site->id, "urn = 'custom_css'")));
+        if ($temp) {
+            $customCss = $temp[0];
+        } else {
+            $customCss = $this->createPage(array('name' => $this->view->_('CUSTOM_CSS'), 'urn' => 'custom_css', 'template' => 0, 'cache' => 1, 'response_code' => 200), $this->Site);
+            $m = new Mustache_Engine();
+            $B = new Block_HTML(array('name' => $this->view->_('CUSTOM_CSS'), 'description' => '', 'wysiwyg' => 0,));
+            $this->createBlock($B, '', null, 'custom_css', $customCss);
+        }
+        return $customCss;
     }
 
 
@@ -712,6 +794,8 @@ class Webmaster
         $p404 = $this->create404();
         $map = $this->createMap($menus['sitemap']);
         $sitemaps = $this->createSitemapsXml();
+        $robots = $this->createRobotsTxt();
+        $customCss = $this->createCustomCss();
 
         $temp = Page::getSet(array('where' => array("pid = " . (int)$this->Site->id, "urn = 'ajax'")));
         if ($temp) {
@@ -733,6 +817,13 @@ class Webmaster
             copy(Package::i()->resourcesDir . '/logo.png', Package::i()->filesDir . '/image/logo.png');
             chmod(Package::i()->filesDir . '/image/logo.png', 0777);
         }
+
+        $B = new Block_HTML(array(
+            'name' => $this->view->_('SHARE'),
+            'description' => file_get_contents($this->resourcesDir . '/share.tmp.php'),
+            'wysiwyg' => 0,
+        ));
+        $this->createBlock($B, 'share', null, null, $this->Site, true);
     }
 
 
@@ -806,7 +897,7 @@ class Webmaster
         if (!$S->id) {
             $f = $this->resourcesDir . '/material.tmp.php';
             $text = file_get_contents($f);
-            $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
+            $text = str_ireplace('{BLOCK_NAME}', str_replace('_main', '', $urn), $text);
             $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
             $S = new Snippet(array('name' => $name, 'urn' => $urn, 'pid' => $VF->id, 'description' => $text));
             $S->commit();
@@ -817,7 +908,7 @@ class Webmaster
             if (!$SM->id) {
                 $f = $this->resourcesDir . '/material_main.tmp.php';
                 $text = file_get_contents($f);
-                $text = str_ireplace('{BLOCK_NAME}', $urn . '_main', $text);
+                $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
                 $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
                 $SM = new Snippet(
                     array('name' => $nameMain, 'urn' => $urn . '_main', 'pid' => $VF->id, 'description' => $text)
@@ -1188,5 +1279,6 @@ class Webmaster
             }
         }
         $B->commit();
+        return $B;
     }
 }

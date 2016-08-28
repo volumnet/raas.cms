@@ -7,8 +7,8 @@ $translateAddresses = true;
 
 if ($Set) {
     ?>
-    <div class="{BLOCK_NAME} block_left">
-      <div class="{BLOCK_NAME}__title block_left__title"><a href="/{BLOCK_NAME}/">{MATERIAL_NAME}</a></div>
+    <div class="{BLOCK_NAME}_main block_left">
+      <div class="{BLOCK_NAME}_main__title block_left__title"><a href="/{BLOCK_NAME}/">{MATERIAL_NAME}</a></div>
       <div class="block_left__inner">
         <?php foreach ($Set as $row) { ?>
             <div class="article">

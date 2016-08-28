@@ -1,8 +1,9 @@
 <div class="contacts">
-  <div itemscope="" itemtype="http://schema.org/Organization">
+  <div itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="" />
     <p>
       <strong>Адрес: </strong>
-      <span itemprop="address" itemscope="" itemtype="http://schema.org/PostalAddress">
+      <span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
         <span itemprop="postalCode">620000</span>,
         <span itemprop="addressLocality">г. Екатеринбург</span>,
         <span itemprop="streetAddress">ул. ..., 0</span>, оф. 0 (0 этаж)

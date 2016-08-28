@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Application;
 use \RAAS\Attachment;
 
@@ -13,7 +14,9 @@ class User extends \SOME\SOME
     protected static $links = array(
         'social' => array('tablename' => 'cms_users_social', 'field_from' => 'uid', 'field_to' => 'url'),
         'groups' => array('tablename' => 'cms_users_groups_assoc', 'field_from' => 'uid', 'field_to' => 'gid', 'classname' => 'RAAS\\CMS\\Group'),
+        'allowedPages' => array('tablename' => 'cms_access_pages_cache', 'field_from' => 'uid', 'field_to' => 'page_id', 'classname' => 'RAAS\\CMS\\Page'),
         'allowedMaterials' => array('tablename' => 'cms_access_materials_cache', 'field_from' => 'uid', 'field_to' => 'material_id', 'classname' => 'RAAS\\CMS\\Material'),
+        'allowedBlocks' => array('tablename' => 'cms_access_blocks_cache', 'field_from' => 'uid', 'field_to' => 'block_id', 'classname' => 'RAAS\\CMS\\Block'),
     );
 
     public function __get($var)
@@ -40,7 +43,14 @@ class User extends \SOME\SOME
                     if (isset($this->fields[$var]) && ($this->fields[$var] instanceof User_Field)) {
                         $temp = $this->fields[$var]->getValues();
                         if ($vis) {
-                            $temp = array_values(array_filter($temp, function($x) { return isset($x->vis) && $x->vis; }));
+                            $temp = array_values(
+                                array_filter(
+                                    $temp,
+                                    function ($x) {
+                                        return isset($x->vis) && $x->vis;
+                                    }
+                                )
+                            );
                         }
                         return $temp;
                     } elseif ($var == 'full_name') {
@@ -55,7 +65,7 @@ class User extends \SOME\SOME
                 }
                 break;
         }
-    }    
+    }
 
 
     public function commit()
@@ -71,7 +81,7 @@ class User extends \SOME\SOME
     private function exportSocial()
     {
         if (isset($this->meta_social)) {
-            $SQL_query = "DELETE FROM " . static::_dbprefix() . static::$links['social']['tablename'] 
+            $SQL_query = "DELETE FROM " . static::_dbprefix() . static::$links['social']['tablename']
                        . " WHERE " . static::$links['social']['field_from'] . " = " . (int)$this->id;
             static::$SQL->query($SQL_query);
             $id = (int)$this->id;
@@ -103,8 +113,8 @@ class User extends \SOME\SOME
     {
         $social = trim($social);
         if (in_array($social, $this->meta_social)) {
-            $SQL_query = "DELETE FROM " . static::_dbprefix() . static::$links['social']['tablename'] 
-                       . " WHERE " . static::$links['social']['field_from'] . " = " . (int)$this->id 
+            $SQL_query = "DELETE FROM " . static::_dbprefix() . static::$links['social']['tablename']
+                       . " WHERE " . static::$links['social']['field_from'] . " = " . (int)$this->id
                        . "   AND " . static::$links['social']['field_to'] . " = '" . static::$SQL->real_escape_string($social) . "'";
             static::$SQL->query($SQL_query);
         }
@@ -122,7 +132,7 @@ class User extends \SOME\SOME
             $row->deleteValues();
         }
         parent::delete($object);
-    }    
+    }
 
 
     public function associate(Group $Group)
@@ -132,22 +142,26 @@ class User extends \SOME\SOME
                        . " VALUES (" . (int)$this->id . ", " . (int)$Group->id . ") ";
             self::$SQL->query($SQL_query);
             $this->commit();
+            CMSAccess::refreshPagesAccessCache($this);
             CMSAccess::refreshMaterialsAccessCache($this);
+            CMSAccess::refreshBlocksAccessCache($this);
         }
     }
 
-    
+
     public function deassociate(Group $Group)
     {
         if ($this->id && $Group->id) {
             $SQL_query = " DELETE FROM " . self::_dbprefix() . "cms_users_groups_assoc WHERE uid = " . (int)$this->id . " AND gid = " . (int)$Group->id;
             self::$SQL->query($SQL_query);
             $this->commit();
+            CMSAccess::refreshPagesAccessCache($this);
             CMSAccess::refreshMaterialsAccessCache($this);
+            CMSAccess::refreshBlocksAccessCache($this);
         }
     }
-    
-    
+
+
     protected function _fields()
     {
         $temp = User_Field::getSet();
@@ -273,9 +287,9 @@ class User extends \SOME\SOME
 
     public static function importBySocialNetwork($profile)
     {
-        $SQL_query = "SELECT tU.* 
-                        FROM " . static::_tablename() . " AS tU 
-                        JOIN " . static::_dbprefix() . static::$links['social']['tablename'] . " AS tUS ON tUS." . static::$links['social']['field_from'] . " = tU.id 
+        $SQL_query = "SELECT tU.*
+                        FROM " . static::_tablename() . " AS tU
+                        JOIN " . static::_dbprefix() . static::$links['social']['tablename'] . " AS tUS ON tUS." . static::$links['social']['field_from'] . " = tU.id
                        WHERE " . static::$links['social']['field_to'] . " = '" . static::$SQL->real_escape_string(trim($profile)) . "'
                        LIMIT 1";
         $User = static::getSQLObject($SQL_query);

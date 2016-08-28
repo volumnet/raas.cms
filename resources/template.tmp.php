@@ -33,7 +33,7 @@ ob_start();
 <?php if ($Page->noindex || $Page->Material->noindex) { ?>
     <!--noindex-->
 <?php } ?>
-<html>
+<html lang="<?php echo htmlspecialchars($Page->lang)?>">
   <head>
     <?php echo eval('?' . '>' . Snippet::importByURN('head')->description)?>
     <?php echo $Page->location('head_counters')?>
@@ -124,7 +124,6 @@ ob_start();
         <?php if ($text = $Page->location('content4')) { ?>
             <div class="location_content4"><?php echo $text?></div>
         <?php } ?>
-        <div class="location_content4"></div>
         <?php if ($text = $Page->location('content5')) { ?>
             <div class="location_content5">
               <div class="container">

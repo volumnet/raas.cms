@@ -9,10 +9,13 @@
 <meta name="viewport" content="width=device-width">
 <link rel='stylesheet' href='/css/application.css'>
 <link rel='stylesheet' href='/css/style.css'>
+<link rel='stylesheet' href='/custom.css'>
 <!-- Core-->
 <script src="/js/application.js"></script>
 <script src="/js/bootstrap.carousel.swipe.js"></script>
 <?php if (class_exists('RAAS\CMS\Shop\Module')) { ?>
+    <script src="/js/jquery.jcarousel.min.js"></script>
+    <script src="/js/jcarousel.basic.js"></script>
     <script src="/js/setrawcookie.js"></script>
     <script src="/js/setcookie.js"></script>
     <script src="/js/cookiecart.js"></script>

@@ -10,7 +10,7 @@ class Page extends \SOME\SOME implements IAccessible
     protected static $defaultOrderBy = "priority";
     protected static $cognizableVars = array('blocksOrdered', 'fields', 'affectedMaterialTypes', 'affectedMaterials', 'Domain');
     protected static $objectCascadeDelete = true;
-        
+
     protected static $references = array(
         'parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Page', 'cascade' => true),
         'author' => array('FK' => 'author_id', 'classname' => 'RAAS\\User', 'cascade' => false),
@@ -24,9 +24,10 @@ class Page extends \SOME\SOME implements IAccessible
     );
     protected static $links = array(
         'blocks' => array('tablename' => 'cms_blocks_pages_assoc', 'field_from' => 'page_id', 'field_to' => 'block_id', 'classname' => 'RAAS\\CMS\\Block'),
-        'materials' => array('tablename' => 'cms_materials_pages_assoc', 'field_from' => 'pid', 'field_to' => 'id', 'classname' => 'RAAS\\CMS\\Material')
+        'materials' => array('tablename' => 'cms_materials_pages_assoc', 'field_from' => 'pid', 'field_to' => 'id', 'classname' => 'RAAS\\CMS\\Material'),
+        'allowedUsers' => array('tablename' => 'cms_access_pages_cache', 'field_from' => 'page_id', 'field_to' => 'uid', 'classname' => 'RAAS\\CMS\\User'),
     );
-    
+
     protected static $caches = array('pvis' => array('affected' => array('parent'), 'sql' => "IF(parent.id, (parent.vis AND parent.pvis), 1)"));
 
     public static $httpStatuses = array(
@@ -89,18 +90,18 @@ class Page extends \SOME\SOME implements IAccessible
     );
 
     protected static $inheritedFields = array(
-        'inherit_meta_title' => 'meta_title', 
-        'inherit_meta_description' => 'meta_description', 
-        'inherit_meta_keywords' => 'meta_keywords', 
-        'inherit_changefreq' => 'changefreq', 
-        'inherit_sitemaps_priority' => 'sitemaps_priority', 
+        'inherit_meta_title' => 'meta_title',
+        'inherit_meta_description' => 'meta_description',
+        'inherit_meta_keywords' => 'meta_keywords',
+        'inherit_changefreq' => 'changefreq',
+        'inherit_sitemaps_priority' => 'sitemaps_priority',
         'inherit_template' => 'template',
         'inherit_lang' => 'lang',
         'inherit_cache' => 'cache'
     );
 
     private $locationBlocksText = array();
-    
+
     public function __get($var)
     {
         switch ($var) {
@@ -149,7 +150,14 @@ class Page extends \SOME\SOME implements IAccessible
                 return 'http://' . str_replace('http://', '', $temp[0]);
                 break;
             case 'visChildren':
-                return array_values(array_filter($this->children, function($x) { return $x->vis; }));
+                return array_values(
+                    array_filter(
+                        $this->children,
+                        function ($x) {
+                            return $x->vis;
+                        }
+                    )
+                );
                 break;
             case 'locationBlocksText':
                 return $this->locationBlocksText;
@@ -176,7 +184,14 @@ class Page extends \SOME\SOME implements IAccessible
                     if (isset($this->fields[$var]) && ($this->fields[$var] instanceof Page_Field)) {
                         $temp = $this->fields[$var]->getValues();
                         if ($vis) {
-                            $temp = array_values(array_filter($temp, function($x) { return isset($x->vis) && $x->vis; }));
+                            $temp = array_values(
+                                array_filter(
+                                    $temp,
+                                    function ($x) {
+                                        return isset($x->vis) && $x->vis;
+                                    }
+                                )
+                            );
                         }
                         return $temp;
                     } else {
@@ -187,8 +202,8 @@ class Page extends \SOME\SOME implements IAccessible
                 break;
         }
     }
-    
-    
+
+
     public function commit()
     {
         $new = !$this->id;
@@ -209,8 +224,8 @@ class Page extends \SOME\SOME implements IAccessible
         for ($i = 0; $this->checkForSimilarPages() || $this->checkForSimilarMaterials(); $i++) {
             $this->urn = Application::i()->getNewURN($this->urn, !$i);
         }
-        
-        
+
+
         $enableHeritage = false;
         foreach (self::$inheritedFields as $key => $val) {
             if ($this->$key) {
@@ -220,27 +235,32 @@ class Page extends \SOME\SOME implements IAccessible
         if ($enableHeritage) {
             foreach ($this->children as $row) {
                 // 2014-11-18, AVS: добавлено, поскольку childrens создаютс€ по SQL-запросу и массив properties у них нулевой, поэтому сравнивать проблематично
-                $row->reload(); 
+                $row->reload();
                 foreach (self::$inheritedFields as $key => $val) {
                     // ≈сли наследуетс€ и значение дочернего элемента совпадает со старым значением текущего
                     // 2014-11-18, AVS: сменил $this->update[$key] на $this->$key, т.к. сам факт наследовани€ не об€зательно должен мен€тьс€
-                    if ($this->$key && ($row->$key == $this->properties[$key])) { 
+                    if ($this->$key && ($row->$key == $this->properties[$key])) {
                         $row->$val = $this->$val;
                     }
                 }
-                
+
                 $row->commit();
             }
         }
-        
+
         parent::commit();
-        
+
         if (($this->template == $this->parent->template) && $new) {
             $SQL_query = "SELECT tB.*
                             FROM " . Block::_tablename() . " AS tB
-                            JOIN " . self::$dbprefix . self::$links['blocks']['tablename'] . " AS tBPA ON tBPA.block_id = tB.id 
+                            JOIN " . self::$dbprefix . self::$links['blocks']['tablename'] . " AS tBPA ON tBPA.block_id = tB.id
                            WHERE tBPA.page_id = " . (int)$this->pid . " AND inherit ORDER BY priority";
-            $SQL_result = array_map(function($x) { return Block::spawn($x); }, \SOME\SOME::getSQLSet($SQL_query));
+            $SQL_result = array_map(
+                function ($x) {
+                    return Block::spawn($x);
+                },
+                \SOME\SOME::getSQLSet($SQL_query)
+            );
             if ($SQL_result) {
                 $arr = array();
                 $priority = (int)self::$SQL->getvalue("SELECT MAX(priority) FROM " . self::$dbprefix . self::$links['blocks']['tablename']);
@@ -251,8 +271,8 @@ class Page extends \SOME\SOME implements IAccessible
             }
         }
     }
-    
-    
+
+
     public function getCodePage($code = 404)
     {
         $SQL_query = "SELECT * FROM " . Page::_tablename() . " WHERE pid = ? AND response_code = ? ORDER BY priority LIMIT 1";
@@ -265,8 +285,8 @@ class Page extends \SOME\SOME implements IAccessible
             return new self();
         }
     }
-    
-    
+
+
     public function process()
     {
         ob_start();
@@ -274,7 +294,7 @@ class Page extends \SOME\SOME implements IAccessible
             header('HTTP/1.0 ' . Page::$httpStatuses[(int)$this->response_code]);
             header('Status: ' . Page::$httpStatuses[(int)$this->response_code]);
         }
-        
+
         $SITE = $this->Domain;
         $Page = $this;
         if ($this->blocksByLocations['']) {
@@ -290,8 +310,8 @@ class Page extends \SOME\SOME implements IAccessible
         ob_end_clean();
         return $content;
     }
-    
-    
+
+
     public function location($location)
     {
         if (!isset($this->locationBlocksText[$location])) {
@@ -375,8 +395,8 @@ class Page extends \SOME\SOME implements IAccessible
         }
         return trim($this->menu_name) ?: trim($this->name);
     }
-    
-    
+
+
     public function getBreadcrumbsName($old = true)
     {
         if ($old && $this->Material->id) {
@@ -384,8 +404,8 @@ class Page extends \SOME\SOME implements IAccessible
         }
         return trim($this->breadcrumbs_name) ?: trim($this->name);
     }
-    
-    
+
+
     public static function delete(self $object)
     {
         foreach ($object->fields as $row) {
@@ -400,18 +420,23 @@ class Page extends \SOME\SOME implements IAccessible
         static::clearLostBlocks();
         static::clearLostMaterials();
     }
-    
-    
+
+
     protected function _blocksOrdered()
     {
-        $SQL_query = "SELECT tB.*, tBPA.priority 
-                        FROM " . Block::_tablename() . " AS tB JOIN " . self::$dbprefix . self::$links['blocks']['tablename'] . " AS tBPA ON tB.id = tBPA.block_id 
+        $SQL_query = "SELECT tB.*, tBPA.priority
+                        FROM " . Block::_tablename() . " AS tB JOIN " . self::$dbprefix . self::$links['blocks']['tablename'] . " AS tBPA ON tB.id = tBPA.block_id
                        WHERE tBPA.page_id = " . (int)$this->id . "
                     ORDER BY tBPA.priority";
         $SQL_result = \SOME\SOME::getSQLSet($SQL_query);
-        return array_map(function($x) { return Block::spawn($x); }, $SQL_result);
+        return array_map(
+            function ($x) {
+                return Block::spawn($x);
+            },
+            $SQL_result
+        );
     }
-    
+
     protected function _fields()
     {
         $arr = array();
@@ -422,17 +447,17 @@ class Page extends \SOME\SOME implements IAccessible
         }
         return $arr;
     }
-    
+
     protected function _affectedMaterialTypes()
     {
-        $SQL_query = "SELECT tMt.id 
-                        FROM " . Material::_tablename() . " AS tM 
+        $SQL_query = "SELECT tMt.id
+                        FROM " . Material::_tablename() . " AS tM
                         JOIN " . self::$dbprefix . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id
                         JOIN " . Material_Type::_tablename() . " AS tMt ON tMt.id = tM.pid
                        WHERE NOT tMt.global_type AND tMPA.pid = " . (int)$this->id . "
                     ORDER BY tMt.name";
         $col1 = (array)self::$SQL->getcol($SQL_query);
-        $SQL_query = "SELECT tMt.id 
+        $SQL_query = "SELECT tMt.id
                         FROM " . Material_Type::_tablename() . " AS tMt
                         JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.material_type = tMt.id
                         JOIN " . Block::_tablename() . " AS tB ON tB.id = tBM.id
@@ -440,7 +465,12 @@ class Page extends \SOME\SOME implements IAccessible
                        WHERE tBPA.page_id = " . (int)$this->id;
         $col2 = (array)self::$SQL->getcol($SQL_query);
         $Set = array_values(array_unique(array_merge($col1, $col2)));
-        $Set = array_map(function($x) { return new \RAAS\CMS\Material_Type($x); }, $Set);
+        $Set = array_map(
+            function ($x) {
+                return new \RAAS\CMS\Material_Type($x);
+            },
+            $Set
+        );
         return $Set;
     }
 
@@ -460,16 +490,40 @@ class Page extends \SOME\SOME implements IAccessible
         }
         $Set = array();
         // √лобальные
-        if ($mts_global = array_map(function($x) { return (int)$x->id; }, array_values(array_filter($mts, function($x) { return $x->global_type; })))) {
+        if ($mts_global = array_map(
+            function ($x) {
+                return (int)$x->id;
+            },
+            array_values(
+                array_filter(
+                    $mts,
+                    function ($x) {
+                        return $x->global_type;
+                    }
+                )
+            )
+        )) {
             $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM WHERE tM.vis AND tM.pid IN(" . implode(", ", $mts_global) . ")";
             $Set = array_merge($Set, Material::getSQLSet($SQL_query));
         }
-        if ($mts_nonGlobal = array_map(function($x) { return (int)$x->id; }, array_values(array_filter($mts, function($x) { return !$x->global_type; })))) {
-            $SQL_query = "SELECT tM.* 
-                            FROM " . Material::_tablename() . " AS tM 
+        if ($mts_nonGlobal = array_map(
+            function ($x) {
+                return (int)$x->id;
+            },
+            array_values(
+                array_filter(
+                    $mts,
+                    function ($x) {
+                        return !$x->global_type;
+                    }
+                )
+            )
+        )) {
+            $SQL_query = "SELECT tM.*
+                            FROM " . Material::_tablename() . " AS tM
                             JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id
-                           WHERE tM.vis 
-                             AND tM.pid IN(" . implode(", ", $mts_nonGlobal) . ") 
+                           WHERE tM.vis
+                             AND tM.pid IN(" . implode(", ", $mts_nonGlobal) . ")
                              AND tMPA.pid = " . (int)$this->id . "
                              AND (NOT tM.show_from OR tM.show_from <= NOW())
                              AND (NOT tM.show_to OR tM.show_to >= NOW())
@@ -492,14 +546,14 @@ class Page extends \SOME\SOME implements IAccessible
         if (!is_array($url)) {
             $url = preg_replace('/^(http:\\/\\/)?(www\\.)?/i', '', $url);
             $url = explode('/', trim(str_replace('\\', '/', $url), '/'));
-        } 
+        }
         if (is_array($url)) {
             $url = array_filter($url, 'trim');
         }
         $domain = array_shift($url);
-        
+
         $Page = new self();
-        
+
         // Ќайдем домен
         $SQL_query = "SELECT * FROM " . Page::_tablename() . " WHERE NOT pid AND urn REGEXP ?";
         $SQL_bind = array('(^| )' . preg_quote($domain) . '( |$)');
@@ -508,7 +562,7 @@ class Page extends \SOME\SOME implements IAccessible
         } else {
             return $Page;
         }
-        
+
         // Ќайдем страницу
         foreach ($url as $urn) {
             $SQL_query = "SELECT * FROM " . Page::_tablename() . " WHERE urn = ? AND pid = ?";
@@ -562,7 +616,7 @@ class Page extends \SOME\SOME implements IAccessible
     protected static function clearLostMaterials()
     {
         $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM
-                        JOIN " . Material_Type::_tablename() . " AS tMT ON tMT.id = tM.pid 
+                        JOIN " . Material_Type::_tablename() . " AS tMT ON tMT.id = tM.pid
                    LEFT JOIN " . static::_dbprefix() . static::$links['materials']['tablename'] . " AS tMPA ON tM." . Material::_idN() . " = tMPA." . static::$links['materials']['field_to']
                    . "  LEFT JOIN " . static::_tablename() . " AS tP ON tP." . static::_idN() . " = tMPA." . static::$links['materials']['field_from']
                    . " WHERE NOT tMT.global_type AND tP." . static::_idN() . " IS NULL ";
