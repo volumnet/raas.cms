@@ -1,11 +1,10 @@
 <?php
 namespace RAAS\CMS;
-use RAAS\Attachment;
 
+use RAAS\Attachment;
 use \Mustache_Engine;
 
-$notify = function(Feedback $Item, Material $Material = null)
-{
+$notify = function (Feedback $Item, Material $Material = null) {
     $temp = array_values(array_filter(array_map('trim', preg_split('/( |;|,)/', $Item->parent->email))));
     $emails = $sms_emails = $sms_phones = array();
     foreach ($temp as $row) {
@@ -67,7 +66,8 @@ if ($Form->id) {
         // Проверка полей на корректность
         foreach ($Form->fields as $row) {
             switch ($row->datatype) {
-                case 'file': case 'image':
+                case 'file':
+                case 'image':
                     $val = isset($_FILES[$row->urn]['tmp_name']) ? $_FILES[$row->urn]['tmp_name'] : null;
                     if ($val && $row->multiple) {
                         $val = (array)$val;
@@ -161,7 +161,8 @@ if ($Form->id) {
                     foreach ($Object->fields as $fname => $temp) {
                         if (!isset($Item->fields[$fname])) {
                             switch ($temp->datatype) {
-                                case 'datetime': case 'datetime-local':
+                                case 'datetime':
+                                case 'datetime-local':
                                     $temp->addValue(date('Y-m-d H:i:s'));
                                     break;
                                 case 'date':
@@ -179,7 +180,8 @@ if ($Form->id) {
                     if (isset($Object->fields[$fname])) {
                         $row = $Object->fields[$fname];
                         switch ($row->datatype) {
-                            case 'file': case 'image':
+                            case 'file':
+                            case 'image':
                                 $row->deleteValues();
                                 if ($row->multiple) {
                                     foreach ($_FILES[$row->urn]['tmp_name'] as $key => $val) {
@@ -282,9 +284,16 @@ if ($Form->id) {
             }
             $OUT['success'][(int)$Block->id] = true;
         }
+        $OUT['DATA'] = $_POST;
+    } else {
+        $OUT['DATA'] = array();
+        foreach ($Form->fields as $key => $row) {
+            if ($row->defval) {
+                $OUT['DATA'][$key] = $row->defval;
+            }
+        }
     }
     $OUT['localError'] = $localError;
-    $OUT['DATA'] = $_POST;
     $OUT['Item'] = $Item;
     if ($Form->Material_Type->id) {
         $OUT['Material'] = $Material;
