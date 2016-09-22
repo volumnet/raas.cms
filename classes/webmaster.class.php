@@ -102,7 +102,7 @@ class Webmaster
     {
         $Item = Snippet::importByURN($urn);
         if (!$Item->id) {
-            $Item = new Snippet(array('pid' => $parent->id, 'urn' => $urn, 'locked' => (int)$locked));
+            $Item = new Snippet(array('pid' => (int)$parent->id, 'urn' => $urn, 'locked' => (int)$locked));
         }
         if ($locked || !$Item->id) {
             $Item->name = $this->view->_($name);
@@ -143,6 +143,8 @@ class Webmaster
         $interfaces['__raas_form_notify'] = $this->checkSnippet($ifo, '__raas_form_notify', 'FORM_STANDARD_NOTIFICATION', $this->stdFormTemplate);
         $interfaces['__raas_cache_interface'] = $this->checkSnippet($ifo, '__raas_cache_interface', 'CACHE_STANDARD_INTERFACE', $this->stdCacheInterface);
         $interfaces['__raas_watermark_interface'] = $this->checkSnippet($ifo, '__raas_watermark_interface', 'WATERMARK_STANDARD_INTERFACE', $this->stdWatermarkInterface);
+
+        $interfaces['dummy'] = $this->checkSnippet(new Snippet_Folder(), 'dummy', 'DUMMY', '', false);
         return $interfaces;
     }
 
