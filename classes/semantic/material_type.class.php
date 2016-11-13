@@ -21,11 +21,11 @@ class Material_Type extends \SOME\SOME
         Package::i()->getUniqueURN($this);
         parent::commit();
     }
-    
-    
+
+
     public static function delete(self $object)
     {
-        foreach ($object->fields as $row) {
+        foreach ($object->selfFields as $row) {
             Material_Field::delete($row);
         }
         parent::delete($object);
@@ -43,8 +43,8 @@ class Material_Type extends \SOME\SOME
         }
         return $arr;
     }
-    
-    
+
+
     protected function _fields()
     {
         $arr1 = array();
@@ -55,8 +55,8 @@ class Material_Type extends \SOME\SOME
         $arr = array_merge($arr1, $arr2);
         return $arr;
     }
-    
-    
+
+
     public static function importByURN($urn)
     {
         $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
@@ -67,13 +67,13 @@ class Material_Type extends \SOME\SOME
             return new self();
         }
     }
-    
+
     protected function _affectedPages()
     {
         if (!$this->global_type) {
             $SQL_query = "SELECT tP.id
                             FROM " . Page::_tablename() . " AS tP
-                            JOIN " . self::$dbprefix . "cms_materials_pages_assoc AS tMPA ON tMPA.pid = tP.id  
+                            JOIN " . self::$dbprefix . "cms_materials_pages_assoc AS tMPA ON tMPA.pid = tP.id
                             JOIN " . Material::_tablename() . " AS tM ON tM.id = tMPA.id
                            WHERE tM.pid = " . (int)$this->id . "
                         ORDER BY tP.priority";
@@ -81,11 +81,11 @@ class Material_Type extends \SOME\SOME
         } else {
             $col1 = array();
         }
-        $SQL_query = "SELECT tP.id 
+        $SQL_query = "SELECT tP.id
                         FROM " . Page::_tablename() . " AS tP
                         JOIN " . self::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
                         JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id
-                        JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.id = tB.id 
+                        JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.id = tB.id
                        WHERE tBM.material_type = " . (int)$this->id;
         $col2 = (array)self::$SQL->getcol($SQL_query);
         $Set = array_values(array_unique(array_merge($col1, $col2)));

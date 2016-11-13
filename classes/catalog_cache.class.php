@@ -56,8 +56,17 @@ class Catalog_Cache
         }
         foreach (array_merge(array($this->_mtype), (array)$this->_mtype->children) as $mtype) {
             foreach ($mtype->selfFields as $row) {
-                $tmp_field = $this->getField($row->id, 'var' . $row->id, $SQL_from);
-                $SQL_what[$row->urn] = "GROUP_CONCAT(DISTINCT " . $tmp_field . " SEPARATOR '@@@') AS `" . Field::_SQL()->real_escape_string($row->urn) . "`";
+                if (in_array($row->urn, array('price', 'price_old'))) {
+                    $temp = "CAST(value AS UNSIGNED)";
+                } else {
+                    $temp = "value";
+                }
+                $SQL_what[$row->urn] = "(
+                    SELECT GROUP_CONCAT(DISTINCT " . $temp . " SEPARATOR '@@@')
+                      FROM " . Field::data_table . "
+                     WHERE pid = tM.id
+                       AND fid = " . (int)$row->id . "
+                ) AS `" . Field::_SQL()->real_escape_string($row->urn) . "`";
             }
         }
 
@@ -93,26 +102,6 @@ class Catalog_Cache
 
         $this->_data = $SQL_result;
         $this->save();
-    }
-
-
-    protected function getField($field, $as, array &$SQL_from)
-    {
-        $sort = '';
-        if (in_array($field, array('name', 'urn', 'description', 'post_date', 'modify_date'))) {
-            $sort = "tM." . $field;
-        } elseif (is_numeric($field)) {
-            if (!isset($SQL_from[$as]) || !$SQL_from[$as]) {
-                $SQL_from[$as] = " LEFT JOIN " . Field::data_table . " AS `" . $as . "` ON `" . $as . "`.pid = tM.id AND `" . $as . "`.fid = " . (int)$field;
-            }
-            $f = new Material_Field((int)$field);
-            if (in_array($f->urn, array('price', 'price_old'))) {
-                $sort = "CAST(" . $as . ".value AS UNSIGNED)";
-            } else {
-                $sort = $as . ".value";
-            }
-        }
-        return $sort;
     }
 
 
