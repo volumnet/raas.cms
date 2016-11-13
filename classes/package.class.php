@@ -346,7 +346,7 @@ class Package extends \RAAS\Package
                 $_order = 'asc';
             }
 
-            $SQL_query .= " ORDER BY NOT tM.priority, tM.priority, " . $_sort . " " . strtoupper($_order);
+            $SQL_query .= " ORDER BY NOT tM.priority ASC, tM.priority ASC, " . $_sort . " " . strtoupper($_order);
             $Set = Material::getSQLSet($SQL_query, $Pages);
         }
         return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $_order);
@@ -711,6 +711,11 @@ class Package extends \RAAS\Package
     {
         return function ($a, $b) use ($key, $reverse, $priorityFirst) {
             if ($priorityFirst && ($a->priority != $b->priority)) {
+                if ($a->priority && !$b->priority) {
+                    return -1;
+                } elseif ($b->priority && !$a->priority) {
+                    return 1;
+                }
                 return (int)$a->priority - (int)$b->priority;
             }
             if (in_array($key, array('urn', 'name'))) {
