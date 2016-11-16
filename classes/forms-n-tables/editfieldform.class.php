@@ -31,9 +31,7 @@ class EditFieldForm extends \RAAS\Form
         foreach (\RAAS\CMS\Field::$fieldTypes as $key) {
             $CONTENT['datatypes'][] = array('value' => $key, 'caption' => $this->view->_('DATATYPE_' . str_replace('-', '_', strtoupper($key))));
         }
-        if (($Parent instanceof Material_Type) || ($Parent instanceof Page) || ($Parent instanceof Form)) {
-            $CONTENT['datatypes'][] = array('value' => 'material', 'caption' => $this->view->_('DATATYPE_MATERIAL'));
-        }
+        $CONTENT['datatypes'][] = array('value' => 'material', 'caption' => $this->view->_('DATATYPE_MATERIAL'));
         foreach (\RAAS\CMS\Field::$sourceTypes as $key) {
             $CONTENT['sourcetypes'][] = array(
                 'value' => $key, 'caption' => $this->view->_('SOURCETYPE_' . strtoupper($key)), 'data-hint' => $this->view->_('SOURCETYPE_' . strtoupper($key) . '_HINT')
@@ -74,10 +72,10 @@ class EditFieldForm extends \RAAS\Form
                 array('type' => 'select', 'name' => 'datatype', 'caption' => $this->view->_('DATATYPE'), 'children' => $CONTENT['datatypes'], 'default' => 'text'),
                 array('type' => 'select', 'name' => 'source_type', 'caption' => $this->view->_('SOURCETYPE'), 'children' => $CONTENT['sourcetypes'], 'data-hint' => ''),
                 array(
-                    'name' => 'source', 
-                    'caption' => $this->view->_('SOURCE'), 
+                    'name' => 'source',
+                    'caption' => $this->view->_('SOURCE'),
                     'template' => 'cms/dev_edit_field.source.tmp.php',
-                    'check' => function ($Field) {  
+                    'check' => function ($Field) {
                         if (in_array($_POST['datatype'], array('select', 'radio')) || (($_POST['datatype'] == 'checkbox') && isset($_POST['multiple']))) {
                             if ((!isset($_POST['source_type']) || !trim($_POST['source_type'])) || (!isset($_POST['source']) || !trim($_POST['source']))) {
                                 return array('name' => 'MISSED', 'value' => 'source', 'description' => 'ERR_NO_DATA_SOURCE');
@@ -87,10 +85,10 @@ class EditFieldForm extends \RAAS\Form
                     'children' => $CONTENT['dictionaries']
                 ),
                 new FieldSet(array(
-                    'template' => 'cms/dev_edit_field.range.tmp.php', 
+                    'template' => 'cms/dev_edit_field.range.tmp.php',
                     'caption' => $this->view->_('RANGE'),
                     'children' => array(
-                        array('type' => 'number', 'name' => 'min_val', 'class' => 'span1'), 
+                        array('type' => 'number', 'name' => 'min_val', 'class' => 'span1'),
                         array('type' => 'number', 'name' => 'max_val', 'class' => 'span1'),
                         array('type' => 'text', 'name' => 'step', 'class' => 'span1', 'default' => 1),
                     )
@@ -100,17 +98,17 @@ class EditFieldForm extends \RAAS\Form
                 array(
                     'type' => 'select',
                     'class' => 'input-xxlarge',
-                    'name' => 'preprocessor_id', 
-                    'caption' => $this->view->_('PREPROCESSOR'), 
-                    'placeholder' => $this->view->_('_NONE'), 
+                    'name' => 'preprocessor_id',
+                    'caption' => $this->view->_('PREPROCESSOR'),
+                    'placeholder' => $this->view->_('_NONE'),
                     'children' => $wf(new Snippet_Folder())
                 ),
                 array(
                     'type' => 'select',
                     'class' => 'input-xxlarge',
-                    'name' => 'postprocessor_id', 
-                    'caption' => $this->view->_('POSTPROCESSOR'), 
-                    'placeholder' => $this->view->_('_NONE'), 
+                    'name' => 'postprocessor_id',
+                    'caption' => $this->view->_('POSTPROCESSOR'),
+                    'placeholder' => $this->view->_('_NONE'),
                     'children' => $wf(new Snippet_Folder())
                 ),
                 array('type' => 'checkbox', 'name' => 'show_in_table', 'caption' => $this->view->_('SHOW_IN_TABLE'))
