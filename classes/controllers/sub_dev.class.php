@@ -17,29 +17,29 @@ use \RAAS\StdSub as StdSub;
 class Sub_Dev extends \RAAS\Abstract_Sub_Controller
 {
     protected static $instance;
-    
+
     public function run()
     {
         $this->view->submenu = $this->view->devMenu();
         switch ($this->action) {
-            case 'edit_template': case 'edit_snippet_folder': case 'edit_snippet': 
-            case 'edit_material_type': case 'edit_form': case 'menus': 
-            case 'edit_menu': case 'move_menu': case 'dictionaries': 
-            case 'edit_dictionary': case 'move_dictionary': case 'copy_snippet': 
+            case 'edit_template': case 'edit_snippet_folder': case 'edit_snippet':
+            case 'edit_material_type': case 'edit_form': case 'menus':
+            case 'edit_menu': case 'move_menu': case 'dictionaries':
+            case 'edit_dictionary': case 'move_dictionary': case 'copy_snippet':
             case 'diag': case 'pages_fields': case 'forms': case 'material_types':
                 $this->{$this->action}();
                 break;
-            case 'edit_material_field': case 'edit_form_field': case 'edit_page_field': 
+            case 'edit_material_field': case 'edit_form_field': case 'edit_page_field':
                 $f = str_replace('_material', '', str_replace('_page', '', str_replace('_form', '', $this->action)));
                 $this->$f();
                 break;
-            case 'templates': 
+            case 'templates':
                 $this->view->templates(array('Set' => $this->model->dev_templates()));
                 break;
-            case 'snippets': 
+            case 'snippets':
                 $this->view->snippets();
                 break;
-            case 'chvis_dictionary': case 'vis_dictionary': case 'invis_dictionary': case 'delete_dictionary': 
+            case 'chvis_dictionary': case 'vis_dictionary': case 'invis_dictionary': case 'delete_dictionary':
                 $items = array();
                 $ids = (array)$_GET['id'];
                 if (in_array('all', $ids, true)) {
@@ -57,7 +57,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $f = str_replace('_dictionary', '', $this->action);
                 StdSub::$f($items, $this->url . '&action=dictionaries&id=' . (int)$Item->pid);
                 break;
-            case 'chvis_menu': case 'vis_menu': case 'invis_menu': case 'delete_menu': case 'realize_menu': 
+            case 'chvis_menu': case 'vis_menu': case 'invis_menu': case 'delete_menu': case 'realize_menu':
                 $items = array();
                 $ids = (array)$_GET['id'];
                 if (in_array('all', $ids, true)) {
@@ -75,17 +75,17 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $f = str_replace('_menu', '', $this->action);
                 StdSub::$f($items, $this->url . '&action=menus&id=' . (int)$Item->id);
                 break;
-            case 'delete_template_image': 
+            case 'delete_template_image':
                 $Item = new Template((int)$this->id);
                 StdSub::deleteBackground($Item, ($_GET['back'] ? 'history:back' : $this->url . '&action=edit_template&id=' . (int)$Item->id) . '#layout', false);
                 break;
-            case 'delete_template': 
+            case 'delete_template':
                 $ids = (array)$_GET['id'];
                 $items = array_map(function($x) { return new Template((int)$x); }, $ids);
                 $items = array_values($items);
                 StdSub::delete($items, $this->url . '&action=templates');
                 break;
-            case 'delete_snippet_folder': 
+            case 'delete_snippet_folder':
                 $ids = (array)$_GET['id'];
                 $items = array_map(function($x) { return new Snippet_Folder((int)$x); }, $ids);
                 $items = array_filter($items, function($x) { return !$x->locked; });
@@ -178,7 +178,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $w->createSearch();
                 new Redirector(\SOME\HTTP::queryString('action='));
                 break;
-            case 'clear_cache': 
+            case 'clear_cache':
                 if (Package::i()->registryGet('clear_cache_manually')) {
                     $this->model->clearCache(true);
                     new Redirector(\SOME\HTTP::queryString('action=cache'));
@@ -199,8 +199,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 break;
         }
     }
-    
-    
+
+
     protected function dictionaries()
     {
         $Item = new Dictionary((int)$this->id);
@@ -211,8 +211,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                     $ext = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
                     if (!in_array($ext, Dictionary::$availableExtensions)) {
                         $localError[] = array(
-                            'name' => 'INVALID', 
-                            'value' => 'file', 
+                            'name' => 'INVALID',
+                            'value' => 'file',
                             'description' => sprintf($this->view->_('AVAILABLE_DICTIONARIES_FORMATS'), strtoupper(implode(', ', \RAAS\CMS\Dictionary::$availableExtensions)))
                         );
                     }
@@ -230,8 +230,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         $OUT = array_merge($OUT, $this->model->dev_dictionaries());
         $this->view->dictionaries($OUT);
     }
-    
-    
+
+
     protected function edit_dictionary()
     {
         $Item = new Dictionary((int)$this->id);
@@ -239,8 +239,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         $Form = new EditDictionaryForm(array('Item' => $Item, 'Parent' => $Parent));
         $this->view->edit_dictionary(array_merge($Form->process(), array('Parent' => $Parent)));
     }
-    
-    
+
+
     protected function move_dictionary()
     {
         $items = array();
@@ -268,8 +268,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         }
         new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=dictionaries&id=' . (int)$Item->pid);
     }
-    
-    
+
+
     protected function menus()
     {
         $Item = new Menu((int)$this->id);
@@ -297,8 +297,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         }
         $this->view->menus($OUT);
     }
-    
-    
+
+
     protected function edit_menu()
     {
         $Item = new Menu((int)$this->id);
@@ -306,8 +306,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         $Form = new EditMenuForm(array('Item' => $Item, 'Parent' => $Parent));
         $this->view->edit_menu(array_merge($Form->process(), array('Parent' => $Parent)));
     }
-    
-    
+
+
     protected function move_menu()
     {
         $items = array();
@@ -324,7 +324,7 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         }
         $items = array_values($items);
         $Item = isset($items[0]) ? $items[0] : new Menu();
-        
+
         if ($items) {
             if (isset($_GET['new_pid'])) {
                 StdSub::move($items, new Menu((int)$_GET['new_pid']), $this->url . '&action=menus&id=%s');
@@ -335,16 +335,16 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         }
         new Redirector('history:back');
     }
-    
-    
+
+
     protected function edit_template()
     {
         $Item = new Template((int)$this->id);
         $Form = new EditTemplateForm(array('Item' => $Item));
         $this->view->edit_template($Form->process());
     }
-    
-    
+
+
     protected function edit_snippet_folder()
     {
         $Item = new Snippet_Folder((int)$this->id);
@@ -354,8 +354,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         $Form = new EditSnippetFolderForm(array('Item' => $Item));
         $this->view->edit_snippet_folder($Form->process());
     }
-    
-    
+
+
     protected function edit_snippet()
     {
         $Item = new Snippet((int)$this->id);
@@ -365,8 +365,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         $Form = new EditSnippetForm(array('Item' => $Item));
         $this->view->edit_snippet($Form->process());
     }
-    
-    
+
+
     protected function copy_snippet()
     {
         $Item = new Snippet((int)$this->id);
@@ -381,8 +381,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     {
         $this->view->material_types();
     }
-    
-    
+
+
     protected function edit_material_type()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -401,8 +401,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     {
         $this->view->forms(array('Set' => $this->model->forms()));
     }
-    
-    
+
+
     protected function edit_form()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -425,8 +425,8 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         }
         $this->view->pages_fields(array('Set' => $this->model->dev_pages_fields()));
     }
-    
-    
+
+
     protected function edit_field()
     {
         if ($this->sub == 'dev' && $this->action == 'edit_form_field') {

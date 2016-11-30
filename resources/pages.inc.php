@@ -1,10 +1,14 @@
 <?php
+namespace RAAS\CMS;
+
+use SOME\HTTP;
+
 $outputNav = function($Pages, array $options = array())
 {
     $pages_list = array();
     $default = array();
     $default['pattern_active'] = '<li class="active"><a>{text}</a></li>';
-    $default['pattern'] = '<li><a href="' . \SOME\HTTP::queryString('page={link}') . '">{text}</a></li>';
+    $default['pattern'] = '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>';
     $default['trace'] = 2;
     $default['ellipse'] = '<li class="disabled"><a>...</a></li>';
     $default['prev'] = '«';

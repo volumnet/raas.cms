@@ -1,7 +1,8 @@
 <?php
 namespace RAAS\CMS;
+
 $OUT = array();
-$f = function(\RAAS\CMS\Menu $node) use (&$f) {
+$f = function(Menu $node) use (&$f) {
     $temp = array();
     $children = $node->visSubMenu;
     $children = array_filter($children, function($x) { return !$x->page->id || $x->page->currentUserHasAccess(); });

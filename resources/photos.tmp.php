@@ -6,13 +6,17 @@ use \SOME\HTTP;
 if ($Item) {
     ?>
     <div class="photos">
-      <div class="article_opened">
-        <div class="article__text"><div class="article__description"><?php echo $Item->description?></div></div>
+      <div class="photos-article">
+        <div class="photos-article__text">
+          <div class="photos-article__description">
+            <?php echo $Item->description?>
+          </div>
+        </div>
         <?php if (count($Item->visImages) > 0) { ?>
-            <div class="article__images row">
+            <div class="photos-article__images">
               <?php for ($i = 0; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
-                  <div class="col-sm-4 col-md-3 col-xs-4">
-                    <a href="/<?php echo htmlspecialchars($row->fileURL)?>" data-lightbox-gallery="gallery" class="article__images__image">
+                  <div class="photos-article__additional-image-container">
+                    <a href="/<?php echo htmlspecialchars($row->fileURL)?>" data-lightbox-gallery="gallery" class="photos-article__additional-image">
                       <img src="/<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
                   </div>
               <?php } ?>
@@ -22,27 +26,33 @@ if ($Item) {
     </div>
 <?php } elseif ($Set) { ?>
     <div class="photos">
-      <?php foreach ($Set as $row) { ?>
-          <div class="article">
-            <div class="article__text">
-              <div class="article__title">
-                <a<?php echo $Block->nat ? ' href="' . htmlspecialchars($row->url) . '"' : ''?>>
-                  <?php echo htmlspecialchars($row->name)?>
-                </a>
-              </div>
-            </div>
-            <?php if (count($row->visImages) > 0) { ?>
-                <div class="article__images row">
-                  <?php for ($i = 0; $i < count($row->visImages); $i++) { $row2 = $row->visImages[$i]; ?>
-                      <div class="col-sm-3 col-lg-2 col-xs-4">
-                        <a href="/<?php echo htmlspecialchars($row2->fileURL)?>" data-lightbox-gallery="gallery" class="article__images__image">
-                          <img src="/<?php echo htmlspecialchars($row2->tnURL)?>" alt="<?php echo htmlspecialchars($row2->name)?>" /></a>
+      <div class="photos__list">
+        <div class="photos-list">
+          <?php foreach ($Set as $row) { ?>
+              <div class="photos__item">
+                <div class="photos-item">
+                  <div class="photos-item__text">
+                    <div class="photos-item__title">
+                      <a<?php echo $Block->nat ? ' href="' . htmlspecialchars($row->url) . '"' : ''?>>
+                        <?php echo htmlspecialchars($row->name)?>
+                      </a>
+                    </div>
+                  </div>
+                  <?php if (count($row->visImages) > 0) { ?>
+                      <div class="photos-item__images">
+                        <?php for ($i = 0; $i < count($row->visImages); $i++) { $row2 = $row->visImages[$i]; ?>
+                            <div class="photos-item__additional-image-container">
+                              <a href="<?php echo htmlspecialchars($Block->nat ? $row->url : '/' . $row2->fileURL)?>" data-lightbox-gallery="gallery" class="photos-item__additional-image">
+                                <img src="/<?php echo htmlspecialchars($row2->tnURL)?>" alt="<?php echo htmlspecialchars($row2->name ?: $row->name)?>" /></a>
+                            </div>
+                        <?php } ?>
                       </div>
                   <?php } ?>
                 </div>
-            <?php } ?>
-          </div>
-      <?php } ?>
+              </div>
+          <?php } ?>
+        </div>
+      </div>
     </div>
     <?php include Package::i()->resourcesDir . '/pages.inc.php'?>
     <?php if ($Pages->pages > 1) { ?>

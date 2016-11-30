@@ -2,6 +2,7 @@
 namespace RAAS\CMS;
 
 use RAAS\Attachment;
+use RAAS\Application;
 use \Mustache_Engine;
 
 $notify = function (Feedback $Item, Material $Material = null) {
@@ -35,10 +36,10 @@ $notify = function (Feedback $Item, Material $Material = null) {
 
     $subject = date(DATETIMEFORMAT) . ' ' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name);
     if ($emails) {
-        \RAAS\Application::i()->sendmail($emails, $subject, $message, ADMINISTRATION_OF_SITE . ' ' . $_SERVER['HTTP_HOST'], 'info@' . $_SERVER['HTTP_HOST']);
+        Application::i()->sendmail($emails, $subject, $message, ADMINISTRATION_OF_SITE . ' ' . $_SERVER['HTTP_HOST'], 'info@' . $_SERVER['HTTP_HOST']);
     }
     if ($sms_emails) {
-        \RAAS\Application::i()->sendmail($sms_emails, $subject, $message_sms, ADMINISTRATION_OF_SITE . ' ' . $_SERVER['HTTP_HOST'], 'info@' . $_SERVER['HTTP_HOST'], false);
+        Application::i()->sendmail($sms_emails, $subject, $message_sms, ADMINISTRATION_OF_SITE . ' ' . $_SERVER['HTTP_HOST'], 'info@' . $_SERVER['HTTP_HOST'], false);
     }
     if ($sms_phones) {
         $urlTemplate = Package::i()->registryGet('sms_gate');
@@ -121,13 +122,13 @@ if ($Form->id) {
         }
 
         if (!$localError) {
-            if ((\RAAS\Controller_Frontend::i()->user instanceof \RAAS\CMS\User) && \RAAS\Controller_Frontend::i()->user->id) {
+            if ((\RAAS\Controller_Frontend::i()->user instanceof User) && \RAAS\Controller_Frontend::i()->user->id) {
                 $Item->uid = (int)Controller_Frontend::i()->user->id;
             } else {
                 $Item->uid = 0;
             }
             // Для AJAX'а
-            $Referer = \RAAS\CMS\Page::importByURL($_SERVER['HTTP_REFERER']);
+            $Referer = Page::importByURL($_SERVER['HTTP_REFERER']);
             $Item->page_id = (int)$Referer->id ?: (int)$Page->id;
             if ($Page->Material->id) {
                 $Item->material_id = (int)$Page->Material->id;

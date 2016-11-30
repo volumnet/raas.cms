@@ -1,9 +1,6 @@
 <?php
 namespace RAAS\CMS;
 
-/**
- * @deprecated
- */
 $getSelect = function(Field $Item, array $DATA, $current = 0, $placeholder = '') use (&$getSelect) {
     static $level = 0;
     $text = '';
@@ -51,7 +48,7 @@ $getCheckbox = function(Field $Item, array $DATA, $current = 0, $placeholder = '
     return $text ? '<ul' . (!$level ? ' class="tree jsFieldTree"' : '') . '>' . $text . '</ul>' : '';
 };
 
-$getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $getSelect)  {
+$getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $getSelect, $Block)  {
     switch ($row->datatype) {
         case 'image': case 'file':
             if ($row->multiple) {
@@ -98,7 +95,7 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
                           '<input type="file"' .
                              ($row->datatype == 'image' ? ' accept="image/jpeg,image/png,image/gif"' : '') .
                              ' name="' . htmlspecialchars($row->urn) . '"' .
-                             ' id="' . htmlspecialchars($row->urn) . '"' .
+                             ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' .
                              ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '') .
                              ($row->required ? ' required1="required"' : '') . ' /> ' .
                         '</div>' .
@@ -111,7 +108,7 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
             } else {
                 echo '<input type="' . $row->datatype . '" ' .
                             'name="' . htmlspecialchars($row->urn) . '" ' .
-                            'id="' . htmlspecialchars($row->urn) . '"' .
+                            'id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' .
                               ($row->required ? ' required="required"' : '') . ' ' .
                             'value="1" ' .
                             (isset($DATA[$row->urn]) && $DATA[$row->urn] ? 'checked="checked"' : '') . ' />';
@@ -123,8 +120,8 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
         case 'select':
             $temp = '<select class="form-control" '
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
-                  .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn) . '"' : '')
-                  .       ($row->required ? ' required="required"' : '');
+                  .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : '')
+                  .       ($row->required && $row->placeholder ? ' required="required"' : '');
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
@@ -146,7 +143,7 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
         case 'textarea': case 'htmlarea':
             $temp = '<textarea ' . ($row->datatype == 'htmlarea' ? 'class="cms-htmlarea"' : 'class="form-control"')
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
-                  .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn) . '"' : '')
+                  .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : '')
                   .       ($row->maxlength ? ' maxlength="' . (int)$row->maxlength . '"' : '')
                   .       ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '')
                   .       ($row->required && ($row->datatype != 'htmlarea') ? ' required="required"' : '');
@@ -155,11 +152,11 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
                     echo '<div class="jsField" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
-                            $temp . ' id="' . htmlspecialchars($row->urn . '@' . $i) . '">' . htmlspecialchars(isset($DATA[$row->urn][$i]) ? (string)$DATA[$row->urn][$i] : '') . '</textarea>' .
+                            $temp . ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id . '@' . $i) . '">' . htmlspecialchars(isset($DATA[$row->urn][$i]) ? (string)$DATA[$row->urn][$i] : '') . '</textarea>' .
                             ($row->datatype != 'htmlarea' ? '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' : '') .
                          '</div>';
                 }
-                echo  '<div class="jsRepo cms-field_repo" data-role="raas-repo" style="display: none">' . $temp . ' id="' . htmlspecialchars($row->urn . '@' . $i) . '" disabled="disabled"></textarea>' .
+                echo  '<div class="jsRepo cms-field_repo" data-role="raas-repo" style="display: none">' . $temp . ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id . '@' . $i) . '" disabled="disabled"></textarea>' .
                         '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" title="' . DELETE . '">&times;</a>' .
                         ($row->datatype != 'htmlarea' ? '<span class="icon cms-move" title="' . MOVE . '"></span>' : '') .
                       '</div>';
@@ -171,13 +168,13 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
         case 'password':
             $temp = '<input type="' . $row->datatype . '" class="form-control"'
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
-                  .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn) . '"' : '')
+                  .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : '')
                   .       ($row->maxlength ? ' maxlength="' . (int)$row->maxlength . '"' : '')
                   .       ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '')
                   .       ($row->required ? ' required="required"' : '');
             $temp2 = '<input type="' . $row->datatype . '" class="form-control"'
                    .       ' name="' . htmlspecialchars($row->urn) . '@confirm' . ($row->multiple ? '[]' : '') . '"'
-                   .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn) . '@confirm"' : '')
+                   .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '@confirm"' : '')
                    .       ($row->maxlength ? ' maxlength="' . (int)$row->maxlength . '"' : '')
                    .       ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '')
                    .       ($row->required ? ' required="required"' : '');
@@ -203,7 +200,7 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
         case 'material':
             $temp = '<input type="hidden" '
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
-                  .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn) . '"' : '');
+                  .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : '');
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
@@ -230,7 +227,7 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
                   .       ($row->min_val ? ' min="' . (float)$row->min_val . '"' : '')
                   .       ($row->max_val ? ' max="' . (float)$row->max_val . '"' : '')
-                  .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn) . '"' : '')
+                  .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : '')
                   .       ($row->maxlength ? ' maxlength="' . (int)$row->maxlength . '"' : '')
                   .       ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '')
                   .       ($row->required ? ' required="required"' : '');

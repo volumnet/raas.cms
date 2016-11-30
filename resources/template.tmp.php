@@ -38,109 +38,109 @@ ob_start();
     <?php echo eval('?' . '>' . Snippet::importByURN('head')->description)?>
     <?php echo $Page->location('head_counters')?>
   </head>
-  <body<?php echo !$Page->pid ? ' class="body_main"' : ''?>>
-    <div id="top" class="background-holder"<?php echo $bg->id ? ' style="background-image: url(\'/' . htmlspecialchars($bg->fileURL) . '\')"' : ''?>>
-      <header class="location_header">
+  <body class="body <?php echo !$Page->pid ? ' body_main' : ''?>">
+    <div id="top" class="body__background-holder"<?php echo $bg->id ? ' style="background-image: url(\'/' . htmlspecialchars($bg->fileURL) . '\')"' : ''?>>
+      <header class="body__header">
         <div class="container">
-          <div class="location_header__inner">
+          <div class="body__header-inner">
             <div class="row">
-              <div class="col-sm-6">
-                <div class="location_logo">
-                  <?php echo $Page->location('logo')?>
-                </div>
+              <div class="col-sm-6 body__logo">
+                <?php echo $Page->location('logo')?>
               </div>
-              <div class="col-sm-6">
-                <div class="location_contacts_top">
-                  <?php echo $Page->location('contacts_top')?>
-                </div>
+              <div class="col-sm-6 body__contacts-top">
+                <?php echo $Page->location('contacts_top')?>
               </div>
             </div>
           </div>
-          <div class="location_menu_top">
+          <div class="body__menu-top-outer">
             <div class="row">
-              <div class="col-sm-9"><?php echo $Page->location('menu_top')?></div>
-              <div class="col-sm-3"><?php echo $Page->location('search_form')?></div>
+              <div class="col-sm-9 body__menu-top">
+                <?php echo $Page->location('menu_top')?>
+              </div>
+              <div class="col-sm-3 body__search-form">
+                <?php echo $Page->location('search_form')?>
+              </div>
             </div>
           </div>
-          <div class="location_banners">
+          <div class="body__banners">
             <?php echo $Page->location('banners')?>
           </div>
         </div>
       </header>
-      <div class="main-container">
+      <main class="body__main-container">
         <div class="container">
           <div class="row">
             <?php
             $leftText = $Page->location('left');
             $rightText = $Page->location('right');
             if ($leftText) { ?>
-                <aside class="location_left col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                  <div class="location_left__inner"><?php echo $leftText?></div>
+                <aside class="body__left col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
+                  <div class="body__left-inner"><?php echo $leftText?></div>
                 </aside>
             <?php } ?>
             <?php if (count($Page->locationBlocksText['content'])) {
                 $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
                 $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
                 ?>
-                <div class="location_content col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
-                  <div class="location_content__inner">
+                <div class="body__content col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
+                  <div class="body__content-inner">
                     <?php if (!$Page->pid) { ?>
                         <?php echo $Page->location('content')?>
                     <?php } else { ?>
-                          <?php if ((count($Page->parents) + (bool)$Page->Material->id + (bool)$Page->Item->id) > 1) { ?>
-                              <ol class="breadcrumb">
-                                <?php foreach ($Page->parents as $row) { ?>
-                                    <li><a href="<?php echo htmlspecialchars($row->url)?>"><?php echo htmlspecialchars($row->getBreadcrumbsName())?></a></li>
-                                <?php } ?>
-                                <?php if ($Page->Material->id || $Page->Item->id) { ?>
-                                    <li><a href="<?php echo htmlspecialchars($Page->url)?>"><?php echo htmlspecialchars($Page->getBreadcrumbsName())?></a></li>
-                                <?php } ?>
-                              </ol>
-                          <?php } ?>
-                          <h1><?php echo htmlspecialchars($Page->getH1())?></h1>
-                          <?php echo $Page->location('content')?>
-                          <?php echo $Page->location('share')?>
+                        <?php if ((count($Page->parents) + (bool)$Page->Material->id + (bool)$Page->Item->id) > 1) { ?>
+                            <ol class="breadcrumb">
+                              <?php foreach ($Page->parents as $row) { ?>
+                                  <li><a href="<?php echo htmlspecialchars($row->url)?>"><?php echo htmlspecialchars($row->getBreadcrumbsName())?></a></li>
+                              <?php } ?>
+                              <?php if ($Page->Material->id || $Page->Item->id) { ?>
+                                  <li><a href="<?php echo htmlspecialchars($Page->url)?>"><?php echo htmlspecialchars($Page->getBreadcrumbsName())?></a></li>
+                              <?php } ?>
+                            </ol>
+                        <?php } ?>
+                        <h1 class="h1"><?php echo htmlspecialchars($Page->getH1())?></h1>
+                        <?php echo $Page->location('content')?>
+                        <?php echo $Page->location('share')?>
                     <?php } ?>
                   </div>
                 </div>
             <?php } ?>
             <?php if ($rightText) { ?>
-                <aside class="location_right col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                  <div class="location_right__inner"><?php echo $rightText?></div>
+                <aside class="body__right col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
+                  <div class="body__right-inner"><?php echo $rightText?></div>
                 </aside>
             <?php } ?>
           </div>
         </div>
         <?php if ($text = $Page->location('content2')) { ?>
-            <div class="location_content2"><?php echo $text?></div>
+            <div class="body__content2"><?php echo $text?></div>
         <?php } ?>
         <?php if ($text = $Page->location('content3')) { ?>
-            <div class="location_content3">
+            <div class="body__content3">
               <div class="container">
-                <div class="location_content3__inner"><?php echo $text?></div>
+                <div class="body__content3-inner"><?php echo $text?></div>
               </div>
             </div>
         <?php } ?>
         <?php if ($text = $Page->location('content4')) { ?>
-            <div class="location_content4"><?php echo $text?></div>
+            <div class="body__content4"><?php echo $text?></div>
         <?php } ?>
         <?php if ($text = $Page->location('content5')) { ?>
-            <div class="location_content5">
+            <div class="body__content5">
               <div class="container">
-                <div class="location_content5__inner"><?php echo $text?></div>
+                <div class="body__content5-inner"><?php echo $text?></div>
               </div>
             </div>
         <?php } ?>
       </div>
-      <footer class="location_footer">
+      <footer class="body__footer">
         <div class="container">
-          <div class="location_footer__inner">
+          <div class="body__footer-inner">
             <div class="row">
-              <div class="col-sm-6"><?php echo $Page->location('copyrights')?></div>
-              <div class="col-sm-6"><?php echo $Page->location('menu_bottom')?></div>
+              <div class="col-sm-6 body__copyrights"><?php echo $Page->location('copyrights')?></div>
+              <div class="col-sm-6 body__menu-bottom"><?php echo $Page->location('menu_bottom')?></div>
             </div>
           </div>
-          <div class="developer">Разработка и сопровождение сайта <a href="http://volumnet.ru" target="_blank">Volume&nbsp;Networks</a></div>
+          <div class="body__developer">Разработка и сопровождение сайта <a href="http://volumnet.ru" target="_blank">Volume&nbsp;Networks</a></div>
         </div>
       </footer>
     </div>

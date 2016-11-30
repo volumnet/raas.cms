@@ -1,11 +1,15 @@
 <?php
+namespace RAAS\CMS;
+
+use SOME\Graphics;
+
 $processImage = function($filename, $watermarkFilename, $ratio = 0.5, $quality = 90)
 {
     list($sourceImgWidth, $sourceImgHeight, $sourceImgType) = @getimagesize($filename);
     list($waterMarkImgWidth, $waterMarkImgHeight, $waterMarkImgType) = @getimagesize($watermarkFilename);
-    $sourceInputFunction = \SOME\Graphics::image_type_to_input_function($sourceImgType);
-    $sourceOutputFunction = \SOME\Graphics::image_type_to_output_function($sourceImgType);
-    $waterMarkInputFunction = \SOME\Graphics::image_type_to_input_function($waterMarkImgType);
+    $sourceInputFunction = Graphics::image_type_to_input_function($sourceImgType);
+    $sourceOutputFunction = Graphics::image_type_to_output_function($sourceImgType);
+    $waterMarkInputFunction = Graphics::image_type_to_input_function($waterMarkImgType);
     $sourceImg = $sourceInputFunction($filename);
     $waterMarkImg = $waterMarkInputFunction($watermarkFilename);
 

@@ -1,6 +1,10 @@
 <?php
 namespace RAAS\CMS;
 
+use RAAS\Application;
+use SOME\Pages;
+use SOME\SOME;
+
 $pageNameRatio = 10;
 $pageDataRatio = 1;
 $materialNameRatio = 10;
@@ -8,7 +12,7 @@ $materialDescriptionRatio = 1;
 $materialDataRatio = 1;
 $pageMaterialsRatio = 1;
 $searchLimit = 100;
-$SQL = \RAAS\Application::i()->SQL;
+$SQL = Application::i()->SQL;
 
 $IN = (array)$_GET;
 $OUT = array();
@@ -225,7 +229,7 @@ if (!$search_string) {
         arsort($results);
         $Pages = null;
         if (isset($config['pages_var_name'], $config['rows_per_page']) && (int)$config['rows_per_page']) {
-            $Pages = new \SOME\Pages(isset($IN[$config['pages_var_name']]) ? (int)$IN[$config['pages_var_name']] : 1, (int)$config['rows_per_page']);
+            $Pages = new Pages(isset($IN[$config['pages_var_name']]) ? (int)$IN[$config['pages_var_name']] : 1, (int)$config['rows_per_page']);
         }
         $Set = array_keys($results);
         $Set = array_slice($Set, 0, $searchLimit);
@@ -233,22 +237,22 @@ if (!$search_string) {
             $Set,
             function ($x) {
                 if ($x[0] == 'm') {
-                    $row = new \RAAS\CMS\Material(substr($x, 1));
+                    $row = new Material(substr($x, 1));
                     return $row->currentUserHasAccess() && $row->parent->currentUserHasAccess();
                 } else {
-                    $row = new \RAAS\CMS\Page(substr($x, 1));
+                    $row = new Page(substr($x, 1));
                     return $row->currentUserHasAccess();
                 }
             }
         );
-        $Set = \SOME\SOME::getArraySet(
+        $Set = SOME::getArraySet(
             $Set,
             $Pages,
             function ($x) {
                 if ($x[0] == 'm') {
-                    $row = new \RAAS\CMS\Material(substr($x, 1));
+                    $row = new Material(substr($x, 1));
                 } else {
-                    $row = new \RAAS\CMS\Page(substr($x, 1));
+                    $row = new Page(substr($x, 1));
                 }
                 return $row;
             }

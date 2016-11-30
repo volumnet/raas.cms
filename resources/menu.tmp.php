@@ -1,7 +1,11 @@
 <?php
-$showMenu = function($node, \RAAS\CMS\Page $current) use (&$showMenu) {
+namespace RAAS\CMS;
+
+use SOME\HTTP;
+
+$showMenu = function($node, Page $current) use (&$showMenu) {
     static $level = 0;
-    if ($node instanceof \RAAS\CMS\Menu) {
+    if ($node instanceof Menu) {
         $children = $node->visSubMenu;
     } else {
         $children = (isset($node['children']) && is_array($node['children'])) ? $node['children'] : array();
@@ -11,24 +15,47 @@ $showMenu = function($node, \RAAS\CMS\Page $current) use (&$showMenu) {
         $level++;
         $ch = $showMenu($row, $current);
         $level--;
-        if ($node instanceof \RAAS\CMS\Menu) {
+        if ($node instanceof Menu) {
             $url = $row->url;
             $name = $row->name;
         } else {
             $url = $row['url'];
             $name = $row['name'];
         }
-        $active = ($url == \SOME\HTTP::queryString('', true));
-        $semiactive = stristr(\SOME\HTTP::queryString('', true), $url) && ($url != '/');
-        if (stristr($ch, 'class="active"')) {
+        $active = ($url == HTTP::queryString('', true));
+        $semiactive = stristr(HTTP::queryString('', true), $url) && ($url != '/');
+        if (preg_match('/class="[\\w\\- ]*?active[\\w\\- ]*?"/umi', $ch)) {
             $semiactive = true;
         }
-        $text .= '<li' . ($active || $semiactive ? ' class="active"' : '') . '>'
-              .  '  <a' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>' . htmlspecialchars($name) . '</a>'
+        $ulClasses = array(
+            '{MENU_NAME}__list',
+            '{MENU_NAME}__list_' . (!$level ? 'main' : 'inner'),
+            '{MENU_NAME}__list_level_' . $level
+        );
+        $liClasses = array(
+            '{MENU_NAME}__item',
+            '{MENU_NAME}__item_' . (!$level ? 'main' : 'inner'),
+            '{MENU_NAME}__item_level_' . $level
+        );
+        $aClasses = array(
+            '{MENU_NAME}__link',
+            '{MENU_NAME}__link_' . (!$level ? 'main' : 'inner'),
+            '{MENU_NAME}__link_level_' . $level
+        );
+        if ($active || $semiactive) {
+            $liClasses[] = '{MENU_NAME}__item_active';
+            $aClasses[] = '{MENU_NAME}__link_active';
+            if ($semiactive) {
+                $liClasses[] = '{MENU_NAME}__item_semiactive';
+                $aClasses[] = '{MENU_NAME}__link_semiactive';
+            }
+        }
+        $text .= '<li class="' . implode(' ', $liClasses) . '">'
+              .  '  <a class="' . implode(' ', $aClasses) . '" ' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>' . htmlspecialchars($name) . '</a>'
               .     $ch
               .  '</li>';
     }
-    return $text ? '<ul>' . $text . '</ul>' : $text;
+    return $text ? '<ul class="' . implode(' ', $ulClasses) . '">' . $text . '</ul>' : $text;
 };
 
 echo '<nav class="{MENU_NAME}">' . $showMenu($menuArr ?: $Item, $Page) . '</nav>';

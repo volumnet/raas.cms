@@ -11,7 +11,7 @@
     </p>
     <p>
       <strong>Телефон: </strong>
-      <span itemprop="telephone">+7 999 000-00-00</span>
+      <a href="tel:%2B79990000000" itemprop="telephone">+7 999 000-00-00</a>
     </p>
     <p>
       <strong>E-mail:&nbsp;</strong>

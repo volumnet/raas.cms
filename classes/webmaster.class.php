@@ -249,7 +249,7 @@ class Webmaster
                 $S->pid = $VF->id;
                 if (stristr($urn, 'menu_')) {
                     $f = $this->resourcesDir . '/menu.tmp.php';
-                    $S->description = str_ireplace('{MENU_NAME}', $urn, file_get_contents($f));
+                    $S->description = str_ireplace('{MENU_NAME}', str_replace('_', '-', $urn), file_get_contents($f));
                 } else {
                     $f = $this->resourcesDir . '/' . $urn . '.tmp.php';
                     $S->description = file_get_contents($f);

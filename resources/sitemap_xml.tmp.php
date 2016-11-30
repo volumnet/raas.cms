@@ -1,4 +1,6 @@
 <?php
+namespace RAAS\CMS;
+
 $getChangeFreq = function($row) {
     $text = '';
     if ($row->changefreq) {
@@ -26,7 +28,7 @@ $getChangeFreq = function($row) {
     }
     return $text;
 };
-$showMenu = function(\RAAS\CMS\Page $page) use (&$showMenu, &$getChangeFreq) {
+$showMenu = function(Page $page) use (&$showMenu, &$getChangeFreq) {
     $children = $page->visChildren;
     for ($i = 0; $i < count($children); $i++) {
         $row = $children[$i];
@@ -59,4 +61,4 @@ $showMenu = function(\RAAS\CMS\Page $page) use (&$showMenu, &$getChangeFreq) {
 
 header('Content-Type: application/xml; charset=UTF-8');
 echo '<?xml version="1.0" encoding="UTF-8"?' . '>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . $showMenu(new \RAAS\CMS\Page()) . '</urlset>';
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . $showMenu(new Page()) . '</urlset>';

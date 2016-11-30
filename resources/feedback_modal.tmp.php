@@ -14,7 +14,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     exit;
 } else { ?>
     <!--noindex-->
-    <div class="feedback_modal">
+    <div class="feedback-modal">
       <div id="<?php echo htmlspecialchars($Widget->urn)?>" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -25,7 +25,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
               </div>
               <div class="modal-body">
                 <div class="form-horizontal">
-                  <?php include \RAAS\CMS\Package::i()->resourcesDir . '/form.inc.php'?>
+                  <?php include Package::i()->resourcesDir . '/form2.inc.php'?>
                   <div data-role="notifications" <?php echo ($success[(int)$Block->id] || $localError) ? '' : 'style="display: none"'?>>
                     <div class="alert alert-success" <?php echo ($success[(int)$Block->id]) ? '' : 'style="display: none"'?>><?php echo FEEDBACK_SUCCESSFULLY_SENT?></div>
                     <div class="alert alert-danger" <?php echo ($localError) ? '' : 'style="display: none"'?>>
@@ -49,17 +49,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                         <div class="form-group">
                           <label for="<?php echo htmlspecialchars($row->urn . $row->id)?>" class="control-label col-sm-3"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?>:</label>
                           <div class="col-sm-9">
-                            <?php
-                            ob_start();
-                            $getField($row, $DATA);
-                            $temp = ob_get_contents();
-                            ob_end_clean();
-                            $temp = preg_replace('/id="(.*?)"/umi', 'id="${1}' . (int)$row->id . '"', $temp);
-                            if (($row->datatype == 'select') && $row->required && !$row->placeholder) {
-                                $temp = str_replace('required="required"', '', $temp);
-                            }
-                            echo $temp;
-                            ?>
+                            <?php $getField($row, $DATA); ?>
                           </div>
                         </div>
                     <?php } ?>

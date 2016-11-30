@@ -1,5 +1,6 @@
-<?php namespace RAAS\CMS?>
 <?php
+namespace RAAS\CMS;
+
 if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     $result = array();
     if ($success[(int)$Block->id]) {
@@ -13,7 +14,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     exit;
 } else { ?>
     <!--noindex-->
-    <div class="order-call order-call_modal">
+    <div class="order-call-modal">
       <div id="<?php echo htmlspecialchars($Widget->urn)?>" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -24,7 +25,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
               </div>
               <div class="modal-body">
                 <div class="form-horizontal">
-                  <?php include \RAAS\CMS\Package::i()->resourcesDir . '/form.inc.php'?>
+                  <?php include Package::i()->resourcesDir . '/form.inc.php'?>
                   <div data-role="notifications" <?php echo ($success[(int)$Block->id] || $localError) ? '' : 'style="display: none"'?>>
                     <div class="alert alert-success" <?php echo ($success[(int)$Block->id]) ? '' : 'style="display: none"'?>><?php echo FEEDBACK_SUCCESSFULLY_SENT?></div>
                     <div class="alert alert-danger" <?php echo ($localError) ? '' : 'style="display: none"'?>>

@@ -1,6 +1,8 @@
 <?php
 namespace RAAS\CMS;
 
+use SOME\Pages;
+
 $IN = (array)$_GET;
 if (!$Block->nat) {
     unset($IN['id']);
@@ -155,7 +157,7 @@ if ($Page->Material && $Block->nat) {
                . " GROUP BY tM.id ORDER BY NOT tM.priority, tM.priority ASC " . ($sort ? ", " . $sort . $order : "");
     $Pages = null;
     if (isset($config['pages_var_name'], $config['rows_per_page']) && (int)$config['rows_per_page']) {
-        $Pages = new \SOME\Pages(isset($IN[$config['pages_var_name']]) ? (int)$IN[$config['pages_var_name']] : 1, (int)$config['rows_per_page']);
+        $Pages = new Pages(isset($IN[$config['pages_var_name']]) ? (int)$IN[$config['pages_var_name']] : 1, (int)$config['rows_per_page']);
     }
     $Set = Material::getSQLSet($SQL_query, $Pages);
     $Set = array_filter(
