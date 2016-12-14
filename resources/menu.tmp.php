@@ -23,7 +23,7 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
             $name = $row['name'];
         }
         $active = ($url == HTTP::queryString('', true));
-        $semiactive = stristr(HTTP::queryString('', true), $url) && ($url != '/');
+        $semiactive = preg_match('/^' . preg_quote($url, '/') . '/umi', HTTP::queryString('', true)) && ($url != '/');
         if (preg_match('/class="[\\w\\- ]*?active[\\w\\- ]*?"/umi', $ch)) {
             $semiactive = true;
         }
