@@ -128,12 +128,12 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
                     echo '<div class="jsField" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             $temp . '>' . $getSelect($row, $row->stdSource, $DATA[$row->urn][$i], $row->placeholder) . '</select>' .
-                            '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
+                            '<span class="icon cms-move" data-role="raas-repo-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
                          '</div>';
                 }
                 echo  '<div class="jsRepo cms-field_repo" data-role="raas-repo" style="display: none">' . $temp . ' disabled="disabled">' . $getSelect($row, $row->stdSource, 0, $row->placeholder) . '</select>' .
                         '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" title="' . DELETE . '">&times;</a>' .
-                        '<span class="icon cms-move" title="' . MOVE . '"></span>' .
+                        '<span class="icon cms-move" data-role="raas-repo-move" title="' . MOVE . '"></span>' .
                       '</div>';
                 echo '</div>';
             } else {
@@ -153,12 +153,12 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
                     echo '<div class="jsField" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             $temp . ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id . '@' . $i) . '">' . htmlspecialchars(isset($DATA[$row->urn][$i]) ? (string)$DATA[$row->urn][$i] : '') . '</textarea>' .
-                            ($row->datatype != 'htmlarea' ? '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' : '') .
+                            ($row->datatype != 'htmlarea' ? '<span class="icon cms-move" data-role="raas-repo-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' : '') .
                          '</div>';
                 }
                 echo  '<div class="jsRepo cms-field_repo" data-role="raas-repo" style="display: none">' . $temp . ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id . '@' . $i) . '" disabled="disabled"></textarea>' .
                         '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" title="' . DELETE . '">&times;</a>' .
-                        ($row->datatype != 'htmlarea' ? '<span class="icon cms-move" title="' . MOVE . '"></span>' : '') .
+                        ($row->datatype != 'htmlarea' ? '<span class="icon cms-move" data-role="raas-repo-move" title="' . MOVE . '"></span>' : '') .
                       '</div>';
                 echo '</div>';
             } else {
@@ -184,12 +184,12 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
                     echo '<div class="jsField" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             $temp . ' /> ' . $temp2 . ' /> ' .
-                            '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
+                            '<span class="icon cms-move" data-role="raas-repo-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
                          '</div>';
                 }
                 echo  '<div class="jsRepo cms-field_repo" data-role="raas-repo" style="display: none">' . $temp . ' disabled="disabled"' . ' /> <br /> ' . $temp2 . ' disabled="disabled"' . ' /> ' .
                         '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" title="' . DELETE . '">&times;</a>' .
-                        '<span class="icon cms-move" title="' . MOVE . '"></span>' .
+                        '<span class="icon cms-move" data-role="raas-repo-move" title="' . MOVE . '"></span>' .
                       '</div>';
                 echo '</div>';
             } else {
@@ -208,13 +208,13 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             $temp . ' value="' . htmlspecialchars(isset($DATA[$row->urn][$i]) ? (string)$DATA[$row->urn][$i] : '') . '"' . ' />' .
                             '<div class="control-label form-material-name" style="text-align: left" data-role="material-name"></div>' .
-                            '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
+                            '<span class="icon cms-move" data-role="raas-repo-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
                          '</div>';
                 }
                 echo  '<div class="jsRepo cms-field_repo" data-role="raas-repo" style="display: none">' . $temp . ' disabled="disabled"' . ' /> ' .
                         '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" title="' . DELETE . '">&times;</a>' .
                         '<div class="control-label form-material-name" style="text-align: left" data-role="material-name"></div>' .
-                        '<span class="icon cms-move" title="' . MOVE . '"></span>' .
+                        '<span class="icon cms-move" data-role="raas-repo-move" title="' . MOVE . '"></span>' .
                       '</div>';
                 echo '</div>';
             } else {
@@ -237,12 +237,12 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
                     echo '<div class="jsField" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             $temp . ' value="' . htmlspecialchars(isset($DATA[$row->urn][$i]) ? (string)$DATA[$row->urn][$i] : '') . '"' . ' /> ' .
-                            '<span class="icon cms-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
+                            '<span class="icon cms-move" data-role="raas-repo-move" ' . ((count($DATA[$row->urn]) <= 1) ? 'style="display: none"' : '') . ' title="' . MOVE . '"></span>' .
                          '</div>';
                 }
                 echo  '<div class="jsRepo cms-field_repo" data-role="raas-repo" style="display: none">' . $temp . ' disabled="disabled"' . ' /> ' .
                         '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" title="' . DELETE . '">&times;</a>' .
-                        '<span class="icon cms-move" title="' . MOVE . '"></span>' .
+                        '<span class="icon cms-move" data-role="raas-repo-move" title="' . MOVE . '"></span>' .
                       '</div>';
                 echo '</div>';
             } else {
