@@ -722,10 +722,14 @@ class Package extends \RAAS\Package
                 $c = strcasecmp($a->$key, $b->$key);
             } elseif (in_array($key, array('priority'))) {
                 $c = ((int)$a->$key - (int)$b->$key);
-            } elseif (is_object($a->fields[$key]->doRich()) || is_object($b->fields[$key]->doRich())) {
-                $c = ((bool)$a->fields[$key]->doRich() - (bool)$b->fields[$key]->doRich());
+            } elseif (isset($a->fields[$key], $b->fields[$key])) {
+                if (is_object($a->fields[$key]->doRich()) || is_object($b->fields[$key]->doRich())) {
+                    $c = ((bool)$a->fields[$key]->doRich() - (bool)$b->fields[$key]->doRich());
+                } else {
+                    $c = strcasecmp($a->fields[$key]->doRich(), $b->fields[$key]->doRich());
+                }
             } else {
-                $c = strcasecmp($a->fields[$key]->doRich(), $b->fields[$key]->doRich());
+                $c = strcasecmp($a->$key, $b->$key);
             }
             return ($reverse ? -1 : 1) * $c;
         };
