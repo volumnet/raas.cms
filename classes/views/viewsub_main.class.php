@@ -252,9 +252,15 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
     {
         $arr = array();
         if ($Item->id) {
-            $edit = (($this->action == 'edit_material') && ($this->id == $Item->id));
+            if ($this->action == 'edit_material') {
+                $edit = ($this->id == $Item->id);
+                $pidText = '';
+            } else {
+                $edit = false;
+                $pidText = '&pid=' . (int)$this->id;
+            }
             if (!$edit) {
-                $arr[] = array('href' => $this->url . '&action=edit_material&id=' . (int)$Item->id . '&pid=' . (int)$this->id, 'name' => $this->_('EDIT'), 'icon' => 'edit');
+                $arr[] = array('href' => $this->url . '&action=edit_material&id=' . (int)$Item->id . $pidText, 'name' => $this->_('EDIT'), 'icon' => 'edit');
             }
             if ($Item->vis) {
                 $arr[] = array(
@@ -273,8 +279,8 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
             }
             $arr[] = array('href' => $this->url . '&action=copy_material&id=' . (int)$Item->id, 'name' => $this->_('COPY'), 'icon' => 'tags');
             if (!$edit && ($this->action != 'move_material') && !$Item->material_type->global_type) {
-                $arr[] = array('href' => $this->url . '&action=move_material&id=' . (int)$Item->id . '&mtype=' . (int)$Item->material_type->id . '&pid=' . $this->id, 'name' => $this->_('PLACE_ON_PAGE'), 'icon' => 'share-alt');
-                $arr[] = array('href' => $this->url . '&action=move_material&id=' . (int)$Item->id . '&mtype=' . (int)$Item->material_type->id . '&pid=' . $this->id . '&move=1', 'name' => $this->_('MOVE_TO_PAGE'), 'icon' => 'share-alt');
+                $arr[] = array('href' => $this->url . '&action=move_material&id=' . (int)$Item->id . '&mtype=' . (int)$Item->material_type->id . $pidText, 'name' => $this->_('PLACE_ON_PAGE'), 'icon' => 'share-alt');
+                $arr[] = array('href' => $this->url . '&action=move_material&id=' . (int)$Item->id . '&mtype=' . (int)$Item->material_type->id . $pidText . '&move=1', 'name' => $this->_('MOVE_TO_PAGE'), 'icon' => 'share-alt');
             }
             $arr[] = array(
                 'href' => $this->url . '&action=delete_material&id=' . (int)$Item->id . (!$edit ? '&back=1' : (isset($_GET['pid']) ? '&pid=' . (int)$_GET['pid'] : '')),

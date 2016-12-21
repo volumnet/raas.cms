@@ -243,8 +243,8 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
         if ($Item->id) {
             if (isset($_GET['pid']) && in_array((int)$_GET['pid'], $Item->pages_ids)) {
                 $Parent = new Page((int)$_GET['pid']);
-            } elseif ($Item->pages) {
-                $Parent = new Page($Item->pages_ids[0]);
+            } elseif ($Item->parents) {
+                $Parent = new Page($Item->parents_ids[0]);
             } else {
                 $Parent = new Page((int)$_GET['pid']);
             }

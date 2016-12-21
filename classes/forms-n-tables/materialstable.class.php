@@ -23,6 +23,7 @@ class MaterialsTable extends \RAAS\Table
         $view = $this->view;
         $columns = array();
         $i = 0;
+        $pidText = (($params['Item'] instanceof Page) ? '&pid=' . (int)$params['Item']->id : '');
         foreach (array_filter(
             $params['mtype']->fields,
             function ($x) {
@@ -33,11 +34,11 @@ class MaterialsTable extends \RAAS\Table
                 $columns[$col->urn] = array(
                     'caption' => $col->name,
                     'sortable' => Column::SORTABLE_REVERSABLE,
-                    'callback' => function ($row) use ($col, $view, $params) {
+                    'callback' => function ($row) use ($col, $view, $params, $pidText) {
                         $f = $row->fields[$col->urn];
                         $v = $f->getValue();
                         if ($v->id) {
-                            return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . '&pid=' . (int)$params['Item']->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>
+                            return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>
                                       <img src="/' . $v->tnURL . '" style="max-width: 48px;" /></a>';
                         }
                     }
@@ -48,8 +49,8 @@ class MaterialsTable extends \RAAS\Table
         $columns['name'] = array(
             'caption' => $this->view->_('NAME'),
             'sortable' => Column::SORTABLE_REVERSABLE,
-            'callback' => function ($row) use ($view, $params) {
-                return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . '&pid=' . (int)$params['Item']->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>'
+            'callback' => function ($row) use ($view, $params, $pidText) {
+                return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>'
                      .    htmlspecialchars($row->name)
                      . '</a>';
             }
@@ -132,7 +133,7 @@ class MaterialsTable extends \RAAS\Table
             array(
                 'meta' => array(
                     'allContextMenu' => $view->getAllMaterialsContextMenu($params['mtype']),
-                    'allValue' => 'all&mtype=' . (int)$params['mtype']->id . '&pid=' . (int)$params['Item']->id,
+                    'allValue' => 'all&mtype=' . (int)$params['mtype']->id . $pidText,
                 ),
                 'data-role' => 'multitable',
                 'columns' => $columns
