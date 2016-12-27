@@ -214,7 +214,7 @@ class Package extends \RAAS\Package
             $order = 'asc';
         }
         $SQL_query .= " ORDER BY priority " . strtoupper($order) . ($sort ? ", " . $sort . " " . strtoupper($order) : "");
-        $Pages = new \SOME\Pages(isset($this->controller->nav['page']) ? $this->controller->nav['page'] : 1, $this->registryGet('rowsPerPage'));
+        $Pages = new \SOME\Pages(isset($this->controller->nav['page']) ? $this->controller->nav['page'] : 1, Application::i()->registryGet('rowsPerPage'));
         $Set = Dictionary::getSQLSet($SQL_query, $Pages);
         return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $order);
     }
@@ -312,7 +312,7 @@ class Package extends \RAAS\Package
                             )";
         }
         $SQL_query .= " GROUP BY tM.id ";
-        $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
+        $Pages = new \SOME\Pages($page, Application::i()->registryGet('rowsPerPage'));
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
             $Set = Material::getSQLSet($SQL_query);
@@ -388,7 +388,9 @@ class Package extends \RAAS\Package
                                  OR tD2.value LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
                             )";
         }
-        $Pages = new \SOME\Pages($page, $this->parent->registryGet('rowsPerPage'));
+        // 2016-12-27, AVS: добавил группировку одинаковых материалов, иначе ссылающиеся несколько раз перечислялись тоже несколько раз
+        $SQL_query .= " GROUP BY tM.id ";
+        $Pages = new \SOME\Pages($page, Application::i()->registryGet('rowsPerPage'));
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
             $Set = Material::getSQLSet($SQL_query);
@@ -449,7 +451,7 @@ class Package extends \RAAS\Package
         }
 
         $SQL_query .= " GROUP BY tF.id ORDER BY tF.post_date DESC ";
-        $Pages = new \SOME\Pages(isset($this->controller->nav['page']) ? $this->controller->nav['page'] : 1, $this->registryGet('rowsPerPage'));
+        $Pages = new \SOME\Pages(isset($this->controller->nav['page']) ? $this->controller->nav['page'] : 1, Application::i()->registryGet('rowsPerPage'));
         $Set = Feedback::getSQLSet($SQL_query, $Pages);
         return array('Set' => $Set, 'Pages' => $Pages, 'Parent' => $Parent, 'columns' => $columns);
     }
