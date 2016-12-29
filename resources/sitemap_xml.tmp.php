@@ -34,7 +34,7 @@ $showMenu = function(Page $page) use (&$showMenu, &$getChangeFreq) {
         $row = $children[$i];
         if (!$row->response_code) {
             $text .= '<url>
-                        <loc>http://' . htmlspecialchars($_SERVER['HTTP_HOST'] . $row->url) . '</loc>';
+                        <loc>http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . htmlspecialchars($_SERVER['HTTP_HOST'] . $row->url) . '</loc>';
             if (strtotime($row->last_modified) > 0) {
                 $text .= '<lastmod>' . date(DATE_W3C, strtotime($row->last_modified)) . '</lastmod>';
             }
@@ -44,7 +44,7 @@ $showMenu = function(Page $page) use (&$showMenu, &$getChangeFreq) {
             foreach ($row->affectedMaterials as $row2) {
                 if ($row2->parent->id == $row->id) {
                     $text .= '<url>
-                                <loc>http://' . htmlspecialchars($_SERVER['HTTP_HOST'] . $row2->url) . '</loc>';
+                                <loc>http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . htmlspecialchars($_SERVER['HTTP_HOST'] . $row2->url) . '</loc>';
                     if (strtotime($row->last_modified) > 0) {
                         $text .= '<lastmod>' . date(DATE_W3C, strtotime($row2->last_modified)) . '</lastmod>';
                     }

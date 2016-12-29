@@ -1,6 +1,5 @@
 <?php
-$smsField = function($field)
-{
+$smsField = function ($field) {
     $values = $field->getValues(true);
     $arr = array();
     foreach ($values as $key => $val) {
@@ -12,7 +11,8 @@ $smsField = function($field)
             case 'datetime-local':
                 $arr[$key] = date(DATETIMEFORMAT, strtotime($val));
                 break;
-            case 'file': case 'image':
+            case 'file':
+            case 'image':
                 $arr[$key] .= $val->name;
                 break;
             case 'htmlarea':
@@ -29,8 +29,8 @@ $smsField = function($field)
     }
     return $field->name . ': ' . implode(', ', $arr) . "\n";
 };
-$emailField = function($field)
-{
+
+$emailField = function ($field) {
     $values = $field->getValues(true);
     $arr = array();
     foreach ($values as $key => $val) {
@@ -49,13 +49,15 @@ $emailField = function($field)
                 $arr[$key] .= '<a href="mailto:' . htmlspecialchars($val) . '">' . htmlspecialchars($val) . '</a>';
                 break;
             case 'url':
-                $arr[$key] .= '<a href="http://' . htmlspecialchars(str_replace('http://', '', $val)) . '">' . htmlspecialchars($val) . '</a>';
+                $arr[$key] .= '<a href="' . (!preg_match('/^http(s)?:\\/\\//umi', trim($val)) ? 'http://' : '') . htmlspecialchars($val) . '">' . htmlspecialchars($val) . '</a>';
                 break;
             case 'file':
-                $arr[$key] .= '<a href="http://' . $_SERVER['HTTP_HOST'] . '/' . $val->fileURL . '">' . htmlspecialchars($val->name) . '</a>';
+                $arr[$key] .= '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $val->fileURL . '">' . htmlspecialchars($val->name) . '</a>';
                 break;
             case 'image':
-                $arr[$key] .= '<a href="http://' . $_SERVER['HTTP_HOST'] . '/' . $val->fileURL . '"><img src="http://' . $_SERVER['HTTP_HOST'] . '/' . $val->tnURL. '" alt="' . htmlspecialchars($val->name) . '" title="' . htmlspecialchars($val->name) . '" /></a>';
+                $arr[$key] .= '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $val->fileURL . '">
+                                 <img src="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $val->tnURL. '" alt="' . htmlspecialchars($val->name) . '" title="' . htmlspecialchars($val->name) . '" />
+                               </a>';
                 break;
             case 'htmlarea':
                 $arr[$key] = '<div>' . $val . '</div>';
@@ -85,14 +87,35 @@ $emailField = function($field)
       }
       ?>
     </div>
-    <?php if ($Material && $Material->id) { ?>
+    <?php if ($Material && $Material->id) {
+        $url = 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://';
+        $url .= htmlspecialchars(
+            $_SERVER['HTTP_HOST'] .
+            '/admin/?p=cms&sub=main&action=edit_material&id=' .
+            (int)$Material->id .
+            '&pid='
+        );
+        if (in_array(
+            $Item->page->id,
+            array_map(
+                function ($x) {
+                    return $x->id;
+                },
+                (array)$Item->parent->Material_Type->affectedPages
+            )
+        )) {
+            $url .= $Item->page->id;
+        } else {
+            $url .= $Item->parent->Material_Type->affectedPages[0]->id;
+        }
+        ?>
         <p>
-          <a href="http://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . '/admin/?p=cms&sub=main&action=edit_material&id=' . $Material->id . '&pid=' . (in_array($Item->page->id, array_map(function($x) { return $x->id; }, (array)$Item->parent->Material_Type->affectedPages)) ? $Item->page->id : $Item->parent->Material_Type->affectedPages[0]->id))?>">
+          <a href="<?php echo $url?>">
             <?php echo VIEW?>
           </a>
         </p>
     <?php } elseif ($Item->parent->create_feedback) { ?>
-        <p><a href="http://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . '/admin/?p=cms&sub=feedback&action=view&id=' . $Item->id)?>"><?php echo VIEW?></a></p>
+        <p><a href="http<?php echo ($_SERVER['HTTPS'] == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . '/admin/?p=cms&sub=feedback&action=view&id=' . $Item->id)?>"><?php echo VIEW?></a></p>
     <?php } ?>
     <p>
       <small>

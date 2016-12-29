@@ -505,7 +505,9 @@ class Package extends \RAAS\Package
         $SQL_result = Page::_SQL()->get("SELECT * FROM " . Page::_tablename() . " WHERE vis AND NOT response_code");
         foreach ($SQL_result as $row) {
             $row = new Page($row);
-            $domainUrl = preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $row->Domain->urn) ? 'http://' . $_SERVER['HTTP_HOST'] : $row->domain;
+            $domainUrl = preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $row->Domain->urn)
+                       ? 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST']
+                       : $row->domain;
             $siteMap[(int)$row->id][0] = array('id' => $row->id, 'url' => $domainUrl . $row->url, 'name' => $row->name, 'cache' => $row->cache);
             foreach ($row->affectedMaterials as $row2) {
                 $siteMap[(int)$row->id][(int)$row2->id] = array('id' => $row->id, 'mid' => $row2->id, 'url' => $domainUrl . $row2->url, 'name' => $row2->name, 'cache' => $row->cache);

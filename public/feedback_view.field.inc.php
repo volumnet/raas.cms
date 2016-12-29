@@ -1,5 +1,5 @@
 <?php
-$_RAASForm_Control = function(\RAAS\Field $Field) use (&$_RAASForm_Attrs, &$_RAASForm_Options, &$_RAASForm_Checkbox, &$_RAASForm_Control) {
+$_RAASForm_Control = function (\RAAS\Field $Field) use (&$_RAASForm_Attrs, &$_RAASForm_Options, &$_RAASForm_Checkbox, &$_RAASForm_Control) {
     $Item = $Field->Form->Item;
     if (isset($Field->meta['Field'])) {
         $f = $Field->meta['Field'];
@@ -21,7 +21,7 @@ $_RAASForm_Control = function(\RAAS\Field $Field) use (&$_RAASForm_Attrs, &$_RAA
                     $arr[$key] .= '<a href="mailto:' . htmlspecialchars($val) . '">' . htmlspecialchars($val) . '</a>';
                     break;
                 case 'url':
-                    $arr[$key] .= '<a href="http://' . htmlspecialchars(str_replace('http://', '', $val)) . '">' . htmlspecialchars($val) . '</a>';
+                    $arr[$key] .= '<a href="' . (!preg_match('/^http(s)?:\\/\\//umi', trim($val)) ? 'http://' : '') . htmlspecialchars($val) . '">' . htmlspecialchars($val) . '</a>';
                     break;
                 case 'file':
                     $arr[$key] .= '<a href="/' . $val->fileURL . '">' . htmlspecialchars($val->name) . '</a>';
@@ -51,8 +51,8 @@ $_RAASForm_Control = function(\RAAS\Field $Field) use (&$_RAASForm_Attrs, &$_RAA
                 echo date(DATETIMEFORMAT, strtotime($Item->post_date));
                 break;
             case 'uid':
-                echo '<a href="?p=' . \RAAS\CMS\Package::i()->alias . '&m=users&action=edit&id=' . (int)$Item->uid . '">' . 
-                        htmlspecialchars($Item->user->full_name ?: ($Item->user->login ?: $Item->user->email)) . 
+                echo '<a href="?p=' . \RAAS\CMS\Package::i()->alias . '&m=users&action=edit&id=' . (int)$Item->uid . '">' .
+                        htmlspecialchars($Item->user->full_name ?: ($Item->user->login ?: $Item->user->email)) .
                      '</a>';
                 break;
             case 'page_id':
@@ -62,15 +62,15 @@ $_RAASForm_Control = function(\RAAS\Field $Field) use (&$_RAASForm_Attrs, &$_RAA
                     }
                 }
                 echo '<a href="' . \RAAS\CMS\Sub_Main::i()->url . '&id=' . (int)$Item->page_id . '">' . htmlspecialchars($Item->page->name) . '</a>';
-                if ($Item->material->id) { 
+                if ($Item->material->id) {
                     echo ' / <a href="' . \RAAS\CMS\Sub_Main::i()->url . '&action=edit_material&id=' . (int)$Item->material_id . '&pid=' . (int)$Item->page_id . '">' . htmlspecialchars($Item->material->name) . '</a>';
                 }
                 break;
             case 'vis':
                 if ($Item->viewer->id) {
                     if ($Item->viewer->email) {
-                        echo '<a href="mailto:' . htmlspecialchars($Item->viewer->email) . '">' . 
-                                htmlspecialchars($Item->viewer->full_name ? $Item->viewer->full_name : $Item->viewer->login) . 
+                        echo '<a href="mailto:' . htmlspecialchars($Item->viewer->email) . '">' .
+                                htmlspecialchars($Item->viewer->full_name ? $Item->viewer->full_name : $Item->viewer->login) .
                              '</a>';
                     } else {
                         echo htmlspecialchars($Item->viewer->full_name ? $Item->viewer->full_name : $Item->viewer->login);

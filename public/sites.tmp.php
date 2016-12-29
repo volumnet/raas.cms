@@ -1,4 +1,4 @@
-<?php if ($Set) { ?> 
+<?php if ($Set) { ?>
     <table class="table table-striped">
       <thead>
         <tr>
@@ -21,8 +21,8 @@
                 </a>
               </td>
               <td>
-                <a href="http://<?php echo htmlspecialchars(str_replace('http://', '', array_shift(explode(' ', $row->urn))))?>"<?php echo !$row->vis ? ' class="muted"' : ''?>>
-                  <?php echo htmlspecialchars(str_replace('http://', '', array_shift(explode(' ', $row->urn))))?>
+                <a href="http<?php echo ($_SERVER['HTTPS'] == 'on' ? 's' : '')?>://<?php echo htmlspecialchars(preg_replace('/http(s)?:\\/\\//umi', '', array_shift(explode(' ', $row->urn))))?>"<?php echo !$row->vis ? ' class="muted"' : ''?>>
+                  <?php echo htmlspecialchars(preg_replace('/http(s)?:\\/\\//umi', '', array_shift(explode(' ', $row->urn))))?>
                 </a>
               </td>
               <td><?php echo rowContextMenu(\RAAS\CMS\ViewSub_Main->getPageContextMenu($row))?></td>

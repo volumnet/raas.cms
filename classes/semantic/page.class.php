@@ -124,7 +124,7 @@ class Page extends \SOME\SOME implements IAccessible
                 return $url ? '/' . $url . '/' : '/';
                 break;
             case 'additionalURL':
-                $url = preg_replace('/^' . preg_quote($this->url, '/') . '/ui', '', $this->initialURL);
+                $url = preg_replace('/^' . preg_quote($this->url, '/') . '/umi', '', $this->initialURL);
                 $url = trim($url);
                 return $url;
             case 'additionalURLArray':
@@ -147,7 +147,7 @@ class Page extends \SOME\SOME implements IAccessible
                 break;
             case 'domain':
                 $temp = explode(' ', $this->Domain->urn);
-                return 'http://' . str_replace('http://', '', $temp[0]);
+                return 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . preg_replace('/^http(s)?:\\/\\//umi', '', $temp[0]);
                 break;
             case 'visChildren':
                 return array_values(
@@ -163,7 +163,9 @@ class Page extends \SOME\SOME implements IAccessible
                 return $this->locationBlocksText;
                 break;
             case 'cacheFile':
-                $url = preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $this->Domain->urn) ? $_SERVER['HTTP_HOST'] : str_replace('http://', '', $this->domain);
+                $url = preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $this->Domain->urn)
+                     ? $_SERVER['HTTP_HOST']
+                     : preg_replace('/^http(s)?:\\/\\//umi', '', $this->domain);
                 if ($this->Material->id) {
                     $url .= $this->Material->url;
                 } else {
@@ -544,7 +546,7 @@ class Page extends \SOME\SOME implements IAccessible
     public static function importByURL($url)
     {
         if (!is_array($url)) {
-            $url = preg_replace('/^(http:\\/\\/)?(www\\.)?/i', '', $url);
+            $url = preg_replace('/^(http(s)?:\\/\\/)?(www\\.)?/umi', '', $url);
             $url = explode('/', trim(str_replace('\\', '/', $url), '/'));
         }
         if (is_array($url)) {
@@ -580,7 +582,12 @@ class Page extends \SOME\SOME implements IAccessible
     public function rebuildCache()
     {
         @unlink($this->cacheFile);
-        $url = 'http://' . (preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $this->Domain->urn) ? $_SERVER['HTTP_HOST'] : str_replace('http://', '', $this->domain));
+        $url = 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://'
+             . (
+                    preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $this->Domain->urn) ?
+                    $_SERVER['HTTP_HOST'] :
+                    preg_replace('/^http(s)?:\\/\\//umi', '', $this->domain)
+                );
         if ($this->Material->id) {
             $url .= $this->Material->url;
         } else {

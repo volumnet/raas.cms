@@ -53,7 +53,7 @@ if (!$Page->Material && isset($IN['id'])) {
     if (((int)$Item->id == (int)$IN['id']) && ($Item->pid == $config['material_type']) && (int)$config['legacy']) {
         // Если материал действительно к месту, перенаправляем на новый адрес
         header("HTTP/1.1 301 Moved Permanently");
-        header('Location: http://' . $_SERVER['HTTP_HOST'] . $Item->url);
+        header('Location: http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $Item->url);
         exit;
     } else {
         // Такого материала нет, возвращаем (не обрабатываем). Далее контроллер перекинет на 404
@@ -67,7 +67,7 @@ if ($Page->Material && $Block->nat) {
         if ((int)$config['legacy'] && ($Item->pid == $config['material_type'])) {
             // Установлена переадресация
             header("HTTP/1.1 301 Moved Permanently");
-            header('Location: http://' . $_SERVER['HTTP_HOST'] . $Item->url);
+            header('Location: http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $Item->url);
             exit;
         } else {
             return;

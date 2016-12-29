@@ -1,11 +1,11 @@
 <?php
 namespace RAAS;
 
-use \RAAS\CMS\Page;
-use \RAAS\CMS\Material;
-use \RAAS\CMS\User AS CMSUser;
-use \RAAS\CMS\Auth;
-use \RAAS\CMS\Diag;
+use RAAS\CMS\Page;
+use RAAS\CMS\Material;
+use RAAS\CMS\User as CMSUser;
+use RAAS\CMS\Auth;
+use RAAS\CMS\Diag;
 
 class Controller_Frontend extends Abstract_Controller
 {
@@ -135,7 +135,7 @@ class Controller_Frontend extends Abstract_Controller
         $url = parse_url($_SERVER['REQUEST_URI']);
         $url = $url['path'];
         $url = str_replace('\\', '/', $url);
-        $Page = Page::importByURL('http://' . $_SERVER['HTTP_HOST'] . $url);
+        $Page = Page::importByURL('http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $url);
         $doCache = (bool)(int)$Page->cache;
         $Page->initialURL = $url;
 
@@ -164,8 +164,14 @@ class Controller_Frontend extends Abstract_Controller
         echo $content;
         if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET') && $content) {
             $headers = (array)headers_list();
-            if (($status1 = array_filter($headers, function($x) { return stristr($x, 'Status:'); })) && !($status2 = array_filter($headers, function($x) { return stristr($x, 'HTTP/1.'); }))) {
-                $status2 = array_map(function($x) { return str_ireplace('Status:', 'HTTP/1.0', $x); }, $status1);
+            if (($status1 = array_filter($headers, function ($x) {
+                return stristr($x, 'Status:');
+            })) && !($status2 = array_filter($headers, function ($x) {
+                return stristr($x, 'HTTP/1.');
+            }))) {
+                $status2 = array_map(function ($x) {
+                    return str_ireplace('Status:', 'HTTP/1.0', $x);
+                }, $status1);
                 $headers = array_merge($headers, $status2);
             }
             $this->saveCache($content, $headers);
@@ -205,7 +211,11 @@ class Controller_Frontend extends Abstract_Controller
         if (count($Page->additionalURLArray) == 1) {
             $Material = Material::importByURN($Page->additionalURLArray[0]);
             // 2016-02-24, AVS: Добавил проверку in_array(...), т.к. странице присваивались материалы, которых на ней в принципе быть не может
-            if ($Material && $Material->id && in_array($Page->id, array_map(function($x) { return $x->id; }, $Material->affectedPages))) {
+            if ($Material
+                && $Material->id
+                && in_array($Page->id, array_map(function ($x) {
+                    return $x->id;
+                }, $Material->affectedPages))) {
                 $Page->Material = $Material;
             }
         }

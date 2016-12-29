@@ -34,7 +34,7 @@ use SOME\HTTP;
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
 <?php } ?>
 <?php if (HTTP::queryString()) { ?>
-    <link rel="canonical" href="http://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))?>">
+    <link rel="canonical" href="http<?php echo ($_SERVER['HTTPS'] == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))?>">
 <?php } ?>
 <?php if ($Page->noindex || $Page->Material->noindex) { ?>
     <meta name="robots" content="noindex,nofollow" />

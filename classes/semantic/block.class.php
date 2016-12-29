@@ -289,7 +289,9 @@ abstract class Block extends \SOME\SOME implements IAccessible
     public function getCacheFile($url = null, Page $Page = null)
     {
         if ($this->cache_type != static::CACHE_NONE) {
-            $domain = $Page ? str_replace('http://', '', $Page->domain) : $_SERVER['HTTP_HOST'];
+            $domain = $Page
+                    ? preg_replace('/^http(s)?:\\/\\//umi', '', $Page->domain)
+                    : $_SERVER['HTTP_HOST'];
             if (!$url) {
                 $url = $Page ? $Page->url : $_SERVER['REQUEST_URI'];
             }
