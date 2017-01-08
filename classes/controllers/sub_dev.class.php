@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Redirector as Redirector;
 use \RAAS\Attachment as Attachment;
 use \RAAS\Application;
@@ -22,14 +23,28 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     {
         $this->view->submenu = $this->view->devMenu();
         switch ($this->action) {
-            case 'edit_template': case 'edit_snippet_folder': case 'edit_snippet':
-            case 'edit_material_type': case 'edit_form': case 'menus':
-            case 'edit_menu': case 'move_menu': case 'dictionaries':
-            case 'edit_dictionary': case 'move_dictionary': case 'copy_snippet':
-            case 'diag': case 'pages_fields': case 'forms': case 'material_types':
+            case 'edit_template':
+            case 'edit_snippet_folder':
+            case 'edit_snippet':
+            case 'edit_material_type':
+            case 'edit_form':
+            case 'menus':
+            case 'edit_menu':
+            case 'move_menu':
+            case 'dictionaries':
+            case 'edit_dictionary':
+            case 'move_dictionary':
+            case 'copy_snippet':
+            case 'diag':
+            case 'pages_fields':
+            case 'forms':
+            case 'material_types':
+            case 'move_material_field':
                 $this->{$this->action}();
                 break;
-            case 'edit_material_field': case 'edit_form_field': case 'edit_page_field':
+            case 'edit_material_field':
+            case 'edit_form_field':
+            case 'edit_page_field':
                 $f = str_replace('_material', '', str_replace('_page', '', str_replace('_form', '', $this->action)));
                 $this->$f();
                 break;
@@ -39,7 +54,10 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'snippets':
                 $this->view->snippets();
                 break;
-            case 'chvis_dictionary': case 'vis_dictionary': case 'invis_dictionary': case 'delete_dictionary':
+            case 'chvis_dictionary':
+            case 'vis_dictionary':
+            case 'invis_dictionary':
+            case 'delete_dictionary':
                 $items = array();
                 $ids = (array)$_GET['id'];
                 if (in_array('all', $ids, true)) {
@@ -50,14 +68,20 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                         $items = Dictionary::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
                     }
                 } else {
-                    $items = array_map(function($x) { return new Dictionary((int)$x); }, $ids);
+                    $items = array_map(function ($x) {
+                        return new Dictionary((int)$x);
+                    }, $ids);
                 }
                 $items = array_values($items);
                 $Item = isset($items[0]) ? $items[0] : new Dictionary();
                 $f = str_replace('_dictionary', '', $this->action);
                 StdSub::$f($items, $this->url . '&action=dictionaries&id=' . (int)$Item->pid);
                 break;
-            case 'chvis_menu': case 'vis_menu': case 'invis_menu': case 'delete_menu': case 'realize_menu':
+            case 'chvis_menu':
+            case 'vis_menu':
+            case 'invis_menu':
+            case 'delete_menu':
+            case 'realize_menu':
                 $items = array();
                 $ids = (array)$_GET['id'];
                 if (in_array('all', $ids, true)) {
@@ -68,7 +92,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                         $items = Menu::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
                     }
                 } else {
-                    $items = array_map(function($x) { return new Menu((int)$x); }, $ids);
+                    $items = array_map(function ($x) {
+                        return new Menu((int)$x);
+                    }, $ids);
                 }
                 $items = array_values($items);
                 $Item = isset($items[0]) ? $items[0] : new Menu();
@@ -81,27 +107,39 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 break;
             case 'delete_template':
                 $ids = (array)$_GET['id'];
-                $items = array_map(function($x) { return new Template((int)$x); }, $ids);
+                $items = array_map(function ($x) {
+                    return new Template((int)$x);
+                }, $ids);
                 $items = array_values($items);
                 StdSub::delete($items, $this->url . '&action=templates');
                 break;
             case 'delete_snippet_folder':
                 $ids = (array)$_GET['id'];
-                $items = array_map(function($x) { return new Snippet_Folder((int)$x); }, $ids);
-                $items = array_filter($items, function($x) { return !$x->locked; });
+                $items = array_map(function ($x) {
+                    return new Snippet_Folder((int)$x);
+                }, $ids);
+                $items = array_filter($items, function ($x) {
+                    return !$x->locked;
+                });
                 $items = array_values($items);
                 StdSub::delete($items, $this->url . '&action=snippets');
                 break;
             case 'delete_snippet':
                 $ids = (array)$_GET['id'];
-                $items = array_map(function($x) { return new Snippet((int)$x); }, $ids);
-                $items = array_filter($items, function($x) { return !$x->locked; });
+                $items = array_map(function ($x) {
+                    return new Snippet((int)$x);
+                }, $ids);
+                $items = array_filter($items, function ($x) {
+                    return !$x->locked;
+                });
                 $items = array_values($items);
                 StdSub::delete($items, $this->url . '&action=snippets');
                 break;
             case 'delete_form':
                 $ids = (array)$_GET['id'];
-                $items = array_map(function($x) { return new CMSForm((int)$x); }, $ids);
+                $items = array_map(function ($x) {
+                    return new CMSForm((int)$x);
+                }, $ids);
                 $items = array_values($items);
                 StdSub::delete($items, $this->url . '&action=forms');
                 break;
@@ -111,9 +149,15 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 Diag::deleteStat($from, $to);
                 new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=diag');
                 break;
-            case 'delete_material_field': case 'show_in_table_material_field': case 'required_material_field':
-            case 'delete_form_field': case 'show_in_table_form_field': case 'required_form_field':
-            case 'delete_page_field': case 'show_in_table_page_field': case 'required_page_field':
+            case 'delete_material_field':
+            case 'show_in_table_material_field':
+            case 'required_material_field':
+            case 'delete_form_field':
+            case 'show_in_table_form_field':
+            case 'required_form_field':
+            case 'delete_page_field':
+            case 'show_in_table_page_field':
+            case 'required_page_field':
                 if (strstr($this->action, 'form')) {
                     $classname = 'RAAS\\CMS\\Form_Field';
                     $parentClassname = 'RAAS\\CMS\\Form';
@@ -138,7 +182,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                         $items = $classname::getSet(array('where' => $where));
                     }
                 } else {
-                    $items = array_map(function($x) use ($classname) { return new $classname((int)$x); }, $ids);
+                    $items = array_map(function ($x) use ($classname) {
+                        return new $classname((int)$x);
+                    }, $ids);
                 }
                 $items = array_values($items);
                 $Item = isset($items[0]) ? $items[0] : new $classname();
@@ -154,7 +200,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 break;
             case 'delete_material_type':
                 $ids = (array)$_GET['id'];
-                $items = array_map(function($x) { return new Material_Type((int)$x); }, $ids);
+                $items = array_map(function ($x) {
+                    return new Material_Type((int)$x);
+                }, $ids);
                 $items = array_values($items);
                 StdSub::delete($items, $this->url . '&action=material_types');
                 break;
@@ -253,7 +301,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $items = Dictionary::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
             }
         } else {
-            $items = array_map(function($x) { return new Dictionary((int)$x); }, $ids);
+            $items = array_map(function ($x) {
+                return new Dictionary((int)$x);
+            }, $ids);
         }
         $items = array_values($items);
         $Item = isset($items[0]) ? $items[0] : new Dictionary();
@@ -320,7 +370,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $items = Menu::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
             }
         } else {
-            $items = array_map(function($x) { return new Menu((int)$x); }, $ids);
+            $items = array_map(function ($x) {
+                return new Menu((int)$x);
+            }, $ids);
         }
         $items = array_values($items);
         $Item = isset($items[0]) ? $items[0] : new Menu();
@@ -461,6 +513,37 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         } else {
             $this->view->edit_page_field($OUT);
         }
+    }
+
+
+    protected function move_material_field()
+    {
+        $items = array();
+        $ids = (array)$_GET['id'];
+        if (in_array('all', $ids, true)) {
+            $pids = (array)$_GET['pid'];
+            $pids = array_filter($pids, 'trim');
+            $pids = array_map('intval', $pids);
+            if ($pids) {
+                $items = Material_Field::getSet(array('where' => "classname = 'RAAS\\\\CMS\\\\Material_Type' AND pid IN (" . implode(", ", $pids) . ")"));
+            }
+        } else {
+            $items = array_map(function ($x) {
+                return new Material_Field((int)$x);
+            }, $ids);
+        }
+        $items = array_values($items);
+        $Item = isset($items[0]) ? $items[0] : new Material_Field();
+
+        if ($items) {
+            if (isset($_GET['new_pid'])) {
+                StdSub::move($items, new Material_Type((int)$_GET['new_pid']), $this->url . '&action=edit_material_type&id=%s');
+            } else {
+                $this->view->move_material_field(array('Item' => $Item, 'items' => $items));
+                return;
+            }
+        }
+        new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=edit_material_type&id=' . (int)$Item->pid);
     }
 
 
