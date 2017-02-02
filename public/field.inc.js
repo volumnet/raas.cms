@@ -10,11 +10,12 @@ jQuery(function($) {
         
         var methods = {
             getBaseURL: function() {
-                var rx = /p=(\w+)/.exec(document.location.href);
-                var p = rx ? rx[1] : 'cms';
-                rx = /sub=(\w+)/.exec(document.location.href);
-                var sub = rx ? rx[1] : 'main';
-                var url = '?p=' + p + '&sub=' + sub;
+                // var rx = /p=(\w+)/.exec(document.location.href);
+                // var p = rx ? rx[1] : 'cms';
+                // rx = /sub=(\w+)/.exec(document.location.href);
+                // var sub = rx ? rx[1] : 'main';
+                // var url = '?p=' + p + '&sub=' + sub;
+                var url = '?p=cms&sub=main';
                 return url; 
             },
             materialSelect : function(id, pid, name) {
@@ -72,8 +73,16 @@ jQuery(function($) {
                 methods.wrap();
                 methods.checkIfExists();
                 $container.on('click', '[data-role="raas-autotext-clear"]', methods.clearMaterialClick);
+                var url = 'ajax.php' + methods.getBaseURL() + '&action=get_materials_by_field'; 
+                var fid;
+                if (fid = parseInt($thisObj.attr('data-field-id'))) {
+                    url += '&id=' + fid;
+                } else if (fid = parseInt($thisObj.attr('data-material-type-id'))) {
+                    url += '&mtype=' + fid;
+                }
+                url += '&search_string=';
                 $('[data-role="material-field-without"] input:text', $container).RAAS_autocompleter({
-                    url: 'ajax.php' + methods.getBaseURL() + '&action=get_materials_by_field&id=' + parseInt($thisObj.attr('data-field-id')) + '&search_string=',
+                    'url': url,
                     callback: function() {
                         var id = $(this).attr('data-id');
                         var pid = $(this).attr('data-pid');

@@ -6,7 +6,7 @@ use \RAAS\Attachment as Attachment;
 class Controller_Ajax extends Abstract_Controller
 {
     protected static $instance;
-    
+
     protected function execute()
     {
         switch ($this->action) {
@@ -48,8 +48,8 @@ class Controller_Ajax extends Abstract_Controller
         $Page->rebuildCache();
         $this->view->rebuild_page_cache(array());
     }
-    
-    
+
+
     protected function material_fields()
     {
         $Material_Type = new Material_Type((int)$this->id);
@@ -70,17 +70,21 @@ class Controller_Ajax extends Abstract_Controller
 
     protected function get_materials_by_field()
     {
-        $Field = new Material_Field((int)$this->id);
-        $Set = array();
-        if ($Field->datatype == 'material') {
-            $mtype = (int)$Field->source;
-            $Set = $this->model->getMaterialsBySearch(isset($_GET['search_string']) ? $_GET['search_string'] : '', $mtype);
+        if ((int)$this->id) {
+            $Field = new Material_Field((int)$this->id);
+            $Set = array();
+            if ($Field->datatype == 'material') {
+                $mtype = (int)$Field->source;
+            }
+        } elseif ((int)$this->nav['mtype']) {
+            $mtype = (int)$this->nav['mtype'];
         }
+        $Set = $this->model->getMaterialsBySearch(isset($_GET['search_string']) ? $_GET['search_string'] : '', $mtype);
         $OUT['Set'] = array_map(
-            function($x) { 
+            function($x) {
                 $y = array(
-                    'id' => (int)$x->id, 
-                    'name' => $x->name, 
+                    'id' => (int)$x->id,
+                    'name' => $x->name,
                     'description' => \SOME\Text::cuttext(html_entity_decode(strip_tags($x->description), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...')
                 );
                 if ($x->parents) {
