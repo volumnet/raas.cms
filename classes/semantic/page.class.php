@@ -602,10 +602,18 @@ class Page extends \SOME\SOME implements IAccessible
      */
     protected static function clearLostBlocks()
     {
+        // 2017-02-10, AVS: сначала почистим связки на страницы, без реальных страниц
+        // так сказать, во избежание
+        $SQL_query = "DELETE tBPA
+                        FROM " . static::_dbprefix() . static::$links['blocks']['tablename'] . " AS tBPA
+                   LEFT JOIN " . static::_tablename() . " AS tP ON tP." . static::_idN() . " = tBPA." . static::$links['blocks']['field_from']
+                   . " WHERE tP." . static::_idN() . " IS NULL ";
+        static::$SQL->query($SQL_query);
+
+        // сейчас выберем и удалим блоки, которые не привязаны ни к одной странице
         $SQL_query = "SELECT tB." . Block::_idN() . " FROM " . Block::_tablename() . " AS tB
                         LEFT JOIN " . static::_dbprefix() . static::$links['blocks']['tablename'] . " AS tBPA ON tB." . Block::_idN() . " = tBPA." . static::$links['blocks']['field_to']
-                   . "  LEFT JOIN " . static::_tablename() . " AS tP ON tP." . static::_idN() . " = tBPA." . static::$links['blocks']['field_from']
-                   . " WHERE tP." . static::_idN() . " IS NULL ";
+                   . " WHERE tBPA." . static::$links['blocks']['field_from'] . " IS NULL ";
         $SQL_result = static::$SQL->getcol($SQL_query);
         if ($SQL_result) {
             foreach ($SQL_result as $id) {
@@ -622,11 +630,19 @@ class Page extends \SOME\SOME implements IAccessible
      */
     protected static function clearLostMaterials()
     {
+        // 2017-02-10, AVS: сначала почистим связки на страницы, без реальных страниц
+        // так сказать, во избежание
+        $SQL_query = "DELETE tMPA
+                        FROM  " . static::_dbprefix() . static::$links['materials']['tablename'] . " AS tMPA
+                   LEFT JOIN " . static::_tablename() . " AS tP ON tP." . static::_idN() . " = tMPA." . static::$links['materials']['field_from']
+                   . " WHERE tP." . static::_idN() . " IS NULL ";
+        static::$SQL->query($SQL_query);
+
+        // сейчас выберем и удалим материалы, которые не привязаны ни к одной странице, при этом не глобальные
         $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM
                         JOIN " . Material_Type::_tablename() . " AS tMT ON tMT.id = tM.pid
                    LEFT JOIN " . static::_dbprefix() . static::$links['materials']['tablename'] . " AS tMPA ON tM." . Material::_idN() . " = tMPA." . static::$links['materials']['field_to']
-                   . "  LEFT JOIN " . static::_tablename() . " AS tP ON tP." . static::_idN() . " = tMPA." . static::$links['materials']['field_from']
-                   . " WHERE NOT tMT.global_type AND tP." . static::_idN() . " IS NULL ";
+                   . " WHERE NOT tMT.global_type AND tMPA." . static::$links['materials']['field_from'] . " IS NULL ";
         $Set = Material::getSQLSet($SQL_query);
         if ($Set) {
             foreach ($Set as $row) {
