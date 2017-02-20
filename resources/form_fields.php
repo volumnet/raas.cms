@@ -8,10 +8,10 @@ $smsField = function ($field) {
         $val = $field->doRich($val);
         switch ($field->datatype) {
             case 'date':
-                $arr[$key] = date(\DATEFORMAT, strtotime($val));
+                $arr[$key] = date(DATEFORMAT, strtotime($val));
                 break;
             case 'datetime-local':
-                $arr[$key] = date(\DATETIMEFORMAT, strtotime($val));
+                $arr[$key] = date(DATETIMEFORMAT, strtotime($val));
                 break;
             case 'file':
             case 'image':
@@ -22,7 +22,7 @@ $smsField = function ($field) {
                 break;
             default:
                 if (!$field->multiple && ($field->datatype == 'checkbox')) {
-                    $arr[$key] = $val ? \_YES : \_NO;
+                    $arr[$key] = $val ? _YES : _NO;
                 } else {
                     $arr[$key] = $val;
                 }
@@ -39,10 +39,10 @@ $emailField = function ($field) {
         $val = $field->doRich($val);
         switch ($field->datatype) {
             case 'date':
-                $arr[$key] = date(\DATEFORMAT, strtotime($val));
+                $arr[$key] = date(DATEFORMAT, strtotime($val));
                 break;
             case 'datetime-local':
-                $arr[$key] = date(\DATETIMEFORMAT, strtotime($val));
+                $arr[$key] = date(DATETIMEFORMAT, strtotime($val));
                 break;
             case 'color':
                 $arr[$key] = '<span style="display: inline-block; height: 16px; width: 16px; background-color: ' . htmlspecialchars($val) . '"></span>';
@@ -66,7 +66,7 @@ $emailField = function ($field) {
                 break;
             default:
                 if (!$field->multiple && ($field->datatype == 'checkbox')) {
-                    $arr[$key] = $val ? \_YES : \_NO;
+                    $arr[$key] = $val ? _YES : _NO;
                 } else {
                     $arr[$key] = nl2br(htmlspecialchars($val));
                 }
@@ -77,7 +77,7 @@ $emailField = function ($field) {
 };
 ?>
 <?php if ($SMS) {
-    echo date(\DATETIMEFORMAT) . ' ' . sprintf(\FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name) . "\n";
+    echo date(DATETIMEFORMAT) . ' ' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name) . "\n";
     foreach ($Item->fields as $field) {
         echo $smsField($field);
     }
@@ -113,17 +113,17 @@ $emailField = function ($field) {
         ?>
         <p>
           <a href="<?php echo $url?>">
-            <?php echo \VIEW?>
+            <?php echo VIEW?>
           </a>
         </p>
     <?php } elseif ($Item->parent->create_feedback) { ?>
-        <p><a href="http<?php echo ($_SERVER['HTTPS'] == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . '/admin/?p=cms&sub=feedback&action=view&id=' . $Item->id)?>"><?php echo \VIEW?></a></p>
+        <p><a href="http<?php echo ($_SERVER['HTTPS'] == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . '/admin/?p=cms&sub=feedback&action=view&id=' . $Item->id)?>"><?php echo VIEW?></a></p>
     <?php } ?>
     <p>
       <small>
-        <?php echo \IP_ADDRESS?>: <?php echo htmlspecialchars($Item->ip)?><br />
-        <?php echo \USER_AGENT?>: <?php echo htmlspecialchars($Item->user_agent)?><br />
-        <?php echo \PAGE?>:
+        <?php echo IP_ADDRESS?>: <?php echo htmlspecialchars($Item->ip)?><br />
+        <?php echo USER_AGENT?>: <?php echo htmlspecialchars($Item->user_agent)?><br />
+        <?php echo PAGE?>:
         <?php if ($Item->page->parents) { ?>
             <?php foreach ($Item->page->parents as $row) { ?>
                 <a href="<?php echo htmlspecialchars($Item->domain . $row->url)?>"><?php echo htmlspecialchars($row->name)?></a> /
@@ -134,7 +134,7 @@ $emailField = function ($field) {
             / <a href="<?php echo htmlspecialchars($Item->domain . $Item->material->url)?>"><?php echo htmlspecialchars($Item->material->name)?></a>
         <?php } ?>
         <br />
-        <?php echo \FORM?>:
+        <?php echo FORM?>:
         <?php if ($Item->parent->create_feedback) { ?>
             <a href="<?php echo htmlspecialchars($Item->domain . '/admin/?p=cms&sub=feedback&id=' . $Item->parent->id)?>"><?php echo htmlspecialchars($Item->parent->name)?></a>
         <?php } else { ?>
