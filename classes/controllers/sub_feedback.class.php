@@ -104,10 +104,8 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
                         $cell->setValueExplicit($data[$i][$j], PHPExcel_Cell_DataType::TYPE_STRING);
                     }
                 }
-                if ($rows) {
-                    $range = PHPExcel_Cell::stringFromColumnIndex((int)$cols) . (int)$rows . ':' . PHPExcel_Cell::stringFromColumnIndex($maxcol + (int)$cols) . (int)$rows;
-                    $x->getActiveSheet()->getStyle($range)->getFont()->setBold(true);
-                }
+                $range = 'A1:' . PHPExcel_Cell::stringFromColumnIndex($maxcol) . '1';
+                $x->getActiveSheet()->getStyle($range)->getFont()->setBold(true);
                 switch ($type) {
                     case 'xlsx':
                         $writerName = 'Excel2007';
