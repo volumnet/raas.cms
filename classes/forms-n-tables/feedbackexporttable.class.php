@@ -2,8 +2,9 @@
 namespace RAAS\CMS;
 
 use \RAAS\Column;
+use RAAS\Table;
 
-class FeedbackTable extends \RAAS\Table
+class FeedbackExportTable extends Table
 {
     public function __get($var)
     {
@@ -25,37 +26,35 @@ class FeedbackTable extends \RAAS\Table
         $columns['post_date'] = array(
             'caption' => $this->view->_('POST_DATE'),
             'callback' => function ($row) use ($view) {
-                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' . date(DATETIMEFORMAT, strtotime($row->post_date)) . '</a>';
+                return date($view->_('DATETIMEFORMAT'), strtotime($row->post_date));
             }
         );
         if (!$params['Item']->id) {
             $columns['pid'] = array(
                 'caption' => $this->view->_('FORM'),
                 'callback' => function ($row) use ($view) {
-                    return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' . htmlspecialchars($row->parent->name) . '</a>';
+                    return $row->parent->name;
                 }
             );
         }
         $columns['name'] = array(
             'caption' => $this->view->_('PAGE'),
             'callback' => function ($row) use ($view) {
-                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' . htmlspecialchars($row->material->id ? $row->material->name : $row->page->name) . '</a>';
+                return ($row->material->id ? $row->material->name : $row->page->name);
             }
         );
         $columns['ip'] = array(
             'caption' => $this->view->_('IP_ADDRESS'),
-            'callback' => function ($row) use ($view) {
-                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '" title="' . htmlspecialchars($row->description) . '">'
-                     .    htmlspecialchars($row->ip)
-                     . '</a>';
+            'callback' => function($row) use ($view) {
+                return $row->ip;
             }
         );
         foreach ($params['columns'] as $key => $col) {
             $columns[$col->urn] = array(
                 'caption' => $col->name,
                 'callback' => function ($row) use ($col) {
-                    $text = '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '" title="' . htmlspecialchars($row->description) . '">';
                     $f = $row->fields[$col->urn];
+                    $text = '';
                     switch ($f->datatype) {
                         case 'htmlarea':
                             $text .= strip_tags($f->doRich());
@@ -66,7 +65,7 @@ class FeedbackTable extends \RAAS\Table
                             break;
                         case 'image':
                             $v = $f->getValue();
-                            $text .= '<img src="/' . $v->tnURL . '" style="max-width: 48px;" />';
+                            $text .=  $v->tnURL;
                             break;
                         case 'material':
                             $v = $f->getValue();
@@ -80,7 +79,9 @@ class FeedbackTable extends \RAAS\Table
                                 $text .= $f->doRich();
                             } else {
                                 if ((int)$f->getValue()) {
-                                    $text .= '<span class="icon icon-ok"></span>';
+                                    $text .= '+';
+                                } else {
+                                    $text .= '-';
                                 }
                             }
                             break;
@@ -91,36 +92,24 @@ class FeedbackTable extends \RAAS\Table
                             $text .= $y ? $y : '';
                             break;
                     }
-                    $text .= '</a>';
                     return $text;
                 }
             );
         }
-        $columns[' '] = array('callback' => function ($row) use ($view) {
-            return rowContextMenu($view->getFeedbackContextMenu($row));
-        });
 
         $defaultParams = array(
             'caption' => $params['Item']->name ? $params['Item']->name : $this->view->_('FEEDBACK'),
             'columns' => $columns,
-            'emptyString' => $this->view->_('NO_NOTES_FOUND'),
             'callback' => function ($Row) {
                 if (!$Row->source->vis) {
                     $Row->class = 'info';
                 }
             },
             'Set' => $params['Set'],
-            'Pages' => $params['Pages'],
-            'template' => 'feedback',
-            'data-role' => 'multitable',
-            'meta' => array(
-                'allContextMenu' => $view->getAllFeedbacksContextMenu(),
-            ),
 
         );
         unset($params['columns']);
 
-        // $arr = array_merge($defaultParams, $params);
         $arr = $defaultParams;
         parent::__construct($arr);
     }

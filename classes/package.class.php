@@ -431,10 +431,13 @@ class Package extends \RAAS\Package
     }
 
 
-    public function feedback()
+    public function feedback($pagination = true)
     {
         $Parent = new Form(isset($this->controller->nav['id']) ? (int)$this->controller->nav['id'] : 0);
-        $col_where = "classname = 'RAAS\\\\CMS\\\\Form' AND show_in_table";
+        $col_where = "classname = 'RAAS\\\\CMS\\\\Form' ";
+        if ($pagination) {
+            $col_where .= " AND show_in_table ";
+        }
         $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tF.*
                         FROM " . Feedback::_tablename() .  " AS tF
                    LEFT JOIN " . Field::_tablename() .  " AS tFi ON tFi.pid = tF.pid AND tFi.classname = 'RAAS\\\\CMS\\\\Form'
@@ -447,12 +450,33 @@ class Package extends \RAAS\Package
             $columns = Form_Field::getSet(array('where' => $col_where));
         }
         if (isset($this->controller->nav['search_string']) && $this->controller->nav['search_string']) {
-            $SQL_query .= " AND tD.value LIKE '%" . $this->SQL->escape_like($this->controller->nav['search_string']) . "%' ";
+            $SQL_query .= " AND (
+                                (tF.id = '" . $this->SQL->real_escape_string($this->controller->nav['search_string']) . "') OR
+                                (tF.ip LIKE '%" . $this->SQL->escape_like($this->controller->nav['search_string']) . "%') OR
+                                (tD.value LIKE '%" . $this->SQL->escape_like($this->controller->nav['search_string']) . "%')
+                            ) ";
+        }
+        if (isset($this->controller->nav['from']) && $this->controller->nav['from']) {
+            $t = strtotime($this->controller->nav['from']);
+            if ($t > 0) {
+                $SQL_query .= " AND tF.post_date >= '" . date('Y-m-d H:i:s', $t) . "'";
+            }
+        }
+        if (isset($this->controller->nav['to']) && $this->controller->nav['to']) {
+            $t = strtotime($this->controller->nav['to']);
+            if ($t > 0) {
+                $SQL_query .= " AND tF.post_date <= '" . date('Y-m-d H:i:s', $t) . "'";
+            }
         }
 
         $SQL_query .= " GROUP BY tF.id ORDER BY tF.post_date DESC ";
-        $Pages = new \SOME\Pages(isset($this->controller->nav['page']) ? $this->controller->nav['page'] : 1, Application::i()->registryGet('rowsPerPage'));
-        $Set = Feedback::getSQLSet($SQL_query, $Pages);
+        if ($pagination) {
+            $Pages = new \SOME\Pages(isset($this->controller->nav['page']) ? $this->controller->nav['page'] : 1, Application::i()->registryGet('rowsPerPage'));
+            $Set = Feedback::getSQLSet($SQL_query, $Pages);
+        } else {
+            $Pages = null;
+            $Set = Feedback::getSQLSet($SQL_query);
+        }
         return array('Set' => $Set, 'Pages' => $Pages, 'Parent' => $Parent, 'columns' => $columns);
     }
 
