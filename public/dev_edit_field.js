@@ -62,7 +62,13 @@ jQuery(function($) {
             $('#source_textarea').fadeIn().removeAttr('disabled').attr('required', 'required');
             $('#source_dictionary').hide().attr('disabled', 'disabled').removeAttr('required');
             $('#source_materials').hide().attr('disabled', 'disabled');
-            
+        }
+
+        // Шаблон ввода
+        if ($.inArray($('#datatype').val(), ['text', 'tel', 'email', 'textarea', 'url']) != -1) {
+            $('#pattern').removeAttr('disabled').closest('.control-group').fadeIn();
+        } else {
+            $('#pattern').attr('disabled', 'disabled').closest('.control-group').fadeOut();
         }
     };
     
