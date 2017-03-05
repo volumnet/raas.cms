@@ -239,6 +239,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   preprocessor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Preprocessor interface ID#',
   postprocessor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Postprocessor interface ID#',
   placeholder varchar(255) NOT NULL DEFAULT '' COMMENT 'Placeholder',
+  pattern VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Pattern',
   show_in_table tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Show as table column',
   priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
   PRIMARY KEY (id),

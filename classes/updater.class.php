@@ -22,6 +22,7 @@ class Updater extends \RAAS\Updater
         $this->update20150610();
         $this->update20150617();
         $this->update20151129();
+        $this->update20170305();
     }
 
 
@@ -910,7 +911,6 @@ class Updater extends \RAAS\Updater
                             ADD breadcrumbs_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Breadcrumbs name' AFTER menu_name";
             $this->SQL->query($SQL_query);
         }
-
     }
 
 
@@ -982,6 +982,18 @@ class Updater extends \RAAS\Updater
                             ADD INDEX (urn)";
             $this->SQL->query($SQL_query);
             $SQL_query = "UPDATE " . \SOME\SOME::_dbprefix() . "cms_templates SET urn = 'main' WHERE (urn = '') AND (name = 'Главная' OR name = 'Main')";
+            $this->SQL->query($SQL_query);
+        }
+    }
+
+
+    /**
+     * Добавим паттерн к полям
+     */
+    public function update20170305()
+    {
+        if (in_array(\SOME\SOME::_dbprefix() . "cms_fields", $this->tables) && !in_array('pattern', $this->columns(\SOME\SOME::_dbprefix() . "cms_fields"))) {
+            $SQL_query = "ALTER TABLE " . \SOME\SOME::_dbprefix() . "cms_fields ADD pattern VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Pattern' AFTER placeholder";
             $this->SQL->query($SQL_query);
         }
     }

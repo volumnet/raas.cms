@@ -1,7 +1,7 @@
 <?php
 namespace RAAS\CMS;
 
-$getSelect = function(Field $Item, array $DATA, $current = 0, $placeholder = '') use (&$getSelect) {
+$getSelect = function (Field $Item, array $DATA, $current = 0, $placeholder = '') use (&$getSelect) {
     static $level = 0;
     $text = '';
     if (!$level && !$Item->required) {
@@ -20,7 +20,7 @@ $getSelect = function(Field $Item, array $DATA, $current = 0, $placeholder = '')
     return $text;
 };
 
-$getCheckbox = function(Field $Item, array $DATA, $current = 0, $placeholder = '') use (&$getCheckbox) {
+$getCheckbox = function (Field $Item, array $DATA, $current = 0, $placeholder = '') use (&$getCheckbox) {
     static $level = 0;
     $temp = '<input type="' . $Item->datatype . '" '
           .       ' name="' . htmlspecialchars($Item->urn) . ((($Item->datatype == 'checkbox') && $Item->multiple) ? '[]' : '') . '"'
@@ -48,9 +48,10 @@ $getCheckbox = function(Field $Item, array $DATA, $current = 0, $placeholder = '
     return $text ? '<ul' . (!$level ? ' class="tree jsFieldTree"' : '') . '>' . $text . '</ul>' : '';
 };
 
-$getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $getSelect, $Block)  {
+$getField = function (Field $row, array $DATA = array()) use (&$getCheckbox, $getSelect, $Block) {
     switch ($row->datatype) {
-        case 'image': case 'file':
+        case 'image':
+        case 'file':
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
@@ -140,12 +141,14 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
                 echo $temp . '>' . $getSelect($row, $row->stdSource, $DATA[$row->urn], $row->placeholder) . '</select>';
             }
             break;
-        case 'textarea': case 'htmlarea':
+        case 'textarea':
+        case 'htmlarea':
             $temp = '<textarea ' . ($row->datatype == 'htmlarea' ? 'class="cms-htmlarea"' : 'class="form-control"')
                   .       ' name="' . htmlspecialchars($row->urn) . ($row->multiple ? '[]' : '') . '"'
                   .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : '')
                   .       ($row->maxlength ? ' maxlength="' . (int)$row->maxlength . '"' : '')
                   .       ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '')
+                  .       ($row->pattern ? ' pattern="' . htmlspecialchars($row->pattern) . '"' : '')
                   .       ($row->required && ($row->datatype != 'htmlarea') ? ' required="required"' : '');
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
@@ -230,6 +233,7 @@ $getField = function(Field $row, array $DATA = array()) use (&$getCheckbox, $get
                   .       (!$row->multiple ? ' id="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : '')
                   .       ($row->maxlength ? ' maxlength="' . (int)$row->maxlength . '"' : '')
                   .       ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '')
+                  .       ($row->pattern ? ' pattern="' . htmlspecialchars($row->pattern) . '"' : '')
                   .       ($row->required ? ' required="required"' : '');
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';

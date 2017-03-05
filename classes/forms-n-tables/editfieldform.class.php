@@ -95,6 +95,7 @@ class EditFieldForm extends \RAAS\Form
                 )),
                 array('name' => 'defval', 'caption' => $this->view->_('DEFAULT_VALUE')),
                 array('name' => 'placeholder', 'caption' => $this->view->_('PLACEHOLDER')),
+                array('name' => 'pattern', 'caption' => $this->view->_('PATTERN')),
                 array(
                     'type' => 'select',
                     'class' => 'input-xxlarge',
