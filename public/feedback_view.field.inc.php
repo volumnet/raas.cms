@@ -24,10 +24,10 @@ $_RAASForm_Control = function (\RAAS\Field $Field) use (&$_RAASForm_Attrs, &$_RA
                     $arr[$key] .= '<a href="' . (!preg_match('/^http(s)?:\\/\\//umi', trim($val)) ? 'http://' : '') . htmlspecialchars($val) . '">' . htmlspecialchars($val) . '</a>';
                     break;
                 case 'file':
-                    $arr[$key] .= '<a href="/' . $val->fileURL . '">' . htmlspecialchars($val->name) . '</a>';
+                    $arr[$key] .= '<a href="/' . $val->fileURL . '">' . htmlspecialchars($val->filename) . '</a>';
                     break;
                 case 'image':
-                    $arr[$key] .= '<a href="/' . $val->fileURL . '"><img src="/' . $val->tnURL. '" alt="' . htmlspecialchars($val->name) . '" title="' . htmlspecialchars($val->name) . '" /></a>';
+                    $arr[$key] .= '<a href="/' . $val->fileURL . '"><img src="/' . $val->tnURL. '" alt="' . htmlspecialchars($val->filename) . '" title="' . htmlspecialchars($val->filename) . '" /></a>';
                     break;
                 case 'htmlarea':
                     $arr[$key] = '<div>' . $val . '</div>';
