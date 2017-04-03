@@ -746,7 +746,7 @@ class Package extends \RAAS\Package
                 }
                 return (int)$a->priority - (int)$b->priority;
             }
-            if (in_array($key, array('urn', 'name'))) {
+            if (in_array($key, array('urn', 'name', 'post_date', 'modify_date'))) {
                 $c = strcasecmp($a->$key, $b->$key);
             } elseif (in_array($key, array('priority'))) {
                 $c = ((int)$a->$key - (int)$b->$key);
