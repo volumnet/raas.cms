@@ -31,7 +31,6 @@ jQuery(function($) {
                 $container = $(this).closest('[data-role="raas-autotext-container"]');
                 $thisObj = $container.find('input[type="hidden"]');
                 methods.materialDelete();
-                methods.hideMaterialsList();
                 return false;
             },
             checkIfExists: function()
