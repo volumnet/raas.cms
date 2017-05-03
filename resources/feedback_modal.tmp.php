@@ -47,7 +47,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                     <?php } ?>
                     <?php foreach ($Form->fields as $row) { ?>
                         <div class="form-group">
-                          <label for="<?php echo htmlspecialchars($row->urn . $row->id)?>" class="control-label col-sm-3"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?>:</label>
+                          <label for="<?php echo htmlspecialchars($row->urn . $row->id . '_' . $Block->id)?>" class="control-label col-sm-3"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?>:</label>
                           <div class="col-sm-9">
                             <?php $getField($row, $DATA); ?>
                           </div>

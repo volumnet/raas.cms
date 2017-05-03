@@ -37,7 +37,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
           <?php } ?>
           <?php foreach ($Form->fields as $row) { ?>
               <div class="form-group">
-                <label for="<?php echo htmlspecialchars($row->urn . $row->id)?>" class="control-label col-sm-3 col-md-2"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?></label>
+                <label for="<?php echo htmlspecialchars($row->urn . $row->id . '_' . $Block->id)?>" class="control-label col-sm-3 col-md-2"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?></label>
                 <div class="col-sm-9 col-md-4">
                   <?php $getField($row, $DATA);?>
                 </div>
@@ -45,7 +45,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
           <?php } ?>
           <?php if ($Form->antispam == 'captcha' && $Form->antispam_field_name) { ?>
               <div class="form-group">
-                <label for="name" class="control-label col-sm-3 col-md-2"><?php echo CAPTCHA?></label>
+                <label for="<?php echo htmlspecialchars($Form->antispam_field_name)?>" class="control-label col-sm-3 col-md-2"><?php echo CAPTCHA?></label>
                 <div class="col-sm-9 col-md-4 <?php echo htmlspecialchars($Form->antispam_field_name)?>">
                   <img src="/assets/kcaptcha/?<?php echo session_name() . '=' . session_id()?>" /><br />
                   <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />
