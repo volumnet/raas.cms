@@ -16,7 +16,7 @@ class Feedback extends \SOME\SOME
         'material' => array('FK' => 'material_id', 'classname' => 'RAAS\\CMS\\Material', 'cascade' => false),
         'viewer' => array('FK' => 'vis', 'classname' => 'RAAS\\User', 'cascade' => false),
     );
-    
+
     public function __get($var)
     {
         switch ($var) {
@@ -85,7 +85,7 @@ class Feedback extends \SOME\SOME
                 break;
         }
     }
-    
+
     public function commit()
     {
         if (!$this->id) {
@@ -93,8 +93,8 @@ class Feedback extends \SOME\SOME
         }
         parent::commit();
     }
-    
-    
+
+
     public static function delete(self $object)
     {
         foreach ($object->fields as $row) {
@@ -107,8 +107,8 @@ class Feedback extends \SOME\SOME
         }
         parent::delete($object);
     }
-    
-    
+
+
     protected function _fields()
     {
         $temp = $this->parent->fields;

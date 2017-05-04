@@ -53,8 +53,8 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                     </div>
                     <?php if ($Form->antispam == 'captcha' && $Form->antispam_field_name) { ?>
                         <div class="form-group">
-                          <label for="name" class="control-label col-sm-3"><?php echo CAPTCHA?></label>
-                          <div class="col-sm-9 <?php echo htmlspecialchars($Form->antispam_field_name)?>">
+                          <label for="<?php echo htmlspecialchars($Form->antispam_field_name)?>" class="control-label col-sm-3"><?php echo CAPTCHA?></label>
+                          <div class="col-sm-9">
                             <img src="/assets/kcaptcha/?<?php echo session_name() . '=' . session_id()?>" /><br />
                             <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />
                           </div>
