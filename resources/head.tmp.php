@@ -19,6 +19,7 @@ use SOME\HTTP;
 <!-- Core-->
 <script src="/js/application.js"></script>
 <script src="/js/sliders.js"></script>
+<script src="/js/menu-top.js"></script>
 <?php if (class_exists('RAAS\CMS\Shop\Module')) { ?>
     <script src="/js/jquery.jcarousel.min.js"></script>
     <script src="/js/setrawcookie.js"></script>
