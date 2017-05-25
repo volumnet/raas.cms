@@ -8,7 +8,14 @@ class Page extends \SOME\SOME implements IAccessible
 {
     protected static $tablename = 'cms_pages';
     protected static $defaultOrderBy = "priority";
-    protected static $cognizableVars = array('blocksOrdered', 'fields', 'affectedMaterialTypes', 'affectedMaterials', 'Domain');
+    protected static $cognizableVars = array(
+        'blocksOrdered',
+        'fields',
+        'affectedMaterialTypes',
+        'affectedMaterials',
+        'Domain',
+        'selfAndChildrenIds',
+    );
     protected static $objectCascadeDelete = true;
 
     protected static $references = array(
@@ -540,6 +547,12 @@ class Page extends \SOME\SOME implements IAccessible
     {
         $id = $this->pid ? $this->parents[0]->id : $this->id;
         return new static((int)$id);
+    }
+
+
+    protected function _selfAndChildrenIds()
+    {
+        return array_merge(array($this->id), (array)$this->all_children_ids);
     }
 
 
