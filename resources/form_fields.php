@@ -67,7 +67,7 @@ $emailField = function ($field) {
                 $arr[$key] = '<div>' . $val . '</div>';
                 break;
             case 'material':
-                $arr[$key] = '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/admin/?p=cms&sub=main&action=edit_material&id=' . (int)$Material->id . '&pid=">
+                $arr[$key] = '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . htmlspecialchars($val->url) . '">
                                 ' . htmlspecialchars($val->name) . '
                               </a>';
                 break;

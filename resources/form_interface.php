@@ -130,7 +130,7 @@ if ($Form->id) {
             // Для AJAX'а
             $Referer = Page::importByURL($_SERVER['HTTP_REFERER']);
             $RefererMaterialUrl = explode('/', trim(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH), '/'));
-            $RefererMaterial = Material::importByURL($RefererMaterialUrl[count($RefererMaterialUrl) - 1]);
+            $RefererMaterial = Material::importByURN($RefererMaterialUrl[count($RefererMaterialUrl) - 1]);
             $Item->page_id = (int)$Referer->id ?: (int)$Page->id;
             if ($RefererMaterial) {
                 $Item->material_id = (int)$RefererMaterial->id;
