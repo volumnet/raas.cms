@@ -22,6 +22,7 @@ $smsField = function ($field) {
                 break;
             case 'material':
                 $arr[$key] = $val->name;
+                break;
             default:
                 if (!$field->multiple && ($field->datatype == 'checkbox')) {
                     $arr[$key] = $val ? _YES : _NO;
