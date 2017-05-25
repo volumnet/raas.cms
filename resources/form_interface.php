@@ -129,8 +129,12 @@ if ($Form->id) {
             }
             // Для AJAX'а
             $Referer = Page::importByURL($_SERVER['HTTP_REFERER']);
+            $RefererMaterialUrl = explode('/', trim(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH), '/'));
+            $RefererMaterial = Material::importByURL($RefererMaterialUrl[count($RefererMaterialUrl) - 1]);
             $Item->page_id = (int)$Referer->id ?: (int)$Page->id;
-            if ($Page->Material->id) {
+            if ($RefererMaterial) {
+                $Item->material_id = (int)$RefererMaterial->id;
+            } elseif ($Page->Material->id) {
                 $Item->material_id = (int)$Page->Material->id;
             }
             $Item->ip = (string)$_SERVER['REMOTE_ADDR'];
