@@ -11,7 +11,7 @@ class Material_Type extends \SOME\SOME
     );
     protected static $parents = array('parents' => 'parent');
     protected static $children = array('children' => array('classname' => 'RAAS\\CMS\\Material_Type', 'FK' => 'pid'));
-    protected static $cognizableVars = array('fields', 'selfFields', 'affectedPages');
+    protected static $cognizableVars = array('fields', 'selfFields', 'affectedPages', 'selfAndChildrenIds');
 
     public function commit()
     {
@@ -89,7 +89,18 @@ class Material_Type extends \SOME\SOME
                        WHERE tBM.material_type = " . (int)$this->id;
         $col2 = (array)self::$SQL->getcol($SQL_query);
         $Set = array_values(array_unique(array_merge($col1, $col2)));
-        $Set = array_map(function($x) { return new \RAAS\CMS\Page($x); }, $Set);
+        $Set = array_map(
+            function ($x) {
+                return new \RAAS\CMS\Page($x);
+            },
+            $Set
+        );
         return $Set;
+    }
+
+
+    protected function _selfAndChildrenIds()
+    {
+        return array_merge(array($this->id), (array)$this->all_children_ids);
     }
 }
