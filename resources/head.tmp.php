@@ -14,10 +14,13 @@ use SOME\HTTP;
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width">
 <link rel='stylesheet' href='/css/application.css'>
+<link rel='stylesheet' href='/css/animate.css'>
 <link rel='stylesheet' href='/css/style.css'>
 <link rel='stylesheet' href='/custom.css'>
 <!-- Core-->
 <script src="/js/application.js"></script>
+<script src="/js/wow.min.js"></script>
+<script>new WOW().init();</script>
 <script src="/js/sliders.js"></script>
 <script src="/js/menu-top.js"></script>
 <?php if (class_exists('RAAS\CMS\Shop\Module')) { ?>
