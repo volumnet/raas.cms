@@ -319,6 +319,15 @@ class Webmaster
                 'datatype' => 'textarea',
             ));
             $F->commit();
+
+            $F = new Form_Field(array(
+                'pid' => $FRM->id,
+                'name' => $this->view->_('AGREE_PRIVACY_POLICY'),
+                'urn' => 'agree',
+                'required' => 1,
+                'datatype' => 'checkbox',
+            ));
+            $F->commit();
         }
         $forms['feedback'] = $FRM;
 
@@ -341,6 +350,15 @@ class Webmaster
                 'urn' => 'phone_call',
                 'datatype' => 'text',
                 'show_in_table' => 1,
+            ));
+            $F->commit();
+
+            $F = new Form_Field(array(
+                'pid' => $FRM->id,
+                'name' => $this->view->_('AGREE_PRIVACY_POLICY'),
+                'urn' => 'agree',
+                'required' => 1,
+                'datatype' => 'checkbox',
             ));
             $F->commit();
         }

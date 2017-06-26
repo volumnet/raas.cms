@@ -36,12 +36,23 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                 <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" value="<?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?>" style="position: absolute; left: -9999px" />
           <?php } ?>
           <?php foreach ($Form->fields as $row) { ?>
-              <div class="form-group">
-                <label<?php echo !$row->multiple ? ' for="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : ''?> class="control-label col-sm-3 col-md-2"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?></label>
-                <div class="col-sm-9 col-md-4">
-                  <?php $getField($row, $DATA);?>
-                </div>
-              </div>
+              <?php if ($row->urn == 'agree') { ?>
+                  <div class="form-group">
+                    <div class="col-sm-9 col-sm-offset-3 col-md-4 col-md-offset-2">
+                      <label class="checkbox">
+                        <?php $getField($row, $DATA);?>
+                        <a href="/privacy/" target="_blank"><?php echo htmlspecialchars($row->name)?></a>
+                      </label>
+                    </div>
+                  </div>
+              <?php } else { ?>
+                  <div class="form-group">
+                    <label<?php echo !$row->multiple ? ' for="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : ''?> class="control-label col-sm-3 col-md-2"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?></label>
+                    <div class="col-sm-9 col-md-4">
+                      <?php $getField($row, $DATA);?>
+                    </div>
+                  </div>
+              <?php } ?>
           <?php } ?>
           <?php if ($Form->antispam == 'captcha' && $Form->antispam_field_name) { ?>
               <div class="form-group">
