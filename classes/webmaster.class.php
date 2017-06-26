@@ -554,6 +554,13 @@ class Webmaster
             ));
             $this->createBlock($B, 'copyrights', null, null, $this->Site, true);
 
+            $B = new Block_HTML(array(
+                'name' => $this->view->_('PRIVACY_BLOCK_NAME'),
+                'description' => file_get_contents($this->resourcesDir . '/privacy_block.tmp.php'),
+                'wysiwyg' => 1,
+            ));
+            $this->createBlock($B, 'copyrights', null, null, $this->Site, true);
+
             $B = new Block_Form(array('form' => $forms['feedback']->id ?: 0,));
             $this->createBlock($B, 'footer_counters', '__raas_form_interface', 'feedback_modal', $this->Site, true);
 
@@ -650,6 +657,28 @@ class Webmaster
             $this->createBlock($B, 'content', '__raas_form_interface', 'feedback', $contacts);
         }
         return $contacts;
+    }
+
+
+    /**
+     * Создаем страницу "Обработка персональных данных"
+     * @return Page Созданная или существующая страница
+     */
+    public function createPrivacy()
+    {
+        $temp = Page::getSet(array('where' => array("pid = " . (int)$this->Site->id, "urn = 'privacy'")));
+        if ($temp) {
+            $privacy = $temp[0];
+        } else {
+            $privacy = $this->createPage(array('name' => $this->view->_('PRIVACY_PAGE_NAME'), 'urn' => 'privacy'), $this->Site);
+            $B = new Block_HTML(array(
+                'name' => $this->view->_('PRIVACY_PAGE_NAME'),
+                'description' => file_get_contents($this->resourcesDir . '/privacy_page.tmp.php'),
+                'wysiwyg' => 1,
+            ));
+            $this->createBlock($B, 'content', null, null, $privacy);
+        }
+        return $privacy;
     }
 
 
