@@ -46,14 +46,6 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                           <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" value="<?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?>" style="position: absolute; left: -9999px" />
                     <?php } ?>
                     <?php foreach ($Form->fields as $row) { ?>
-                        <div class="form-group">
-                          <label<?php echo !$row->multiple ? ' for="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : ''?> class="control-label col-sm-3"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?>:</label>
-                          <div class="col-sm-9">
-                            <?php $getField($row, $DATA); ?>
-                          </div>
-                        </div>
-                    <?php } ?>
-                    <?php if ($Form->antispam == 'captcha' && $Form->antispam_field_name) { ?>
                         <?php if ($row->urn == 'agree') { ?>
                             <div class="form-group">
                               <div class="col-sm-9 col-sm-offset-3">
@@ -65,13 +57,21 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                             </div>
                         <?php } else { ?>
                             <div class="form-group">
-                              <label for="<?php echo htmlspecialchars($Form->antispam_field_name)?>" class="control-label col-sm-3"><?php echo CAPTCHA?></label>
+                              <label<?php echo !$row->multiple ? ' for="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : ''?> class="control-label col-sm-3"><?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?>:</label>
                               <div class="col-sm-9">
-                                <img src="/assets/kcaptcha/?<?php echo session_name() . '=' . session_id()?>" /><br />
-                                <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />
+                                <?php $getField($row, $DATA); ?>
                               </div>
                             </div>
                         <?php } ?>
+                    <?php } ?>
+                    <?php if ($Form->antispam == 'captcha' && $Form->antispam_field_name) { ?>
+                        <div class="form-group">
+                          <label for="<?php echo htmlspecialchars($Form->antispam_field_name)?>" class="control-label col-sm-3"><?php echo CAPTCHA?></label>
+                          <div class="col-sm-9">
+                            <img src="/assets/kcaptcha/?<?php echo session_name() . '=' . session_id()?>" /><br />
+                            <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />
+                          </div>
+                        </div>
                     <?php } ?>
                     <div class="form-group text-right">
                       <div class="col-sm-12">
