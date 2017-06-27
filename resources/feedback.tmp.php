@@ -38,7 +38,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
           <?php foreach ($Form->fields as $row) { ?>
               <?php if ($row->urn == 'agree') { ?>
                   <div class="form-group">
-                    <div class="col-sm-9 col-sm-offset-3 col-md-4 col-md-offset-2">
+                    <div class="col-sm-9 col-sm-offset-3 col-md-offset-2">
                       <label class="checkbox">
                         <?php $getField($row, $DATA);?>
                         <a href="/privacy/" target="_blank"><?php echo htmlspecialchars($row->name)?></a>
