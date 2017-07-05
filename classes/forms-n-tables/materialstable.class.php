@@ -20,7 +20,7 @@ class MaterialsTable extends \RAAS\Table
 
     public function __construct(array $params = array())
     {
-        $view = $this->view;
+        $view = ViewSub_Main::i();
         $columns = array();
         $i = 0;
         $pidText = (($params['Item'] instanceof Page) ? '&pid=' . (int)$params['Item']->id : '');
