@@ -21,7 +21,7 @@ class Snippet extends \SOME\SOME
     }
 
 
-    public function exec(array $DATA = array())
+    public function process(array $DATA = array())
     {
         extract($DATA);
         $result = eval('?' . '>' . $this->description);
