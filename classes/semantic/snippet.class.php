@@ -19,8 +19,15 @@ class Snippet extends \SOME\SOME
         Package::i()->getUniqueURN($this);
         parent::commit();
     }
-    
-    
+
+
+    public function exec(array $DATA = array())
+    {
+        extract($DATA);
+        $result = eval('?' . '>' . $this->description);
+        return $result;
+    }
+
     public static function importByURN($urn = '')
     {
         $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
