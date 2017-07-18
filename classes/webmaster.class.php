@@ -599,6 +599,13 @@ class Webmaster
             $this->createBlock($B, 'footer_counters', null, null, $this->Site, true);
 
             $B = new Block_HTML(array(
+                'name' => $this->view->_('COOKIES_NOTIFICATION'),
+                'description' => file_get_contents($this->resourcesDir . '/cookies_notification.tmp.php'),
+                'wysiwyg' => 0
+            ));
+            $this->createBlock($B, 'footer_counters', null, null, $this->Site, true);
+
+            $B = new Block_HTML(array(
                 'name' => $this->view->_('WELCOME'),
                 'description' => file_get_contents($this->resourcesDir . '/main.tmp.php'),
                 'wysiwyg' => 1,
