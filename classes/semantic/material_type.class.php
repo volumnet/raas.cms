@@ -11,7 +11,7 @@ class Material_Type extends \SOME\SOME
     );
     protected static $parents = array('parents' => 'parent');
     protected static $children = array('children' => array('classname' => 'RAAS\\CMS\\Material_Type', 'FK' => 'pid'));
-    protected static $cognizableVars = array('fields', 'selfFields', 'affectedPages', 'selfAndChildrenIds', 'selfAndParentIds');
+    protected static $cognizableVars = array('fields', 'selfFields', 'affectedPages', 'selfAndChildrenIds', 'selfAndParentsIds');
 
     public function commit()
     {
@@ -105,8 +105,8 @@ class Material_Type extends \SOME\SOME
     }
 
 
-    protected function _selfAndParentIds()
+    protected function _selfAndParentsIds()
     {
-        return array_merge(array($this->id), (array)$this->parent_ids);
+        return array_merge(array($this->id), (array)$this->parents_ids);
     }
 }
