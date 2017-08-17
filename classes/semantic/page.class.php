@@ -15,6 +15,7 @@ class Page extends \SOME\SOME implements IAccessible
         'affectedMaterials',
         'Domain',
         'selfAndChildrenIds',
+        'selfAndParentIds',
     );
     protected static $objectCascadeDelete = true;
 
@@ -553,6 +554,12 @@ class Page extends \SOME\SOME implements IAccessible
     protected function _selfAndChildrenIds()
     {
         return array_merge(array($this->id), (array)$this->all_children_ids);
+    }
+
+
+    protected function _selfAndParentIds()
+    {
+        return array_merge(array($this->id), (array)$this->parent_ids);
     }
 
 
