@@ -336,7 +336,7 @@ class PageCopyHelper
             } else {
                 $copyOption = $this->textBlocksSingleOption;
             }
-        } elseif (!$this->src->pid && in_array($blockData['block_type'], array('RAAS\CMS\Block_Menu', 'RAAS\CMS\Block_Search'))) {
+        } elseif (!$this->src->pid && in_array($blockData['block_type'], array('RAAS\CMS\Block_Menu', 'RAAS\CMS\Block_Search', 'RAAS\CMS\Shop\Block_YML'))) {
             $copyOption = 'copy';
         } else {
             $copyOption = $this->otherBlocksOption;

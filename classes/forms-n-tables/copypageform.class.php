@@ -167,7 +167,7 @@ class CopyPageForm extends EditPageForm
                         $options = $this->getCopyOptions('', 'unglob');
                         $default = 'unglob';
                     } else {
-                        $options = $this->getCopyOptions('', 'unglob_copy', 'unglob');
+                        $options = $this->getCopyOptions('', 'unglob_copy', 'unglob_spread', 'unglob');
                         $default = 'copy';
                     }
                 } else {
@@ -186,7 +186,7 @@ class CopyPageForm extends EditPageForm
                         $options = $this->getCopyOptions('', 'spread');
                         $default = 'spread';
                     } else {
-                        $options = $this->getCopyOptions('', 'copy');
+                        $options = $this->getCopyOptions('', 'spread', 'copy');
                         $default = 'copy';
                     }
                 } else {
