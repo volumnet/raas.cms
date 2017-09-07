@@ -55,8 +55,8 @@ abstract class Block extends \SOME\SOME implements IAccessible
     {
         parent::__construct($import_data);
         $this->block_type = get_class($this);
-        if (static::$tablename2) {
-            $SQL_query = "SELECT * FROM " . static::$dbprefix . static::$tablename2 . " WHERE id = " . (int)$this->id;
+        if ($t2 = static::_tablename2()) {
+            $SQL_query = "SELECT * FROM " . $t2 . " WHERE id = " . (int)$this->id;
             if ($SQL_result = self::$SQL->getline($SQL_query)) {
                 foreach ($SQL_result as $key => $val) {
                     if (($key != 'id') && !isset($this->$key)) {
@@ -168,7 +168,6 @@ abstract class Block extends \SOME\SOME implements IAccessible
 
     protected function getAddData()
     {
-
     }
 
 
@@ -364,10 +363,18 @@ abstract class Block extends \SOME\SOME implements IAccessible
     }
 
 
-    public static function delete(Block $Item)
+    public static function _tablename2()
     {
         if (static::$tablename2) {
-            $SQL_query = "DELETE FROM " . static::$dbprefix . static::$tablename2 . " WHERE id = " . (int)$Item->id;
+            return static::$dbprefix . static::$tablename2;
+        }
+    }
+
+
+    public static function delete(Block $Item)
+    {
+        if ($t2 = static::_tablename2()) {
+            $SQL_query = "DELETE FROM " . $t2 . " WHERE id = " . (int)$Item->id;
             self::$SQL->query($SQL_query);
         }
         parent::delete($Item);

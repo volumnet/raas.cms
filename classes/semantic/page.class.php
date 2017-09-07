@@ -12,9 +12,12 @@ class Page extends \SOME\SOME implements IAccessible
         'blocksOrdered',
         'fields',
         'affectedMaterialTypes',
+        'affectedMaterialTypesWithChildren',
         'affectedMaterials',
         'Domain',
+        'selfAndChildren',
         'selfAndChildrenIds',
+        'selfAndParents',
         'selfAndParentsIds',
     );
     protected static $objectCascadeDelete = true;
@@ -458,6 +461,13 @@ class Page extends \SOME\SOME implements IAccessible
         return $arr;
     }
 
+    /**
+     * Типы материалов, присутствующие на данной странице
+     *
+     * Присутствующими считаются типы, если либо на странице есть материальный блок
+     * данного типа, либо хотя бы один материал напрямую связан со страницей
+     * @return array<Material_Type> у NAT-типов добавляется nat = true
+     */
     protected function _affectedMaterialTypes()
     {
         $SQL_query = "SELECT tMt.id
@@ -467,21 +477,56 @@ class Page extends \SOME\SOME implements IAccessible
                        WHERE NOT tMt.global_type AND tMPA.pid = " . (int)$this->id . "
                     ORDER BY tMt.name";
         $col1 = (array)self::$SQL->getcol($SQL_query);
-        $SQL_query = "SELECT tMt.id
+        $SQL_query = "SELECT tMt.id, tB.nat
                         FROM " . Material_Type::_tablename() . " AS tMt
                         JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.material_type = tMt.id
                         JOIN " . Block::_tablename() . " AS tB ON tB.id = tBM.id
                         JOIN " . self::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.block_id = tB.id
                        WHERE tBPA.page_id = " . (int)$this->id;
-        $col2 = (array)self::$SQL->getcol($SQL_query);
+        $temp = self::$SQL->get($SQL_query);
+        $col2 = array_map(function ($x) {
+            return (int)$x['id'];
+        }, $temp);
+        $nat = array_map(function ($x) {
+            return (int)$x['id'];
+        }, array_filter($temp, function ($x) {
+            return $x['nat'];
+        }));
         $Set = array_values(array_unique(array_merge($col1, $col2)));
         $Set = array_map(
-            function ($x) {
-                return new \RAAS\CMS\Material_Type($x);
+            function ($x) use ($nat) {
+                $y = new \RAAS\CMS\Material_Type($x);
+                if (in_array($x, $nat)) {
+                    $y->nat = true;
+                }
+                return $y;
             },
             $Set
         );
         return $Set;
+    }
+
+
+    /**
+     * Типы материалов, присутствующие на данной и дочерних страницах
+     *
+     * Присутствующими считаются типы, если либо на странице есть материальный блок
+     * данного типа, либо хотя бы один материал напрямую связан со страницей
+     * @return array<Material_Type> у NAT-типов добавляется nat = true, также counter - количество страниц, на которых задействован тип
+     */
+    protected function _affectedMaterialTypesWithChildren()
+    {
+        $mtypes = array();
+        foreach ($this->selfAndChildren as $row) {
+            $temp = $row->affectedMaterialTypes;
+            foreach ($temp as $mtype) {
+                if (!$mtypes[$mtype->id] || (!$mtypes[$mtype->id]->nat && $mtype->nat)) {
+                    $mtypes[$mtype->id] = $mtype;
+                }
+                $mtypes[$mtype->id]->counter = $mtypes[$mtype->id]->counter + 1;
+            }
+        }
+        return $mtypes;
     }
 
 
@@ -548,6 +593,18 @@ class Page extends \SOME\SOME implements IAccessible
     {
         $id = $this->pid ? $this->parents[0]->id : $this->id;
         return new static((int)$id);
+    }
+
+
+    protected function _selfAndChildren()
+    {
+        return array_merge(array($this), (array)$this->all_children);
+    }
+
+
+    protected function _selfAndParents()
+    {
+        return array_merge(array($this), (array)$this->parents);
     }
 
 
