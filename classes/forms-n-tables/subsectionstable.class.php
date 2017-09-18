@@ -37,7 +37,7 @@ class SubsectionsTable extends \RAAS\Table
                             $f = $row->fields[$col->urn];
                             $v = $f->getValue();
                             if ($v->id) {
-                                return '<a href="' . $view->url . '&id=' . (int)$row->id . '&pid=' . (int)$params['Item']->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>
+                                return '<a href="' . $view->url . '&id=' . (int)$row->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>
                                           <img src="/' . $v->tnURL . '" style="max-width: 48px;" /></a>';
                             }
                         }
