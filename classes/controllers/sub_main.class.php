@@ -13,6 +13,7 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
     {
         switch ($this->action) {
             case 'edit':
+            case 'copy':
             case 'move':
                 $this->{$this->action . '_page'}();
                 break;
@@ -163,6 +164,26 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
         $Parent = $Item->pid ? $Item->parent : new Page(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
         $Form = new EditPageForm(array('Item' => $Item, 'Parent' => $Parent));
         $this->view->edit_page(array_merge($Form->process(), array('Parent' => $Parent)));
+    }
+
+
+    protected function copy_page()
+    {
+        $Original = $Item = new Page((int)$this->id);
+        if (!$Item->id) {
+            new Redirector($this->url);
+        }
+        $Parent = $Item->pid ? $Item->parent : new Page();
+        $OUT = array();
+        $OUT['Parent'] = $Parent;
+        $OUT['Original'] = $Original;
+        $OUT['Type'] = $Type;
+        $Item = $this->model->copyItem($Item);
+        $Form = new CopyPageForm(array(
+            'Item' => $Item, 'Parent' => $Parent, 'Type' => $Type, 'Original' => $Original,
+        ));
+        $OUT = array_merge($OUT, (array)$Form->process());
+        $this->view->edit_page($OUT);
     }
 
 

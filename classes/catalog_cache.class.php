@@ -62,7 +62,7 @@ class Catalog_Cache
                     $temp = "value";
                 }
                 $SQL_what[$row->urn] = "(
-                    SELECT GROUP_CONCAT(DISTINCT " . $temp . " SEPARATOR '@@@')
+                    SELECT GROUP_CONCAT(DISTINCT " . $temp . " ORDER BY fii ASC SEPARATOR '@@@')
                       FROM " . Field::data_table . "
                      WHERE pid = tM.id
                        AND fid = " . (int)$row->id . "
@@ -78,7 +78,6 @@ class Catalog_Cache
                    . " GROUP BY tM.id ORDER BY NOT tM.priority, tM.priority ASC ";
         // echo $SQL_query; exit;
         $SQL_result = Material::_SQL()->get($SQL_query);
-        // print_r ($SQL_result); exit;
         $SQL_result = array_map(
             function ($x) use ($t) {
                 $y = $x;

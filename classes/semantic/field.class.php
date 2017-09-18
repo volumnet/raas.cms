@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Attachment as Attachment;
 use \RAAS\Application as Application;
 
@@ -8,14 +9,14 @@ abstract class Field extends \RAAS\CustomField
     const data_table = 'cms_data';
     const DictionaryClass = '\\RAAS\\CMS\\Dictionary';
     protected static $objectCascadeDelete = true;
-    
+
     protected static $references = array(
         'Preprocessor' => array('FK' => 'preprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
         'Postprocessor' => array('FK' => 'postprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
     );
 
     protected static $tablename = 'cms_fields';
-    
+
     public function __get($var)
     {
         switch ($var) {
@@ -23,10 +24,11 @@ abstract class Field extends \RAAS\CustomField
                 $t = $this;
                 $f = parent::__get($var);
                 switch ($t->datatype) {
-                    case 'file': case 'image':
+                    case 'file':
+                    case 'image':
                         $f->template = 'cms/field.inc.php';
                         if ($f->required) {
-                            $f->check = function($Field) {
+                            $f->check = function ($Field) {
                                 $localError = array();
                                 $ok = false;
                                 if ($Field->multiple) {
@@ -44,7 +46,7 @@ abstract class Field extends \RAAS\CustomField
                                     }
                                 }
                                 if ($ok) {
-                                    return array(); 
+                                    return array();
                                 }
                                 return $Field->getErrors();
                             };
@@ -54,25 +56,28 @@ abstract class Field extends \RAAS\CustomField
                         $f->template = 'cms/field.inc.php';
                         break;
                 }
-                $f->oncommit = function($Field) use ($t) {
+                $f->oncommit = function ($Field) use ($t) {
                     if ($t->Preprocessor->id) {
                         $postProcess = false;
                         eval('?' . '>' . $t->Preprocessor->description);
                     }
                     switch ($t->datatype) {
-                        case 'file': case 'image':
+                        case 'file':
+                        case 'image':
                             $addedAttachments = array();
                             $t->deleteValues();
                             if ($Field->multiple) {
                                 foreach ((array)$_FILES[$Field->name]['tmp_name'] as $key => $val) {
                                     $row2 = array(
-                                        'vis' => (int)$_POST[$Field->name . '@vis'][$key], 
+                                        'vis' => (int)$_POST[$Field->name . '@vis'][$key],
                                         'name' => (string)$_POST[$Field->name . '@name'][$key],
                                         'description' => (string)$_POST[$Field->name . '@description'][$key],
                                         'attachment' => (int)$_POST[$Field->name . '@attachment'][$key]
                                     );
                                     if (is_uploaded_file($_FILES[$Field->name]['tmp_name'][$key]) && $t->validate($_FILES[$Field->name]['tmp_name'][$key])) {
-                                        $att = new Attachment((int)$row2['attachment']);
+                                        // 2017-09-05, AVS: убрал создание attachment'а по ID#, чтобы не было конфликтов в случае дублирования материалов с одним attachment'ом
+                                        // с текущего момента каждый новый загруженный файл - это новый attachment
+                                        $att = new Attachment();
                                         $att->upload = $_FILES[$Field->name]['tmp_name'][$key];
                                         $att->filename = $_FILES[$Field->name]['name'][$key];
                                         $att->mime = $_FILES[$Field->name]['type'][$key];
@@ -97,13 +102,15 @@ abstract class Field extends \RAAS\CustomField
                                 }
                             } else {
                                 $row2 = array(
-                                    'vis' => (int)$_POST[$Field->name . '@vis'], 
-                                    'name' => (string)$_POST[$Field->name . '@name'], 
+                                    'vis' => (int)$_POST[$Field->name . '@vis'],
+                                    'name' => (string)$_POST[$Field->name . '@name'],
                                     'description' => (string)$_POST[$Field->name . '@description'],
                                     'attachment' => (int)$_POST[$Field->name . '@attachment']
                                 );
                                 if (is_uploaded_file($_FILES[$Field->name]['tmp_name']) && $t->validate($_FILES[$Field->name]['tmp_name'])) {
-                                    $att = new Attachment((int)$row2['attachment']);
+                                    // 2017-09-05, AVS: убрал создание attachment'а по ID#, чтобы не было конфликтов в случае дублирования материалов с одним attachment'ом
+                                    // с текущего момента каждый новый загруженный файл - это новый attachment
+                                    $att = new Attachment();
                                     $att->upload = $_FILES[$Field->name]['tmp_name'];
                                     $att->filename = $_FILES[$Field->name]['name'];
                                     $att->mime = $_FILES[$Field->name]['type'];
@@ -150,21 +157,23 @@ abstract class Field extends \RAAS\CustomField
                 break;
         }
     }
-    
+
+
     public function getValue($index = 0)
     {
         if (!$this->Owner || !static::data_table) {
             return null;
         }
         switch ($this->datatype) {
-            case 'image': case 'file':
+            case 'image':
+            case 'file':
                 $SQL_query = "SELECT value FROM " . static::$dbprefix . static::data_table . " WHERE pid = ? AND fid = ? AND fii = ?";
                 $SQL_bind = array((int)$this->Owner->id, (int)$this->id, (int)$index);
-                $y = (array)json_decode(static::$SQL->getvalue(array($SQL_query, $SQL_bind)), true); 
+                $y = (array)json_decode(static::$SQL->getvalue(array($SQL_query, $SQL_bind)), true);
                 $att = new Attachment((int)(isset($y['attachment']) ? $y['attachment'] : 0));
                 foreach ($y as $key => $val) {
                     $att->$key = $val;
-                } 
+                }
                 return $att;
                 break;
             case 'number':
@@ -178,8 +187,8 @@ abstract class Field extends \RAAS\CustomField
                 break;
         }
     }
-    
-    
+
+
     public function getValues($forceArray = false)
     {
         if (!$this->Owner || !static::data_table) {
@@ -189,40 +198,48 @@ abstract class Field extends \RAAS\CustomField
             return $this->getValue();
         }
         switch ($this->datatype) {
-            case 'image': case 'file':
+            case 'image':
+            case 'file':
                 $SQL_query = "SELECT value FROM " . static::$dbprefix . static::data_table . " WHERE pid = ? AND fid = ? ORDER BY fii ASC";
                 $SQL_bind = array((int)$this->Owner->id, (int)$this->id);
-                $values = array_map(function($x) { 
-                    $y = (array)json_decode($x, true); 
+                $values = array_map(function ($x) {
+                    $y = (array)json_decode($x, true);
                     $att = new Attachment((int)(isset($y['attachment']) ? $y['attachment'] : 0));
                     foreach ($y as $key => $val) {
                         $att->$key = $val;
-                    } 
+                    }
                     return $att;
                 }, static::$SQL->getcol(array($SQL_query, $SQL_bind)));
                 return $values;
                 break;
             case 'number':
-                return array_map(function($x) { return str_replace(',', '.', $x); }, parent::getValues($forceArray));
+                return array_map(function ($x) {
+                    return str_replace(',', '.', $x);
+                }, parent::getValues($forceArray));
                 break;
             case 'material':
-                return array_map(function($x) { return new Material($x); }, parent::getValues($forceArray));
+                return array_map(function ($x) {
+                    return new Material($x);
+                }, parent::getValues($forceArray));
                 break;
             default:
                 return parent::getValues($forceArray);
                 break;
         }
     }
-    
-    
+
+
     public function clearLostAttachments()
     {
         if (in_array($this->datatype, array('file', 'image'))) {
             $SQL_query = "SELECT value FROM " . static::$dbprefix . static::data_table . " WHERE fid = " . (int)$this->id;
             $SQL_result = static::$SQL->getcol($SQL_query);
-            $SQL_result = array_map(function($x) { $x = @(array)json_decode($x, true); return @(int)$x['attachment']; }, $SQL_result);
+            $SQL_result = array_map(function ($x) {
+                $x = @(array)json_decode($x, true);
+                return @(int)$x['attachment'];
+            }, $SQL_result);
             $SQL_result = array_filter($SQL_result, 'intval');
-            $SQL_query = "SELECT * FROM " . Attachment::_tablename() . " 
+            $SQL_query = "SELECT * FROM " . Attachment::_tablename() . "
                            WHERE classname = '" . static::$SQL->real_escape_string(get_class($this)) . "' AND pid = " . (int)$this->id;
             if ($SQL_result) {
                 $SQL_query .= " AND id NOT IN (" . implode(", ", $SQL_result) . ")";
