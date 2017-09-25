@@ -103,11 +103,14 @@ jQuery(function($) {
 
 
     $('.well:has(input:file)').on('click', 'a.close:not([data-role="raas-repo-del"])', function() {
-        var $w = $(this).closest('.well');
-        $('[data-role="file-link"]', $w).remove();
-        $('input:text, input:hidden, textarea', $w).val('');
-        $('input:checkbox', $w).attr('checked', 'checked');
-        $(this).remove();
+        var deleteText = $(this).attr('data-ondelete');
+        if (confirm(deleteText)) {
+            var $w = $(this).closest('.well');
+            $('[data-role="file-link"]', $w).remove();
+            $('input:text, input:hidden, textarea', $w).val('');
+            $('input:checkbox', $w).attr('checked', 'checked');
+            $(this).remove();
+        }
         return false;
     });
     $('.well:has(input:file) input:checkbox:visible').click(function() {

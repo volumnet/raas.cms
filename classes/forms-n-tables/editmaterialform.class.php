@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Application;
 use \RAAS\FormTab;
 use \RAAS\FieldSet;
@@ -57,7 +58,7 @@ class EditMaterialForm extends \RAAS\Form
             'parentUrl' => $this->view->url . '&id=' . $Parent->id . '#_' . $Type->urn,
             'caption' => $Item->id ? $Item->name : $this->view->_('CREATING_MATERIAL'),
             'children' => $tabs,
-            'export' => function($Form) use ($Parent) {
+            'export' => function ($Form) use ($Parent) {
                 $Form->exportDefault();
                 $Form->Item->editor_id = Application::i()->user->id;
                 if (!$Form->Item->id) {
@@ -195,9 +196,11 @@ class EditMaterialForm extends \RAAS\Form
                     'caption' => $this->view->_('MAIN_PARENT_PAGE'),
                     'children' => array(
                         'Set' => $temp->children,
-                        'additional' => function($row) use ($Item) {
+                        'additional' => function ($row) use ($Item) {
                             $arr = array();
-                            $ids = array_map(function($x) { return $x->id; }, $Item->affectedPages);
+                            $ids = array_map(function ($x) {
+                                return $x->id;
+                            }, $Item->affectedPages);
                             if ($row->id && !in_array($row->id, $ids)) {
                                 $arr['style'] = 'display: none';
                             }
@@ -208,16 +211,20 @@ class EditMaterialForm extends \RAAS\Form
                 )
             )
         ));
-        if (!$Type->global_type){
+        if (!$Type->global_type) {
             $pagesTab->children['cats'] = array(
                 'type' => 'checkbox',
                 'multiple' => true,
                 'name' => 'cats',
                 'caption' => $this->view->_('PAGES'),
                 'required' => 'required',
-                'children' => array('Set' => $temp->children, 'additional' => function($row) { return array('data-group' => $row->template); }),
+                'children' => array('Set' => $temp->children, 'additional' => function ($row) {
+                    return array('data-group' => $row->template);
+                }),
                 'default' => array((int)$Parent->id),
-                'import' => function($Field) { return $Field->Form->Item->pages_ids; },
+                'import' => function ($Field) {
+                    return $Field->Form->Item->pages_ids;
+                },
             );
         }
         return $pagesTab;

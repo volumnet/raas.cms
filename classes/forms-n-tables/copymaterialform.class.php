@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Application;
 use \RAAS\FormTab;
 use \RAAS\HTMLElement;
@@ -18,7 +19,8 @@ class CopyMaterialForm extends EditMaterialForm
         $this->meta['Original'] = $Original = $params['Original'];
         $this->children['copy'] = $this->getCopyTab($Original);
         $Item = isset($params['Item']) ? $params['Item'] : null;
-        $this->defaultize($this, $Original);
+        // 2017-08-24, AVS: поменял $Original на $Item с целью смены названия и URN с суффиксом 2
+        $this->defaultize($this, $Item);
     }
 
 
@@ -37,13 +39,21 @@ class CopyMaterialForm extends EditMaterialForm
                     $el->default = array_fill(0, count($Item->access), '');
                 }
             } elseif ($el->name == 'access_allow') {
-                $el->default = array_map(function($x) { return (int)$x->allow; }, (array)$Item->access);
+                $el->default = array_map(function ($x) {
+                    return (int)$x->allow;
+                }, (array)$Item->access);
             } elseif ($el->name == 'access_to_type') {
-                $el->default = array_map(function($x) { return (int)$x->to_type; }, (array)$Item->access);
+                $el->default = array_map(function ($x) {
+                    return (int)$x->to_type;
+                }, (array)$Item->access);
             } elseif ($el->name == 'access_uid') {
-                $el->default = array_map(function($x) { return (int)$x->uid; }, (array)$Item->access);
+                $el->default = array_map(function ($x) {
+                    return (int)$x->uid;
+                }, (array)$Item->access);
             } elseif ($el->name == 'access_gid') {
-                $el->default = array_map(function($x) { return (int)$x->gid; }, (array)$Item->access);
+                $el->default = array_map(function ($x) {
+                    return (int)$x->gid;
+                }, (array)$Item->access);
             } elseif (in_array($el->type, array('datetime', 'date', 'time')) && (strtotime($val) <= 0)) {
             } elseif ($val) {
                 $el->default = $Item->{$el->name};
@@ -60,12 +70,14 @@ class CopyMaterialForm extends EditMaterialForm
             'name' => 'copy_links',
             'caption' => $this->view->_('COPY_MATERIAL_LINKS'),
         ));
-        $copyTab->oncommit = function($FormTab) use ($Original) {
+        $copyTab->oncommit = function ($FormTab) use ($Original) {
             $Item = $FormTab->Form->Item;
             if ($_POST['copy_links']) {
                 // Получим все родительские типы материалов
                 $mtypes = array_merge(array($Item->material_type), (array)$Item->material_type->parents);
-                $mtypes = array_map(function($x) { return (int)$x->id; }, $mtypes);
+                $mtypes = array_map(function ($x) {
+                    return (int)$x->id;
+                }, $mtypes);
                 // Получим всевозможные множественные поля типа материалов, которые могут ссылаться на данный материал
                 $SQL_query = "SELECT id
                                 FROM " . Field::_tablename() . "
@@ -97,7 +109,4 @@ class CopyMaterialForm extends EditMaterialForm
         };
         return $copyTab;
     }
-
-
-
 }

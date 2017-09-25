@@ -130,7 +130,8 @@ class Material extends \SOME\SOME implements IAccessible
     public function visit()
     {
         $this->visit_counter++;
-        parent::commit();
+        // 2017-09-07, AVS: сделал через базу, чтобы не сохранялось изменение, если материал взят из кэша
+        static::_SQL()->update(static::_tablename(), "id = " . (int)$this->id, array('visit_counter' => (int)$this->visit_counter));
     }
 
 
