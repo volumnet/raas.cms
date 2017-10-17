@@ -650,9 +650,10 @@ class Package extends \RAAS\Package
         // 2016-01-14, AVS: Сделал $limit 50 вместо 10
         $Material_Type = new Material_Type((int)$mtype);
         // 2016-01-14, AVS: сделал поиск по данным вместо названия. Возможно, вызовет перегруз, но нужно тогда решать вопрос с базой
+        // 2017-09-25, AVS: заменил JOIN на LEFT JOIN у cms_data и cms_fields, т.к. у материалов может и не быть кастомных полей
         $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM
-                        JOIN " . Material_Field::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id
-                        JOIN " . Material_Field::_tablename() . " AS tF ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.id = tD.fid
+                   LEFT JOIN " . Material_Field::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id
+                   LEFT JOIN " . Material_Field::_tablename() . " AS tF ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.id = tD.fid
                        WHERE (
                                 tM.name LIKE '%" . $this->SQL->escape_like($search) . "%'
                              OR tM.urn LIKE '%" . $this->SQL->escape_like($search) . "%'

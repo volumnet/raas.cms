@@ -1,5 +1,6 @@
 <?php
 namespace RAAS\CMS;
+
 use \RAAS\Redirector as Redirector;
 use \RAAS\Attachment as Attachment;
 
@@ -10,7 +11,12 @@ class Controller_Ajax extends Abstract_Controller
     protected function execute()
     {
         switch ($this->action) {
-            case 'material_fields': case 'get_materials_by_field': case 'rebuild_page_cache': case 'clear_cache': case 'clear_blocks_cache': case 'get_cache_map':
+            case 'material_fields':
+            case 'get_materials_by_field':
+            case 'rebuild_page_cache':
+            case 'clear_cache':
+            case 'clear_blocks_cache':
+            case 'get_cache_map':
                 $this->{$this->action}();
                 break;
         }
@@ -61,9 +67,22 @@ class Controller_Ajax extends Abstract_Controller
             (object)array('id' => 'modify_date', 'name' => $this->view->_('EDITED_BY'))
         );
         $Set = array_merge(
-            $Set, array_values(array_filter($Material_Type->fields, function($x) { return !($x->multiple || in_array($x->datatype, array('file', 'image'))); }))
+            $Set,
+            array_values(
+                array_filter(
+                    $Material_Type->fields,
+                    function ($x) {
+                        return !($x->multiple || in_array($x->datatype, array('file', 'image')));
+                    }
+                )
+            )
         );
-        $OUT['Set'] = array_map(function($x) { return array('val' => $x->id, 'text' => $x->name); }, $Set);
+        $OUT['Set'] = array_map(
+            function ($x) {
+                return array('val' => $x->id, 'text' => $x->name);
+            },
+            $Set
+        );
         $this->view->show_page($OUT);
     }
 
@@ -81,7 +100,7 @@ class Controller_Ajax extends Abstract_Controller
         }
         $Set = $this->model->getMaterialsBySearch(isset($_GET['search_string']) ? $_GET['search_string'] : '', $mtype);
         $OUT['Set'] = array_map(
-            function($x) {
+            function ($x) {
                 $y = array(
                     'id' => (int)$x->id,
                     'name' => $x->name,

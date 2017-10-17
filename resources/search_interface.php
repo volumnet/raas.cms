@@ -16,6 +16,12 @@ $SQL = Application::i()->SQL;
 
 $IN = (array)$_GET;
 $OUT = array();
+
+if ($Block->search_pages_ids) {
+    $searchPagesIds = $Block->search_pages_ids;
+} else {
+    $searchPagesIds = (array)$Page->Domain->selfAndChildrenIds;
+}
 $search_string = trim(isset($IN[$config['search_var_name']]) ? $IN[$config['search_var_name']] : '');
 if (!$search_string) {
     $OUT['localError'] = 'NO_SEARCH_QUERY';
@@ -39,8 +45,8 @@ if (!$search_string) {
         // Получим начальные условия для страниц и материалов
         $SQL_where_pages = " AND tP.vis AND NOT tP.response_code ";
         $SQL_where_materials = " AND tM.vis ";
-        if ((array)$Block->search_pages_ids) {
-            $SQL_where_pages .= " AND tP.id IN (" . implode(", ", array_map('intval', (array)$Block->search_pages_ids)) . ") ";
+        if ((array)$searchPagesIds) {
+            $SQL_where_pages .= " AND tP.id IN (" . implode(", ", array_map('intval', (array)$searchPagesIds)) . ") ";
         }
         if ($languages = array_filter((array)$Block->languages)) {
             $temp = array_map(
