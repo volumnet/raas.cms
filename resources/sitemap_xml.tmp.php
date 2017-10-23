@@ -28,29 +28,28 @@ $getChangeFreq = function($row) {
     }
     return $text;
 };
-$showMenu = function(Page $page) use (&$showMenu, &$getChangeFreq) {
+
+$showItem = function ($row) use (&$getChangeFreq) {
+    $text = ' <url>
+                <loc>http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . htmlspecialchars($_SERVER['HTTP_HOST'] . $row->url) . '</loc>';
+    if (strtotime($row->last_modified) > 0) {
+        $text .= '<lastmod>' . date(DATE_W3C, strtotime($row->last_modified)) . '</lastmod>';
+    }
+    $text .= $getChangeFreq($row);
+    $text .= '<priority>' . str_replace(',', '.', (float)$row->sitemaps_priority) . '</priority>';
+    $text .= '</url>';
+    return $text;
+};
+
+$showMenu = function(Page $page) use (&$showMenu, &$getChangeFreq, &$showItem) {
     $children = $page->visChildren;
     for ($i = 0; $i < count($children); $i++) {
         $row = $children[$i];
         if (!$row->response_code) {
-            $text .= '<url>
-                        <loc>http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . htmlspecialchars($_SERVER['HTTP_HOST'] . $row->url) . '</loc>';
-            if (strtotime($row->last_modified) > 0) {
-                $text .= '<lastmod>' . date(DATE_W3C, strtotime($row->last_modified)) . '</lastmod>';
-            }
-            $text .= $getChangeFreq($row);
-            $text .= '<priority>' . str_replace(',', '.', (float)$row->sitemaps_priority) . '</priority>';
-            $text .= '</url>';
+            $text .= $showItem($row);
             foreach ($row->affectedMaterials as $row2) {
                 if ($row2->parent->id == $row->id) {
-                    $text .= '<url>
-                                <loc>http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . htmlspecialchars($_SERVER['HTTP_HOST'] . $row2->url) . '</loc>';
-                    if (strtotime($row->last_modified) > 0) {
-                        $text .= '<lastmod>' . date(DATE_W3C, strtotime($row2->last_modified)) . '</lastmod>';
-                    }
-                    $text .= $getChangeFreq($row2);
-                    $text .= '<priority>' . str_replace(',', '.', (float)$row2->sitemaps_priority) . '</priority>';
-                    $text .= '</url>';
+                    $text .= $showItem($row2);
                 }
             }
             $text .= $showMenu($row);
@@ -61,4 +60,7 @@ $showMenu = function(Page $page) use (&$showMenu, &$getChangeFreq) {
 
 header('Content-Type: application/xml; charset=UTF-8');
 echo '<?xml version="1.0" encoding="UTF-8"?' . '>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . $showMenu(new Page()) . '</urlset>';
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ' . $showItem($Page->Domain) . '
+  ' . $showMenu($Page->Domain) . '
+</urlset>';

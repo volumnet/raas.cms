@@ -17,6 +17,8 @@ if ($cacheText) {
     if ($Block->cache_type == Block::CACHE_HTML) {
         $cacheText = preg_replace('/\\<\\?xml (.*?)\\?\\>/umi', '<?php echo \'<\' . \'?xml $1?\' . ">\\n"?' . '>', $cacheText);
     }
-    file_put_contents($Block->getCacheFile($_SERVER['REQUEST_URI']), $cacheText);
+    $tmpFile = tempnam(sys_get_temp_dir(), 'raas');
+    file_put_contents($tmpFile, $cacheText);
+    rename($tmpFile, $Block->getCacheFile($_SERVER['REQUEST_URI']));
 }
 return $OUT;
