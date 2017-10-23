@@ -56,6 +56,9 @@ abstract class Field extends \RAAS\CustomField
                         $f->template = 'cms/field.inc.php';
                         break;
                 }
+                if ($t->defval) {
+                    $f->default = $t->defval;
+                }
                 $f->oncommit = function ($Field) use ($t) {
                     if ($t->Preprocessor->id) {
                         $postProcess = false;
