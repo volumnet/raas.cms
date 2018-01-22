@@ -21,12 +21,12 @@ use SOME\HTTP;
 <script src="/js/application.js"></script>
 <script src="/js/wow.min.js"></script>
 <script>new WOW().init();</script>
+<script src="/js/jquery.jcarousel.min.js"></script>
 <script src="/js/sliders.js"></script>
 <script src="/js/menu-top.js"></script>
+<script src="/js/setrawcookie.js"></script>
+<script src="/js/setcookie.js"></script>
 <?php if (class_exists('RAAS\CMS\Shop\Module')) { ?>
-    <script src="/js/jquery.jcarousel.min.js"></script>
-    <script src="/js/setrawcookie.js"></script>
-    <script src="/js/setcookie.js"></script>
     <script src="/js/cookiecart.js"></script>
     <script src="/js/ajaxcart.js"></script>
     <script src="/js/ajaxcatalog.js"></script>

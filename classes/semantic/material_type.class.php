@@ -11,15 +11,56 @@ class Material_Type extends \SOME\SOME
     );
     protected static $parents = array('parents' => 'parent');
     protected static $children = array('children' => array('classname' => 'RAAS\\CMS\\Material_Type', 'FK' => 'pid'));
-    protected static $cognizableVars = array('fields', 'selfFields', 'affectedPages', 'selfAndChildrenIds');
+    protected static $cognizableVars = array('fields', 'selfFields', 'affectedPages', 'selfAndChildrenIds', 'selfAndParentsIds');
 
+    /**
+     * Сохраняет сущность
+     */
     public function commit()
     {
         if (!$this->urn && $this->name) {
             $this->urn = $this->name;
         }
         Package::i()->getUniqueURN($this);
+        $globDirection = 0; // Направление глобализации
+        if (isset($this->updates['global_type'])) {
+            if ($this->properties['global_type'] && !$this->updates['global_type']) {
+                $globDirection = -1;
+            } elseif (!$this->properties['global_type'] && $this->updates['global_type']) {
+                $globDirection = 1;
+            }
+        }
         parent::commit();
+        if ($globDirection) {
+            $SQL_query = "SELECT id FROM " . Material::_tablename() . " WHERE pid = " . (int)$this->id;
+            $materialsIds = static::_SQL()->getcol($SQL_query);
+            if ($globDirection == -1) {
+                $pagesIds = array_map(function ($x) {
+                    return (int)$x->id;
+                }, $this->affectedPages);
+
+                $arr = array();
+                foreach ($pagesIds as $pageId) {
+                    foreach ($materialsIds as $materialId) {
+                        $arr[] = array('id' => (int)$materialId, 'pid' => (int)$pageId);
+                    }
+                }
+                if ($arr) {
+                    static::_SQL()->add('cms_materials_pages_assoc', $arr);
+                }
+            } elseif ($globDirection == 1) {
+                if ($materialsIds) {
+                    $SQL_query = "DELETE FROM cms_materials_pages_assoc WHERE id IN (" . implode(", ", $materialsIds) . ")";
+                    static::_SQL()->query($SQL_query);
+                }
+            }
+            foreach ($this->children as $row) {
+                if ($row->global_type != $this->global_type) {
+                    $row->global_type = (int)$this->global_type;
+                    $row->commit();
+                }
+            }
+        }
     }
 
 
@@ -102,5 +143,11 @@ class Material_Type extends \SOME\SOME
     protected function _selfAndChildrenIds()
     {
         return array_merge(array($this->id), (array)$this->all_children_ids);
+    }
+
+
+    protected function _selfAndParentsIds()
+    {
+        return array_merge(array($this->id), (array)$this->parents_ids);
     }
 }
