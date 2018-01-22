@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace RAAS\CMS;
 
 abstract class SocialProfile
@@ -35,14 +35,15 @@ abstract class SocialProfile
     public function __get($var)
     {
         switch ($var) {
-            case 'token': case 'profile': case 'last_name': case 'first_name':
-                return $this->$var;
-                break;
+            // case 'token': case 'profile': case 'last_name': case 'first_name':
             case 'full_name':
                 return trim($this->last_name . ' ' . $this->first_name);
                 break;
             case 'socialNetwork':
                 return static::getSocialNetwork($this->profile);
+                break;
+            default:
+                return $this->$var;
                 break;
         }
     }

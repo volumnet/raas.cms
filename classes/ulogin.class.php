@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace RAAS\CMS;
 
 class ULogin extends SocialProfile
@@ -8,7 +8,7 @@ class ULogin extends SocialProfile
         if (isset($arr['error']) || !isset($arr['profile'])) {
             return false;
         }
-        foreach (array('profile', 'last_name', 'first_name') as $key) {
+        foreach ($arr as $key => $val) {
             $this->$key = $arr[$key];
         }
         return true;
