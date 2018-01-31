@@ -1,5 +1,5 @@
 <?php
-$_RAASForm_Options = function(\RAAS\OptionCollection $options, $level = 0) use (&$_RAASForm_Options, &$_RAASForm_Attrs) {
+$_RAASForm_Options = function (\RAAS\OptionCollection $options, $level = 0) use (&$_RAASForm_Options, &$_RAASForm_Attrs) {
     foreach ($options as $row) {
         switch (get_class($row)) {
             case 'RAAS\OptGroup':
@@ -31,7 +31,11 @@ $_RAASForm_Checkbox = function (\RAAS\OptionCollection $options, $level = 0) use
     $options = (array)$options;
     $attrs = array();
     $text = '';
-    $plain = !$level && !array_filter($options, function($x) { return (bool)(array)$x->children; }) && count($options) < 16;
+    $plain = !$level &&
+        !array_filter($options, function ($x) {
+            return (bool)(array)$x->children;
+        }) &&
+        (count($options) < 16);
     foreach ($options as $row) {
         $attrs = $row->attrs;
         foreach (array('type', 'name', 'multiple') as $key) {
@@ -52,7 +56,7 @@ $_RAASForm_Checkbox = function (\RAAS\OptionCollection $options, $level = 0) use
     return $text && !$plain ? '<ul' . (!$level ? ' class="tree" data-raas-role="tree"' : '') . '>' . $text . '</ul>' : $text;
 };
 
-$_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASForm_Attrs, &$_RAASForm_Options, &$_RAASForm_Checkbox) {
+$_RAASForm_Control = function (\RAAS\Field $Field, $confirm = true) use (&$_RAASForm_Attrs, &$_RAASForm_Options, &$_RAASForm_Checkbox) {
     $attrs = array();
     switch ($Field->type) {
         case 'material':
@@ -105,7 +109,8 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                 <?php
             }
             break;
-        case 'image': case 'file':
+        case 'image':
+        case 'file':
             $attrs = array('type' => 'file');
             if ($Field->type == 'image') {
                 $attrs['accept'] = 'image/jpeg,image/png,image/gif';
@@ -127,7 +132,7 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                 ?>
                 <div class="well cms-filecard">
                   <?php if (!$Field->meta['CustomField']->required && $row->id) { ?>
-                      <a class="close" data-role="delete-attach" href="#" onclick="return confirm('<?php echo $Field->type == 'image' ? DELETE_IMAGE_TEXT : DELETE_FILE_TEXT?>')">&times;</a>
+                      <a class="close" data-role="delete-attach" href="#" data-ondelete="<?php echo $Field->type == 'image' ? DELETE_IMAGE_TEXT : DELETE_FILE_TEXT?>">&times;</a>
                   <?php } ?>
                   <a href="<?php echo htmlspecialchars($row->fileURL)?>" target="_blank" data-role="file-link">
                     <?php if ($Field->type == 'image') { ?>
@@ -251,7 +256,9 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
                 <?php
             }
             break;
-        case 'textarea': case 'htmlarea': case 'codearea':
+        case 'textarea':
+        case 'htmlarea':
+        case 'codearea':
             $attrs['type'] = false;
             if ($Field->type == 'htmlarea') {
                 $attrs['class'] = 'htmlarea';
@@ -308,8 +315,10 @@ $_RAASForm_Control = function(\RAAS\Field $Field, $confirm = true) use (&$_RAASF
     }
 };
 
-$_RAASForm_Field = function(\RAAS\Field $Field) use (&$_RAASForm_Control, &$_RAASForm_Options) {
-    $err = (bool)array_filter((array)$Field->Form->localError, function($x) use ($Field) { return $x['value'] == $Field->name; });
+$_RAASForm_Field = function (\RAAS\Field $Field) use (&$_RAASForm_Control, &$_RAASForm_Options) {
+    $err = (bool)array_filter((array)$Field->Form->localError, function ($x) use ($Field) {
+        return $x['value'] == $Field->name;
+    });
     if (in_array($Field->type, array('htmlarea', 'codearea'))) {
         ?>
         <div class="control-group<?php echo $err ? ' error' : ''?>">
@@ -321,7 +330,9 @@ $_RAASForm_Field = function(\RAAS\Field $Field) use (&$_RAASForm_Control, &$_RAA
         </div>
         <?php
     } elseif (($Field->type == 'password') && $Field->confirm) {
-        $err2 = (bool)array_filter((array)$Field->Form->localError, function($x) use ($Field) { return $x['value'] == $Field->name . '@confirm'; });
+        $err2 = (bool)array_filter((array)$Field->Form->localError, function ($x) use ($Field) {
+            return $x['value'] == $Field->name . '@confirm';
+        });
         ?>
         <div class="control-group<?php echo $err ? ' error' : ''?>">
           <label class="control-label" for="<?php echo htmlspecialchars($Field->name)?>"><?php echo htmlspecialchars($Field->caption)?>:</label>

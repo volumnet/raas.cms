@@ -197,6 +197,7 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
                 'icon' => $Item->vis ? 'ok' : '',
                 'title' => $this->_($Item->vis ? 'HIDE' : 'SHOW')
             );
+            $arr[] = array('href' => $this->url . '&action=copy&id=' . (int)$Item->id, 'name' => $this->_('COPY'), 'icon' => 'tags');
             if ($Item->pid && ($this->action != 'move')) {
                 $arr[] = array('href' => $this->url . '&action=move&id=' . (int)$Item->id, 'name' => $this->_('MOVE'), 'icon' => 'share-alt');
             }

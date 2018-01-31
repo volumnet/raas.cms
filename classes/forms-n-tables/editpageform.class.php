@@ -47,7 +47,7 @@ class EditPageForm extends \RAAS\Form
                 $Form->exportDefault();
                 $Form->Item->editor_id = Application::i()->user->id;
                 if (!$Form->Item->id) {
-                    $Form->Item->pid = $Parent->id;
+                    $Form->Item->pid = (int)$Parent->id;
                     $Form->Item->author_id = $Form->Item->editor_id;
                 }
             }
