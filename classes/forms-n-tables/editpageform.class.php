@@ -30,7 +30,7 @@ class EditPageForm extends \RAAS\Form
         } else {
             $title = $Item->id ? $this->view->_('EDITING_SITE') : $this->view->_('CREATING_SITE');
         }
-        
+
         $tabs = array();
         $tabs['common'] = $this->getCommonTab($Item, $Parent);
         $tabs['seo'] = $this->getSeoTab($Parent);
@@ -40,7 +40,7 @@ class EditPageForm extends \RAAS\Form
         $tabs['service'] = $this->getServiceTab($Item, $Parent);
 
         $defaultParams = array(
-            'parentUrl' => $this->view->url . '&id=%s#subsections', 
+            'parentUrl' => $this->view->url . '&id=%s#subsections',
             'caption' => $title,
             'children' => $tabs,
             'export' => function($Form) use ($Parent) {
@@ -60,8 +60,8 @@ class EditPageForm extends \RAAS\Form
     private function getCommonTab($Item, $Parent)
     {
         $commonTab = new FormTab(array(
-            'name' => 'common', 
-            'caption' => $this->view->_('GENERAL'), 
+            'name' => 'common',
+            'caption' => $this->view->_('GENERAL'),
             'children' => array(array('name' => 'name', 'class' => 'span5', 'caption' => $this->view->_('NAME'), 'required' => 'required'))
         ));
         if ($Parent->id) {
@@ -76,10 +76,10 @@ class EditPageForm extends \RAAS\Form
                 'children' => array(
                     $f,
                     array(
-                        'type' => 'checkbox', 
-                        'name' => 'inherit_' . $row->Field->name, 
-                        'caption' => $this->view->_('INHERIT'), 
-                        'default' => ($Parent->id ? $Parent->{'inherit_' . $row->Field->name} : 1), 
+                        'type' => 'checkbox',
+                        'name' => 'inherit_' . $row->Field->name,
+                        'caption' => $this->view->_('INHERIT'),
+                        'default' => ($Parent->id ? $Parent->{'inherit_' . $row->Field->name} : 1),
                         'oncommit' => function() use ($row) {
                             if ($_POST['inherit_' . $row->Field->name]) {
                                 $row->inheritValues();
@@ -98,8 +98,8 @@ class EditPageForm extends \RAAS\Form
     {
         $seoTab = new FormTab(
             array(
-                'name' => 'seo', 
-                'caption' => $this->view->_('SEO'), 
+                'name' => 'seo',
+                'caption' => $this->view->_('SEO'),
                 'children' => array()
             )
         );
@@ -107,18 +107,18 @@ class EditPageForm extends \RAAS\Form
             'template' => 'edit_page.inherit.php',
             'children' => array(
                 array(
-                    'name' => 'meta_title', 
-                    'class' => 'span5', 
-                    'caption' => $this->view->_(strtoupper('meta_title')), 
+                    'name' => 'meta_title',
+                    'class' => 'span5',
+                    'caption' => $this->view->_(strtoupper('meta_title')),
                     'data-hint' => sprintf($this->view->_('META_TITLE_RECOMMENDED_LIMIT'), SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT, SeoOptimizer::META_TITLE_WORDS_LIMIT),
                     'data-recommended-limit' => SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
                     'data-strict-limit' => SeoOptimizer::META_TITLE_STRICT_LIMIT,
                     'data-words-limit' => SeoOptimizer::META_TITLE_WORDS_LIMIT,
-                ), 
+                ),
                 array(
-                    'type' => 'checkbox', 
-                    'name' => 'inherit_meta_title', 
-                    'caption' => $this->view->_('INHERIT'), 
+                    'type' => 'checkbox',
+                    'name' => 'inherit_meta_title',
+                    'caption' => $this->view->_('INHERIT'),
                     'default' => ($Parent->id ? $Parent->{'inherit_meta_title'} : 1)
                 )
             )
@@ -127,19 +127,19 @@ class EditPageForm extends \RAAS\Form
             'template' => 'edit_page.inherit.php',
             'children' => array(
                 array(
-                    'type' => 'textarea', 
-                    'name' => 'meta_description', 
-                    'class' => 'span5', 
-                    'rows' => 5, 
-                    'caption' => $this->view->_(strtoupper('meta_description')), 
+                    'type' => 'textarea',
+                    'name' => 'meta_description',
+                    'class' => 'span5',
+                    'rows' => 5,
+                    'caption' => $this->view->_(strtoupper('meta_description')),
                     'data-hint' => sprintf($this->view->_('META_DESCRIPTION_RECOMMENDED_LIMIT'), SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT),
                     'data-recommended-limit' => SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT,
                     'data-strict-limit' => SeoOptimizer::META_DESCRIPTION_STRICT_LIMIT,
                 ),
                 array(
-                    'type' => 'checkbox', 
-                    'name' => 'inherit_meta_description', 
-                    'caption' => $this->view->_('INHERIT'), 
+                    'type' => 'checkbox',
+                    'name' => 'inherit_meta_description',
+                    'caption' => $this->view->_('INHERIT'),
                     'default' => ($Parent->id ? $Parent->{'inherit_meta_description'} : 1)
                 )
             )
@@ -148,16 +148,16 @@ class EditPageForm extends \RAAS\Form
             'template' => 'edit_page.inherit.php',
             'children' => array(
                 array(
-                    'type' => 'textarea', 
-                    'name' => 'meta_keywords', 
-                    'class' => 'span5', 
-                    'rows' => 5, 
-                    'caption' => $this->view->_(strtoupper('meta_keywords')), 
+                    'type' => 'textarea',
+                    'name' => 'meta_keywords',
+                    'class' => 'span5',
+                    'rows' => 5,
+                    'caption' => $this->view->_(strtoupper('meta_keywords')),
                 ),
                 array(
-                    'type' => 'checkbox', 
-                    'name' => 'inherit_meta_keywords', 
-                    'caption' => $this->view->_('INHERIT'), 
+                    'type' => 'checkbox',
+                    'name' => 'inherit_meta_keywords',
+                    'caption' => $this->view->_('INHERIT'),
                     'default' => ($Parent->id ? $Parent->{'inherit_meta_keywords'} : 1)
                 )
             )
@@ -165,14 +165,14 @@ class EditPageForm extends \RAAS\Form
         $seoTab->children[] = array('name' => 'h1', 'caption' => $this->view->_('H1'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5');
         $seoTab->children[] = array('name' => 'menu_name', 'caption' => $this->view->_('MENU_NAME'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5');
         $seoTab->children[] = array('name' => 'breadcrumbs_name', 'caption' => $this->view->_('BREADCRUMBS_NAME'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5');
-        
+
         $seoTab->children[] = new FieldSet(array(
             'template' => 'edit_page.inherit.php',
             'children' => array(
                 array(
                     'type' => 'select',
-                    'name' => 'changefreq', 
-                    'caption' => $this->view->_('CHANGEFREQ'), 
+                    'name' => 'changefreq',
+                    'caption' => $this->view->_('CHANGEFREQ'),
                     'placeholder' => $this->view->_('AUTOMATICALLY'),
                     'children' => array(
                         array('value' => 'always', 'caption' => $this->view->_('CHANGEFREQ_ALWAYS')),
@@ -183,7 +183,7 @@ class EditPageForm extends \RAAS\Form
                         array('value' => 'yearly', 'caption' => $this->view->_('CHANGEFREQ_YEARLY')),
                         array('value' => 'never', 'caption' => $this->view->_('CHANGEFREQ_NEVER'))
                     )
-                ), 
+                ),
                 array('type' => 'checkbox', 'name' => 'inherit_changefreq', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->inherit_changefreq : 1))
             )
         ));
@@ -192,18 +192,18 @@ class EditPageForm extends \RAAS\Form
             'children' => array(
                 array(
                     'type' => 'number',
-                    'class' => 'span1', 
+                    'class' => 'span1',
                     'min' => 0,
-                    'step' => 0.1, 
+                    'step' => 0.1,
                     'max' => 1,
-                    'name' => 'sitemaps_priority', 
-                    'caption' => $this->view->_('SITEMAPS_PRIORITY'), 
+                    'name' => 'sitemaps_priority',
+                    'caption' => $this->view->_('SITEMAPS_PRIORITY'),
                     'default' => 0.5
-                ), 
+                ),
                 array(
-                    'type' => 'checkbox', 
-                    'name' => 'inherit_sitemaps_priority', 
-                    'caption' => $this->view->_('INHERIT'), 
+                    'type' => 'checkbox',
+                    'name' => 'inherit_sitemaps_priority',
+                    'caption' => $this->view->_('INHERIT'),
                     'default' => ($Parent->id ? $Parent->inherit_sitemaps_priority : 1)
                 )
             )
@@ -221,16 +221,16 @@ class EditPageForm extends \RAAS\Form
             $CONTENT['languages'][] = array('value' => $key, 'caption' => $val);
         }
         $serviceTab = new FormTab(array(
-            'name' => 'service', 
-            'caption' => $this->view->_('SERVICE'), 
+            'name' => 'service',
+            'caption' => $this->view->_('SERVICE'),
             'children' => array(
                 array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_($Parent->id ? 'VISIBLE' : 'IS_ACTIVE'), 'default' => 1),
                 array(
-                    'name' => 'response_code', 
-                    'class' => 'span1', 
-                    'maxlength' => 3, 
-                    'caption' => $this->view->_('SERVICE_RESPONSE_CODE'), 
-                    'data-hint' => $this->view->_('SERVICE_PAGE_DESCRIPTION'), 
+                    'name' => 'response_code',
+                    'class' => 'span1',
+                    'maxlength' => 3,
+                    'caption' => $this->view->_('SERVICE_RESPONSE_CODE'),
+                    'data-hint' => $this->view->_('SERVICE_PAGE_DESCRIPTION'),
                     'import' => function() use ($Item) { return (int)$Item->response_code ? (int)$Item->response_code : ''; }
                 ),
                 array('type' => 'checkbox', 'name' => 'nat', 'caption' => $this->view->_('TRANSLATE_ADDRESS')),
