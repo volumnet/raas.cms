@@ -20,7 +20,9 @@ class CopyMaterialForm extends EditMaterialForm
         $this->children['copy'] = $this->getCopyTab($Original);
         $Item = isset($params['Item']) ? $params['Item'] : null;
         // 2017-08-24, AVS: поменял $Original на $Item с целью смены названия и URN с суффиксом 2
-        $this->defaultize($this, $Item);
+        // 2018-04-03, AVS: не сработало - теперь все поля пустые (т.к. у $Item полей пока нет). Вернул $Original.
+        // Смену названия буду делать в другом месте
+        $this->defaultize($this, $Original);
     }
 
 
@@ -32,7 +34,13 @@ class CopyMaterialForm extends EditMaterialForm
             }
         } else {
             $val = $Item->{$el->name};
-            if ($el->name == 'cats') {
+            // 2018-04-03, AVS: добавил отдельную проверку на name и urn - они будут браться
+            // из нового $Item'а, чтобы сделать новые название и URN
+            if ($el->name == 'name') {
+                $el->default = $this->Item->name;
+            } elseif ($el->name == 'urn') {
+                $el->default = $this->Item->urn;
+            } elseif ($el->name == 'cats') {
                 $el->default = $Item->pages_ids;
             } elseif ($el->name == 'access_id') {
                 if (count($Item->access)) {
