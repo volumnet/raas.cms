@@ -14,9 +14,9 @@ class Menu extends \SOME\SOME
     protected static $parents = array('parents' => 'parent');
     protected static $children = array('children' => array('classname' => 'RAAS\\CMS\\Menu', 'FK' => 'pid'));
     protected static $links = array();
-    
+
     protected static $caches = array('pvis' => array('affected' => array('parent'), 'sql' => "IF(parent.id, (parent.vis AND parent.pvis), 1)"));
-    
+
     public function __get($var)
     {
         switch ($var) {
@@ -27,18 +27,32 @@ class Menu extends \SOME\SOME
                 return parent::__get($var);
                 break;
             case 'visSubMenu':
-                return array_values(array_filter($this->subMenu, function($x) { return $x->vis; }));
+                return array_values(
+                    array_filter(
+                        $this->subMenu,
+                        function ($x) {
+                            return $x->vis;
+                        }
+                    )
+                );
                 break;
             case 'visChildren':
-                return array_values(array_filter($this->children, function($x) { return $x->vis; }));
+                return array_values(
+                    array_filter(
+                        $this->children,
+                        function ($x) {
+                            return $x->vis;
+                        }
+                    )
+                );
                 break;
             default:
                 return parent::__get($var);
                 break;
         }
     }
-    
-    
+
+
     public function commit()
     {
         if ($this->page_id) {
@@ -55,10 +69,11 @@ class Menu extends \SOME\SOME
         }
         parent::commit();
     }
-    
-    
+
+
     public function realize()
     {
+        $realized = array();
         if ($this->page->id && ($this->inherit > 0)) {
             $i = 0;
             foreach ($this->children as $row) {
@@ -88,8 +103,8 @@ class Menu extends \SOME\SOME
             $this->commit();
         }
     }
-    
-    
+
+
     public function findPage(Page $Page)
     {
         if (($this->page_id == $Page->id) || ($this->url == $Page->url)) {
@@ -102,8 +117,8 @@ class Menu extends \SOME\SOME
         }
         return false;
     }
-    
-    
+
+
     public static function importByURN($urn = '')
     {
         $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
@@ -112,8 +127,8 @@ class Menu extends \SOME\SOME
         }
         return null;
     }
-    
-    
+
+
     protected function _subMenu()
     {
         $temp = array();
@@ -146,8 +161,8 @@ class Menu extends \SOME\SOME
             }
         }
         usort(
-            $temp, 
-            function($a, $b) { 
+            $temp,
+            function ($a, $b) {
                 if ($a->priority < $b->priority) {
                     return -1;
                 } elseif ($a->priority > $b->priority) {
