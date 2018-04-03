@@ -21,11 +21,13 @@ jQuery(function($) {
             materialSelect : function(id, pid, name) {
                 $thisObj.val(id).attr({ 'data-material-id': id, 'data-material-pid': pid, 'data-material-name': name });
                 methods.checkIfExists();
+                $thisObj.trigger('RAAS.material-field.selected');
             },
             materialDelete : function() {
                 methods.materialSelect('', '', '');
                 $('[data-role="material-field-without"] input:text', $container).val('');
                 methods.checkIfExists();
+                $thisObj.trigger('RAAS.material-field.deleted');
             },
             clearMaterialClick : function() {
                 $container = $(this).closest('[data-role="raas-autotext-container"]');
@@ -87,6 +89,7 @@ jQuery(function($) {
                         var pid = $(this).attr('data-pid');
                         var name = $('.raas-autotext__name', this).text();
                         methods.materialSelect(id, pid, name);
+                        $thisObj.trigger('RAAS.material-field.init');
                         return false;
                     }
                 })
