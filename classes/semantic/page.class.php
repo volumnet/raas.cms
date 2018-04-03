@@ -208,7 +208,7 @@ class Page extends \SOME\SOME implements IAccessible
                         }
                         return $temp;
                     } else {
-                        // 2015-03-02 AVS: из-за утечки памяти при ненулевом ->pid
+                        // 2015-03-02 AVS: РёР·-Р·Р° СѓС‚РµС‡РєРё РїР°РјСЏС‚Рё РїСЂРё РЅРµРЅСѓР»РµРІРѕРј ->pid
                         unset($this->fields);
                     }
                 }
@@ -247,11 +247,11 @@ class Page extends \SOME\SOME implements IAccessible
         }
         if ($enableHeritage) {
             foreach ($this->children as $row) {
-                // 2014-11-18, AVS: добавлено, поскольку childrens создаются по SQL-запросу и массив properties у них нулевой, поэтому сравнивать проблематично
+                // 2014-11-18, AVS: РґРѕР±Р°РІР»РµРЅРѕ, РїРѕСЃРєРѕР»СЊРєСѓ childrens СЃРѕР·РґР°СЋС‚СЃСЏ РїРѕ SQL-Р·Р°РїСЂРѕСЃСѓ Рё РјР°СЃСЃРёРІ properties Сѓ РЅРёС… РЅСѓР»РµРІРѕР№, РїРѕСЌС‚РѕРјСѓ СЃСЂР°РІРЅРёРІР°С‚СЊ РїСЂРѕР±Р»РµРјР°С‚РёС‡РЅРѕ
                 $row->reload();
                 foreach (self::$inheritedFields as $key => $val) {
-                    // Если наследуется и значение дочернего элемента совпадает со старым значением текущего
-                    // 2014-11-18, AVS: сменил $this->update[$key] на $this->$key, т.к. сам факт наследования не обязательно должен меняться
+                    // Р•СЃР»Рё РЅР°СЃР»РµРґСѓРµС‚СЃСЏ Рё Р·РЅР°С‡РµРЅРёРµ РґРѕС‡РµСЂРЅРµРіРѕ СЌР»РµРјРµРЅС‚Р° СЃРѕРІРїР°РґР°РµС‚ СЃРѕ СЃС‚Р°СЂС‹Рј Р·РЅР°С‡РµРЅРёРµРј С‚РµРєСѓС‰РµРіРѕ
+                    // 2014-11-18, AVS: СЃРјРµРЅРёР» $this->update[$key] РЅР° $this->$key, С‚.Рє. СЃР°Рј С„Р°РєС‚ РЅР°СЃР»РµРґРѕРІР°РЅРёСЏ РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РґРѕР»Р¶РµРЅ РјРµРЅСЏС‚СЊСЃСЏ
                     if ($this->$key && ($row->$key == $this->properties[$key])) {
                         $row->$val = $this->$val;
                     }
@@ -462,11 +462,11 @@ class Page extends \SOME\SOME implements IAccessible
     }
 
     /**
-     * Типы материалов, присутствующие на данной странице
+     * РўРёРїС‹ РјР°С‚РµСЂРёР°Р»РѕРІ, РїСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‰РёРµ РЅР° РґР°РЅРЅРѕР№ СЃС‚СЂР°РЅРёС†Рµ
      *
-     * Присутствующими считаются типы, если либо на странице есть материальный блок
-     * данного типа, либо хотя бы один материал напрямую связан со страницей
-     * @return array<Material_Type> у NAT-типов добавляется nat = true
+     * РџСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‰РёРјРё СЃС‡РёС‚Р°СЋС‚СЃСЏ С‚РёРїС‹, РµСЃР»Рё Р»РёР±Рѕ РЅР° СЃС‚СЂР°РЅРёС†Рµ РµСЃС‚СЊ РјР°С‚РµСЂРёР°Р»СЊРЅС‹Р№ Р±Р»РѕРє
+     * РґР°РЅРЅРѕРіРѕ С‚РёРїР°, Р»РёР±Рѕ С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ РјР°С‚РµСЂРёР°Р» РЅР°РїСЂСЏРјСѓСЋ СЃРІСЏР·Р°РЅ СЃРѕ СЃС‚СЂР°РЅРёС†РµР№
+     * @return array<Material_Type> Сѓ NAT-С‚РёРїРѕРІ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ nat = true
      */
     protected function _affectedMaterialTypes()
     {
@@ -508,11 +508,11 @@ class Page extends \SOME\SOME implements IAccessible
 
 
     /**
-     * Типы материалов, присутствующие на данной и дочерних страницах
+     * РўРёРїС‹ РјР°С‚РµСЂРёР°Р»РѕРІ, РїСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‰РёРµ РЅР° РґР°РЅРЅРѕР№ Рё РґРѕС‡РµСЂРЅРёС… СЃС‚СЂР°РЅРёС†Р°С…
      *
-     * Присутствующими считаются типы, если либо на странице есть материальный блок
-     * данного типа, либо хотя бы один материал напрямую связан со страницей
-     * @return array<Material_Type> у NAT-типов добавляется nat = true, также counter - количество страниц, на которых задействован тип
+     * РџСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‰РёРјРё СЃС‡РёС‚Р°СЋС‚СЃСЏ С‚РёРїС‹, РµСЃР»Рё Р»РёР±Рѕ РЅР° СЃС‚СЂР°РЅРёС†Рµ РµСЃС‚СЊ РјР°С‚РµСЂРёР°Р»СЊРЅС‹Р№ Р±Р»РѕРє
+     * РґР°РЅРЅРѕРіРѕ С‚РёРїР°, Р»РёР±Рѕ С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ РјР°С‚РµСЂРёР°Р» РЅР°РїСЂСЏРјСѓСЋ СЃРІСЏР·Р°РЅ СЃРѕ СЃС‚СЂР°РЅРёС†РµР№
+     * @return array<Material_Type> Сѓ NAT-С‚РёРїРѕРІ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ nat = true, С‚Р°РєР¶Рµ counter - РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂР°РЅРёС†, РЅР° РєРѕС‚РѕСЂС‹С… Р·Р°РґРµР№СЃС‚РІРѕРІР°РЅ С‚РёРї
      */
     protected function _affectedMaterialTypesWithChildren()
     {
@@ -544,7 +544,7 @@ class Page extends \SOME\SOME implements IAccessible
             $mts = array_merge($mts, array($row), (array)$row->all_children);
         }
         $Set = array();
-        // Глобальные
+        // Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ
         if ($mts_global = array_map(
             function ($x) {
                 return (int)$x->id;
@@ -633,7 +633,7 @@ class Page extends \SOME\SOME implements IAccessible
 
         $Page = new self();
 
-        // Найдем домен
+        // РќР°Р№РґРµРј РґРѕРјРµРЅ
         $SQL_query = "SELECT * FROM " . Page::_tablename() . " WHERE NOT pid AND urn REGEXP ?";
         $SQL_bind = array('(^| )' . preg_quote($domain) . '( |$)');
         if ($SQL_result = self::$SQL->getline(array($SQL_query, $SQL_bind))) {
@@ -642,7 +642,7 @@ class Page extends \SOME\SOME implements IAccessible
             return $Page;
         }
 
-        // Найдем страницу
+        // РќР°Р№РґРµРј СЃС‚СЂР°РЅРёС†Сѓ
         foreach ($url as $urn) {
             $SQL_query = "SELECT * FROM " . Page::_tablename() . " WHERE urn = ? AND pid = ?";
             $SQL_bind = array($urn, $Page->id);
@@ -675,19 +675,19 @@ class Page extends \SOME\SOME implements IAccessible
 
 
     /**
-     * Удаляем "ничейные" блоки
+     * РЈРґР°Р»СЏРµРј "РЅРёС‡РµР№РЅС‹Рµ" Р±Р»РѕРєРё
      */
     protected static function clearLostBlocks()
     {
-        // 2017-02-10, AVS: сначала почистим связки на страницы, без реальных страниц
-        // так сказать, во избежание
+        // 2017-02-10, AVS: СЃРЅР°С‡Р°Р»Р° РїРѕС‡РёСЃС‚РёРј СЃРІСЏР·РєРё РЅР° СЃС‚СЂР°РЅРёС†С‹, Р±РµР· СЂРµР°Р»СЊРЅС‹С… СЃС‚СЂР°РЅРёС†
+        // С‚Р°Рє СЃРєР°Р·Р°С‚СЊ, РІРѕ РёР·Р±РµР¶Р°РЅРёРµ
         $SQL_query = "DELETE tBPA
                         FROM " . static::_dbprefix() . static::$links['blocks']['tablename'] . " AS tBPA
                    LEFT JOIN " . static::_tablename() . " AS tP ON tP." . static::_idN() . " = tBPA." . static::$links['blocks']['field_from']
                    . " WHERE tP." . static::_idN() . " IS NULL ";
         static::$SQL->query($SQL_query);
 
-        // сейчас выберем и удалим блоки, которые не привязаны ни к одной странице
+        // СЃРµР№С‡Р°СЃ РІС‹Р±РµСЂРµРј Рё СѓРґР°Р»РёРј Р±Р»РѕРєРё, РєРѕС‚РѕСЂС‹Рµ РЅРµ РїСЂРёРІСЏР·Р°РЅС‹ РЅРё Рє РѕРґРЅРѕР№ СЃС‚СЂР°РЅРёС†Рµ
         $SQL_query = "SELECT tB." . Block::_idN() . " FROM " . Block::_tablename() . " AS tB
                         LEFT JOIN " . static::_dbprefix() . static::$links['blocks']['tablename'] . " AS tBPA ON tB." . Block::_idN() . " = tBPA." . static::$links['blocks']['field_to']
                    . " WHERE tBPA." . static::$links['blocks']['field_from'] . " IS NULL ";
@@ -703,19 +703,19 @@ class Page extends \SOME\SOME implements IAccessible
 
 
     /**
-     * Удаляем "ничейные" материалы
+     * РЈРґР°Р»СЏРµРј "РЅРёС‡РµР№РЅС‹Рµ" РјР°С‚РµСЂРёР°Р»С‹
      */
     protected static function clearLostMaterials()
     {
-        // 2017-02-10, AVS: сначала почистим связки на страницы, без реальных страниц
-        // так сказать, во избежание
+        // 2017-02-10, AVS: СЃРЅР°С‡Р°Р»Р° РїРѕС‡РёСЃС‚РёРј СЃРІСЏР·РєРё РЅР° СЃС‚СЂР°РЅРёС†С‹, Р±РµР· СЂРµР°Р»СЊРЅС‹С… СЃС‚СЂР°РЅРёС†
+        // С‚Р°Рє СЃРєР°Р·Р°С‚СЊ, РІРѕ РёР·Р±РµР¶Р°РЅРёРµ
         $SQL_query = "DELETE tMPA
                         FROM  " . static::_dbprefix() . static::$links['materials']['tablename'] . " AS tMPA
                    LEFT JOIN " . static::_tablename() . " AS tP ON tP." . static::_idN() . " = tMPA." . static::$links['materials']['field_from']
                    . " WHERE tP." . static::_idN() . " IS NULL ";
         static::$SQL->query($SQL_query);
 
-        // сейчас выберем и удалим материалы, которые не привязаны ни к одной странице, при этом не глобальные
+        // СЃРµР№С‡Р°СЃ РІС‹Р±РµСЂРµРј Рё СѓРґР°Р»РёРј РјР°С‚РµСЂРёР°Р»С‹, РєРѕС‚РѕСЂС‹Рµ РЅРµ РїСЂРёРІСЏР·Р°РЅС‹ РЅРё Рє РѕРґРЅРѕР№ СЃС‚СЂР°РЅРёС†Рµ, РїСЂРё СЌС‚РѕРј РЅРµ РіР»РѕР±Р°Р»СЊРЅС‹Рµ
         $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM
                         JOIN " . Material_Type::_tablename() . " AS tMT ON tMT.id = tM.pid
                    LEFT JOIN " . static::_dbprefix() . static::$links['materials']['tablename'] . " AS tMPA ON tM." . Material::_idN() . " = tMPA." . static::$links['materials']['field_to']
@@ -730,8 +730,8 @@ class Page extends \SOME\SOME implements IAccessible
 
 
     /**
-     * Ищет страницы с таким же URN и родителем, как и текущая (для проверки на уникальность)
-     * @return bool TRUE, если в том же родительском разделе уже есть страница с таким URN, FALSE в противном случае
+     * РС‰РµС‚ СЃС‚СЂР°РЅРёС†С‹ СЃ С‚Р°РєРёРј Р¶Рµ URN Рё СЂРѕРґРёС‚РµР»РµРј, РєР°Рє Рё С‚РµРєСѓС‰Р°СЏ (РґР»СЏ РїСЂРѕРІРµСЂРєРё РЅР° СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ)
+     * @return bool TRUE, РµСЃР»Рё РІ С‚РѕРј Р¶Рµ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРј СЂР°Р·РґРµР»Рµ СѓР¶Рµ РµСЃС‚СЊ СЃС‚СЂР°РЅРёС†Р° СЃ С‚Р°РєРёРј URN, FALSE РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
      */
     protected function checkForSimilarPages()
     {
@@ -743,8 +743,8 @@ class Page extends \SOME\SOME implements IAccessible
 
 
     /**
-     * Ищет материалы с таким же URN, как и текущая страница (для проверки на уникальность)
-     * @return bool TRUE, если есть материал с таким URN, как и текущая страница, FALSE в противном случае
+     * РС‰РµС‚ РјР°С‚РµСЂРёР°Р»С‹ СЃ С‚Р°РєРёРј Р¶Рµ URN, РєР°Рє Рё С‚РµРєСѓС‰Р°СЏ СЃС‚СЂР°РЅРёС†Р° (РґР»СЏ РїСЂРѕРІРµСЂРєРё РЅР° СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ)
+     * @return bool TRUE, РµСЃР»Рё РµСЃС‚СЊ РјР°С‚РµСЂРёР°Р» СЃ С‚Р°РєРёРј URN, РєР°Рє Рё С‚РµРєСѓС‰Р°СЏ СЃС‚СЂР°РЅРёС†Р°, FALSE РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
      */
     protected function checkForSimilarMaterials()
     {
