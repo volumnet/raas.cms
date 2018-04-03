@@ -616,17 +616,19 @@ class Package extends \RAAS\Package
     {
         $classname = get_class($Item);
         $Item2 = clone($Item);
+        // 2018-04-03, AVS: заменил везде '/\\d+$/umi' на / \\d+$/umi, чтобы не травмировать числовые наименования
         do {
-            if (preg_match('/\\d+$/umi', trim($Item2->name), $regs)) {
+            if (preg_match('/ \\d+$/umi', trim($Item2->name), $regs)) {
                 $i = (int)$regs[0] + 1;
-                $Item2->name = preg_replace('/\\d+$/umi', $i, trim($Item2->name));
+                $Item2->name = preg_replace('/ \\d+$/umi', ' ' . $i, trim($Item2->name));
             } else {
                 $i = 2;
                 $Item2->name .= ' ' . $i;
             }
         } while ((int)$this->SQL->getvalue(array("SELECT COUNT(*) FROM " . $classname::_tablename() . " WHERE name = ?", $Item2->name)));
-        if (preg_match('/\\d+$/umi', trim($Item2->urn), $regs)) {
-            $Item2->urn = preg_replace('/\\d+$/umi', $i, trim($Item2->urn));
+        // 2018-04-03, AVS: заменил везде '/\\d+$/umi' на /_\\d+$/umi, чтобы не травмировать числовые URN'ы
+        if (preg_match('/_\\d+$/umi', trim($Item2->urn), $regs)) {
+            $Item2->urn = preg_replace('/_\\d+$/umi', '_' . $i, trim($Item2->urn));
         } else {
             $Item2->urn .= '_' . $i;
         }
