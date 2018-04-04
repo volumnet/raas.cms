@@ -84,7 +84,12 @@ class EditMaterialForm extends \RAAS\Form
             if ($Item->id) {
                 $commonTab->children['pid']->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_EXISTING_CONFIRM')) . '\')) { this.form.submit(); }';
             } else {
-                $commonTab->children['pid']->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_NEW_CONFIRM')) . '\')) { document.location.href = document.location.href.replace(/mtype=\\d+/, \'mtype=\' + this.value); }';
+                $commonTab->children['pid']->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_NEW_CONFIRM')) . '\')) { '
+                                                      .    ' var url = document.location.href; '
+                                                      .    ' url = url.replace(/(&|\\?)mtype=\\d+/, \'\'); '
+                                                      .    ' url += (/\\?/.test(url) ? \'&\' : \'?\') + \'mtype=\' + this.value; '
+                                                      .    ' document.location.href = url; '
+                                                      . '}';
             }
         }
         $commonTab->children['name'] = new RAASField(array('name' => 'name', 'class' => 'span5', 'caption' => $this->view->_('NAME'), 'required' => 'required'));

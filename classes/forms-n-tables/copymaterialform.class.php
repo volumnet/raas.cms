@@ -36,10 +36,8 @@ class CopyMaterialForm extends EditMaterialForm
             $val = $Item->{$el->name};
             // 2018-04-03, AVS: добавил отдельную проверку на name и urn - они будут браться
             // из нового $Item'а, чтобы сделать новые название и URN
-            if ($el->name == 'name') {
-                $el->default = $this->Item->name;
-            } elseif ($el->name == 'urn') {
-                $el->default = $this->Item->urn;
+            if (in_array($el->name, array('name', 'urn', 'pid'))) {
+                $el->default = $this->Item->{$el->name};
             } elseif ($el->name == 'cats') {
                 $el->default = $Item->pages_ids;
             } elseif ($el->name == 'access_id') {

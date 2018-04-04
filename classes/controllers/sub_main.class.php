@@ -310,10 +310,12 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
     protected function copy_material()
     {
         $Original = $Item = new Material((int)$this->id);
+        // 2018-04-04, AVS: добавил возможность дублирования с другим типом материала
+        $Type = isset($_GET['mtype']) ? new Material_Type((int)$_GET['mtype']) : $Original->material_type;
+        // $Type = $Item->material_type;
         if (!$Item->id) {
             new Redirector($this->url);
         }
-        $Type = $Item->material_type;
         if (isset($_GET['pid']) && in_array((int)$_GET['pid'], $Item->pages_ids)) {
             $Parent = new Page((int)$_GET['pid']);
         } elseif ($Item->pages) {
@@ -326,6 +328,8 @@ class Sub_Main extends \RAAS\Abstract_Sub_Controller
         $OUT['Original'] = $Original;
         $OUT['Type'] = $Type;
         $Item = $this->model->copyItem($Item);
+        // 2018-04-04, AVS: добавил возможность дублирования с другим типом материала
+        $Item->pid = $Type->id;
         $Form = new CopyMaterialForm(array(
             'Item' => $Item, 'Parent' => $Parent, 'Type' => $Type, 'Original' => $Original,
         ));
