@@ -71,6 +71,7 @@ class Catalog_Cache
         }
 
         /*** QUERY ***/
+        Material::_SQL()->query("SET SESSION group_concat_max_len=1000000");
         Material::_SQL()->query("SET SQL_BIG_SELECTS=1");
         $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.* " . ($SQL_what ? ", " . implode(", ", $SQL_what) : "")
                    . "  FROM " . Material::_tablename() . " AS tM " . implode(" ", $SQL_from)
