@@ -123,7 +123,10 @@ class Catalog_Cache
 
     public function save()
     {
-        return (bool)file_put_contents($this->getFilename(), '<' . '?php return ' . var_export((array)$this->_data, true) . ';');
+        $cacheId = 'RAASCACHE' . date('YmdHis') . md5(rand());
+        $text = '<' . '?php return unserialize(<<' . "<'" . $cacheId . "'\n" . serialize($this->_data) . "\n" . $cacheId . "\n);\n";
+        // return (bool)file_put_contents($this->getFilename(), '<' . '?php return ' . var_export((array)$this->_data, true) . ';');
+        return (bool)file_put_contents($this->getFilename(), $text);
     }
 
 
