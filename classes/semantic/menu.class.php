@@ -142,7 +142,7 @@ class Menu extends \SOME\SOME
                 }
             }
         }
-        if ($this->page->id && ($this->inherit > 0)) {
+        if (($this->inherit > 0) && $this->page_id) {
             $i = 0;
             foreach ($this->page->visChildren as $row2) {
                 if (!in_array($row2->id, $realized) && !$row2->response_code) {
