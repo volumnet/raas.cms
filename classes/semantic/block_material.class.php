@@ -10,13 +10,13 @@ class Block_Material extends Block
         'editor' => array('FK' => 'editor_id', 'classname' => 'RAAS\\User', 'cascade' => false),
         'Material_Type' => array('FK' => 'material_type', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => true),
     );
-    
+
     public static $filterRelations = array(
         '=' => 'EQUALS', 'LIKE' => 'CONTAINS', 'CONTAINED' => 'CONTAINED', 'FULLTEXT' => 'FULLTEXT', '<=' => 'EQUALS_OR_SMALLER', '>=' => 'EQUALS_OR_GREATER'
     );
-    
+
     public static $orderRelations = array('asc!' => 'ASCENDING_ONLY', 'desc!' => 'DESCENDING_ONLY', 'asc' => 'ASCENDING_FIRST', 'desc' => 'DESCENDING_FIRST');
-    
+
     public function __construct($import_data = null)
     {
         parent::__construct($import_data);
@@ -25,8 +25,8 @@ class Block_Material extends Block
         $SQL_query = "SELECT var, field, relation FROM " . self::$dbprefix . "cms_blocks_material_sort WHERE id = " . (int)$this->id . " ORDER BY priority";
         $this->sort = self::$SQL->get($SQL_query);
     }
-    
-    
+
+
     public function commit()
     {
         if (!$this->name && $this->Material_Type->id) {
@@ -65,10 +65,10 @@ class Block_Material extends Block
     }
 
 
-    protected function getAddData()
+    public function getAddData()
     {
         return array(
-            'id' => (int)$this->id, 
+            'id' => (int)$this->id,
             'material_type' => (int)$this->material_type,
             'pages_var_name' => (string)$this->pages_var_name,
             'rows_per_page' => (int)$this->rows_per_page,

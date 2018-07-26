@@ -30,7 +30,7 @@ class Block_Menu extends Block
     }
 
 
-    protected function getAddData()
+    public function getAddData()
     {
         return array(
             'id' => (int)$this->id,

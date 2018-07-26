@@ -27,7 +27,7 @@ class Block_HTML extends Block
     }
 
 
-    protected function getAddData()
+    public function getAddData()
     {
         return array(
             'id' => (int)$this->id,

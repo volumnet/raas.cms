@@ -105,6 +105,9 @@ abstract class Block extends \SOME\SOME implements IAccessible
             case 'pages_assoc':
                 return parent::__get('pages');
                 break;
+            case 'config':
+                return $this->getAddData();
+                break;
             default:
                 return parent::__get($var);
                 break;
@@ -166,7 +169,7 @@ abstract class Block extends \SOME\SOME implements IAccessible
     }
 
 
-    protected function getAddData()
+    public function getAddData()
     {
     }
 

@@ -27,6 +27,10 @@ class GetCatalogCacheCommand extends LockCommand
             return;
         }
         $mtype = Material_Type::importByURN($mtypeURN);
+        if (!$mtype->id) {
+            $this->controller->doLog('Material type ' . $mtypeURN . ' doesn\t exist');
+            return;
+        }
         if ($mtypesIds = $mtype->selfAndChildrenIds) {
             $sqlQuery = "SELECT MAX(UNIX_TIMESTAMP(modify_date))
                            FROM " . Material::_tablename()

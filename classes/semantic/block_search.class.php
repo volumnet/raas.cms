@@ -12,8 +12,8 @@ class Block_Search extends Block
         'languages' => array('tablename' => 'cms_blocks_search_languages_assoc', 'field_from' => 'id', 'field_to' => 'language'),
         'search_pages' => array('tablename' => 'cms_blocks_search_pages_assoc', 'field_from' => 'id', 'field_to' => 'page_id', 'classname' => 'RAAS\\CMS\\Page'),
     );
-    
-    
+
+
     public function __get($var)
     {
         switch ($var) {
@@ -28,8 +28,8 @@ class Block_Search extends Block
     {
         parent::__construct($import_data);
     }
-    
-    
+
+
     public function commit()
     {
         if (!$this->name) {
@@ -76,10 +76,10 @@ class Block_Search extends Block
     }
 
 
-    protected function getAddData()
+    public function getAddData()
     {
         return array(
-            'id' => (int)$this->id, 
+            'id' => (int)$this->id,
             'search_var_name' => (string)$this->search_var_name,
             'min_length' => (int)$this->min_length,
             'pages_var_name' => (string)$this->pages_var_name,

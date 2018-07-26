@@ -10,7 +10,7 @@ class Block_Form extends Block
         'editor' => array('FK' => 'editor_id', 'classname' => 'RAAS\\User', 'cascade' => false),
         'Form' => array('FK' => 'form', 'classname' => 'RAAS\\CMS\\Form', 'cascade' => true),
     );
-    
+
     public function __get($var)
     {
         switch ($var) {
@@ -29,11 +29,11 @@ class Block_Form extends Block
         parent::commit();
     }
 
-    
-    protected function getAddData()
+
+    public function getAddData()
     {
         return array(
-            'id' => (int)$this->id, 
+            'id' => (int)$this->id,
             'form' => (int)$this->form,
         );
     }
