@@ -74,6 +74,7 @@ abstract class AbstractInterface
 
     /**
      * Выполнить интерфейс
+     * @return array<string[] => mixed> Выходные данные для виджета
      */
     abstract public function process();
 
