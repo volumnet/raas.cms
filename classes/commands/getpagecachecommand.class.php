@@ -89,7 +89,7 @@ class GetPageCacheCommand extends LockCommand
     {
         if (!$page->cache) {
             $this->controller->doLog('Page "' . $page->url . '": is not cached');
-            return true;
+            return false;
         }
         $cachefile = $page->cacheFile;
         $mt = strtotime($page->last_modified);
