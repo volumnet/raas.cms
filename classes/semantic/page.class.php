@@ -656,9 +656,27 @@ class Page extends \SOME\SOME implements IAccessible
     }
 
 
+    /**
+     * Очистить кэши страницы
+     */
+    public function clearCache()
+    {
+        $globUrl = $this->cacheFile;
+        $globUrl = preg_replace('/\\.php$/umi', urlencode('?') . '*.php', $globUrl);
+        @unlink($this->cacheFile);
+        $glob = glob($globUrl);
+        foreach ($glob as $file) {
+            @unlink($file);
+        }
+    }
+
+
+    /**
+     * Перестроить кэш страницы
+     */
     public function rebuildCache()
     {
-        @unlink($this->cacheFile);
+        $this->clearCache();
         $url = 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://'
              . (
                     preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $this->Domain->urn) ?
@@ -670,7 +688,7 @@ class Page extends \SOME\SOME implements IAccessible
         } else {
             $url .= $this->url;
         }
-        file_get_contents($url);
+        @file_get_contents($url);
     }
 
 
