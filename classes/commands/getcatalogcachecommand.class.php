@@ -14,7 +14,6 @@ class GetCatalogCacheCommand extends LockCommand
     /**
      * Выполнение команды
      * @param string|null $mtypeURN URN типа материалов кэша
-     * @param int|null $lockFileExpiration Время, через которое блокировка становится неактуальной, в секундах
      * @param bool $forceUpdate Принудительно выполнить обновление, даже если материалы не были обновлены
      * @param bool $forceLockUpdate Принудительно выполнить обновление, даже если есть параллельный процесс
      */
