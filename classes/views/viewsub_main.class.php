@@ -383,9 +383,9 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function pagesMenu($node, $current)
+    public function pagesMenu($node, $current, array $treeList = array())
     {
-        $submenu = array();
+        $menu = array();
         foreach ($node->children as $row) {
             $temp = array('name' => \SOME\Text::cuttext($row->name, 64, '...'), 'href' => $this->url, 'class' => '', 'active' => false);
             if ($node instanceof Menu) {
@@ -394,12 +394,18 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
                 $temp['href'] .= '&sub=dev&action=dictionaries';
             }
             $temp['href'] .= '&id=' . (int)$row->id;
-            if ($row->id == $current->id || in_array($current->id, $row->all_children_ids)) {
+
+            $submenu = $this->pagesMenu($row, $current, $treeList);
+            $semiactive = (bool)array_filter($submenu, function ($x) {
+                return $x['active'];
+            });
+            if ($row->id == $current->id || $semiactive) {
                 $temp['active'] = true;
             }
             if ($node instanceof Page) {
-                $temp['submenu'] = $this->pagesMenu($row, $current);
+                $temp['submenu'] = $submenu;
             }
+
             if (!$row->vis) {
                 $temp['class'] .= ' muted';
             } elseif ($row->response_code) {
@@ -409,8 +415,8 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
                 $temp['class'] .= ' cms-inpvis';
             }
 
-            $submenu[] = $temp;
+            $menu[] = $temp;
         }
-        return $submenu;
+        return $menu;
     }
 }
