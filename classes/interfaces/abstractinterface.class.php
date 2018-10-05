@@ -52,6 +52,12 @@ abstract class AbstractInterface
     protected $server = array();
 
     /**
+     * Поля $_FILES параметров
+     * @var array
+     */
+    protected $files = array();
+
+    /**
      * Конструктор класса
      * @param Block|null $block Блок, для которого применяется интерфейс
      * @param Page|null $page Страница, для которой применяется интерфейс
@@ -60,8 +66,9 @@ abstract class AbstractInterface
      * @param array $cookie Поля $_COOKIE параметров
      * @param array $session Поля $_SESSION параметров
      * @param array $server Поля $_SERVER параметров
+     * @param array $files Поля $_FILES параметров
      */
-    public function __construct(Block $block = null, Page $page = null, array $get = array(), array $post = array(), array $cookie = array(), array $session = array(), array $server = array())
+    public function __construct(Block $block = null, Page $page = null, array $get = array(), array $post = array(), array $cookie = array(), array $session = array(), array $server = array(), array $files = array())
     {
         $this->block = $block;
         $this->page = $page;
