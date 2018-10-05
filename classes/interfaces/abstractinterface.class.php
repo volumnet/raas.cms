@@ -77,6 +77,7 @@ abstract class AbstractInterface
         $this->cookie = $cookie;
         $this->session = $session;
         $this->server = $server;
+        $this->files = $files;
     }
 
     /**
