@@ -4,7 +4,7 @@ namespace RAAS\CMS;
 use \RAAS\Attachment as Attachment;
 use \RAAS\Application as Application;
 
-abstract class Field extends \RAAS\CustomField
+class Field extends \RAAS\CustomField
 {
     const data_table = 'cms_data';
     const DictionaryClass = '\\RAAS\\CMS\\Dictionary';
