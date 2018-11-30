@@ -111,6 +111,12 @@ class Catalog_Cache
     }
 
 
+    public function getTMPFilename($cacheId)
+    {
+        return Package::i()->cacheDir . '/system/raas_cache_materials' . $this->_mtype->id . '.' . $cacheId . '.php';
+    }
+
+
     public function load()
     {
         if (is_file($this->getFilename())) {
@@ -126,7 +132,14 @@ class Catalog_Cache
         $cacheId = 'RAASCACHE' . date('YmdHis') . md5(rand());
         $text = '<' . '?php return unserialize(<<' . "<'" . $cacheId . "'\n" . serialize($this->_data) . "\n" . $cacheId . "\n);\n";
         // return (bool)file_put_contents($this->getFilename(), '<' . '?php return ' . var_export((array)$this->_data, true) . ';');
-        return (bool)file_put_contents($this->getFilename(), $text);
+        $tmpFile = $this->getTMPFilename($cacheId);
+        $realfile = $this->getFilename();
+        $result = (bool)file_put_contents($tmpFile, $text);
+        if ($result) {
+            @unlink($realfile);
+            rename($tmpFile, $realfile);
+            return true;
+        }
     }
 
 
