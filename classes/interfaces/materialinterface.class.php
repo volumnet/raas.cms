@@ -129,7 +129,7 @@ class MaterialInterface extends AbstractInterface
         foreach (['name', 'meta_title', 'meta_keywords', 'meta_description', 'h1'] as $key) {
             if (!isset($page->{'old' . ucfirst($key)})) {
                 $page->{'old' . ucfirst($key)} = $page->$key;
-                $page->$key = $item->$key;
+                $page->$key = trim($item->$key);
             }
         }
     }
