@@ -160,8 +160,6 @@ class MaterialInterface extends AbstractInterface
             );
         }
 
-        $sqlParts = $this->getSQLParts($block, $page, $get);
-
         $set = $this->getList($block, $page, $get, $pages);
         $this->getOrderVar($block, $get, $sort, $order);
         $result = [
