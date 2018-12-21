@@ -307,6 +307,7 @@ class Package extends \RAAS\Package
             $SQL_query .= " AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid
                             AND (
                                     tM.name LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
+                                 OR tM.description LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
                                  OR tM.urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
                                  OR tD.value LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
                             )";

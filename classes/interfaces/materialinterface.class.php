@@ -545,19 +545,25 @@ class MaterialInterface extends AbstractInterface
      * @param bool $idsOnly Получать только ID# всех материалов
      * @return string SQL-запрос
      */
-    public function getSQLQuery(array $sqlFrom, array $sqlWhere, $sqlSort = '', $sqlOrder = '', $idsOnly = false)
-    {
+    public function getSQLQuery(
+        array $sqlFrom,
+        array $sqlWhere,
+        $sqlSort = '',
+        $sqlOrder = '',
+        $idsOnly = false
+    ) {
         if ($idsOnly) {
             $sqlQuery = "SELECT tM.id";
         } else {
             $sqlQuery = "SELECT SQL_CALC_FOUND_ROWS tM.* ";
         }
-        $sqlQuery .= " FROM " . Material::_tablename() . " AS tM " . implode(" ", $sqlFrom)
-                  . ($sqlWhere ? " WHERE " . implode(" AND ", $sqlWhere) : "")
-                  . " GROUP BY tM.id
-                      ORDER BY NOT tM.priority,
-                               tM.priority ASC"
-                  . ($sqlSort ? ", " . $sqlSort . ($sqlOrder ? " " . $sqlOrder : "") : "");
+        $sqlQuery .=  " FROM " . Material::_tablename() . " AS tM "
+                  .  implode(" ", $sqlFrom)
+                  .  ($sqlWhere ? " WHERE " . implode(" AND ", $sqlWhere) : "")
+                  .  " GROUP BY tM.id
+                       ORDER BY NOT tM.priority,
+                                tM.priority ASC"
+                  .  ($sqlSort ? ", " . $sqlSort . ($sqlOrder ? " " . $sqlOrder : "") : "");
         return $sqlQuery;
     }
 
