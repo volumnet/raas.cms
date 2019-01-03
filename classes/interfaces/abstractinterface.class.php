@@ -5,15 +5,23 @@
 namespace RAAS\CMS;
 
 /**
- * Класса абстрактного интерфейса CMS
+ * Класс абстрактного интерфейса CMS
+ * @property-read Block|null $block Блок, для которого применяется интерфейс
+ * @property-read Page|null $page Страница, для которой применяется интерфейс
+ * @property-read array $get Поля $_GET параметров
+ * @property-read array $post Поля $_POST параметров
+ * @property-read array $cookie Поля $_COOKIE параметров
+ * @property-read array $session Поля $_SESSION параметров
+ * @property-read array $server Поля $_SERVER параметров
+ * @property-read array $files Поля $_FILES параметров
  */
 abstract class AbstractInterface
 {
     /**
      * Блок, для которого применяется интерфейс
-     * @var Block
+     * @var Block|null
      */
-    protected $block;
+    protected $block = null;
 
     /**
      * Страница, для которой применяется интерфейс
@@ -56,6 +64,22 @@ abstract class AbstractInterface
      * @var array
      */
     protected $files = array();
+
+    public function __get($var)
+    {
+        switch ($var) {
+            case 'block':
+            case 'page':
+            case 'get':
+            case 'post':
+            case 'cookie':
+            case 'session':
+            case 'server':
+                return $this->$var;
+                break;
+        }
+    }
+
 
     /**
      * Конструктор класса
