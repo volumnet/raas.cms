@@ -306,7 +306,6 @@ class MaterialInterface extends AbstractInterface
 
     /**
      * Получает SQL-инструкции по фильтрации
-     * @param Block_Material|null $block Блок, для которого применяется интерфейс
      * @param array<
      *            string[] псевдоним поля => string SQL-инструкция по выборке таблицы
      *        > $sqlFrom Список подключаемых таблиц
