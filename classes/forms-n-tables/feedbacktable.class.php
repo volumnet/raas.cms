@@ -86,7 +86,7 @@ class FeedbackTable extends \RAAS\Table
                             break;
                         default:
                             if (isset($f)) {
-                                $y = $f->doRich();
+                                $y = htmlspecialchars($f->doRich());
                             }
                             $text .= $y ? $y : '';
                             break;
