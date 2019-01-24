@@ -143,6 +143,11 @@ class Field extends \RAAS\CustomField
                             $t->deleteValues();
                             if (isset($_POST[$Field->name])) {
                                 foreach ((array)$_POST[$Field->name] as $val) {
+                                    // 2019-01-24, AVS: добавил условие, чтобы
+                                    // не добавлялись пустые слоты материалов
+                                    if (($t->datatype == 'material') && !(int)$val) {
+                                        continue;
+                                    }
                                     $t->addValue($val);
                                 }
                             }
