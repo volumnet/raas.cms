@@ -252,7 +252,17 @@ class Material extends \SOME\SOME implements IAccessible
             }
             $row->deleteValues();
         }
+
         parent::delete($object);
+
+        // 2019-01-24, AVS: добавил удаление из связанных данных несуществующих материалов
+        $sqlQuery = "DELETE tD
+                       FROM cms_data AS tD
+                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
+                  LEFT JOIN " . static::_tablename() . " AS tM ON tM.id = tD.value
+                      WHERE tF.datatype = ?
+                        AND tM.id IS NULL";
+        $result = static::$SQL->query([$sqlQuery, ['material']]);
     }
 
 
