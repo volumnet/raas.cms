@@ -39,7 +39,16 @@ class Page extends \SOME\SOME implements IAccessible
         'allowedUsers' => array('tablename' => 'cms_access_pages_cache', 'field_from' => 'page_id', 'field_to' => 'uid', 'classname' => 'RAAS\\CMS\\User'),
     );
 
-    protected static $caches = array('pvis' => array('affected' => array('parent'), 'sql' => "IF(parent.id, (parent.vis AND parent.pvis), 1)"));
+    protected static $caches = [
+        'pvis' => [
+            'affected' => ['parent'],
+            'sql' => "IF(parent.id, (parent.vis AND parent.pvis), 1)"
+        ],
+        'cache_url' => [
+            'affected' => ['parent'],
+            'sql' => "IF(parent.id, CONCAT(parent.cache_url, __SOME__.urn, '/'), '/')",
+        ],
+    ];
 
     public static $httpStatuses = array(
         100 => '100 Continue',
@@ -117,22 +126,10 @@ class Page extends \SOME\SOME implements IAccessible
     {
         switch ($var) {
             case 'URLArray':
-                $temp = array();
-                if ($this->parents) {
-                    foreach ($this->parents as $row) {
-                        if ($row->pid) {
-                            $temp[] = $row->urn;
-                        }
-                    }
-                }
-                if ($this->pid) {
-                    $temp[] = $this->urn;
-                }
-                return $temp;
+                return explode('/', trim($this->cache_url, '/'));
                 break;
             case 'url':
-                $url = implode('/', $this->URLArray);
-                return $url ? '/' . $url . '/' : '/';
+                return $this->cache_url;
                 break;
             case 'additionalURL':
                 $url = preg_replace('/^' . preg_quote($this->url, '/') . '/umi', '', $this->initialURL);

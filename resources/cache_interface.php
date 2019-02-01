@@ -1,24 +1,11 @@
 <?php
+/**
+ * Стандартный интерфейс кэширования
+ * @param Block $Block Текущий блок
+ * @param Page $Page Текущая страница
+ * @param mixed $OUT Данные, полученные от интерфейса блока
+ */
 namespace RAAS\CMS;
 
-switch ($Block->cache_type) {
-    case Block::CACHE_HTML:
-        $cacheText = ob_get_contents();
-        break;
-    case Block::CACHE_DATA:
-        if ($Block instanceof Block_Menu) {
-            unset($OUT['Item']);
-        }
-        $cacheText = '<' . '?php return unserialize("' . addslashes(serialize($OUT)) . '");';
-        break;
-}
-if ($cacheText) {
-    // 2015-11-23, AVS: заменил, т.к. в кэше меню <?php так же заменяется и глючит
-    if ($Block->cache_type == Block::CACHE_HTML) {
-        $cacheText = preg_replace('/\\<\\?xml (.*?)\\?\\>/umi', '<?php echo \'<\' . \'?xml $1?\' . ">\\n"?' . '>', $cacheText);
-    }
-    $tmpFile = tempnam(sys_get_temp_dir(), 'raas');
-    file_put_contents($tmpFile, $cacheText);
-    rename($tmpFile, $Block->getCacheFile($_SERVER['REQUEST_URI']));
-}
-return $OUT;
+$interface = new CacheInterface($Block, $Page, $_GET, $_POST, $_COOKIE, $_SESSION, $_SERVER, $_FILES, $OUT);
+return $interface->process();

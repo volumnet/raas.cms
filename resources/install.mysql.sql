@@ -386,25 +386,17 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
   last_modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
   sitemaps_priority decimal(8,2) unsigned NOT NULL DEFAULT '0.50' COMMENT 'Sitemaps priority',
   inherit_sitemaps_priority tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Inherit sitemaps priority',
+  cache_url VARCHAR(255) NOT NULL DEFAULT '/' COMMENT 'Cached URL',
+
   PRIMARY KEY (id),
   KEY pid (pid),
   KEY author_id (author_id),
   KEY editor_id (editor_id),
   KEY urn (urn),
   KEY template (template),
-  INDEX priority (priority)
+  INDEX priority (priority),
+  INDEX cache_url (cache_url)
 ) COMMENT='Site pages';
-
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages_data (
-  pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Page ID#',
-  fid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field ID#',
-  fii int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field index',
-  `value` text COMMENT 'Value',
-  PRIMARY KEY (pid,fid,fii),
-  KEY pid (pid),
-  KEY fid (fid),
-  KEY fii (fii)
-) COMMENT='Pages fields';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippets (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
