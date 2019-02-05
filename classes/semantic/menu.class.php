@@ -233,7 +233,7 @@ class Menu extends SOME
             }
             foreach ($childrenPagesIds as $childPageId) {
                 $childPageData = $cache->cache[$childPageId];
-                if (!isset($realized[$childPageData['id']])) {
+                if (!isset($realized[$childPageData['id']]) && !$childPageData['response_code']) {
                     $row = [
                         'pid' => $id,
                         'vis' => true,

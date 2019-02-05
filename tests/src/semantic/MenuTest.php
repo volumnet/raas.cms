@@ -79,6 +79,8 @@ class MenuTest extends BaseDBTest
         $menu->commit();
 
         $this->assertEquals('Главная', $menu->name);
+
+        Menu::delete($menu);
     }
 
 
@@ -159,6 +161,23 @@ class MenuTest extends BaseDBTest
         $this->assertEquals(6, $result[2]->page_id);
         $this->assertEquals(8, $result[2]->inherit);
         $this->assertFalse($result[2]->realized);
+    }
+
+
+    /**
+     * Тест подменю с помощью метода getSubMenu - случай с виртуальными пунктами
+     * Проверка, что нет пунктов с response_code
+     */
+    public function testGetSubMenuWithVirtualNoResponseCode()
+    {
+        $menu = new Menu(3);
+
+        $result = $menu->getSubMenu(false);
+
+        $this->assertCount(5, $result);
+        foreach ($result as $resultItem) {
+            $this->assertEmpty($resultItem->page->response_code);
+        }
     }
 
 
