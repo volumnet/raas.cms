@@ -64,7 +64,11 @@ class Material extends \SOME\SOME implements IAccessible
                         $var = strtolower(substr($var, 3));
                         $vis = true;
                     }
-                    if (isset($this->fields[$var]) && ($this->fields[$var] instanceof Material_Field)) {
+                    // 2019-02-11, AVS: Заменил isset($this->fields[$var])
+                    // на $this->fields[$var]->id, т.к. на TimeWeb'е на PHP5.6
+                    // isset($this->fields[$var]) выдает false, хотя на локальном
+                    // PHP5.6 выдает true - хз почему
+                    if ($this->fields[$var]->id && ($this->fields[$var] instanceof Material_Field)) {
                         $temp = $this->fields[$var]->getValues();
                         if ($vis) {
                             $temp = array_values(
