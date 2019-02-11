@@ -374,7 +374,7 @@ abstract class Block extends \SOME\SOME implements IAccessible
     }
 
 
-    public static function delete(Block &$Item)
+    public static function delete(Block $Item)
     {
         if ($t2 = static::_tablename2()) {
             $SQL_query = "DELETE FROM " . $t2 . " WHERE id = " . (int)$Item->id;
