@@ -14,7 +14,7 @@ class Block_HTML extends Block
     }
 
 
-    public function process(Page $Page)
+    public function process(Page $Page, $nocache = false)
     {
         if (!$this->currentUserHasAccess()) {
             return null;
