@@ -85,6 +85,30 @@ class MenuTest extends BaseDBTest
 
 
     /**
+     * Проверка сохраняемости меню при ссылке на несуществующую страницу
+     *
+     * 2019-02-14, AVS: сейчас пытается вставить NULL в url и выдает ошибку
+     */
+    public function testCommitWithInvalidPage()
+    {
+        $menu = new Menu([
+            'pid' => 3,
+            'vis' => 1,
+            'url' => '/about/', // Нужно поставить, т.к. обновляется на null
+                                // только если установлено неравное значение
+            'page_id' => 9999, // Заведомо несуществующая страница
+        ]);
+
+        $menu->commit();
+
+        $this->assertEquals('', $menu->url);
+        $this->assertEquals(0, $menu->page_id);
+
+        Menu::delete($menu);
+    }
+
+
+    /**
      * Тест распаковки
      */
     public function testRealize()

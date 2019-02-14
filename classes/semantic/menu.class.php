@@ -82,9 +82,14 @@ class Menu extends SOME
     public function commit()
     {
         if ($this->page_id) {
-            $this->url = $this->page->url;
-            if (!$this->name) {
-                $this->name = $this->page->getMenuName();
+            if ($this->page->id) {
+                $this->url = $this->page->url;
+                if (!$this->name) {
+                    $this->name = $this->page->getMenuName();
+                }
+            } else {
+                $this->url = '';
+                $this->page_id = 0;
             }
         }
         if (!$this->pid) {
