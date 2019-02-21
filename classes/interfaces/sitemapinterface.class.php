@@ -40,7 +40,8 @@ class SitemapInterface extends AbstractInterface
                             post_date,
                             modify_counter,
                             last_modified,
-                            sitemaps_priority
+                            sitemaps_priority,
+                            cache_url
                        FROM " . Page::_tablename()
                   . " WHERE vis
                         AND pvis
