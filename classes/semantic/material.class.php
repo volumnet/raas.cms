@@ -107,7 +107,9 @@ class Material extends \SOME\SOME implements IAccessible
             $this->urn = $this->name;
         }
         if ($this->updates['urn']) {
-            $this->urn = \SOME\Text::beautify($this->urn);
+            $this->urn = \SOME\Text::beautify($this->urn, '-');
+            $this->urn = preg_replace('/\\-\\-/umi', '-', $this->urn);
+            $this->urn = trim($this->urn, '-');
         }
         $need2UpdateURN = false;
         if ($this->checkForSimilarPages() || Package::i()->checkForSimilar($this)) {
@@ -119,7 +121,7 @@ class Material extends \SOME\SOME implements IAccessible
                 $this->urn .= '-' . $this->id;
             }
             for ($i = 0; $this->checkForSimilarPages() || Package::i()->checkForSimilar($this); $i++) {
-                $this->urn = Application::i()->getNewURN($this->urn, !$i);
+                $this->urn = Application::i()->getNewURN($this->urn, !$i, '-');
             }
             parent::commit();
         }

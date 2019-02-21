@@ -229,10 +229,12 @@ class Page extends \SOME\SOME implements IAccessible
             $this->urn = $this->name;
         }
         if ($this->updates['urn'] && $this->pid) {
-            $this->urn = \SOME\Text::beautify($this->urn);
+            $this->urn = \SOME\Text::beautify($this->urn, '-');
+            $this->urn = preg_replace('/\\-\\-/umi', '-', $this->urn);
+            $this->urn = trim($this->urn, '-');
         }
         for ($i = 0; $this->checkForSimilarPages() || $this->checkForSimilarMaterials(); $i++) {
-            $this->urn = Application::i()->getNewURN($this->urn, !$i);
+            $this->urn = Application::i()->getNewURN($this->urn, !$i, '-');
         }
 
 
