@@ -57,6 +57,12 @@ class FeedbackTable extends \RAAS\Table
                     $text = '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '" title="' . htmlspecialchars($row->description) . '">';
                     $f = $row->fields[$col->urn];
                     switch ($f->datatype) {
+                        case 'color':
+                            $v = $f->getValue();
+                            return '<span style="color: ' . htmlspecialchars($v) . '">
+                                      ' . htmlspecialchars($v) . '
+                                    </span>';
+                            break;
                         case 'htmlarea':
                             $text .= strip_tags($f->doRich());
                             break;

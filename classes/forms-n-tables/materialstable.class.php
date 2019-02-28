@@ -82,6 +82,12 @@ class MaterialsTable extends \RAAS\Table
                     'callback' => function ($row) use ($col, $view) {
                         $f = $row->fields[$col->urn];
                         switch ($f->datatype) {
+                            case 'color':
+                                $v = $f->getValue();
+                                return '<span style="color: ' . htmlspecialchars($v) . '">
+                                          ' . htmlspecialchars($v) . '
+                                        </span>';
+                                break;
                             case 'htmlarea':
                                 return strip_tags($f->doRich());
                                 break;
