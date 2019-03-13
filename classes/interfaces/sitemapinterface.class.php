@@ -132,12 +132,13 @@ class SitemapInterface extends AbstractInterface
 
     /**
      * Получить блок <url>
-     * @param Page|Material $item Страница или материал, для которого получаем
+     * @param array $itemData Данные по странице или материалу, для которого получаем
      * @return string
      */
-    public function getUrl($itemData)
+    public function getUrl(array $itemData)
     {
         $text = '<url>'
+              // .   '<!-- ' . (isset($itemData['page_id']) ? Material::class : Page::class) . ' #' . (int)$itemData['id'] . ' -->'
               .   '<loc>' . htmlspecialchars($itemData['url']) . '</loc>';
         if (strtotime($itemData['last_modified']) > 0) {
             $text .= '<lastmod>'
