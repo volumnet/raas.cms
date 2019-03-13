@@ -99,7 +99,14 @@ class SitemapInterfaceExtended extends SitemapInterface
      */
     public function getSectionsSitemap($catalogPagesIds, $restMTypesIds)
     {
-        $pages = $this->getPages(array(), $catalogPagesIds);
+        $domainPage = $this->page->Domain;
+        $domainPageData = $domainPage->getArrayCopy();
+        $domainPageData['url'] = $domainPage->domain . $domainPageData['cache_url'];
+
+        $pages = array_merge(
+            [trim($domainPage->id) => $domainPageData],
+            $this->getPages([$domainPage->id], $catalogPagesIds)
+        );
         $content = $this->showMenu($pages) . $this->showMaterials($pages, $restMTypesIds);
         $text = $this->getUrlSet($content);
         return $text;

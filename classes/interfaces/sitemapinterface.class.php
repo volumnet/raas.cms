@@ -14,10 +14,14 @@ class SitemapInterface extends AbstractInterface
     public function process()
     {
         Timer::add('sitemap.xml');
-        $page = $this->page->Domain;
+        $domainPage = $this->page->Domain;
+        $domainPageData = $domainPage->getArrayCopy();
+        $domainPageData['url'] = $domainPage->domain . $domainPageData['cache_url'];
 
-        $pagesData = array();
-        $pages = $this->getPages();
+        $pages = array_merge(
+            [trim($domainPage->id) => $domainPageData],
+            $this->getPages([$domainPage->id])
+        );
         $content = $this->showMenu($pages) . $this->showMaterials($pages);
         $text = $this->getUrlSet($content)
               . '<!-- ' . Timer::get('sitemap.xml')->time . ' -->';
@@ -29,7 +33,7 @@ class SitemapInterface extends AbstractInterface
      * Получает список данных страниц, пригодных для отображения
      * @param array<int> $parentsIds ID# родительских страниц
      * @param array<int> $ignoredIds ID# игнорируемых страниц
-     * @return array<array<string[] => mixed>>
+     * @return array<string[] ID# страницы => array<string[] => mixed>>
      */
     public function getPages(array $parentsIds = array(), array $ignoredIds = array(), array &$pagesData = array())
     {
