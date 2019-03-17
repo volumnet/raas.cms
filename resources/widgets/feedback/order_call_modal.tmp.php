@@ -1,4 +1,11 @@
 <?php
+/**
+ * Виджет формы заказа звонка (всплывающее окно)
+ * @param Page $Page Текущая страница
+ * @param Block_Form $Block Текущий блок
+ * @param Feedback $Item Уведомление формы
+ * @param Form $Form Форма
+ */
 namespace RAAS\CMS;
 
 if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
@@ -20,18 +27,24 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
           <div class="modal-content">
             <form data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">
               <div class="modal-header">
-                <button type="button" data-dismiss="modal" aria-hidden="true" class="close">×</button>
-                <div class="h4 modal-title"><?php echo ORDER_CALL?></div>
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
+                <div class="h4 modal-title">
+                  <?php echo ORDER_CALL?>
+                </div>
               </div>
               <div class="modal-body">
                 <div class="form-horizontal">
-                  <?php include Package::i()->resourcesDir . '/form.inc.php'?>
+                  <?php include Package::i()->resourcesDir . '/form2.inc.php'?>
                   <div data-role="notifications" <?php echo ($success[(int)$Block->id] || $localError) ? '' : 'style="display: none"'?>>
-                    <div class="alert alert-success" <?php echo ($success[(int)$Block->id]) ? '' : 'style="display: none"'?>><?php echo FEEDBACK_SUCCESSFULLY_SENT?></div>
+                    <div class="alert alert-success" <?php echo ($success[(int)$Block->id]) ? '' : 'style="display: none"'?>>
+                      <?php echo FEEDBACK_SUCCESSFULLY_SENT?>
+                    </div>
                     <div class="alert alert-danger" <?php echo ($localError) ? '' : 'style="display: none"'?>>
                       <ul>
                         <?php foreach ((array)$localError as $key => $val) { ?>
-                            <li><?php echo htmlspecialchars($val)?></li>
+                            <li>
+                              <?php echo htmlspecialchars($val)?>
+                            </li>
                         <?php } ?>
                       </ul>
                     </div>
@@ -39,16 +52,18 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
 
                   <div data-role="feedback-form" <?php echo $success[(int)$Block->id] ? 'style="display: none"' : ''?>>
                     <?php if ($Form->signature) { ?>
-                          <input type="hidden" name="form_signature" value="<?php echo md5('form' . (int)$Form->id . (int)$Block->id)?>" />
+                        <input type="hidden" name="form_signature" value="<?php echo md5('form' . (int)$Form->id . (int)$Block->id)?>" />
                     <?php } ?>
                     <?php if ($Form->antispam == 'hidden' && $Form->antispam_field_name) { ?>
-                          <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" value="<?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?>" style="position: absolute; left: -9999px" />
+                        <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" value="<?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?>" style="position: absolute; left: -9999px" />
                     <?php } ?>
                     <?php $row = $Form->fields['phone_call']; $row->placeholder = $row->name; ?>
                     <div class="form-group">
                       <div class="col-xs-12 order-call__phone">
                         <?php $getField($row, $DATA)?>
-                        <button class="btn btn-primary" type="submit"><span class="fa fa-phone"></span></button>
+                        <button class="btn btn-primary" type="submit">
+                          <span class="fa fa-phone"></span>
+                        </button>
                       </div>
                     </div>
                     <?php $row = $Form->fields['agree'] ?>
@@ -56,13 +71,17 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                       <div class="col-xs-12">
                         <label class="checkbox">
                           <?php $getField($row, $DATA);?>
-                          <a href="/privacy/" target="_blank"><?php echo htmlspecialchars($row->name)?></a>
+                          <a href="/privacy/" target="_blank">
+                            <?php echo htmlspecialchars($row->name)?>
+                          </a>
                         </label>
                       </div>
                     </div>
                     <?php if ($Form->antispam == 'captcha' && $Form->antispam_field_name) { ?>
                         <div class="form-group">
-                          <label for="<?php echo htmlspecialchars($Form->antispam_field_name)?>" class="control-label col-sm-3"><?php echo CAPTCHA?></label>
+                          <label for="<?php echo htmlspecialchars($Form->antispam_field_name)?>" class="control-label col-sm-3">
+                            <?php echo CAPTCHA?>
+                          </label>
                           <div class="col-sm-9">
                             <img src="/assets/kcaptcha/?<?php echo session_name() . '=' . session_id()?>" /><br />
                             <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />

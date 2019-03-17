@@ -27,6 +27,7 @@ class Updater extends RAASUpdater
         $this->update20151129();
         $this->update20170305();
         $this->update20190123();
+        $this->update20190317();
     }
 
 
@@ -1029,6 +1030,53 @@ class Updater extends RAASUpdater
                                 AND tPC.cache_url = ''";
                 $result = $this->SQL->query($sqlQuery);
             } while ($result->rowCount() > 0);
+        }
+    }
+
+
+    /**
+     * Добавим тип страницы
+     */
+    public function update20190317()
+    {
+        if (in_array(SOME::_dbprefix() . "cms_pages", $this->tables) &&
+            !in_array('mime', $this->columns(SOME::_dbprefix() . "cms_pages"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_pages
+                            ADD mime VARCHAR(255) NOT NULL DEFAULT 'text/html' COMMENT 'MIME-type'
+                          AFTER response_code";
+            $this->SQL->query($sqlQuery);
+
+            $sqlQuery = "SELECT id
+                           FROM " . SOME::_dbprefix() . "cms_pages
+                          WHERE NOT pid";
+            $rootPagesIds = array_map('intval', $this->SQL->getcol($sqlQuery));
+
+            if ($rootPagesIds) {
+                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_pages
+                                SET mime = 'text/css'
+                              WHERE pid IN (" . implode(", ", $rootPagesIds) . ")
+                                AND urn = 'custom_css'";
+                $this->SQL->query($sqlQuery);
+
+                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_pages
+                                SET mime = 'text/plain'
+                              WHERE pid IN (" . implode(", ", $rootPagesIds) . ")
+                                AND urn = 'robots'";
+                $this->SQL->query($sqlQuery);
+
+                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_pages
+                                SET mime = 'application/xml'
+                              WHERE pid IN (" . implode(", ", $rootPagesIds) . ")
+                                AND urn = 'sitemaps'";
+                $this->SQL->query($sqlQuery);
+
+                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_pages
+                                SET mime = 'application/xml'
+                              WHERE pid IN (" . implode(", ", $rootPagesIds) . ")
+                                AND urn = 'yml'";
+                $this->SQL->query($sqlQuery);
+            }
         }
     }
 }

@@ -1,7 +1,17 @@
 <?php
+/**
+ * Таблица форм
+ */
 namespace RAAS\CMS;
 
-class FormsTable extends \RAAS\Table
+use RAAS\Table;
+use RAAS\Row;
+
+/**
+ * Класс таблицы форм
+ * @property-read ViewSub_Dev $view Представление
+ */
+class FormsTable extends Table
 {
     public function __get($var)
     {
@@ -21,25 +31,37 @@ class FormsTable extends \RAAS\Table
         $view = $this->view;
         $defaultParams = array(
             'columns' => array(
+                'id' => array(
+                    'caption' => $this->view->_('ID'),
+                    'callback' => function (Form $form) use ($view) {
+                        return '<a href="' . $this->getEditURL($form) . '">
+                                  ' . (int)$form->id . '
+                                </a>';
+                    }
+                ),
                 'name' => array(
-                    'caption' => $this->view->_('NAME'), 
-                    'callback' => function($row) use ($view) { 
-                        return '<a href="' . $view->url . '&action=edit_form&id=' . (int)$row->id . '">
-                                  ' . htmlspecialchars($row->name) . '
+                    'caption' => $this->view->_('NAME'),
+                    'callback' => function (Form $form) use ($view) {
+                        return '<a href="' . $this->getEditURL($form) . '">
+                                  ' . htmlspecialchars($form->name) . '
                                 </a>';
                     }
                 ),
                 'urn' => array(
-                    'caption' => $this->view->_('URN'), 
-                    'callback' => function($row) use ($view, $Item) { 
-                        return '<a href="' . $view->url . '&action=edit_form&id=' . (int)$row->id . '">
-                                  ' . htmlspecialchars($row->urn) . '
+                    'caption' => $this->view->_('URN'),
+                    'callback' => function (Form $form) use ($view, $Item) {
+                        return '<a href="' . $this->getEditURL($form) . '">
+                                  ' . htmlspecialchars($form->urn) . '
                                 </a>';
                     }
                 ),
                 ' ' => array(
-                    'callback' => function ($row, $i) use ($view, $contextMenuName, $IN) { 
-                        return rowContextMenu($view->getFormContextMenu($row, $i, count($IN['Set']))); 
+                    'callback' => function (Form $form, $i) use ($view, $contextMenuName, $IN) {
+                        return rowContextMenu($view->getFormContextMenu(
+                            $form,
+                            $i,
+                            count($IN['Set'])
+                        ));
                     }
                 )
 
@@ -48,5 +70,17 @@ class FormsTable extends \RAAS\Table
         );
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
+    }
+
+
+    /**
+     * Получает URL редактирования формы
+     * @param Form $form Форма для редактирования
+     * @return string
+     */
+    public function getEditURL(Form $form)
+    {
+        $url = $this->view->url . '&action=edit_form&id=' . (int)$form->id;
+        return $url;
     }
 }

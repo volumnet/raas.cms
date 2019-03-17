@@ -1,10 +1,18 @@
 <?php
+/**
+ * Форма редактирования страницы
+ */
 namespace RAAS\CMS;
-use \RAAS\Application;
-use \RAAS\FormTab;
-use \RAAS\FieldSet;
 
-class EditPageForm extends \RAAS\Form
+use RAAS\Application;
+use RAAS\FieldSet;
+use RAAS\Form as RAASForm;
+use RAAS\FormTab;
+
+/**
+ * Класс формы редактирования страницы
+ */
+class EditPageForm extends RAASForm
 {
     public function __get($var)
     {
@@ -19,19 +27,27 @@ class EditPageForm extends \RAAS\Form
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
         $Parent = isset($params['Parent']) ? $params['Parent'] : null;
 
         if ($Parent->id) {
-            $title = $Item->id ? $this->view->_('EDITING_PAGE') : $this->view->_('CREATING_PAGE');
+            if ($Item->id) {
+                $title =  $this->view->_('EDITING_PAGE');
+            } else {
+                $title =  $this->view->_('CREATING_PAGE');
+            }
         } else {
-            $title = $Item->id ? $this->view->_('EDITING_SITE') : $this->view->_('CREATING_SITE');
+            if ($Item->id) {
+                $title = $this->view->_('EDITING_SITE');
+            } else {
+                $title = $this->view->_('CREATING_SITE');
+            }
         }
 
-        $tabs = array();
+        $tabs = [];
         $tabs['common'] = $this->getCommonTab($Item, $Parent);
         $tabs['seo'] = $this->getSeoTab($Parent);
         if (isset(Application::i()->packages['cms']->modules['users'])) {
@@ -39,11 +55,11 @@ class EditPageForm extends \RAAS\Form
         }
         $tabs['service'] = $this->getServiceTab($Item, $Parent);
 
-        $defaultParams = array(
+        $defaultParams = [
             'parentUrl' => $this->view->url . '&id=%s#subsections',
             'caption' => $title,
             'children' => $tabs,
-            'export' => function($Form) use ($Parent) {
+            'export' => function ($Form) use ($Parent) {
                 $Form->exportDefault();
                 $Form->Item->editor_id = Application::i()->user->id;
                 if (!$Form->Item->id) {
@@ -51,146 +67,239 @@ class EditPageForm extends \RAAS\Form
                     $Form->Item->author_id = $Form->Item->editor_id;
                 }
             }
-        );
+        ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
     }
 
 
-    private function getCommonTab($Item, $Parent)
+    /**
+     * Получает вкладку "Общие"
+     * @param Page $item Текущая страница
+     * @param Page $parent Родительская страница
+     * @return FormTab
+     */
+    private function getCommonTab(Page $item, Page $parent)
     {
-        $commonTab = new FormTab(array(
+        $commonTab = new FormTab([
             'name' => 'common',
             'caption' => $this->view->_('GENERAL'),
-            'children' => array(array('name' => 'name', 'class' => 'span5', 'caption' => $this->view->_('NAME'), 'required' => 'required'))
-        ));
-        if ($Parent->id) {
-            $commonTab->children[] = array('name' => 'urn', 'class' => 'span5', 'caption' => $this->view->_('URN'));
+            'children' => [
+                [
+                    'name' => 'name',
+                    'class' => 'span5',
+                    'caption' => $this->view->_('NAME'),
+                    'required' => 'required'
+                ]
+            ]
+        ]);
+        if ($parent->id) {
+            $commonTab->children[] = [
+                'name' => 'urn',
+                'class' => 'span5',
+                'caption' => $this->view->_('URN')
+            ];
         } else {
-            $commonTab->children[] = array('name' => 'urn', 'class' => 'span5', 'caption' => $this->view->_('DOMAIN_NAMES'), 'required' => 'required');
+            $commonTab->children[] = [
+                'name' => 'urn',
+                'class' => 'span5',
+                'caption' => $this->view->_('DOMAIN_NAMES'),
+                'required' => 'required'
+            ];
         }
-        foreach ($Item->fields as $row) {
+        foreach ($item->fields as $row) {
             $f = $row->Field;
-            $commonTab->children[] = new FieldSet(array(
+            $commonTab->children[] = new FieldSet([
                 'template' => 'edit_page.inherit.php',
-                'children' => array(
+                'children' => [
                     $f,
-                    array(
+                    [
                         'type' => 'checkbox',
                         'name' => 'inherit_' . $row->Field->name,
                         'caption' => $this->view->_('INHERIT'),
-                        'default' => ($Parent->id ? $Parent->{'inherit_' . $row->Field->name} : 1),
-                        'oncommit' => function() use ($row) {
+                        'default' => (
+                            $parent->id ?
+                            $parent->{'inherit_' . $row->Field->name} :
+                            1
+                        ),
+                        'oncommit' => function () use ($row) {
                             if ($_POST['inherit_' . $row->Field->name]) {
                                 $row->inheritValues();
                             }
                         },
-                        'import' => function() use ($row) { return $row->inherited; }
-                    )
-                ),
-            ));
+                        'import' => function () use ($row) {
+                            return $row->inherited;
+                        }
+                    ]
+                ],
+            ]);
         }
         return $commonTab;
     }
 
 
-    private function getSeoTab($Parent)
+    /**
+     * Получает вкладку "Продвижение"
+     * @param Page $parent Родительская страница
+     * @return FormTab
+     */
+    private function getSeoTab(Page $parent)
     {
         $seoTab = new FormTab(
-            array(
+            [
                 'name' => 'seo',
                 'caption' => $this->view->_('SEO'),
-                'children' => array()
-            )
+                'children' => []
+            ]
         );
-        $seoTab->children[] = new FieldSet(array(
+        $seoTab->children[] = new FieldSet([
             'template' => 'edit_page.inherit.php',
-            'children' => array(
-                array(
+            'children' => [
+                [
                     'name' => 'meta_title',
                     'class' => 'span5',
                     'caption' => $this->view->_(strtoupper('meta_title')),
-                    'data-hint' => sprintf($this->view->_('META_TITLE_RECOMMENDED_LIMIT'), SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT, SeoOptimizer::META_TITLE_WORDS_LIMIT),
+                    'data-hint' => sprintf(
+                        $this->view->_('META_TITLE_RECOMMENDED_LIMIT'),
+                        SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
+                        SeoOptimizer::META_TITLE_WORDS_LIMIT
+                    ),
                     'data-recommended-limit' => SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
                     'data-strict-limit' => SeoOptimizer::META_TITLE_STRICT_LIMIT,
                     'data-words-limit' => SeoOptimizer::META_TITLE_WORDS_LIMIT,
-                ),
-                array(
+                ],
+                [
                     'type' => 'checkbox',
                     'name' => 'inherit_meta_title',
                     'caption' => $this->view->_('INHERIT'),
-                    'default' => ($Parent->id ? $Parent->{'inherit_meta_title'} : 1)
-                )
-            )
-        ));
-        $seoTab->children[] = new FieldSet(array(
+                    'default' => (
+                        $parent->id ?
+                        $parent->{'inherit_meta_title'} :
+                        1
+                    )
+                ]
+            ]
+        ]);
+        $seoTab->children[] = new FieldSet([
             'template' => 'edit_page.inherit.php',
-            'children' => array(
-                array(
+            'children' => [
+                [
                     'type' => 'textarea',
                     'name' => 'meta_description',
                     'class' => 'span5',
                     'rows' => 5,
                     'caption' => $this->view->_(strtoupper('meta_description')),
-                    'data-hint' => sprintf($this->view->_('META_DESCRIPTION_RECOMMENDED_LIMIT'), SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT),
+                    'data-hint' => sprintf(
+                        $this->view->_('META_DESCRIPTION_RECOMMENDED_LIMIT'),
+                        SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT
+                    ),
                     'data-recommended-limit' => SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT,
                     'data-strict-limit' => SeoOptimizer::META_DESCRIPTION_STRICT_LIMIT,
-                ),
-                array(
+                ],
+                [
                     'type' => 'checkbox',
                     'name' => 'inherit_meta_description',
                     'caption' => $this->view->_('INHERIT'),
-                    'default' => ($Parent->id ? $Parent->{'inherit_meta_description'} : 1)
-                )
-            )
-        ));
-        $seoTab->children[] = new FieldSet(array(
+                    'default' => (
+                        $parent->id ?
+                        $parent->{'inherit_meta_description'} :
+                        1
+                    )
+                ]
+            ]
+        ]);
+        $seoTab->children[] = new FieldSet([
             'template' => 'edit_page.inherit.php',
-            'children' => array(
-                array(
+            'children' => [
+                [
                     'type' => 'textarea',
                     'name' => 'meta_keywords',
                     'class' => 'span5',
                     'rows' => 5,
                     'caption' => $this->view->_(strtoupper('meta_keywords')),
-                ),
-                array(
+                ],
+                [
                     'type' => 'checkbox',
                     'name' => 'inherit_meta_keywords',
                     'caption' => $this->view->_('INHERIT'),
-                    'default' => ($Parent->id ? $Parent->{'inherit_meta_keywords'} : 1)
-                )
-            )
-        ));
-        $seoTab->children[] = array('name' => 'h1', 'caption' => $this->view->_('H1'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5');
-        $seoTab->children[] = array('name' => 'menu_name', 'caption' => $this->view->_('MENU_NAME'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5');
-        $seoTab->children[] = array('name' => 'breadcrumbs_name', 'caption' => $this->view->_('BREADCRUMBS_NAME'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5');
+                    'default' => (
+                        $parent->id ?
+                        $parent->{'inherit_meta_keywords'} :
+                        1
+                    )
+                ]
+            ]
+        ]);
+        $seoTab->children[] = [
+            'name' => 'h1',
+            'caption' => $this->view->_('H1'),
+            'placeholder' => $this->view->_('FROM_NAME'),
+            'class' => 'span5'
+        ];
+        $seoTab->children[] = [
+            'name' => 'menu_name',
+            'caption' => $this->view->_('MENU_NAME'),
+            'placeholder' => $this->view->_('FROM_NAME'),
+            'class' => 'span5'
+        ];
+        $seoTab->children[] = [
+            'name' => 'breadcrumbs_name',
+            'caption' => $this->view->_('BREADCRUMBS_NAME'),
+            'placeholder' => $this->view->_('FROM_NAME'),
+            'class' => 'span5'
+        ];
 
-        $seoTab->children[] = new FieldSet(array(
+        $seoTab->children[] = new FieldSet([
             'template' => 'edit_page.inherit.php',
-            'children' => array(
-                array(
+            'children' => [
+                [
                     'type' => 'select',
                     'name' => 'changefreq',
                     'caption' => $this->view->_('CHANGEFREQ'),
                     'placeholder' => $this->view->_('AUTOMATICALLY'),
-                    'children' => array(
-                        array('value' => 'always', 'caption' => $this->view->_('CHANGEFREQ_ALWAYS')),
-                        array('value' => 'hourly', 'caption' => $this->view->_('CHANGEFREQ_HOURLY')),
-                        array('value' => 'daily', 'caption' => $this->view->_('CHANGEFREQ_DAILY')),
-                        array('value' => 'weekly', 'caption' => $this->view->_('CHANGEFREQ_WEEKLY')),
-                        array('value' => 'monthly', 'caption' => $this->view->_('CHANGEFREQ_MONTHLY')),
-                        array('value' => 'yearly', 'caption' => $this->view->_('CHANGEFREQ_YEARLY')),
-                        array('value' => 'never', 'caption' => $this->view->_('CHANGEFREQ_NEVER'))
-                    )
-                ),
-                array('type' => 'checkbox', 'name' => 'inherit_changefreq', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->inherit_changefreq : 1))
-            )
-        ));
-        $seoTab->children[] = new FieldSet(array(
+                    'children' => [
+                        [
+                            'value' => 'always',
+                            'caption' => $this->view->_('CHANGEFREQ_ALWAYS')
+                        ],
+                        [
+                            'value' => 'hourly',
+                            'caption' => $this->view->_('CHANGEFREQ_HOURLY')
+                        ],
+                        [
+                            'value' => 'daily',
+                            'caption' => $this->view->_('CHANGEFREQ_DAILY')
+                        ],
+                        [
+                            'value' => 'weekly',
+                            'caption' => $this->view->_('CHANGEFREQ_WEEKLY')
+                        ],
+                        [
+                            'value' => 'monthly',
+                            'caption' => $this->view->_('CHANGEFREQ_MONTHLY')
+                        ],
+                        [
+                            'value' => 'yearly',
+                            'caption' => $this->view->_('CHANGEFREQ_YEARLY')
+                        ],
+                        [
+                            'value' => 'never',
+                            'caption' => $this->view->_('CHANGEFREQ_NEVER')
+                        ],
+                    ]
+                ],
+                [
+                    'type' => 'checkbox',
+                    'name' => 'inherit_changefreq',
+                    'caption' => $this->view->_('INHERIT'),
+                    'default' => ($parent->id ? $parent->inherit_changefreq : 1)
+                ]
+            ]
+        ]);
+        $seoTab->children[] = new FieldSet([
             'template' => 'edit_page.inherit.php',
-            'children' => array(
-                array(
+            'children' => [
+                [
                     'type' => 'number',
                     'class' => 'span1',
                     'min' => 0,
@@ -199,69 +308,175 @@ class EditPageForm extends \RAAS\Form
                     'name' => 'sitemaps_priority',
                     'caption' => $this->view->_('SITEMAPS_PRIORITY'),
                     'default' => 0.5
-                ),
-                array(
+                ],
+                [
                     'type' => 'checkbox',
                     'name' => 'inherit_sitemaps_priority',
                     'caption' => $this->view->_('INHERIT'),
-                    'default' => ($Parent->id ? $Parent->inherit_sitemaps_priority : 1)
-                )
-            )
-        ));
+                    'default' => (
+                        $parent->id ?
+                        $parent->inherit_sitemaps_priority :
+                        1
+                    )
+                ]
+            ]
+        ]);
         return $seoTab;
     }
 
 
-    private function getServiceTab($Item, $Parent)
+    /**
+     * Получает вкладку "Служебные"
+     * @param Page $item Текущая страница
+     * @param Page $parent Родительская страница
+     * @return FormTab
+     */
+    private function getServiceTab(Page $item, Page $parent)
     {
-        $CONTENT = array();
-        $CONTENT['templates'] = array('Set' => array_merge(array(new Template(array('id' => 0, 'name' => $this->view->_('NOT_SELECTED')))), Template::getSet()));
-        $CONTENT['languages'] = array();
+        $CONTENT = [];
+        $CONTENT['templates'] = [
+            'Set' => array_merge(
+                [new Template([
+                    'id' => 0,
+                    'name' => $this->view->_('NOT_SELECTED')
+                ])],
+                Template::getSet()
+            )
+        ];
+        $CONTENT['languages'] = [];
         foreach ($this->view->availableLanguages as $key => $val) {
-            $CONTENT['languages'][] = array('value' => $key, 'caption' => $val);
+            $CONTENT['languages'][] = ['value' => $key, 'caption' => $val];
         }
-        $serviceTab = new FormTab(array(
+        $serviceTab = new FormTab([
             'name' => 'service',
             'caption' => $this->view->_('SERVICE'),
-            'children' => array(
-                array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_($Parent->id ? 'VISIBLE' : 'IS_ACTIVE'), 'default' => 1),
-                array(
+            'children' => [
+                [
+                    'type' => 'checkbox',
+                    'name' => 'vis',
+                    'caption' => $this->view->_(
+                        $parent->id ?
+                        'VISIBLE' :
+                        'IS_ACTIVE'
+                    ),
+                    'default' => 1
+                ],
+                [
                     'name' => 'response_code',
                     'class' => 'span1',
                     'maxlength' => 3,
                     'caption' => $this->view->_('SERVICE_RESPONSE_CODE'),
                     'data-hint' => $this->view->_('SERVICE_PAGE_DESCRIPTION'),
-                    'import' => function() use ($Item) { return (int)$Item->response_code ? (int)$Item->response_code : ''; }
-                ),
-                array('type' => 'checkbox', 'name' => 'nat', 'caption' => $this->view->_('TRANSLATE_ADDRESS')),
-                new FieldSet(array(
+                    'import' => function () use ($item) {
+                        return (int)$item->response_code ?
+                               (int)$item->response_code :
+                               '';
+                    }
+                ],
+                [
+                    'name' => 'mime',
+                    'caption' => $this->view->_('PAGE_MIME'),
+                    'data-types' => json_encode(Page::$mimeTypes),
+                ],
+                [
+                    'type' => 'checkbox',
+                    'name' => 'nat',
+                    'caption' => $this->view->_('TRANSLATE_ADDRESS')
+                ],
+                new FieldSet([
                     'template' => 'edit_page.inherit.php',
-                    'children' => array(
-                        array('type' => 'checkbox', 'name' => 'cache', 'caption' => $this->view->_('CACHE_PAGE'), 'default' => ($Parent->id ? $Parent->cache : 0)),
-                        array('type' => 'checkbox', 'name' => 'inherit_cache', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->inherit_cache : 1))
-                    )
-                )),
-                new FieldSet(array(
+                    'children' => [
+                        [
+                            'type' => 'checkbox',
+                            'name' => 'cache',
+                            'caption' => $this->view->_('CACHE_PAGE'),
+                            'default' => ($parent->id ? $parent->cache : 0)
+                        ],
+                        [
+                            'type' => 'checkbox',
+                            'name' => 'inherit_cache',
+                            'caption' => $this->view->_('INHERIT'),
+                            'default' => (
+                                $parent->id ?
+                                $parent->inherit_cache :
+                                1
+                            )
+                        ]
+                    ]
+                ]),
+                new FieldSet([
                     'template' => 'edit_page.inherit.php',
-                    'children' => array(
-                        array('type' => 'select', 'name' => 'template', 'caption' => $this->view->_('TEMPLATE'), 'children' => $CONTENT['templates'], 'default' => ($Parent->id ? $Parent->template : 0)),
-                        array('type' => 'checkbox', 'name' => 'inherit_template', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->inherit_template : 1))
-                    )
-                )),
-                new FieldSet(array(
+                    'children' => [
+                        [
+                            'type' => 'select',
+                            'name' => 'template',
+                            'caption' => $this->view->_('TEMPLATE'),
+                            'children' => $CONTENT['templates'],
+                            'default' => ($parent->id ? $parent->template : 0)
+                        ],
+                        [
+                            'type' => 'checkbox',
+                            'name' => 'inherit_template',
+                            'caption' => $this->view->_('INHERIT'),
+                            'default' => (
+                                $parent->id ?
+                                $parent->inherit_template :
+                                1
+                            )
+                        ]
+                    ]
+                ]),
+                new FieldSet([
                     'template' => 'edit_page.inherit.php',
-                    'children' => array(
-                        array('type' => 'select', 'name' => 'lang', 'caption' => $this->view->_('LANGUAGE'), 'children' => $CONTENT['languages'], 'default' => ($Parent->id ? $Parent->lang : $this->view->language)),
-                        array('type' => 'checkbox', 'name' => 'inherit_lang', 'caption' => $this->view->_('INHERIT'), 'default' => ($Parent->id ? $Parent->inherit_lang : 1))
-                    )
-                )),
-            )
-        ));
+                    'children' => [
+                        [
+                            'type' => 'select',
+                            'name' => 'lang',
+                            'caption' => $this->view->_('LANGUAGE'),
+                            'children' => $CONTENT['languages'],
+                            'default' => (
+                                $parent->id ?
+                                $parent->lang :
+                                $this->view->language
+                            )
+                        ],
+                        [
+                            'type' => 'checkbox',
+                            'name' => 'inherit_lang',
+                            'caption' => $this->view->_('INHERIT'),
+                            'default' => (
+                                $parent->id ?
+                                $parent->inherit_lang :
+                                1
+                            )
+                        ]
+                    ]
+                ]),
+            ]
+        ]);
 
-        if ($Item->id) {
-            $serviceTab->children[] = array('name' => 'post_date', 'caption' => $this->view->_('CREATED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
-            $serviceTab->children[] = array('name' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
-            $serviceTab->children[] = array('name' => 'last_modified', 'caption' => $this->view->_('LAST_AFFECTED_MODIFICATION'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
+        if ($item->id) {
+            $serviceTab->children[] = [
+                'name' => 'post_date',
+                'caption' => $this->view->_('CREATED_BY'),
+                'export' => 'is_null',
+                'import' => 'is_null',
+                'template' => 'stat.inc.php'
+            ];
+            $serviceTab->children[] = [
+                'name' => 'modify_date',
+                'caption' => $this->view->_('EDITED_BY'),
+                'export' => 'is_null',
+                'import' => 'is_null',
+                'template' => 'stat.inc.php'
+            ];
+            $serviceTab->children[] = [
+                'name' => 'last_modified',
+                'caption' => $this->view->_('LAST_AFFECTED_MODIFICATION'),
+                'export' => 'is_null',
+                'import' => 'is_null',
+                'template' => 'stat.inc.php'
+            ];
         }
         return $serviceTab;
     }

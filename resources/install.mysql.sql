@@ -362,6 +362,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   response_code int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Service page response code',
+  mime VARCHAR(255) NOT NULL DEFAULT 'text/html' COMMENT 'MIME-type',
   meta_title varchar(255) NOT NULL DEFAULT '' COMMENT 'Meta title',
   inherit_meta_title tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Inherit meta-title',
   meta_description text COMMENT 'Meta description',

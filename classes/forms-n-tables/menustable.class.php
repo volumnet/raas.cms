@@ -1,7 +1,17 @@
 <?php
+/**
+ * Таблица меню
+ */
 namespace RAAS\CMS;
 
-class MenusTable extends \RAAS\Table
+use RAAS\Table;
+use RAAS\Row;
+
+/**
+ * Класс таблицы меню
+ * @property-read ViewSub_Dev $view Представление
+ */
+class MenusTable extends Table
 {
     public function __get($var)
     {
@@ -16,82 +26,125 @@ class MenusTable extends \RAAS\Table
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
         $thisObj = $this;
-        $Item = $params['Item'];
-        $defaultParams = array(
-            'columns' => array(),
+        $item = $params['Item'];
+        $defaultParams = [
+            'columns' => [],
             'emptyString' => $this->view->_('NO_NOTES_FOUND'),
             'data-role' => 'multitable',
-            'meta' => array(
+            'meta' => [
                 'realizedCounter' => 0,
-            )
-        );
-        if ($Item->id) {
+            ]
+        ];
+        if ($item->id) {
             $defaultParams['meta']['allContextMenu'] = $view->getAllMenusContextMenu();
             $defaultParams['meta']['allValue'] = 'all&pid=' . (int)$params['Item']->id;
         }
-        $defaultParams['columns']['name'] = array(
-            'caption' => $this->view->_('NAME'), 
-            'callback' => function($row) use ($view, $Item, $thisObj) { 
-                if ($row->realized || !$Item->id) {
+        $defaultParams['columns']['id'] = [
+            'caption' => $this->view->_('ID'),
+            'callback' => function (Menu $menu) use ($view, $item, $thisObj) {
+                $text = (int)$menu->id ?: '';
+                if ($menu->realized || !$item->id) {
                     $thisObj->meta['realizedCounter'] = $thisObj->meta['realizedCounter'] + 1;
-                    return '<a href="' . $view->url . '&action=menus&id=' . (int)$row->id . '" class="' . (!$row->vis ? ' muted' : '') . ($row->pvis ? '' : ' cms-inpvis') . '">
-                              ' . htmlspecialchars($row->name) . '
+                    return '<a href="' . $this->getEditURL($menu) . '" class="' . $this->getLinkClass($menu) . '">
+                              ' . $text . '
                             </a>';
                 } else {
-                    return htmlspecialchars($row->name); 
+                    return $text;
                 }
             }
-        );
-        if (!$Item->id) {
-            $defaultParams['columns']['urn'] = array(
-                'caption' => $this->view->_('URN'), 
-                'callback' => function($row) use ($view, $Item) { 
-                    if ($row->realized || !$Item->id) {
-                        return '<a href="' . $view->url . '&action=menus&id=' . (int)$row->id . '" class="' . (!$row->vis ? ' muted' : '') . ($row->pvis ? '' : ' cms-inpvis') . '">
-                                  ' . htmlspecialchars($row->urn) . '
+        ];
+        $defaultParams['columns']['name'] = [
+            'caption' => $this->view->_('NAME'),
+            'callback' => function (Menu $menu) use ($view, $item, $thisObj) {
+                $text = htmlspecialchars($menu->name);
+                if ($menu->realized || !$item->id) {
+                    return '<a href="' . $this->getEditURL($menu) . '" class="' . $this->getLinkClass($menu) . '">
+                              ' . $text . '
+                            </a>';
+                } else {
+                    return $text;
+                }
+            }
+        ];
+        if (!$item->id) {
+            $defaultParams['columns']['urn'] = [
+                'caption' => $this->view->_('URN'),
+                'callback' => function (Menu $menu) use ($view, $item) {
+                    $text = htmlspecialchars($menu->urn);
+                    if ($menu->realized || !$item->id) {
+                        return '<a href="' . $this->getEditURL($menu) . '" class="' . $this->getLinkClass($menu) . '">
+                                  ' . $text . '
                                 </a>';
                     } else {
-                        return htmlspecialchars($row->urn); 
+                        return $text;
                     }
                 }
-            );
+            ];
         }
-        $defaultParams['columns']['url'] = array(
-            'caption' => $this->view->_('URL'), 
-            'callback' => function($row) use ($view, $Item) { 
-                if ($row->realized || !$Item->id) {
-                    return '<span class="' . (!$row->vis ? ' muted' : '') . ($row->pvis ? '' : ' cms-inpvis') . '">
-                              ' . htmlspecialchars($row->url) . '
+        $defaultParams['columns']['url'] = [
+            'caption' => $this->view->_('URL'),
+            'callback' => function (Menu $menu) use ($view, $item) {
+                $text = htmlspecialchars($menu->url);
+                if ($menu->realized || !$item->id) {
+                    return '<span class="' . (!$menu->vis ? ' muted' : '') . ($menu->pvis ? '' : ' cms-inpvis') . '">
+                              ' . $text . '
                             </span>';
                 } else {
-                    return htmlspecialchars($row->url); 
+                    return $text;
                 }
             }
-        );
-        $defaultParams['columns']['priority'] = array(
-            'caption' => $this->view->_('PRIORITY'), 
-            'callback' => function($row, $i) use ($view, $Item) { 
-                if ($row->realized || !$Item->id) {
-                    return '<input type="text" class="span1" maxlength="3" name="priority[' . (int)$row->id . ']" value="' . (($i + 1) * 10) . '" />';
+        ];
+        $defaultParams['columns']['priority'] = [
+            'caption' => $this->view->_('PRIORITY'),
+            'callback' => function (Menu $menu, $i) use ($view, $item) {
+                if ($menu->realized || !$item->id) {
+                    return '<input type="text" class="span1" maxlength="3" name="priority[' . (int)$menu->id . ']" value="' . (($i + 1) * 10) . '" />';
                 } else {
-                    return htmlspecialchars($row->priority); 
+                    return htmlspecialchars($menu->priority);
                 }
             }
-        );
-        $defaultParams['columns'][' '] = array(
-            'callback' => function ($row, $i) use ($view, $Item) { 
-                if ($row->realized || !$Item->id) {
-                    return rowContextMenu($view->getMenuContextMenu($row, $i, count($params['Set'])));
-                } else {
-                    return null;
+        ];
+        $defaultParams['columns'][' '] = [
+            'callback' => function (Menu $menu, $i) use ($view, $item) {
+                if ($menu->realized || !$item->id) {
+                    return rowContextMenu($view->getMenuContextMenu(
+                        $menu,
+                        $i,
+                        count($params['Set'])
+                    ));
                 }
             }
-        );
+        ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
+    }
+
+
+    /**
+     * Получает URL редактирования меню
+     * @param Menu $menu Меню для редактирования
+     * @return string
+     */
+    public function getEditURL(Menu $menu)
+    {
+        $url = $this->view->url . '&action=menus&id=' . (int)$menu->id;
+        return $url;
+    }
+
+
+    /**
+     * Получает класс ссылки
+     * @param Menu $menu Меню для получения класса ссылки
+     * @return string
+     */
+    public function getLinkClass(Menu $menu)
+    {
+        $text = (!$menu->vis ? ' muted' : '')
+              . ($menu->pvis ? '' : ' cms-inpvis');
+        return $text;
     }
 }

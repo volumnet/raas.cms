@@ -109,6 +109,19 @@ class Page extends \SOME\SOME implements IAccessible
         510 => '510 Not Extended',
     );
 
+    /**
+     * MIME-типы
+     * @var array<string>
+     */
+    public static $mimeTypes = [
+        'text/html',
+        'text/css',
+        'text/javascript',
+        'text/plain',
+        'application/xml',
+        'application/json',
+    ];
+
     protected static $inheritedFields = array(
         'inherit_meta_title' => 'meta_title',
         'inherit_meta_description' => 'meta_description',
@@ -305,6 +318,9 @@ class Page extends \SOME\SOME implements IAccessible
         if ($this->response_code && ($this->response_code != 200)) {
             header('HTTP/1.0 ' . Page::$httpStatuses[(int)$this->response_code]);
             header('Status: ' . Page::$httpStatuses[(int)$this->response_code]);
+        }
+        if ($this->mime) {
+            header('Content-Type: ' . $this->mime . '; charset=UTF-8');
         }
 
         $SITE = $this->Domain;

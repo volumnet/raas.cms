@@ -23,7 +23,7 @@ class Package extends \RAAS\Package
                 return 'raas_cache';
                 break;
             case 'formTemplateFile':
-                return $this->resourcesDir . '/form_fields.php';
+                return $this->resourcesDir . '/interfaces/form_notification.php';
                 break;
             case 'stdFormTemplate':
                 $text = file_get_contents($this->formTemplateFile);
@@ -37,7 +37,7 @@ class Package extends \RAAS\Package
                 }*/
                 return $text;
             case 'stdMaterialInterfaceFile':
-                return $this->resourcesDir . '/material_interface.php';
+                return $this->resourcesDir . '/interfaces/material_interface.php';
                 break;
             case 'stdMaterialInterface':
                 $text = file_get_contents($this->stdMaterialInterfaceFile);
@@ -51,7 +51,7 @@ class Package extends \RAAS\Package
                 return $text;
                 break;
             case 'stdMenuInterfaceFile':
-                return $this->resourcesDir . '/menu_interface.php';
+                return $this->resourcesDir . '/interfaces/menu_interface.php';
                 break;
             case 'stdMenuInterface':
                 $text = file_get_contents($this->stdMenuInterfaceFile);
@@ -65,7 +65,7 @@ class Package extends \RAAS\Package
                 return $text;
                 break;
             case 'stdFormInterfaceFile':
-                return $this->resourcesDir . '/form_interface.php';
+                return $this->resourcesDir . '/interfaces/form_interface.php';
                 break;
             case 'stdFormInterface':
                 $text = file_get_contents($this->stdFormInterfaceFile);
@@ -79,7 +79,7 @@ class Package extends \RAAS\Package
                 return $text;
                 break;
             case 'stdSearchInterfaceFile':
-                return $this->resourcesDir . '/search_interface.php';
+                return $this->resourcesDir . '/interfaces/search_interface.php';
                 break;
             case 'stdSearchInterface':
                 $text = file_get_contents($this->stdSearchInterfaceFile);
@@ -93,14 +93,14 @@ class Package extends \RAAS\Package
                 return $text;
                 break;
             case 'stdCacheInterfaceFile':
-                return $this->resourcesDir . '/cache_interface.php';
+                return $this->resourcesDir . '/interfaces/cache_interface.php';
                 break;
             case 'stdCacheInterface':
                 $text = file_get_contents($this->stdCacheInterfaceFile);
                 return $text;
                 break;
             case 'stdWatermarkInterfaceFile':
-                return $this->resourcesDir . '/watermark_interface.php';
+                return $this->resourcesDir . '/interfaces/watermark_interface.php';
                 break;
             case 'stdWatermarkInterface':
                 $text = file_get_contents($this->stdWatermarkInterfaceFile);

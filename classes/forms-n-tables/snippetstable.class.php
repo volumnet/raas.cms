@@ -1,7 +1,17 @@
 <?php
+/**
+ * Таблица сниппетов
+ */
 namespace RAAS\CMS;
 
-class SnippetsTable extends \RAAS\Table
+use RAAS\Table;
+use RAAS\Row;
+
+/**
+ * Класс таблицы сниппетов
+ * @property-read ViewSub_Dev $view Представление
+ */
+class SnippetsTable extends Table
 {
     public function __get($var)
     {
@@ -16,54 +26,108 @@ class SnippetsTable extends \RAAS\Table
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
-        $f = function(Snippet_Folder $node) use (&$f)
-        {
-            static $level = 0;
-            $Set = array();
-            foreach ($node->children as $row) {
-                $row->level = $level;
-                $Set[] = $row;
-                $level++;
-                $Set = array_merge($Set, $f($row));
-                $level--;
-            }
-            foreach ($node->snippets as $row) {
-                $row->level = $level;
-                $Set[] = $row;
-            }
-            return $Set;
-        };
-        $defaultParams = array(
-            'columns' => array(
-                'name' => array(
-                    'caption' => $this->view->_('NAME'), 
-                    'callback' => function($row) use ($view) { 
+        $defaultParams = [
+            'columns' => [
+                'id' => [
+                    'caption' => $this->view->_('ID'),
+                    'callback' => function ($row) use ($view) {
                         if ($row->locked) {
-                            return '<span style="padding-left: ' . ($row->level * 30) . 'px">' 
-                                 .    htmlspecialchars($row->name) 
-                                 . '</span>'; 
+                            $text = (int)$row->id;
                         } else {
-                            return '<a style="padding-left: ' . ($row->level * 30) . 'px" href="' . $view->url . '&action=' . ($row instanceof Snippet_Folder ? 'edit_snippet_folder' : 'edit_snippet') . '&id=' . (int)$row->id . '">' 
-                                 .    htmlspecialchars($row->name) 
-                                 . '</a>'; 
+                            $text = '<a href="' . $this->getEditURL($row) . '">'
+                                  .    (int)$row->id
+                                  . '</a>';
                         }
+                        return $text;
                     }
-                ),
-                'urn' => array('caption' => $this->view->_('URN'), 'callback' => function($row) use ($view) { return htmlspecialchars($row->urn); }),
-                ' ' => array(
-                    'callback' => function ($row) use ($view) { 
-                        return rowContextMenu(($row instanceof Snippet_Folder) ? $view->getSnippetFolderContextMenu($row) : $view->getSnippetContextMenu($row));
+                ],
+                'name' => [
+                    'caption' => $this->view->_('NAME'),
+                    'callback' => function ($row) use ($view) {
+                        if ($row->locked) {
+                            $text = '<span style="padding-left: ' . ($row->level * 30) . 'px">'
+                                  .    htmlspecialchars($row->name)
+                                  . '</span>';
+                        } else {
+                            $text = '<a style="padding-left: ' . ($row->level * 30) . 'px" href="' . $this->getEditURL($row) . '">'
+                                  .    htmlspecialchars($row->name)
+                                  . '</a>';
+                        }
+                        return $text;
                     }
-                )
-            ),
-            'callback' => function($Row) { if ($Row->source instanceof Snippet_Folder) { $Row->class = 'info'; } },
+                ],
+                'urn' => [
+                    'caption' => $this->view->_('URN'),
+                    'callback' => function ($row) use ($view) {
+                        return htmlspecialchars($row->urn);
+                    }
+                ],
+                ' ' => [
+                    'callback' => function ($row) use ($view) {
+                        return rowContextMenu(
+                            ($row instanceof Snippet_Folder) ?
+                            $view->getSnippetFolderContextMenu($row) :
+                            $view->getSnippetContextMenu($row)
+                        );
+                    }
+                ],
+            ],
+            'callback' => function (Row $tableRow) {
+                if ($tableRow->source instanceof Snippet_Folder) {
+                    $tableRow->class = 'info';
+                }
+            },
             'emptyString' => $this->view->_('NO_SNIPPETS_FOUND'),
-            'Set' => $f(new Snippet_Folder())
-        );
+            'Set' => $this->buildSnippetTree(new Snippet_Folder(), 0)
+        ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
+    }
+
+
+    /**
+     * Построить дерево сниппетов и папок
+     * @param Snippet_Folder $node Текущий узел
+     * @param int $level Уровень вложенности
+     * @return array<Snippet|Snippet_Folder> Массив сниппетов и папок
+     *                                       с указанием параметра $level -
+     *                                       уровень вложенности
+     */
+    public function buildSnippetTree(Snippet_Folder $node, $level = 0)
+    {
+        $set = [];
+        foreach ($node->children as $row) {
+            $row->level = $level;
+            $set[] = $row;
+            $level++;
+            $set = array_merge($set, $this->buildSnippetTree($row, $level));
+            $level--;
+        }
+        foreach ($node->snippets as $row) {
+            $row->level = $level;
+            $set[] = $row;
+        }
+        return $set;
+    }
+
+
+    /**
+     * Получает URL редактирования сниппета или папки
+     * @param Snippet|Snippet_Folder $row Папка или сниппет для редактирования
+     * @return string
+     */
+    public function getEditURL($row)
+    {
+        $url = $this->view->url . '&action=edit_snippet'
+             . (
+                    $row instanceof Snippet_Folder ?
+                    '_folder' :
+                    ''
+               )
+             . '&id=' . (int)$row->id;
+        return $url;
     }
 }

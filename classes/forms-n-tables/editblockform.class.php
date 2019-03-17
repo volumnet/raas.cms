@@ -48,7 +48,7 @@ class EditBlockForm extends \RAAS\Form
         foreach ($this->meta['Parent']->Template->locations as $key => $val) {
             $this->meta['CONTENT']['locations'][] = array('value' => $key, 'caption' => $key);
         }
-        $this->children['commonTab'] = $this->getCommonTab();
+        $this->children['commonTab'] = $this->getCommonTab($Parent);
         if (isset(Application::i()->packages['cms']->modules['users'])) {
             $this->children['accessTab'] = new CMSAccessFormTab($params);
         }
@@ -62,7 +62,7 @@ class EditBlockForm extends \RAAS\Form
                 'name' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php'
             ));
         }
-        
+
 
         $interfaceField = $this->getInterfaceField();
         $interfaceField->name = 'cache_interface_id';
@@ -73,9 +73,9 @@ class EditBlockForm extends \RAAS\Form
         $interfaceField->required = false;
 
         $this->children['serviceTab']->children['cache_type'] = array(
-            'type' => 'select', 
-            'name' => 'cache_type', 
-            'caption' => $this->view->_('CACHE_TYPE'), 
+            'type' => 'select',
+            'name' => 'cache_type',
+            'caption' => $this->view->_('CACHE_TYPE'),
             'children' => array(
                 array('value' => Block::CACHE_NONE, 'caption' => $this->view->_('_NONE')),
                 array('value' => Block::CACHE_DATA, 'caption' => $this->view->_('CACHE_DATA')),
@@ -109,10 +109,10 @@ class EditBlockForm extends \RAAS\Form
         $field = new RAASField(array(
             'type' => 'select',
             'class' => 'input-xxlarge',
-            'name' => 'interface_id', 
+            'name' => 'interface_id',
             'required' => true,
-            'caption' => $this->view->_('INTERFACE'), 
-            'placeholder' => $this->view->_('_NONE'), 
+            'caption' => $this->view->_('INTERFACE'),
+            'placeholder' => $this->view->_('_NONE'),
             'children' => $wf(new Snippet_Folder())
         ));
         return $field;
@@ -137,11 +137,11 @@ class EditBlockForm extends \RAAS\Form
         };
         $field = new RAASField(array(
             'type' => 'select',
-            'class' => 'input-xxlarge',  
-            'name' => 'widget_id', 
+            'class' => 'input-xxlarge',
+            'name' => 'widget_id',
             'required' => true,
-            'caption' => $this->view->_('WIDGET'), 
-            'placeholder' => $this->view->_('_NONE'), 
+            'caption' => $this->view->_('WIDGET'),
+            'placeholder' => $this->view->_('_NONE'),
             'children' => $wf(new Snippet_Folder())
         ));
         return $field;
@@ -167,7 +167,7 @@ class EditBlockForm extends \RAAS\Form
     protected function getCommonTab()
     {
         $tab = new FormTab(array(
-            'name' => 'common', 
+            'name' => 'common',
             'caption' => $this->view->_('GENERAL'),
             'children' => array(
                 array('name' => 'name', 'caption' => $this->view->_('NAME'))
@@ -180,7 +180,7 @@ class EditBlockForm extends \RAAS\Form
     protected function getServiceTab()
     {
         $tab = new FormTab(array(
-            'name' => 'service', 
+            'name' => 'service',
             'caption' => $this->view->_('SERVICE'),
             'children' => array(
                 array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1),
@@ -206,18 +206,18 @@ class EditBlockForm extends \RAAS\Form
         $loc = $Item->location ? $Item->location : (isset($_GET['loc']) ? $_GET['loc'] : '');
         $tab->children[] = new RAASField(array('type' => 'checkbox', 'name' => 'inherit', 'caption' => $this->view->_('INHERIT')));
         $tab->children[] = new RAASField(array(
-            'type' => 'select', 
-            'name' => 'location', 
-            'caption' => $this->view->_('LOCATION'), 
-            'default' => $loc, 
-            'placeholder' => '--', 
+            'type' => 'select',
+            'name' => 'location',
+            'caption' => $this->view->_('LOCATION'),
+            'default' => $loc,
+            'placeholder' => '--',
             'children' => $this->meta['CONTENT']['locations']
         ));
         $tab->children[] = new RAASField(array(
-            'type' => 'checkbox', 
-            'name' => 'cats', 
-            'caption' => $this->view->_('PAGES'), 
-            'multiple' => 'multiple', 
+            'type' => 'checkbox',
+            'name' => 'cats',
+            'caption' => $this->view->_('PAGES'),
+            'multiple' => 'multiple',
             'children' => $this->meta['CONTENT']['cats'],
             'check' => function($Field) {
                 if (!isset($_POST['cats']) || !$_POST['cats']) {
