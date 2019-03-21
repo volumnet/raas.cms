@@ -55,6 +55,19 @@ $getField = function (Field $row, array $DATA = array()) use (&$getCheckbox, $ge
     switch ($row->datatype) {
         case 'image':
         case 'file':
+            $allowedExtensions = preg_split('/\\W+/umis', $row->source);
+            $allowedExtensions = array_map(function ($x) {
+                return mb_strtolower($x);
+            }, $allowedExtensions);
+            if (($row->datatype == 'image') && $allowedExtensions) {
+                $allowedExtensions = array_values(array_intersect(
+                    $allowedExtensions,
+                    ['jpg', 'jpeg', 'png', 'gif']
+                ));
+            }
+            $allowedExtensions = array_map(function ($x) {
+                return '.' . mb_strtolower($x);
+            }, $allowedExtensions);
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
                 for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
@@ -62,8 +75,11 @@ $getField = function (Field $row, array $DATA = array()) use (&$getCheckbox, $ge
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn . '@attachment']) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             '<div class="cms-file-internal">
                               <input type="file"' .
-                                 ($row->datatype == 'image' ? ' accept="image/jpeg,image/png,image/gif"' : '') .
-                                 ' name="' . htmlspecialchars($row->urn) . '[]"' .
+                                 (
+                                      (($row->datatype == 'image') || $allowedExtensions) ?
+                                      ' accept="' . ($allowedExtensions ? implode(',', $allowedExtensions) : 'image/jpeg,image/png,image/gif') . '"' :
+                                      ''
+                                 ) . ' name="' . htmlspecialchars($row->urn) . '[]"' .
                                  ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '') .
                                  (!isset($DATA[$row->urn . '@file'][$i]) && $row->required ? ' required="required"' : '') . ' /><br /> ' .
                             '</div>' .
@@ -73,8 +89,11 @@ $getField = function (Field $row, array $DATA = array()) use (&$getCheckbox, $ge
                         '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" title="' . DELETE . '">&times;</a>' .
                          '<div class="cms-file-internal">' .
                           '<input type="file" disabled="disabled" ' .
-                             ($row->datatype == 'image' ? ' accept="image/jpeg,image/png,image/gif"' : '') .
-                             ' name="' . htmlspecialchars($row->urn) . '[]"' .
+                             (
+                                  (($row->datatype == 'image') || $allowedExtensions) ?
+                                  ' accept="' . ($allowedExtensions ? implode(',', $allowedExtensions) : 'image/jpeg,image/png,image/gif') . '"' :
+                                  ''
+                             ) . ' name="' . htmlspecialchars($row->urn) . '[]"' .
                              ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '') .
                              ($row->required ? ' required="required"' : '') . ' /><br /> ' .
                         '</div>' .
@@ -97,8 +116,11 @@ $getField = function (Field $row, array $DATA = array()) use (&$getCheckbox, $ge
                                   ''
                               ) .
                           '<input type="file"' .
-                             ($row->datatype == 'image' ? ' accept="image/jpeg,image/png,image/gif"' : '') .
-                             ' name="' . htmlspecialchars($row->urn) . '"' .
+                             (
+                                  (($row->datatype == 'image') || $allowedExtensions) ?
+                                  ' accept="' . ($allowedExtensions ? implode(',', $allowedExtensions) : 'image/jpeg,image/png,image/gif') . '"' :
+                                  ''
+                             ) . ' name="' . htmlspecialchars($row->urn) . '"' .
                              ' id="' . htmlspecialchars($row->urn) . '"' .
                              ($row->placeholder ? ' placeholder="' . htmlspecialchars($row->placeholder) . '"' : '') .
                              ($row->required ? ' required1="required"' : '') . ' /> ' .

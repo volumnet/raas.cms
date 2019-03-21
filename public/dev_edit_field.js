@@ -50,18 +50,36 @@ jQuery(function($) {
         }
     
         // Показываем выбор источника в зависимости от типа
-        if ($('#datatype').val() == 'material') {
-            $('#source_textarea').hide().attr('disabled', 'disabled').removeAttr('required');
-            $('#source_dictionary').hide().attr('disabled', 'disabled').removeAttr('required');
-            $('#source_materials').fadeIn().removeAttr('disabled');
-        } else if ($('#source_type').val() == 'dictionary') {
-            $('#source_textarea').hide().attr('disabled', 'disabled').removeAttr('required');
-            $('#source_dictionary').fadeIn().removeAttr('disabled').attr('required', 'required');
-            $('#source_materials').hide().attr('disabled', 'disabled');
-        } else {
-            $('#source_textarea').fadeIn().removeAttr('disabled').attr('required', 'required');
-            $('#source_dictionary').hide().attr('disabled', 'disabled').removeAttr('required');
-            $('#source_materials').hide().attr('disabled', 'disabled');
+        $('#source_textarea, #source_dictionary')
+            .hide()
+            .attr('disabled', 'disabled')
+            .removeAttr('required');
+        $('#source_file')
+            .attr('disabled', 'disabled')
+            .closest('.control-group')
+            .hide();
+        $('#source_materials').hide().attr('disabled', 'disabled');
+
+        switch ($('#datatype').val()) {
+            case 'material':
+                $('#source_materials').fadeIn().removeAttr('disabled');
+                break;
+            case 'radio':
+            case 'select':
+            case 'checkbox':
+                if ($('#source_type').val() == 'dictionary') {
+                    $('#source_dictionary').fadeIn().removeAttr('disabled').attr('required', 'required');
+                } else {
+                    $('#source_textarea').fadeIn().removeAttr('disabled').attr('required', 'required');
+                }
+                break;
+            case 'file':
+                $('#source_file')
+                    .removeAttr('disabled', 'disabled')
+                    .closest('.control-group')
+                    .fadeIn();
+                break;
+
         }
 
         // Шаблон ввода

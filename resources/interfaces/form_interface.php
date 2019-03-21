@@ -83,6 +83,43 @@ if ($Form->id) {
                             $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);
                         }
                     }
+                    $allowedExtensions = preg_split('/\\W+/umis', $row->source);
+                    $allowedExtensions = array_map('mb_strtolower', $allowedExtensions);
+                    if ($allowedExtensions) {
+                        if ($row->multiple) {
+                            foreach ((array)$_FILES[$row->urn]['tmp_name'] as $i => $val) {
+                                if (is_uploaded_file($_FILES[$row->urn]['tmp_name'][$i])) {
+                                    $ext = pathinfo(
+                                        $_FILES[$row->urn]['name'][$i],
+                                        PATHINFO_EXTENSION
+                                    );
+                                    $ext = mb_strtolower($ext);
+                                    if (!in_array($ext, $allowedExtensions)) {
+                                        $localError[$row->urn] = sprintf(
+                                            INVALID_FILE_EXTENSION,
+                                            implode(', ', $allowedExtensions)
+                                        );
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            if (is_uploaded_file($_FILES[$row->urn]['tmp_name'])) {
+                                $ext = pathinfo(
+                                    $_FILES[$row->urn]['name'],
+                                    PATHINFO_EXTENSION
+                                );
+                                $ext = mb_strtolower($ext);
+                                if (!in_array($ext, $allowedExtensions)) {
+                                    $localError[$row->urn] = sprintf(
+                                        INVALID_FILE_EXTENSION,
+                                        implode(', ', $allowedExtensions)
+                                    );
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     break;
                 default:
                     $val = isset($_POST[$row->urn]) ? $_POST[$row->urn] : null;
