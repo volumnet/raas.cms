@@ -4,16 +4,50 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\Attachment;
 use RAAS\Timer;
+use SOME\EventProcessor;
 
 /**
  * Класс интерфейса sitemap.xml
  */
 class SitemapInterface extends AbstractInterface
 {
+    /**
+     * Данные по изображениям
+     * @var [
+     *          'images' => array<string[] ID изображения (MD5 от URL) => [
+     *              'url' => string абсолютный URL картинки,
+     *              'title' =>? string alt картинки
+     *          ]>,
+     *          'pagesImages' => array<string[] ID# страницы => array<
+     *              string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *          >>,
+     *          'materialsImages' => array<string[] ID# материала => array<
+     *              string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *          >>
+     *      ]
+     */
+    protected $imagesData = [];
+
+    /**
+     * Данные по уже использованным изображениям
+     * для предотвращения повторного использования
+     * @var array<string[] ID изображения => string ID изображения>
+     */
+    protected $affectedImages = [];
+
+
+    /**
+     * Количество страниц
+     * @var int
+     */
+    protected $pagesCounter = 0;
+
     public function process()
     {
         Timer::add('sitemap.xml');
+        $this->prepareMetaData();
         $domainPage = $this->page->Domain;
         $domainPageData = $domainPage->getArrayCopy();
         $domainPageData['url'] = $domainPage->domain . $domainPageData['cache_url'];
@@ -26,6 +60,21 @@ class SitemapInterface extends AbstractInterface
         $text = $this->getUrlSet($content)
               . '<!-- ' . Timer::get('sitemap.xml')->time . ' -->';
         return $text;
+    }
+
+
+    /**
+     * Подготавливает метаданные для обработки
+     */
+    public function prepareMetaData()
+    {
+        $this->imagesData = $this->getImagesData();
+        $sqlQuery = "SELECT COUNT(*)
+                       FROM " . Page::_tablename()
+                  . " WHERE vis
+                        AND pvis
+                        AND NOT response_code";
+        $this->pagesCounter = Page::_SQL()->getvalue($sqlQuery);
     }
 
 
@@ -70,6 +119,7 @@ class SitemapInterface extends AbstractInterface
                 $row = new Page($sqlRow);
                 $sqlRow['url'] = $row->domain . $row->url;
             }
+            $sqlRow['entry_type'] = 'page';
             $result[$sqlRow['id']] = $sqlRow;
         }
         $childrenResult = array();
@@ -89,7 +139,7 @@ class SitemapInterface extends AbstractInterface
     public function getUrlSet($content)
     {
         $text =  '<?xml version="1.0" encoding="UTF-8"?' . '>
-                  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="https://www.yandex.ru/schemas/sitemap-image/1.1">
                     ' . $content . '
                   </urlset>';
         return $text;
@@ -153,6 +203,32 @@ class SitemapInterface extends AbstractInterface
         $text .= '<priority>'
               .     str_replace(',', '.', (float)$itemData['sitemaps_priority'])
               .  '</priority>';
+        $imagesData = [];
+        if ($itemData['entry_type'] == 'page') {
+            $imagesData = (array)$this->imagesData['pagesImages'][$itemData['id']];
+        } elseif ($itemData['entry_type'] == 'material') {
+            $imagesData = (array)$this->imagesData['materialsImages'][$itemData['id']];
+        }
+        if ($imagesData) {
+            foreach ($imagesData as $imgId) {
+                if (!$this->affectedImages[$imgId]) {
+                    $imageData = $this->imagesData['images'][$imgId];
+                    if ($imageData) {
+                        $text .= '<image:image>'
+                              .    '<image:loc>'
+                              .       htmlspecialchars($imageData['url'])
+                              .    '</image:loc>';
+                        if ($imageData['name']) {
+                            $text .= '<image:title>'
+                                  .     htmlspecialchars($imageData['name'])
+                                  .  '</image:title>';
+                        }
+                        $text .= '</image:image>';
+                    }
+                    $this->affectedImages[$imgId] = $imgId;
+                }
+            }
+        }
         $text .= '</url>';
         return $text;
     }
@@ -165,7 +241,13 @@ class SitemapInterface extends AbstractInterface
      */
     public function showMenu(array $pagesData)
     {
+        $i = 0;
         foreach ($pagesData as $pageRow) {
+            EventProcessor::emit(
+                'startpage',
+                new Page($pageRow),
+                ['index' => ++$i, 'size' => $this->pagesCounter]
+            );
             $text .= $this->getUrl($pageRow);
         }
         return $text;
@@ -192,14 +274,420 @@ class SitemapInterface extends AbstractInterface
         $sqlQuery .= " ORDER BY priority";
         $sqlResult = Material::_SQL()->query($sqlQuery);
         $text = '';
+        $i = 0;
+        $c = $sqlResult->rowCount();
         foreach ($sqlResult as $sqlRow) {
             $material = new Material($sqlRow);
             $affectedPages = $material->affectedPages;
             if ($affectedPages[0] && in_array($affectedPages[0]->id, $pagesIds)) {
+                EventProcessor::emit(
+                    'startmaterial',
+                    $material,
+                    ['index' => ++$i, 'size' => $c]
+                );
                 $sqlRow['url'] = $pagesData[$affectedPages[0]->id]['url'] . $sqlRow['urn'] . '/';
+                $sqlRow['entry_type'] = 'material';
                 $text .= $this->getUrl($sqlRow);
             }
         }
         return $text;
+    }
+
+
+    /**
+     * Получает данные по картинкам
+     * @return [
+     *             'images' => array<string[] ID изображения (MD5 от URL) => [
+     *                 'url' => string абсолютный URL картинки,
+     *                 'title' =>? string alt картинки
+     *             ]>,
+     *             'pagesImages' => array<string[] ID# страницы => array<
+     *                 string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *             >>,
+     *             'materialsImages' => array<string[] ID# материала => array<
+     *                 string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *             >>
+     *         ]
+     */
+    public function getImagesData()
+    {
+        $textBlocksImages = $this->getTextBlocksImagesData();
+        $materialsImages = $this->getMaterialsImagesData();
+        return [
+            'images' => array_merge(
+                $textBlocksImages['images'],
+                $materialsImages['images']
+            ),
+            'pagesImages' => $textBlocksImages['pagesImages'],
+            'materialsImages' => $materialsImages['materialsImages'],
+        ];
+    }
+
+
+    /**
+     * Получает данные по картинкам текстовых блоков
+     * @return [
+     *             'images' => array<string[] ID изображения (MD5 от URL) => [
+     *                 'url' => string абсолютный URL картинки,
+     *                 'title' =>? string alt картинки
+     *             ]>,
+     *             'pagesImages' => array<string[] ID# страницы => array<
+     *                 string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *             >>
+     *         ]
+     */
+    public function getTextBlocksImagesData()
+    {
+        $sqlQuery = "SELECT tB.name,
+                            tBH.description,
+                            GROUP_CONCAT(tBPA.page_id SEPARATOR ',') AS pages_ids
+                       FROM " . Block::_tablename() . " AS tB
+                       JOIN " . Block_HTML::_tablename2() . " AS tBH ON tBH.id = tB.id
+                       JOIN cms_blocks_pages_assoc AS tBPA ON tBPA.block_id = tB.id
+                       JOIN " . Page::_tablename() . " AS tP ON tP.id = tBPA.page_id
+                      WHERE tB.vis
+                        AND tP.response_code = ''
+                        AND tBH.description LIKE ?
+                   GROUP BY tB.id";
+        $sqlResult = Block::_SQL()->get([$sqlQuery, '%<img%']);
+        $images = [];
+        $pagesImages = [];
+        foreach ($sqlResult as $sqlRow) {
+            $imagesData = $this->parseTextImages($sqlRow['description']);
+            $pagesIds = explode(',', $sqlRow['pages_ids']);
+            foreach ($imagesData as $imgId => $imageData) {
+                $images[$imgId] = $imageData;
+                foreach ($pagesIds as $pageId) {
+                    $pagesImages[(string)$pageId][(string)$imgId] = $imgId;
+                }
+            }
+        }
+        return ['images' => $images, 'pagesImages' => $pagesImages];
+    }
+
+
+    /**
+     * Выбирает картинки из текста
+     * @return array<string[] ID изображения (MD5 от URL) => [
+     *             'url' => string абсолютный URL картинки,
+     *             'title' =>? string alt картинки
+     *         ]>
+     */
+    public function parseTextImages($text)
+    {
+        $imagesData = [];
+        if (preg_match_all('/\\<img.*?>/umis', $text, $regs)) {
+            for ($i = 0; $i < count($regs[0]); $i++) {
+                $imgData = $this->parseImgTag($regs[0][$i]);
+                if ($imgData) {
+                    $imagesData[md5($imgData['url'])] = $imgData;
+                }
+            }
+        }
+        return $imagesData;
+    }
+
+
+    /**
+     * Разбирает тег картинки
+     * @param string $text Текст тега <img>
+     * @return [
+     *             'url' => string абсолютный URL картинки,
+     *             'title' =>? string alt картинки
+     *         ]|null Данные по картинке или null, если не удалось разобрать
+     */
+    public function parseImgTag($text)
+    {
+        $imageData = [];
+        if (preg_match('/src="(.*?)"/umis', $text, $regs)) {
+            $url = $this->formatImageURL($regs[1]);
+            if (!$url) {
+                return false;
+            }
+            $imageData['url'] = $url;
+        }
+        if (preg_match('/alt="(.*?)"/umis', $text, $regs)) {
+            $imageData['name'] = $regs[1];
+        }
+        return $imageData ?: null;
+    }
+
+
+    /**
+     * Форматирует URL картинки
+     * @param string $url URL картинки
+     * @return string|false URL картинки или false, если картинка с другого сайта
+     */
+    public function formatImageURL($url)
+    {
+        $parsedUrl = parse_url($url);
+        if ($parsedUrl['path'] &&
+            ($parsedUrl['scheme'] != 'data') &&
+            (
+                !$parsedUrl['host'] ||
+                ($parsedUrl['host'] == $this->getCurrentHostName())
+            )
+        ) {
+            return $this->getCurrentHostURL() . $parsedUrl['path'];
+        }
+        return false;
+    }
+
+
+    /**
+     * Получает данные по картинкам материалов
+     * @return [
+     *             'images' => array<string[] ID изображения (MD5 от URL) => [
+     *                 'url' => string абсолютный URL картинки,
+     *                 'title' =>? string alt картинки
+     *             ]>,
+     *             'materialsImages' => array<string[] ID# материала => array<
+     *                 string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *             >>
+     *         ]
+     */
+    public function getMaterialsImagesData()
+    {
+        $fieldsNames = $this->getImagesFieldsNames();
+
+        $fieldsIds = array_map('intval', array_keys($fieldsNames));
+        $temp = $this->getMaterialsAttachmentsData($fieldsIds);
+
+        $attachmentsUrls = $this->getAttachmentsURLs($temp['affectedAttachmentsIds']);
+        $materialsNames = $this->getMaterialsNames($temp['affectedMaterialsIds']);
+
+        // Сформируем выдачу
+        $imagesData = $this->getMaterialsImagesRawData(
+            $temp['materialsAttachmentsData'],
+            $attachmentsUrls,
+            $materialsNames
+        );
+
+        // Применим счетчики
+        $imagesData = $this->applyMaterialImagesCounters($imagesData, $fieldsNames);
+
+        // Схлопнем привязку относительно полей
+        $imagesData['materialsImages'] = array_map(function ($materialImages) {
+            return array_reduce($materialImages, 'array_merge', []);
+        }, $imagesData['materialsImages']);
+
+        return $imagesData;
+    }
+
+
+    /**
+     * Получает данные полей с картинками
+     * @return array<string[] ID# поля => string наименование поля>
+     */
+    public function getImagesFieldsNames()
+    {
+        $sqlQuery = "SELECT id, name
+                       FROM " . Field::_tablename() . "
+                      WHERE classname = ?
+                        AND datatype = ?";
+        $sqlBind = [Material_Type::class, 'image'];
+        $sqlResult = Field::_SQL()->get([$sqlQuery, $sqlBind]);
+        $fieldsNames = [];
+        foreach ($sqlResult as $sqlRow) {
+            $fieldsNames[trim((int)$sqlRow['id'])] = $sqlRow['name'];
+        }
+        return $fieldsNames;
+    }
+
+
+    /**
+     * Получает данные по значениям полей изображений у материалов
+     * @param array<int> $fieldsIds ID# полей изображений
+     * @return [
+     *             'materialsAttachmentsData' => array<[
+     *                 'attachment' => int|string ID# вложения,
+     *                 'fid' => int|string ID# поля,
+     *                 'pid' => int|string ID# материала,
+     *                 'name' => string заголовок изображения
+     *             ]>,
+     *             'affectedAttachmentsIds' => array<int> ID# задействованных вложений,
+     *             'affectedMaterialsIds' => array<int> ID# задействованных материалов
+     *         ]
+     */
+    public function getMaterialsAttachmentsData(array $fieldsIds = [])
+    {
+        $materialsAttachmentsData = [];
+        $affectedAttachmentsIds = [];
+        $affectedMaterialsIds = [];
+        if ($fieldsIds) {
+            $sqlQuery = "SELECT pid, fid, value
+                           FROM cms_data
+                          WHERE fid IN (" . implode(", ", $fieldsIds) . ")";
+            $sqlResult = Field::_SQL()->get($sqlQuery);
+            foreach ($sqlResult as $sqlRow) {
+                $json = json_decode($sqlRow['value'], true);
+                if ($json['vis']) {
+                    $affectedMaterialsIds[trim($sqlRow['pid'])] = (int)$sqlRow['pid'];
+                    $affectedAttachmentsIds[trim($json['attachment'])] = (int)$json['attachment'];
+                    $json['fid'] = $sqlRow['fid'];
+                    $json['pid'] = $sqlRow['pid'];
+                    $materialsAttachmentsData[] = $json;
+                }
+            }
+        }
+        return [
+            'materialsAttachmentsData' => $materialsAttachmentsData,
+            'affectedAttachmentsIds' => $affectedAttachmentsIds,
+            'affectedMaterialsIds' => $affectedMaterialsIds
+        ];
+    }
+
+
+    /**
+     * Получает URL вложений
+     * @param array<int> $attachmentsIds ID# вложений
+     * @return array<string[] ID# вложения => URL вложения>
+     */
+    public function getAttachmentsURLs(array $attachmentsIds = [])
+    {
+        if (!$attachmentsIds) {
+            return [];
+        }
+        $attachmentsUrls = [];
+        $sqlQuery = "SELECT *
+                       FROM " . Attachment::_tablename()
+                  . " WHERE id IN (" . implode(", ", $attachmentsIds) . ")";
+        $sqlResult = Attachment::getSQLSet($sqlQuery);
+        foreach ($sqlResult as $attachment) {
+            $attachmentsUrls[trim($attachment->id)] = '/' . $attachment->fileURL;
+            $attachment->rollback();
+        }
+        return $attachmentsUrls;
+    }
+
+
+    /**
+     * Получает наименования материалов
+     * @param array<int> $materialsIds ID# материалов
+     * @return array<string[] ID# материала => string наименование материала>
+     */
+    public function getMaterialsNames(array $materialsIds = [])
+    {
+        if (!$materialsIds) {
+            return [];
+        }
+        $materialsNames = [];
+        $sqlQuery = "SELECT id, name
+                       FROM " . Material::_tablename()
+                  . " WHERE id IN (" . implode(", ", $materialsIds) . ")";
+        $sqlResult = Attachment::_SQL()->get($sqlQuery);
+        foreach ($sqlResult as $sqlRow) {
+            $materialsNames[trim($sqlRow['id'])] = $sqlRow['name'];
+        }
+        return $materialsNames;
+    }
+
+
+    /**
+     * Получает "сырые" данные по изображениям материалов
+     * (без учета счетчиков картинок)
+     * @param array<[
+     *            'attachment' => int|string ID# вложения,
+     *            'fid' => int|string ID# поля,
+     *            'pid' => int|string ID# материала,
+     *            'name' => string заголовок изображения
+     *        ]> $materialsAttachmentsData Данные по вложениям материалов
+     * @param array<
+     *            string[] ID# вложения => URL вложения
+     *        > $attachmentsUrls Данные по вложениям
+     * @param array<
+     *            string[] ID# материала => string наименование материала
+     *        > $materialsNames Наименования материалов
+     * @return [
+     *             'images' => array<string[] ID изображения (MD5 от URL) => [
+     *                 'url' => string абсолютный URL картинки,
+     *                 'title' =>? string alt картинки
+     *             ]>,
+     *             'materialsImages' => array<string[] ID# материала => array<
+     *                 string[] ID# поля => array<
+     *                     string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *                 >
+     *             >>
+     *         ]
+     */
+    public function getMaterialsImagesRawData(
+        array $materialsAttachmentsData = [],
+        array $attachmentsUrls = [],
+        array $materialsNames = []
+    ) {
+        $images = [];
+        $materialsImages = [];
+        foreach ($materialsAttachmentsData as $materialAttachmentData) {
+            $materialId = $materialAttachmentData['pid'];
+            $fieldId = $materialAttachmentData['fid'];
+            $fileURL = $attachmentsUrls[$materialAttachmentData['attachment']];
+            $fileURL = $this->formatImageURL($fileURL);
+            $materialName = $materialsNames[$materialId];
+            if ($fileURL && $materialName) {
+                $title = $materialAttachmentData['name'];
+                if (!$title) {
+                    $title = $materialName;
+                }
+                $imgId = md5($fileURL);
+                $imageData = ['url' => $fileURL];
+                if ($title) {
+                    $imageData['name'] = $title;
+                }
+                $images[$imgId] = $imageData;
+                $materialsImages[trim($materialId)][trim($fieldId)][trim($imgId)] = $imgId;
+            }
+        }
+        return ['images' => $images, 'materialsImages' => $materialsImages];
+    }
+
+
+    /**
+     * Применяет счетчики изображений материалов по полям
+     * @param [
+     *             'images' => array<string[] ID изображения (MD5 от URL) => [
+     *                 'url' => string абсолютный URL картинки,
+     *                 'title' =>? string alt картинки
+     *             ]>,
+     *             'materialsImages' => array<string[] ID# материала => array<
+     *                 string[] ID# поля => array<
+     *                     string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *                 >
+     *             >>
+     *         ] $data Данные по привязке картинок к материалам
+     * @param array<string[] ID# поля => string наименование поля> $fieldsNames Наименования полей
+     * @return [
+     *             'images' => array<string[] ID изображения (MD5 от URL) => [
+     *                 'url' => string абсолютный URL картинки,
+     *                 'title' =>? string alt картинки
+     *             ]>,
+     *             'materialsImages' => array<string[] ID# материала => array<
+     *                 string[] ID# поля => array<
+     *                     string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *                 >
+     *             >>
+     *         ]
+     */
+    public function applyMaterialImagesCounters(
+        array $data = ['images' => [], 'materialsImages' => []],
+        array $fieldsNames = []
+    ) {
+        $affectedNumberedImages = [];
+        foreach ($data['materialsImages'] as $materialId => $materialImages) {
+            foreach ($materialImages as $fieldId => $materialFieldImages) {
+                if (count($materialFieldImages) > 1) {
+                    $fieldName = $fieldsNames[$fieldId];
+                    $i = 0;
+                    foreach ($materialFieldImages as $imgId) {
+                        if (!$affectedNumberedImages[$imgId]) {
+                            $data['images'][$imgId]['name'] .= ' — '
+                                                            . $fieldName
+                                                            .  ' ' . (++$i);
+                            $affectedNumberedImages[$imgId] = $imgId;
+                        }
+                    }
+                }
+            }
+        }
+        return $data;
     }
 }

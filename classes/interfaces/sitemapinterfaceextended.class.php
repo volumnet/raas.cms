@@ -26,6 +26,7 @@ class SitemapInterfaceExtended extends SitemapInterface
     public function process($catalogMTypeURN = 'catalog', $catalogPageUrl = '/catalog/')
     {
         Timer::add('sitemap.xml');
+        $this->prepareMetaData();
         $page = $this->page->Domain;
 
         $this->getAndSaveSitemaps($catalogMTypeURN, $catalogPageUrl);
