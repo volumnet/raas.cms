@@ -84,7 +84,7 @@ if ($Form->id) {
                         }
                     }
                     $allowedExtensions = preg_split('/\\W+/umis', $row->source);
-                    $allowedExtensions = array_map('mb_strtolower', $allowedExtensions);
+                    $allowedExtensions = array_map('mb_strtolower', array_filter($allowedExtensions, 'trim'));
                     if ($allowedExtensions) {
                         if ($row->multiple) {
                             foreach ((array)$_FILES[$row->urn]['tmp_name'] as $i => $val) {

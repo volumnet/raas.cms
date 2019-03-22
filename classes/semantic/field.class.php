@@ -31,7 +31,7 @@ class Field extends \RAAS\CustomField
                             $localError = array();
                             $ok = !$Field->required;
                             $allowedExtensions = preg_split('/\\W+/umis', $this->source);
-                            $allowedExtensions = array_map('mb_strtolower', $allowedExtensions);
+                            $allowedExtensions = array_map('mb_strtolower', array_filter($allowedExtensions, 'trim'));
                             if ($Field->multiple) {
                                 if ((array)$_FILES[$Field->name]['tmp_name']) {
                                     if ($Field->required) {
@@ -58,7 +58,7 @@ class Field extends \RAAS\CustomField
                                                     'name' => 'INVALID',
                                                     'value' => $this->name,
                                                     'description' => sprintf(
-                                                        $this->view->_('INVALID_FILE_EXTENSION'),
+                                                        View_Web::i()->_('INVALID_FILE_EXTENSION'),
                                                         implode(', ', $allowedExtensions)
                                                     )
                                                 ];
