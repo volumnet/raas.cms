@@ -30,7 +30,6 @@ jQuery(function($) {
     $('#wysiwyg').click(function() {
         var $originalDescription = $('#description');
         var mime = $('#description').attr('data-mime');
-        alert(mime)
         var text = $originalDescription.val();
         var $container = $originalDescription.closest('.control-group');
         $container.empty();

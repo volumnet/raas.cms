@@ -27,30 +27,78 @@ class Field extends \RAAS\CustomField
                     case 'file':
                     case 'image':
                         $f->template = 'cms/field.inc.php';
-                        if ($f->required) {
-                            $f->check = function ($Field) {
-                                $localError = array();
-                                $ok = false;
-                                if ($Field->multiple) {
-                                    if ((array)$_FILES[$Field->name]['tmp_name']) {
+                        $f->check = function ($Field) {
+                            $localError = array();
+                            $ok = !$Field->required;
+                            $allowedExtensions = preg_split('/\\W+/umis', $this->source);
+                            $allowedExtensions = array_map('mb_strtolower', array_filter($allowedExtensions, 'trim'));
+                            if ($Field->multiple) {
+                                if ((array)$_FILES[$Field->name]['tmp_name']) {
+                                    if ($Field->required) {
                                         foreach ((array)$_FILES[$Field->name]['tmp_name'] as $i => $val) {
-                                            if (isset($_POST[$Field->name . '@attachment'][$i]) && $_POST[$Field->name . '@attachment'][$i]) {
+                                            if (isset($_POST[$Field->name . '@attachment'][$i]) &&
+                                                $_POST[$Field->name . '@attachment'][$i]
+                                            ) {
                                                 $ok = true;
                                                 break;
                                             }
                                         }
                                     }
-                                } else {
-                                    if (!is_uploaded_file($_FILES[$Field->name]['tmp_name']) && isset($_POST[$Field->name . '@attachment']) && trim($_POST[$Field->name . '@attachment'])) {
-                                        $ok = true;
+                                    foreach ((array)$_FILES[$Field->name]['tmp_name'] as $i => $val) {
+                                        if ($allowedExtensions &&
+                                            is_uploaded_file($_FILES[$Field->name]['tmp_name'][$i])
+                                        ) {
+                                            $ext = pathinfo(
+                                                $_FILES[$Field->name]['name'][$i],
+                                                PATHINFO_EXTENSION
+                                            );
+                                            $ext = mb_strtolower($ext);
+                                            if (!in_array($ext, $allowedExtensions)) {
+                                                $localError[] = [
+                                                    'name' => 'INVALID',
+                                                    'value' => $this->name,
+                                                    'description' => sprintf(
+                                                        View_Web::i()->_('INVALID_FILE_EXTENSION'),
+                                                        implode(', ', $allowedExtensions)
+                                                    )
+                                                ];
+                                                $ok = false;
+                                                break;
+                                            }
+                                        }
                                     }
                                 }
-                                if ($ok) {
-                                    return array();
+                            } else {
+                                if (!is_uploaded_file($_FILES[$Field->name]['tmp_name']) && isset($_POST[$Field->name . '@attachment']) && trim($_POST[$Field->name . '@attachment'])) {
+                                    $ok = true;
                                 }
-                                return $Field->getErrors();
-                            };
-                        }
+                                if ($allowedExtensions &&
+                                    is_uploaded_file($_FILES[$Field->name]['tmp_name'])
+                                ) {
+                                    $ext = pathinfo(
+                                        $_FILES[$Field->name]['name'],
+                                        PATHINFO_EXTENSION
+                                    );
+                                    $ext = mb_strtolower($ext);
+                                    if (!in_array($ext, $allowedExtensions)) {
+                                        $localError[] = [
+                                            'name' => 'INVALID',
+                                            'value' => $this->name,
+                                            'description' => sprintf(
+                                                $this->view->_('INVALID_FILE_EXTENSION'),
+                                                implode(', ', $allowedExtensions)
+                                            )
+                                        ];
+                                        $ok = false;
+                                    }
+                                }
+                            }
+                            if ($ok) {
+                                return array();
+                            }
+                            $originalErrors = $Field->getErrors();
+                            return array_merge($originalErrors, $localError);
+                        };
                         break;
                     case 'material':
                         $f->template = 'cms/field.inc.php';

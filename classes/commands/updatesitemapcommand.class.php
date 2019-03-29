@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use SOME\EventProcessor;
 use RAAS\Application;
 use RAAS\LockCommand;
 
@@ -57,6 +58,30 @@ class UpdateSitemapCommand extends LockCommand
             }
             $_SERVER['HTTP_HOST'] = parse_url($page->domain, PHP_URL_HOST);
             $interface = new SitemapInterfaceExtended(null, $page, array(), array(), array(), array(), $_SERVER);
+            EventProcessor::on(
+                SitemapInterface::class . ':' . 'showMenu:startpage',
+                null,
+                function ($page, $data) use ($t) {
+                    if (!($data['index'] % 100)) {
+                        $t->controller->doLog(
+                            'Page #' . $page->id . ' started - ' .
+                            (int)($data['index'] * 100 / $data['size']) . '%'
+                        );
+                    }
+                }
+            );
+            EventProcessor::on(
+                SitemapInterface::class . ':' . 'showMaterials:startmaterial',
+                null,
+                function ($material, $data) use ($t) {
+                    if (!($data['index'] % 100)) {
+                        $t->controller->doLog(
+                            'Material #' . $material->id . ' started - ' .
+                            (int)($data['index'] * 100 / $data['size']) . '%'
+                        );
+                    }
+                }
+            );
             $interface->process($catalogMTypeURN, $catalogPageUrl);
         } else {
             $this->controller->doLog('Root page not found');
