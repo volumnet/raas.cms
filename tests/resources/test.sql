@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Янв 30 2019 г., 18:21
+-- Время создания: Мар 29 2019 г., 15:00
 -- Версия сервера: 5.7.20
 -- Версия PHP: 5.6.32
 
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- База данных: `kanctovary`
+-- База данных: `test`
 --
 
 -- --------------------------------------------------------
@@ -29,19 +29,15 @@ SET time_zone = "+00:00";
 --
 
 DROP TABLE IF EXISTS `attachments`;
-CREATE TABLE IF NOT EXISTS `attachments` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `attachments` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `classname` varchar(255) NOT NULL DEFAULT '' COMMENT 'Parent class name',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `image` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Is image',
   `realname` varchar(255) NOT NULL DEFAULT '0' COMMENT 'Real file name',
   `filename` varchar(255) NOT NULL DEFAULT '0' COMMENT 'Original file name',
-  `mime` varchar(255) NOT NULL DEFAULT '0' COMMENT 'MIME-type',
-  PRIMARY KEY (`id`),
-  KEY `classname` (`classname`,`pid`),
-  KEY `classname_2` (`classname`),
-  KEY `pid` (`pid`)
-) ENGINE=MyISAM AUTO_INCREMENT=61 DEFAULT CHARSET=utf8 COMMENT='Attachments';
+  `mime` varchar(255) NOT NULL DEFAULT '0' COMMENT 'MIME-type'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Attachments';
 
 --
 -- Дамп данных таблицы `attachments`
@@ -116,8 +112,8 @@ INSERT INTO `attachments` (`id`, `classname`, `pid`, `image`, `realname`, `filen
 --
 
 DROP TABLE IF EXISTS `cms_access`;
-CREATE TABLE IF NOT EXISTS `cms_access` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_access` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `page_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#',
   `material_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material ID#',
   `block_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Block ID#',
@@ -125,15 +121,8 @@ CREATE TABLE IF NOT EXISTS `cms_access` (
   `to_type` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'To (type)',
   `uid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'User ID#',
   `gid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Group ID#',
-  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority',
-  PRIMARY KEY (`id`),
-  KEY `page_id` (`page_id`),
-  KEY `material_id` (`material_id`),
-  KEY `block_id` (`block_id`),
-  KEY `uid` (`uid`),
-  KEY `gid` (`gid`),
-  KEY `priority` (`priority`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='Site access';
+  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Site access';
 
 --
 -- Дамп данных таблицы `cms_access`
@@ -154,13 +143,10 @@ INSERT INTO `cms_access` (`id`, `page_id`, `material_id`, `block_id`, `allow`, `
 --
 
 DROP TABLE IF EXISTS `cms_access_blocks_cache`;
-CREATE TABLE IF NOT EXISTS `cms_access_blocks_cache` (
+CREATE TABLE `cms_access_blocks_cache` (
   `uid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'User ID#',
   `block_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Block ID#',
-  `allow` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1 - allow, 0 - deny',
-  PRIMARY KEY (`uid`,`block_id`),
-  KEY `uid` (`uid`),
-  KEY `block_id` (`block_id`)
+  `allow` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1 - allow, 0 - deny'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Blocks access cache';
 
 --
@@ -179,13 +165,10 @@ INSERT INTO `cms_access_blocks_cache` (`uid`, `block_id`, `allow`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_access_materials_cache`;
-CREATE TABLE IF NOT EXISTS `cms_access_materials_cache` (
+CREATE TABLE `cms_access_materials_cache` (
   `uid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'User ID#',
   `material_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material ID#',
-  `allow` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1 - allow, 0 - deny',
-  PRIMARY KEY (`uid`,`material_id`),
-  KEY `uid` (`uid`),
-  KEY `material_id` (`material_id`)
+  `allow` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1 - allow, 0 - deny'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Materials access cache';
 
 --
@@ -204,13 +187,10 @@ INSERT INTO `cms_access_materials_cache` (`uid`, `material_id`, `allow`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_access_pages_cache`;
-CREATE TABLE IF NOT EXISTS `cms_access_pages_cache` (
+CREATE TABLE `cms_access_pages_cache` (
   `uid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'User ID#',
   `page_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#',
-  `allow` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1 - allow, 0 - deny',
-  PRIMARY KEY (`uid`,`page_id`),
-  KEY `uid` (`uid`),
-  KEY `page_id` (`page_id`)
+  `allow` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT '1 - allow, 0 - deny'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pages access cache';
 
 --
@@ -229,8 +209,8 @@ INSERT INTO `cms_access_pages_cache` (`uid`, `page_id`, `allow`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_blocks`;
-CREATE TABLE IF NOT EXISTS `cms_blocks` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_blocks` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `location` varchar(255) NOT NULL DEFAULT '' COMMENT 'Location',
   `vis` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Visibility',
   `post_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
@@ -247,12 +227,8 @@ CREATE TABLE IF NOT EXISTS `cms_blocks` (
   `cache_type` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Cache type',
   `cache_single_page` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Cache by single pages',
   `cache_interface_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Cache interface_id',
-  `vis_material` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Visibility by material',
-  PRIMARY KEY (`id`),
-  KEY `author_id` (`author_id`),
-  KEY `editor_id` (`editor_id`),
-  KEY `cache_interface_id` (`cache_interface_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8 COMMENT='Site pages';
+  `vis_material` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Visibility by material'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Site pages';
 
 --
 -- Дамп данных таблицы `cms_blocks`
@@ -292,7 +268,7 @@ INSERT INTO `cms_blocks` (`id`, `location`, `vis`, `post_date`, `modify_date`, `
 (31, '', 1, '2018-04-05 11:34:16', '2018-04-05 11:34:16', 1, 1, 'RAAS\\CMS\\Block_HTML', 'robots.txt', 0, 1, '', 0, 17, 0, 0, 0, 0),
 (32, '', 1, '2018-04-05 11:34:16', '2018-04-05 11:34:16', 1, 1, 'RAAS\\CMS\\Block_HTML', 'custom.css', 0, 1, '', 0, 18, 0, 0, 0, 0),
 (33, 'share', 1, '2018-04-05 11:34:16', '2018-04-05 11:34:16', 1, 1, 'RAAS\\CMS\\Block_HTML', 'Поделиться', 1, 1, '', 0, 0, 0, 0, 0, 0),
-(34, 'content', 1, '2018-04-05 11:34:27', '2018-04-22 13:56:50', 1, 1, 'RAAS\\CMS\\Block_Material', 'Каталог продукции', 1, 1, '', 31, 37, 2, 0, 6, 0),
+(34, 'content', 1, '2018-04-05 11:34:27', '2019-03-29 14:53:25', 1, 1, 'RAAS\\CMS\\Block_Material', 'Каталог продукции', 1, 1, 'metaTemplates=template&withChildrenGoods=1&commentFormBlock=52&commentsListBlock=51&faqFormBlock=53&faqListBlock=50', 31, 37, 2, 0, 6, 0),
 (35, 'content', 1, '2018-04-05 11:34:27', '2018-04-05 11:34:27', 1, 1, 'RAAS\\CMS\\Block_Material', 'Каталог продукции', 0, 0, '', 31, 37, 0, 0, 0, 0),
 (36, 'content', 1, '2018-04-05 11:34:27', '2018-04-05 11:34:27', 1, 1, 'RAAS\\CMS\\Block_PHP', 'Спецпредложение', 0, 1, '', 0, 43, 0, 0, 0, 0),
 (37, 'left', 1, '2018-04-05 11:34:27', '2018-04-05 11:34:27', 1, 1, 'RAAS\\CMS\\Block_Menu', 'Левое меню', 1, 1, '', 3, 41, 1, 0, 6, 0),
@@ -307,7 +283,11 @@ INSERT INTO `cms_blocks` (`id`, `location`, `vis`, `post_date`, `modify_date`, `
 (46, 'content', 1, '2018-04-22 09:45:26', '2018-04-22 09:45:26', 1, 1, 'RAAS\\CMS\\Users\\Block_LogIn', 'Вход в систему', 0, 1, '', 47, 53, 0, 0, 0, 0),
 (47, 'content', 1, '2018-04-22 09:45:26', '2018-04-22 09:45:26', 1, 1, 'RAAS\\CMS\\Users\\Block_Recovery', 'Восстановление пароля', 0, 1, '', 48, 54, 0, 0, 0, 0),
 (48, 'content', 1, '2018-04-22 09:45:26', '2018-04-22 09:45:26', 1, 1, 'RAAS\\CMS\\Users\\Block_Activation', 'Активация', 0, 1, '', 46, 52, 0, 0, 0, 0),
-(49, 'banners', 1, '2018-04-22 12:54:10', '2018-04-22 12:54:10', 1, 1, 'RAAS\\CMS\\Block_Material', 'Баннеры', 0, 0, '', 8, 8, 0, 0, 0, 0);
+(49, 'banners', 1, '2018-04-22 12:54:10', '2018-04-22 12:54:10', 1, 1, 'RAAS\\CMS\\Block_Material', 'Баннеры', 0, 0, '', 8, 8, 0, 0, 0, 0),
+(50, 'content', 0, '2019-03-29 14:19:56', '2019-03-29 14:20:27', 1, 1, 'RAAS\\CMS\\Block_Material', 'Вопрос-ответ к товарам', 0, 0, '', 1, 55, 0, 0, 0, 0),
+(51, 'content', 0, '2019-03-29 14:20:16', '2019-03-29 14:20:29', 1, 1, 'RAAS\\CMS\\Block_Material', 'Отзывы к товарам', 0, 0, '', 1, 56, 0, 0, 0, 0),
+(52, 'content', 0, '2019-03-29 14:20:49', '2019-03-29 14:20:49', 1, 1, 'RAAS\\CMS\\Block_Form', 'Отзывы к товарам', 0, 1, '', 2, 10, 0, 0, 0, 0),
+(53, 'content', 0, '2019-03-29 14:20:57', '2019-03-29 14:20:57', 1, 1, 'RAAS\\CMS\\Block_Form', 'Вопрос-ответ к товарам', 0, 1, '', 2, 10, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -316,11 +296,9 @@ INSERT INTO `cms_blocks` (`id`, `location`, `vis`, `post_date`, `modify_date`, `
 --
 
 DROP TABLE IF EXISTS `cms_blocks_form`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_form` (
+CREATE TABLE `cms_blocks_form` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
-  `form` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Form ID#',
-  PRIMARY KEY (`id`),
-  KEY `form` (`form`)
+  `form` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Form ID#'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Form blocks';
 
 --
@@ -330,7 +308,9 @@ CREATE TABLE IF NOT EXISTS `cms_blocks_form` (
 INSERT INTO `cms_blocks_form` (`id`, `form`) VALUES
 (6, 1),
 (27, 1),
-(7, 2);
+(7, 2),
+(53, 5),
+(52, 6);
 
 -- --------------------------------------------------------
 
@@ -339,11 +319,10 @@ INSERT INTO `cms_blocks_form` (`id`, `form`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_blocks_html`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_html` (
+CREATE TABLE `cms_blocks_html` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
   `description` text COMMENT 'Text',
-  `wysiwyg` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'WYSIWYG editor on',
-  PRIMARY KEY (`id`)
+  `wysiwyg` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'WYSIWYG editor on'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='HTML blocks';
 
 --
@@ -381,7 +360,7 @@ INSERT INTO `cms_blocks_html` (`id`, `description`, `wysiwyg`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_blocks_material`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_material` (
+CREATE TABLE `cms_blocks_material` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
   `material_type` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
   `pages_var_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Pages var name',
@@ -390,9 +369,7 @@ CREATE TABLE IF NOT EXISTS `cms_blocks_material` (
   `order_var_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Order var name',
   `sort_field_default` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field for sorting by default',
   `sort_order_default` varchar(255) NOT NULL DEFAULT '' COMMENT 'Default order',
-  `legacy` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Redirect legacy addresses',
-  PRIMARY KEY (`id`),
-  KEY `material_type` (`material_type`)
+  `legacy` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Redirect legacy addresses'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Material blocks';
 
 --
@@ -406,7 +383,9 @@ INSERT INTO `cms_blocks_material` (`id`, `material_type`, `pages_var_name`, `row
 (23, 3, '', 3, '', '', '16', 'desc!', 0),
 (34, 4, 'page', 20, '', '', 'name', 'asc', 0),
 (35, 4, '', 0, '', '', 'price', 'asc', 0),
-(49, 2, 'page', 20, '', '', 'name', 'asc!', 0);
+(49, 2, 'page', 20, '', '', 'name', 'asc!', 0),
+(50, 6, 'page', 20, '', '', '50', 'asc!', 0),
+(51, 7, 'page', 20, '', '', 'name', 'asc!', 0);
 
 -- --------------------------------------------------------
 
@@ -415,14 +394,12 @@ INSERT INTO `cms_blocks_material` (`id`, `material_type`, `pages_var_name`, `row
 --
 
 DROP TABLE IF EXISTS `cms_blocks_material_filter`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_material_filter` (
+CREATE TABLE `cms_blocks_material_filter` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
   `var` varchar(255) NOT NULL DEFAULT '' COMMENT 'Variable',
   `relation` enum('=','LIKE','CONTAINED','FULLTEXT','<=','>=') NOT NULL DEFAULT '=' COMMENT 'Relation',
   `field` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field',
-  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority',
-  KEY `id` (`id`),
-  KEY `priority` (`priority`)
+  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Material blocks filtering';
 
 -- --------------------------------------------------------
@@ -432,14 +409,12 @@ CREATE TABLE IF NOT EXISTS `cms_blocks_material_filter` (
 --
 
 DROP TABLE IF EXISTS `cms_blocks_material_sort`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_material_sort` (
+CREATE TABLE `cms_blocks_material_sort` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
   `var` varchar(255) NOT NULL DEFAULT '' COMMENT 'Variable',
   `field` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field',
   `relation` enum('asc!','desc!','asc','desc') NOT NULL DEFAULT 'asc!' COMMENT 'Relation',
-  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority',
-  KEY `id` (`id`),
-  KEY `priority` (`priority`)
+  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Material blocks sorting';
 
 -- --------------------------------------------------------
@@ -449,12 +424,10 @@ CREATE TABLE IF NOT EXISTS `cms_blocks_material_sort` (
 --
 
 DROP TABLE IF EXISTS `cms_blocks_menu`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_menu` (
+CREATE TABLE `cms_blocks_menu` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
   `menu` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Menu ID#',
-  `full_menu` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Full menu',
-  PRIMARY KEY (`id`),
-  KEY `menu` (`menu`)
+  `full_menu` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Full menu'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Menu blocks';
 
 --
@@ -474,14 +447,10 @@ INSERT INTO `cms_blocks_menu` (`id`, `menu`, `full_menu`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_blocks_pages_assoc`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_pages_assoc` (
+CREATE TABLE `cms_blocks_pages_assoc` (
   `block_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Block ID#',
   `page_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#',
-  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority',
-  PRIMARY KEY (`block_id`,`page_id`),
-  KEY `block_id` (`block_id`),
-  KEY `page_id` (`page_id`),
-  KEY `priority` (`priority`)
+  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Blocks to pages associations';
 
 --
@@ -995,7 +964,11 @@ INSERT INTO `cms_blocks_pages_assoc` (`block_id`, `page_id`, `priority`) VALUES
 (46, 32, 504),
 (47, 33, 505),
 (48, 31, 506),
-(49, 20, 507);
+(49, 20, 507),
+(50, 15, 508),
+(51, 15, 509),
+(52, 15, 510),
+(53, 15, 511);
 
 -- --------------------------------------------------------
 
@@ -1004,12 +977,10 @@ INSERT INTO `cms_blocks_pages_assoc` (`block_id`, `page_id`, `priority`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_blocks_php`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_php` (
+CREATE TABLE `cms_blocks_php` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
   `description` text COMMENT 'Code',
-  `widget` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Widget ID#',
-  PRIMARY KEY (`id`),
-  KEY `widget` (`widget`)
+  `widget` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Widget ID#'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='PHP blocks';
 
 -- --------------------------------------------------------
@@ -1019,13 +990,12 @@ CREATE TABLE IF NOT EXISTS `cms_blocks_php` (
 --
 
 DROP TABLE IF EXISTS `cms_blocks_search`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_search` (
+CREATE TABLE `cms_blocks_search` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
   `search_var_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Search var name',
   `min_length` tinyint(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Minimal query length',
   `pages_var_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Pages var name',
-  `rows_per_page` tinyint(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Rows per page',
-  PRIMARY KEY (`id`)
+  `rows_per_page` tinyint(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Rows per page'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Search blocks';
 
 -- --------------------------------------------------------
@@ -1035,12 +1005,9 @@ CREATE TABLE IF NOT EXISTS `cms_blocks_search` (
 --
 
 DROP TABLE IF EXISTS `cms_blocks_search_languages_assoc`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_search_languages_assoc` (
+CREATE TABLE `cms_blocks_search_languages_assoc` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
-  `language` varchar(255) NOT NULL DEFAULT '' COMMENT 'Language',
-  PRIMARY KEY (`id`,`language`),
-  KEY `id` (`id`),
-  KEY `language` (`language`)
+  `language` varchar(255) NOT NULL DEFAULT '' COMMENT 'Language'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Search blocks languages';
 
 -- --------------------------------------------------------
@@ -1050,12 +1017,9 @@ CREATE TABLE IF NOT EXISTS `cms_blocks_search_languages_assoc` (
 --
 
 DROP TABLE IF EXISTS `cms_blocks_search_material_types_assoc`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_search_material_types_assoc` (
+CREATE TABLE `cms_blocks_search_material_types_assoc` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
-  `material_type` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
-  PRIMARY KEY (`id`,`material_type`),
-  KEY `id` (`id`),
-  KEY `material_type` (`material_type`)
+  `material_type` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Search blocks material types';
 
 -- --------------------------------------------------------
@@ -1065,12 +1029,9 @@ CREATE TABLE IF NOT EXISTS `cms_blocks_search_material_types_assoc` (
 --
 
 DROP TABLE IF EXISTS `cms_blocks_search_pages_assoc`;
-CREATE TABLE IF NOT EXISTS `cms_blocks_search_pages_assoc` (
+CREATE TABLE `cms_blocks_search_pages_assoc` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
-  `page_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#',
-  PRIMARY KEY (`id`,`page_id`),
-  KEY `id` (`id`),
-  KEY `page_id` (`page_id`)
+  `page_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Search blocks pages';
 
 -- --------------------------------------------------------
@@ -1080,16 +1041,12 @@ CREATE TABLE IF NOT EXISTS `cms_blocks_search_pages_assoc` (
 --
 
 DROP TABLE IF EXISTS `cms_data`;
-CREATE TABLE IF NOT EXISTS `cms_data` (
+CREATE TABLE `cms_data` (
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `fid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Field ID#',
   `fii` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Field index',
   `value` text COMMENT 'Value',
-  `inherited` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Inherited',
-  PRIMARY KEY (`pid`,`fid`,`fii`),
-  KEY `pid` (`pid`),
-  KEY `fid` (`fid`),
-  KEY `fii` (`fii`)
+  `inherited` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Inherited'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pages fields';
 
 --
@@ -1300,11 +1257,44 @@ INSERT INTO `cms_data` (`pid`, `fid`, `fii`, `value`, `inherited`) VALUES
 (19, 35, 28, '16', 0),
 (19, 35, 29, '11', 0),
 (20, 2, 0, '{\"vis\":1,\"name\":\"\",\"description\":\"\",\"attachment\":23}', 0),
+(20, 49, 0, '12', 0),
+(20, 50, 0, '', 0),
+(20, 51, 0, '', 0),
+(20, 52, 0, '', 0),
+(20, 53, 0, '', 0),
+(20, 54, 0, '', 0),
 (21, 2, 0, '{\"vis\":1,\"name\":\"\",\"description\":\"\",\"attachment\":24}', 0),
+(21, 49, 0, '12', 0),
+(21, 50, 0, '', 0),
+(21, 51, 0, '', 0),
+(21, 52, 0, '', 0),
+(21, 53, 0, '', 0),
+(21, 54, 0, '', 0),
 (22, 2, 0, '{\"vis\":1,\"name\":\"\",\"description\":\"\",\"attachment\":25}', 0),
+(22, 49, 0, '12', 0),
+(22, 50, 0, '', 0),
+(22, 51, 0, '', 0),
+(22, 52, 0, '', 0),
+(22, 53, 0, '', 0),
+(22, 54, 0, '', 0),
 (23, 2, 0, '{\"vis\":1,\"name\":\"\",\"description\":\"\",\"attachment\":26}', 0),
+(23, 55, 0, '', 0),
+(23, 56, 0, '12', 0),
+(23, 57, 0, '1', 0),
+(23, 58, 0, '', 0),
+(23, 59, 0, '', 0),
 (24, 2, 0, '{\"vis\":1,\"name\":\"\",\"description\":\"\",\"attachment\":27}', 0),
+(24, 55, 0, '', 0),
+(24, 56, 0, '12', 0),
+(24, 57, 0, '2', 0),
+(24, 58, 0, '', 0),
+(24, 59, 0, '', 0),
 (25, 1, 0, '', 0),
+(25, 55, 0, '', 0),
+(25, 56, 0, '12', 0),
+(25, 57, 0, '3', 0),
+(25, 58, 0, '', 0),
+(25, 59, 0, '', 0),
 (30, 1, 0, '', 0);
 
 -- --------------------------------------------------------
@@ -1314,21 +1304,16 @@ INSERT INTO `cms_data` (`pid`, `fid`, `fii`, `value`, `inherited`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_dictionaries`;
-CREATE TABLE IF NOT EXISTS `cms_dictionaries` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_dictionaries` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `vis` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Visibility',
   `pvis` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Parent visibility',
   `urn` varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority',
-  `orderby` enum('id','urn','name','priority') NOT NULL DEFAULT 'priority' COMMENT 'Order by',
-  PRIMARY KEY (`id`),
-  KEY `pid` (`pid`),
-  KEY `urn` (`urn`),
-  KEY `orderby` (`orderby`),
-  KEY `priority` (`priority`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='Dictionaries';
+  `orderby` enum('id','urn','name','priority') NOT NULL DEFAULT 'priority' COMMENT 'Order by'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Dictionaries';
 
 --
 -- Дамп данных таблицы `cms_dictionaries`
@@ -1347,14 +1332,10 @@ INSERT INTO `cms_dictionaries` (`id`, `pid`, `vis`, `pvis`, `urn`, `name`, `prio
 --
 
 DROP TABLE IF EXISTS `cms_dictionaries_tree_cache`;
-CREATE TABLE IF NOT EXISTS `cms_dictionaries_tree_cache` (
+CREATE TABLE `cms_dictionaries_tree_cache` (
   `parent_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `child_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Child ID#',
-  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level',
-  PRIMARY KEY (`child_id`,`__level`),
-  KEY `parent_id` (`parent_id`),
-  KEY `child_id` (`child_id`),
-  KEY `__level` (`__level`)
+  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Dictionaries tree cache';
 
 -- --------------------------------------------------------
@@ -1364,8 +1345,8 @@ CREATE TABLE IF NOT EXISTS `cms_dictionaries_tree_cache` (
 --
 
 DROP TABLE IF EXISTS `cms_feedback`;
-CREATE TABLE IF NOT EXISTS `cms_feedback` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_feedback` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `uid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Site user ID#',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Form ID#',
   `page_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#',
@@ -1373,12 +1354,8 @@ CREATE TABLE IF NOT EXISTS `cms_feedback` (
   `post_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
   `vis` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Visited',
   `ip` varchar(255) NOT NULL DEFAULT '0.0.0.0' COMMENT 'IP address',
-  `user_agent` varchar(255) NOT NULL DEFAULT '0.0.0.0' COMMENT 'User Agent',
-  PRIMARY KEY (`id`),
-  KEY `uid` (`uid`),
-  KEY `pid` (`pid`),
-  KEY `page_id` (`page_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='Feedback';
+  `user_agent` varchar(255) NOT NULL DEFAULT '0.0.0.0' COMMENT 'User Agent'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Feedback';
 
 --
 -- Дамп данных таблицы `cms_feedback`
@@ -1394,8 +1371,8 @@ INSERT INTO `cms_feedback` (`id`, `uid`, `pid`, `page_id`, `material_id`, `post_
 --
 
 DROP TABLE IF EXISTS `cms_fields`;
-CREATE TABLE IF NOT EXISTS `cms_fields` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_fields` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `classname` varchar(255) NOT NULL DEFAULT '' COMMENT 'Parent class name',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
   `datatype` varchar(255) NOT NULL DEFAULT '' COMMENT 'Data type',
@@ -1415,16 +1392,8 @@ CREATE TABLE IF NOT EXISTS `cms_fields` (
   `placeholder` varchar(255) NOT NULL DEFAULT '' COMMENT 'Placeholder',
   `pattern` varchar(255) NOT NULL DEFAULT '' COMMENT 'Pattern',
   `show_in_table` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Show as table column',
-  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority',
-  PRIMARY KEY (`id`),
-  KEY `pid` (`pid`),
-  KEY `datatype` (`datatype`),
-  KEY `classname` (`classname`),
-  KEY `classname_2` (`classname`,`pid`),
-  KEY `preprocessor_id` (`preprocessor_id`),
-  KEY `postprocessor_id` (`postprocessor_id`),
-  KEY `priority` (`priority`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8 COMMENT='Material fields';
+  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Material fields';
 
 --
 -- Дамп данных таблицы `cms_fields`
@@ -1476,7 +1445,27 @@ INSERT INTO `cms_fields` (`id`, `classname`, `pid`, `datatype`, `urn`, `name`, `
 (44, 'RAAS\\CMS\\User', 0, 'text', 'first_name', 'Имя', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 44),
 (45, 'RAAS\\CMS\\User', 0, 'text', 'second_name', 'Отчество', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 45),
 (47, 'RAAS\\CMS\\Material_Type', 4, 'select', 'testfield', 'Тестовое поле справочника', 0, 0, 0, 'dictionary', '1', '', 0, 0, 0, 0, 0, '', '', 0, 46),
-(48, 'RAAS\\CMS\\Material_Type', 5, 'text', 'special', 'Особое поле', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 47);
+(48, 'RAAS\\CMS\\Material_Type', 5, 'text', 'special', 'Особое поле', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 47),
+(49, 'RAAS\\CMS\\Material_Type', 6, 'material', 'material', 'Материал', 0, 0, 0, '', '4', '', 0, 0, 0, 0, 0, '', '', 0, 48),
+(50, 'RAAS\\CMS\\Material_Type', 6, 'datetime-local', 'date', 'Дата', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 49),
+(51, 'RAAS\\CMS\\Material_Type', 6, 'text', 'phone', 'Телефон', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 50),
+(52, 'RAAS\\CMS\\Material_Type', 6, 'email', 'email', 'E-mail', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 51),
+(53, 'RAAS\\CMS\\Material_Type', 6, 'text', 'answer_name', 'Имя отвечающего', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 52),
+(54, 'RAAS\\CMS\\Material_Type', 6, 'htmlarea', 'answer', 'Ответ', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 53),
+(55, 'RAAS\\CMS\\Material_Type', 7, 'datetime-local', 'date', 'Дата', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 54),
+(56, 'RAAS\\CMS\\Material_Type', 7, 'material', 'material', 'Материал', 0, 0, 0, '', '4', '', 0, 0, 0, 0, 0, '', '', 0, 55),
+(57, 'RAAS\\CMS\\Material_Type', 7, 'number', 'rating', 'Рейтинг', 0, 0, 0, '', '0', '', 0, 5, 1, 0, 0, '', '', 0, 56),
+(58, 'RAAS\\CMS\\Material_Type', 7, 'text', 'answer_name', 'Имя отвечающего', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 57),
+(59, 'RAAS\\CMS\\Material_Type', 7, 'htmlarea', 'answer', 'Ответ', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 58),
+(60, 'RAAS\\CMS\\Form', 5, 'text', 'full_name', 'Ваше имя', 1, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 10),
+(61, 'RAAS\\CMS\\Form', 5, 'checkbox', 'phone', 'Телефон', 1, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 20),
+(62, 'RAAS\\CMS\\Form', 5, 'textarea', '_description_', 'Текст вопроса', 1, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 30),
+(63, 'RAAS\\CMS\\Form', 5, 'material', 'material', 'Материал', 1, 0, 0, '', '', '', 0, 0, 0, 0, 0, '', '', 0, 40),
+(64, 'RAAS\\CMS\\Form', 6, 'text', 'full_name', 'Ваше имя', 1, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 59),
+(65, 'RAAS\\CMS\\Form', 6, 'email', 'email', 'E-mail', 0, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 60),
+(66, 'RAAS\\CMS\\Form', 6, 'textarea', '_description_', 'Текст отзыва', 1, 0, 0, '', '0', '', 0, 0, 0, 0, 0, '', '', 0, 61),
+(67, 'RAAS\\CMS\\Form', 6, 'material', 'material', 'Материал', 1, 0, 0, '', '4', '', 0, 0, 0, 0, 0, '', '', 0, 62),
+(68, 'RAAS\\CMS\\Form', 6, 'number', 'rating', 'Рейтинг', 0, 0, 0, '', '0', '', 0, 5, 1, 0, 0, '', '', 0, 63);
 
 -- --------------------------------------------------------
 
@@ -1485,8 +1474,8 @@ INSERT INTO `cms_fields` (`id`, `classname`, `pid`, `datatype`, `urn`, `name`, `
 --
 
 DROP TABLE IF EXISTS `cms_forms`;
-CREATE TABLE IF NOT EXISTS `cms_forms` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_forms` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   `urn` varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `material_type` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type',
@@ -1495,10 +1484,8 @@ CREATE TABLE IF NOT EXISTS `cms_forms` (
   `signature` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Require POST signature',
   `antispam` varchar(255) NOT NULL DEFAULT '' COMMENT 'Use anti-spam',
   `antispam_field_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Anti-spam field name',
-  `interface_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
-  PRIMARY KEY (`id`),
-  KEY `urn` (`urn`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='Forms';
+  `interface_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Interface ID#'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Forms';
 
 --
 -- Дамп данных таблицы `cms_forms`
@@ -1508,7 +1495,9 @@ INSERT INTO `cms_forms` (`id`, `name`, `urn`, `material_type`, `create_feedback`
 (1, 'Обратная связь', 'feedback', 0, 1, '', 1, 'hidden', '_name', 5),
 (2, 'Заказать звонок', 'order_call', 0, 1, '', 1, 'hidden', '_name', 5),
 (3, 'Форма заказа', 'order', 0, 1, '', 1, 'hidden', '_name', 25),
-(4, 'Форма для регистрации', 'forma_dla_registracii', 0, 1, '', 1, 'hidden', '_name', 49);
+(4, 'Форма для регистрации', 'forma_dla_registracii', 0, 1, '', 1, 'hidden', '_name', 49),
+(5, 'Вопрос-ответ к товарам', 'goods_faq', 6, 1, '', 1, 'hidden', '_name', 5),
+(6, 'Отзывы к товарам', 'goods_reviews', 7, 1, '', 1, 'hidden', '_name', 5);
 
 -- --------------------------------------------------------
 
@@ -1517,16 +1506,13 @@ INSERT INTO `cms_forms` (`id`, `name`, `urn`, `material_type`, `create_feedback`
 --
 
 DROP TABLE IF EXISTS `cms_groups`;
-CREATE TABLE IF NOT EXISTS `cms_groups` (
-  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_groups` (
+  `id` smallint(5) UNSIGNED NOT NULL COMMENT 'ID#',
   `pid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent group ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   `urn` varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
-  `description` text COMMENT 'Description',
-  PRIMARY KEY (`id`),
-  KEY `pid` (`pid`),
-  KEY `urn` (`urn`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='Groups of users';
+  `description` text COMMENT 'Description'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups of users';
 
 --
 -- Дамп данных таблицы `cms_groups`
@@ -1542,14 +1528,10 @@ INSERT INTO `cms_groups` (`id`, `pid`, `name`, `urn`, `description`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_groups_tree_cache`;
-CREATE TABLE IF NOT EXISTS `cms_groups_tree_cache` (
+CREATE TABLE `cms_groups_tree_cache` (
   `parent_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `child_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Child ID#',
-  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level',
-  PRIMARY KEY (`child_id`,`__level`),
-  KEY `parent_id` (`parent_id`),
-  KEY `child_id` (`child_id`),
-  KEY `__level` (`__level`)
+  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups tree cache';
 
 -- --------------------------------------------------------
@@ -1559,8 +1541,8 @@ CREATE TABLE IF NOT EXISTS `cms_groups_tree_cache` (
 --
 
 DROP TABLE IF EXISTS `cms_materials`;
-CREATE TABLE IF NOT EXISTS `cms_materials` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_materials` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
   `page_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Default page ID#',
   `vis` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Visibility',
@@ -1584,16 +1566,8 @@ CREATE TABLE IF NOT EXISTS `cms_materials` (
   `last_modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
   `sitemaps_priority` decimal(8,2) UNSIGNED NOT NULL DEFAULT '0.50' COMMENT 'Sitemaps priority',
   `show_from` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish from date/time',
-  `show_to` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish to date/time',
-  PRIMARY KEY (`id`),
-  KEY `pid` (`pid`),
-  KEY `author_id` (`author_id`),
-  KEY `editor_id` (`editor_id`),
-  KEY `urn` (`urn`),
-  KEY `show_from` (`show_from`),
-  KEY `show_to` (`show_to`),
-  KEY `priority` (`priority`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COMMENT='Translator exceptions';
+  `show_to` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish to date/time'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Translator exceptions';
 
 --
 -- Дамп данных таблицы `cms_materials`
@@ -1618,7 +1592,13 @@ INSERT INTO `cms_materials` (`id`, `pid`, `page_id`, `vis`, `post_date`, `modify
 (16, 4, 0, 1, '2018-04-05 11:34:27', '2018-04-05 11:34:27', 0, 0, 'tovar_7', 'Товар 7', '<p>Понятие тоталитаризма, конечно, упруго начинает ассоцианизм. Целое число дисгармонично. Генетика, в соответствии с модифицированным уравнением Эйлера, фоссилизирует периодический импульс.</p>\n<p>Тем не менее, модальность высказывания вертикально отражает базальтовый слой. Движимое имущество представляет собой прибор, что часто служит основанием изменения и прекращения гражданских прав и обязанностей. Комета, в первом приближении, дегустирует закон внешнего мира. Фишка притягивает объект. Бамбуковый медведь панда огнеопасно трансформирует лирический субъект. Лайн-ап обедняет квазар.</p>\n<p>Притеррасная низменность иллюстрирует культурный синтаксис искусства. \"кодекс деяний\", не вдаваясь в подробности, даёт более \nпростую систему дифференциальных уравнений, если исключить комплексный кристалл. Великобритания преобразует метафоричный комплекс рения с саленом.</p>', '', NULL, NULL, '', '', '', 70, 0, 1, '', '2018-04-05 11:34:27', '0.50', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
 (17, 4, 0, 1, '2018-04-05 11:34:27', '2018-04-05 11:34:27', 0, 0, 'tovar_8', 'Товар 8', '<p>Очевидно, что аполлоновское начало заканчивает полимерный кредитор. Рыночная информация, согласно третьему закону Ньютона, складчата. Линеаризация участвует \nв погрешности определения курса меньше, чем термодинамический интеллект с учётом интеграла собственного кинетического момента ротора. Исходя из данного утверждения, бессознательное постоянно. Ревер  без оглядки на авторитеты представляет собой журавчик.</p>\n<p>Сверхпроводник, по определению, сложен. Генезис не так уж очевиден. Основная магистраль проходит с севера на юг от Шкодера через Дуррес до Влёры, после поворота волна даёт более \nпростую систему дифференциальных уравнений, если исключить период. Конечно,  примочка интенсивно уравновешивает цикл. Комбинаторное приращение рассматривается традиционный реализм, как и предсказывает общая теория поля.</p>\n<p>Зеркало требует \nперейти к поступательно перемещающейся системе координат, чем и характеризуется параметр Родинга-Гамильтона. Чем больше люди узнают друг друга, тем больше одиннадцатисложник слабопроницаем. Пласт вызывает неопровержимый интеграл Фурье. Система координат ударяет индикатор.</p>', '', NULL, NULL, '', '', '', 80, 0, 1, '', '2018-04-05 11:34:27', '0.50', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
 (18, 4, 0, 1, '2018-04-05 11:34:27', '2018-04-05 11:34:27', 0, 0, 'tovar_9', 'Товар 9', '<p>Импульс устойчиво отталкивает конституционный свежеприготовленный раствор. Неоднородность иллюстрирует восстановитель. Принцип \nартистизма выслеживает трог, хотя в официозе принято обратное.</p>\n<p>Ритмическая организованность таких стихов не всегда очевидна при чтении \"про себя\", но внутридискретное арпеджио непрерывно. Гетерогенная структура, учитывая отсутствие в законе норм, посвященных данному вопросу, представляет собой энергетический подуровень. Движимое имущество пространственно неоднородно. Хорус совершает твердый восстановитель. Верховое болото реально формирует лирический сарос одинаково по всем направлениям. Делькредере астатично.</p>\n<p>Пескование, на первый взгляд, законодательно. Португальская колонизация на следующий год, когда было лунное затмение и сгорел древний храм Афины в Афинах (при эфоре Питии и афинском архонте Каллии), готично совершает фотоиндуцированный энергетический перенос. Социальный статус, так или иначе, возбуждает косвенный рисчоррит.</p>', '', NULL, NULL, '', '', '', 90, 0, 1, '', '2018-04-05 11:34:27', '0.50', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(19, 4, 0, 1, '2018-04-05 11:34:27', '2018-04-05 11:34:27', 0, 0, 'tovar_10', 'Товар 10', '<p>Импульс устойчиво отталкивает конституционный свежеприготовленный раствор. Неоднородность иллюстрирует восстановитель. Принцип \nартистизма выслеживает трог, хотя в официозе принято обратное.</p>\n<p>Ритмическая организованность таких стихов не всегда очевидна при чтении \"про себя\", но внутридискретное арпеджио непрерывно. Гетерогенная структура, учитывая отсутствие в законе норм, посвященных данному вопросу, представляет собой энергетический подуровень. Движимое имущество пространственно неоднородно. Хорус совершает твердый восстановитель. Верховое болото реально формирует лирический сарос одинаково по всем направлениям. Делькредере астатично.</p>\n<p>Пескование, на первый взгляд, законодательно. Португальская колонизация на следующий год, когда было лунное затмение и сгорел древний храм Афины в Афинах (при эфоре Питии и афинском архонте Каллии), готично совершает фотоиндуцированный энергетический перенос. Социальный статус, так или иначе, возбуждает косвенный рисчоррит.</p>', '', NULL, NULL, '', '', '', 100, 0, 1, '', '2018-04-05 11:34:27', '0.50', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+(19, 4, 0, 1, '2018-04-05 11:34:27', '2018-04-05 11:34:27', 0, 0, 'tovar_10', 'Товар 10', '<p>Импульс устойчиво отталкивает конституционный свежеприготовленный раствор. Неоднородность иллюстрирует восстановитель. Принцип \nартистизма выслеживает трог, хотя в официозе принято обратное.</p>\n<p>Ритмическая организованность таких стихов не всегда очевидна при чтении \"про себя\", но внутридискретное арпеджио непрерывно. Гетерогенная структура, учитывая отсутствие в законе норм, посвященных данному вопросу, представляет собой энергетический подуровень. Движимое имущество пространственно неоднородно. Хорус совершает твердый восстановитель. Верховое болото реально формирует лирический сарос одинаково по всем направлениям. Делькредере астатично.</p>\n<p>Пескование, на первый взгляд, законодательно. Португальская колонизация на следующий год, когда было лунное затмение и сгорел древний храм Афины в Афинах (при эфоре Питии и афинском архонте Каллии), готично совершает фотоиндуцированный энергетический перенос. Социальный статус, так или иначе, возбуждает косвенный рисчоррит.</p>', '', NULL, NULL, '', '', '', 100, 0, 1, '', '2018-04-05 11:34:27', '0.50', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(20, 6, 0, 1, '2019-03-29 14:50:50', '2019-03-29 14:52:21', 1, 1, 'vopros_1', 'Вопрос 1', '', '', '', '', '', '', '', 0, 0, 1, '', '2019-03-29 14:50:50', '0.50', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(21, 6, 0, 1, '2019-03-29 14:50:59', '2019-03-29 14:52:25', 1, 1, 'vopros_2', 'Вопрос 2', '', '', '', '', '', '', '', 0, 0, 1, '', '2019-03-29 14:50:59', '0.50', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(22, 6, 0, 1, '2019-03-29 14:51:02', '2019-03-29 14:52:30', 1, 1, 'vopros_3', 'Вопрос 3', '', '', '', '', '', '', '', 0, 0, 1, '', '2019-03-29 14:51:02', '0.50', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(23, 7, 0, 1, '2019-03-29 14:51:10', '2019-03-29 14:52:35', 1, 1, 'otzyv_1', 'Отзыв 1', '', '', '', '', '', '', '', 0, 0, 1, '', '2019-03-29 14:51:10', '0.50', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(24, 7, 0, 1, '2019-03-29 14:51:14', '2019-03-29 14:52:39', 1, 1, 'otzyv_2', 'Отзыв 2', '', '', '', '', '', '', '', 0, 0, 1, '', '2019-03-29 14:51:14', '0.50', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(25, 7, 0, 1, '2019-03-29 14:51:23', '2019-03-29 14:52:44', 1, 1, 'otzyv_3', 'Отзыв 3', '', '', '', '', '', '', '', 0, 0, 1, '', '2019-03-29 14:51:23', '0.50', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -1627,12 +1607,9 @@ INSERT INTO `cms_materials` (`id`, `pid`, `page_id`, `vis`, `post_date`, `modify
 --
 
 DROP TABLE IF EXISTS `cms_materials_pages_assoc`;
-CREATE TABLE IF NOT EXISTS `cms_materials_pages_assoc` (
+CREATE TABLE `cms_materials_pages_assoc` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material ID#',
-  `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#',
-  PRIMARY KEY (`id`,`pid`),
-  KEY `id` (`id`),
-  KEY `pid` (`pid`)
+  `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Materials to pages associations';
 
 --
@@ -1719,7 +1696,67 @@ INSERT INTO `cms_materials_pages_assoc` (`id`, `pid`) VALUES
 (19, 21),
 (19, 22),
 (19, 23),
-(19, 24);
+(19, 24),
+(20, 15),
+(20, 16),
+(20, 17),
+(20, 18),
+(20, 19),
+(20, 20),
+(20, 21),
+(20, 22),
+(20, 23),
+(20, 24),
+(21, 15),
+(21, 16),
+(21, 17),
+(21, 18),
+(21, 19),
+(21, 20),
+(21, 21),
+(21, 22),
+(21, 23),
+(21, 24),
+(22, 15),
+(22, 16),
+(22, 17),
+(22, 18),
+(22, 19),
+(22, 20),
+(22, 21),
+(22, 22),
+(22, 23),
+(22, 24),
+(23, 15),
+(23, 16),
+(23, 17),
+(23, 18),
+(23, 19),
+(23, 20),
+(23, 21),
+(23, 22),
+(23, 23),
+(23, 24),
+(24, 15),
+(24, 16),
+(24, 17),
+(24, 18),
+(24, 19),
+(24, 20),
+(24, 21),
+(24, 22),
+(24, 23),
+(24, 24),
+(25, 15),
+(25, 16),
+(25, 17),
+(25, 18),
+(25, 19),
+(25, 20),
+(25, 21),
+(25, 22),
+(25, 23),
+(25, 24);
 
 -- --------------------------------------------------------
 
@@ -1728,15 +1765,13 @@ INSERT INTO `cms_materials_pages_assoc` (`id`, `pid`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_material_types`;
-CREATE TABLE IF NOT EXISTS `cms_material_types` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_material_types` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent type ID#',
   `urn` varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
-  `global_type` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Global materials',
-  PRIMARY KEY (`id`),
-  KEY `urn` (`urn`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='Material types';
+  `global_type` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Global materials'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Material types';
 
 --
 -- Дамп данных таблицы `cms_material_types`
@@ -1747,7 +1782,9 @@ INSERT INTO `cms_material_types` (`id`, `pid`, `urn`, `name`, `global_type`) VAL
 (2, 0, 'banners', 'Баннеры', 1),
 (3, 0, 'news', 'Новости', 1),
 (4, 0, 'catalog', 'Каталог продукции', 0),
-(5, 4, 'special', 'Особые товары', 0);
+(5, 4, 'special', 'Особые товары', 0),
+(6, 0, 'goods_faq', 'Вопрос-ответ к товарам', 0),
+(7, 0, 'goods_comments', 'Отзывы к товарам', 0);
 
 -- --------------------------------------------------------
 
@@ -1756,14 +1793,10 @@ INSERT INTO `cms_material_types` (`id`, `pid`, `urn`, `name`, `global_type`) VAL
 --
 
 DROP TABLE IF EXISTS `cms_material_types_tree_cache`;
-CREATE TABLE IF NOT EXISTS `cms_material_types_tree_cache` (
+CREATE TABLE `cms_material_types_tree_cache` (
   `parent_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `child_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Child ID#',
-  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level',
-  PRIMARY KEY (`child_id`,`__level`),
-  KEY `parent_id` (`parent_id`),
-  KEY `child_id` (`child_id`),
-  KEY `__level` (`__level`)
+  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Material types tree cache';
 
 -- --------------------------------------------------------
@@ -1773,8 +1806,8 @@ CREATE TABLE IF NOT EXISTS `cms_material_types_tree_cache` (
 --
 
 DROP TABLE IF EXISTS `cms_menus`;
-CREATE TABLE IF NOT EXISTS `cms_menus` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_menus` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `vis` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Visibility',
   `pvis` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Parent visibility',
@@ -1783,13 +1816,8 @@ CREATE TABLE IF NOT EXISTS `cms_menus` (
   `url` varchar(255) NOT NULL DEFAULT '' COMMENT 'URL',
   `page_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#',
   `inherit` tinyint(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Nesting level',
-  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority',
-  PRIMARY KEY (`id`),
-  KEY `pid` (`pid`),
-  KEY `page_id` (`page_id`),
-  KEY `urn` (`urn`),
-  KEY `priority` (`priority`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='Menus';
+  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Menus';
 
 --
 -- Дамп данных таблицы `cms_menus`
@@ -1814,14 +1842,10 @@ INSERT INTO `cms_menus` (`id`, `pid`, `vis`, `pvis`, `name`, `urn`, `url`, `page
 --
 
 DROP TABLE IF EXISTS `cms_menus_tree_cache`;
-CREATE TABLE IF NOT EXISTS `cms_menus_tree_cache` (
+CREATE TABLE `cms_menus_tree_cache` (
   `parent_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `child_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Child ID#',
-  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level',
-  PRIMARY KEY (`child_id`,`__level`),
-  KEY `parent_id` (`parent_id`),
-  KEY `child_id` (`child_id`),
-  KEY `__level` (`__level`)
+  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Menus tree cache';
 
 -- --------------------------------------------------------
@@ -1831,8 +1855,8 @@ CREATE TABLE IF NOT EXISTS `cms_menus_tree_cache` (
 --
 
 DROP TABLE IF EXISTS `cms_pages`;
-CREATE TABLE IF NOT EXISTS `cms_pages` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_pages` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `vis` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Visibility',
   `pvis` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Parent visibility',
@@ -1867,16 +1891,8 @@ CREATE TABLE IF NOT EXISTS `cms_pages` (
   `last_modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last modified',
   `sitemaps_priority` decimal(8,2) UNSIGNED NOT NULL DEFAULT '0.50' COMMENT 'Sitemaps priority',
   `inherit_sitemaps_priority` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Inherit sitemaps priority',
-  `cache_url` varchar(255) NOT NULL DEFAULT '/' COMMENT 'Cached URL',
-  PRIMARY KEY (`id`),
-  KEY `pid` (`pid`),
-  KEY `author_id` (`author_id`),
-  KEY `editor_id` (`editor_id`),
-  KEY `urn` (`urn`),
-  KEY `template` (`template`),
-  KEY `priority` (`priority`),
-  KEY `cache_url` (`cache_url`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8 COMMENT='Site pages';
+  `cache_url` varchar(255) NOT NULL DEFAULT '/' COMMENT 'Cached URL'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Site pages';
 
 --
 -- Дамп данных таблицы `cms_pages`
@@ -1897,16 +1913,16 @@ INSERT INTO `cms_pages` (`id`, `pid`, `vis`, `pvis`, `post_date`, `modify_date`,
 (12, 1, 1, 1, '2018-04-05 11:34:15', '2018-04-22 10:22:34', 1, 1, 'robots', 'robots.txt', 200, '', 0, NULL, 0, NULL, 0, '', '', '', '0', 0, 'ru', 1, 0, 12, 1, 0, 0, 2, '', 0, '2018-04-22 09:45:24', '0.50', 0, '/robots/'),
 (13, 1, 1, 1, '2018-04-05 11:34:16', '2018-04-22 10:22:34', 1, 1, 'custom_css', 'custom.css', 200, '', 0, NULL, 0, NULL, 0, '', '', '', '0', 0, 'ru', 1, 0, 13, 1, 0, 0, 2, '', 0, '2018-04-22 09:45:24', '0.50', 0, '/custom_css/'),
 (14, 1, 1, 1, '2018-04-05 11:34:16', '2018-04-22 10:22:34', 1, 1, 'ajax', 'AJAX', 200, '', 0, NULL, 0, NULL, 0, '', '', '', '0', 0, 'ru', 1, 0, 14, 0, 0, 0, 2, '', 0, '2018-04-22 09:45:24', '0.50', 0, '/ajax/'),
-(15, 1, 1, 1, '2018-04-05 11:34:23', '2018-04-22 10:22:34', 1, 1, 'catalog', 'Каталог продукции', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 15, 1, 0, 0, 2, '', 0, '2018-04-22 13:56:50', '0.50', 0, '/catalog/'),
-(16, 15, 1, 1, '2018-04-05 11:34:23', '2018-04-22 10:22:34', 1, 1, 'category1', 'Категория 1', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 16, 1, 0, 0, 2, '', 0, '2018-04-22 13:56:50', '0.50', 0, '/catalog/category1/'),
-(17, 16, 1, 1, '2018-04-05 11:34:24', '2018-04-22 10:22:34', 1, 1, 'category11', 'Категория 11', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 17, 1, 0, 0, 2, '', 0, '2018-04-22 13:56:50', '0.50', 0, '/catalog/category1/category11/'),
-(18, 17, 1, 1, '2018-04-05 11:34:24', '2018-04-22 10:22:34', 1, 1, 'category111', 'Категория 111', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 18, 1, 0, 0, 2, '', 0, '2018-04-22 13:56:50', '0.50', 0, '/catalog/category1/category11/category111/'),
-(19, 17, 1, 1, '2018-04-05 11:34:24', '2018-04-22 10:22:34', 1, 1, 'category112', 'Категория 112', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 19, 1, 0, 0, 2, '', 0, '2018-04-22 13:56:50', '0.50', 0, '/catalog/category1/category11/category112/'),
-(20, 17, 1, 1, '2018-04-05 11:34:24', '2018-04-22 10:22:34', 1, 1, 'category113', 'Категория 113', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 20, 1, 0, 0, 2, '', 0, '2018-04-22 13:56:50', '0.50', 0, '/catalog/category1/category11/category113/'),
-(21, 16, 1, 1, '2018-04-05 11:34:25', '2018-04-22 10:22:34', 1, 1, 'category12', 'Категория 12', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 21, 1, 0, 0, 2, '', 0, '2018-04-22 13:56:50', '0.50', 0, '/catalog/category1/category12/'),
-(22, 16, 1, 1, '2018-04-05 11:34:25', '2018-04-22 10:22:34', 1, 1, 'category13', 'Категория 13', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 22, 1, 0, 0, 2, '', 0, '2018-04-22 13:56:50', '0.50', 0, '/catalog/category1/category13/'),
-(23, 15, 1, 1, '2018-04-05 11:34:25', '2018-04-22 10:22:34', 1, 1, 'category2', 'Категория 2', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 23, 1, 0, 0, 2, '', 0, '2018-04-22 13:56:50', '0.50', 0, '/catalog/category2/'),
-(24, 15, 1, 1, '2018-04-05 11:34:26', '2018-04-22 10:22:34', 1, 1, 'category3', 'Категория 3', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 24, 1, 0, 0, 2, '', 0, '2018-04-22 13:56:50', '0.50', 0, '/catalog/category3/'),
+(15, 1, 1, 1, '2018-04-05 11:34:23', '2018-04-22 10:22:34', 1, 1, 'catalog', 'Каталог продукции', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 15, 1, 0, 0, 2, '', 0, '2019-03-29 14:19:56', '0.50', 0, '/catalog/'),
+(16, 15, 1, 1, '2018-04-05 11:34:23', '2018-04-22 10:22:34', 1, 1, 'category1', 'Категория 1', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 16, 1, 0, 0, 2, '', 0, '2019-03-29 14:21:32', '0.50', 0, '/catalog/category1/'),
+(17, 16, 1, 1, '2018-04-05 11:34:24', '2018-04-22 10:22:34', 1, 1, 'category11', 'Категория 11', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 17, 1, 0, 0, 2, '', 0, '2019-03-29 14:21:32', '0.50', 0, '/catalog/category1/category11/'),
+(18, 17, 1, 1, '2018-04-05 11:34:24', '2018-04-22 10:22:34', 1, 1, 'category111', 'Категория 111', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 18, 1, 0, 0, 2, '', 0, '2019-03-29 14:21:32', '0.50', 0, '/catalog/category1/category11/category111/'),
+(19, 17, 1, 1, '2018-04-05 11:34:24', '2018-04-22 10:22:34', 1, 1, 'category112', 'Категория 112', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 19, 1, 0, 0, 2, '', 0, '2019-03-29 14:21:32', '0.50', 0, '/catalog/category1/category11/category112/'),
+(20, 17, 1, 1, '2018-04-05 11:34:24', '2018-04-22 10:22:34', 1, 1, 'category113', 'Категория 113', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 20, 1, 0, 0, 2, '', 0, '2019-03-29 14:21:32', '0.50', 0, '/catalog/category1/category11/category113/'),
+(21, 16, 1, 1, '2018-04-05 11:34:25', '2018-04-22 10:22:34', 1, 1, 'category12', 'Категория 12', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 21, 1, 0, 0, 2, '', 0, '2019-03-29 14:21:32', '0.50', 0, '/catalog/category1/category12/'),
+(22, 16, 1, 1, '2018-04-05 11:34:25', '2018-04-22 10:22:34', 1, 1, 'category13', 'Категория 13', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 22, 1, 0, 0, 2, '', 0, '2019-03-29 14:21:32', '0.50', 0, '/catalog/category1/category13/'),
+(23, 15, 1, 1, '2018-04-05 11:34:25', '2018-04-22 10:22:34', 1, 1, 'category2', 'Категория 2', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 23, 1, 0, 0, 2, '', 0, '2019-03-29 14:21:32', '0.50', 0, '/catalog/category2/'),
+(24, 15, 1, 1, '2018-04-05 11:34:26', '2018-04-22 10:22:34', 1, 1, 'category3', 'Категория 3', 0, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 24, 1, 0, 0, 2, '', 0, '2019-03-29 14:21:32', '0.50', 0, '/catalog/category3/'),
 (25, 1, 1, 1, '2018-04-05 11:34:28', '2018-04-22 11:53:40', 1, 1, 'cart', 'Корзина', 200, '', 0, '', 0, '', 0, '', '', '', '1', 0, 'ru', 1, 1, 25, 0, 0, 0, 3, '', 0, '2018-04-22 11:53:40', '0.50', 0, '/cart/'),
 (26, 14, 1, 1, '2018-04-05 11:34:28', '2018-04-22 10:22:34', 1, 1, 'cart', 'Корзина', 200, '', 0, NULL, 0, NULL, 0, '', '', '', '0', 0, 'ru', 1, 0, 26, 0, 0, 0, 2, '', 0, '2018-04-22 09:45:24', '0.50', 0, '/ajax/cart/'),
 (27, 1, 1, 1, '2018-04-05 11:34:28', '2018-04-22 10:22:34', 1, 1, 'favorites', 'Избранное', 200, '', 0, NULL, 0, NULL, 0, '', '', '', '1', 0, 'ru', 1, 0, 27, 0, 0, 0, 2, '', 0, '2018-04-22 09:45:25', '0.50', 0, '/favorites/'),
@@ -1924,15 +1940,11 @@ INSERT INTO `cms_pages` (`id`, `pid`, `vis`, `pvis`, `post_date`, `modify_date`,
 --
 
 DROP TABLE IF EXISTS `cms_pages_data`;
-CREATE TABLE IF NOT EXISTS `cms_pages_data` (
+CREATE TABLE `cms_pages_data` (
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#',
   `fid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Field ID#',
   `fii` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Field index',
-  `value` text COMMENT 'Value',
-  PRIMARY KEY (`pid`,`fid`,`fii`),
-  KEY `pid` (`pid`),
-  KEY `fid` (`fid`),
-  KEY `fii` (`fii`)
+  `value` text COMMENT 'Value'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pages fields';
 
 -- --------------------------------------------------------
@@ -1942,14 +1954,10 @@ CREATE TABLE IF NOT EXISTS `cms_pages_data` (
 --
 
 DROP TABLE IF EXISTS `cms_pages_tree_cache`;
-CREATE TABLE IF NOT EXISTS `cms_pages_tree_cache` (
+CREATE TABLE `cms_pages_tree_cache` (
   `parent_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `child_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Child ID#',
-  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level',
-  PRIMARY KEY (`child_id`,`__level`),
-  KEY `parent_id` (`parent_id`),
-  KEY `child_id` (`child_id`),
-  KEY `__level` (`__level`)
+  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pages tree cache';
 
 --
@@ -2016,7 +2024,7 @@ INSERT INTO `cms_pages_tree_cache` (`parent_id`, `child_id`, `__level`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_shop_blocks_cart`;
-CREATE TABLE IF NOT EXISTS `cms_shop_blocks_cart` (
+CREATE TABLE `cms_shop_blocks_cart` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'ID#',
   `cart_type` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Cart type ID#',
   `epay_interface_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'E-pay interface ID#',
@@ -2024,10 +2032,7 @@ CREATE TABLE IF NOT EXISTS `cms_shop_blocks_cart` (
   `epay_pass1` varchar(255) NOT NULL DEFAULT '' COMMENT 'E-pay pass1',
   `epay_pass2` varchar(255) NOT NULL DEFAULT '' COMMENT 'E-pay pass2',
   `epay_test` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'E-pay test mode',
-  `epay_currency` varchar(255) NOT NULL DEFAULT '' COMMENT 'Currency',
-  PRIMARY KEY (`id`),
-  KEY `cart_type` (`cart_type`),
-  KEY `epay_interface_id` (`epay_interface_id`)
+  `epay_currency` varchar(255) NOT NULL DEFAULT '' COMMENT 'Currency'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Cart blocks';
 
 --
@@ -2047,17 +2052,16 @@ INSERT INTO `cms_shop_blocks_cart` (`id`, `cart_type`, `epay_interface_id`, `epa
 --
 
 DROP TABLE IF EXISTS `cms_shop_blocks_yml`;
-CREATE TABLE IF NOT EXISTS `cms_shop_blocks_yml` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_shop_blocks_yml` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `shop_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Shop name',
   `company` varchar(255) NOT NULL DEFAULT '' COMMENT 'Company name',
   `agency` varchar(255) NOT NULL DEFAULT '' COMMENT 'Support company name',
   `email` varchar(255) NOT NULL DEFAULT '' COMMENT 'Support e-mail',
   `cpa` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'YM purchase',
   `default_currency` varchar(255) NOT NULL DEFAULT '' COMMENT 'Default currency',
-  `local_delivery_cost` decimal(8,2) UNSIGNED NOT NULL DEFAULT '0.00' COMMENT 'Local delivery cost',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COMMENT='Yandex Market blocks';
+  `local_delivery_cost` decimal(8,2) UNSIGNED NOT NULL DEFAULT '0.00' COMMENT 'Local delivery cost'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Yandex Market blocks';
 
 --
 -- Дамп данных таблицы `cms_shop_blocks_yml`
@@ -2073,13 +2077,11 @@ INSERT INTO `cms_shop_blocks_yml` (`id`, `shop_name`, `company`, `agency`, `emai
 --
 
 DROP TABLE IF EXISTS `cms_shop_blocks_yml_currencies`;
-CREATE TABLE IF NOT EXISTS `cms_shop_blocks_yml_currencies` (
+CREATE TABLE `cms_shop_blocks_yml_currencies` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Block ID#',
   `currency_name` varchar(8) NOT NULL DEFAULT '' COMMENT 'Currency ID#',
   `currency_rate` varchar(255) NOT NULL DEFAULT '' COMMENT 'Currency rate',
-  `currency_plus` decimal(8,2) UNSIGNED NOT NULL DEFAULT '0.00' COMMENT 'Currency plus, %%',
-  PRIMARY KEY (`id`,`currency_name`),
-  KEY `currency_name` (`currency_name`)
+  `currency_plus` decimal(8,2) UNSIGNED NOT NULL DEFAULT '0.00' COMMENT 'Currency plus, %%'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Currencies';
 
 -- --------------------------------------------------------
@@ -2089,18 +2091,13 @@ CREATE TABLE IF NOT EXISTS `cms_shop_blocks_yml_currencies` (
 --
 
 DROP TABLE IF EXISTS `cms_shop_blocks_yml_fields`;
-CREATE TABLE IF NOT EXISTS `cms_shop_blocks_yml_fields` (
+CREATE TABLE `cms_shop_blocks_yml_fields` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Block ID#',
   `mtype` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
   `field_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field name',
   `field_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field ID#',
   `field_callback` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field callback',
-  `field_static_value` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field static value',
-  PRIMARY KEY (`id`,`mtype`,`field_name`),
-  KEY `id` (`id`),
-  KEY `mtype` (`mtype`),
-  KEY `field_id` (`field_id`),
-  KEY `field_name` (`field_name`)
+  `field_static_value` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field static value'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='YM blocks to material types fields';
 
 --
@@ -2127,14 +2124,10 @@ INSERT INTO `cms_shop_blocks_yml_fields` (`id`, `mtype`, `field_name`, `field_id
 --
 
 DROP TABLE IF EXISTS `cms_shop_blocks_yml_ignored_fields`;
-CREATE TABLE IF NOT EXISTS `cms_shop_blocks_yml_ignored_fields` (
+CREATE TABLE `cms_shop_blocks_yml_ignored_fields` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Block ID#',
   `mtype` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
-  `field_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field ID#',
-  PRIMARY KEY (`id`,`mtype`,`field_id`),
-  KEY `id` (`id`),
-  KEY `mtype` (`mtype`),
-  KEY `field_id` (`field_id`)
+  `field_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field ID#'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='YM blocks to material types params ignored fields';
 
 -- --------------------------------------------------------
@@ -2144,15 +2137,12 @@ CREATE TABLE IF NOT EXISTS `cms_shop_blocks_yml_ignored_fields` (
 --
 
 DROP TABLE IF EXISTS `cms_shop_blocks_yml_material_types_assoc`;
-CREATE TABLE IF NOT EXISTS `cms_shop_blocks_yml_material_types_assoc` (
+CREATE TABLE `cms_shop_blocks_yml_material_types_assoc` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Block ID#',
   `mtype` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
   `type` varchar(255) NOT NULL DEFAULT '' COMMENT 'YM type',
   `param_exceptions` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Params from all fields except...',
-  `params_callback` varchar(255) NOT NULL DEFAULT '' COMMENT 'Params callback',
-  PRIMARY KEY (`id`,`mtype`),
-  KEY `id` (`id`),
-  KEY `mtype` (`mtype`)
+  `params_callback` varchar(255) NOT NULL DEFAULT '' COMMENT 'Params callback'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='YM blocks to material types association';
 
 --
@@ -2169,12 +2159,9 @@ INSERT INTO `cms_shop_blocks_yml_material_types_assoc` (`id`, `mtype`, `type`, `
 --
 
 DROP TABLE IF EXISTS `cms_shop_blocks_yml_pages_assoc`;
-CREATE TABLE IF NOT EXISTS `cms_shop_blocks_yml_pages_assoc` (
+CREATE TABLE `cms_shop_blocks_yml_pages_assoc` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Block ID#',
-  `page_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#',
-  PRIMARY KEY (`id`,`page_id`),
-  KEY `id` (`id`),
-  KEY `page_id` (`page_id`)
+  `page_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='YM blocks to pages association';
 
 --
@@ -2200,19 +2187,14 @@ INSERT INTO `cms_shop_blocks_yml_pages_assoc` (`id`, `page_id`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_shop_blocks_yml_params`;
-CREATE TABLE IF NOT EXISTS `cms_shop_blocks_yml_params` (
+CREATE TABLE `cms_shop_blocks_yml_params` (
   `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Block ID#',
   `mtype` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
   `param_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Param name',
   `field_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field ID#',
   `field_callback` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field callback',
   `param_unit` varchar(255) NOT NULL DEFAULT '' COMMENT 'Param unit',
-  `param_static_value` varchar(255) NOT NULL DEFAULT '' COMMENT 'Param static value',
-  PRIMARY KEY (`id`,`mtype`,`param_name`),
-  KEY `id` (`id`),
-  KEY `mtype` (`mtype`),
-  KEY `field_id` (`field_id`),
-  KEY `param_name` (`param_name`)
+  `param_static_value` varchar(255) NOT NULL DEFAULT '' COMMENT 'Param static value'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='YM blocks to material types params';
 
 --
@@ -2229,17 +2211,12 @@ INSERT INTO `cms_shop_blocks_yml_params` (`id`, `mtype`, `param_name`, `field_id
 --
 
 DROP TABLE IF EXISTS `cms_shop_carts`;
-CREATE TABLE IF NOT EXISTS `cms_shop_carts` (
+CREATE TABLE `cms_shop_carts` (
   `cart_type_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Cart type ID#',
   `uid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'User ID#',
   `material_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material ID#',
   `meta` varchar(255) NOT NULL DEFAULT '' COMMENT 'Meta',
-  `amount` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Amount',
-  PRIMARY KEY (`cart_type_id`,`uid`,`material_id`,`meta`),
-  KEY `cart_type_id` (`cart_type_id`),
-  KEY `uid` (`uid`),
-  KEY `material_id` (`material_id`),
-  KEY `meta` (`meta`)
+  `amount` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Amount'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Cart sessions';
 
 -- --------------------------------------------------------
@@ -2249,15 +2226,13 @@ CREATE TABLE IF NOT EXISTS `cms_shop_carts` (
 --
 
 DROP TABLE IF EXISTS `cms_shop_cart_types`;
-CREATE TABLE IF NOT EXISTS `cms_shop_cart_types` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_shop_cart_types` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `urn` varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   `form_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Form ID#',
-  `no_amount` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Single item of a type',
-  PRIMARY KEY (`id`),
-  KEY `form_id` (`form_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='Cart types';
+  `no_amount` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Single item of a type'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Cart types';
 
 --
 -- Дамп данных таблицы `cms_shop_cart_types`
@@ -2274,15 +2249,11 @@ INSERT INTO `cms_shop_cart_types` (`id`, `urn`, `name`, `form_id`, `no_amount`) 
 --
 
 DROP TABLE IF EXISTS `cms_shop_cart_types_material_types_assoc`;
-CREATE TABLE IF NOT EXISTS `cms_shop_cart_types_material_types_assoc` (
+CREATE TABLE `cms_shop_cart_types_material_types_assoc` (
   `ctype` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Cart type ID#',
   `mtype` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
   `price_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Price field ID#',
-  `price_callback` text COMMENT 'Price callback',
-  PRIMARY KEY (`ctype`,`mtype`),
-  KEY `ctype` (`ctype`),
-  KEY `mtype` (`mtype`),
-  KEY `price_id` (`price_id`)
+  `price_callback` text COMMENT 'Price callback'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Cart types to material types association';
 
 --
@@ -2300,22 +2271,16 @@ INSERT INTO `cms_shop_cart_types_material_types_assoc` (`ctype`, `mtype`, `price
 --
 
 DROP TABLE IF EXISTS `cms_shop_imageloaders`;
-CREATE TABLE IF NOT EXISTS `cms_shop_imageloaders` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_shop_imageloaders` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `mtype` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
   `ufid` varchar(255) NOT NULL DEFAULT '' COMMENT 'Unique field ID#',
   `ifid` varchar(255) NOT NULL DEFAULT '' COMMENT 'Image field ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   `urn` varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `sep_string` varchar(255) NOT NULL DEFAULT '' COMMENT 'Separator string',
-  `interface_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
-  PRIMARY KEY (`id`),
-  KEY `mtype` (`mtype`),
-  KEY `ufid` (`ufid`),
-  KEY `ifid` (`ifid`),
-  KEY `interface_id` (`interface_id`),
-  KEY `urn` (`urn`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='Image loaders';
+  `interface_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Interface ID#'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Image loaders';
 
 --
 -- Дамп данных таблицы `cms_shop_imageloaders`
@@ -2331,8 +2296,8 @@ INSERT INTO `cms_shop_imageloaders` (`id`, `mtype`, `ufid`, `ifid`, `name`, `urn
 --
 
 DROP TABLE IF EXISTS `cms_shop_orders`;
-CREATE TABLE IF NOT EXISTS `cms_shop_orders` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_shop_orders` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `uid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Site user ID#',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Cart type ID#',
   `page_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Page ID#',
@@ -2341,13 +2306,7 @@ CREATE TABLE IF NOT EXISTS `cms_shop_orders` (
   `ip` varchar(255) NOT NULL DEFAULT '0.0.0.0' COMMENT 'IP address',
   `user_agent` varchar(255) NOT NULL DEFAULT '0.0.0.0' COMMENT 'User Agent',
   `status_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Status ID#',
-  `paid` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Payment status',
-  PRIMARY KEY (`id`),
-  KEY `uid` (`uid`),
-  KEY `pid` (`pid`),
-  KEY `page_id` (`page_id`),
-  KEY `status_id` (`status_id`),
-  KEY `paid` (`paid`)
+  `paid` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Payment status'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Orders';
 
 -- --------------------------------------------------------
@@ -2357,19 +2316,14 @@ CREATE TABLE IF NOT EXISTS `cms_shop_orders` (
 --
 
 DROP TABLE IF EXISTS `cms_shop_orders_goods`;
-CREATE TABLE IF NOT EXISTS `cms_shop_orders_goods` (
+CREATE TABLE `cms_shop_orders_goods` (
   `order_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Order ID#',
   `material_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material ID#',
   `name` varchar(64) NOT NULL DEFAULT '' COMMENT 'Name',
   `meta` varchar(64) NOT NULL DEFAULT '' COMMENT 'Meta data',
   `realprice` decimal(8,2) NOT NULL DEFAULT '0.00' COMMENT 'Real price',
   `amount` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Amount',
-  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority',
-  PRIMARY KEY (`order_id`,`material_id`,`meta`),
-  KEY `order_id` (`order_id`),
-  KEY `material_id` (`material_id`),
-  KEY `meta` (`meta`),
-  KEY `priority` (`priority`)
+  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Orders goods';
 
 -- --------------------------------------------------------
@@ -2379,20 +2333,14 @@ CREATE TABLE IF NOT EXISTS `cms_shop_orders_goods` (
 --
 
 DROP TABLE IF EXISTS `cms_shop_orders_history`;
-CREATE TABLE IF NOT EXISTS `cms_shop_orders_history` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_shop_orders_history` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `uid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Author ID#',
   `order_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Order ID#',
   `status_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Status ID#',
   `paid` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Payment status',
   `post_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Status post date',
-  `description` text COMMENT 'Description',
-  PRIMARY KEY (`id`),
-  KEY `uid` (`uid`),
-  KEY `order_id` (`order_id`),
-  KEY `status_id` (`status_id`),
-  KEY `paid` (`paid`),
-  KEY `post_date` (`post_date`)
+  `description` text COMMENT 'Description'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Orders history';
 
 -- --------------------------------------------------------
@@ -2402,14 +2350,12 @@ CREATE TABLE IF NOT EXISTS `cms_shop_orders_history` (
 --
 
 DROP TABLE IF EXISTS `cms_shop_orders_statuses`;
-CREATE TABLE IF NOT EXISTS `cms_shop_orders_statuses` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_shop_orders_statuses` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `urn` varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
-  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority',
-  PRIMARY KEY (`id`),
-  KEY `priority` (`priority`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='Orders statuses';
+  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Orders statuses';
 
 --
 -- Дамп данных таблицы `cms_shop_orders_statuses`
@@ -2427,8 +2373,8 @@ INSERT INTO `cms_shop_orders_statuses` (`id`, `urn`, `name`, `priority`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_shop_priceloaders`;
-CREATE TABLE IF NOT EXISTS `cms_shop_priceloaders` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_shop_priceloaders` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `mtype` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
   `ufid` varchar(255) NOT NULL DEFAULT '' COMMENT 'Unique field ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
@@ -2439,14 +2385,8 @@ CREATE TABLE IF NOT EXISTS `cms_shop_priceloaders` (
   `cat_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Root category ID#',
   `create_pages` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Allow to create pages',
   `create_materials` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Allow to create materials',
-  `catalog_offset` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Catalog offset',
-  PRIMARY KEY (`id`),
-  KEY `mtype` (`mtype`),
-  KEY `ufid` (`ufid`),
-  KEY `interface_id` (`interface_id`),
-  KEY `cat_id` (`cat_id`),
-  KEY `urn` (`urn`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='Price loaders';
+  `catalog_offset` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Catalog offset'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Price loaders';
 
 --
 -- Дамп данных таблицы `cms_shop_priceloaders`
@@ -2462,18 +2402,14 @@ INSERT INTO `cms_shop_priceloaders` (`id`, `mtype`, `ufid`, `name`, `urn`, `inte
 --
 
 DROP TABLE IF EXISTS `cms_shop_priceloaders_columns`;
-CREATE TABLE IF NOT EXISTS `cms_shop_priceloaders_columns` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_shop_priceloaders_columns` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Price loader ID#',
   `fid` varchar(255) NOT NULL DEFAULT '' COMMENT 'Field ID#',
   `callback` text COMMENT 'Callback code',
   `callback_download` text COMMENT 'Download callback code',
-  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority',
-  PRIMARY KEY (`id`),
-  KEY `pid` (`pid`),
-  KEY `fid` (`fid`),
-  KEY `priority` (`priority`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COMMENT='Price loaders columns';
+  `priority` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Price loaders columns';
 
 --
 -- Дамп данных таблицы `cms_shop_priceloaders_columns`
@@ -2495,23 +2431,21 @@ INSERT INTO `cms_shop_priceloaders_columns` (`id`, `pid`, `fid`, `callback`, `ca
 --
 
 DROP TABLE IF EXISTS `cms_snippets`;
-CREATE TABLE IF NOT EXISTS `cms_snippets` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_snippets` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `urn` varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   `description` text COMMENT 'Code',
-  `locked` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Locked',
-  PRIMARY KEY (`id`),
-  KEY `pid` (`pid`)
-) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8 COMMENT='Snippets';
+  `locked` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Locked'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Snippets';
 
 --
 -- Дамп данных таблицы `cms_snippets`
 --
 
 INSERT INTO `cms_snippets` (`id`, `pid`, `urn`, `name`, `description`, `locked`) VALUES
-(1, 1, '__raas_material_interface', 'Стандартный интерфейс материала', '<?php\n/**\n * Стандартный интерфейс материалов\n * @param Block_Material $Block Текущий блок\n * @param Page $Page Текущая страница\n */\nnamespace RAAS\\CMS;\n\n$interface = new MaterialInterface($Block, $Page, $_GET, $_POST, $_COOKIE, $_SESSION, $_SERVER, $_FILES);\nreturn $interface->process();\n', 1),
+(1, 1, '__raas_material_interface', 'Стандартный интерфейс материала', '<?php\r\n/**\r\n * Стандартный интерфейс материалов\r\n * @param Block_Material $Block Текущий блок\r\n * @param Page $Page Текущая страница\r\n */\r\nnamespace RAAS\\CMS;\r\n\r\n$interface = new MaterialInterface($Block, $Page, $_GET, $_POST, $_COOKIE, $_SESSION, $_SERVER, $_FILES);\r\nreturn $interface->process();\r\n', 1),
 (2, 1, '__raas_form_interface', 'Стандартный интерфейс формы', '<?php\r\nnamespace RAAS\\CMS;\r\n\r\nuse RAAS\\Attachment;\r\nuse RAAS\\Application;\r\nuse \\Mustache_Engine;\r\n\r\n$notify = function (Feedback $Item, Material $Material = null) {\r\n    $temp = array_values(array_filter(array_map(\'trim\', preg_split(\'/( |;|,)/\', $Item->parent->email))));\r\n    $emails = $sms_emails = $sms_phones = array();\r\n    foreach ($temp as $row) {\r\n        if (($row[0] == \'[\') && ($row[strlen($row) - 1] == \']\')) {\r\n            if (filter_var(substr($row, 1, -1), FILTER_VALIDATE_EMAIL)) {\r\n                $sms_emails[] = substr($row, 1, -1);\r\n            } elseif (preg_match(\'/(\\\\+)?\\\\d+/umi\', substr($row, 1, -1))) {\r\n                $sms_phones[] = substr($row, 1, -1);\r\n            }\r\n        } else {\r\n            $emails[] = $row;\r\n        }\r\n    }\r\n    if ($Item->parent->Interface->id) {\r\n        $template = $Item->parent->Interface->description;\r\n    }\r\n\r\n    ob_start();\r\n    eval(\'?\' . \'>\' . $template);\r\n    $message = ob_get_contents();\r\n    ob_end_clean();\r\n\r\n    ob_start();\r\n    $SMS = true;\r\n    eval(\'?\' . \'>\' . $template);\r\n    $message_sms = ob_get_contents();\r\n    ob_end_clean();\r\n\r\n    $subject = date(DATETIMEFORMAT) . \' \' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name);\r\n    if ($emails) {\r\n        Application::i()->sendmail($emails, $subject, $message, ADMINISTRATION_OF_SITE . \' \' . $_SERVER[\'HTTP_HOST\'], \'info@\' . $_SERVER[\'HTTP_HOST\']);\r\n    }\r\n    if ($sms_emails) {\r\n        Application::i()->sendmail($sms_emails, $subject, $message_sms, ADMINISTRATION_OF_SITE . \' \' . $_SERVER[\'HTTP_HOST\'], \'info@\' . $_SERVER[\'HTTP_HOST\'], false);\r\n    }\r\n    if ($sms_phones) {\r\n        $urlTemplate = Package::i()->registryGet(\'sms_gate\');\r\n        $m = new Mustache_Engine();\r\n        foreach ($sms_phones as $phone) {\r\n            $url = $m->render($urlTemplate, array(\'PHONE\' => urlencode($phone), \'TEXT\' => urlencode($message_sms)));\r\n            $result = file_get_contents($url);\r\n        }\r\n    }\r\n};\r\n\r\n$OUT = array();\r\n$Form = new Form(isset($config[\'form\']) ? (int)$config[\'form\'] : 0);\r\nif ($Form->id) {\r\n    $localError = array();\r\n    if (($Form->signature && isset($_POST[\'form_signature\']) && $_POST[\'form_signature\'] == md5(\'form\' . (int)$Form->id . (int)$Block->id)) || (!$Form->signature && ($_SERVER[\'REQUEST_METHOD\'] == \'POST\'))) {\r\n        $Item = new Feedback();\r\n        $Item->pid = (int)$Form->id;\r\n        if ($Form->Material_Type->id) {\r\n            $Material = new Material();\r\n            $Material->pid = (int)$Form->Material_Type->id;\r\n            $Material->vis = 0;\r\n        }\r\n\r\n        // Проверка полей на корректность\r\n        foreach ($Form->fields as $row) {\r\n            switch ($row->datatype) {\r\n                case \'file\':\r\n                case \'image\':\r\n                    $val = isset($_FILES[$row->urn][\'tmp_name\']) ? $_FILES[$row->urn][\'tmp_name\'] : null;\r\n                    if ($val && $row->multiple) {\r\n                        $val = (array)$val;\r\n                        $val = array_shift($val);\r\n                    }\r\n                    if (!isset($val) || !$row->isFilled($val)) {\r\n                        if ($row->required && !$row->countValues()) {\r\n                            $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);\r\n                        }\r\n                    } elseif (!$row->multiple) {\r\n                        if (!$row->validate($val)) {\r\n                            $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);\r\n                        }\r\n                    }\r\n                    break;\r\n                default:\r\n                    $val = isset($_POST[$row->urn]) ? $_POST[$row->urn] : null;\r\n                    if ($val && $row->multiple) {\r\n                        $val = (array)$val;\r\n                        $val = array_shift($val);\r\n                    }\r\n                    if (!isset($val) || !$row->isFilled($val)) {\r\n                        if ($row->required) {\r\n                            $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);\r\n                        }\r\n                    } elseif (!$row->multiple) {\r\n                        if (($row->datatype == \'password\') && ($_POST[$row->urn] != $_POST[$row->urn . \'@confirm\'])) {\r\n                            $localError[$row->urn] = sprintf(ERR_CUSTOM_PASSWORD_DOESNT_MATCH_CONFIRM, $row->name);\r\n                        } elseif (!$row->validate($val)) {\r\n                            $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);\r\n                        }\r\n                    }\r\n                    break;\r\n            }\r\n        }\r\n\r\n        // Проверка на антиспам\r\n        if ($Form->antispam && $Form->antispam_field_name) {\r\n            switch ($Form->antispam) {\r\n                case \'captcha\':\r\n                    if (!isset($_POST[$Form->antispam_field_name], $_SESSION[\'captcha_keystring\']) || ($_POST[$Form->antispam_field_name] != $_SESSION[\'captcha_keystring\'])) {\r\n                        $localError[$Form->antispam_field_name] = ERR_CAPTCHA_FIELD_INVALID;\r\n                    }\r\n                    break;\r\n                case \'hidden\':\r\n                    if (isset($_POST[$Form->antispam_field_name]) && $_POST[$Form->antispam_field_name]) {\r\n                        $localError[$Form->antispam_field_name] = ERR_CAPTCHA_FIELD_INVALID;\r\n                    }\r\n                    break;\r\n            }\r\n        }\r\n\r\n        if (!$localError) {\r\n            if ((\\RAAS\\Controller_Frontend::i()->user instanceof User) && \\RAAS\\Controller_Frontend::i()->user->id) {\r\n                $Item->uid = (int)Controller_Frontend::i()->user->id;\r\n            } else {\r\n                $Item->uid = 0;\r\n            }\r\n            // Для AJAX\'а\r\n            $Referer = Page::importByURL($_SERVER[\'HTTP_REFERER\']);\r\n            $RefererMaterialUrl = explode(\'/\', trim(parse_url($_SERVER[\'HTTP_REFERER\'], PHP_URL_PATH), \'/\'));\r\n            $RefererMaterial = Material::importByURN($RefererMaterialUrl[count($RefererMaterialUrl) - 1]);\r\n            $Item->page_id = (int)$Referer->id ?: (int)$Page->id;\r\n            if ($RefererMaterial) {\r\n                $Item->material_id = (int)$RefererMaterial->id;\r\n            } elseif ($Page->Material->id) {\r\n                $Item->material_id = (int)$Page->Material->id;\r\n            }\r\n            $Item->ip = (string)$_SERVER[\'REMOTE_ADDR\'];\r\n            $Item->user_agent = (string)$_SERVER[\'HTTP_USER_AGENT\'];\r\n            $Objects = array($Item);\r\n            if ($Form->Material_Type->id) {\r\n                if (!$Form->Material_Type->global_type) {\r\n                    $Material->cats = array((int)$Referer->id ?: (int)$Page->id);\r\n                }\r\n                $Objects[] = $Material;\r\n            }\r\n\r\n            foreach ($Objects as $Object) {\r\n                // Заполняем основные данные создаваемого материала\r\n                if ($Object instanceof Material) {\r\n                    if (isset($Item->fields[\'_name_\'])) {\r\n                        $Object->name = $Item->fields[\'_name_\']->getValue();\r\n                    } else {\r\n                        $Object->name = $Form->Material_Type->name . \': \' . date(DATETIMEFORMAT);\r\n                    }\r\n                    if (isset($Item->fields[\'_description_\'])) {\r\n                        $Object->description = $Item->fields[\'_description_\']->getValue();\r\n                    }\r\n                }\r\n                $Object->commit();\r\n\r\n                // Автоматически подставляем недостающие поля даты/времени у материала\r\n                if ($Object instanceof Material) {\r\n                    foreach ($Object->fields as $fname => $temp) {\r\n                        if (!isset($Item->fields[$fname])) {\r\n                            switch ($temp->datatype) {\r\n                                case \'datetime\':\r\n                                case \'datetime-local\':\r\n                                    $temp->addValue(date(\'Y-m-d H:i:s\'));\r\n                                    break;\r\n                                case \'date\':\r\n                                    $temp->addValue(date(\'Y-m-d\'));\r\n                                    break;\r\n                                case \'time\':\r\n                                    $temp->addValue(date(\'H:i:s\'));\r\n                                    break;\r\n                            }\r\n                        }\r\n                    }\r\n                }\r\n\r\n                foreach ($Item->fields as $fname => $temp) {\r\n                    if (isset($Object->fields[$fname])) {\r\n                        $row = $Object->fields[$fname];\r\n                        switch ($row->datatype) {\r\n                            case \'file\':\r\n                            case \'image\':\r\n                                $row->deleteValues();\r\n                                if ($row->multiple) {\r\n                                    foreach ($_FILES[$row->urn][\'tmp_name\'] as $key => $val) {\r\n                                        $row2 = array(\r\n                                            \'vis\' => isset($_POST[$row->urn . \'@vis\'][$key]) ? (int)$_POST[$row->urn . \'@vis\'][$key] : 1,\r\n                                            \'name\' => (string)$_POST[$row->urn . \'@name\'][$key],\r\n                                            \'description\' => (string)$_POST[$row->urn . \'@description\'][$key],\r\n                                            \'attachment\' => (int)$_POST[$row->urn . \'@attachment\'][$key]\r\n                                        );\r\n                                        if (is_uploaded_file($_FILES[$row->urn][\'tmp_name\'][$key]) && $row->validate($_FILES[$row->urn][\'tmp_name\'][$key])) {\r\n                                            $att = new Attachment((int)$row2[\'attachment\']);\r\n                                            $att->upload = $_FILES[$row->urn][\'tmp_name\'][$key];\r\n                                            $att->filename = $_FILES[$row->urn][\'name\'][$key];\r\n                                            $att->mime = $_FILES[$row->urn][\'type\'][$key];\r\n                                            $att->parent = $Object;\r\n                                            if ($row->datatype == \'image\') {\r\n                                                $att->image = 1;\r\n                                                if ($temp = (int)Package::i()->registryGet(\'maxsize\')) {\r\n                                                    $att->maxWidth = $att->maxHeight = $temp;\r\n                                                }\r\n                                                if ($temp = (int)Package::i()->registryGet(\'tnsize\')) {\r\n                                                    $att->tnsize = $temp;\r\n                                                }\r\n                                            }\r\n                                            $att->copy = true;\r\n                                            $att->commit();\r\n                                            $row2[\'attachment\'] = (int)$att->id;\r\n                                            $row->addValue(json_encode($row2));\r\n                                        } elseif ($row2[\'attachment\']) {\r\n                                            $row->addValue(json_encode($row2));\r\n                                        }\r\n                                        unset($att, $row2);\r\n                                    }\r\n                                } else {\r\n                                    $row2 = array(\r\n                                        \'vis\' => isset($_POST[$row->urn . \'@vis\']) ? (int)$_POST[$row->urn . \'@vis\'] : 1,\r\n                                        \'name\' => (string)$_POST[$row->urn . \'@name\'],\r\n                                        \'description\' => (string)$_POST[$row->urn . \'@description\'],\r\n                                        \'attachment\' => (int)$_POST[$row->urn . \'@attachment\']\r\n                                    );\r\n\r\n                                    if (is_uploaded_file($_FILES[$row->urn][\'tmp_name\']) && $row->validate($_FILES[$row->urn][\'tmp_name\'])) {\r\n                                        $att = new Attachment((int)$row2[\'attachment\']);\r\n                                        $att->upload = $_FILES[$row->urn][\'tmp_name\'];\r\n                                        $att->filename = $_FILES[$row->urn][\'name\'];\r\n                                        $att->mime = $_FILES[$row->urn][\'type\'];\r\n                                        $att->parent = $Object;\r\n                                        if ($row->datatype == \'image\') {\r\n                                            $att->image = 1;\r\n                                            if ($temp = (int)Package::i()->registryGet(\'maxsize\')) {\r\n                                                $att->maxWidth = $att->maxHeight = $temp;\r\n                                            }\r\n                                            if ($temp = (int)Package::i()->registryGet(\'tnsize\')) {\r\n                                                $att->tnsize = $temp;\r\n                                            }\r\n                                        }\r\n                                        $att->copy = true;\r\n                                        $att->commit();\r\n                                        $row2[\'attachment\'] = (int)$att->id;\r\n                                        $row->addValue(json_encode($row2));\r\n                                    } elseif ($_POST[$row->urn . \'@attachment\']) {\r\n                                        $row2[\'attachment\'] = (int)$_POST[$row->urn . \'@attachment\'];\r\n                                        $row->addValue(json_encode($row2));\r\n                                    }\r\n                                    unset($att, $row2);\r\n                                }\r\n                                break;\r\n                            default:\r\n                                $row->deleteValues();\r\n                                if (isset($_POST[$row->urn])) {\r\n                                    foreach ((array)$_POST[$row->urn] as $val) {\r\n                                        // 2019-01-22, AVS: закрываем XSS-уязвимость\r\n                                        $row->addValue(strip_tags($val));\r\n                                    }\r\n                                }\r\n                                break;\r\n                        }\r\n                        if (in_array($row->datatype, array(\'file\', \'image\'))) {\r\n                            $row->clearLostAttachments();\r\n                        }\r\n                    }\r\n                }\r\n\r\n                // Заполняем данные пользователя в полях материала\r\n                if ($Object instanceof Material) {\r\n                    if (isset($Object->fields[\'ip\'])) {\r\n                        $Object->fields[\'ip\']->deleteValues();\r\n                        $Object->fields[\'ip\']->addValue((string)$_SERVER[\'REMOTE_ADDR\']);\r\n                    }\r\n                    if (isset($Object->fields[\'user_agent\'])) {\r\n                        $Object->fields[\'user_agent\']->deleteValues();\r\n                        $Object->fields[\'user_agent\']->addValue((string)$_SERVER[\'HTTP_USER_AGENT\']);\r\n                    }\r\n                }\r\n            }\r\n            if ($Form->email) {\r\n                $notify($Item, $Form->Material_Type->id ? $Material : null);\r\n            }\r\n            if (!$Form->create_feedback) {\r\n                Feedback::delete($Item);\r\n            }\r\n            $OUT[\'success\'][(int)$Block->id] = true;\r\n        }\r\n        $OUT[\'DATA\'] = $_POST;\r\n    } else {\r\n        $OUT[\'DATA\'] = array();\r\n        foreach ($Form->fields as $key => $row) {\r\n            if ($row->defval) {\r\n                $OUT[\'DATA\'][$key] = $row->defval;\r\n            }\r\n        }\r\n    }\r\n    $OUT[\'localError\'] = $localError;\r\n    $OUT[\'Item\'] = $Item;\r\n    if ($Form->Material_Type->id) {\r\n        $OUT[\'Material\'] = $Material;\r\n    }\r\n}\r\n$OUT[\'Form\'] = $Form;\r\n\r\nreturn $OUT;\r\n', 1),
 (3, 1, '__raas_menu_interface', 'Стандартный интерфейс меню', '<?php\r\nnamespace RAAS\\CMS;\r\n\r\n$OUT = array();\r\n$f = function(Menu $node) use (&$f) {\r\n    $temp = array();\r\n    $children = $node->visSubMenu;\r\n    $children = array_filter($children, function($x) { return !$x->page->id || $x->page->currentUserHasAccess(); });\r\n    foreach ($children as $row) {\r\n        $row2 = array(\'url\' => $row->url, \'name\' => $row->name, \'children\' => $f($row));\r\n        if ($row->page_id) {\r\n            $row2[\'page_id\'] = (int)$row->page_id;\r\n        }\r\n        $temp[] = $row2;\r\n    }\r\n    return $temp;\r\n};\r\n$Item = new Menu(isset($config[\'menu\']) ? (int)$config[\'menu\'] : 0);\r\nif (!isset($config[\'full_menu\']) || !(int)$config[\'full_menu\']) {\r\n    $Item = $Item->findPage($Page);\r\n}\r\nif ($Item->id || $Item->page_id) {\r\n    $OUT[\'Item\'] = $Item;\r\n    $OUT[\'menuArr\'] = array(\'children\' => $f($Item));\r\n}\r\nreturn $OUT;\r\n', 1),
 (4, 1, '__raas_search_interface', 'Стандартный интерфейс поиска', '<?php\r\nnamespace RAAS\\CMS;\r\n\r\nuse RAAS\\Application;\r\nuse SOME\\Pages;\r\nuse SOME\\SOME;\r\n\r\n$pageNameRatio = 10;\r\n$pageDataRatio = 1;\r\n$materialNameRatio = 10;\r\n$materialDescriptionRatio = 1;\r\n$materialDataRatio = 1;\r\n$pageMaterialsRatio = 1;\r\n$searchLimit = 100;\r\n$SQL = Application::i()->SQL;\r\n\r\n$IN = (array)$_GET;\r\n$OUT = array();\r\n\r\nif ($Block->search_pages_ids) {\r\n    $searchPagesIds = $Block->search_pages_ids;\r\n} else {\r\n    $searchPagesIds = (array)$Page->Domain->selfAndChildrenIds;\r\n}\r\n$search_string = trim(isset($IN[$config[\'search_var_name\']]) ? $IN[$config[\'search_var_name\']] : \'\');\r\nif (!$search_string) {\r\n    $OUT[\'localError\'] = \'NO_SEARCH_QUERY\';\r\n} else {\r\n    $searchArray = explode(\' \', $search_string);\r\n    $searchArray = array_map(\'trim\', $searchArray);\r\n    $searchArray = array_filter($searchArray);\r\n    if (isset($config[\'min_length\']) && (int)$config[\'min_length\']) {\r\n        $searchArray = array_filter(\r\n            $searchArray,\r\n            function ($x) use ($config) {\r\n                return (mb_strlen($x) >= (int)$config[\'min_length\']);\r\n            }\r\n        );\r\n    }\r\n    if (!$searchArray) {\r\n        $OUT[\'localError\'] = \'SEARCH_QUERY_TOO_SHORT\';\r\n    } else {\r\n        $results = $materials = array();\r\n\r\n        // Получим начальные условия для страниц и материалов\r\n        $SQL_where_pages = \" AND tP.vis AND NOT tP.response_code \";\r\n        $SQL_where_materials = \" AND tM.vis \";\r\n        if ((array)$searchPagesIds) {\r\n            $SQL_where_pages .= \" AND tP.id IN (\" . implode(\", \", array_map(\'intval\', (array)$searchPagesIds)) . \") \";\r\n        }\r\n        if ($languages = array_filter((array)$Block->languages)) {\r\n            $temp = array_map(\r\n                function ($x) use ($SQL) {\r\n                    return \"\'\" . $SQL->real_escape_string($x) . \"\'\";\r\n                },\r\n                (array)$languages\r\n            );\r\n            $SQL_where_pages .= \" AND tP.lang IN (\" . implode(\", \", $temp) . \") \";\r\n        }\r\n        if ((array)$Block->material_types_ids) {\r\n            $SQL_where_materials .= \" AND tM.pid IN (\" . implode(\", \", array_map(\'intval\', (array)$Block->material_types_ids)) . \") \";\r\n        }\r\n\r\n        // Получим допустимые поля данных для страниц и материалов\r\n        $SQL_query = \"SELECT tF.id\r\n                        FROM \" . Material_Field::_tablename() . \" AS tF\r\n                       WHERE tF.pid = 0\r\n                         AND tF.classname = \'RAAS\\\\\\\\CMS\\\\\\\\Material_Type\'\r\n                         AND tF.datatype IN (\'text\', \'tel\', \'email\', \'url\', \'textarea\', \'htmlarea\') \";\r\n        $pagesFields = $SQL->getcol($SQL_query);\r\n        $SQL_query = \"SELECT tF.id\r\n                        FROM \" . Material_Field::_tablename() . \" AS tF\r\n                       WHERE tF.pid\r\n                         AND tF.classname = \'RAAS\\\\\\\\CMS\\\\\\\\Material_Type\'\r\n                         AND tF.datatype IN (\'text\', \'tel\', \'email\', \'url\', \'textarea\', \'htmlarea\') \";\r\n        $materialFields = $SQL->getcol($SQL_query);\r\n\r\n        // 1. Ищем страницы по имени\r\n        $SQL_query = \"SELECT tP.id, (0\";\r\n        foreach ($searchArray as $val) {\r\n            $SQL_query .= \" + ((tP.name LIKE \'%\" . $SQL->escape_like($val) . \"%\') * \" . $pageNameRatio . \") \";\r\n        }\r\n        $SQL_query .= \" ) AS c\r\n                        FROM \" . Page::_tablename() . \" AS tP\r\n                       WHERE 1\r\n                         \" . $SQL_where_pages . \"\r\n                         AND (0 \";\r\n        foreach ($searchArray as $val) {\r\n            $SQL_query .= \" OR tP.name LIKE \'%\" . $SQL->escape_like($val) . \"%\'\";\r\n        }\r\n        $SQL_query .= \" ) LIMIT \" . $searchLimit;\r\n        // echo $SQL_query; exit;\r\n        $SQL_result = $SQL->get($SQL_query);\r\n        foreach ($SQL_result as $row) {\r\n            $results[\'p\' . $row[\'id\']] += $row[\'c\'];\r\n        }\r\n\r\n        // 2. Ищем страницы по данным\r\n        if ($pagesFields) {\r\n            $SQL_query = \"SELECT tP.id, (0\";\r\n            foreach ($searchArray as $val) {\r\n                $SQL_query .= \" + ((tD.value LIKE \'%\" . $SQL->escape_like($val) . \"%\') * \" . $pageDataRatio . \")\";\r\n            }\r\n            $SQL_query .= \") AS c\r\n                            FROM \" . Page::_tablename() . \" AS tP\r\n                            JOIN \" . Material::_dbprefix() . \"cms_data AS tD ON tD.pid = tP.id\r\n                           WHERE 1\r\n                             AND tD.fid IN (\" . implode(\", \", $pagesFields) . \")\r\n                             \" . $SQL_where_pages . \"\r\n                             AND (0 \";\r\n            foreach ($searchArray as $val) {\r\n                $SQL_query .= \" OR tD.value LIKE \'%\" . $SQL->escape_like($val) . \"%\'\";\r\n            }\r\n            $SQL_query .= \" ) LIMIT \" . $searchLimit;\r\n            // echo $SQL_query; exit;\r\n            $SQL_result = $SQL->get($SQL_query);\r\n            foreach ($SQL_result as $row) {\r\n                $results[\'p\' . $row[\'id\']] += $row[\'c\'];\r\n            }\r\n        }\r\n\r\n        // 3. Ищем все материалы по имени и описанию\r\n        $SQL_query = \"SELECT tM.id, tM.pid, (0\";\r\n        foreach ($searchArray as $val) {\r\n            $SQL_query .= \" + ((tM.name LIKE \'%\" . $SQL->escape_like($val) . \"%\') * \" . $materialNameRatio . \")\r\n                            + ((IF(tM.description IS NULL, \'\', tM.description) LIKE \'%\" . $SQL->escape_like($val) . \"%\') * \" . $materialDescriptionRatio . \")\";\r\n        }\r\n        $SQL_query .= \" ) AS c\r\n                        FROM \" . Material::_tablename() . \" AS tM\r\n                       WHERE 1\r\n                         \" . $SQL_where_materials . \"\r\n                         AND (0 \";\r\n        foreach ($searchArray as $val) {\r\n            $SQL_query .= \" OR tM.name LIKE \'%\" . $SQL->escape_like($val) . \"%\' OR IF(tM.description IS NULL, \'\', tM.description) LIKE \'%\" . $SQL->escape_like($val) . \"%\' \";\r\n        }\r\n        $SQL_query .= \" ) LIMIT \" . $searchLimit;\r\n        // echo $SQL_query; exit;\r\n        $SQL_result = $SQL->get($SQL_query);\r\n        foreach ($SQL_result as $row) {\r\n            $materials[$row[\'pid\']][$row[\'id\']] = $row[\'c\'];\r\n        }\r\n\r\n        // 4. Ищем все материалы по данным\r\n        $SQL_query = \"SELECT tM.id, tM.pid, (0\";\r\n        foreach ($searchArray as $val) {\r\n            $SQL_query .= \" + ((tD.value LIKE \'%\" . $SQL->escape_like($val) . \"%\') * \" . $materialDataRatio . \")\";\r\n        }\r\n        $SQL_query .= \") AS c\r\n                       FROM \" . Material::_tablename() . \" AS tM\r\n                       JOIN \" . Material::_dbprefix() . \"cms_data AS tD ON tD.pid = tM.id\r\n                      WHERE 1\r\n                        AND tD.fid IN (\" . implode(\", \", $materialFields) . \")\r\n                        \" . $SQL_where_materials . \"\r\n                        AND (0 \";\r\n        foreach ($searchArray as $val) {\r\n            $SQL_query .= \" OR tD.value LIKE \'%\" . $SQL->escape_like($val) . \"%\'\";\r\n        }\r\n        $SQL_query .= \" ) LIMIT \" . $searchLimit;\r\n        // echo $SQL_query; exit;\r\n        $SQL_result = $SQL->get($SQL_query);\r\n        foreach ($SQL_result as $row) {\r\n             $materials[$row[\'pid\']][$row[\'id\']] += $row[\'c\'];\r\n        }\r\n\r\n        // 5. Выбираем блоки по типам данных\r\n        foreach ($materials as $mtype => $arr) {\r\n            $MType = new Material_Type((int)$mtype);\r\n            $SQL_query = \"SELECT tP.id AS pid, IF(tB.nat, tM.id, 0) AS mid\r\n                            FROM \" . Material::_tablename() . \" AS tM\r\n                            JOIN \" . Page::_tablename() . \" AS tP\r\n                            JOIN \" . Block::_dbprefix() . \"cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id\r\n                            JOIN \" . Block::_dbprefix() . \"cms_blocks_material AS tBM ON tBM.material_type IN (\" . implode(\", \", array_merge(array((int)$MType->id), (array)$MType->parents_ids)) . \") AND tBM.id = tBPA.block_id\r\n                            JOIN \" . Block::_tablename() . \" AS tB ON tB.id = tBPA.block_id AND tB.vis \";\r\n            if (!$MType->global_type) {\r\n                $SQL_query .= \" JOIN \" . Material::_dbprefix() . \"cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id AND tP.id = tMPA.pid \";\r\n            }\r\n            $SQL_query .= \" WHERE 1\r\n                              \" . $SQL_where_pages . \"\r\n                              AND tM.id IN (\" . implode(\", \", array_keys($arr)) . \") \";\r\n            $SQL_query .= \" GROUP BY pid, mid\r\n                            LIMIT \" . $searchLimit;\r\n            // echo $SQL_query; exit;\r\n            $SQL_result = $SQL->get($SQL_query);\r\n            $p = array_unique(\r\n                array_map(\r\n                    function ($x) {\r\n                        return $x[\'pid\'];\r\n                    },\r\n                    $SQL_result\r\n                )\r\n            );\r\n            $m = array_unique(\r\n                array_map(\r\n                    function ($x) {\r\n                        return $x[\'mid\'];\r\n                    },\r\n                    $SQL_result\r\n                )\r\n            );\r\n            foreach ($p as $val) {\r\n                $results[\'p\' . $val] += $pageMaterialsRatio;\r\n            }\r\n            foreach ($m as $val) {\r\n                if ($val) {\r\n                    $results[\'m\' . $val] = $materials[$mtype][$val];\r\n                }\r\n            }\r\n        }\r\n\r\n        // 6. Выбираем блоки по HTML-коду\r\n        $SQL_query = \"SELECT tP.id, (0\";\r\n        foreach ($searchArray as $val) {\r\n            $SQL_query .= \" + ((IF(tBH.description IS NULL, \'\', tBH.description) LIKE \'%\" . $SQL->escape_like($val) . \"%\') * \" . $pageDataRatio . \")\";\r\n        }\r\n        $SQL_query .= \") AS c\r\n                        FROM \" . Page::_tablename() . \" AS tP\r\n                        JOIN \" . Block::_dbprefix() . \"cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id\r\n                        JOIN \" . Block::_tablename() . \" AS tB ON tB.id = tBPA.block_id AND tB.vis\r\n                        JOIN \" . Block::_dbprefix() . \"cms_blocks_html AS tBH ON tBH.id = tB.id\r\n                       WHERE 1\r\n                         \" . $SQL_where_pages . \"\r\n                         AND (0 \";\r\n        foreach ($searchArray as $val) {\r\n            $SQL_query .= \" OR IF(tBH.description IS NULL, \'\', tBH.description) LIKE \'%\" . $SQL->escape_like($val) . \"%\'\";\r\n        }\r\n        $SQL_query .= \" ) GROUP BY tP.id\r\n                          LIMIT \" . $searchLimit;\r\n        // echo $SQL_query; exit;\r\n        $SQL_result = $SQL->get($SQL_query);\r\n        foreach ($SQL_result as $row) {\r\n            $results[\'p\' . $row[\'id\']] += $row[\'c\'];\r\n        }\r\n\r\n\r\n        arsort($results);\r\n        $Pages = null;\r\n        if (isset($config[\'pages_var_name\'], $config[\'rows_per_page\']) && (int)$config[\'rows_per_page\']) {\r\n            $Pages = new Pages(isset($IN[$config[\'pages_var_name\']]) ? (int)$IN[$config[\'pages_var_name\']] : 1, (int)$config[\'rows_per_page\']);\r\n        }\r\n        $Set = array_keys($results);\r\n        $Set = array_slice($Set, 0, $searchLimit);\r\n        $Set = array_filter(\r\n            $Set,\r\n            function ($x) {\r\n                if ($x[0] == \'m\') {\r\n                    $row = new Material(substr($x, 1));\r\n                    return $row->currentUserHasAccess() && $row->parent->currentUserHasAccess();\r\n                } else {\r\n                    $row = new Page(substr($x, 1));\r\n                    return $row->currentUserHasAccess();\r\n                }\r\n            }\r\n        );\r\n        $Set = SOME::getArraySet(\r\n            $Set,\r\n            $Pages,\r\n            function ($x) {\r\n                if ($x[0] == \'m\') {\r\n                    $row = new Material(substr($x, 1));\r\n                } else {\r\n                    $row = new Page(substr($x, 1));\r\n                }\r\n                return $row;\r\n            }\r\n        );\r\n        if (!$Set) {\r\n            $OUT[\'localError\'] = \'NO_RESULTS_FOUND\';\r\n        }\r\n        $OUT[\'Pages\'] = $Pages;\r\n        $OUT[\'Set\'] = $Set;\r\n    }\r\n}\r\n$OUT[\'search_string\'] = $search_string;\r\nreturn $OUT;\r\n', 1),
@@ -2536,10 +2470,11 @@ INSERT INTO `cms_snippets` (`id`, `pid`, `urn`, `name`, `description`, `locked`)
 (22, 2, 'news', 'Новости', '<?php\r\nnamespace RAAS\\CMS;\r\n\r\nuse \\SOME\\Text;\r\nuse \\SOME\\HTTP;\r\n\r\nif ($Item) {\r\n    ?>\r\n    <div class=\"news\">\r\n      <div class=\"news-article\">\r\n        <?php if (($t = strtotime($Item->date)) > 0) { ?>\r\n            <div class=\"news-article__date\"><?php echo date(\'d\', $t) . \' \' . Text::$months[(int)date(\'m\', $t)] . \' \' . date(\'Y\', $t)?></div>\r\n        <?php } ?>\r\n        <?php if ($Item->visImages) { ?>\r\n            <div class=\"news-article__image\">\r\n              <a href=\"/<?php echo $Item->visImages[0]->fileURL?>\" data-lightbox-gallery=\"g\">\r\n                <img src=\"/<?php echo $Item->visImages[0]->tnURL?>\" alt=\"<?php echo htmlspecialchars($Item->visImages[0]->name ?: $row->name)?>\" /></a>\r\n            </div>\r\n        <?php } ?>\r\n        <div class=\"news-article__text\">\r\n          <div class=\"news-article__description\">\r\n            <?php echo $Item->description?>\r\n          </div>\r\n        </div>\r\n        <?php if (count($Item->visImages) > 1) { ?>\r\n            <div class=\"news-article__images\">\r\n              <div class=\"h2 news-article__images-title\">\r\n                Фотографии\r\n              </div>\r\n              <div class=\"news-article__images-inner\">\r\n                <?php for ($i = 1; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>\r\n                    <div class=\"news-article__additional-image-container\">\r\n                      <a href=\"/<?php echo htmlspecialchars($row->fileURL)?>\" class=\"news-article__additional-image\" data-lightbox-gallery=\"g\">\r\n                        <img src=\"/<?php echo htmlspecialchars($row->tnURL)?>\" alt=\"<?php echo htmlspecialchars($row->name)?>\" /></a>\r\n                    </div>\r\n                <?php } ?>\r\n              </div>\r\n            </div>\r\n        <?php } ?>\r\n      </div>\r\n    </div>\r\n<?php } elseif ($Set) { ?>\r\n    <div class=\"news\">\r\n      <div class=\"news__list\">\r\n        <div class=\"news-list\">\r\n          <?php foreach ($Set as $row) { ?>\r\n              <div class=\"news-list__item\">\r\n                <div class=\"news-item\">\r\n                  <div class=\"news-item__image\">\r\n                    <a<?php echo ($Block->nat ? \' href=\"\' . htmlspecialchars($row->url) . \'\"\' : \'\') . (!$row->visImages ? \' class=\"no-image\"\' : \'\')?>>\r\n                      <?php if ($row->visImages) { ?>\r\n                          <img src=\"/<?php echo htmlspecialchars($row->visImages[0]->tnURL)?>\" alt=\"<?php echo htmlspecialchars($row->visImages[0]->name ?: $row->name)?>\" />\r\n                      <?php } ?>\r\n                    </a>\r\n                  </div>\r\n                  <div class=\"news-item__text\">\r\n                    <div class=\"news-item__title\">\r\n                      <a<?php echo $Block->nat ? \' href=\"\' . htmlspecialchars($row->url) . \'\"\' : \'\'?>>\r\n                        <?php echo htmlspecialchars($row->name)?>\r\n                      </a>\r\n                    </div>\r\n                    <?php if (($t = strtotime($row->date)) > 0) { ?>\r\n                        <div class=\"news-item__date\">\r\n                          <?php echo date(\'d\', $t) . \' \' . Text::$months[(int)date(\'m\', $t)] . \' \' . date(\'Y\', $t)?>\r\n                        </div>\r\n                    <?php } ?>\r\n                    <div class=\"news-item__description\">\r\n                      <?php echo htmlspecialchars($row->brief ?: Text::cuttext(html_entity_decode(strip_tags($row->description), ENT_COMPAT | ENT_HTML5, \'UTF-8\'), 256, \'...\'))?>\r\n                    </div>\r\n                    <?php if ($Block->nat) { ?>\r\n                        <div class=\"news-item__more\">\r\n                          <a href=\"<?php echo htmlspecialchars($row->url)?>\">\r\n                            <?php echo SHOW_MORE?>\r\n                          </a>\r\n                        </div>\r\n                    <?php } ?>\r\n                  </div>\r\n                </div>\r\n              </div>\r\n          <?php } ?>\r\n        </div>\r\n      </div>\r\n    </div>\r\n    <?php include Package::i()->resourcesDir . \'/pages.inc.php\'?>\r\n    <?php if ($Pages->pages > 1) { ?>\r\n        <ul class=\"pagination pull-right\">\r\n          <?php\r\n          echo $outputNav(\r\n              $Pages,\r\n              array(\r\n                  \'pattern\' => \'<li><a href=\"\' . HTTP::queryString(\'page={link}\') . \'\">{text}</a></li>\',\r\n                  \'pattern_active\' => \'<li class=\"active\"><a>{text}</a></li>\',\r\n                  \'ellipse\' => \'<li class=\"disabled\"><a>...</a></li>\'\r\n              )\r\n          );\r\n          ?>\r\n        </ul>\r\n    <?php } ?>\r\n<?php } ?>\r\n', 0),
 (23, 2, 'news_main', 'Новости на главной', '<?php\r\nnamespace RAAS\\CMS;\r\n\r\nuse \\SOME\\Text;\r\n\r\n$translateAddresses = true;\r\n\r\nif ($Set) {\r\n    ?>\r\n    <div class=\"news-main left-block\">\r\n      <div class=\"news-main__title left-block__title\"><a href=\"/news/\">Новости</a></div>\r\n      <div class=\"news-main__list left-block__inner\">\r\n        <div class=\"news-main-list\">\r\n          <?php foreach ($Set as $row) { ?>\r\n              <div class=\"news-main-list__item\">\r\n                <div class=\"news-main-item\">\r\n                  <div class=\"news-main-item__image\">\r\n                    <a<?php echo ($translateAddresses ? \' href=\"\' . htmlspecialchars($row->url) . \'\"\' : \'\') . (!$row->visImages ? \' class=\"no-image\"\' : \'\')?>>\r\n                      <?php if ($row->visImages) { ?>\r\n                          <img src=\"/<?php echo Package::tn($row->visImages[0]->fileURL, 1920, 654)?>\" alt=\"<?php echo htmlspecialchars($row->visImages[0]->name ?: $row->name)?>\" />\r\n                      <?php } ?>\r\n                    </a>\r\n                  </div>\r\n                  <div class=\"news-main-item__text\">\r\n                    <div class=\"news-main-item__title\">\r\n                      <a<?php echo $translateAddresses ? \' href=\"\' . htmlspecialchars($row->url) . \'\"\' : \'\'?>>\r\n                        <?php echo htmlspecialchars($row->name)?>\r\n                      </a>\r\n                    </div>\r\n                    <?php if (($t = strtotime($row->date)) > 0) { ?>\r\n                        <div class=\"news-main-item__date\">\r\n                          <?php echo date(\'d\', $t) . \' \' . Text::$months[(int)date(\'m\', $t)] . \' \' . date(\'Y\', $t)?>\r\n                        </div>\r\n                    <?php } ?>\r\n                    <div class=\"news-main-item__description\">\r\n                      <?php echo htmlspecialchars($row->brief ?: Text::cuttext(html_entity_decode(strip_tags($row->description), ENT_COMPAT | ENT_HTML5, \'UTF-8\'), 256, \'...\'))?>\r\n                    </div>\r\n                    <?php if ($translateAddresses) { ?>\r\n                        <div class=\"news-main-item__more\">\r\n                          <a href=\"<?php echo htmlspecialchars($row->url)?>\">\r\n                            <?php echo SHOW_MORE?>\r\n                          </a>\r\n                        </div>\r\n                    <?php } ?>\r\n                  </div>\r\n                </div>\r\n              </div>\r\n          <?php } ?>\r\n        </div>\r\n      </div>\r\n    </div>\r\n<?php } ?>\r\n', 0);
 INSERT INTO `cms_snippets` (`id`, `pid`, `urn`, `name`, `description`, `locked`) VALUES
-(24, 1, '__raas_shop_cart_interface', 'Стандартный интерфейс корзины', '<?php\r\nnamespace RAAS\\CMS\\Shop;\r\n\r\nuse \\RAAS\\CMS\\Material;\r\nuse \\RAAS\\Redirector;\r\nuse \\RAAS\\CMS\\DATETIMEFORMAT;\r\nuse \\RAAS\\CMS\\Material_Field;\r\nuse \\RAAS\\CMS\\Package;\r\nuse \\Mustache_Engine;\r\nuse RAAS\\Attachment;\r\n\r\n$convertMeta = function ($x) {\r\n    return $x;\r\n};\r\n\r\n$notify = function (Order $Item) {\r\n    $temp = array_values(array_filter(array_map(\'trim\', preg_split(\'/( |;|,)/\', $Item->parent->Form->email))));\r\n    $emails = $userEmails = $sms_emails = $sms_phones = array();\r\n    foreach ($temp as $row) {\r\n        if (($row[0] == \'[\') && ($row[strlen($row) - 1] == \']\')) {\r\n            if (filter_var(substr($row, 1, -1), FILTER_VALIDATE_EMAIL)) {\r\n                $sms_emails[] = substr($row, 1, -1);\r\n            } elseif (preg_match(\'/(\\\\+)?\\\\d+/umi\', substr($row, 1, -1))) {\r\n                $sms_phones[] = substr($row, 1, -1);\r\n            }\r\n        } else {\r\n            $emails[] = $row;\r\n        }\r\n    }\r\n    foreach ($Item->fields as $key => $val) {\r\n        if ((($val->datatype == \'email\') || ($key == \'email\')) && $Item->$key) {\r\n            $userEmails = array_merge($userEmails, array_values(array_filter(array_map(\'trim\', preg_split(\'/(;|,)/\', $Item->$key)))));\r\n        }\r\n    }\r\n    if ($Item->parent->Form->Interface->id) {\r\n        $template = $Item->parent->Form->Interface->description;\r\n    } else {\r\n        $template = $Item->parent->Form->description;\r\n    }\r\n\r\n    ob_start();\r\n    $forUser = false;\r\n    eval(\'?\' . \'>\' . $template);\r\n    $message = ob_get_contents();\r\n    ob_end_clean();\r\n\r\n    ob_start();\r\n    $forUser = true;\r\n    eval(\'?\' . \'>\' . $template);\r\n    $userMessage = ob_get_contents();\r\n    ob_end_clean();\r\n\r\n    ob_start();\r\n    $SMS = true;\r\n    eval(\'?\' . \'>\' . $template);\r\n    $message_sms = ob_get_contents();\r\n    ob_end_clean();\r\n\r\n\r\n    $subject = date(DATETIMEFORMAT) . \' \' . sprintf(ORDER_STANDARD_HEADER, $Item->parent->name, $Item->page->name);\r\n    $userSubject = date(DATETIMEFORMAT) . \' \' . sprintf(ORDER_STANDARD_HEADER_USER, $Item->id, $_SERVER[\'HTTP_HOST\']);\r\n    if ($emails) {\r\n        \\RAAS\\Application::i()->sendmail($emails, $subject, $message, ADMINISTRATION_OF_SITE . \' \' . $_SERVER[\'HTTP_HOST\'], \'info@\' . $_SERVER[\'HTTP_HOST\']);\r\n    }\r\n    if ($userEmails) {\r\n        \\RAAS\\Application::i()->sendmail($userEmails, $userSubject, $userMessage, ADMINISTRATION_OF_SITE . \' \' . $_SERVER[\'HTTP_HOST\'], \'info@\' . $_SERVER[\'HTTP_HOST\']);\r\n    }\r\n    if ($sms_emails) {\r\n        \\RAAS\\Application::i()->sendmail($sms_emails, $subject, $message_sms, ADMINISTRATION_OF_SITE . \' \' . $_SERVER[\'HTTP_HOST\'], \'info@\' . $_SERVER[\'HTTP_HOST\'], false);\r\n    }\r\n    if ($sms_phones) {\r\n        $urlTemplate = Package::i()->registryGet(\'sms_gate\');\r\n        $m = new Mustache_Engine();\r\n        foreach ($sms_phones as $phone) {\r\n            $url = $m->render($urlTemplate, array(\'PHONE\' => urlencode($phone), \'TEXT\' => urlencode($message_sms)));\r\n            $result = file_get_contents($url);\r\n        }\r\n    }\r\n};\r\n\r\n$OUT = array();\r\n$Cart_Type = new Cart_Type((int)$config[\'cart_type\']);\r\n$Cart = new Cart($Cart_Type, \\RAAS\\Controller_Frontend::i()->user);\r\nswitch (isset($_GET[\'action\']) ? $_GET[\'action\'] : \'\') {\r\n    case \'set\':\r\n        $Item = new Material((int)(isset($_GET[\'id\']) ? $_GET[\'id\'] : \'\'));\r\n        $amount = isset($_GET[\'amount\']) ? $_GET[\'amount\'] : 0;\r\n        $meta = isset($_GET[\'meta\']) ? $_GET[\'meta\'] : \'\';\r\n        if ($Item->id) {\r\n            $Cart->set($Item, $amount, $meta);\r\n        }\r\n        new Redirector($_GET[\'back\'] ? \'history:back\' : \\SOME\\HTTP::queryString(\'action=&id=&meta=&amount=\'));\r\n        break;\r\n    case \'add\':\r\n        $Item = new Material((int)(isset($_GET[\'id\']) ? $_GET[\'id\'] : \'\'));\r\n        $amount = isset($_GET[\'amount\']) ? $_GET[\'amount\'] : 1;\r\n        $meta = isset($_GET[\'meta\']) ? $_GET[\'meta\'] : \'\';\r\n        if ($Item->id && $amount) {\r\n            $Cart->add($Item, $amount, $meta);\r\n        }\r\n        new Redirector($_GET[\'back\'] ? \'history:back\' : \\SOME\\HTTP::queryString(\'action=&id=&meta=&amount=\'));\r\n        break;\r\n    case \'reduce\':\r\n        $Item = new Material((int)(isset($_GET[\'id\']) ? $_GET[\'id\'] : \'\'));\r\n        $amount = isset($_GET[\'amount\']) ? $_GET[\'amount\'] : 1;\r\n        $meta = isset($_GET[\'meta\']) ? $_GET[\'meta\'] : \'\';\r\n        if ($Item->id && $amount) {\r\n            $Cart->reduce($Item, $amount, $meta);\r\n        }\r\n        new Redirector($_GET[\'back\'] ? \'history:back\' : \\SOME\\HTTP::queryString(\'action=&id=&meta=&amount=\'));\r\n        break;\r\n    case \'delete\':\r\n        $Item = new Material((int)(isset($_GET[\'id\']) ? $_GET[\'id\'] : \'\'));\r\n        $meta = isset($_GET[\'meta\']) ? $_GET[\'meta\'] : \'\';\r\n        if ($Item->id) {\r\n            $Cart->set($Item, 0, $meta);\r\n        }\r\n        new Redirector($_GET[\'back\'] ? \'history:back\' : \\SOME\\HTTP::queryString(\'action=&id=&meta=&amount=\'));\r\n        break;\r\n    case \'clear\':\r\n        $Cart->clear();\r\n        new Redirector($_GET[\'back\'] ? \'history:back\' : \\SOME\\HTTP::queryString(\'action=&id=&meta=&amount=\'));\r\n        break;\r\n    default:\r\n        $Form = $Cart_Type->Form;\r\n        if (isset($_POST[\'amount\'])) {\r\n            foreach ($_POST[\'amount\'] as $key => $val) {\r\n                list($id, $meta) = explode(\'_\', $key);\r\n                $Item = new Material($id);\r\n                $Cart->set($Item, (int)$val, $meta);\r\n            }\r\n        }\r\n        if ($Form->id && $Cart->items) {\r\n            $localError = array();\r\n            if (($Form->signature && isset($_POST[\'form_signature\']) && $_POST[\'form_signature\'] == md5(\'form\' . (int)$Form->id . (int)$Block->id)) || (!$Form->signature && ($_SERVER[\'REQUEST_METHOD\'] == \'POST\'))) {\r\n                $Item = new Order();\r\n                $Item->pid = (int)$Cart_Type->id;\r\n                foreach ($Form->fields as $row) {\r\n                    switch ($row->datatype) {\r\n                        case \'file\':\r\n                        case \'image\':\r\n                            if (!isset($_FILES[$row->urn][\'tmp_name\']) || !$row->isFilled($_FILES[$row->urn][\'tmp_name\'])) {\r\n                                if ($row->required && !$row->countValues()) {\r\n                                    $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);\r\n                                }\r\n                            } elseif (isset($_FILES[$row->urn][\'tmp_name\']) && $row->isFilled($_FILES[$row->urn][\'tmp_name\'])) {\r\n                                if (!$row->validate($_FILES[$row->urn][\'tmp_name\'])) {\r\n                                    $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);\r\n                                }\r\n                            }\r\n                            break;\r\n                        default:\r\n                            if (!isset($_POST[$row->urn]) || !$row->isFilled($_POST[$row->urn])) {\r\n                                if ($row->required) {\r\n                                    $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);\r\n                                }\r\n                            } elseif (isset($_POST[$row->urn]) && $row->isFilled($_POST[$row->urn])) {\r\n                                if (($row->datatype == \'password\') && ($_POST[$row->urn] != $_POST[$row->urn . \'@confirm\'])) {\r\n                                    $localError[$row->urn] = sprintf(ERR_CUSTOM_PASSWORD_DOESNT_MATCH_CONFIRM, $row->name);\r\n                                } elseif (!$row->validate($_POST[$row->urn])) {\r\n                                    $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);\r\n                                }\r\n                            }\r\n                            break;\r\n                    }\r\n                }\r\n                if ($Form->antispam && $Form->antispam_field_name) {\r\n                    switch ($Form->antispam) {\r\n                        case \'captcha\':\r\n                            if (!isset($_POST[$Form->antispam_field_name], $_SESSION[\'captcha_keystring\']) || ($_POST[$Form->antispam_field_name] != $_SESSION[\'captcha_keystring\'])) {\r\n                                $localError[$row->urn] = ERR_CAPTCHA_FIELD_INVALID;\r\n                            }\r\n                            break;\r\n                        case \'hidden\':\r\n                            if (isset($_POST[$Form->antispam_field_name]) && $_POST[$Form->antispam_field_name]) {\r\n                                $localError[$row->urn] = ERR_CAPTCHA_FIELD_INVALID;\r\n                            }\r\n                            break;\r\n                    }\r\n                }\r\n                if (!$localError) {\r\n                    if ((\\RAAS\\Controller_Frontend::i()->user instanceof \\RAAS\\CMS\\User) && \\RAAS\\Controller_Frontend::i()->user->id) {\r\n                        $Item->uid = (int)\\RAAS\\Controller_Frontend::i()->user->id;\r\n                    } else {\r\n                        $Item->uid = 0;\r\n                    }\r\n                    // Для AJAX\'а\r\n                    //$Referer = \\RAAS\\CMS\\Page::importByURL($_SERVER[\'HTTP_REFERER\']);\r\n                    //$Item->page_id = (int)$Referer->id;\r\n                    $Item->page_id = (int)$Page->id;\r\n                    $Item->ip = (string)$_SERVER[\'REMOTE_ADDR\'];\r\n                    $Item->user_agent = (string)$_SERVER[\'HTTP_USER_AGENT\'];\r\n\r\n                    if ($Item instanceof Order) {\r\n                        $temp = array();\r\n                        foreach ($Cart->items as $row) {\r\n                            if ($row->amount) {\r\n                                $m = new Material($row->id);\r\n                                $price = $Cart->getPrice($m);\r\n                                $temp[] = array(\r\n                                    \'material_id\' => $row->id,\r\n                                    \'name\' => $row->name,\r\n                                    \'meta\' => $convertMeta($row->meta),\r\n                                    \'realprice\' => number_format($row->realprice, 2, \'.\', \'\'),\r\n                                    \'amount\' => (int)$row->amount\r\n                                );\r\n                            }\r\n                        }\r\n                        $Item->meta_items = $temp;\r\n                    }\r\n                    $Item->commit();\r\n                    foreach ($Item->fields as $fname => $temp) {\r\n                        if (isset($Item->fields[$fname])) {\r\n                            $row = $Item->fields[$fname];\r\n                            switch ($row->datatype) {\r\n                                case \'file\':\r\n                                case \'image\':\r\n                                    $row->deleteValues();\r\n                                    if ($row->multiple) {\r\n                                        foreach ($_FILES[$row->urn][\'tmp_name\'] as $key => $val) {\r\n                                            $row2 = array(\r\n                                                \'vis\' => (int)$_POST[$row->urn . \'@vis\'][$key],\r\n                                                \'name\' => (string)$_POST[$row->urn . \'@name\'][$key],\r\n                                                \'description\' => (string)$_POST[$row->urn . \'@description\'][$key],\r\n                                                \'attachment\' => (int)$_POST[$row->urn . \'@attachment\'][$key]\r\n                                            );\r\n                                            if (is_uploaded_file($_FILES[$row->urn][\'tmp_name\'][$key]) && $row->validate($_FILES[$row->urn][\'tmp_name\'][$key])) {\r\n                                                $att = new Attachment((int)$row2[\'attachment\']);\r\n                                                $att->upload = $_FILES[$row->urn][\'tmp_name\'][$key];\r\n                                                $att->filename = $_FILES[$row->urn][\'name\'][$key];\r\n                                                $att->mime = $_FILES[$row->urn][\'type\'][$key];\r\n                                                $att->parent = $Item;\r\n                                                if ($row->datatype == \'image\') {\r\n                                                    $att->image = 1;\r\n                                                    if ($temp = (int)$this->package->registryGet(\'maxsize\')) {\r\n                                                        $att->maxWidth = $att->maxHeight = $temp;\r\n                                                    }\r\n                                                    if ($temp = (int)$this->package->registryGet(\'tnsize\')) {\r\n                                                        $att->tnsize = $temp;\r\n                                                    }\r\n                                                }\r\n                                                $att->commit();\r\n                                                $row2[\'attachment\'] = (int)$att->id;\r\n                                                $row->addValue(json_encode($row2));\r\n                                            } elseif ($row2[\'attachment\']) {\r\n                                                $row->addValue(json_encode($row2));\r\n                                            }\r\n                                            unset($att, $row2);\r\n                                        }\r\n                                    } else {\r\n                                        $row2 = array(\r\n                                            \'vis\' => (int)$_POST[$row->urn . \'@vis\'],\r\n                                            \'name\' => (string)$_POST[$row->urn . \'@name\'],\r\n                                            \'description\' => (string)$_POST[$row->urn . \'@description\'],\r\n                                            \'attachment\' => (int)$_POST[$row->urn . \'@attachment\']\r\n                                        );\r\n                                        if (is_uploaded_file($_FILES[$row->urn][\'tmp_name\']) && $row->validate($_FILES[$row->urn][\'tmp_name\'])) {\r\n                                            $att = new Attachment((int)$row2[\'attachment\']);\r\n                                            $att->upload = $_FILES[$row->urn][\'tmp_name\'];\r\n                                            $att->filename = $_FILES[$row->urn][\'name\'];\r\n                                            $att->mime = $_FILES[$row->urn][\'type\'];\r\n                                            $att->parent = $Item;\r\n                                            if ($row->datatype == \'image\') {\r\n                                                $att->image = 1;\r\n                                                if ($temp = (int)$this->package->registryGet(\'maxsize\')) {\r\n                                                    $att->maxWidth = $att->maxHeight = $temp;\r\n                                                }\r\n                                                if ($temp = (int)$this->package->registryGet(\'tnsize\')) {\r\n                                                    $att->tnsize = $temp;\r\n                                                }\r\n                                            }\r\n                                            $att->commit();\r\n                                            $row2[\'attachment\'] = (int)$att->id;\r\n                                            $row->addValue(json_encode($row2));\r\n                                        } elseif ($_POST[$row->urn . \'@attachment\']) {\r\n                                            $row2[\'attachment\'] = (int)$_POST[$row->urn . \'@attachment\'];\r\n                                            $row->addValue(json_encode($row2));\r\n                                        }\r\n                                        unset($att, $row2);\r\n                                    }\r\n                                    break;\r\n                                default:\r\n                                    $row->deleteValues();\r\n                                    if (isset($_POST[$row->urn])) {\r\n                                        foreach ((array)$_POST[$row->urn] as $val) {\r\n                                            // 2019-01-22, AVS: закрываем XSS-уязвимость\r\n                                            $row->addValue(strip_tags($val));\r\n                                        }\r\n                                    }\r\n                                    break;\r\n                            }\r\n                            if (in_array($row->datatype, array(\'file\', \'image\'))) {\r\n                                $row->clearLostAttachments();\r\n                            }\r\n                        }\r\n                    }\r\n                    $Cart->clear();\r\n                    $notify($Item);\r\n                    if ($_POST[\'epay\'] != 1) {\r\n                        $OUT[\'success\'][(int)$Block->id] = true;\r\n                    }\r\n                }\r\n                $OUT[\'DATA\'] = $_POST;\r\n            } else {\r\n                $OUT[\'DATA\'] = array();\r\n            }\r\n            $OUT[\'localError\'] = $localError;\r\n            $OUT[\'Item\'] = $Item;\r\n        }\r\n        $OUT[\'Form\'] = $Form;\r\n        break;\r\n}\r\nif (isset($_GET[\'back\'])) {\r\n    new Redirector(\'history:back\');\r\n}\r\n\r\n$OUT[\'Cart\'] = $Cart;\r\n$OUT[\'Cart_Type\'] = $Cart_Type;\r\n$OUT[\'convertMeta\'] = $convertMeta;\r\nif ($Block->EPay_Interface->id) {\r\n    eval(\'?\' . \'>\' . $Block->EPay_Interface->description);\r\n}\r\nreturn $OUT;\r\n', 1),
+(24, 1, '__raas_shop_cart_interface', 'Стандартный интерфейс корзины', '<?php\r\nnamespace RAAS\\CMS\\Shop;\r\n\r\nuse \\RAAS\\CMS\\Material;\r\nuse \\RAAS\\Redirector;\r\nuse \\RAAS\\CMS\\DATETIMEFORMAT;\r\nuse \\RAAS\\CMS\\Material_Field;\r\nuse \\RAAS\\CMS\\Package;\r\nuse \\Mustache_Engine;\r\nuse RAAS\\Attachment;\r\n\r\n$convertMeta = function ($x) {\r\n    return $x;\r\n};\r\n\r\n$notify = function (Order $Item) {\r\n    $temp = array_values(array_filter(array_map(\'trim\', preg_split(\'/( |;|,)/\', $Item->parent->Form->email))));\r\n    $emails = $userEmails = $sms_emails = $sms_phones = array();\r\n    foreach ($temp as $row) {\r\n        if (($row[0] == \'[\') && ($row[strlen($row) - 1] == \']\')) {\r\n            if (filter_var(substr($row, 1, -1), FILTER_VALIDATE_EMAIL)) {\r\n                $sms_emails[] = substr($row, 1, -1);\r\n            } elseif (preg_match(\'/(\\\\+)?\\\\d+/umi\', substr($row, 1, -1))) {\r\n                $sms_phones[] = substr($row, 1, -1);\r\n            }\r\n        } else {\r\n            $emails[] = $row;\r\n        }\r\n    }\r\n    foreach ($Item->fields as $key => $val) {\r\n        if ((($val->datatype == \'email\') || ($key == \'email\')) && $Item->$key) {\r\n            $userEmails = array_merge($userEmails, array_values(array_filter(array_map(\'trim\', preg_split(\'/(;|,)/\', $Item->$key)))));\r\n        }\r\n    }\r\n    if ($Item->parent->Form->Interface->id) {\r\n        $template = $Item->parent->Form->Interface->description;\r\n    } else {\r\n        $template = $Item->parent->Form->description;\r\n    }\r\n\r\n    ob_start();\r\n    $forUser = false;\r\n    eval(\'?\' . \'>\' . $template);\r\n    $message = ob_get_contents();\r\n    ob_end_clean();\r\n\r\n    ob_start();\r\n    $forUser = true;\r\n    eval(\'?\' . \'>\' . $template);\r\n    $userMessage = ob_get_contents();\r\n    ob_end_clean();\r\n\r\n    ob_start();\r\n    $SMS = true;\r\n    eval(\'?\' . \'>\' . $template);\r\n    $message_sms = ob_get_contents();\r\n    ob_end_clean();\r\n\r\n\r\n    $subject = date(DATETIMEFORMAT) . \' \' . sprintf(ORDER_STANDARD_HEADER, $Item->parent->name, $Item->page->name);\r\n    $userSubject = date(DATETIMEFORMAT) . \' \' . sprintf(ORDER_STANDARD_HEADER_USER, $Item->id, $_SERVER[\'HTTP_HOST\']);\r\n    if ($emails) {\r\n        \\RAAS\\Application::i()->sendmail($emails, $subject, $message, ADMINISTRATION_OF_SITE . \' \' . $_SERVER[\'HTTP_HOST\'], \'info@\' . $_SERVER[\'HTTP_HOST\']);\r\n    }\r\n    if ($userEmails) {\r\n        \\RAAS\\Application::i()->sendmail($userEmails, $userSubject, $userMessage, ADMINISTRATION_OF_SITE . \' \' . $_SERVER[\'HTTP_HOST\'], \'info@\' . $_SERVER[\'HTTP_HOST\']);\r\n    }\r\n    if ($sms_emails) {\r\n        \\RAAS\\Application::i()->sendmail($sms_emails, $subject, $message_sms, ADMINISTRATION_OF_SITE . \' \' . $_SERVER[\'HTTP_HOST\'], \'info@\' . $_SERVER[\'HTTP_HOST\'], false);\r\n    }\r\n    if ($sms_phones) {\r\n        $urlTemplate = Package::i()->registryGet(\'sms_gate\');\r\n        $m = new Mustache_Engine();\r\n        foreach ($sms_phones as $phone) {\r\n            $url = $m->render($urlTemplate, array(\'PHONE\' => urlencode($phone), \'TEXT\' => urlencode($message_sms)));\r\n            $result = file_get_contents($url);\r\n        }\r\n    }\r\n};\r\n\r\n$OUT = array();\r\n$Cart_Type = new Cart_Type((int)$config[\'cart_type\']);\r\n$Cart = new Cart($Cart_Type, \\RAAS\\Controller_Frontend::i()->user);\r\nswitch (isset($_GET[\'action\']) ? $_GET[\'action\'] : \'\') {\r\n    case \'set\':\r\n        $Item = new Material((int)(isset($_GET[\'id\']) ? $_GET[\'id\'] : \'\'));\r\n        $amount = isset($_GET[\'amount\']) ? $_GET[\'amount\'] : 0;\r\n        $meta = isset($_GET[\'meta\']) ? $_GET[\'meta\'] : \'\';\r\n        if ($Item->id) {\r\n            $Cart->set($Item, $amount, $meta);\r\n        }\r\n        new Redirector($_GET[\'back\'] ? \'history:back\' : \\SOME\\HTTP::queryString(\'action=&id=&meta=&amount=\'));\r\n        break;\r\n    case \'add\':\r\n        $Item = new Material((int)(isset($_GET[\'id\']) ? $_GET[\'id\'] : \'\'));\r\n        $amount = isset($_GET[\'amount\']) ? $_GET[\'amount\'] : 1;\r\n        $meta = isset($_GET[\'meta\']) ? $_GET[\'meta\'] : \'\';\r\n        if ($Item->id && $amount) {\r\n            $Cart->add($Item, $amount, $meta);\r\n        }\r\n        new Redirector($_GET[\'back\'] ? \'history:back\' : \\SOME\\HTTP::queryString(\'action=&id=&meta=&amount=\'));\r\n        break;\r\n    case \'reduce\':\r\n        $Item = new Material((int)(isset($_GET[\'id\']) ? $_GET[\'id\'] : \'\'));\r\n        $amount = isset($_GET[\'amount\']) ? $_GET[\'amount\'] : 1;\r\n        $meta = isset($_GET[\'meta\']) ? $_GET[\'meta\'] : \'\';\r\n        if ($Item->id && $amount) {\r\n            $Cart->reduce($Item, $amount, $meta);\r\n        }\r\n        new Redirector($_GET[\'back\'] ? \'history:back\' : \\SOME\\HTTP::queryString(\'action=&id=&meta=&amount=\'));\r\n        break;\r\n    case \'delete\':\r\n        $Item = new Material((int)(isset($_GET[\'id\']) ? $_GET[\'id\'] : \'\'));\r\n        $meta = isset($_GET[\'meta\']) ? $_GET[\'meta\'] : \'\';\r\n        if ($Item->id) {\r\n            $Cart->set($Item, 0, $meta);\r\n        }\r\n        new Redirector($_GET[\'back\'] ? \'history:back\' : \\SOME\\HTTP::queryString(\'action=&id=&meta=&amount=\'));\r\n        break;\r\n    case \'clear\':\r\n        $Cart->clear();\r\n        new Redirector($_GET[\'back\'] ? \'history:back\' : \\SOME\\HTTP::queryString(\'action=&id=&meta=&amount=\'));\r\n        break;\r\n    default:\r\n        $Form = $Cart_Type->Form;\r\n        if (isset($_POST[\'amount\'])) {\r\n            foreach ($_POST[\'amount\'] as $key => $val) {\r\n                list($id, $meta) = explode(\'_\', $key);\r\n                $Item = new Material($id);\r\n                $Cart->set($Item, (int)$val, $meta);\r\n            }\r\n        }\r\n        if ($Form->id && $Cart->items) {\r\n            $localError = array();\r\n            if (($Form->signature && isset($_POST[\'form_signature\']) && $_POST[\'form_signature\'] == md5(\'form\' . (int)$Form->id . (int)$Block->id)) || (!$Form->signature && ($_SERVER[\'REQUEST_METHOD\'] == \'POST\'))) {\r\n                $Item = new Order();\r\n                $Item->pid = (int)$Cart_Type->id;\r\n                foreach ($Form->fields as $row) {\r\n                    switch ($row->datatype) {\r\n                        case \'file\':\r\n                        case \'image\':\r\n                            if (!isset($_FILES[$row->urn][\'tmp_name\']) || !$row->isFilled($_FILES[$row->urn][\'tmp_name\'])) {\r\n                                if ($row->required && !$row->countValues()) {\r\n                                    $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);\r\n                                }\r\n                            } elseif (isset($_FILES[$row->urn][\'tmp_name\']) && $row->isFilled($_FILES[$row->urn][\'tmp_name\'])) {\r\n                                if (!$row->validate($_FILES[$row->urn][\'tmp_name\'])) {\r\n                                    $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);\r\n                                }\r\n                            }\r\n                            break;\r\n                        default:\r\n                            if (!isset($_POST[$row->urn]) || !$row->isFilled($_POST[$row->urn])) {\r\n                                if ($row->required) {\r\n                                    $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_REQUIRED, $row->name);\r\n                                }\r\n                            } elseif (isset($_POST[$row->urn]) && $row->isFilled($_POST[$row->urn])) {\r\n                                if (($row->datatype == \'password\') && ($_POST[$row->urn] != $_POST[$row->urn . \'@confirm\'])) {\r\n                                    $localError[$row->urn] = sprintf(ERR_CUSTOM_PASSWORD_DOESNT_MATCH_CONFIRM, $row->name);\r\n                                } elseif (!$row->validate($_POST[$row->urn])) {\r\n                                    $localError[$row->urn] = sprintf(ERR_CUSTOM_FIELD_INVALID, $row->name);\r\n                                }\r\n                            }\r\n                            break;\r\n                    }\r\n                }\r\n                if ($Form->antispam && $Form->antispam_field_name) {\r\n                    switch ($Form->antispam) {\r\n                        case \'captcha\':\r\n                            if (!isset($_POST[$Form->antispam_field_name], $_SESSION[\'captcha_keystring\']) || ($_POST[$Form->antispam_field_name] != $_SESSION[\'captcha_keystring\'])) {\r\n                                $localError[$row->urn] = ERR_CAPTCHA_FIELD_INVALID;\r\n                            }\r\n                            break;\r\n                        case \'hidden\':\r\n                            if (isset($_POST[$Form->antispam_field_name]) && $_POST[$Form->antispam_field_name]) {\r\n                                $localError[$row->urn] = ERR_CAPTCHA_FIELD_INVALID;\r\n                            }\r\n                            break;\r\n                    }\r\n                }\r\n                if (!$localError) {\r\n                    if ((\\RAAS\\Controller_Frontend::i()->user instanceof \\RAAS\\CMS\\User) && \\RAAS\\Controller_Frontend::i()->user->id) {\r\n                        $Item->uid = (int)\\RAAS\\Controller_Frontend::i()->user->id;\r\n                    } else {\r\n                        $Item->uid = 0;\r\n                    }\r\n                    // Для AJAX\'а\r\n                    //$Referer = \\RAAS\\CMS\\Page::importByURL($_SERVER[\'HTTP_REFERER\']);\r\n                    //$Item->page_id = (int)$Referer->id;\r\n                    $Item->page_id = (int)$Page->id;\r\n                    $Item->ip = (string)$_SERVER[\'REMOTE_ADDR\'];\r\n                    $Item->user_agent = (string)$_SERVER[\'HTTP_USER_AGENT\'];\r\n\r\n                    if ($Item instanceof Order) {\r\n                        $temp = array();\r\n                        foreach ($Cart->items as $row) {\r\n                            if ($row->amount) {\r\n                                $m = new Material($row->id);\r\n                                $price = $Cart->getPrice($m);\r\n                                $temp[] = array(\r\n                                    \'material_id\' => $row->id,\r\n                                    \'name\' => $row->name,\r\n                                    \'meta\' => $convertMeta($row->meta),\r\n                                    \'realprice\' => number_format($row->realprice, 2, \'.\', \'\'),\r\n                                    \'amount\' => (int)$row->amount\r\n                                );\r\n                            }\r\n                        }\r\n                        $Item->meta_items = $temp;\r\n                    }\r\n                    $Item->commit();\r\n                    foreach ($Item->fields as $fname => $temp) {\r\n                        if (isset($Item->fields[$fname])) {\r\n                            $row = $Item->fields[$fname];\r\n                            switch ($row->datatype) {\r\n                                case \'file\':\r\n                                case \'image\':\r\n                                    $row->deleteValues();\r\n                                    if ($row->multiple) {\r\n                                        foreach ($_FILES[$row->urn][\'tmp_name\'] as $key => $val) {\r\n                                            $row2 = array(\r\n                                                \'vis\' => (int)$_POST[$row->urn . \'@vis\'][$key],\r\n                                                \'name\' => (string)$_POST[$row->urn . \'@name\'][$key],\r\n                                                \'description\' => (string)$_POST[$row->urn . \'@description\'][$key],\r\n                                                \'attachment\' => (int)$_POST[$row->urn . \'@attachment\'][$key]\r\n                                            );\r\n                                            if (is_uploaded_file($_FILES[$row->urn][\'tmp_name\'][$key]) && $row->validate($_FILES[$row->urn][\'tmp_name\'][$key])) {\r\n                                                $att = new Attachment((int)$row2[\'attachment\']);\r\n                                                $att->upload = $_FILES[$row->urn][\'tmp_name\'][$key];\r\n                                                $att->filename = $_FILES[$row->urn][\'name\'][$key];\r\n                                                $att->mime = $_FILES[$row->urn][\'type\'][$key];\r\n                                                $att->parent = $Item;\r\n                                                if ($row->datatype == \'image\') {\r\n                                                    $att->image = 1;\r\n                                                    if ($temp = (int)$this->package->registryGet(\'maxsize\')) {\r\n                                                        $att->maxWidth = $att->maxHeight = $temp;\r\n                                                    }\r\n                                                    if ($temp = (int)$this->package->registryGet(\'tnsize\')) {\r\n                                                        $att->tnsize = $temp;\r\n                                                    }\r\n                                                }\r\n                                                $att->commit();\r\n                                                $row2[\'attachment\'] = (int)$att->id;\r\n                                                $row->addValue(json_encode($row2));\r\n                                            } elseif ($row2[\'attachment\']) {\r\n                                                $row->addValue(json_encode($row2));\r\n                                            }\r\n                                            unset($att, $row2);\r\n                                        }\r\n                                    } else {\r\n                                        $row2 = array(\r\n                                            \'vis\' => (int)$_POST[$row->urn . \'@vis\'],\r\n                                            \'name\' => (string)$_POST[$row->urn . \'@name\'],\r\n                                            \'description\' => (string)$_POST[$row->urn . \'@description\'],\r\n                                            \'attachment\' => (int)$_POST[$row->urn . \'@attachment\']\r\n                                        );\r\n                                        if (is_uploaded_file($_FILES[$row->urn][\'tmp_name\']) && $row->validate($_FILES[$row->urn][\'tmp_name\'])) {\r\n                                            $att = new Attachment((int)$row2[\'attachment\']);\r\n                                            $att->upload = $_FILES[$row->urn][\'tmp_name\'];\r\n                                            $att->filename = $_FILES[$row->urn][\'name\'];\r\n                                            $att->mime = $_FILES[$row->urn][\'type\'];\r\n                                            $att->parent = $Item;\r\n                                            if ($row->datatype == \'image\') {\r\n                                                $att->image = 1;\r\n                                                if ($temp = (int)$this->package->registryGet(\'maxsize\')) {\r\n                                                    $att->maxWidth = $att->maxHeight = $temp;\r\n                                                }\r\n                                                if ($temp = (int)$this->package->registryGet(\'tnsize\')) {\r\n                                                    $att->tnsize = $temp;\r\n                                                }\r\n                                            }\r\n                                            $att->commit();\r\n                                            $row2[\'attachment\'] = (int)$att->id;\r\n                                            $row->addValue(json_encode($row2));\r\n                                        } elseif ($_POST[$row->urn . \'@attachment\']) {\r\n                                            $row2[\'attachment\'] = (int)$_POST[$row->urn . \'@attachment\'];\r\n                                            $row->addValue(json_encode($row2));\r\n                                        }\r\n                                        unset($att, $row2);\r\n                                    }\r\n                                    break;\r\n                                default:\r\n                                    $row->deleteValues();\r\n                                    if (isset($_POST[$row->urn])) {\r\n                                        foreach ((array)$_POST[$row->urn] as $val) {\r\n                                            $row->addValue($val);\r\n                                        }\r\n                                    }\r\n                                    break;\r\n                            }\r\n                            if (in_array($row->datatype, array(\'file\', \'image\'))) {\r\n                                $row->clearLostAttachments();\r\n                            }\r\n                        }\r\n                    }\r\n                    $Cart->clear();\r\n                    $notify($Item);\r\n                    if ($_POST[\'epay\'] != 1) {\r\n                        $OUT[\'success\'][(int)$Block->id] = true;\r\n                    }\r\n                }\r\n                $OUT[\'DATA\'] = $_POST;\r\n            } else {\r\n                $OUT[\'DATA\'] = array();\r\n            }\r\n            $OUT[\'localError\'] = $localError;\r\n            $OUT[\'Item\'] = $Item;\r\n        }\r\n        $OUT[\'Form\'] = $Form;\r\n        break;\r\n}\r\nif (isset($_GET[\'back\'])) {\r\n    new Redirector(\'history:back\');\r\n}\r\n\r\n$OUT[\'Cart\'] = $Cart;\r\n$OUT[\'Cart_Type\'] = $Cart_Type;\r\n$OUT[\'convertMeta\'] = $convertMeta;\r\nif ($Block->EPay_Interface->id) {\r\n    eval(\'?\' . \'>\' . $Block->EPay_Interface->description);\r\n}\r\nreturn $OUT;\r\n', 1),
 (25, 1, '__raas_shop_order_notify', 'Стандартное уведомление о заказе', '<?php\r\nnamespace RAAS\\CMS\\Shop;\r\n\r\n$smsField = function ($field) {\r\n    $values = $field->getValues(true);\r\n    $arr = array();\r\n    foreach ($values as $key => $val) {\r\n        $val = $field->doRich($val);\r\n        switch ($field->datatype) {\r\n            case \'date\':\r\n                $arr[$key] = date(DATEFORMAT, strtotime($val));\r\n                break;\r\n            case \'datetime-local\':\r\n                $arr[$key] = date(DATETIMEFORMAT, strtotime($val));\r\n                break;\r\n            case \'file\':\r\n            case \'image\':\r\n                $arr[$key] .= $val->filename;\r\n                break;\r\n            case \'htmlarea\':\r\n                $arr[$key] = strip_tags($val);\r\n                break;\r\n            case \'material\':\r\n                $arr[$key] = $val->name;\r\n                break;\r\n            default:\r\n                if (!$field->multiple && ($field->datatype == \'checkbox\')) {\r\n                    $arr[$key] = $val ? _YES : _NO;\r\n                } else {\r\n                    $arr[$key] = $val;\r\n                }\r\n                break;\r\n        }\r\n    }\r\n    return $field->name . \': \' . implode(\', \', $arr) . \"\\n\";\r\n};\r\n\r\n$emailField = function ($field) {\r\n    $values = $field->getValues(true);\r\n    $arr = array();\r\n    foreach ($values as $key => $val) {\r\n        $val = $field->doRich($val);\r\n        switch ($field->datatype) {\r\n            case \'date\':\r\n                $arr[$key] = date(DATEFORMAT, strtotime($val));\r\n                break;\r\n            case \'datetime-local\':\r\n                $arr[$key] = date(DATETIMEFORMAT, strtotime($val));\r\n                break;\r\n            case \'color\':\r\n                $arr[$key] = \'<span style=\"display: inline-block; height: 16px; width: 16px; background-color: \' . htmlspecialchars($val) . \'\"></span>\';\r\n                break;\r\n            case \'email\':\r\n                $arr[$key] .= \'<a href=\"mailto:\' . htmlspecialchars($val) . \'\">\' . htmlspecialchars($val) . \'</a>\';\r\n                break;\r\n            case \'url\':\r\n                $arr[$key] .= \'<a href=\"\' . (!preg_match(\'/^http(s)?:\\\\/\\\\//umi\', trim($val)) ? \'http://\' : \'\') . htmlspecialchars($val) . \'\">\' . htmlspecialchars($val) . \'</a>\';\r\n                break;\r\n            case \'file\':\r\n                $arr[$key] .= \'<a href=\"http\' . ($_SERVER[\'HTTPS\'] == \'on\' ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . \'/\' . $val->fileURL . \'\">\' . htmlspecialchars($val->filename) . \'</a>\';\r\n                break;\r\n            case \'image\':\r\n                $arr[$key] .= \'<a href=\"http\' . ($_SERVER[\'HTTPS\'] == \'on\' ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . \'/\' . $val->fileURL . \'\">\r\n                                 <img src=\"http\' . ($_SERVER[\'HTTPS\'] == \'on\' ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . \'/\' . $val->tnURL. \'\" alt=\"\' . htmlspecialchars($val->filename) . \'\" title=\"\' . htmlspecialchars($val->filename) . \'\" />\r\n                               </a>\';\r\n                break;\r\n            case \'htmlarea\':\r\n                $arr[$key] = \'<div>\' . $val . \'</div>\';\r\n                break;\r\n            case \'material\':\r\n                $arr[$key] = \'<a href=\"http\' . ($_SERVER[\'HTTPS\'] == \'on\' ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . htmlspecialchars($val->url) . \'\">\r\n                                \' . htmlspecialchars($val->name) . \'\r\n                              </a>\';\r\n                break;\r\n            default:\r\n                if (!$field->multiple && ($field->datatype == \'checkbox\')) {\r\n                    $arr[$key] = $val ? _YES : _NO;\r\n                } else {\r\n                    $arr[$key] = nl2br(htmlspecialchars($val));\r\n                }\r\n                break;\r\n        }\r\n    }\r\n    return \'<div>\' . htmlspecialchars($field->name) . \': \' . implode(\', \', $arr) . \'</div>\';\r\n};\r\n?>\r\n<?php if ($SMS) {\r\n    echo date(DATETIMEFORMAT) . \' \' . sprintf(ORDER_STANDARD_HEADER_USER, $Item->id, $_SERVER[\'HTTP_HOST\']) . \"\\n\";\r\n    foreach ($Item->fields as $field) {\r\n        echo $smsField($field);\r\n    }\r\n} else { ?>\r\n    <div>\r\n      <?php\r\n      foreach ($Item->fields as $field) {\r\n          echo $emailField($field);\r\n      }\r\n      ?>\r\n    </div>\r\n    <?php if ($Item->items) { ?>\r\n      <br />\r\n      <table style=\"width: 100%\" border=\"1\">\r\n        <thead>\r\n          <tr>\r\n            <th><?php echo NAME?></th>\r\n            <th><?php echo ADDITIONAL_INFO?></th>\r\n            <th><?php echo PRICE?></th>\r\n            <th><?php echo AMOUNT?></th>\r\n            <th><?php echo SUM?></th>\r\n          </tr>\r\n        </thead>\r\n        <tbody>\r\n          <?php\r\n          $sum = 0;\r\n          foreach ($Item->items as $row) {\r\n              $url = ($forUser ? $row->url : \'/admin/?p=cms&sub=main&action=edit_material&id=\' . $row->id . \'&pid=\' . ($row->material_type->affectedPages[0]->id)); ?>\r\n              <tr>\r\n                <td>\r\n                  <?php if ($url) { ?>\r\n                      <a href=\"http<?php echo ($_SERVER[\'HTTPS\'] == \'on\' ? \'s\' : \'\')?>://<?php echo htmlspecialchars($_SERVER[\'HTTP_HOST\'] . $url)?>\">\r\n                        <?php echo htmlspecialchars($row->name)?>\r\n                      </a>\r\n                  <?php } else { ?>\r\n                      <?php echo htmlspecialchars($row->name)?>\r\n                  <?php } ?>\r\n                </td>\r\n                <td><?php echo htmlspecialchars($row->__get(\'meta\'))?>&nbsp;</td>\r\n                <td style=\"text-align: right\"><?php echo number_format($row->realprice, 2, \'.\', \' \')?></td>\r\n                <td><?php echo (int)$row->amount?></td>\r\n                <td style=\"text-align: right\"><?php echo number_format($row->amount * $row->realprice, 2, \'.\', \' \')?></td>\r\n              </tr>\r\n          <?php $sum += $row->amount * $row->realprice; } ?>\r\n          <tr>\r\n            <th colspan=\"4\" style=\"text-align: right\"><?php echo TOTAL_SUM?>:</th>\r\n            <th style=\"text-align: right\"><?php echo number_format($sum, 2, \'.\', \' \')?></th>\r\n          </tr>\r\n        </tbody>\r\n      </table>\r\n    <?php } ?>\r\n    <?php if (!$forUser) { ?>\r\n        <p><a href=\"http<?php echo ($_SERVER[\'HTTPS\'] == \'on\' ? \'s\' : \'\')?>://<?php echo htmlspecialchars($_SERVER[\'HTTP_HOST\'] . \'/admin/?p=cms&m=shop&sub=orders&action=view&id=\' . $Item->id)?>\"><?php echo VIEW?></a></p>\r\n        <p>\r\n          <small>\r\n            <?php echo IP_ADDRESS?>: <?php echo htmlspecialchars($Item->ip)?><br />\r\n            <?php echo USER_AGENT?>: <?php echo htmlspecialchars($Item->user_agent)?><br />\r\n            <?php echo PAGE?>:\r\n            <?php if ($Item->page->parents) { ?>\r\n                <?php foreach ($Item->page->parents as $row) { ?>\r\n                    <a href=\"<?php echo htmlspecialchars($Item->domain . $row->url)?>\"><?php echo htmlspecialchars($row->name)?></a> /\r\n                <?php } ?>\r\n            <?php } ?>\r\n            <a href=\"<?php echo htmlspecialchars($Item->domain . $Item->page->url)?>\"><?php echo htmlspecialchars($Item->page->name)?></a>\r\n            <br />\r\n            <?php echo CART_TYPE?>:\r\n            <a href=\"<?php echo htmlspecialchars($Item->domain . \'/admin/?p=cms&m=shop&sub=orders&id=\' . $Item->parent->id)?>\"><?php echo htmlspecialchars($Item->parent->name)?></a>\r\n          </small>\r\n        </p>\r\n    <?php } ?>\r\n<?php } ?>\r\n', 1),
-(26, 1, '__raas_shop_imageloader_interface', 'Стандартный интерфейс загрузчика изображений', '<?php\r\nnamespace RAAS\\CMS\\Shop;\r\n\r\nuse \\RAAS\\CMS\\Material;\r\nuse \\RAAS\\CMS\\Package;\r\nuse \\RAAS\\CMS\\Sub_Main as Package_Sub_Main;\r\nuse \\RAAS\\Application;\r\nuse \\RAAS\\Attachment;\r\n\r\nini_set(\'max_execution_time\', 300);\r\n$st = microtime(true);\r\nif ($_SERVER[\'REQUEST_METHOD\'] == \'POST\') {\r\n    // Загрузка картинок\r\n    if (!$files) {\r\n        return array(\'localError\' => array(array(\'name\' => \'MISSING\', \'value\' => \'files\', \'description\' => Module::i()->view->_(\'UPLOAD_FILES_REQUIRED\'))));\r\n    } else {\r\n        // Ищем задействованные типы\r\n        $mtypes = array_merge(array((int)$Loader->Material_Type->id), (array)$Loader->Material_Type->all_children_ids);\r\n        $mtypes = array_map(\'intval\', $mtypes);\r\n        $articles = array();\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query = \"SELECT tM.id, tD.value \";\r\n        } elseif ($Loader->ufid) {\r\n            $SQL_query = \"SELECT id, \" . $Loader->ufid . \" AS value \";\r\n        }\r\n        $SQL_query .= \" FROM \" . Material::_tablename() . \" AS tM \";\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query .= \" JOIN \" . Material::_dbprefix() . \"cms_data AS tD ON tD.pid = tM.id \";\r\n        }\r\n        $SQL_query .= \" WHERE tM.pid IN (\" . implode(\", \", $mtypes ?: array(0)) . \") \";\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query .= \" AND TRIM(tD.value) != \'\' AND tD.fid = \" . (int)$Loader->Unique_Field->id;\r\n        } else {\r\n            $SQL_query .= \" AND \" . $Loader->ufid . \" != \'\' \";\r\n        }\r\n        $SQL_result = Material::_SQL()->get($SQL_query);\r\n        foreach ($SQL_result as $row) {\r\n            if (trim($row[\'value\'])) {\r\n                $articles[$row[\'id\']] = \\SOME\\Text::beautify(trim($row[\'value\']));\r\n            }\r\n        }\r\n\r\n        // Подготовить реальные файлы к загрузке\r\n        $processFile = function ($file) use (&$processFile, $mtypes, $Loader, $articles) {\r\n            $ext = strtolower(pathinfo($file[\'name\'], PATHINFO_EXTENSION));\r\n            $proceedFiles = array();\r\n            switch ($ext) {\r\n                case \'jpg\':\r\n                case \'jpeg\':\r\n                case \'png\':\r\n                case \'gif\':\r\n                    if ($type = getimagesize($file[\'tmp_name\'])) {\r\n                        $file[\'type\'] = image_type_to_mime_type($type[2]);\r\n                        $temp = array();\r\n                        $filename = pathinfo($file[\'name\'], PATHINFO_FILENAME);\r\n                        foreach ($articles as $id => $article) {\r\n                            if (preg_match(\'/^\' . preg_quote($article) . \'($|\' . preg_quote($Loader->sep_string) . \')/i\', $filename)) {\r\n                                $temp[] = $id;\r\n                                break;\r\n                            }\r\n                        }\r\n                        if ($temp) {\r\n                            $file[\'materials\'] = $temp;\r\n                            $ext2 = image_type_to_extension($type[2]);\r\n                            $file[\'original_name\'] = $file[\'name\'];\r\n                            $file[\'name\'] = $filename . $ext2;\r\n                        }\r\n                        $proceedFiles[] = $file;\r\n                    }\r\n                    break;\r\n                case \'zip\':\r\n                    $files = array();\r\n                    $z = new \\SOME\\ZipArchive();\r\n                    if ($z->open($file[\'tmp_name\']) === true) {\r\n                        for ($i = 0; $i < $z->numFiles; $i++) {\r\n                            $tmpname = tempnam(sys_get_temp_dir(), \'\');\r\n                            file_put_contents($tmpname, $z->getFromIndex($i));\r\n                            $files[] = array(\'name\' => basename($z->getNameIndex($i)), \'tmp_name\' => $tmpname);\r\n                        }\r\n                    }\r\n                    $z->close();\r\n                    foreach ($files as $f) {\r\n                        $proceedFiles = array_merge($proceedFiles, $processFile($f));\r\n                    }\r\n                    break;\r\n            }\r\n            return $proceedFiles;\r\n        };\r\n\r\n        $proceedFiles = array();\r\n        $affectedMaterials = array();\r\n        foreach ($files as $file) {\r\n            $proceedFiles = array_merge($proceedFiles, $processFile($file));\r\n        }\r\n        if (!$proceedFiles) {\r\n            return array(\'localError\' => array(array(\'name\' => \'INVALID\', \'value\' => \'files\', \'description\' => Module::i()->view->_(\'ALLOWED_FORMATS_JPG_JPEG_PNG_GIF_ZIP\'))));\r\n        }\r\n        if ($clear) {\r\n            // Ищем материалы для очистки изображений\r\n            foreach ($proceedFiles as $file) {\r\n                if ($file[\'materials\']) {\r\n                    $affectedMaterials = array_merge($affectedMaterials, (array)$file[\'materials\']);\r\n                }\r\n            }\r\n            $affectedMaterials = array_unique($affectedMaterials);\r\n            $affectedMaterials = array_values($affectedMaterials);\r\n\r\n            // Ищем attachment\'ы для удаления\r\n            $attachmentsToClear = array();\r\n            $SQL_query = \"SELECT value FROM \" . Material::_dbprefix() . \"cms_data\r\n                           WHERE pid IN (\" . implode(\", \", $affectedMaterials ?: array(0)) . \") AND fid = \" . (int)$Loader->Image_Field->id;\r\n            $SQL_result = Material::_SQL()->getcol($SQL_query);\r\n            foreach ($SQL_result as $val) {\r\n                if (preg_match(\'/\"attachment\":(\\\\d+)/i\', $val, $regs)) {\r\n                    $attachmentsToClear[] = (int)$regs[1];\r\n                }\r\n            }\r\n            $SQL_query = \"SELECT realname FROM \" . Attachment::_tablename() . \" WHERE id IN (\" . implode(\", \", $attachmentsToClear ?: array(0)) . \")\";\r\n            $filesToClear = Material::_SQL()->getcol($SQL_query);\r\n\r\n            if (!$test) {\r\n                // Очищаем данные\r\n                $SQL_query = \"DELETE tD\r\n                                FROM \" . Material::_dbprefix() . \"cms_data AS tD\r\n                               WHERE tD.fid = \" . (int)$Loader->Image_Field->id . \" AND tD.pid IN (\" . implode(\", \", $affectedMaterials ?: array(0)) . \")\";\r\n                Material::_SQL()->query($SQL_query);\r\n\r\n                // Чистим файлы\r\n                foreach ($filesToClear as $val) {\r\n                    $val = realpath(Package::i()->filesDir) . \'/\' . str_replace(\'.\', \'*.\', $val);\r\n                    $arr = glob($val);\r\n                    foreach ($arr as $row) {\r\n                        unlink($row);\r\n                    }\r\n                }\r\n\r\n                // Чистим сами attachment\'ы\r\n                $SQL_query = \"DELETE FROM \" . Attachment::_tablename() . \" WHERE id IN (\" . implode(\", \", $attachmentsToClear ?: array(0)) . \")\";\r\n                Material::_SQL()->query($SQL_query);\r\n            } else {\r\n                foreach ($attachmentsToClear as $val) {\r\n                    $row = new Attachment($val);\r\n                    $log[] = array(\r\n                        \'time\' => (microtime(true) - $st),\r\n                        \'text\' => sprintf(Module::i()->view->_(\'LOG_DELETE_ATTACHMENTS\'), \'/\' . Package::i()->filesURL . \'/\' . $row->realname, $row->realname)\r\n                    );\r\n                }\r\n                foreach ($affectedMaterials as $val) {\r\n                    $row = new Material($val);\r\n                    $log[] = array(\r\n                        \'time\' => (microtime(true) - $st),\r\n                        \'text\' => sprintf(Module::i()->view->_(\'LOG_DELETE_MATERIAL_IMAGES\'), Package_Sub_Main::i()->url . \'&action=edit_material&id=\' . $row->id, $row->name)\r\n                    );\r\n                }\r\n            }\r\n            $log[] = array(\'time\' => (microtime(true) - $st), \'text\' => Module::i()->view->_(\'LOG_OLD_MATERIAL_IMAGES_CLEARED\'));\r\n        }\r\n        foreach ($proceedFiles as $file) {\r\n            if ($file[\'materials\']) {\r\n                $att = new Attachment();\r\n                $att->upload = $file[\'tmp_name\'];\r\n                $att->filename = $file[\'name\'];\r\n                $att->mime = $file[\'type\'];\r\n                $att->parent = $Loader->Image_Field;\r\n                $att->image = 1;\r\n                if ($temp = (int)Application::i()->context->registryGet(\'maxsize\')) {\r\n                    $att->maxWidth = $att->maxHeight = $temp;\r\n                }\r\n                if ($temp = (int)Application::i()->context->registryGet(\'tnsize\')) {\r\n                    $att->tnsize = $temp;\r\n                }\r\n                if (!$test) {\r\n                    $att->commit();\r\n                }\r\n                $row = array(\'vis\' => 1, \'name\' => \'\', \'description\' => \'\', \'attachment\' => (int)$att->id);\r\n                foreach ($file[\'materials\'] as $id) {\r\n                    $Item = new Material($id);\r\n                    if (!$test) {\r\n                        $Item->fields[$Loader->Image_Field->urn]->addValue(json_encode($row));\r\n                    }\r\n                    $log[] = array(\r\n                        \'time\' => (microtime(true) - $st),\r\n                        \'text\' => sprintf(\r\n                            Module::i()->view->_(\'LOG_ADD_MATERIAL_IMAGE\'),\r\n                            \'/\' . Package::i()->filesURL . \'/\' . $att->realname,\r\n                            $att->filename,\r\n                            $file[\'original_name\'],\r\n                            Package_Sub_Main::i()->url . \'&action=edit_material&id=\' . $Item->id,\r\n                            $Item->name\r\n                        )\r\n                    );\r\n                }\r\n            }\r\n        }\r\n    }\r\n    return array(\'log\' => $log, \'ok\' => true);\r\n} else {\r\n    // Выгрузка картинок\r\n    $st = microtime(true);\r\n    $mtypes = array_merge(array((int)$Loader->Material_Type->id), (array)$Loader->Material_Type->all_children_ids);\r\n    if ($Loader->Image_Field->id) {\r\n        $SQL_query = \"SELECT tM.*, \";\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query .= \" tD.value \";\r\n        } else {\r\n            $SQL_query .= $Loader->ufid;\r\n        }\r\n        $SQL_query .= \" AS ufield\r\n                      FROM \" . Material::_tablename() . \" AS tM \";\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query .= \" JOIN \" . Material::_dbprefix() . \"cms_data AS tD ON tD.pid = tM.id AND tD.fid = \" . (int)$Loader->Unique_Field->id;\r\n        }\r\n        $SQL_query .= \" WHERE tM.pid IN (\" . implode(\", \", $mtypes) . \") \";\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query .= \" AND tD.value != \'\' \";\r\n        }\r\n        $SQL_query .= \" GROUP BY ufield\";\r\n        $SQL_result = Material::_SQL()->get($SQL_query);\r\n        $DATA = array();\r\n        foreach ($SQL_result as $row2) {\r\n            $row = new Material($row2);\r\n            if ($attachments = $row->fields[$Loader->Image_Field->urn]->doRich()) {\r\n                if (!is_array($attachments)) {\r\n                    $attachments = array($attachments);\r\n                }\r\n                foreach ($attachments as $attachment) {\r\n                    if ($attachment->id) {\r\n                        $filename = array();\r\n                        $article = \\SOME\\Text::beautify(trim($row->{$Loader->Unique_Field->id ? $Loader->Unique_Field->urn : $Loader->ufid}));\r\n                        $realname = $attachment->realname;\r\n                        if (preg_match(\'/^\' . preg_quote($article) . \'(\' . preg_quote($Loader->sep_string) . \'|$)/umi\', $realname)) {\r\n                            $filename = $realname;\r\n                        } else {\r\n                            $filename[] = $article;\r\n                            $filename[] = trim($Loader->sep_string);\r\n                            $filename[] = trim(str_replace($Loader->sep_string, \'\', $realname));\r\n                            $filename = array_filter($filename);\r\n                            $filename = trim(implode(\'\', $filename));\r\n                            while (in_array($filename, $DATA)) {\r\n                                $filename .= $Loader->sep_string . $attachment->id;\r\n                            }\r\n                        }\r\n                        $DATA[$attachment->file] = trim($filename);\r\n                    }\r\n                }\r\n            }\r\n            $row->rollback();\r\n            unset($row);\r\n        }\r\n        // header(\'Content-Type: text/plain\');\r\n        // print_r ($DATA);\r\n        // exit;\r\n        if ($DATA) {\r\n            $tmpname = tempnam(sys_get_temp_dir(), \'\');\r\n            $z = new \\SOME\\ZipArchive();\r\n            $z->open($tmpname, \\SOME\\ZipArchive::CREATE);\r\n            foreach ($DATA as $key => $val) {\r\n                $z->addFile($key, $val);\r\n            }\r\n            $z->close();\r\n            header(\'Content-Type: application/zip\');\r\n            header(\'Content-Disposition: attachment; filename=\"\' . $Loader->Material_Type->name . \' - \' . $Loader->Image_Field->name . \'.zip\"\');\r\n            echo file_get_contents($tmpname);\r\n            exit;\r\n        } else {\r\n            return array(\'localError\' => array(array(\'name\' => \'INVALID\', \'value\' => \'loader\', \'description\' => Module::i()->view->_(\'IMAGES_NOT_FOUND\'))));\r\n        }\r\n    } else {\r\n        return array(\'localError\' => array(array(\'name\' => \'INVALID\', \'value\' => \'loader\', \'description\' => Module::i()->view->_(\'LOADER_HAS_NO_IMAGE_FIELD\'))));\r\n    }\r\n}\r\n', 1),
-(27, 1, '__raas_shop_priceloader_interface', 'Стандартный интерфейс загрузчика прайсов', '<?php\n/**\n * Сниппет интерфейса загрузчика прайсов\n *\n * @param PriceLoader $Loader Загрузчик прайсов\n * @param Page $Page Страница, в которую загружаем\n * @param int $rows Сколько строк отступать\n * @param int $cols Сколько колонок отступать\n *\n * Параметры для загрузки:\n * @param [\'tmp_name\' => string путь к файлу, \'name\' => string Имя файла]|null $file загружаемый файл\n * @param bool $test Тестовый режим\n * @param int $clear Очищать старые материалы и/или страницы (константа из PriceLoader::DELETE_PREVIOUS_MATERIALS_...)\n *\n * Параметры для выгрузки:\n * @param \'csv\'|\'xls\'|\'xlsx\' $type Формат, в котором выгружаем\n * @param string $encoding Кодировка для формата CSV, в которой выгружаем (совместимо с iconv)\n */\nnamespace RAAS\\CMS\\Shop;\n\nuse RAAS\\Application;\nuse \\RAAS\\CMS\\Page;\n\n// @todo Убрать после перехода на Composer\nrequire_once Application::i()->includeDir . \'/phpexcel/Classes/PHPExcel.php\';\n\n$interface = new PriceloaderInterface($Loader);\nif ($_SERVER[\'REQUEST_METHOD\'] == \'POST\') {\n    $type = strtolower(pathinfo($file[\'name\'], PATHINFO_EXTENSION));\n    return $interface->upload($file[\'tmp_name\'], $type, $Page, $test, $clear, $rows, $cols);\n} else {\n    return $interface->download($Page, $rows, $cols, $type, $encoding);\n}\n', 1),
+(26, 1, '__raas_shop_imageloader_interface', 'Стандартный интерфейс загрузчика изображений', '<?php\r\nnamespace RAAS\\CMS\\Shop;\r\n\r\nuse \\RAAS\\CMS\\Material;\r\nuse \\RAAS\\CMS\\Package;\r\nuse \\RAAS\\CMS\\Sub_Main as Package_Sub_Main;\r\nuse \\RAAS\\Application;\r\nuse \\RAAS\\Attachment;\r\n\r\nini_set(\'max_execution_time\', 300);\r\n$st = microtime(true);\r\nif ($_SERVER[\'REQUEST_METHOD\'] == \'POST\') {\r\n    // Загрузка картинок\r\n    if (!$files) {\r\n        return array(\'localError\' => array(array(\'name\' => \'MISSING\', \'value\' => \'files\', \'description\' => Module::i()->view->_(\'UPLOAD_FILES_REQUIRED\'))));\r\n    } else {\r\n        // Ищем задействованные типы\r\n        $mtypes = array_merge(array((int)$Loader->Material_Type->id), (array)$Loader->Material_Type->all_children_ids);\r\n        $mtypes = array_map(\'intval\', $mtypes);\r\n        $articles = array();\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query = \"SELECT tM.id, tD.value \";\r\n        } elseif ($Loader->ufid) {\r\n            $SQL_query = \"SELECT id, \" . $Loader->ufid . \" AS value \";\r\n        }\r\n        $SQL_query .= \" FROM \" . Material::_tablename() . \" AS tM \";\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query .= \" JOIN \" . Material::_dbprefix() . \"cms_data AS tD ON tD.pid = tM.id \";\r\n        }\r\n        $SQL_query .= \" WHERE tM.pid IN (\" . implode(\", \", $mtypes ?: array(0)) . \") \";\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query .= \" AND TRIM(tD.value) != \'\' AND tD.fid = \" . (int)$Loader->Unique_Field->id;\r\n        } else {\r\n            $SQL_query .= \" AND \" . $Loader->ufid . \" != \'\' \";\r\n        }\r\n        $SQL_result = Material::_SQL()->get($SQL_query);\r\n        foreach ($SQL_result as $row) {\r\n            if (trim($row[\'value\'])) {\r\n                $articles[$row[\'id\']] = \\SOME\\Text::beautify(trim($row[\'value\']));\r\n            }\r\n        }\r\n\r\n        // Подготовить реальные файлы к загрузке\r\n        $processFile = function ($file) use (&$processFile, $mtypes, $Loader, $articles) {\r\n            $ext = strtolower(pathinfo($file[\'name\'], PATHINFO_EXTENSION));\r\n            $proceedFiles = array();\r\n            switch ($ext) {\r\n                case \'jpg\':\r\n                case \'jpeg\':\r\n                case \'png\':\r\n                case \'gif\':\r\n                    if ($type = getimagesize($file[\'tmp_name\'])) {\r\n                        $file[\'type\'] = image_type_to_mime_type($type[2]);\r\n                        $temp = array();\r\n                        $filename = pathinfo($file[\'name\'], PATHINFO_FILENAME);\r\n                        foreach ($articles as $id => $article) {\r\n                            if (preg_match(\'/^\' . preg_quote($article) . \'($|\' . preg_quote($Loader->sep_string) . \')/i\', $filename)) {\r\n                                $temp[] = $id;\r\n                                break;\r\n                            }\r\n                        }\r\n                        if ($temp) {\r\n                            $file[\'materials\'] = $temp;\r\n                            $ext2 = image_type_to_extension($type[2]);\r\n                            $file[\'original_name\'] = $file[\'name\'];\r\n                            $file[\'name\'] = $filename . $ext2;\r\n                        }\r\n                        $proceedFiles[] = $file;\r\n                    }\r\n                    break;\r\n                case \'zip\':\r\n                    $files = array();\r\n                    $z = new \\SOME\\ZipArchive();\r\n                    if ($z->open($file[\'tmp_name\']) === true) {\r\n                        for ($i = 0; $i < $z->numFiles; $i++) {\r\n                            $tmpname = tempnam(sys_get_temp_dir(), \'\');\r\n                            file_put_contents($tmpname, $z->getFromIndex($i));\r\n                            $files[] = array(\'name\' => basename($z->getNameIndex($i)), \'tmp_name\' => $tmpname);\r\n                        }\r\n                    }\r\n                    $z->close();\r\n                    foreach ($files as $f) {\r\n                        $proceedFiles = array_merge($proceedFiles, $processFile($f));\r\n                    }\r\n                    break;\r\n            }\r\n            return $proceedFiles;\r\n        };\r\n\r\n        $proceedFiles = array();\r\n        $affectedMaterials = array();\r\n        foreach ($files as $file) {\r\n            $proceedFiles = array_merge($proceedFiles, $processFile($file));\r\n        }\r\n        if (!$proceedFiles) {\r\n            return array(\'localError\' => array(array(\'name\' => \'INVALID\', \'value\' => \'files\', \'description\' => Module::i()->view->_(\'ALLOWED_FORMATS_JPG_JPEG_PNG_GIF_ZIP\'))));\r\n        }\r\n        if ($clear) {\r\n            // Ищем материалы для очистки изображений\r\n            foreach ($proceedFiles as $file) {\r\n                if ($file[\'materials\']) {\r\n                    $affectedMaterials = array_merge($affectedMaterials, (array)$file[\'materials\']);\r\n                }\r\n            }\r\n            $affectedMaterials = array_unique($affectedMaterials);\r\n            $affectedMaterials = array_values($affectedMaterials);\r\n\r\n            // Ищем attachment\'ы для удаления\r\n            $attachmentsToClear = array();\r\n            $SQL_query = \"SELECT value FROM \" . Material::_dbprefix() . \"cms_data\r\n                           WHERE pid IN (\" . implode(\", \", $affectedMaterials ?: array(0)) . \") AND fid = \" . (int)$Loader->Image_Field->id;\r\n            $SQL_result = Material::_SQL()->getcol($SQL_query);\r\n            foreach ($SQL_result as $val) {\r\n                if (preg_match(\'/\"attachment\":(\\\\d+)/i\', $val, $regs)) {\r\n                    $attachmentsToClear[] = (int)$regs[1];\r\n                }\r\n            }\r\n            $SQL_query = \"SELECT realname FROM \" . Attachment::_tablename() . \" WHERE id IN (\" . implode(\", \", $attachmentsToClear ?: array(0)) . \")\";\r\n            $filesToClear = Material::_SQL()->getcol($SQL_query);\r\n\r\n            if (!$test) {\r\n                // Очищаем данные\r\n                $SQL_query = \"DELETE tD\r\n                                FROM \" . Material::_dbprefix() . \"cms_data AS tD\r\n                               WHERE tD.fid = \" . (int)$Loader->Image_Field->id . \" AND tD.pid IN (\" . implode(\", \", $affectedMaterials ?: array(0)) . \")\";\r\n                Material::_SQL()->query($SQL_query);\r\n\r\n                // Чистим файлы\r\n                foreach ($filesToClear as $val) {\r\n                    $val = realpath(Package::i()->filesDir) . \'/\' . str_replace(\'.\', \'*.\', $val);\r\n                    $arr = glob($val);\r\n                    foreach ($arr as $row) {\r\n                        unlink($row);\r\n                    }\r\n                }\r\n\r\n                // Чистим сами attachment\'ы\r\n                $SQL_query = \"DELETE FROM \" . Attachment::_tablename() . \" WHERE id IN (\" . implode(\", \", $attachmentsToClear ?: array(0)) . \")\";\r\n                Material::_SQL()->query($SQL_query);\r\n            } else {\r\n                foreach ($attachmentsToClear as $val) {\r\n                    $row = new Attachment($val);\r\n                    $log[] = array(\r\n                        \'time\' => (microtime(true) - $st),\r\n                        \'text\' => sprintf(Module::i()->view->_(\'LOG_DELETE_ATTACHMENTS\'), \'/\' . Package::i()->filesURL . \'/\' . $row->realname, $row->realname)\r\n                    );\r\n                }\r\n                foreach ($affectedMaterials as $val) {\r\n                    $row = new Material($val);\r\n                    $log[] = array(\r\n                        \'time\' => (microtime(true) - $st),\r\n                        \'text\' => sprintf(Module::i()->view->_(\'LOG_DELETE_MATERIAL_IMAGES\'), Package_Sub_Main::i()->url . \'&action=edit_material&id=\' . $row->id, $row->name)\r\n                    );\r\n                }\r\n            }\r\n            $log[] = array(\'time\' => (microtime(true) - $st), \'text\' => Module::i()->view->_(\'LOG_OLD_MATERIAL_IMAGES_CLEARED\'));\r\n        }\r\n        foreach ($proceedFiles as $file) {\r\n            if ($file[\'materials\']) {\r\n                $att = new Attachment();\r\n                $att->upload = $file[\'tmp_name\'];\r\n                $att->filename = $file[\'name\'];\r\n                $att->mime = $file[\'type\'];\r\n                $att->parent = $Loader->Image_Field;\r\n                $att->image = 1;\r\n                if ($temp = (int)Application::i()->context->registryGet(\'maxsize\')) {\r\n                    $att->maxWidth = $att->maxHeight = $temp;\r\n                }\r\n                if ($temp = (int)Application::i()->context->registryGet(\'tnsize\')) {\r\n                    $att->tnsize = $temp;\r\n                }\r\n                if (!$test) {\r\n                    $att->commit();\r\n                }\r\n                $row = array(\'vis\' => 1, \'name\' => \'\', \'description\' => \'\', \'attachment\' => (int)$att->id);\r\n                foreach ($file[\'materials\'] as $id) {\r\n                    $Item = new Material($id);\r\n                    if (!$test) {\r\n                        $Item->fields[$Loader->Image_Field->urn]->addValue(json_encode($row));\r\n                    }\r\n                    $log[] = array(\r\n                        \'time\' => (microtime(true) - $st),\r\n                        \'text\' => sprintf(\r\n                            Module::i()->view->_(\'LOG_ADD_MATERIAL_IMAGE\'),\r\n                            \'/\' . Package::i()->filesURL . \'/\' . $att->realname,\r\n                            $att->filename,\r\n                            $file[\'original_name\'],\r\n                            Package_Sub_Main::i()->url . \'&action=edit_material&id=\' . $Item->id,\r\n                            $Item->name\r\n                        )\r\n                    );\r\n                }\r\n            }\r\n        }\r\n    }\r\n    return array(\'log\' => $log, \'ok\' => true);\r\n} else {\r\n    // Выгрузка картинок\r\n    $st = microtime(true);\r\n    $mtypes = array_merge(array((int)$Loader->Material_Type->id), (array)$Loader->Material_Type->all_children_ids);\r\n    if ($Loader->Image_Field->id) {\r\n        $SQL_query = \"SELECT tM.*, \";\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query .= \" tD.value \";\r\n        } else {\r\n            $SQL_query .= $Loader->ufid;\r\n        }\r\n        $SQL_query .= \" AS ufield\r\n                      FROM \" . Material::_tablename() . \" AS tM \";\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query .= \" JOIN \" . Material::_dbprefix() . \"cms_data AS tD ON tD.pid = tM.id AND tD.fid = \" . (int)$Loader->Unique_Field->id;\r\n        }\r\n        $SQL_query .= \" WHERE tM.pid IN (\" . implode(\", \", $mtypes) . \") \";\r\n        if ($Loader->Unique_Field->id) {\r\n            $SQL_query .= \" AND tD.value != \'\' \";\r\n        }\r\n        $SQL_query .= \" GROUP BY ufield\";\r\n        $SQL_result = Material::_SQL()->get($SQL_query);\r\n        $DATA = array();\r\n        foreach ($SQL_result as $row2) {\r\n            $row = new Material($row2);\r\n            if ($attachments = $row->fields[$Loader->Image_Field->urn]->doRich()) {\r\n                if (!is_array($attachments)) {\r\n                    $attachments = array($attachments);\r\n                }\r\n                foreach ($attachments as $attachment) {\r\n                    if ($attachment->id) {\r\n                        $filename = array();\r\n                        $article = \\SOME\\Text::beautify(trim($row->{$Loader->Unique_Field->id ? $Loader->Unique_Field->urn : $Loader->ufid}));\r\n                        $realname = $attachment->realname;\r\n                        if (preg_match(\'/^\' . preg_quote($article) . \'(\' . preg_quote($Loader->sep_string) . \'|$)/umi\', $realname)) {\r\n                            $filename = $realname;\r\n                        } else {\r\n                            $filename[] = $article;\r\n                            $filename[] = trim($Loader->sep_string);\r\n                            $filename[] = trim(str_replace($Loader->sep_string, \'\', $realname));\r\n                            $filename = array_filter($filename);\r\n                            $filename = trim(implode(\'\', $filename));\r\n                            while (in_array($filename, $DATA)) {\r\n                                $filename .= $Loader->sep_string . $attachment->id;\r\n                            }\r\n                        }\r\n                        $DATA[$attachment->file] = trim($filename);\r\n                    }\r\n                }\r\n            }\r\n            $row->rollback();\r\n            unset($row);\r\n        }\r\n        // header(\'Content-Type: text/plain\');\r\n        // print_r ($DATA);\r\n        // exit;\r\n        if ($DATA) {\r\n            $tmpname = tempnam(sys_get_temp_dir(), \'\');\r\n            $z = new \\SOME\\ZipArchive();\r\n            $z->open($tmpname, \\SOME\\ZipArchive::CREATE);\r\n            foreach ($DATA as $key => $val) {\r\n                $z->addFile($key, $val);\r\n            }\r\n            $z->close();\r\n            header(\'Content-Type: application/zip\');\r\n            header(\'Content-Disposition: attachment; filename=\"\' . $Loader->Material_Type->name . \' - \' . $Loader->Image_Field->name . \'.zip\"\');\r\n            echo file_get_contents($tmpname);\r\n            exit;\r\n        } else {\r\n            return array(\'localError\' => array(array(\'name\' => \'INVALID\', \'value\' => \'loader\', \'description\' => Module::i()->view->_(\'IMAGES_NOT_FOUND\'))));\r\n        }\r\n    } else {\r\n        return array(\'localError\' => array(array(\'name\' => \'INVALID\', \'value\' => \'loader\', \'description\' => Module::i()->view->_(\'LOADER_HAS_NO_IMAGE_FIELD\'))));\r\n    }\r\n}\r\n', 1);
+INSERT INTO `cms_snippets` (`id`, `pid`, `urn`, `name`, `description`, `locked`) VALUES
+(27, 1, '__raas_shop_priceloader_interface', 'Стандартный интерфейс загрузчика прайсов', '<?php\r\nnamespace RAAS\\CMS\\Shop;\r\n\r\nuse \\Exception;\r\nuse \\RAAS\\CMS\\Page;\r\nuse \\RAAS\\CMS\\Material;\r\nuse \\RAAS\\CMS\\Package;\r\nuse \\RAAS\\CMS\\Sub_Main as Package_Sub_Main;\r\nuse \\RAAS\\CMS\\Material_Field;\r\nuse \\RAAS\\CMS\\Page_Field;\r\nuse \\RAAS\\Application;\r\nuse \\RAAS\\Attachment;\r\nuse \\PHPExcel;\r\nuse \\PHPExcel_Cell;\r\nuse \\PHPExcel_IOFactory;\r\nuse \\PHPExcel_Style_NumberFormat;\r\nuse \\PHPExcel_Cell_DataType;\r\nuse SOME\\SOME;\r\n\r\n$st = microtime(true);\r\nrequire_once Application::i()->includeDir . \'/phpexcel/Classes/PHPExcel.php\';\r\nif ($_SERVER[\'REQUEST_METHOD\'] == \'POST\') {\r\n    ini_set(\'max_execution_time\', 3600);\r\n    // Загрузка прайса\r\n    $affectedPages = array();\r\n    $affectedMaterials = array();\r\n    if (!$file && !$clear) {\r\n        return array(\'localError\' => array(array(\'name\' => \'MISSING\', \'value\' => \'file\', \'description\' => Module::i()->view->_(\'UPLOAD_FILE_REQUIRED\'))));\r\n    }\r\n    if ($file) {\r\n        if (!in_array(strtolower(pathinfo($file[\'name\'], PATHINFO_EXTENSION)), array(\'xls\', \'xlsx\', \'csv\'))) {\r\n            return array(\'localError\' => array(array(\'name\' => \'INVALID\', \'value\' => \'file\', \'description\' => Module::i()->view->_(\'ALLOWED_FORMATS_CSV_XLS_XLSX\'))));\r\n        }\r\n        $type = strtolower(pathinfo($file[\'name\'], PATHINFO_EXTENSION));\r\n        switch ($type) {\r\n            case \'xls\':\r\n            case \'xlsx\':\r\n                switch ($type) {\r\n                    case \'xls\':\r\n                        $readerName = \'Excel5\';\r\n                        break;\r\n                    case \'xlsx\':\r\n                        $readerName = \'Excel2007\';\r\n                        break;\r\n                }\r\n                $objReader = PHPExcel_IOFactory::createReader($readerName);\r\n                try {\r\n                    $x = $objReader->load($file[\'tmp_name\']);\r\n                    $DATA = array();\r\n                    foreach ($x->getAllSheets() as $s) {\r\n                        $DATA = array_merge($DATA, $s->toArray());\r\n                    }\r\n                } catch (Exception $e) {\r\n                    return array(\'localError\' => array(array(\'name\' => \'INVALID\', \'value\' => \'file\', \'description\' => Module::i()->view->_(\'ERR_CANNOT_READ_FILE\'))));\r\n                }\r\n                break;\r\n            case \'csv\':\r\n                $text = file_get_contents($file[\'tmp_name\']);\r\n                $encoding = mb_detect_encoding($text, \'UTF-8, Windows-1251\');\r\n                if ($encoding != \'UTF-8\') {\r\n                    $text = iconv($encoding, \'UTF-8\', $text);\r\n                }\r\n                $csv = new \\SOME\\CSV(trim($text));\r\n                $DATA = $csv->data;\r\n                unset($csv);\r\n                break;\r\n        }\r\n        $DATA = array_map(function ($x) use ($cols) {\r\n            return array_slice($x, $cols);\r\n        }, $DATA);\r\n        $DATA = array_slice($DATA, $rows);\r\n        $DATA = array_filter($DATA, function ($x) {\r\n            return count(array_filter($x, \'trim\'));\r\n        }); // Фильтруем пустые строки\r\n        $DATA = array_values($DATA);\r\n        if (!$DATA || ((count($DATA) == 1) && (count(array_filter($DATA[0])) == 1))) {\r\n            return array(\'localError\' => array(array(\'name\' => \'INVALID\', \'value\' => \'file\', \'description\' => Module::i()->view->_(\'ERR_EMPTY_FILE\'))));\r\n        }\r\n        $log = $raw_data = array();\r\n\r\n        // Получим номер колонки с уникальным полем\r\n        $uniqueColumn = null;\r\n        if ($Loader->ufid) {\r\n            foreach ($Loader->columns as $i => $col) {\r\n                if ($col->fid == $Loader->ufid) {\r\n                    $uniqueColumn = $i;\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n        $backtrace = array();\r\n        $context = $Page;\r\n        $virtualLevel = null; // При запрете создавать новые категории, сюда устанавливается уровень не найденной категории (чтобы игнорировать дочерние)\r\n\r\n\r\n        // Поиск товара по уникальному полю\r\n        $getItemByUniqueField = function ($text) use ($Loader) {\r\n            if (trim($text) && $Loader->ufid) {\r\n                $SQL_query = \" SELECT tM.* FROM \" . Material::_tablename() . \" AS tM \";\r\n                if ($Loader->Unique_Field->id) {\r\n                    $SQL_query .= \" JOIN \" . Material::_dbprefix() . \"cms_data AS tD ON tD.pid = tM.id AND tD.fid = \" . (int)$Loader->Unique_Field->id\r\n                               .  \" WHERE TRIM(tD.value)\";\r\n                } elseif ($Loader->ufid) {\r\n                    $SQL_query .= \" WHERE TRIM(tM.\" . $Loader->ufid . \")\";\r\n                }\r\n                $SQL_query .= \" = \'\" . Material::_SQL()->real_escape_string(trim($text)) . \"\' ORDER BY tM.id\";\r\n                $SQL_result = Material::getSQLSet($SQL_query);\r\n                return $SQL_result;\r\n            }\r\n            return array();\r\n        };\r\n\r\n\r\n        // Поиск товара по всем полям\r\n        $getItemByEntireRow = function (array $row = array()) use ($Loader) {\r\n            $SQL_from = array(Material::_tablename() . \" AS tM\");\r\n            $SQL_where = array();\r\n            for ($i = 0; $i < max(count($row), count($Loader->columns)); $i++) {\r\n                if (!is_array($row[$i]) && trim($row[$i])) {\r\n                    $tmp_where = \'\';\r\n                    if ($Loader->columns[$i]->Field->id) {\r\n                        $SQL_from[] = Material::_dbprefix() . \"cms_data AS tD\" . (int)$Loader->columns[$i]->Field->id\r\n                                    . \" ON tD\" . (int)$Loader->columns[$i]->Field->id . \".pid = tM.id \"\r\n                                    . \" AND tD\" . (int)$Loader->columns[$i]->Field->id . \".fid = \" . (int)$Loader->columns[$i]->Field->id;\r\n                        $tmp_where = \" TRIM(tD\" . (int)$Loader->columns[$i]->Field->id . \".value) \";\r\n                    } elseif ($Loader->columns[$i]->fid) {\r\n                        $tmp_where = \" TRIM(tM.\" . $Loader->columns[$i]->fid . \") \";\r\n                    }\r\n                    if ($tmp_where) {\r\n                        $tmp_where .= \" = \'\" . Material::_SQL()->real_escape_string(trim($row[$i])) . \"\'\";\r\n                    }\r\n                    $SQL_where[] = $tmp_where;\r\n                }\r\n            }\r\n            if ($SQL_where) {\r\n                $SQL_query = \"SELECT tM.* FROM \" . implode(\" JOIN \", $SQL_from) . \" WHERE \" . implode(\" AND \", $SQL_where) . \" ORDER BY tM.id\";\r\n                $SQL_result = Material::getSQLSet($SQL_query);\r\n                if ($SQL_result) {\r\n                    return $SQL_result;\r\n                }\r\n            }\r\n            return array();\r\n        };\r\n\r\n\r\n        // Возвращает последнюю категорию из backtrace\r\n        $lastCat = function () use (&$backtrace, &$Page) {\r\n            if ($backtrace) {\r\n                $temp = array_reverse($backtrace);\r\n                $temp = array_values($temp);\r\n                return $temp[0];\r\n            }\r\n            return $Page;\r\n        };\r\n\r\n\r\n        // Возвращает последний уровень из backtrace\r\n        $lastLevel = function () use (&$backtrace) {\r\n            if ($backtrace) {\r\n                $temp = array_reverse($backtrace, true);\r\n                $temp = array_keys($temp);\r\n                return $temp[0];\r\n            }\r\n            return null;\r\n        };\r\n\r\n\r\n        // Усечение backtrace\r\n        $cropBacktrace = function ($level) use (&$backtrace) {\r\n            $keys = array_keys($backtrace);\r\n            foreach ($keys as $key) {\r\n                if ($key >= $level) {\r\n                    unset($backtrace[$key]);\r\n                }\r\n            }\r\n        };\r\n\r\n        for ($i = 0; $i < count($DATA); $i++) {\r\n            $dataRow = $DATA[$i];\r\n            if (count(array_filter($DATA[$i], \'trim\')) > 1) {\r\n                // Товар\r\n                $dataRow = array_slice($dataRow, 0, count($Loader->columns));\r\n                for ($j = 0; $j < count($dataRow); $j++) {\r\n                    $dataRow[$j] = trim($dataRow[$j]);\r\n                    if ($f = $Loader->columns[$j]->Callback) {\r\n                        $dataRow[$j] = $f($dataRow[$j]);\r\n                    }\r\n                    if ((!$uniqueColumn || ($j != $uniqueColumn)) && !$Loader->columns[$j]->Field->id && $Loader->columns[$j]->fid) {\r\n                        if (in_array($Loader->columns[$j]->fid, array(\'vis\', \'priority\'))) {\r\n                            $dataRow[$j] = (int)$dataRow[$j];\r\n                        }\r\n                    } elseif (is_array($dataRow[$j])) {\r\n                        foreach ($dataRow[$j] as $k => $val) {\r\n                            if ($val instanceof SOME) {\r\n                                $dataRow[$j][$k] = (int)$val->id;\r\n                            } elseif (!is_object($val) && !is_array($val)) {\r\n                                if ($val = $Loader->Material_Type->fields[$Loader->columns[$j]->Field->urn]->fromRich(trim($val))) {\r\n                                    $dataRow[$j][$k] = $val;\r\n                                }\r\n                            }\r\n                        }\r\n                    } else {\r\n                        $dataRow[$j] = $Loader->Material_Type->fields[$Loader->columns[$j]->Field->urn]->fromRich(trim($dataRow[$j]));\r\n                    }\r\n                }\r\n                $itemSet = null;\r\n                // 2015-06-01, AVS: добавили понятие $new (тж. 11 строками ниже)\r\n                $new = false;\r\n                $itemSet = array();\r\n                if ($uniqueColumn !== null) {\r\n                    if (trim($dataRow[$uniqueColumn])) {\r\n                        $itemSet = $getItemByUniqueField(trim($dataRow[$uniqueColumn]));\r\n                    }\r\n                } else {\r\n                    $itemSet = $getItemByEntireRow($dataRow);\r\n                }\r\n                if (!$itemSet && $Loader->create_materials) {\r\n                    $row = new Material();\r\n                    $row->pid = $Loader->Material_Type->id;\r\n                    $row->vis = 1;\r\n                    $itemSet = array($row);\r\n                    $new = true;\r\n                }\r\n                foreach ($itemSet as $Item) {\r\n                    // Сначала проходим нативные поля\r\n                    for ($j = 0; $j < count($dataRow); $j++) {\r\n                        if ((!$uniqueColumn || ($j != $uniqueColumn)) && !$Loader->columns[$j]->Field->id && $Loader->columns[$j]->fid) {\r\n                            if (in_array($Loader->columns[$j]->fid, array(\'vis\', \'priority\'))) {\r\n                                $Item->{$Loader->columns[$j]->fid} = $dataRow[$j];\r\n                            } elseif (trim($dataRow[$j]) || !in_array($Loader->columns[$j]->fid, array(\'name\', \'urn\'))) {\r\n                                $Item->{$Loader->columns[$j]->fid} = $dataRow[$j];\r\n                            }\r\n                        } elseif ($new && ($j == $uniqueColumn)) { // 2015-11-20, AVS: добавили URN по артикулу\r\n                            if (trim($dataRow[$j])) {\r\n                                $Item->urn = \\SOME\\Text::beautify(trim($dataRow[$j]));\r\n                            }\r\n                        }\r\n                    }\r\n                    $id = $Item->id;\r\n                    if (!$test) {\r\n                        $affectedFields = array();\r\n                        $Item->commit();\r\n                        if ($Item->id && !$Loader->Material_Type->global_type && $context->id && ($new || ($context->id != $Page->id)) && !in_array($context->id, $Item->pages_ids)) {\r\n                            Material::_SQL()->add(Material::_dbprefix() . \"cms_materials_pages_assoc\", array(\'id\' => (int)$Item->id, \'pid\' => (int)$context->id));\r\n                        }\r\n                        // Проходим доп. поля\r\n                        for ($j = 0; $j < count($dataRow); $j++) {\r\n                            // 2015-06-01, AVS: добавляем поддержку множественных значений:\r\n                            if (is_array($dataRow[$j])) {\r\n                                $Item->fields[$Loader->columns[$j]->Field->urn]->deleteValues();\r\n                                foreach ($dataRow[$j] as $val) {\r\n                                    if ($val !== null) {\r\n                                        $Item->fields[$Loader->columns[$j]->Field->urn]->addValue($val);\r\n                                        $affectedFields[] = $Loader->columns[$j]->Field->urn;\r\n                                    }\r\n                                }\r\n                            } else {\r\n                                // 2015-06-01, AVS: добавляем || $new , чтобы у новых товаров артикул тоже заполнялся\r\n                                // 2016-02-01, AVS: закомментировали trim($dataRow[$j]), т.к. пустые значения тоже должны вставляться\r\n                                if (/*trim($dataRow[$j]) && */(!$uniqueColumn || ($j != $uniqueColumn) || $new) && $Loader->columns[$j]->Field->id) {\r\n                                    $field = $Item->fields[$Loader->columns[$j]->Field->urn];\r\n                                    $val = $dataRow[$j];\r\n                                    $oldVal = $field->getValues();\r\n                                    if (in_array($field->datatype, array(\'file\', \'image\'))) {\r\n                                        if ($val) {\r\n                                            foreach ($oldVal as $att) {\r\n                                                Attachment::delete($att);\r\n                                            }\r\n                                            $field->deleteValues();\r\n                                            $field->addValue($val);\r\n                                            $affectedFields[] = $Loader->columns[$j]->Field->urn;\r\n                                        }\r\n                                    } elseif ($val != $oldVal) {\r\n                                        $field->deleteValues();\r\n                                        $field->addValue($val);\r\n                                        $affectedFields[] = $Loader->columns[$j]->Field->urn;\r\n                                    }\r\n                                }\r\n                            }\r\n                        }\r\n                        foreach ($Item->fields as $field) {\r\n                            if ($field->defval && !in_array($field->urn, $affectedFields)) {\r\n                                $field->addValue($field->defval);\r\n                            }\r\n                        }\r\n                    }\r\n                    $affectedMaterials[] = (int)$Item->id;\r\n                    $log[] = array(\r\n                        \'time\' => (microtime(true) - $st),\r\n                        \'text\' => sprintf(\r\n                            Module::i()->view->_(\'LOG_MATERIAL_\' . ($id ? \'UPDATED\' : \'CREATED\')),\r\n                            Package_Sub_Main::i()->url . \'&action=edit_material&id=\' . (int)$Item->id,\r\n                            $Item->name\r\n                        ),\r\n                        \'row\' => $i,\r\n                        \'realrow\' => $i + $rows,\r\n                    );\r\n                    $Item->rollback();\r\n                    unset($Item);\r\n                }\r\n                unset($itemSet);\r\n            } elseif (count(array_filter($DATA[$i], \'trim\')) == 1) {\r\n                // Категория\r\n                list($step, $name) = each(array_filter($DATA[$i], \'trim\'));\r\n                if ($Loader->catalog_offset) {\r\n                    $step = 0;\r\n                    if (preg_match(\'/^\\\\s+/i\', $name, $regs)) {\r\n                        $step = strlen($regs[0]);\r\n                    }\r\n                }\r\n                $name = trim($name);\r\n                if (!$virtualLevel || ($step <= $virtualLevel)) {\r\n                    if ($step > 0) {\r\n                        $cropBacktrace($step);\r\n                    } else {\r\n                        $backtrace = array();\r\n                    }\r\n                    $context = $lastCat();\r\n\r\n                    $SQL_result = Page::getSet(array(\'where\' => array(\"pid = \" . (int)$context->id, \"name = \'\" . Page::_SQL()->real_escape_string($name) . \"\'\")));\r\n                    if ($SQL_result || $Loader->create_pages) {\r\n                        if ($SQL_result) {\r\n                            $context = $SQL_result[0];\r\n                            $id = $context->id;\r\n                        } elseif ($Loader->create_pages) {\r\n                            $arr = array(\r\n                                \'pid\' => (int)$context->id,\r\n                                \'vis\' => 1,\r\n                                \'name\' => $name,\r\n                                \'sitemaps_priority\' => $context->sitemaps_priority ?: \'0.5\',\r\n                                \'inherit_sitemaps_priority\' => $context->inherit_sitemaps_priority,\r\n                                \'nat\' => $context->nat,\r\n                                \'lang\' => $context->inherit_lang ? $context->lang : Package::i()->view->language\r\n                            );\r\n                            foreach (array(\'title\', \'keywords\', \'description\') as $key) {\r\n                                $arr[\'meta_\' . $key] = $context->{\'inherit_meta_\' . $key} ? $context->{\'meta_\' . $key} : \'\';\r\n                                $arr[\'inherit_meta_\' . $key] = $context->{\'inherit_meta_\' . $key};\r\n                            }\r\n                            foreach (array(\'changefreq\', \'cache\', \'template\') as $key) {\r\n                                $arr[$key] = $context->$key;\r\n                                $arr[\'inherit_\' . $key] = $context->{\'inherit_\' . $key};\r\n                            }\r\n                            $context = new Page($arr);\r\n                            $id = 0;\r\n                            if (!$test) {\r\n                                $context->commit();\r\n                                $context->rollback();\r\n                            }\r\n                        }\r\n                        $affectedPages[] = (int)$context->id;\r\n                        $backtrace[$step] = $context;\r\n                        $virtualLevel = null;\r\n                        $log[] = array(\r\n                            \'time\' => (microtime(true) - $st),\r\n                            \'text\' => sprintf(\r\n                                Module::i()->view->_(\'LOG_PAGE_\' . ($id ? \'SELECTED\' : \'CREATED\')),\r\n                                Package_Sub_Main::i()->url . \'&action=edit_page&id=\' . (int)$context->id,\r\n                                $context->name\r\n                            ),\r\n                            \'row\' => $i,\r\n                            \'realrow\' => $i + $rows,\r\n                        );\r\n                    } else {\r\n                        $virtualLevel = $step;\r\n                        $log[] = array(\'time\' => (microtime(true) - $st), \'text\' => sprintf(Module::i()->view->_(\'LOG_PAGE_NOT_SELECTED\'), $name), \'row\' => $i, \'realrow\' => $i + $rows);\r\n                    }\r\n                }\r\n            }\r\n            $raw_data[] = $dataRow;\r\n        }\r\n    }\r\n\r\n    if ($clear) {\r\n        if (count($Page->parents) > count($Loader->Page->parents)) {\r\n            $deleteRoot = $Page;\r\n        } else {\r\n            $deleteRoot = $Loader->Page;\r\n        }\r\n        if (($clear == PriceLoader::DELETE_PREVIOUS_MATERIALS_MATERIALS_ONLY) || ($clear == PriceLoader::DELETE_PREVIOUS_MATERIALS_MATERIALS_AND_PAGES)) {\r\n            // Очищаем материалы\r\n\r\n            // Ищем задействованные типы\r\n            $mtypes = array_merge(array((int)$Loader->Material_Type->id), (array)$Loader->Material_Type->all_children_ids);\r\n            $mtypes = array_map(\'intval\', $mtypes);\r\n\r\n            // Ищем материалы для удаления\r\n            $affectedMaterials = array_map(\'intval\', $affectedMaterials);\r\n            $SQL_query = \"SELECT tM.id FROM \" . Material::_tablename() . \" AS tM \";\r\n            if (!$Loader->Material_Type->global_type) {\r\n                $SQL_query .= \" LEFT JOIN \" . Material::_dbprefix() . \"cms_materials_pages_assoc AS tMPA ON (tMPA.id = tM.id)\";\r\n            }\r\n            $SQL_query .= \" WHERE tM.pid IN (\" . implode(\", \", $mtypes ?: array(0)) . \") AND tM.id NOT IN (\" . implode(\", \", $affectedMaterials ?: array(0)) . \")\";\r\n            if (!$Loader->Material_Type->global_type) {\r\n                $SQL_query .= \" AND (tMPA.pid IN (\" . implode(\", \", array_merge(array($deleteRoot->id), (array)$deleteRoot->all_children_ids)) . \") OR tMPA.pid IS NULL)\";\r\n            }\r\n            $materialsToClear = Material::_SQL()->getcol($SQL_query);\r\n\r\n            // Ищем поля картинок и файлов (с attachment\'ами)\r\n            $SQL_query = \"SELECT tF.id FROM \" . Material_Field::_tablename() . \" AS tF\r\n                           WHERE tF.classname = \'RAAS\\\\\\\\CMS\\\\\\\\Material_Type\' AND tF.pid IN (\" . implode(\", \", $mtypes ?: array(0)) . \") AND datatype IN (\'image\', \'file\')\";\r\n            $fieldsToClear = Material::_SQL()->getcol($SQL_query);\r\n\r\n            // Ищем attachment\'ы для удаления\r\n            $attachmentsToClear = array();\r\n            $SQL_query = \"SELECT value FROM \" . Material::_dbprefix() . \"cms_data\r\n                           WHERE pid IN (\" . implode(\", \", $materialsToClear ?: array(0)) . \") AND fid IN (\" . implode(\", \", $fieldsToClear ?: array(0)) . \")\";\r\n            $SQL_result = Material::_SQL()->getcol($SQL_query);\r\n            foreach ($SQL_result as $val) {\r\n                if (preg_match(\'/\"attachment\":(\\\\d+)/i\', $val, $regs)) {\r\n                    $attachmentsToClear[] = (int)$regs[1];\r\n                }\r\n            }\r\n            $SQL_query = \"SELECT realname FROM \" . Attachment::_tablename() . \" WHERE id IN (\" . implode(\", \", $attachmentsToClear ?: array(0)) . \")\";\r\n            $filesToClear = Material::_SQL()->getcol($SQL_query);\r\n\r\n            if (!$test) {\r\n                // Очищаем материалы\r\n                $SQL_query = \"DELETE FROM \" . Material::_tablename() . \" WHERE id IN (\" . implode(\", \", $materialsToClear ?: array(0)) . \")\";\r\n                Material::_SQL()->query($SQL_query);\r\n\r\n                // Очищаем привязку к страницам\r\n                $SQL_query = \"DELETE FROM \" . Material::_dbprefix() . \"cms_materials_pages_assoc WHERE id IN (\" . implode(\", \", $materialsToClear ?: array(0)) . \")\";\r\n                Material::_SQL()->query($SQL_query);\r\n\r\n                // Очищаем данные\r\n                $SQL_query = \"DELETE tD\r\n                                FROM \" . Material::_dbprefix() . \"cms_data AS tD JOIN \" . Material_Field::_tablename() . \" AS tF ON tF.id = tD.fid\r\n                               WHERE (tF.classname = \'RAAS\\\\\\\\CMS\\\\\\\\Material_Type\') AND (tF.pid > 0) AND (tD.pid IN (\" . implode(\", \", $materialsToClear ?: array(0)) . \"))\";\r\n                Material::_SQL()->query($SQL_query);\r\n\r\n                // Чистим файлы\r\n                foreach ($filesToClear as $val) {\r\n                    $val = realpath(Package::i()->filesDir) . \'/\' . str_replace(\'.\', \'*.\', $val);\r\n                    $arr = glob($val);\r\n                    foreach ($arr as $row) {\r\n                        unlink($row);\r\n                    }\r\n                }\r\n\r\n                // Чистим сами attachment\'ы\r\n                $SQL_query = \"DELETE FROM \" . Attachment::_tablename() . \" WHERE id IN (\" . implode(\", \", $attachmentsToClear ?: array(0)) . \")\";\r\n                Material::_SQL()->query($SQL_query);\r\n            } else {\r\n                foreach ($materialsToClear as $val) {\r\n                    $row = new Material($val);\r\n                    $log[] = array(\r\n                        \'time\' => (microtime(true) - $st),\r\n                        \'text\' => sprintf(Module::i()->view->_(\'LOG_DELETE_MATERIALS\'), Package_Sub_Main::i()->url . \'&action=edit_material&id=\' . $row->id, $row->name)\r\n                    );\r\n                }\r\n                foreach ($fieldsToClear as $val) {\r\n                    $row = new Material_Field($val);\r\n                    $log[] = array(\'time\' => (microtime(true) - $st), \'text\' => sprintf(Module::i()->view->_(\'LOG_DELETE_FIELDS\'), $row->name));\r\n                }\r\n                foreach ($attachmentsToClear as $val) {\r\n                    $row = new Attachment($val);\r\n                    $log[] = array(\r\n                        \'time\' => (microtime(true) - $st),\r\n                        \'text\' => sprintf(Module::i()->view->_(\'LOG_DELETE_ATTACHMENTS\'), \'/\' . Package::i()->filesURL . \'/\' . $row->realname, $row->realname)\r\n                    );\r\n                }\r\n            }\r\n        }\r\n        if ($clear == PriceLoader::DELETE_PREVIOUS_MATERIALS_MATERIALS_AND_PAGES) {\r\n            // Очищаем страницы\r\n\r\n            // Ищем страницы для удаления\r\n            $affectedPages = array_map(\'intval\', $affectedPages);\r\n            $pagesToClear = array_diff($deleteRoot->all_children_ids, $affectedPages);\r\n\r\n            // Ищем поля картинок и файлов (с attachment\'ами)\r\n            $SQL_query = \"SELECT tF.id FROM \" . Page_Field::_tablename() . \" AS tF\r\n                           WHERE tF.classname = \'RAAS\\\\\\\\CMS\\\\\\\\Material_Type\' AND tF.pid = 0 AND datatype IN (\'image\', \'file\')\";\r\n            $fieldsToClear = Page::_SQL()->getcol($SQL_query);\r\n\r\n            // Ищем attachment\'ы для удаления\r\n            $attachmentsToClear = array();\r\n            $SQL_query = \"SELECT value FROM \" . Page::_dbprefix() . \"cms_data\r\n                           WHERE pid IN (\" . implode(\", \", $pagesToClear ?: array(0)) . \") AND fid IN (\" . implode(\", \", $fieldsToClear ?: array(0)) . \")\";\r\n            $SQL_result = Page::_SQL()->getcol($SQL_query);\r\n            foreach ($SQL_result as $val) {\r\n                if (preg_match(\'/\"attachment\":(\\\\d+)/i\', $val, $regs)) {\r\n                    $attachmentsToClear[] = (int)$regs[1];\r\n                }\r\n            }\r\n            $SQL_query = \"SELECT realname FROM \" . Attachment::_tablename() . \" WHERE id IN (\" . implode(\", \", $attachmentsToClear ?: array(0)) . \")\";\r\n            $filesToClear = Material::_SQL()->getcol($SQL_query);\r\n\r\n            if (!$test) {\r\n                // Очищаем страницы\r\n                $SQL_query = \"DELETE FROM \" . Page::_tablename() . \" WHERE id IN (\" . implode(\", \", $pagesToClear ?: array(0)) . \")\";\r\n                Page::_SQL()->query($SQL_query);\r\n\r\n                // Очищаем привязку к страницам\r\n                $SQL_query = \"DELETE FROM \" . Material::_dbprefix() . \"cms_materials_pages_assoc WHERE pid IN (\" . implode(\", \", $pagesToClear ?: array(0)) . \")\";\r\n                Material::_SQL()->query($SQL_query);\r\n\r\n                // Очищаем данные\r\n                $SQL_query = \"DELETE tD\r\n                                FROM \" . Page::_dbprefix() . \"cms_data AS tD JOIN \" . Page_Field::_tablename() . \" AS tF ON tF.id = tD.fid\r\n                               WHERE (tF.classname = \'RAAS\\\\\\\\CMS\\\\\\\\Material_Type\') AND (tF.pid = 0) AND (tD.pid IN (\" . implode(\", \", $pagesToClear ?: array(0)) . \"))\";\r\n                Page::_SQL()->query($SQL_query);\r\n\r\n                // Чистим файлы\r\n                foreach ($filesToClear as $val) {\r\n                    $val = realpath(Package::i()->filesDir) . \'/\' . str_replace(\'.\', \'*.\', $val);\r\n                    $arr = glob($val);\r\n                    foreach ($arr as $row) {\r\n                        unlink($row);\r\n                    }\r\n                }\r\n\r\n                // Чистим сами attachment\'ы\r\n                $SQL_query = \"DELETE FROM \" . Attachment::_tablename() . \" WHERE id IN (\" . implode(\", \", $attachmentsToClear ?: array(0)) . \")\";\r\n                Page::_SQL()->query($SQL_query);\r\n            } else {\r\n                foreach ($pagesToClear as $val) {\r\n                    $row = new Page($val);\r\n                    $log[] = array(\r\n                        \'time\' => (microtime(true) - $st),\r\n                        \'text\' => sprintf(Module::i()->view->_(\'LOG_DELETE_PAGES\'), Package_Sub_Main::i()->url . \'&action=edit_page&id=\' . $row->id, $row->name)\r\n                    );\r\n                }\r\n                foreach ($fieldsToClear as $val) {\r\n                    $row = new Page_Field($val);\r\n                    $log[] = array(\'time\' => (microtime(true) - $st), \'text\' => sprintf(Module::i()->view->_(\'LOG_DELETE_FIELDS\'), $row->name));\r\n                }\r\n                foreach ($attachmentsToClear as $val) {\r\n                    $row = new Attachment($val);\r\n                    $log[] = array(\r\n                        \'time\' => (microtime(true) - $st),\r\n                        \'text\' => sprintf(Module::i()->view->_(\'LOG_DELETE_ATTACHMENTS\'), \'/\' . Package::i()->filesURL . \'/\' . $row->realname, $row->realname)\r\n                    );\r\n                }\r\n            }\r\n        }\r\n        $log[] = array(\r\n            \'time\' => (microtime(true) - $st),\r\n            \'text\' => sprintf(\r\n                Module::i()->view->_(\'LOG_OLD_MATERIALS_CLEARED\'),\r\n                $Loader->Material_Type->name,\r\n                Package_Sub_Main::i()->url . \'&id=\' . (int)$Page->id,\r\n                $Page->name\r\n            )\r\n        );\r\n    }\r\n    return array(\'log\' => $log, \'raw_data\' => $raw_data, \'ok\' => true);\r\n} else {\r\n    ini_set(\'max_execution_time\', 900);\r\n    // Выгрузка прайса\r\n    $downloadPrice = function (Page $Page = null, $level = 0) use ($Loader, &$downloadPrice, $cols, $rows) {\r\n        static $mtypes;\r\n        if (!$mtypes) {\r\n            $mtypes = array_merge(array((int)$Loader->Material_Type->id), (array)$Loader->Material_Type->all_children_ids);\r\n        }\r\n\r\n        $DATA = array();\r\n        if (!$Page) {\r\n            $Page = $Loader->Page;\r\n        }\r\n        if ($level) {\r\n            if ($Loader->catalog_offset) {\r\n                $temp = array(str_repeat(\' \', $Loader->catalog_offset * $level) . trim($Page->name));\r\n            } else {\r\n                $temp = array_fill(0, $level, \'\');\r\n                $temp[$level - 1] = $Page->name;\r\n            }\r\n            $DATA[] = $temp;\r\n        }\r\n\r\n\r\n        $SQL_query = \"SELECT tM.* FROM \" . Material::_tablename() . \" AS tM \";\r\n        if (!$Loader->Material_Type->global_type) {\r\n            $SQL_query .= \" JOIN \" . Material::_dbprefix() . \"cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id\";\r\n        }\r\n        $SQL_query .= \" WHERE tM.pid IN (\" . implode(\", \", $mtypes ?: array(0)) . \") \";\r\n        if (!$Loader->Material_Type->global_type) {\r\n            $SQL_query .= \" AND tMPA.pid = \" . (int)$Page->id;\r\n        }\r\n        $SQL_query .= \" GROUP BY tM.id\";\r\n        $SQL_result = Material::_SQL()->get($SQL_query);\r\n        if (($rows > 0) && !$level) {\r\n            $temp = array();\r\n            foreach ($Loader->columns as $col) {\r\n                $x = \'\';\r\n                if ($col->Field->id) {\r\n                    $x = $col->Field->name;\r\n                } elseif ($col->fid == \'name\') {\r\n                    $x = Module::i()->view->_(\'NAME\');\r\n                } elseif ($col->fid == \'urn\') {\r\n                    $x = Module::i()->view->_(\'URN\');\r\n                } elseif ($col->fid == \'vis\') {\r\n                    $x = Package::i()->view->_(\'VISIBILITY\');\r\n                } elseif ($col->fid == \'description\') {\r\n                    $x = Module::i()->view->_(\'DESCRIPTION\');\r\n                }\r\n                $temp[] = trim($x);\r\n            }\r\n            $DATA[] = $temp;\r\n        }\r\n        foreach ($SQL_result as $row2) {\r\n            $row = new Material($row2);\r\n            $temp = array();\r\n            foreach ($Loader->columns as $col) {\r\n                $x = null;\r\n                if ($col->Field->id) {\r\n                    if ($col->Field->multiple) {\r\n                        $x = $row->fields[$col->Field->urn]->getValues(true);\r\n                        $x = array_map(function ($y) use ($col) {\r\n                            return $col->Field->doRich($y);\r\n                        }, $x);\r\n                    } else {\r\n                        $x = $row->fields[$col->Field->urn]->doRich();\r\n                    }\r\n                } elseif ($col->fid) {\r\n                    $x = $row->{$col->fid};\r\n                } else {\r\n                    $temp[] = \'\';\r\n                    continue;\r\n                }\r\n                if ($f = $col->CallbackDownload) {\r\n                    $x = $f($x, $row);\r\n                }\r\n                if (is_array($x)) {\r\n                    $x = implode(\', \', $x);\r\n                }\r\n                $temp[] = trim($x);\r\n            }\r\n            $DATA[] = $temp;\r\n            $row->rollback();\r\n            unset($row);\r\n        }\r\n        foreach ($Page->children as $row) {\r\n            $DATA = array_merge($DATA, $downloadPrice($row, $level + 1));\r\n        }\r\n        return $DATA;\r\n    };\r\n\r\n    if (!$Page->id) {\r\n        $Page = $Loader->Page;\r\n    }\r\n    if (!$type) {\r\n        $type = \'csv\';\r\n    }\r\n    $DATA = $downloadPrice($Page);\r\n    if ($cols > 0) {\r\n        $DATA = array_map(function ($row) use ($cols) {\r\n            return array_merge(array_fill(0, (int)$cols, \'\'), (array)$row);\r\n        }, $DATA);\r\n    }\r\n    if ($rows > 1) {\r\n        $DATA = array_merge(array_fill(0, (int)($rows - 1), array(\'\')), $DATA);\r\n    }\r\n    while (ob_get_level()) {\r\n        ob_end_clean();\r\n    }\r\n    $filename = date(\'Y-m-d\') . \' - \' . $Page->name;\r\n    switch ($type) {\r\n        case \'xls\':\r\n        case \'xlsx\':\r\n            $filename .= \'.\' . $type;\r\n            $x = new PHPExcel();\r\n            $x->setActiveSheetIndex(0)->setTitle(mb_substr($Page->name, 0, 30));\r\n            $maxcol = 0;\r\n            for ($i = 0; $i < count($DATA); $i++) {\r\n                $maxcol = max($maxcol, count($DATA[$i]));\r\n                for ($j = 0; $j < count($DATA[$i]); $j++) {\r\n                    $cell = $x->getActiveSheet()->getCellByColumnAndRow($j, $i + 1);\r\n                    $cell->setValueExplicit($DATA[$i][$j], PHPExcel_Cell_DataType::TYPE_STRING);\r\n                }\r\n            }\r\n            if ($rows) {\r\n                $range = PHPExcel_Cell::stringFromColumnIndex((int)$cols) . (int)$rows . \':\' . PHPExcel_Cell::stringFromColumnIndex($maxcol + (int)$cols) . (int)$rows;\r\n                $x->getActiveSheet()->getStyle($range)->getFont()->setBold(true);\r\n            }\r\n            switch ($type) {\r\n                case \'xlsx\':\r\n                    $writerName = \'Excel2007\';\r\n                    header(\'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; name=\"\' . $filename . \'\"\');\r\n                    break;\r\n                default:\r\n                    $writerName = \'Excel5\';\r\n                    header(\'Content-Type: application/excel; name=\"\' . $filename . \'\"\');\r\n                    break;\r\n            }\r\n            $objWriter = PHPExcel_IOFactory::createWriter($x, $writerName);\r\n            $temp_file = tempnam(sys_get_temp_dir(), \'\');\r\n            $objWriter->save($temp_file);\r\n            $text = file_get_contents($temp_file);\r\n            break;\r\n        default:\r\n            $filename .= \'.csv\';\r\n            $csv = new \\SOME\\CSV($DATA);\r\n            unset($DATA);\r\n            $text = $csv->csv;\r\n            unset($csv);\r\n            if ($encoding) {\r\n                $text = iconv(\'UTF-8\', $encoding . \'//IGNORE\', $text);\r\n            }\r\n            header(\'Content-Type: text/csv; name=\"\' . $filename . \'\"\');\r\n            break;\r\n    }\r\n\r\n    header(\'Content-Disposition: attachment; filename=\"\' . $filename . \'\"\');\r\n    echo $text;\r\n    exit;\r\n}\r\n', 1),
 (28, 1, '__raas_shop_yml_interface', 'Стандартный интерфейс Яндекс.Маркета', '<?php\n/**\n * Сниппет интерфейса Яндекс.Маркета\n */\nnamespace RAAS\\CMS\\Shop;\n\n$interface = new YMLInterface($Block, $Page, $_GET, $_POST, $_COOKIE, $_SESSION, $_SERVER);\n$interface->process(true, 300);\n', 1),
 (29, 1, '__raas_robokassa_interface', 'Интерфейс платежной системы \"ROBOKASSA\"', '<?php\r\nnamespace RAAS\\CMS\\Shop;\r\n\r\nuse RAAS\\CMS\\Snippet;\r\nuse RAAS\\Application;\r\n\r\nif (in_array($_GET[\'action\'], array(\'result\', \'success\', \'fail\')) && $_REQUEST[\'InvId\']) {\r\n    // Подписанное значение - либо RESULT URL, либо SUCCESS URL, либо FAIL URL\r\n    $inv_id = $_REQUEST[\'InvId\'];\r\n    $Item = new Order($inv_id);\r\n    $crc = isset($_REQUEST[\'SignatureValue\']) ? strtoupper($_REQUEST[\'SignatureValue\']) : null;\r\n    switch ($_GET[\'action\']) {\r\n        case \'result\':\r\n            while (ob_get_level()) {\r\n                ob_end_clean();\r\n            }\r\n            $my_crc = strtoupper(md5($_REQUEST[\'OutSum\'] . \':\' . $inv_id . \':\' . $Block->epay_pass2));\r\n            if ($my_crc != $crc) {\r\n                echo \'Invalid signature\';\r\n            } elseif (!$Item->id) {\r\n                echo \'Invalid order ID#\';\r\n            } else {\r\n                // Все ок\r\n                $history = new Order_History();\r\n                $history->uid = Application::i()->user->id;\r\n                $history->order_id = (int)$Item->id;\r\n                $history->status_id = (int)$Item->status_id;\r\n                $history->paid = 1;\r\n                $history->post_date = date(\'Y-m-d H:i:s\');\r\n                $history->description = PAID_VIA_ROBOKASSA;\r\n                $history->commit();\r\n\r\n                $Item->paid = 1;\r\n                $Item->commit();\r\n                echo \'OK\' . (int)$Item->id;\r\n            }\r\n            exit;\r\n            break;\r\n        case \'success\':\r\n            $my_crc = strtoupper(md5($_REQUEST[\'OutSum\'] . \':\' . $inv_id . \':\' . $Block->epay_pass1));\r\n            if ($Item->id) {\r\n                $OUT[\'epayWidget\'] = Snippet::importByURN(\'robokassa\');\r\n                $OUT[\'Item\'] = $Item;\r\n                if ($crc == $my_crc) {\r\n                    $OUT[\'success\'][(int)$Block->id] = sprintf(ORDER_SUCCESSFULLY_PAID, $Item->id);\r\n                } else {\r\n                    $OUT[\'localError\'] = array(\'crc\' => INVALID_CRC);\r\n                }\r\n            }\r\n            break;\r\n        case \'fail\':\r\n            if ($Item->id) {\r\n                $OUT[\'epayWidget\'] = Snippet::importByURN(\'robokassa\');\r\n                $OUT[\'Item\'] = $Item;\r\n                $OUT[\'localError\'] = array(\'order\' => sprintf(ORDER_HAS_NOT_BEEN_PAID, $Item->id));\r\n            }\r\n            break;\r\n    }\r\n} elseif ($Item->id && $_POST[\'epay\']) {\r\n    $OUT[\'epayWidget\'] = Snippet::importByURN(\'robokassa\');\r\n    $OUT[\'paymentURL\'] = $Block->epay_test ? \'https://auth.robokassa.ru/Merchant/Index.aspx?IsTest=1\' : \'https://auth.robokassa.ru/Merchant/Index.aspx\';\r\n    $OUT[\'requestForPayment\'] = true;\r\n    $crc = $Block->epay_login . \':\' . number_format($Item->sum, 2, \'.\', \'\') . \':\' . (int)$Item->id;\r\n    if (!$Block->epay_test && $Block->epay_currency && ($Block->epay_currency != \'RUR\')) {\r\n        $crc .= \':\' . $Block->epay_currency;\r\n    }\r\n    $crc .= \':\' . $Block->epay_pass1;\r\n    $crc = md5($crc);\r\n    $OUT[\'crc\'] = $crc;\r\n}\r\n', 1),
 (30, 1, '__raas_my_orders_interface', 'Стандартный интерфейс истории заказов', '<?php\r\nnamespace RAAS\\CMS\\Shop;\r\n\r\nuse \\RAAS\\Redirector;\r\n\r\n$u = \\RAAS\\Controller_Frontend::i()->user;\r\nif (!$u->id) {\r\n    new Redirector(\'/\');\r\n    exit;\r\n}\r\n\r\n$OUT = array();\r\n$Item = null;\r\nif ($_GET[\'id\']) {\r\n    $temp = new Order((int)$_GET[\'id\']);\r\n    if ($temp->uid = (int)$u->id) {\r\n        $Item = $temp;\r\n    }\r\n}\r\n\r\nif ($Item) {\r\n    switch ($_GET[\'action\']) {\r\n        case \'delete\':\r\n            if (!$Order->status_id && !$Order->paid && !$Order->vis) {\r\n                Order::delete($Item);\r\n            }\r\n            new Redirector($_GET[\'back\'] ? \'history:back\' : \\SOME\\HTTP::queryString(\'id=&action=\'));\r\n            break;\r\n        default:\r\n            $Page->oldName = $Page->name;\r\n            $Page->Item = $Item;\r\n            $Page->name = ORDER_NUMBER . \' \' . $Item->id . \' \' . FROM . \' \' . date(DATETIMEFORMAT, strtotime($Item->post_date));\r\n            $OUT[\'Item\'] = $Item;\r\n            break;\r\n    }\r\n} else {\r\n    $Set = Order::getSet(array(\'where\' => \"uid = \" . (int)$u->id, \'orderBy\' => \'id DESC\'));\r\n    $OUT[\'Set\'] = $Set;\r\n}\r\nreturn $OUT;\r\n', 1);
@@ -2569,7 +2504,9 @@ INSERT INTO `cms_snippets` (`id`, `pid`, `urn`, `name`, `description`, `locked`)
 (51, 2, 'register', 'Регистрация', '<?php\r\nnamespace RAAS\\CMS\\Users;\r\n\r\nuse RAAS\\CMS\\Feedback;\r\nuse RAAS\\CMS\\SocialProfile;\r\n\r\nif ($_POST[\'AJAX\']) {\r\n    $result = array();\r\n    if ($success[(int)$Block->id]) {\r\n        $result[\'success\'] = 1;\r\n    }\r\n    if ($localError) {\r\n        $result[\'localError\'] = $localError;\r\n    }\r\n    if ($social) {\r\n        $result[\'social\'] = trim($social);\r\n    }\r\n    if ($social) {\r\n        $result[\'socialNetwork\'] = trim($socialNetwork);\r\n    }\r\n    ob_clean();\r\n    echo json_encode($result);\r\n    exit;\r\n} else { ?>\r\n    <a name=\"feedback\"></a>\r\n    <div class=\"feedback\">\r\n      <form class=\"form-horizontal\" <?php /*data-role=\"raas-ajaxform\"*/?> action=\"\" method=\"post\" enctype=\"multipart/form-data\">\r\n        <?php include \\RAAS\\CMS\\Package::i()->resourcesDir . \'/form2.inc.php\'?>\r\n        <div data-role=\"notifications\" <?php echo ($success[(int)$Block->id] || $localError) ? \'\' : \'style=\"display: none\"\'?>>\r\n          <div class=\"alert alert-success\" <?php echo ($success[(int)$Block->id]) ? \'\' : \'style=\"display: none\"\'?>>\r\n            <?php\r\n            echo YOU_HAVE_SUCCESSFULLY_REGISTERED . \' \';\r\n            switch ($config[\'activation_type\']) {\r\n                case Block_Register::ACTIVATION_TYPE_ALREADY_ACTIVATED:\r\n                    echo NOW_YOU_CAN_LOG_IN_INTO_THE_SYSTEM;\r\n                    break;\r\n                case Block_Register::ACTIVATION_TYPE_ADMINISTRATOR:\r\n                    echo PLEASE_WAIT_FOR_ADMINISTRATOR_TO_ACTIVATE;\r\n                    break;\r\n                case Block_Register::ACTIVATION_TYPE_USER:\r\n                    echo PLEASE_ACTIVATE_BY_EMAIL;\r\n                    break;\r\n            }\r\n            ?>\r\n          </div>\r\n          <div class=\"alert alert-danger\" <?php echo ($localError) ? \'\' : \'style=\"display: none\"\'?>>\r\n            <ul>\r\n              <?php foreach ((array)$localError as $key => $val) { ?>\r\n                  <li><?php echo htmlspecialchars($val)?></li>\r\n              <?php } ?>\r\n            </ul>\r\n          </div>\r\n        </div>\r\n\r\n        <div data-role=\"feedback-form\" <?php echo $success[(int)$Block->id] ? \'style=\"display: none\"\' : \'\'?>>\r\n          <p><?php echo ASTERISK_MARKED_FIELDS_ARE_REQUIRED?></p>\r\n          <?php if ($Form->signature) { ?>\r\n                <input type=\"hidden\" name=\"form_signature\" value=\"<?php echo md5(\'form\' . (int)$Form->id . (int)$Block->id)?>\" />\r\n          <?php } ?>\r\n          <?php if ($Form->antispam == \'hidden\' && $Form->antispam_field_name && !$User->id) { ?>\r\n                <input type=\"text\" autocomplete=\"off\" name=\"<?php echo htmlspecialchars($Form->antispam_field_name)?>\" value=\"<?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?>\" style=\"position: absolute; left: -9999px\" />\r\n          <?php } ?>\r\n          <?php foreach ($Form->fields as $row) { ?>\r\n              <div class=\"form-group\">\r\n                <label<?php echo !$row->multiple ? \' for=\"\' . htmlspecialchars($row->urn . $row->id . \'_\' . $Block->id) . \'\"\' : \'\'?> class=\"control-label col-sm-3\"><?php echo htmlspecialchars($row->name . ($row->required ? \'*\' : \'\'))?></label>\r\n                <div class=\"col-sm-9 col-md-4\"><?php $getField($row, $DATA)?></div>\r\n              </div>\r\n          <?php } ?>\r\n          <?php if ($config[\'allow_edit_social\']) { ?>\r\n              <style type=\"text/css\">\r\n              .raas-social { display: inline-block; width: 16px; height: 16px; background-image: url(\'http://ulogin.ru/img/small.png?version=1.3.00\'); }\r\n              .raas-social<?php echo SocialProfile::SN_VK?> { background-position: 0 -19px; }\r\n              .raas-social<?php echo SocialProfile::SN_FB?> { background-position: 0 -88px; }\r\n              .raas-social<?php echo SocialProfile::SN_OK?> { background-position: 0 -42px; }\r\n              .raas-social<?php echo SocialProfile::SN_MR?> { background-position: 0 -65px; }\r\n              .raas-social<?php echo SocialProfile::SN_TW?> { background-position: 0 -111px; }\r\n              .raas-social<?php echo SocialProfile::SN_LJ?> { background-position: 0 -180px; }\r\n              .raas-social<?php echo SocialProfile::SN_GO?> { background-position: 0 -134px; }\r\n              .raas-social<?php echo SocialProfile::SN_YA?> { background-position: 0 -157px; }\r\n              .raas-social<?php echo SocialProfile::SN_WM?> { background-position: 0 -410px; }\r\n              .raas-social<?php echo SocialProfile::SN_YT?> { background-position: 0 -433px; }\r\n              </style>\r\n              <script src=\"//ulogin.ru/js/ulogin.js\"></script>\r\n              <div class=\"col-sm-offset-3 col-sm-9 col-md-6\" style=\"margin-bottom: 25px\">\r\n                <h3><?php echo SOCIAL_NETWORKS?></h3>\r\n                <div data-role=\"raas-social-network-container\" style=\"margin: 20px 0\">\r\n                  <?php foreach ((array)$DATA[\'social\'] as $i => $temp) { ?>\r\n                      <div data-role=\"raas-repo-element\" class=\"clearfix\">\r\n                        <input type=\"hidden\" name=\"social[]\" value=\"<?php echo htmlspecialchars($temp)?>\" />\r\n                        <a href=\"<?php echo htmlspecialchars($temp)?>\" target=\"_blank\">\r\n                          <span class=\"raas-social raas-social<?php echo (int)SocialProfile::getSocialNetwork($temp)?>\"></span>\r\n                          <?php echo htmlspecialchars($temp)?>\r\n                        </a>\r\n                        <a href=\"#\" class=\"close\" style=\"float: right;\" data-role=\"raas-repo-del\">&times;</a>\r\n                      </div>\r\n                  <?php } ?>\r\n                </div>\r\n                <div id=\"uLogin\" data-ulogin=\"display=panel;fields=first_name,last_name;providers=vkontakte,odnoklassniki,mailru,facebook;hidden=twitter,google,yandex,livejournal,youtube,webmoney;redirect_uri=;callback=RAAS_CMS_social_login\"></div>\r\n              </div>\r\n              <script>\r\n              jQuery(document).ready(function($) {\r\n                  $(\'[data-role=\"raas-social-network-container\"]\').on(\'click\', \'[data-role=\"raas-repo-del\"]\', function() {\r\n                      $(this).closest(\'[data-role=\"raas-repo-element\"]\').remove();\r\n                      return false;\r\n                  });\r\n                  RAAS_CMS_social_login = function(token)\r\n                  {\r\n                      $.post(location.toString(), {\'token\': token, \'AJAX\': 1}, function(data) {\r\n                          var isFound = false;\r\n                          $(\'[data-role=\"raas-social-network-container\"] input:hidden\').each(function() {\r\n                              if ($.trim($(this).val()) == $.trim(data.social)) {\r\n                                  isFound = true;\r\n                              }\r\n                          });\r\n                          if (!isFound) {\r\n                              var text = \'<div data-role=\"raas-repo-element\" class=\"clearfix\">\'\r\n                                       + \'  <input type=\"hidden\" name=\"social[]\" value=\"\' + data.social + \'\" />\'\r\n                                       + \'  <a href=\"\' + data.social + \'\" target=\"_blank\"><span class=\"raas-social raas-social\' + data.socialNetwork + \'\"></span> \' + data.social + \'</a>\'\r\n                                       + \'  <a href=\"#\" class=\"close\" style=\"float: right;\" data-role=\"raas-repo-del\">&times;</a>\'\r\n                                       + \'</div>\';\r\n                              $(\'[data-role=\"raas-social-network-container\"]\').append(text);\r\n                          }\r\n                      }, \'json\');\r\n                  }\r\n              });\r\n              </script>\r\n          <?php } ?>\r\n          <?php if ($Form->antispam == \'captcha\' && $Form->antispam_field_name && !$User->id) { ?>\r\n              <div class=\"form-group\">\r\n                <label for=\"<?php echo htmlspecialchars($Form->antispam_field_name)?>\" class=\"control-label col-sm-3\"><?php echo CAPTCHA?></label>\r\n                <div class=\"col-sm-9 col-md-4\">\r\n                  <img src=\"/assets/kcaptcha/?<?php echo session_name() . \'=\' . session_id()?>\" /><br />\r\n                  <input type=\"text\" name=\"<?php echo htmlspecialchars($Form->antispam_field_name)?>\" class=\"form-control\" />\r\n                </div>\r\n              </div>\r\n          <?php } ?>\r\n          <div class=\"form-group\">\r\n            <div class=\"col-sm-9 col-md-4 col-sm-offset-3\"><button class=\"btn btn-primary\" type=\"submit\"><?php echo $User->id ? SAVE : DO_REGISTER?></button></div>\r\n          </div>\r\n        </div>\r\n      </form>\r\n    </div>\r\n<?php } ?>\r\n', 0),
 (52, 2, 'activation', 'Активация', '<?php\r\nnamespace RAAS\\CMS\\Users;\r\n\r\nif ($_POST[\'AJAX\']) {\r\n    $result = array();\r\n    if ($success) {\r\n        $result[\'success\'] = 1;\r\n    }\r\n    if ($localError) {\r\n        $result[\'localError\'] = $localError;\r\n    }\r\n    ob_clean();\r\n    echo json_encode($result);\r\n    exit;\r\n} else {\r\n    ?>\r\n    <div data-role=\"notifications\">\r\n      <div class=\"alert alert-success\" <?php echo ($success) ? \'\' : \'style=\"display: none\"\'?>><?php echo YOUR_ACCOUNT_HAS_BEEN_SUCCESSFULLY_ACTIVATED?></div>\r\n      <div class=\"alert alert-danger\" <?php echo ($localError) ? \'\' : \'style=\"display: none\"\'?>>\r\n        <ul>\r\n          <?php foreach ((array)$localError as $key => $val) { ?>\r\n              <li><?php echo htmlspecialchars($val)?></li>\r\n          <?php } ?>\r\n        </ul>\r\n      </div>\r\n    </div>\r\n    <?php\r\n}\r\n', 0),
 (53, 2, 'login', 'Вход в систему', '<?php\r\nnamespace RAAS\\CMS\\Users;\r\n\r\nif ($_POST[\'AJAX\']) {\r\n    $result = array();\r\n    if ($success[(int)$Block->id]) {\r\n        $result[\'success\'] = 1;\r\n    }\r\n    if ($localError) {\r\n        $result[\'localError\'] = $localError;\r\n    }\r\n    if ($social) {\r\n        $result[\'social\'] = trim($social);\r\n    }\r\n    if ($social) {\r\n        $result[\'socialNetwork\'] = trim($socialNetwork);\r\n    }\r\n    if ($User) {\r\n        $result[\'User\'] = $User->getArrayCopy();\r\n        $result[\'User\'][\'last_name\'] = $User->last_name;\r\n        $result[\'User\'][\'first_name\'] = $User->first_name;\r\n        $result[\'User\'][\'full_name\'] = $User->full_name;\r\n    }\r\n    ob_clean();\r\n    echo json_encode($result);\r\n    exit;\r\n} else {\r\n    ?>\r\n    <div class=\"feedback\">\r\n      <form class=\"form-horizontal\" method=\"post\" enctype=\"multipart/form-data\">\r\n        <div data-role=\"notifications\" <?php echo ($success || $localError) ? \'\' : \'style=\"display: none\"\'?>>\r\n          <div class=\"alert alert-danger\" <?php echo ($localError) ? \'\' : \'style=\"display: none\"\'?>>\r\n            <ul>\r\n              <?php foreach ((array)$localError as $key => $val) { ?>\r\n                  <li><?php echo htmlspecialchars($val)?></li>\r\n              <?php } ?>\r\n            </ul>\r\n          </div>\r\n        </div>\r\n        <div data-role=\"feedback-form\" <?php echo $success ? \'style=\"display: none\"\' : \'\'?>>\r\n          <div class=\"form-group\">\r\n            <label for=\"login_<?php echo (int)$Block->id?>\" class=\"control-label col-sm-3 col-md-2\"><?php echo LOGIN?>:</label>\r\n            <div class=\"col-sm-9 col-md-4\"><input type=\"text\" class=\"form-control\" name=\"login\" id=\"login_<?php echo (int)$Block->id?>\" /></div>\r\n          </div>\r\n          <div class=\"form-group\">\r\n            <label for=\"password_<?php echo (int)$Block->id?>\" class=\"control-label col-sm-3 col-md-2\"><?php echo PASSWORD?>:</label>\r\n            <div class=\"col-sm-9 col-md-4\"><input type=\"password\" class=\"form-control\" name=\"password\" id=\"password_<?php echo (int)$Block->id?>\" /></div>\r\n          </div>\r\n          <?php if (($config[\'password_save_type\'] == Block_LogIn::SAVE_PASSWORD_SAVE_PASSWORD) || ($config[\'password_save_type\'] == Block_LogIn::SAVE_PASSWORD_FOREIGN_COMPUTER)) { ?>\r\n              <div class=\"form-group\">\r\n                <div class=\"col-sm-9 col-md-4 col-sm-offset-3 col-md-offset-2\">\r\n                  <label>\r\n                    <?php if ($config[\'password_save_type\'] == Block_LogIn::SAVE_PASSWORD_SAVE_PASSWORD) { ?>\r\n                        <input type=\"checkbox\" name=\"save_password\" value=\"1\" /> <?php echo SAVE_PASSWORD?>\r\n                    <?php } elseif ($config[\'password_save_type\'] == Block_LogIn::SAVE_PASSWORD_FOREIGN_COMPUTER) { ?>\r\n                        <input type=\"checkbox\" name=\"foreign_computer\" value=\"1\" /> <?php echo FOREIGN_COMPUTER?>\r\n                    <?php } ?>\r\n                  </label>\r\n                </div>\r\n              </div>\r\n          <?php } ?>\r\n          <div class=\"form-group\">\r\n            <label class=\"control-label col-sm-3 col-md-2\">&nbsp;</label>\r\n            <div class=\"col-sm-9 col-md-4\"><a href=\"/recovery/\"><?php echo LOST_PASSWORD?></a></div>\r\n          </div>\r\n          <?php if ($config[\'social_login_type\']) { ?>\r\n              <div class=\"col-sm-offset-3 col-md-offset-2\" style=\"margin-bottom: 25px\">\r\n                <script src=\"//ulogin.ru/js/ulogin.js\"></script>\r\n                <div id=\"uLogin\" data-ulogin=\"display=panel;optional=first_name,last_name,phone,email,sex,nickname,bdate,city,country;providers=vkontakte,odnoklassniki,mailru,facebook;hidden=twitter,google,yandex,livejournal,youtube,webmoney;redirect_uri=<?php echo urlencode(\'http\' . ($_SERVER[\'HTTPS\'] == \'on\' ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'REQUEST_URI\'])?>\"></div>\r\n              </div>\r\n          <?php } ?>\r\n          <div class=\"form-group\"><div class=\"col-sm-9 col-md-4 col-sm-offset-3 col-md-offset-2\"><button class=\"btn btn-primary\" type=\"submit\"><?php echo DO_LOGIN?></button></div></div>\r\n        </div>\r\n      </form>\r\n    </div>\r\n<?php } ?>\r\n', 0),
-(54, 2, 'recovery', 'Восстановление пароля', '<?php\r\nnamespace RAAS\\CMS\\Users;\r\n\r\nif ($_POST[\'AJAX\']) {\r\n    $result = array();\r\n    if ($success) {\r\n        $result[\'success\'] = 1;\r\n    }\r\n    if ($localError) {\r\n        $result[\'localError\'] = $localError;\r\n    }\r\n    ob_clean();\r\n    echo json_encode($result);\r\n    exit;\r\n} else {\r\n    ?>\r\n    <div class=\"feedback\">\r\n      <form class=\"form-horizontal\" method=\"post\" enctype=\"multipart/form-data\">\r\n        <div data-role=\"notifications\" <?php echo ($success || $localError) ? \'\' : \'style=\"display: none\"\'?>>\r\n          <div class=\"alert alert-success\" <?php echo ($success) ? \'\' : \'style=\"display: none\"\'?>>\r\n            <?php echo $proceed ? YOUR_PASSWORD_WAS_SUCCESSFULLY_CHANGED : RECOVERY_KEY_WAS_SENT?>\r\n          </div>\r\n          <div class=\"alert alert-danger\" <?php echo ($localError) ? \'\' : \'style=\"display: none\"\'?>>\r\n            <ul>\r\n              <?php foreach ((array)$localError as $key => $val) { ?>\r\n                  <li><?php echo htmlspecialchars($val)?></li>\r\n              <?php } ?>\r\n            </ul>\r\n          </div>\r\n        </div>\r\n        <div data-role=\"feedback-form\" <?php echo $success ? \'style=\"display: none\"\' : \'\'?>>\r\n          <?php if ($proceed) { ?>\r\n              <?php if (!$key_is_invalid) { ?>\r\n                  <div class=\"form-group\">\r\n                    <label for=\"password_<?php echo (int)$Block->id?>\" class=\"control-label col-sm-3 col-md-2\"><?php echo PASSWORD?></label>\r\n                    <div class=\"col-sm-9 col-md-4\"><input type=\"password\" class=\"form-control\" name=\"password\" id=\"password_<?php echo (int)$Block->id?>\" /></div>\r\n                  </div>\r\n                  <div class=\"form-group\">\r\n                    <label for=\"password_confirm_<?php echo (int)$Block->id?>\" class=\"control-label col-sm-3 col-md-2\"><?php echo PASSWORD_CONFIRM?></label>\r\n                    <div class=\"col-sm-9 col-md-4\"><input type=\"password\" class=\"form-control\" name=\"password@confirm\" id=\"password_confirm_<?php echo (int)$Block->id?>\" /></div>\r\n                  </div>\r\n                  <div class=\"form-group\"><div class=\"col-sm-9 col-md-4 col-sm-offset-3 col-md-offset-2\"><button class=\"btn btn-primary\" type=\"submit\"><?php echo CHANGE?></button></div></div>\r\n              <?php } ?>\r\n          <?php } else { ?>\r\n              <div class=\"form-group\">\r\n                <label for=\"login_<?php echo (int)$Block->id?>\" class=\"control-label col-sm-3\"><?php echo ENTER_LOGIN_OR_EMAIL?></label>\r\n                <div class=\"col-sm-9 col-md-4\"><input type=\"text\" name=\"login\" class=\"form-control\" id=\"login_<?php echo (int)$Block->id?>\" /></div>\r\n              </div>\r\n              <div class=\"form-group\"><div class=\"col-sm-9 col-md-4 col-sm-offset-3\"><button class=\"btn btn-primary\" type=\"submit\"><?php echo SEND?></button></div></div>\r\n          <?php } ?>\r\n        </div>\r\n      </form>\r\n    </div>\r\n<?php } ?>\r\n', 0);
+(54, 2, 'recovery', 'Восстановление пароля', '<?php\r\nnamespace RAAS\\CMS\\Users;\r\n\r\nif ($_POST[\'AJAX\']) {\r\n    $result = array();\r\n    if ($success) {\r\n        $result[\'success\'] = 1;\r\n    }\r\n    if ($localError) {\r\n        $result[\'localError\'] = $localError;\r\n    }\r\n    ob_clean();\r\n    echo json_encode($result);\r\n    exit;\r\n} else {\r\n    ?>\r\n    <div class=\"feedback\">\r\n      <form class=\"form-horizontal\" method=\"post\" enctype=\"multipart/form-data\">\r\n        <div data-role=\"notifications\" <?php echo ($success || $localError) ? \'\' : \'style=\"display: none\"\'?>>\r\n          <div class=\"alert alert-success\" <?php echo ($success) ? \'\' : \'style=\"display: none\"\'?>>\r\n            <?php echo $proceed ? YOUR_PASSWORD_WAS_SUCCESSFULLY_CHANGED : RECOVERY_KEY_WAS_SENT?>\r\n          </div>\r\n          <div class=\"alert alert-danger\" <?php echo ($localError) ? \'\' : \'style=\"display: none\"\'?>>\r\n            <ul>\r\n              <?php foreach ((array)$localError as $key => $val) { ?>\r\n                  <li><?php echo htmlspecialchars($val)?></li>\r\n              <?php } ?>\r\n            </ul>\r\n          </div>\r\n        </div>\r\n        <div data-role=\"feedback-form\" <?php echo $success ? \'style=\"display: none\"\' : \'\'?>>\r\n          <?php if ($proceed) { ?>\r\n              <?php if (!$key_is_invalid) { ?>\r\n                  <div class=\"form-group\">\r\n                    <label for=\"password_<?php echo (int)$Block->id?>\" class=\"control-label col-sm-3 col-md-2\"><?php echo PASSWORD?></label>\r\n                    <div class=\"col-sm-9 col-md-4\"><input type=\"password\" class=\"form-control\" name=\"password\" id=\"password_<?php echo (int)$Block->id?>\" /></div>\r\n                  </div>\r\n                  <div class=\"form-group\">\r\n                    <label for=\"password_confirm_<?php echo (int)$Block->id?>\" class=\"control-label col-sm-3 col-md-2\"><?php echo PASSWORD_CONFIRM?></label>\r\n                    <div class=\"col-sm-9 col-md-4\"><input type=\"password\" class=\"form-control\" name=\"password@confirm\" id=\"password_confirm_<?php echo (int)$Block->id?>\" /></div>\r\n                  </div>\r\n                  <div class=\"form-group\"><div class=\"col-sm-9 col-md-4 col-sm-offset-3 col-md-offset-2\"><button class=\"btn btn-primary\" type=\"submit\"><?php echo CHANGE?></button></div></div>\r\n              <?php } ?>\r\n          <?php } else { ?>\r\n              <div class=\"form-group\">\r\n                <label for=\"login_<?php echo (int)$Block->id?>\" class=\"control-label col-sm-3\"><?php echo ENTER_LOGIN_OR_EMAIL?></label>\r\n                <div class=\"col-sm-9 col-md-4\"><input type=\"text\" name=\"login\" class=\"form-control\" id=\"login_<?php echo (int)$Block->id?>\" /></div>\r\n              </div>\r\n              <div class=\"form-group\"><div class=\"col-sm-9 col-md-4 col-sm-offset-3\"><button class=\"btn btn-primary\" type=\"submit\"><?php echo SEND?></button></div></div>\r\n          <?php } ?>\r\n        </div>\r\n      </form>\r\n    </div>\r\n<?php } ?>\r\n', 0),
+(55, 2, 'goods_faq', 'Вопрос-ответ к товарам', '<?php\r\nnamespace RAAS\\CMS;\r\n\r\nuse \\SOME\\Text;\r\nuse \\SOME\\HTTP;\r\n\r\nif ($Set) { ?>\r\n    <div class=\"goods-faq\">\r\n      <div class=\"goods-faq__list\">\r\n        <div class=\"goods-faq-list\">\r\n          <?php foreach ($Set as $row) { ?>\r\n              <div class=\"goods-faq-list__item\">\r\n                <div class=\"goods-faq-item\">\r\n                  <div class=\"goods-faq-item__text goods-faq-item__text_question\">\r\n                    <div class=\"goods-faq-item__title\">\r\n                      <span class=\"goods-faq-item__name\">\r\n                        <?php echo htmlspecialchars($row->name)?>\r\n                      </span>\r\n                      <?php\r\n                      $t = strtotime($row->date);\r\n                      if ($t <= 0) {\r\n                          $t = strtotime($row->post_date);\r\n                      }\r\n                      if ($t > 0) {\r\n                          ?>\r\n                          <span class=\"goods-faq-item__date\">\r\n                            <?php echo date(\'d\', $t) . \' \' . Text::$months[(int)date(\'m\', $t)] . \' \' . date(\'Y\', $t)?>\r\n                          </span>\r\n                      <?php } ?>\r\n                    </div>\r\n                    <div class=\"goods-faq-item__description\">\r\n                      <?php echo $row->description?>\r\n                    </div>\r\n                  </div>\r\n                  <?php if ($row->answer) { ?>\r\n                      <div class=\"goods-faq-item__text goods-faq-item__text_answer goods-faq-item__text_slider\">\r\n                        <div class=\"goods-faq-item__title\">\r\n                          <span class=\"goods-faq-item__name\">\r\n                            <?php echo ANSWER?>\r\n                          </span>\r\n                          <?php\r\n                          $t = strtotime($row->answer_date);\r\n                          if ($t <= 0) {\r\n                              $t = strtotime($row->modify_date);\r\n                          }\r\n                          if ($t > 0) {\r\n                              ?>\r\n                              <span class=\"goods-faq-item__date\">\r\n                                <?php echo date(\'d\', $t) . \' \' . Text::$months[(int)date(\'m\', $t)] . \' \' . date(\'Y\', $t)?>\r\n                              </span>\r\n                          <?php } ?>\r\n                        </div>\r\n                        <div class=\"goods-faq-item__description\">\r\n                          <div class=\"goods-faq-item__brief-description\">\r\n                            <?php echo Text::cuttext(html_entity_decode(strip_tags($row->answer), ENT_COMPAT | ENT_HTML5, \'UTF-8\'), 256, \'...\')?>\r\n                          </div>\r\n                          <div class=\"goods-faq-item__full-description\"><?php echo $row->answer?></div>\r\n                        </div>\r\n                        <div class=\"goods-faq-item__more\">\r\n                          <a href=\"#\" class=\"goods-faq-item__more-trigger\" data-show=\"<?php echo READ_ANSWER?>\" data-hide=\"<?php echo HIDE?>\">\r\n                            <?php echo READ_ANSWER?>\r\n                          </a>\r\n                        </div>\r\n                      </div>\r\n                  <?php } ?>\r\n                </div>\r\n              </div>\r\n          <?php } ?>\r\n        </div>\r\n      </div>\r\n      <script src=\"/js/goods-faq.js?v=<?php echo date(\'Y-m-d\', filemtime(\'js/goods-faq.js\'))?>\"></script>\r\n    </div>\r\n<?php } ?>', 0),
+(56, 2, 'goods_reviews', 'Отзывы к товарам', '<?php\r\nnamespace RAAS\\CMS;\r\n\r\nuse \\SOME\\Text;\r\nuse \\SOME\\HTTP;\r\n\r\nif ($Set) { ?>\r\n    <div class=\"goods-reviews\">\r\n      <div class=\"goods-reviews__list\">\r\n        <div class=\"goods-reviews-list\">\r\n          <?php foreach ($Set as $row) { ?>\r\n              <div class=\"goods-reviews-list__item\">\r\n                <div class=\"goods-reviews-item\">\r\n                  <div class=\"goods-reviews-item__text goods-reviews-item__text_question\">\r\n                    <div class=\"goods-reviews-item__title\">\r\n                      <span class=\"goods-reviews-item__name\">\r\n                        <?php echo htmlspecialchars($row->name)?>\r\n                      </span>\r\n                      <?php\r\n                      $t = strtotime($row->date);\r\n                      if ($t <= 0) {\r\n                          $t = strtotime($row->post_date);\r\n                      }\r\n                      if ($t > 0) {\r\n                          ?>\r\n                          <span class=\"goods-reviews-item__date\">\r\n                            <?php echo date(\'d\', $t) . \' \' . Text::$months[(int)date(\'m\', $t)] . \' \' . date(\'Y\', $t)?>\r\n                          </span>\r\n                      <?php } ?>\r\n                    </div>\r\n                    <div class=\"goods-reviews-item__description\">\r\n                      <?php echo $row->description?>\r\n                    </div>\r\n                  </div>\r\n                  <?php if ($row->answer) { ?>\r\n                      <div class=\"goods-reviews-item__text goods-reviews-item__text_answer goods-reviews-item__text_slider\">\r\n                        <div class=\"goods-reviews-item__title\">\r\n                          <span class=\"goods-reviews-item__name\">\r\n                            <?php echo ANSWER?>\r\n                          </span>\r\n                          <?php\r\n                          $t = strtotime($row->answer_date);\r\n                          if ($t <= 0) {\r\n                              $t = strtotime($row->modify_date);\r\n                          }\r\n                          if ($t > 0) {\r\n                              ?>\r\n                              <span class=\"goods-reviews-item__date\">\r\n                                <?php echo date(\'d\', $t) . \' \' . Text::$months[(int)date(\'m\', $t)] . \' \' . date(\'Y\', $t)?>\r\n                              </span>\r\n                          <?php } ?>\r\n                        </div>\r\n                        <div class=\"goods-reviews-item__description\">\r\n                          <div class=\"goods-reviews-item__brief-description\">\r\n                            <?php echo Text::cuttext(html_entity_decode(strip_tags($row->answer), ENT_COMPAT | ENT_HTML5, \'UTF-8\'), 256, \'...\')?>\r\n                          </div>\r\n                          <div class=\"goods-reviews-item__full-description\"><?php echo $row->answer?></div>\r\n                        </div>\r\n                        <div class=\"goods-reviews-item__more\">\r\n                          <a href=\"#\" class=\"goods-reviews-item__more-trigger\" data-show=\"<?php echo READ_ANSWER?>\" data-hide=\"<?php echo HIDE?>\">\r\n                            <?php echo READ_ANSWER?>\r\n                          </a>\r\n                        </div>\r\n                      </div>\r\n                  <?php } ?>\r\n                </div>\r\n              </div>\r\n          <?php } ?>\r\n        </div>\r\n      </div>\r\n      <script src=\"/js/goods-reviews.js?v=<?php echo date(\'Y-m-d\', filemtime(\'js/goods-reviews.js\'))?>\"></script>\r\n    </div>\r\n<?php } ?>', 0);
 
 -- --------------------------------------------------------
 
@@ -2578,15 +2515,13 @@ INSERT INTO `cms_snippets` (`id`, `pid`, `urn`, `name`, `description`, `locked`)
 --
 
 DROP TABLE IF EXISTS `cms_snippet_folders`;
-CREATE TABLE IF NOT EXISTS `cms_snippet_folders` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_snippet_folders` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `pid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   `urn` varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
-  `locked` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Locked',
-  PRIMARY KEY (`id`),
-  KEY `pid` (`pid`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='Snippet folders';
+  `locked` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Locked'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Snippet folders';
 
 --
 -- Дамп данных таблицы `cms_snippet_folders`
@@ -2603,14 +2538,10 @@ INSERT INTO `cms_snippet_folders` (`id`, `pid`, `name`, `urn`, `locked`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_snippet_folders_tree_cache`;
-CREATE TABLE IF NOT EXISTS `cms_snippet_folders_tree_cache` (
+CREATE TABLE `cms_snippet_folders_tree_cache` (
   `parent_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   `child_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Child ID#',
-  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level',
-  PRIMARY KEY (`child_id`,`__level`),
-  KEY `parent_id` (`parent_id`),
-  KEY `child_id` (`child_id`),
-  KEY `__level` (`__level`)
+  `__level` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Level'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Snippet folders tree cache';
 
 -- --------------------------------------------------------
@@ -2620,8 +2551,8 @@ CREATE TABLE IF NOT EXISTS `cms_snippet_folders_tree_cache` (
 --
 
 DROP TABLE IF EXISTS `cms_templates`;
-CREATE TABLE IF NOT EXISTS `cms_templates` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_templates` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   `urn` varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `description` text COMMENT 'Code',
@@ -2629,11 +2560,8 @@ CREATE TABLE IF NOT EXISTS `cms_templates` (
   `height` int(10) UNSIGNED NOT NULL DEFAULT '1024' COMMENT 'Height',
   `visual` tinyint(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Template is visual',
   `background` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Background attachment ID#',
-  `locations_info` text COMMENT 'Locations info',
-  PRIMARY KEY (`id`),
-  KEY `background` (`background`),
-  KEY `urn` (`urn`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='Templates';
+  `locations_info` text COMMENT 'Locations info'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Templates';
 
 --
 -- Дамп данных таблицы `cms_templates`
@@ -2649,8 +2577,8 @@ INSERT INTO `cms_templates` (`id`, `name`, `urn`, `description`, `width`, `heigh
 --
 
 DROP TABLE IF EXISTS `cms_users`;
-CREATE TABLE IF NOT EXISTS `cms_users` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_users` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `login` varchar(255) NOT NULL DEFAULT '' COMMENT 'Login',
   `password_md5` varchar(255) NOT NULL DEFAULT '' COMMENT 'Password MD5',
   `email` varchar(255) NOT NULL DEFAULT '' COMMENT 'E-mail',
@@ -2658,15 +2586,8 @@ CREATE TABLE IF NOT EXISTS `cms_users` (
   `vis` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Active',
   `lang` varchar(255) NOT NULL DEFAULT 'ru' COMMENT 'Language',
   `new` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'New',
-  `activated` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Activated',
-  PRIMARY KEY (`id`),
-  KEY `pid` (`login`),
-  KEY `email` (`email`),
-  KEY `post_date` (`post_date`),
-  KEY `vis` (`vis`),
-  KEY `new` (`new`),
-  KEY `activated` (`activated`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='Users';
+  `activated` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Activated'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Users';
 
 --
 -- Дамп данных таблицы `cms_users`
@@ -2683,13 +2604,12 @@ INSERT INTO `cms_users` (`id`, `login`, `password_md5`, `email`, `post_date`, `v
 --
 
 DROP TABLE IF EXISTS `cms_users_blocks_login`;
-CREATE TABLE IF NOT EXISTS `cms_users_blocks_login` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_users_blocks_login` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `email_as_login` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Show e-mail as login',
   `social_login_type` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Social networks log-in type: 0 - none, 1 - only registered, 2 - quick register',
-  `password_save_type` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Password save type: 0 - none, 1 - checkbox "save password", 2 - checkbox "foreign computer"',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8 COMMENT='Log in blocks';
+  `password_save_type` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Password save type: 0 - none, 1 - checkbox "save password", 2 - checkbox "foreign computer"'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Log in blocks';
 
 --
 -- Дамп данных таблицы `cms_users_blocks_login`
@@ -2705,12 +2625,10 @@ INSERT INTO `cms_users_blocks_login` (`id`, `email_as_login`, `social_login_type
 --
 
 DROP TABLE IF EXISTS `cms_users_blocks_recovery`;
-CREATE TABLE IF NOT EXISTS `cms_users_blocks_recovery` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
-  `notification_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Recovery notification ID#',
-  PRIMARY KEY (`id`),
-  KEY `notification_id` (`notification_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8 COMMENT='Recovery blocks';
+CREATE TABLE `cms_users_blocks_recovery` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
+  `notification_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Recovery notification ID#'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Recovery blocks';
 
 --
 -- Дамп данных таблицы `cms_users_blocks_recovery`
@@ -2726,18 +2644,16 @@ INSERT INTO `cms_users_blocks_recovery` (`id`, `notification_id`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_users_blocks_register`;
-CREATE TABLE IF NOT EXISTS `cms_users_blocks_register` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `cms_users_blocks_register` (
+  `id` int(10) UNSIGNED NOT NULL COMMENT 'ID#',
   `form_id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Register form ID#',
   `email_as_login` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Use e-mail as login',
   `notify_about_edit` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Notify admin about profile edit',
   `allow_edit_social` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Allow to edit social networks',
   `activation_type` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Activation type: 0 - by admin, 1 - by user, 2 - already active',
   `allow_to` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Allow block to: -1 - unregistered, 0 - all, 1 - registered',
-  `redirect_url` varchar(255) NOT NULL DEFAULT '' COMMENT 'Redirect unallowable users to',
-  PRIMARY KEY (`id`),
-  KEY `form_id` (`form_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8 COMMENT='Register blocks';
+  `redirect_url` varchar(255) NOT NULL DEFAULT '' COMMENT 'Redirect unallowable users to'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Register blocks';
 
 --
 -- Дамп данных таблицы `cms_users_blocks_register`
@@ -2753,12 +2669,9 @@ INSERT INTO `cms_users_blocks_register` (`id`, `form_id`, `email_as_login`, `not
 --
 
 DROP TABLE IF EXISTS `cms_users_groups_assoc`;
-CREATE TABLE IF NOT EXISTS `cms_users_groups_assoc` (
+CREATE TABLE `cms_users_groups_assoc` (
   `uid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'User ID#',
-  `gid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Group ID#',
-  PRIMARY KEY (`uid`,`gid`),
-  KEY `uid` (`uid`),
-  KEY `gid` (`gid`)
+  `gid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Group ID#'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Users-groups associations';
 
 --
@@ -2775,12 +2688,9 @@ INSERT INTO `cms_users_groups_assoc` (`uid`, `gid`) VALUES
 --
 
 DROP TABLE IF EXISTS `cms_users_social`;
-CREATE TABLE IF NOT EXISTS `cms_users_social` (
+CREATE TABLE `cms_users_social` (
   `uid` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'User ID#',
-  `url` varchar(255) NOT NULL DEFAULT '' COMMENT 'Social network page URL',
-  PRIMARY KEY (`uid`,`url`),
-  KEY `uid` (`uid`),
-  KEY `url` (`url`)
+  `url` varchar(255) NOT NULL DEFAULT '' COMMENT 'Social network page URL'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Users social networks associations';
 
 --
@@ -2798,13 +2708,11 @@ INSERT INTO `cms_users_social` (`uid`, `url`) VALUES
 --
 
 DROP TABLE IF EXISTS `groups`;
-CREATE TABLE IF NOT EXISTS `groups` (
-  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `groups` (
+  `id` smallint(5) UNSIGNED NOT NULL COMMENT 'ID#',
   `pid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Parent group ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
-  `description` text COMMENT 'Description',
-  PRIMARY KEY (`id`),
-  KEY `pid` (`pid`)
+  `description` text COMMENT 'Description'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Groups of users';
 
 -- --------------------------------------------------------
@@ -2814,14 +2722,10 @@ CREATE TABLE IF NOT EXISTS `groups` (
 --
 
 DROP TABLE IF EXISTS `groups_levels_assoc`;
-CREATE TABLE IF NOT EXISTS `groups_levels_assoc` (
+CREATE TABLE `groups_levels_assoc` (
   `gid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Group ID#',
   `m` varchar(32) NOT NULL DEFAULT '' COMMENT 'MID',
-  `lid` smallint(6) NOT NULL DEFAULT '0' COMMENT 'Level ID#',
-  PRIMARY KEY (`gid`,`m`),
-  KEY `gid` (`gid`),
-  KEY `lid` (`lid`),
-  KEY `m` (`m`)
+  `lid` smallint(6) NOT NULL DEFAULT '0' COMMENT 'Level ID#'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Groups-rights levels associations';
 
 -- --------------------------------------------------------
@@ -2831,13 +2735,10 @@ CREATE TABLE IF NOT EXISTS `groups_levels_assoc` (
 --
 
 DROP TABLE IF EXISTS `groups_rights`;
-CREATE TABLE IF NOT EXISTS `groups_rights` (
+CREATE TABLE `groups_rights` (
   `gid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Group ID#',
   `m` varchar(32) NOT NULL DEFAULT '' COMMENT 'MID',
-  `access` text COMMENT 'Access data',
-  PRIMARY KEY (`gid`,`m`),
-  KEY `gid` (`gid`),
-  KEY `m` (`m`)
+  `access` text COMMENT 'Access data'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Groups access rights';
 
 -- --------------------------------------------------------
@@ -2847,15 +2748,13 @@ CREATE TABLE IF NOT EXISTS `groups_rights` (
 --
 
 DROP TABLE IF EXISTS `levels`;
-CREATE TABLE IF NOT EXISTS `levels` (
-  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `levels` (
+  `id` smallint(5) UNSIGNED NOT NULL COMMENT 'ID#',
   `m` varchar(32) NOT NULL DEFAULT '' COMMENT 'MID',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   `access` text COMMENT 'Access data',
   `locked` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Locked',
-  `priority` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority',
-  PRIMARY KEY (`id`),
-  KEY `m` (`m`)
+  `priority` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Priority'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Access levels';
 
 -- --------------------------------------------------------
@@ -2865,14 +2764,11 @@ CREATE TABLE IF NOT EXISTS `levels` (
 --
 
 DROP TABLE IF EXISTS `registry`;
-CREATE TABLE IF NOT EXISTS `registry` (
+CREATE TABLE `registry` (
   `m` varchar(32) NOT NULL DEFAULT '' COMMENT 'MID',
   `name` varchar(32) NOT NULL DEFAULT '' COMMENT 'Key',
   `value` text COMMENT 'Value',
-  `locked` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Locked',
-  PRIMARY KEY (`m`,`name`),
-  KEY `m` (`m`),
-  KEY `name` (`name`)
+  `locked` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Locked'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='System Registry';
 
 --
@@ -2887,15 +2783,15 @@ INSERT INTO `registry` (`m`, `name`, `value`, `locked`) VALUES
 ('cms', 'tnsize', '300', 0),
 ('cms', 'maxsize', '1920', 0),
 ('cms', 'cache', '0', 0),
-('cms', 'installDate', '2019-01-30 18:19:58', 1),
+('cms', 'installDate', '2019-03-29 13:52:48', 1),
 ('cms', 'isActive', '1', 0),
 ('cms.meta_checker', 'installDate', '2018-04-05 11:34:16', 1),
 ('cms.meta_checker', 'isActive', '1', 0),
-('cms.shop', 'installDate', '2019-01-27 16:52:14', 1),
+('cms.shop', 'installDate', '2019-03-29 13:52:52', 1),
 ('cms.shop', 'isActive', '1', 0),
 ('cms.users', 'activation_notify', '<?php\r\nnamespace RAAS\\CMS\\Users;\r\n\r\n$recoveryBlocks = Block_Recovery::getSet(array(\r\n    \'where\' => \"block_type = \'RAAS\\\\\\\\CMS\\\\\\\\Users\\\\\\\\Block_Recovery\'\",\r\n    \'orderBy\' => \'id\'\r\n));\r\n$recoveryPages = array();\r\nif ($recoveryBlocks) {\r\n    $recoveryPages = array();\r\n    foreach ($recoveryBlocks as $recoveryBlock) {\r\n        $recoveryPages = array_merge($recoveryPages, $recoveryBlock->pages);\r\n    }\r\n}\r\n$recoveryPage = null;\r\n$langRecoveryPages = array_filter($recoveryPages, function ($x) use ($User) {\r\n    return $x->lang == $User->lang;\r\n});\r\nif ($langRecoveryPages) {\r\n    $recoveryPage = array_shift($langRecoveryPages);\r\n}\r\nif (!$recoveryPage->id && $recoveryPages) {\r\n    $recoveryPage = array_shift($recoveryPages);\r\n}\r\n?>\r\n<p><?php echo GREETINGS?></p>\r\n\r\n<?php if ($active) { ?>\r\n    <p><?php echo YOUR_ACCOUNT_HAS_BEEN_ACTIVATED?></p>\r\n    <p><?php echo NOW_YOU_CAN_LOG_IN_INTO_THE_SYSTEM?></p>\r\n    <p>\r\n      <strong><?php echo YOUR_LOGIN?>:</strong> <?php echo htmlspecialchars($User->login)?><br />\r\n      <?php\r\n      $recoveryUrl = (\'http\' . ($_SERVER[\'HTTPS\'] == \'on\' ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'])\r\n                   . ($recoveryPage->id ? $recoveryPage->url : \'/recovery/\');\r\n      echo sprintf(YOUR_PASSWORD_ISNT_STORED_IN_DATABASE_FOR_SECURITY_REASON, htmlspecialchars($recoveryUrl));\r\n      ?>\r\n    </p>\r\n<?php } else { ?>\r\n    <p><?php echo YOUR_ACCOUNT_HAS_BEEN_BLOCKED?></p>\r\n    <p><?php echo PLEASE_CONTACT_SITE_ADMINISTRATOR_TO_ASK_REASON?></p>\r\n<?php } ?>\r\n\r\n<p>--</p>\r\n<p>\r\n  <?php echo WITH_RESPECT?>,<br />\r\n  <?php echo ADMINISTRATION_OF_SITE?> <a href=\"http<?php echo ($_SERVER[\'HTTPS\'] == \'on\' ? \'s\' : \'\')?>://<?php echo htmlspecialchars($_SERVER[\'HTTP_HOST\'])?>\"><?php echo htmlspecialchars($_SERVER[\'HTTP_HOST\'])?></a>\r\n</p>\r\n', 0),
 ('cms.users', 'automatic_notification', '1', 0),
-('cms.users', 'installDate', '2019-01-27 16:52:18', 1),
+('cms.users', 'installDate', '2019-03-29 13:52:56', 1),
 ('cms.users', 'isActive', '1', 0);
 
 -- --------------------------------------------------------
@@ -2905,8 +2801,8 @@ INSERT INTO `registry` (`m`, `name`, `value`, `locked`) VALUES
 --
 
 DROP TABLE IF EXISTS `users`;
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+CREATE TABLE `users` (
+  `id` smallint(5) UNSIGNED NOT NULL COMMENT 'ID#',
   `login` varchar(255) NOT NULL DEFAULT '' COMMENT 'Login',
   `register_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Registration date',
   `password_md5` varchar(255) NOT NULL DEFAULT '' COMMENT 'Password MD5',
@@ -2918,9 +2814,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `ip_filter` varchar(255) NOT NULL DEFAULT '' COMMENT 'User IP filter',
   `blocked` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'User is blocked',
   `cache_rights` text COMMENT 'Rights table serialize',
-  `prefs` text COMMENT 'User preferences',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='Users';
+  `prefs` text COMMENT 'User preferences'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Users';
 
 --
 -- Дамп данных таблицы `users`
@@ -2936,13 +2831,10 @@ INSERT INTO `users` (`id`, `login`, `register_date`, `password_md5`, `email`, `l
 --
 
 DROP TABLE IF EXISTS `users_groups_assoc`;
-CREATE TABLE IF NOT EXISTS `users_groups_assoc` (
+CREATE TABLE `users_groups_assoc` (
   `uid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'User ID#',
   `gid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Group ID#',
-  `group_admin` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Group admin',
-  PRIMARY KEY (`uid`,`gid`),
-  KEY `uid` (`uid`),
-  KEY `gid` (`gid`)
+  `group_admin` tinyint(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Group admin'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Users-groups associations';
 
 -- --------------------------------------------------------
@@ -2952,14 +2844,10 @@ CREATE TABLE IF NOT EXISTS `users_groups_assoc` (
 --
 
 DROP TABLE IF EXISTS `users_levels_assoc`;
-CREATE TABLE IF NOT EXISTS `users_levels_assoc` (
+CREATE TABLE `users_levels_assoc` (
   `uid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'User ID#',
   `m` varchar(32) NOT NULL DEFAULT '' COMMENT 'MID',
-  `lid` smallint(6) NOT NULL DEFAULT '0' COMMENT 'Level ID#',
-  PRIMARY KEY (`uid`,`m`),
-  KEY `uid` (`uid`),
-  KEY `lid` (`lid`),
-  KEY `m` (`m`)
+  `lid` smallint(6) NOT NULL DEFAULT '0' COMMENT 'Level ID#'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Users-rights levels associations';
 
 -- --------------------------------------------------------
@@ -2969,23 +2857,15 @@ CREATE TABLE IF NOT EXISTS `users_levels_assoc` (
 --
 
 DROP TABLE IF EXISTS `users_log`;
-CREATE TABLE IF NOT EXISTS `users_log` (
-  `uid` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'User ID#',
+CREATE TABLE `users_log` (
+  `uid` smallint(5) UNSIGNED NOT NULL COMMENT 'User ID#',
   `last_activity_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Last activity date',
   `ip` varchar(255) NOT NULL DEFAULT '' COMMENT 'IP Address',
   `package` varchar(32) NOT NULL DEFAULT '' COMMENT 'Package',
   `module` varchar(32) NOT NULL DEFAULT '' COMMENT 'Module',
   `sub` varchar(32) NOT NULL DEFAULT '' COMMENT 'Submodule',
   `action_name` varchar(32) NOT NULL DEFAULT '' COMMENT 'Action',
-  `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Element ID#',
-  PRIMARY KEY (`uid`,`last_activity_date`),
-  KEY `uid` (`uid`),
-  KEY `last_activity_date` (`last_activity_date`),
-  KEY `package` (`package`),
-  KEY `module` (`module`),
-  KEY `sub` (`sub`),
-  KEY `action_name` (`action_name`),
-  KEY `id` (`id`)
+  `id` int(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Element ID#'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Users activity log';
 
 -- --------------------------------------------------------
@@ -2995,14 +2875,831 @@ CREATE TABLE IF NOT EXISTS `users_log` (
 --
 
 DROP TABLE IF EXISTS `users_rights`;
-CREATE TABLE IF NOT EXISTS `users_rights` (
+CREATE TABLE `users_rights` (
   `uid` smallint(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'User ID#',
   `m` varchar(32) NOT NULL DEFAULT '' COMMENT 'MID',
-  `access` text COMMENT 'Access data',
-  PRIMARY KEY (`uid`,`m`),
-  KEY `uid` (`uid`),
-  KEY `m` (`m`)
+  `access` text COMMENT 'Access data'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Users access rights';
+
+--
+-- Индексы сохранённых таблиц
+--
+
+--
+-- Индексы таблицы `attachments`
+--
+ALTER TABLE `attachments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `classname` (`classname`,`pid`),
+  ADD KEY `classname_2` (`classname`),
+  ADD KEY `pid` (`pid`);
+
+--
+-- Индексы таблицы `cms_access`
+--
+ALTER TABLE `cms_access`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `page_id` (`page_id`),
+  ADD KEY `material_id` (`material_id`),
+  ADD KEY `block_id` (`block_id`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `gid` (`gid`),
+  ADD KEY `priority` (`priority`);
+
+--
+-- Индексы таблицы `cms_access_blocks_cache`
+--
+ALTER TABLE `cms_access_blocks_cache`
+  ADD PRIMARY KEY (`uid`,`block_id`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `block_id` (`block_id`);
+
+--
+-- Индексы таблицы `cms_access_materials_cache`
+--
+ALTER TABLE `cms_access_materials_cache`
+  ADD PRIMARY KEY (`uid`,`material_id`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `material_id` (`material_id`);
+
+--
+-- Индексы таблицы `cms_access_pages_cache`
+--
+ALTER TABLE `cms_access_pages_cache`
+  ADD PRIMARY KEY (`uid`,`page_id`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `page_id` (`page_id`);
+
+--
+-- Индексы таблицы `cms_blocks`
+--
+ALTER TABLE `cms_blocks`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `author_id` (`author_id`),
+  ADD KEY `editor_id` (`editor_id`),
+  ADD KEY `cache_interface_id` (`cache_interface_id`);
+
+--
+-- Индексы таблицы `cms_blocks_form`
+--
+ALTER TABLE `cms_blocks_form`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `form` (`form`);
+
+--
+-- Индексы таблицы `cms_blocks_html`
+--
+ALTER TABLE `cms_blocks_html`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `cms_blocks_material`
+--
+ALTER TABLE `cms_blocks_material`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `material_type` (`material_type`);
+
+--
+-- Индексы таблицы `cms_blocks_material_filter`
+--
+ALTER TABLE `cms_blocks_material_filter`
+  ADD KEY `id` (`id`),
+  ADD KEY `priority` (`priority`);
+
+--
+-- Индексы таблицы `cms_blocks_material_sort`
+--
+ALTER TABLE `cms_blocks_material_sort`
+  ADD KEY `id` (`id`),
+  ADD KEY `priority` (`priority`);
+
+--
+-- Индексы таблицы `cms_blocks_menu`
+--
+ALTER TABLE `cms_blocks_menu`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `menu` (`menu`);
+
+--
+-- Индексы таблицы `cms_blocks_pages_assoc`
+--
+ALTER TABLE `cms_blocks_pages_assoc`
+  ADD PRIMARY KEY (`block_id`,`page_id`),
+  ADD KEY `block_id` (`block_id`),
+  ADD KEY `page_id` (`page_id`),
+  ADD KEY `priority` (`priority`);
+
+--
+-- Индексы таблицы `cms_blocks_php`
+--
+ALTER TABLE `cms_blocks_php`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `widget` (`widget`);
+
+--
+-- Индексы таблицы `cms_blocks_search`
+--
+ALTER TABLE `cms_blocks_search`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `cms_blocks_search_languages_assoc`
+--
+ALTER TABLE `cms_blocks_search_languages_assoc`
+  ADD PRIMARY KEY (`id`,`language`),
+  ADD KEY `id` (`id`),
+  ADD KEY `language` (`language`);
+
+--
+-- Индексы таблицы `cms_blocks_search_material_types_assoc`
+--
+ALTER TABLE `cms_blocks_search_material_types_assoc`
+  ADD PRIMARY KEY (`id`,`material_type`),
+  ADD KEY `id` (`id`),
+  ADD KEY `material_type` (`material_type`);
+
+--
+-- Индексы таблицы `cms_blocks_search_pages_assoc`
+--
+ALTER TABLE `cms_blocks_search_pages_assoc`
+  ADD PRIMARY KEY (`id`,`page_id`),
+  ADD KEY `id` (`id`),
+  ADD KEY `page_id` (`page_id`);
+
+--
+-- Индексы таблицы `cms_data`
+--
+ALTER TABLE `cms_data`
+  ADD PRIMARY KEY (`pid`,`fid`,`fii`),
+  ADD KEY `pid` (`pid`),
+  ADD KEY `fid` (`fid`),
+  ADD KEY `fii` (`fii`);
+
+--
+-- Индексы таблицы `cms_dictionaries`
+--
+ALTER TABLE `cms_dictionaries`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pid` (`pid`),
+  ADD KEY `urn` (`urn`),
+  ADD KEY `orderby` (`orderby`),
+  ADD KEY `priority` (`priority`);
+
+--
+-- Индексы таблицы `cms_dictionaries_tree_cache`
+--
+ALTER TABLE `cms_dictionaries_tree_cache`
+  ADD PRIMARY KEY (`child_id`,`__level`),
+  ADD KEY `parent_id` (`parent_id`),
+  ADD KEY `child_id` (`child_id`),
+  ADD KEY `__level` (`__level`);
+
+--
+-- Индексы таблицы `cms_feedback`
+--
+ALTER TABLE `cms_feedback`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `pid` (`pid`),
+  ADD KEY `page_id` (`page_id`);
+
+--
+-- Индексы таблицы `cms_fields`
+--
+ALTER TABLE `cms_fields`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pid` (`pid`),
+  ADD KEY `datatype` (`datatype`),
+  ADD KEY `classname` (`classname`),
+  ADD KEY `classname_2` (`classname`,`pid`),
+  ADD KEY `preprocessor_id` (`preprocessor_id`),
+  ADD KEY `postprocessor_id` (`postprocessor_id`),
+  ADD KEY `priority` (`priority`);
+
+--
+-- Индексы таблицы `cms_forms`
+--
+ALTER TABLE `cms_forms`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `urn` (`urn`);
+
+--
+-- Индексы таблицы `cms_groups`
+--
+ALTER TABLE `cms_groups`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pid` (`pid`),
+  ADD KEY `urn` (`urn`);
+
+--
+-- Индексы таблицы `cms_groups_tree_cache`
+--
+ALTER TABLE `cms_groups_tree_cache`
+  ADD PRIMARY KEY (`child_id`,`__level`),
+  ADD KEY `parent_id` (`parent_id`),
+  ADD KEY `child_id` (`child_id`),
+  ADD KEY `__level` (`__level`);
+
+--
+-- Индексы таблицы `cms_materials`
+--
+ALTER TABLE `cms_materials`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pid` (`pid`),
+  ADD KEY `author_id` (`author_id`),
+  ADD KEY `editor_id` (`editor_id`),
+  ADD KEY `urn` (`urn`),
+  ADD KEY `show_from` (`show_from`),
+  ADD KEY `show_to` (`show_to`),
+  ADD KEY `priority` (`priority`);
+
+--
+-- Индексы таблицы `cms_materials_pages_assoc`
+--
+ALTER TABLE `cms_materials_pages_assoc`
+  ADD PRIMARY KEY (`id`,`pid`),
+  ADD KEY `id` (`id`),
+  ADD KEY `pid` (`pid`);
+
+--
+-- Индексы таблицы `cms_material_types`
+--
+ALTER TABLE `cms_material_types`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `urn` (`urn`);
+
+--
+-- Индексы таблицы `cms_material_types_tree_cache`
+--
+ALTER TABLE `cms_material_types_tree_cache`
+  ADD PRIMARY KEY (`child_id`,`__level`),
+  ADD KEY `parent_id` (`parent_id`),
+  ADD KEY `child_id` (`child_id`),
+  ADD KEY `__level` (`__level`);
+
+--
+-- Индексы таблицы `cms_menus`
+--
+ALTER TABLE `cms_menus`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pid` (`pid`),
+  ADD KEY `page_id` (`page_id`),
+  ADD KEY `urn` (`urn`),
+  ADD KEY `priority` (`priority`);
+
+--
+-- Индексы таблицы `cms_menus_tree_cache`
+--
+ALTER TABLE `cms_menus_tree_cache`
+  ADD PRIMARY KEY (`child_id`,`__level`),
+  ADD KEY `parent_id` (`parent_id`),
+  ADD KEY `child_id` (`child_id`),
+  ADD KEY `__level` (`__level`);
+
+--
+-- Индексы таблицы `cms_pages`
+--
+ALTER TABLE `cms_pages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pid` (`pid`),
+  ADD KEY `author_id` (`author_id`),
+  ADD KEY `editor_id` (`editor_id`),
+  ADD KEY `urn` (`urn`),
+  ADD KEY `template` (`template`),
+  ADD KEY `priority` (`priority`),
+  ADD KEY `cache_url` (`cache_url`);
+
+--
+-- Индексы таблицы `cms_pages_data`
+--
+ALTER TABLE `cms_pages_data`
+  ADD PRIMARY KEY (`pid`,`fid`,`fii`),
+  ADD KEY `pid` (`pid`),
+  ADD KEY `fid` (`fid`),
+  ADD KEY `fii` (`fii`);
+
+--
+-- Индексы таблицы `cms_pages_tree_cache`
+--
+ALTER TABLE `cms_pages_tree_cache`
+  ADD PRIMARY KEY (`child_id`,`__level`),
+  ADD KEY `parent_id` (`parent_id`),
+  ADD KEY `child_id` (`child_id`),
+  ADD KEY `__level` (`__level`);
+
+--
+-- Индексы таблицы `cms_shop_blocks_cart`
+--
+ALTER TABLE `cms_shop_blocks_cart`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `cart_type` (`cart_type`),
+  ADD KEY `epay_interface_id` (`epay_interface_id`);
+
+--
+-- Индексы таблицы `cms_shop_blocks_yml`
+--
+ALTER TABLE `cms_shop_blocks_yml`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `cms_shop_blocks_yml_currencies`
+--
+ALTER TABLE `cms_shop_blocks_yml_currencies`
+  ADD PRIMARY KEY (`id`,`currency_name`),
+  ADD KEY `currency_name` (`currency_name`);
+
+--
+-- Индексы таблицы `cms_shop_blocks_yml_fields`
+--
+ALTER TABLE `cms_shop_blocks_yml_fields`
+  ADD PRIMARY KEY (`id`,`mtype`,`field_name`),
+  ADD KEY `id` (`id`),
+  ADD KEY `mtype` (`mtype`),
+  ADD KEY `field_id` (`field_id`),
+  ADD KEY `field_name` (`field_name`);
+
+--
+-- Индексы таблицы `cms_shop_blocks_yml_ignored_fields`
+--
+ALTER TABLE `cms_shop_blocks_yml_ignored_fields`
+  ADD PRIMARY KEY (`id`,`mtype`,`field_id`),
+  ADD KEY `id` (`id`),
+  ADD KEY `mtype` (`mtype`),
+  ADD KEY `field_id` (`field_id`);
+
+--
+-- Индексы таблицы `cms_shop_blocks_yml_material_types_assoc`
+--
+ALTER TABLE `cms_shop_blocks_yml_material_types_assoc`
+  ADD PRIMARY KEY (`id`,`mtype`),
+  ADD KEY `id` (`id`),
+  ADD KEY `mtype` (`mtype`);
+
+--
+-- Индексы таблицы `cms_shop_blocks_yml_pages_assoc`
+--
+ALTER TABLE `cms_shop_blocks_yml_pages_assoc`
+  ADD PRIMARY KEY (`id`,`page_id`),
+  ADD KEY `id` (`id`),
+  ADD KEY `page_id` (`page_id`);
+
+--
+-- Индексы таблицы `cms_shop_blocks_yml_params`
+--
+ALTER TABLE `cms_shop_blocks_yml_params`
+  ADD PRIMARY KEY (`id`,`mtype`,`param_name`),
+  ADD KEY `id` (`id`),
+  ADD KEY `mtype` (`mtype`),
+  ADD KEY `field_id` (`field_id`),
+  ADD KEY `param_name` (`param_name`);
+
+--
+-- Индексы таблицы `cms_shop_carts`
+--
+ALTER TABLE `cms_shop_carts`
+  ADD PRIMARY KEY (`cart_type_id`,`uid`,`material_id`,`meta`),
+  ADD KEY `cart_type_id` (`cart_type_id`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `material_id` (`material_id`),
+  ADD KEY `meta` (`meta`);
+
+--
+-- Индексы таблицы `cms_shop_cart_types`
+--
+ALTER TABLE `cms_shop_cart_types`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `form_id` (`form_id`);
+
+--
+-- Индексы таблицы `cms_shop_cart_types_material_types_assoc`
+--
+ALTER TABLE `cms_shop_cart_types_material_types_assoc`
+  ADD PRIMARY KEY (`ctype`,`mtype`),
+  ADD KEY `ctype` (`ctype`),
+  ADD KEY `mtype` (`mtype`),
+  ADD KEY `price_id` (`price_id`);
+
+--
+-- Индексы таблицы `cms_shop_imageloaders`
+--
+ALTER TABLE `cms_shop_imageloaders`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `mtype` (`mtype`),
+  ADD KEY `ufid` (`ufid`),
+  ADD KEY `ifid` (`ifid`),
+  ADD KEY `interface_id` (`interface_id`),
+  ADD KEY `urn` (`urn`);
+
+--
+-- Индексы таблицы `cms_shop_orders`
+--
+ALTER TABLE `cms_shop_orders`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `pid` (`pid`),
+  ADD KEY `page_id` (`page_id`),
+  ADD KEY `status_id` (`status_id`),
+  ADD KEY `paid` (`paid`);
+
+--
+-- Индексы таблицы `cms_shop_orders_goods`
+--
+ALTER TABLE `cms_shop_orders_goods`
+  ADD PRIMARY KEY (`order_id`,`material_id`,`meta`),
+  ADD KEY `order_id` (`order_id`),
+  ADD KEY `material_id` (`material_id`),
+  ADD KEY `meta` (`meta`),
+  ADD KEY `priority` (`priority`);
+
+--
+-- Индексы таблицы `cms_shop_orders_history`
+--
+ALTER TABLE `cms_shop_orders_history`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `order_id` (`order_id`),
+  ADD KEY `status_id` (`status_id`),
+  ADD KEY `paid` (`paid`),
+  ADD KEY `post_date` (`post_date`);
+
+--
+-- Индексы таблицы `cms_shop_orders_statuses`
+--
+ALTER TABLE `cms_shop_orders_statuses`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `priority` (`priority`);
+
+--
+-- Индексы таблицы `cms_shop_priceloaders`
+--
+ALTER TABLE `cms_shop_priceloaders`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `mtype` (`mtype`),
+  ADD KEY `ufid` (`ufid`),
+  ADD KEY `interface_id` (`interface_id`),
+  ADD KEY `cat_id` (`cat_id`),
+  ADD KEY `urn` (`urn`);
+
+--
+-- Индексы таблицы `cms_shop_priceloaders_columns`
+--
+ALTER TABLE `cms_shop_priceloaders_columns`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pid` (`pid`),
+  ADD KEY `fid` (`fid`),
+  ADD KEY `priority` (`priority`);
+
+--
+-- Индексы таблицы `cms_snippets`
+--
+ALTER TABLE `cms_snippets`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pid` (`pid`);
+
+--
+-- Индексы таблицы `cms_snippet_folders`
+--
+ALTER TABLE `cms_snippet_folders`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pid` (`pid`);
+
+--
+-- Индексы таблицы `cms_snippet_folders_tree_cache`
+--
+ALTER TABLE `cms_snippet_folders_tree_cache`
+  ADD PRIMARY KEY (`child_id`,`__level`),
+  ADD KEY `parent_id` (`parent_id`),
+  ADD KEY `child_id` (`child_id`),
+  ADD KEY `__level` (`__level`);
+
+--
+-- Индексы таблицы `cms_templates`
+--
+ALTER TABLE `cms_templates`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `background` (`background`),
+  ADD KEY `urn` (`urn`);
+
+--
+-- Индексы таблицы `cms_users`
+--
+ALTER TABLE `cms_users`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pid` (`login`),
+  ADD KEY `email` (`email`),
+  ADD KEY `post_date` (`post_date`),
+  ADD KEY `vis` (`vis`),
+  ADD KEY `new` (`new`),
+  ADD KEY `activated` (`activated`);
+
+--
+-- Индексы таблицы `cms_users_blocks_login`
+--
+ALTER TABLE `cms_users_blocks_login`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `cms_users_blocks_recovery`
+--
+ALTER TABLE `cms_users_blocks_recovery`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `notification_id` (`notification_id`);
+
+--
+-- Индексы таблицы `cms_users_blocks_register`
+--
+ALTER TABLE `cms_users_blocks_register`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `form_id` (`form_id`);
+
+--
+-- Индексы таблицы `cms_users_groups_assoc`
+--
+ALTER TABLE `cms_users_groups_assoc`
+  ADD PRIMARY KEY (`uid`,`gid`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `gid` (`gid`);
+
+--
+-- Индексы таблицы `cms_users_social`
+--
+ALTER TABLE `cms_users_social`
+  ADD PRIMARY KEY (`uid`,`url`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `url` (`url`);
+
+--
+-- Индексы таблицы `groups`
+--
+ALTER TABLE `groups`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pid` (`pid`);
+
+--
+-- Индексы таблицы `groups_levels_assoc`
+--
+ALTER TABLE `groups_levels_assoc`
+  ADD PRIMARY KEY (`gid`,`m`),
+  ADD KEY `gid` (`gid`),
+  ADD KEY `lid` (`lid`),
+  ADD KEY `m` (`m`);
+
+--
+-- Индексы таблицы `groups_rights`
+--
+ALTER TABLE `groups_rights`
+  ADD PRIMARY KEY (`gid`,`m`),
+  ADD KEY `gid` (`gid`),
+  ADD KEY `m` (`m`);
+
+--
+-- Индексы таблицы `levels`
+--
+ALTER TABLE `levels`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `m` (`m`);
+
+--
+-- Индексы таблицы `registry`
+--
+ALTER TABLE `registry`
+  ADD PRIMARY KEY (`m`,`name`),
+  ADD KEY `m` (`m`),
+  ADD KEY `name` (`name`);
+
+--
+-- Индексы таблицы `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `users_groups_assoc`
+--
+ALTER TABLE `users_groups_assoc`
+  ADD PRIMARY KEY (`uid`,`gid`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `gid` (`gid`);
+
+--
+-- Индексы таблицы `users_levels_assoc`
+--
+ALTER TABLE `users_levels_assoc`
+  ADD PRIMARY KEY (`uid`,`m`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `lid` (`lid`),
+  ADD KEY `m` (`m`);
+
+--
+-- Индексы таблицы `users_log`
+--
+ALTER TABLE `users_log`
+  ADD PRIMARY KEY (`uid`,`last_activity_date`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `last_activity_date` (`last_activity_date`),
+  ADD KEY `package` (`package`),
+  ADD KEY `module` (`module`),
+  ADD KEY `sub` (`sub`),
+  ADD KEY `action_name` (`action_name`),
+  ADD KEY `id` (`id`);
+
+--
+-- Индексы таблицы `users_rights`
+--
+ALTER TABLE `users_rights`
+  ADD PRIMARY KEY (`uid`,`m`),
+  ADD KEY `uid` (`uid`),
+  ADD KEY `m` (`m`);
+
+--
+-- AUTO_INCREMENT для сохранённых таблиц
+--
+
+--
+-- AUTO_INCREMENT для таблицы `attachments`
+--
+ALTER TABLE `attachments`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=61;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_access`
+--
+ALTER TABLE `cms_access`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_blocks`
+--
+ALTER TABLE `cms_blocks`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=54;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_dictionaries`
+--
+ALTER TABLE `cms_dictionaries`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_feedback`
+--
+ALTER TABLE `cms_feedback`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_fields`
+--
+ALTER TABLE `cms_fields`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=69;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_forms`
+--
+ALTER TABLE `cms_forms`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_groups`
+--
+ALTER TABLE `cms_groups`
+  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_materials`
+--
+ALTER TABLE `cms_materials`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=26;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_material_types`
+--
+ALTER TABLE `cms_material_types`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_menus`
+--
+ALTER TABLE `cms_menus`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_pages`
+--
+ALTER TABLE `cms_pages`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=34;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_shop_blocks_yml`
+--
+ALTER TABLE `cms_shop_blocks_yml`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=45;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_shop_cart_types`
+--
+ALTER TABLE `cms_shop_cart_types`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_shop_imageloaders`
+--
+ALTER TABLE `cms_shop_imageloaders`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_shop_orders`
+--
+ALTER TABLE `cms_shop_orders`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#';
+
+--
+-- AUTO_INCREMENT для таблицы `cms_shop_orders_history`
+--
+ALTER TABLE `cms_shop_orders_history`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#';
+
+--
+-- AUTO_INCREMENT для таблицы `cms_shop_orders_statuses`
+--
+ALTER TABLE `cms_shop_orders_statuses`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_shop_priceloaders`
+--
+ALTER TABLE `cms_shop_priceloaders`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_shop_priceloaders_columns`
+--
+ALTER TABLE `cms_shop_priceloaders_columns`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_snippets`
+--
+ALTER TABLE `cms_snippets`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=57;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_snippet_folders`
+--
+ALTER TABLE `cms_snippet_folders`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_templates`
+--
+ALTER TABLE `cms_templates`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_users`
+--
+ALTER TABLE `cms_users`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_users_blocks_login`
+--
+ALTER TABLE `cms_users_blocks_login`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=47;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_users_blocks_recovery`
+--
+ALTER TABLE `cms_users_blocks_recovery`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=48;
+
+--
+-- AUTO_INCREMENT для таблицы `cms_users_blocks_register`
+--
+ALTER TABLE `cms_users_blocks_register`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=46;
+
+--
+-- AUTO_INCREMENT для таблицы `groups`
+--
+ALTER TABLE `groups`
+  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#';
+
+--
+-- AUTO_INCREMENT для таблицы `levels`
+--
+ALTER TABLE `levels`
+  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#';
+
+--
+-- AUTO_INCREMENT для таблицы `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#', AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT для таблицы `users_log`
+--
+ALTER TABLE `users_log`
+  MODIFY `uid` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'User ID#';
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
