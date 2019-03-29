@@ -144,6 +144,7 @@ class MaterialInterfaceTest extends BaseDBTest
     public function testSetPageMetatags()
     {
         $page = new Page(7);
+        $page->breadcrumbs_name = 'Новости для хлебных крошек';
         $item = new Material(8);
         $interface = new MaterialInterface();
 
@@ -151,6 +152,7 @@ class MaterialInterfaceTest extends BaseDBTest
 
         $this->assertEquals('Эмпирический кредитор в XXI веке', $page->name);
         $this->assertEquals('Новости', $page->oldName);
+        $this->assertEquals('Новости для хлебных крошек', $page->oldBreadcrumbs_name);
     }
 
 
