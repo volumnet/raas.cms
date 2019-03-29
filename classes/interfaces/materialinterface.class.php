@@ -126,7 +126,14 @@ class MaterialInterface extends AbstractInterface
      */
     public function setPageMetatags(Page $page, Material $item)
     {
-        foreach (['name', 'meta_title', 'meta_keywords', 'meta_description', 'h1'] as $key) {
+        foreach ([
+            'name',
+            'meta_title',
+            'meta_keywords',
+            'meta_description',
+            'h1',
+            'breadcrumbs_name'
+        ] as $key) {
             if (!isset($page->{'old' . ucfirst($key)})) {
                 $page->{'old' . ucfirst($key)} = $page->$key;
                 $page->$key = trim($item->$key);
