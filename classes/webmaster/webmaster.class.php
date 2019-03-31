@@ -15,17 +15,17 @@ class Webmaster
     /**
      * Количество получаемых изображений
      */
-    const IMAGES_TO_RETREIVE = 10;
+    const IMAGES_TO_RETRIEVE = 10;
 
     /**
      * Количество получаемых текстов
      */
-    const TEXTS_TO_RETREIVE = 10;
+    const TEXTS_TO_RETRIEVE = 10;
 
     /**
      * Количество получаемых людей
      */
-    const USERS_TO_RETREIVE = 10;
+    const USERS_TO_RETRIEVE = 10;
 
     /**
      * Экземпляр Mustache
@@ -45,7 +45,7 @@ class Webmaster
      *          ]
      *      >
      */
-    protected static $imagesRetreived = [];
+    protected static $imagesRetrieved = [];
 
     /**
      * Полученные тексты
@@ -57,7 +57,7 @@ class Webmaster
      *          ]
      *      >
      */
-    protected static $textsRetreived = [];
+    protected static $textsRetrieved = [];
 
     /**
      * Полученные люди
@@ -74,7 +74,7 @@ class Webmaster
      *          ]
      *      >
      */
-    protected static $usersRetreived = [];
+    protected static $usersRetrieved = [];
 
     /**
      * Корневая страница
@@ -92,44 +92,35 @@ class Webmaster
     {
         switch ($var) {
             case 'nextImage':
-                if (!self::$imagesRetreived) {
-                    $fpr = new FishPhotosRetreiver();
-                    self::$imagesRetreived = [];
-                    $temp = $fpr->retreive(self::IMAGES_TO_RETREIVE);
-                    foreach ($temp as $url => $filename) {
-                        self::$imagesRetreived[] = [
-                            'url' => $url,
-                            'filename' => $filename
-                        ];
-                    }
+                if (!self::$imagesRetrieved) {
+                    $fpr = new FishPhotosRetriever();
+                    self::$imagesRetrieved = $fpr->retrieve(self::IMAGES_TO_RETRIEVE);
                 }
-                $images = self::$imagesRetreived;
+                $images = self::$imagesRetrieved;
                 shuffle($images);
                 $image = array_shift($images);
-                $tempname = tempnam(sys_get_temp_dir(), 'RAAS');
-                copy($image['url'], $tempname);
-                return ['url' => $tempname, 'filename' => $image['filename']];
+                return $image;
                 break;
             case 'nextText':
-                if (!self::$textsRetreived) {
-                    $fpr = new FishYandexReferatsRetreiver();
-                    for ($i = 0; $i < self::TEXTS_TO_RETREIVE; $i++) {
-                        self::$textsRetreived[] = $fpr->retreive();
+                if (!self::$textsRetrieved) {
+                    $fpr = new FishYandexReferatsRetriever();
+                    for ($i = 0; $i < self::TEXTS_TO_RETRIEVE; $i++) {
+                        self::$textsRetrieved[] = $fpr->retrieve();
                     }
                 }
-                $texts = self::$textsRetreived;
+                $texts = self::$textsRetrieved;
                 shuffle($texts);
                 $temp = array_shift($texts);
                 return $temp;
                 break;
             case 'nextUser':
-                if (!self::$usersRetreived) {
-                    $fpr = new FishRandomUserRetreiver();
-                    for ($i = 0; $i < self::USERS_TO_RETREIVE; $i++) {
-                        self::$usersRetreived[] = $fpr->retreive();
+                if (!self::$usersRetrieved) {
+                    $fpr = new FishRandomUserRetriever();
+                    for ($i = 0; $i < self::USERS_TO_RETRIEVE; $i++) {
+                        self::$usersRetrieved[] = $fpr->retrieve();
                     }
                 }
-                $users = self::$usersRetreived;
+                $users = self::$usersRetrieved;
                 shuffle($users);
                 $temp = array_shift($users);
                 return $temp;
@@ -167,18 +158,19 @@ class Webmaster
         $filepath,
         $parentField
     ) {
-        $att = new Attachment();
-        $att->copy = true;
-        $att->upload = $filepath;
-        $att->filename = $filename;
-        $type = getimagesize($filepath);
-        $att->mime = image_type_to_mime_type($type[2]);
-        $att->parent = $parentField;
-        $att->image = 1;
-        $att->maxWidth = $att->maxHeight = 1920;
-        $att->tnsize = 300;
-        $att->commit();
-        return $att;
+        return Attachment::createFromFile($filepath, $parentField);
+        // $att = new Attachment();
+        // $att->copy = true;
+        // $att->upload = $filepath;
+        // $att->filename = $filename;
+        // $type = getimagesize($filepath);
+        // $att->mime = image_type_to_mime_type($type[2]);
+        // $att->parent = $parentField;
+        // $att->image = 1;
+        // $att->maxWidth = $att->maxHeight = 1920;
+        // $att->tnsize = 300;
+        // $att->commit();
+        // return $att;
     }
 
 
@@ -415,13 +407,10 @@ class Webmaster
         $widgets = [];
         $viewsFolderId = (int)Snippet_Folder::importByURN('__raas_views')->id;
         $widgetsData = [
-            'banners' => $this->view->_('BANNERS'),
+            // 'banners' => $this->view->_('BANNERS'),
             // 'search' => $this->view->_('SITE_SEARCH'),
-            'sitemap_xml' => $this->view->_('SITEMAP_XML'),
             'logo' => $this->view->_('LOGO'),
-            'features_main' => $this->view->_('FEATURES_MAIN'),
-            'robots' => $this->view->_('ROBOTS_TXT'),
-            'custom_css' => $this->view->_('CUSTOM_CSS'),
+            // 'features_main' => $this->view->_('FEATURES_MAIN'),
         ];
         foreach ($widgetsData as $urn => $name) {
             $widget = Snippet::importByURN($urn);
@@ -465,6 +454,17 @@ class Webmaster
             }
             $widgets[$urn] = $widget;
         }
+        $widget = Snippet::importByURN('pagination');
+        if (!$widget->id) {
+            $widget = $this->createSnippet(
+                'pagination',
+                $this->view->_('PAGINATION'),
+                (int)$viewsFolderId,
+                $this->resourcesDir . '/widgets/pagination/pagination.tmp.php',
+                []
+            );
+        }
+        $widgets['pagination'] = $widget;
 
         return $widgets;
     }
@@ -717,75 +717,30 @@ class Webmaster
      */
     public function createBanners()
     {
-        $MT = Material_Type::importByURN('banners');
-        if (!$MT->id) {
-            $MT = new Material_Type([
+        $materialType = Material_Type::importByURN('banners');
+        if (!$materialType->id) {
+            $materialType = new Material_Type([
                 'name' => $this->view->_('BANNERS'),
                 'urn' => 'banners',
                 'global_type' => 1
             ]);
-            $MT->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'name' => $this->view->_('URL'),
-                'urn' => 'url',
-                'datatype' => 'text',
-                'show_in_table' => 1,
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'name' => $this->view->_('IMAGE'),
-                'urn' => 'image',
-                'datatype' => 'image',
-                'show_in_table' => 1,
-            ]);
-            $F->commit();
-
-            $B = new Block_Material([
-                'material_type' => (int)$MT->id,
-                'nat' => 0,
-                'pages_var_name' => 'page',
-                'rows_per_page' => 0,
-                'sort_field_default' => 'post_date',
-                'sort_order_default' => 'asc',
-            ]);
-            $this->createBlock(
-                $B,
-                'banners',
-                '__raas_material_interface',
-                'banners',
-                $this->Site
+            $materialType->commit();
+            $newMaterialType = true;
+        }
+        $materialTemplate = new BannersTemplate($materialType);
+        if ($newMaterialType) {
+            $fields = $materialTemplate->createFields();
+        }
+        $widget = Snippet::importByURN('banners');
+        if (!$widget->id) {
+            $snippets = $materialTemplate->createSnippets(false);
+            $widget = $snippets['banners'];
+            $block = $materialTemplate->createBlock(
+                $this->Site,
+                $widget,
+                ['nat' => 0]
             );
-            // Создадим материалы
-            for ($i = 0; $i < 3; $i++) {
-                $temp = $this->nextText;
-                $Item = new Material([
-                    'pid' => (int)$MT->id,
-                    'vis' => 1,
-                    'name' => $temp['name'],
-                    'description' => $temp['brief'],
-                    'priority' => ($i + 1) * 10,
-                    'sitemaps_priority' => 0.5
-                ]);
-                $Item->commit();
-                $row = $this->nextImage;
-                $att = $this->getAttachmentFromFilename(
-                    $row['filename'],
-                    $row['url'],
-                    $MT->fields['image']
-                );
-                $row = [
-                    'vis' => 1,
-                    'name' => '',
-                    'description' => '',
-                    'attachment' => (int)$att->id
-                ];
-                $Item->fields['image']->addValue(json_encode($row));
-                $Item->fields['url']->addValue('#');
-            }
+            $materialTemplate->createMaterials();
         }
     }
 
@@ -795,62 +750,30 @@ class Webmaster
      */
     public function createFeatures()
     {
-        $MT = Material_Type::importByURN('features');
-        if (!$MT->id) {
-            $MT = new Material_Type([
+        $materialType = Material_Type::importByURN('features');
+        if (!$materialType->id) {
+            $materialType = new Material_Type([
                 'name' => $this->view->_('FEATURES'),
                 'urn' => 'features',
                 'global_type' => 1
             ]);
-            $MT->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'name' => $this->view->_('IMAGE'),
-                'urn' => 'image',
-                'datatype' => 'image',
-                'show_in_table' => 1,
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'name' => $this->view->_('ICON'),
-                'urn' => 'icon',
-                'datatype' => 'text',
-                'show_in_table' => 1,
-            ]);
-            $F->commit();
-
-            $B = new Block_Material([
-                'material_type' => (int)$MT->id,
-                'nat' => 0,
-                'pages_var_name' => 'page',
-                'rows_per_page' => 0,
-                'sort_field_default' => 'post_date',
-                'sort_order_default' => 'asc',
-            ]);
-            $this->createBlock(
-                $B,
-                'content',
-                '__raas_material_interface',
-                'features_main',
-                $this->Site
+            $materialType->commit();
+            $newMaterialType = true;
+        }
+        $materialTemplate = new FeaturesTemplate($materialType);
+        if ($newMaterialType) {
+            $fields = $materialTemplate->createFields();
+        }
+        $widget = Snippet::importByURN('features_main');
+        if (!$widget->id) {
+            $snippets = $materialTemplate->createMainPageSnippets(false);
+            $widget = $snippets['features_main'];
+            $block = $materialTemplate->createBlock(
+                $this->Site,
+                $widget,
+                ['nat' => 0]
             );
-            // Создадим материалы
-            $icons = ['smile-o', 'thumbs-o-up', 'rub'];
-            for ($i = 0; $i < 3; $i++) {
-                $Item = new Material([
-                    'pid' => (int)$MT->id,
-                    'vis' => 1,
-                    'name' => $this->view->_('FEATURE_' . ($i + 1)),
-                    'description' => $this->view->_('FEATURE_' . ($i + 1) . '_TEXT'),
-                    'priority' => ($i + 1) * 10,
-                    'sitemaps_priority' => 0.5
-                ]);
-                $Item->commit();
-                $Item->fields['icon']->addValue($icons[$i]);
-            }
+            $materialTemplate->createMaterials();
         }
     }
 
@@ -1134,7 +1057,8 @@ class Webmaster
             $privacy = $this->createPage(
                 [
                     'name' => $this->view->_('PRIVACY_PAGE_NAME'),
-                    'urn' => 'privacy'
+                    'urn' => 'privacy',
+                    'response_code' => 200,
                 ],
                 $this->Site
             );
@@ -1208,35 +1132,6 @@ class Webmaster
 
 
     /**
-     * Создание sitemap.xml
-     * @return Page Созданная или существующая страница
-     */
-    public function createSitemapsXml()
-    {
-        $temp = Page::getSet([
-            'where' => ["pid = " . (int)$this->Site->id, "urn = 'sitemaps'"]
-        ]);
-        if ($temp) {
-            $sitemaps = $temp[0];
-        } else {
-            $sitemaps = $this->createPage(
-                [
-                    'name' => $this->view->_('SITEMAP_XML'),
-                    'urn' => 'sitemaps',
-                    'template' => 0,
-                    'cache' => 0,
-                    'response_code' => 200
-                ],
-                $this->Site
-            );
-            $B = new Block_PHP(['name' => $this->view->_('SITEMAP_XML')]);
-            $this->createBlock($B, '', null, 'sitemap_xml', $sitemaps);
-        }
-        return $sitemaps;
-    }
-
-
-    /**
      * Создание robots.txt
      * @return Page Созданная или существующая страница
      */
@@ -1254,7 +1149,8 @@ class Webmaster
                     'urn' => 'robots',
                     'template' => 0,
                     'cache' => 1,
-                    'response_code' => 200
+                    'response_code' => 200,
+                    'mime' => 'text/plain',
                 ],
                 $this->Site
             );
@@ -1270,7 +1166,7 @@ class Webmaster
                 'description' => $robotsTXT,
                 'wysiwyg' => 0
             ]);
-            $this->createBlock($B, '', null, 'robots', $robots);
+            $this->createBlock($B, '', null, null, $robots);
         }
         return $robots;
     }
@@ -1294,7 +1190,8 @@ class Webmaster
                     'urn' => 'custom_css',
                     'template' => 0,
                     'cache' => 1,
-                    'response_code' => 200
+                    'response_code' => 200,
+                    'mime' => 'text/css',
                 ],
                 $this->Site
             );
@@ -1303,7 +1200,7 @@ class Webmaster
                 'description' => '',
                 'wysiwyg' => 0
             ]);
-            $this->createBlock($B, '', null, 'custom_css', $customCss);
+            $this->createBlock($B, '', null, null, $customCss);
         }
         return $customCss;
     }
@@ -1405,7 +1302,6 @@ class Webmaster
         $contacts = $this->createContacts($forms['feedback']);
         $p404 = $this->create404();
         $this->map = $this->createMap();
-        $sitemaps = $this->createSitemapsXml();
         $robots = $this->createRobotsTxt();
         $customCss = $this->createCustomCss();
         $menus = $this->createMenus([
@@ -1530,84 +1426,33 @@ class Webmaster
      */
     public function createNews($name, $urn, $nameMain = '')
     {
-        $MT = Material_Type::importByURN($urn);
-        if ($MT->id) {
-            $dateField = $MT->fields['date'];
-        } else {
-            $MT = new Material_Type([
+        $newMaterialType = false;
+        $materialType = Material_Type::importByURN($urn);
+        if (!$materialType->id) {
+            $materialType = new Material_Type([
                 'name' => $name,
                 'urn' => $urn,
                 'global_type' => 1
             ]);
-            $MT->commit();
-
-            $dateField = new Material_Field([
-                'pid' => $MT->id,
-                'name' => $this->view->_('DATE'),
-                'urn' => 'date',
-                'datatype' => 'date',
-                'show_in_table' => 1,
-            ]);
-            $dateField->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'name' => $this->view->_('IMAGE'),
-                'multiple' => 1,
-                'urn' => 'images',
-                'datatype' => 'image',
-                'show_in_table' => 1,
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'name' => $this->view->_('BRIEF_TEXT'),
-                'multiple' => 0,
-                'urn' => 'brief',
-                'datatype' => 'textarea',
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'name' => $this->view->_('NO_INDEX'),
-                'urn' => 'noindex',
-                'datatype' => 'checkbox'
-            ]);
-            $F->commit();
+            $materialType->commit();
+            $newMaterialType = true;
+        }
+        $materialTemplate = new NewsTemplate($materialType);
+        if ($newMaterialType) {
+            $fields = $materialTemplate->createFields();
         }
 
-        $VF = Snippet_Folder::importByURN('__raas_views');
-        $S = Snippet::importByURN($urn);
-        if (!$S->id) {
-            $f = $this->resourcesDir . '/material.tmp.php';
-            $text = file_get_contents($f);
-            $text = str_ireplace('{BLOCK_NAME}', str_replace('_main', '', $urn), $text);
-            $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
-            $S = new Snippet([
-                'name' => $name,
-                'urn' => $urn,
-                'pid' => $VF->id,
-                'description' => $text
-            ]);
-            $S->commit();
+        $widget = Snippet::importByURN($urn);
+        if (!$widget->id) {
+            $snippets = $materialTemplate->createSnippets(true);
+            $widget = $snippets[$urn];
         }
 
         if ($nameMain) {
-            $SM = Snippet::importByURN($urn . '_main');
-            if (!$SM->id) {
-                $f = $this->resourcesDir . '/material_main.tmp.php';
-                $text = file_get_contents($f);
-                $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
-                $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
-                $SM = new Snippet([
-                    'name' => $nameMain,
-                    'urn' => $urn . '_main',
-                    'pid' => $VF->id,
-                    'description' => $text
-                ]);
-                $SM->commit();
+            $mainWidget = Snippet::importByURN($urn . '_main');
+            if (!$mainWidget->id) {
+                $mainPageSnippets = $materialTemplate->createMainPageSnippets();
+                $mainWidget = $mainPageSnippets[$urn . '_main'];
             }
         }
 
@@ -1617,77 +1462,22 @@ class Webmaster
         if ($temp) {
             $page = $temp[0];
         } else {
-            $page = $this->createPage(
-                ['name' => $name, 'urn' => $urn],
-                $this->Site
-            );
-            $blockMaterial = new Block_Material([
-                'material_type' => (int)$MT->id,
-                'nat' => 1,
-                'pages_var_name' => 'page',
-                'rows_per_page' => 20,
-                'sort_field_default' => $dateField->id,
-                'sort_order_default' => 'desc!',
-            ]);
-            $this->createBlock(
-                $blockMaterial,
-                'content',
-                '__raas_material_interface',
-                $urn,
-                $page
-            );
+            $page = $materialTemplate->createPage($this->Site);
+            $block = $materialTemplate->createBlock($page, $widget);
             if ($nameMain) {
-                $blockMaterial = new Block_Material([
-                    'material_type' => (int)$MT->id,
-                    'nat' => 0,
-                    'pages_var_name' => '',
-                    'rows_per_page' => 3,
-                    'sort_field_default' => $dateField->id,
-                    'sort_order_default' => 'desc!',
-                ]);
-                $this->createBlock(
-                    $blockMaterial,
-                    'left',
-                    '__raas_material_interface',
-                    $urn . '_main',
+                $blockMain = $materialTemplate->createBlock(
                     $this->Site,
-                    true,
-                    [$page->id]
+                    $mainWidget,
+                    [
+                        'nat' => 0,
+                        'pages_var_name' => '',
+                        'rows_per_page' => 0,
+                    ]
                 );
-            }
 
-            // Создадим материалы
-            for ($i = 0; $i < 3; $i++) {
-                $temp = $this->nextText;
-                $Item = new Material([
-                    'pid' => (int)$MT->id,
-                    'vis' => 1,
-                    'name' => $temp['name'],
-                    'description' => $temp['text'],
-                    'priority' => ($i + 1) * 10,
-                    'sitemaps_priority' => 0.5
-                ]);
-                $Item->commit();
-                $Item->fields['date']->addValue(
-                    date('Y-m-d H:i', time() - rand(0, 86400 * 7))
-                );
-                $Item->fields['brief']->addValue($temp['brief']);
-                for ($j = 0; $j < 5; $j++) {
-                    $row = $this->nextImage;
-                    $att = $this->getAttachmentFromFilename(
-                        $row['filename'],
-                        $row['url'],
-                        $MT->fields['images']
-                    );
-                    $row = [
-                        'vis' => 1,
-                        'name' => '',
-                        'description' => '',
-                        'attachment' => (int)$att->id
-                    ];
-                    $Item->fields['images']->addValue(json_encode($row));
-                }
             }
+            // Создадим материалы
+            $materialTemplate->createMaterials();
         }
         return $page;
     }
@@ -1770,19 +1560,21 @@ class Webmaster
                 ]);
                 $Item->commit();
                 for ($j = 0; $j < 10; $j++) {
-                    $row = $this->nextImage;
-                    $att = $this->getAttachmentFromFilename(
-                        $row['filename'],
-                        $row['url'],
+                    $att = Attachment::createFromFile(
+                        $this->nextImage,
                         $MT->fields['images']
                     );
-                    $row = [
+                    // $att = $this->getAttachmentFromFilename(
+                    //     $row['filename'],
+                    //     $row['url'],
+                    //     $MT->fields['images']
+                    // );
+                    $Item->fields['images']->addValue(json_encode([
                         'vis' => 1,
                         'name' => '',
                         'description' => '',
                         'attachment' => (int)$att->id
-                    ];
-                    $Item->fields['images']->addValue(json_encode($row));
+                    ]));
                 }
             }
         }
@@ -2121,26 +1913,32 @@ class Webmaster
                     (int)($answer['gender'] == 'male')
                 );
                 $Item->fields['answer']->addValue($temp['text']);
-                $att = $this->getAttachmentFromFilename(
-                    $user['pic']['name'],
+                $att = Attachment::createFromFile(
                     $user['pic']['filepath'],
                     $MT->fields['image']
                 );
-                $row = [
+                // $att = $this->getAttachmentFromFilename(
+                //     $user['pic']['name'],
+                //     $user['pic']['filepath'],
+                //     $MT->fields['image']
+                // );
+                $Item->fields['image']->addValue(json_encode([
                     'vis' => 1,
                     'name' => '',
                     'description' => '',
                     'attachment' => (int)$att->id
-                ];
-                $Item->fields['image']->addValue(json_encode($row));
-                $att = $this->getAttachmentFromFilename($answer['pic']['name'], $answer['pic']['filepath'], $MT->fields['answer_image']);
-                $row = [
+                ]));
+                $att = Attachment::createFromFile(
+                    $answer['pic']['filepath'],
+                    $MT->fields['answer_image']
+                );
+                // $att = $this->getAttachmentFromFilename($answer['pic']['name'], $answer['pic']['filepath'], $MT->fields['answer_image']);
+                $Item->fields['answer_image']->addValue(json_encode([
                     'vis' => 1,
                     'name' => '',
                     'description' => '',
                     'attachment' => (int)$att->id
-                ];
-                $Item->fields['answer_image']->addValue(json_encode($row));
+                ]));
             }
         }
     }

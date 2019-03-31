@@ -4,11 +4,11 @@ namespace RAAS\CMS;
 use phpQuery;
 use \SOME\Text;
 
-class FishYandexReferatsRetreiver
+class FishYandexReferatsRetriever
 {
-    public static $url = 'https://referats.yandex.ru/referats/?t=astronomy+geology+gyroscope+literature+marketing+mathematics+music+polit+agrobiologia+law+psychology+geography+physics+philosophy+chemistry+estetica';
+    public static $url = 'https://yandex.ru/referats/?t=astronomy+geology+gyroscope+literature+marketing+mathematics+music+polit+agrobiologia+law+psychology+geography+physics+philosophy+chemistry+estetica';
 
-    public function retreive()
+    public function retrieve()
     {
         $text = file_get_contents(self::$url);
         $pq = phpQuery::newDocument($text);

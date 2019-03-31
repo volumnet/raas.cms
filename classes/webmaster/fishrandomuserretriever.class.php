@@ -3,11 +3,11 @@ namespace RAAS\CMS;
 
 use \SOME\Text;
 
-class FishRandomUserRetreiver
+class FishRandomUserRetriever
 {
     public static $url = 'http://randomuser.ru/api.json';
 
-    public function retreive()
+    public function retrieve()
     {
         $text = file_get_contents(self::$url);
         $json = json_decode($text, true);
