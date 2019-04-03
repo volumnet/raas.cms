@@ -1,8 +1,15 @@
 <?php
+/**
+ * Представление для подмодуля "Разработка"
+ */
 namespace RAAS\CMS;
 
-use \RAAS\Application;
+use SOME\Text;
+use RAAS\Application;
 
+/**
+ * Класс представления для подмодуля "Разработка"
+ */
 class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 {
     protected static $instance;
@@ -79,19 +86,62 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function menus(array $IN = array())
+    /**
+     * Задает "хлебные крошки" для меню
+     * @param Menu $current Текущее меню
+     * @return array<[
+     *             'name' => string Наименование пункта,
+     *             'href' => string Ссылка пункта
+     *         ]>
+     */
+    public function getMenuBreadcrumbs(Menu $current)
     {
+        $pageCache = PageRecursiveCache::i();
+        $menuCache = MenuRecursiveCache::i();
+        $domainsIds = $pageCache->getChildrenIds(0);
+
+        $this->path[] = [
+            'href' => $this->url . '&action=menus',
+            'name' => $this->_('MENUS')
+        ];
+        if (count($domainsIds) > 1) {
+            $domainName = $current->domain_id
+                        ? $pageCache->cache[(int)$current->domain_id]['name']
+                        : $this->_('WITHOUT_DOMAIN');
+            $this->path[] = [
+                'href' => $this->url . '&action=menus&domain_id='
+                       .  (int)$current->domain_id,
+                'name' => $domainName
+            ];
+        }
+        foreach ($menuCache->getParentsIds($current->id) as $parentId) {
+            $parentData = $menuCache->cache[$parentId];
+            $this->path[] = [
+                'href' => $this->url . '&action=menus'
+                       .  '&id=' . (int)$parentData['id'],
+                'name' => $parentData['name']
+            ];
+        }
+    }
+
+
+    /**
+     * Отображает страницу списка меню
+     * @param ['Item' => Menu текущее меню] $IN Входные данные
+     */
+    public function menus(array $IN = [])
+    {
+        $item = $IN['Item'];
+
         $IN['Table'] = new MenusTable($IN);
         $this->assignVars($IN);
-        $this->title = $IN['Item']->id ? $IN['Item']->name : $this->_('MENUS');
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        if ($IN['Item']->id) {
-            $this->path[] = array('href' => $this->url . '&action=menus', 'name' => $this->_('MENUS'));
-            if ($IN['Item']->parents) {
-                foreach ($IN['Item']->parents as $row) {
-                    $this->path[] = array('href' => $this->url . '&action=menus' . '&id=' . (int)$row->id, 'name' => $row->name);
-                }
-            }
+        $this->title = $item->id ? $item->name : $this->_('MENUS');
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        if ($item->id) {
+            $this->getMenuBreadcrumbs($item);
         }
         $this->contextmenu = $this->getMenuContextMenu($IN['Item']);
         $this->template = 'dev_menus';
@@ -222,7 +272,6 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
         $this->contextmenu = array(array('name' => $this->_('CREATE_MATERIAL_TYPE'), 'href' => $this->url . '&action=edit_material_type', 'icon' => 'plus'));
         $this->template = $IN['Table']->template;
-
     }
 
 
@@ -398,6 +447,16 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
+    /**
+     * Возвращает левое меню подмодуля "Разработка"
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'active' ?=> bool Пункт меню активен,
+     *             'class' ?=> string Класс пункта меню,
+     *             'submenu' => *рекурсивно*,
+     *         ]>
+     */
     public function devMenu()
     {
         $submenu = array();
@@ -442,7 +501,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             'active' => (in_array($this->action, array('menus', 'edit_menu', 'move_menu')) && !$this->moduleName),
             'submenu' => (
                 in_array($this->action, array('menus', 'edit_menu', 'move_menu')) ?
-                ViewSub_Main::i()->pagesMenu(new Menu(), new Menu($this->id ? $this->id : (isset($this->nav['pid']) ? $this->nav['pid'] : 0))) :
+                $this->menusMenu(new Menu($this->id ? $this->id : (isset($this->nav['pid']) ? $this->nav['pid'] : 0))) :
                 null
             )
         );
@@ -463,6 +522,99 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
             }
         }
         return $submenu;
+    }
+
+
+    /**
+     * Возвращает меню для списка меню
+     * @param Menu $current Текущий выбранный пункт меню
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'active' ?=> bool Пункт меню активен,
+     *             'class' ?=> string Класс пункта меню,
+     *             'submenu' => *рекурсивно*,
+     *         ]>
+     */
+    public function menusMenu(Menu $current)
+    {
+        $pageCache = PageRecursiveCache::i();
+        $domainsIds = $pageCache->getChildrenIds(0);
+        if (count($domainsIds) > 1) {
+            $menu = [];
+            array_unshift($domainsIds, 0);
+            foreach ($domainsIds as $domainId) {
+                if ($domainId) {
+                    $domainData = $pageCache->cache[$domainId];
+                } else {
+                    $domainData = ['name' => $this->_('WITHOUT_DOMAIN')];
+                }
+                $subMenu = $this->menusMenuByDomainId($current, $domainId);
+                if ($subMenu) {
+                    $active =  in_array($this->action, ['menus', 'edit_menu', 'move_menu'])
+                            && ((string)$_GET['domain_id'] === (string)$domainId);
+                    $semiactive = (bool)array_filter($subMenu, function ($x) {
+                        return (bool)$x['active'];
+                    });
+                    $menu[] = [
+                        'name' => Text::cuttext($domainData['name'], 64, '...'),
+                        'href' => $this->url
+                               .  '&sub=dev&action=menus&domain_id='
+                               .  (int)$domainId,
+                        'active' => $active || $semiactive,
+                        'submenu' => $subMenu,
+                    ];
+                }
+            }
+        } else {
+            $menu = $this->menusMenuByDomainId($current);
+        }
+        return $menu;
+    }
+
+
+    /**
+     * Возвращает меню для списка меню домена
+     * @param Menu $current Текущий выбранный пункт меню
+     * @param int|null $domainId ID# домена, либо null для всех
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'active' ?=> bool Пункт меню активен,
+     *             'class' ?=> string Класс пункта меню,
+     *             'submenu' => *рекурсивно*,
+     *         ]>
+     */
+    public function menusMenuByDomainId(Menu $current, $domainId = null)
+    {
+        $menu = [];
+        $cache = MenuRecursiveCache::i();
+        $menusIds = $cache->getChildrenIds(0);
+        foreach ($menusIds as $menuId) {
+            $row = $cache->cache[$menuId];
+            if (($domainId !== null) && ($row['domain_id'] != $domainId)) {
+                continue;
+            }
+            $temp = [
+                'name' => Text::cuttext($row['name'], 64, '...'),
+                'href' => $this->url
+                       .  '&sub=dev&action=menus&id=' . (int)$row['id'],
+                'class' => '',
+                'active' => (
+                    ($row['id'] == $current->id) ||
+                    in_array($row['id'], MenuRecursiveCache::i()->getParentsIds($current->id))
+                )
+            ];
+
+            if (!$row['vis']) {
+                $temp['class'] .= ' muted';
+            }
+            if (!$row['pvis']) {
+                $temp['class'] .= ' cms-inpvis';
+            }
+            $menu[] = $temp;
+        }
+        return $menu;
     }
 
 

@@ -97,8 +97,19 @@ class Menu extends SOME
                 $this->urn = $this->name;
             }
             Package::i()->getUniqueURN($this);
+        } elseif (!$this->domain_id && $this->parent->domain_id) {
+            $this->domain_id = $this->parent->domain_id;
+        }
+        if ($this->id && ($this->updates['domain_id'] != $this->properties['domain_id'])) {
+            $updateChildrenDomain = true;
         }
         parent::commit();
+        if ($updateChildrenDomain) {
+            foreach ($this->children as $child) {
+                $child->domain_id = $this->domain_id;
+                $child->commit();
+            }
+        }
     }
 
 

@@ -1,12 +1,21 @@
 <?php
+/**
+ * Форма редактирования материала
+ */
 namespace RAAS\CMS;
 
-use \RAAS\Application;
-use \RAAS\FormTab;
-use \RAAS\FieldSet;
-use \RAAS\Field as RAASField;
-use \RAAS\Column;
+use SOME\Pages;
+use SOME\Text;
+use RAAS\Application;
+use RAAS\FormTab;
+use RAAS\FieldSet;
+use RAAS\Field as RAASField;
+use RAAS\Column;
 
+/**
+ * Класс формы редактирования материала
+ * @property-read ViewSub_Main $view Представление
+ */
 class EditMaterialForm extends \RAAS\Form
 {
     public function __get($var)
@@ -22,21 +31,20 @@ class EditMaterialForm extends \RAAS\Form
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
         $Type = isset($params['Type']) ? $params['Type'] : null;
-        $related = isset($params['related']) ? $params['related'] : array();
+        $related = isset($params['related']) ? $params['related'] : [];
         $Parent = isset($params['Parent']) ? $params['Parent'] : null;
 
-        if ($Parent->id) {
-            $title = $Item->id ? $this->view->_('EDITING_PAGE') : $this->view->_('CREATING_PAGE');
-        } else {
-            $title = $Item->id ? $this->view->_('EDITING_SITE') : $this->view->_('CREATING_SITE');
-        }
+        $title = $this->view->_(
+            ($Item->id ? 'EDITING' : 'CREATING') . '_' .
+            ($Parent->id ? 'PAGE' : 'SITE')
+        );
 
-        $tabs = array();
+        $tabs = [];
         $tabs['common'] = $this->getCommonTab($Item, $Type);
         $tabs['seo'] = $this->getSeoTab();
         if (isset(Application::i()->packages['cms']->modules['users'])) {
@@ -47,16 +55,23 @@ class EditMaterialForm extends \RAAS\Form
         if ($Item->id) {
             foreach ($Item->relatedMaterialTypes as $mtype) {
                 if ($params['MSet'][$mtype->urn]) {
-                    $tabs['_' . $mtype->urn] = $this->getMTab($Item, $mtype, $params);
+                    $tabs['_' . $mtype->urn] = $this->getMTab(
+                        $Item,
+                        $mtype,
+                        $params
+                    );
                 }
             }
         }
 
-        $defaultParams = array(
+        $defaultParams = [
             'Item' => $Item,
             'action' => '#',
-            'parentUrl' => $this->view->url . '&id=' . $Parent->id . '#_' . $Type->urn,
-            'caption' => $Item->id ? $Item->name : $this->view->_('CREATING_MATERIAL'),
+            'parentUrl' => $this->view->url . '&id=' . $Parent->id
+                        .  '#_' . $Type->urn,
+            'caption' => $Item->id
+                      ?  $Item->name
+                      :  $this->view->_('CREATING_MATERIAL'),
             'children' => $tabs,
             'export' => function ($Form) use ($Parent) {
                 $Form->exportDefault();
@@ -64,25 +79,40 @@ class EditMaterialForm extends \RAAS\Form
                 if (!$Form->Item->id) {
                     $Form->Item->author_id = $Form->Item->editor_id;
                 }
-                if (!$Form->Item->urn && isset($_POST['article']) && \SOME\Text::beautify($_POST['article'])) {
-                    $Form->Item->urn = \SOME\Text::beautify($_POST['article']);
+                if (!$Form->Item->urn &&
+                    isset($_POST['article']) &&
+                    Text::beautify($_POST['article'])
+                ) {
+                    $Form->Item->urn = Text::beautify($_POST['article']);
                 }
             },
-        );
+        ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
     }
 
 
+    /**
+     * Получает вкладку "Общие"
+     * @return FormTab
+     */
     protected function getCommonTab($Item, $Type)
     {
-        $commonTab = new FormTab(array('name' => 'common', 'caption' => $this->view->_('GENERAL')));
+        $commonTab = new FormTab([
+            'name' => 'common',
+            'caption' => $this->view->_('GENERAL')
+        ]);
         if ($Type->children) {
-            $commonTab->children['pid'] = new RAASField(array(
-                'type' => 'select', 'name' => 'pid', 'caption' => $this->view->_('MATERIAL_TYPE'), 'children' => array('Set' => array($Type))
-            ));
+            $commonTab->children['pid'] = new RAASField([
+                'type' => 'select',
+                'name' => 'pid',
+                'caption' => $this->view->_('MATERIAL_TYPE'),
+                'children' => ['Set' => [$Type]]
+            ]);
             if ($Item->id) {
-                $commonTab->children['pid']->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_EXISTING_CONFIRM')) . '\')) { this.form.submit(); }';
+                $commonTab->children['pid']->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_EXISTING_CONFIRM')) . '\')) { '
+                                                      .    ' this.form.submit(); '
+                                                      . '}';
             } else {
                 $commonTab->children['pid']->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_NEW_CONFIRM')) . '\')) { '
                                                       .    ' var url = document.location.href; '
@@ -92,8 +122,17 @@ class EditMaterialForm extends \RAAS\Form
                                                       . '}';
             }
         }
-        $commonTab->children['name'] = new RAASField(array('name' => 'name', 'class' => 'span5', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
-        $commonTab->children['description'] = new RAASField(array('type' => 'htmlarea', 'name' => 'description', 'caption' => $this->view->_('DESCRIPTION')));
+        $commonTab->children['name'] = new RAASField([
+            'name' => 'name',
+            'class' => 'span5',
+            'caption' => $this->view->_('NAME'),
+            'required' => 'required'
+        ]);
+        $commonTab->children['description'] = new RAASField([
+            'type' => 'htmlarea',
+            'name' => 'description',
+            'caption' => $this->view->_('DESCRIPTION')
+        ]);
         foreach ($Item->fields as $row) {
             $commonTab->children[] = $row->Field;
         }
@@ -101,58 +140,109 @@ class EditMaterialForm extends \RAAS\Form
     }
 
 
+    /**
+     * Получает вкладку "Продвижение"
+     * @return FormTab
+     */
     protected function getSeoTab()
     {
-        $seoTab = new FormTab(array(
+        $seoTab = new FormTab([
             'name' => 'seo',
             'caption' => $this->view->_('SEO'),
-            'children' => array(
-                array('name' => 'urn', 'class' => 'span5', 'caption' => $this->view->_('URN')),
-                array(
+            'children' => [
+                [
+                    'name' => 'urn',
+                    'class' => 'span5',
+                    'caption' => $this->view->_('URN')
+                ],
+                [
                     'name' => 'meta_title',
                     'class' => 'span5',
                     'caption' => $this->view->_('META_TITLE'),
-                    'data-hint' => sprintf($this->view->_('META_TITLE_RECOMMENDED_LIMIT'), SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT, SeoOptimizer::META_TITLE_WORDS_LIMIT),
+                    'data-hint' => sprintf(
+                        $this->view->_('META_TITLE_RECOMMENDED_LIMIT'),
+                        SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
+                        SeoOptimizer::META_TITLE_WORDS_LIMIT
+                    ),
                     'data-recommended-limit' => SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
                     'data-strict-limit' => SeoOptimizer::META_TITLE_STRICT_LIMIT,
                     'data-words-limit' => SeoOptimizer::META_TITLE_WORDS_LIMIT,
-                ),
-                array(
+                ],
+                [
                     'type' => 'textarea',
                     'name' => 'meta_description',
                     'class' => 'span5',
                     'rows' => 5,
                     'caption' => $this->view->_('META_DESCRIPTION'),
-                    'data-hint' => sprintf($this->view->_('META_DESCRIPTION_RECOMMENDED_LIMIT'), SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT),
+                    'data-hint' => sprintf(
+                        $this->view->_('META_DESCRIPTION_RECOMMENDED_LIMIT'),
+                        SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT
+                    ),
                     'data-recommended-limit' => SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT,
                     'data-strict-limit' => SeoOptimizer::META_DESCRIPTION_STRICT_LIMIT,
-                ),
-                array(
+                ],
+                [
                     'type' => 'textarea',
                     'name' => 'meta_keywords',
                     'class' => 'span5',
                     'rows' => 5,
                     'caption' => $this->view->_('META_KEYWORDS')
-                ),
-                array('name' => 'h1', 'caption' => $this->view->_('H1'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5'),
-                array('name' => 'menu_name', 'caption' => $this->view->_('MENU_NAME'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5'),
-                array('name' => 'breadcrumbs_name', 'caption' => $this->view->_('BREADCRUMBS_NAME'), 'placeholder' => $this->view->_('FROM_NAME'), 'class' => 'span5'),
-                array(
+                ],
+                [
+                    'name' => 'h1',
+                    'caption' => $this->view->_('H1'),
+                    'placeholder' => $this->view->_('FROM_NAME'),
+                    'class' => 'span5'
+                ],
+                [
+                    'name' => 'menu_name',
+                    'caption' => $this->view->_('MENU_NAME'),
+                    'placeholder' => $this->view->_('FROM_NAME'),
+                    'class' => 'span5'
+                ],
+                [
+                    'name' => 'breadcrumbs_name',
+                    'caption' => $this->view->_('BREADCRUMBS_NAME'),
+                    'placeholder' => $this->view->_('FROM_NAME'),
+                    'class' => 'span5'
+                ],
+                [
                     'type' => 'select',
                     'name' => 'changefreq',
                     'caption' => $this->view->_('CHANGEFREQ'),
                     'placeholder' => $this->view->_('AUTOMATICALLY'),
-                    'children' => array(
-                        array('value' => 'always', 'caption' => $this->view->_('CHANGEFREQ_ALWAYS')),
-                        array('value' => 'hourly', 'caption' => $this->view->_('CHANGEFREQ_HOURLY')),
-                        array('value' => 'daily', 'caption' => $this->view->_('CHANGEFREQ_DAILY')),
-                        array('value' => 'weekly', 'caption' => $this->view->_('CHANGEFREQ_WEEKLY')),
-                        array('value' => 'monthly', 'caption' => $this->view->_('CHANGEFREQ_MONTHLY')),
-                        array('value' => 'yearly', 'caption' => $this->view->_('CHANGEFREQ_YEARLY')),
-                        array('value' => 'never', 'caption' => $this->view->_('CHANGEFREQ_NEVER'))
-                    )
-                ),
-                array(
+                    'children' => [
+                        [
+                            'value' => 'always',
+                            'caption' => $this->view->_('CHANGEFREQ_ALWAYS')
+                        ],
+                        [
+                            'value' => 'hourly',
+                            'caption' => $this->view->_('CHANGEFREQ_HOURLY')
+                        ],
+                        [
+                            'value' => 'daily',
+                            'caption' => $this->view->_('CHANGEFREQ_DAILY')
+                        ],
+                        [
+                            'value' => 'weekly',
+                            'caption' => $this->view->_('CHANGEFREQ_WEEKLY')
+                        ],
+                        [
+                            'value' => 'monthly',
+                            'caption' => $this->view->_('CHANGEFREQ_MONTHLY')
+                        ],
+                        [
+                            'value' => 'yearly',
+                            'caption' => $this->view->_('CHANGEFREQ_YEARLY')
+                        ],
+                        [
+                            'value' => 'never',
+                            'caption' => $this->view->_('CHANGEFREQ_NEVER')
+                        ],
+                    ]
+                ],
+                [
                     'type' => 'number',
                     'class' => 'span5',
                     'min' => 0,
@@ -161,85 +251,134 @@ class EditMaterialForm extends \RAAS\Form
                     'name' => 'sitemaps_priority',
                     'caption' => $this->view->_('SITEMAPS_PRIORITY'),
                     'default' => 0.5
-                ),
-            )
-        ));
+                ],
+            ]
+        ]);
         return $seoTab;
     }
 
 
+    /**
+     * Получает вкладку "Служебные"
+     * @return FormTab
+     */
     protected function getServiceTab($Item, $Parent)
     {
-        $serviceTab = new FormTab(array(
+        $serviceTab = new FormTab([
             'name' => 'service',
             'caption' => $this->view->_('SERVICE'),
-            'children' => array(
-                array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_($Parent->id ? 'VISIBLE' : 'IS_ACTIVE'), 'default' => 1),
-                array('type' => 'datetime', 'name' => 'show_from', 'caption' => $this->view->_('SHOW_FROM')),
-                array('type' => 'datetime', 'name' => 'show_to', 'caption' => $this->view->_('SHOW_TO')),
-            )
-        ));
+            'children' => [
+                [
+                    'type' => 'checkbox',
+                    'name' => 'vis',
+                    'caption' => $this->view->_(
+                        $Parent->id ?
+                        'VISIBLE' :
+                        'IS_ACTIVE'
+                    ),
+                    'default' => 1
+                ],
+                [
+                    'type' => 'datetime',
+                    'name' => 'show_from',
+                    'caption' => $this->view->_('SHOW_FROM')
+                ],
+                [
+                    'type' => 'datetime',
+                    'name' => 'show_to',
+                    'caption' => $this->view->_('SHOW_TO')
+                ],
+            ]
+        ]);
         if ($Item->id) {
-            $serviceTab->children[] = array('name' => 'post_date', 'caption' => $this->view->_('CREATED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
-            $serviceTab->children[] = array('name' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
-            $serviceTab->children[] = array('name' => 'last_modified', 'caption' => $this->view->_('LAST_AFFECTED_MODIFICATION'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php');
+            $serviceTab->children[] = [
+                'name' => 'post_date',
+                'caption' => $this->view->_('CREATED_BY'),
+                'export' => 'is_null',
+                'import' => 'is_null',
+                'template' => 'stat.inc.php'
+            ];
+            $serviceTab->children[] = [
+                'name' => 'modify_date',
+                'caption' => $this->view->_('EDITED_BY'),
+                'export' => 'is_null',
+                'import' => 'is_null',
+                'template' => 'stat.inc.php'
+            ];
+            $serviceTab->children[] = [
+                'name' => 'last_modified',
+                'caption' => $this->view->_('LAST_AFFECTED_MODIFICATION'),
+                'export' => 'is_null',
+                'import' => 'is_null',
+                'template' => 'stat.inc.php'
+            ];
         }
         return $serviceTab;
     }
 
 
+    /**
+     * Получает вкладку "Страницы"
+     * @return FormTab
+     */
     protected function getPagesTab($Item, $Parent, $Type)
     {
         $temp = new Page();
-        $pagesTab = new FormTab(array(
+        $affectedPagesIds = [];
+        foreach ($Item->affectedPages as $affectedPage) {
+            $affectedPageId = (int)$affectedPage->id;
+            $affectedPagesIds[(string)$affectedPageId] = $affectedPageId;
+        }
+        $pagesTab = new FormTab([
             'name' => 'pages',
             'caption' => $this->view->_('PAGES'),
-            'children' => array(
-                'page_id' => array(
+            'children' => [
+                'page_id' => [
                     'type' => 'select',
                     'name' => 'page_id',
                     'caption' => $this->view->_('MAIN_PARENT_PAGE'),
-                    'children' => array(
-                        'Set' => $temp->children,
-                        'additional' => function ($row) use ($Item) {
-                            $arr = array();
-                            $ids = array_map(function ($x) {
-                                return $x->id;
-                            }, $Item->affectedPages);
-                            if ($row->id && !in_array($row->id, $ids)) {
-                                $arr['style'] = 'display: none';
-                            }
-                            return $arr;
-                        }
-                    ),
+                    'children' => $this->getMetaCats(0, $affectedPagesIds),
                     'placeholder' => $this->view->_('DEFAULT'),
-                )
-            )
-        ));
+                ]
+            ]
+        ]);
         if (!$Type->global_type) {
-            $pagesTab->children['cats'] = array(
+            $pagesTab->children['cats'] = [
                 'type' => 'checkbox',
                 'multiple' => true,
                 'name' => 'cats',
                 'caption' => $this->view->_('PAGES'),
                 'required' => 'required',
-                'children' => array('Set' => $temp->children, 'additional' => function ($row) {
-                    return array('data-group' => $row->template);
-                }),
-                'default' => array((int)$Parent->id),
+                'children' => $this->getMetaCats(),
+                'default' => [(int)$Parent->id],
                 'import' => function ($Field) {
                     return $Field->Form->Item->pages_ids;
                 },
-            );
+            ];
         }
         return $pagesTab;
     }
 
 
-    protected function getMTab($Item, $mtype, $params)
-    {
-        $temp = new MaterialsRelatedTable(array(
-            'Item' => $Item,
+    /**
+     * Получает вкладку связанных материалов
+     * @param Material $Item Материал, для которого получается вкладка
+     * @param Material_Type $mtype Связанный тип материалов
+     * @param [
+     *            'MSet' => array<Material> Список связанных материалов,
+     *            'MPages' => Pages Постраничная разбивка,
+     *            'Msort' => string Поле сортировки,
+     *            'Morder' => 'asc'|'desc' Порядок сортировки,
+     *        ] $params Дополнительные параметры
+     * @return FormTab
+     */
+    protected function getMTab(
+        Material $item,
+        Material_Type $mtype,
+        array $params = []
+    ) {
+        $temp = new MaterialsRelatedTable([
+            'Item' => $item,
             'mtype' => $mtype,
             'hashTag' => $mtype->urn,
             'Set' => $params['MSet'][$mtype->urn],
@@ -248,14 +387,64 @@ class EditMaterialForm extends \RAAS\Form
             'orderVar' => 'm' . $mtype->id . 'order',
             'pagesVar' => 'm' . $mtype->id . 'page',
             'sort' => $params['Msort'][$mtype->urn],
-            'order' => ((strtolower($params['Morder'][$mtype->urn]) == 'desc') ? Column::SORT_DESC : Column::SORT_ASC)
-        ));
-        $tab = new FormTab(array(
+            'order' => (strtolower($params['Morder'][$mtype->urn]) == 'desc')
+                    ?  Column::SORT_DESC
+                    :  Column::SORT_ASC
+        ]);
+        $tab = new FormTab([
             'name' => '_' . $mtype->urn,
-            'meta' => array('Table' => $temp, 'mtype' => $mtype),
+            'meta' => ['Table' => $temp, 'mtype' => $mtype],
             'caption' => $this->view->_($mtype->name),
             'template' => 'material_related.inc.php'
-        ));
+        ]);
         return $tab;
+    }
+
+
+    /**
+     * Получает список категорий для отображения в поле страниц
+     * @param int $pid ID# родительской страницы
+     * @param array<int>|null $relatedPagesIds Фильтр по связанным категориям,
+     *                                         либо null, если не нужно
+     * @return array<[
+     *             'value' => int ID# страницы,
+     *             'caption' => string Наименование страницы,
+     *             'data-group' => int ID# шаблона страницы
+     *                             (группировочный параметр),
+     *             'style' => string Стиль пункта,
+     *             'children' => *рекурсивно*
+     *         ]>
+     */
+    public function getMetaCats($pid = 0, array $relatedPagesIds = null)
+    {
+        $pageCache = PageRecursiveCache::i();
+        $result = [];
+        $pagesIds = $pageCache->getChildrenIds($pid);
+        $pagesData = [];
+        foreach ($pagesIds as $pageId) {
+            $pageData = $pageCache->cache[$pageId];
+            $pageArr = [
+                'value' => (int)$pageData['id'],
+                'caption' => $pageData['name'],
+                'data-group' => $pageData['template'],
+            ];
+            if ($pageId &&
+                ($relatedPagesIds !== null) &&
+                !isset($relatedPagesIds[$pageId])
+            ) {
+                $pageArr['style'] = 'display: none';
+            }
+            $pagesData[] = $pageArr;
+        }
+        foreach ($pagesData as $pageData) {
+            if ($children = $this->getMetaCats(
+                (int)$pageData['value'],
+                $relatedPagesIds
+            )) {
+                $pageData['children'] = $children;
+            }
+            $result[] = $pageData;
+        }
+        return $result;
     }
 }

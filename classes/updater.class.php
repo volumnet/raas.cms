@@ -28,6 +28,7 @@ class Updater extends RAASUpdater
         $this->update20170305();
         $this->update20190123();
         $this->update20190317();
+        $this->update20190403();
     }
 
 
@@ -1077,6 +1078,21 @@ class Updater extends RAASUpdater
                                 AND urn = 'yml'";
                 $this->SQL->query($sqlQuery);
             }
+        }
+    }
+
+
+    /**
+     * Добавим домены к меню
+     */
+    public function update20190403()
+    {
+        if (in_array(SOME::_dbprefix() . "cms_menus", $this->tables) &&
+            !in_array('domain_id', $this->columns(SOME::_dbprefix() . "cms_menus"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_menus
+                           ADD domain_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Domain ID#' AFTER pid";
+            $this->SQL->query($sqlQuery);
         }
     }
 }

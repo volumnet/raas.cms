@@ -1,7 +1,8 @@
 <?php
 namespace RAAS\CMS;
 
-use \RAAS\Column as Column;
+use SOME\Text;
+use RAAS\Column as Column;
 
 class ViewSub_Main extends \RAAS\Abstract_Sub_View
 {
@@ -388,7 +389,7 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
     {
         $menu = array();
         foreach ($node->children as $row) {
-            $temp = array('name' => \SOME\Text::cuttext($row->name, 64, '...'), 'href' => $this->url, 'class' => '', 'active' => false);
+            $temp = array('name' => Text::cuttext($row->name, 64, '...'), 'href' => $this->url, 'class' => '', 'active' => false);
             if ($node instanceof Menu) {
                 $temp['href'] .= '&sub=dev&action=menus';
             } elseif ($node instanceof Dictionary) {

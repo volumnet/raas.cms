@@ -335,6 +335,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types (
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_menus (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
+  domain_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Domain ID#',
   vis tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Visibility',
   pvis tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Parent visibility',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',

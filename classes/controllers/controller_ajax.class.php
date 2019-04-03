@@ -19,6 +19,9 @@ class Controller_Ajax extends Abstract_Controller
             case 'get_cache_map':
                 $this->{$this->action}();
                 break;
+            case 'get_menu_domain_pages':
+                $this->getMenuDomainPages();
+                break;
         }
     }
 
@@ -123,5 +126,70 @@ class Controller_Ajax extends Abstract_Controller
             $Set
         );
         $this->view->show_page($OUT);
+    }
+
+
+    /**
+     * Получает список страниц домена для меню
+     * @return array<[
+     *             'val' => int ID# страницы,
+     *             'text' => string Наименование страницы
+     *             'src' => string URL страницы
+     *         ]>
+     */
+    protected function getMenuDomainPages()
+    {
+        $domainId = (int)$_GET['domain_id'];
+        $pages = $this->getPages(null, $domainId);
+        $this->view->show_page(['Set' => $pages]);
+    }
+
+
+    /**
+     * Получает список страниц домена для меню
+     * @param int|null $pid ID# родительской страницы или null,
+     *                      если нужно отобразить корневую страницу
+     * @param int|null $domainId ID# домена (только для фильтрации корневых страниц)
+     * @param int $level Уровень вложенности
+     * @return array<[
+     *             'val' => int ID# страницы,
+     *             'text' => string Наименование страницы
+     *             'src' => string URL страницы
+     *         ]>
+     */
+    public function getPages($pid = null, $domainId = null, $level = 0)
+    {
+        $pageCache = PageRecursiveCache::i();
+        $result = [];
+        if ($pid === null) {
+            $result = array_merge([[
+                'val' => '',
+                'text' => '--',
+            ]], $this->getPages(0, $domainId, $level + 1));
+        } else {
+            if (!$pid && $domainId) {
+                $pagesIds = [$domainId];
+            } else {
+                $pagesIds = $pageCache->getChildrenIds($pid);
+            }
+            $pagesData = [];
+            foreach ($pagesIds as $pageId) {
+                $pageData = $pageCache->cache[$pageId];
+                $pagesData[] = [
+                    'val' => (int)$pageData['id'],
+                    'text' => (str_repeat('&nbsp;', 3 * $level))
+                           .  ($pageData['menu_name'] ?: $pageData['name']),
+                    'src' => $pageData['cache_url'],
+                ];
+            }
+            foreach ($pagesData as $pageData) {
+                $result = array_merge(
+                    $result,
+                    [$pageData],
+                    $this->getPages((int)$pageData['val'], null, $level + 1)
+                );
+            }
+        }
+        return $result;
     }
 }

@@ -343,7 +343,20 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
         $OUT['Item'] = $Item;
         $OUT['Parent'] = $Parent;
         if ($Item->id || ($this->action != 'edit_menu')) {
-            $OUT['Set'] = $Item->id ? $Item->subMenu : $Item->children;
+            if ($Item->id) {
+                $OUT['Set'] = $Item->subMenu;
+            } else {
+                $menuCache = MenuRecursiveCache::i();
+                $menusIds = $menuCache->getChildrenIds(0);
+                $set = [];
+                foreach ($menusIds as $menuId) {
+                    $menuData = $menuCache->cache[$menuId];
+                    if (!isset($_GET['domain_id']) || ((string)$menuData['domain_id'] == (string)$_GET['domain_id'])) {
+                        $set[] = new Menu($menuData);
+                    }
+                }
+                $OUT['Set'] = $set;
+            }
         }
         $this->view->menus($OUT);
     }

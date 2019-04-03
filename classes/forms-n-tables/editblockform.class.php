@@ -1,12 +1,21 @@
 <?php
+/**
+ * Форма редактирования блока
+ */
 namespace RAAS\CMS;
-use \RAAS\Application;
-use \RAAS\FormTab;
-use \RAAS\Field as RAASField;
-use \RAAS\Option;
-use \RAAS\FieldSet;
 
-class EditBlockForm extends \RAAS\Form
+use RAAS\Application;
+use RAAS\FormTab;
+use RAAS\Field as RAASField;
+use RAAS\Form as RAASForm;
+use RAAS\Option;
+use RAAS\FieldSet;
+
+/**
+ * Класс формы редактирования блока
+ * @property-read ViewSub_Main $view Представление
+ */
+class EditBlockForm extends RAASForm
 {
     public function __get($var)
     {
@@ -21,32 +30,50 @@ class EditBlockForm extends \RAAS\Form
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
         $Parent = $params['meta']['Parent'];
-        $loc = $Item->location ? $Item->location : (isset($_GET['loc']) ? $_GET['loc'] : '');
-        $defaultParams = array(
-            'caption' => $Item->id ? $this->view->_('EDITING_BLOCK') : $this->view->_('CREATING_BLOCK'),
-            'data-block-type' => str_replace('RAAS\\CMS\\', '', $Item->block_type),
+        $loc = $Item->location ?: (isset($_GET['loc']) ? $_GET['loc'] : '');
+        $defaultParams = [
+            'caption' => $this->view->_(
+                $Item->id ?
+                'EDITING_BLOCK' :
+                'CREATING_BLOCK'
+            ),
+            'data-block-type' => str_replace(
+                'RAAS\\CMS\\',
+                '',
+                $Item->block_type
+            ),
             'parentUrl' => Package::i()->url . '&id=' . (int)$Parent->id,
-            'newUrl' => Package::i()->url . '&pid=%s&action=edit_block&pid=' . (int)$Parent->id . '&type=' . str_replace('\\', '.', str_replace('RAAS\\CMS\\', '', $Item->block_type)) . '&loc=' . $loc,
-            'export' => function($Form) use ($t) {
+            'newUrl' => Package::i()->url
+                     . '&pid=%s&action=edit_block&pid=' . (int)$Parent->id
+                     . '&type='
+                     . str_replace(
+                         '\\',
+                         '.',
+                         str_replace('RAAS\\CMS\\', '', $Item->block_type)
+                     ) . '&loc=' . $loc,
+            'export' => function ($Form) use ($t) {
                 $Form->exportDefault();
                 $Form->Item->editor_id = Application::i()->user->id;
                 if (!$Form->Item->id) {
                     $Form->Item->author_id = $Form->Item->editor_id;
                 }
             }
-        );
+        ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
-        $this->meta['CONTENT'] = array();
+        $this->meta['CONTENT'] = [];
         $temp = new Page();
-        $this->meta['CONTENT']['cats'] = array('Set' => $temp->children, 'additional' => function($row) { return array('data-group' => $row->template); });
+        $this->meta['CONTENT']['cats'] = $this->getMetaCats();
         foreach ($this->meta['Parent']->Template->locations as $key => $val) {
-            $this->meta['CONTENT']['locations'][] = array('value' => $key, 'caption' => $key);
+            $this->meta['CONTENT']['locations'][] = [
+                'value' => $key,
+                'caption' => $key
+            ];
         }
         $this->children['commonTab'] = $this->getCommonTab($Parent);
         if (isset(Application::i()->packages['cms']->modules['users'])) {
@@ -55,12 +82,20 @@ class EditBlockForm extends \RAAS\Form
         $this->children['serviceTab'] = $this->getServiceTab();
         $this->children['pagesTab'] = $this->getPagesTab();
         if ($this->Item->id) {
-            $this->children['serviceTab']->children['post_date'] = new RAASField(array(
-                'name' => 'post_date', 'caption' => $this->view->_('CREATED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php'
-            ));
-            $this->children['serviceTab']->children['modify_date'] = new RAASField(array(
-                'name' => 'modify_date', 'caption' => $this->view->_('EDITED_BY'), 'export' => 'is_null', 'import' => 'is_null', 'template' => 'stat.inc.php'
-            ));
+            $this->children['serviceTab']->children['post_date'] = new RAASField([
+                'name' => 'post_date',
+                'caption' => $this->view->_('CREATED_BY'),
+                'export' => 'is_null',
+                'import' => 'is_null',
+                'template' => 'stat.inc.php'
+            ]);
+            $this->children['serviceTab']->children['modify_date'] = new RAASField([
+                'name' => 'modify_date',
+                'caption' => $this->view->_('EDITED_BY'),
+                'export' => 'is_null',
+                'import' => 'is_null',
+                'template' => 'stat.inc.php'
+            ]);
         }
 
 
@@ -72,41 +107,63 @@ class EditBlockForm extends \RAAS\Form
         $interfaceField->default = $s->id;
         $interfaceField->required = false;
 
-        $this->children['serviceTab']->children['cache_type'] = array(
+        $this->children['serviceTab']->children['cache_type'] = [
             'type' => 'select',
             'name' => 'cache_type',
             'caption' => $this->view->_('CACHE_TYPE'),
-            'children' => array(
-                array('value' => Block::CACHE_NONE, 'caption' => $this->view->_('_NONE')),
-                array('value' => Block::CACHE_DATA, 'caption' => $this->view->_('CACHE_DATA')),
-                array('value' => Block::CACHE_HTML, 'caption' => $this->view->_('CACHE_HTML')),
-            ),
+            'children' => [
+                [
+                    'value' => Block::CACHE_NONE,
+                    'caption' => $this->view->_('_NONE')
+                ],
+                [
+                    'value' => Block::CACHE_DATA,
+                    'caption' => $this->view->_('CACHE_DATA')
+                ],
+                [
+                    'value' => Block::CACHE_HTML,
+                    'caption' => $this->view->_('CACHE_HTML')
+                ],
+            ],
             'default' => Block::CACHE_NONE
-        );
-        $this->children['serviceTab']->children['cache_single_page'] = array(
-            'type' => 'checkbox', 'name' => 'cache_single_page', 'caption' => $this->view->_('CACHE_BY_SINGLE_PAGES')
-        );
+        ];
+        $this->children['serviceTab']->children['cache_single_page'] = [
+            'type' => 'checkbox',
+            'name' => 'cache_single_page',
+            'caption' => $this->view->_('CACHE_BY_SINGLE_PAGES')
+        ];
         $this->children['serviceTab']->children['cache_interface_id'] = $interfaceField;
     }
 
 
+    /**
+     * Получает поле "Интерфейс"
+     * @return RAASField
+     */
     protected function getInterfaceField()
     {
-        $wf = function(Snippet_Folder $x) use (&$wf) {
-            $temp = array();
+        $wf = function (Snippet_Folder $x) use (&$wf) {
+            $temp = [];
             foreach ($x->children as $row) {
                 if (strtolower($row->urn) != '__raas_views') {
-                    $o = new Option(array('value' => '', 'caption' => $row->name, 'disabled' => 'disabled'));
+                    $o = new Option([
+                        'value' => '',
+                        'caption' => $row->name,
+                        'disabled' => 'disabled'
+                    ]);
                     $o->__set('children', $wf($row));
                     $temp[] = $o;
                 }
             }
             foreach ($x->snippets as $row) {
-                $temp[] = new Option(array('value' => $row->id, 'caption' => $row->name));
+                $temp[] = new Option([
+                    'value' => $row->id,
+                    'caption' => $row->name
+                ]);
             }
             return $temp;
         };
-        $field = new RAASField(array(
+        $field = new RAASField([
             'type' => 'select',
             'class' => 'input-xxlarge',
             'name' => 'interface_id',
@@ -114,28 +171,39 @@ class EditBlockForm extends \RAAS\Form
             'caption' => $this->view->_('INTERFACE'),
             'placeholder' => $this->view->_('_NONE'),
             'children' => $wf(new Snippet_Folder())
-        ));
+        ]);
         return $field;
     }
 
 
+    /**
+     * Получает поле "Представление"
+     * @return RAASField
+     */
     protected function getWidgetField()
     {
-        $wf = function(Snippet_Folder $x) use (&$wf) {
-            $temp = array();
+        $wf = function (Snippet_Folder $x) use (&$wf) {
+            $temp = [];
             foreach ($x->children as $row) {
                 if (strtolower($row->urn) != '__raas_interfaces') {
-                    $o = new Option(array('value' => '', 'caption' => $row->name, 'disabled' => 'disabled'));
+                    $o = new Option([
+                        'value' => '',
+                        'caption' => $row->name,
+                        'disabled' => 'disabled'
+                    ]);
                     $o->__set('children', $wf($row));
                     $temp[] = $o;
                 }
             }
             foreach ($x->snippets as $row) {
-                $temp[] = new Option(array('value' => $row->id, 'caption' => $row->name));
+                $temp[] = new Option([
+                    'value' => $row->id,
+                    'caption' => $row->name
+                ]);
             }
             return $temp;
         };
-        $field = new RAASField(array(
+        $field = new RAASField([
             'type' => 'select',
             'class' => 'input-xxlarge',
             'name' => 'widget_id',
@@ -143,90 +211,178 @@ class EditBlockForm extends \RAAS\Form
             'caption' => $this->view->_('WIDGET'),
             'placeholder' => $this->view->_('_NONE'),
             'children' => $wf(new Snippet_Folder())
-        ));
+        ]);
         return $field;
     }
 
 
+    /**
+     * Получает поле "Переменная $_GET постраничной разбивки"
+     * @return RAASField
+     */
     protected function getPagesVarField()
     {
-        $field = new RAASField(array('name' => 'pages_var_name', 'caption' => $this->view->_('PAGES_VAR_NAME'), 'default' => 'page'));
+        $field = new RAASField([
+            'name' => 'pages_var_name',
+            'caption' => $this->view->_('PAGES_VAR_NAME'),
+            'default' => 'page'
+        ]);
         return $field;
     }
 
 
+    /**
+     * Получает поле "Количество записей на странице (0 — все)"
+     * @return RAASField
+     */
     protected function getRowsPerPageField()
     {
-        $field = new RAASField(array(
-            'name' => 'rows_per_page', 'caption' => $this->view->_('ITEMS_PER_PAGE'), 'default' => Application::i()->registryGet('rowsPerPage')
-        ));
+        $field = new RAASField([
+            'name' => 'rows_per_page',
+            'caption' => $this->view->_('ITEMS_PER_PAGE'),
+            'default' => Application::i()->registryGet('rowsPerPage')
+        ]);
         return $field;
     }
 
 
+    /**
+     * Получает вкладку "Общие"
+     * @return FormTab
+     */
     protected function getCommonTab()
     {
-        $tab = new FormTab(array(
+        $tab = new FormTab([
             'name' => 'common',
             'caption' => $this->view->_('GENERAL'),
-            'children' => array(
-                array('name' => 'name', 'caption' => $this->view->_('NAME'))
-            )
-        ));
+            'children' => [
+                ['name' => 'name', 'caption' => $this->view->_('NAME')]
+            ]
+        ]);
         return $tab;
     }
 
 
+    /**
+     * Получает вкладку "Служебные"
+     * @return FormTab
+     */
     protected function getServiceTab()
     {
-        $tab = new FormTab(array(
+        $tab = new FormTab([
             'name' => 'service',
             'caption' => $this->view->_('SERVICE'),
-            'children' => array(
-                array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1),
-                array(
+            'children' => [
+                [
+                    'type' => 'checkbox',
+                    'name' => 'vis',
+                    'caption' => $this->view->_('VISIBLE'),
+                    'default' => 1
+                ],
+                [
                     'type' => 'select',
                     'name' => 'vis_material',
                     'caption' => $this->view->_('VISIBILITY_WITH_ACTIVE_MATERIAL'),
-                    'children' => array(
-                        array('value' => Block::BYMATERIAL_BOTH, 'caption' => $this->view->_('BYMATERIAL_BOTH')),
-                        array('value' => Block::BYMATERIAL_WITH, 'caption' => $this->view->_('BYMATERIAL_WITH')),
-                        array('value' => Block::BYMATERIAL_WITHOUT, 'caption' => $this->view->_('BYMATERIAL_WITHOUT')),
-                    ),
-                )
-            )
-        ));
+                    'children' => [
+                        [
+                            'value' => Block::BYMATERIAL_BOTH,
+                            'caption' => $this->view->_('BYMATERIAL_BOTH')
+                        ],
+                        [
+                            'value' => Block::BYMATERIAL_WITH,
+                            'caption' => $this->view->_('BYMATERIAL_WITH')
+                        ],
+                        [
+                            'value' => Block::BYMATERIAL_WITHOUT,
+                            'caption' => $this->view->_('BYMATERIAL_WITHOUT')
+                        ],
+                    ],
+                ]
+            ]
+        ]);
         return $tab;
     }
 
 
+    /**
+     * Получает вкладку "Страницы"
+     * @return FormTab
+     */
     protected function getPagesTab()
     {
-        $tab = new FormTab(array('name' => 'pages', 'caption' => $this->view->_('PAGES')));
-        $loc = $Item->location ? $Item->location : (isset($_GET['loc']) ? $_GET['loc'] : '');
-        $tab->children[] = new RAASField(array('type' => 'checkbox', 'name' => 'inherit', 'caption' => $this->view->_('INHERIT')));
-        $tab->children[] = new RAASField(array(
+        $tab = new FormTab([
+            'name' => 'pages',
+            'caption' => $this->view->_('PAGES')
+        ]);
+        $loc = $Item->location ?: (isset($_GET['loc']) ? $_GET['loc'] : '');
+        $tab->children[] = new RAASField([
+            'type' => 'checkbox',
+            'name' => 'inherit',
+            'caption' => $this->view->_('INHERIT')
+        ]);
+        $tab->children[] = new RAASField([
             'type' => 'select',
             'name' => 'location',
             'caption' => $this->view->_('LOCATION'),
             'default' => $loc,
             'placeholder' => '--',
             'children' => $this->meta['CONTENT']['locations']
-        ));
-        $tab->children[] = new RAASField(array(
+        ]);
+        $tab->children[] = new RAASField([
             'type' => 'checkbox',
             'name' => 'cats',
             'caption' => $this->view->_('PAGES'),
             'multiple' => 'multiple',
             'children' => $this->meta['CONTENT']['cats'],
-            'check' => function($Field) {
+            'check' => function ($Field) {
                 if (!isset($_POST['cats']) || !$_POST['cats']) {
-                    return array('name' => 'MISSED', 'value' => $Field->name, 'description' => 'ERR_NO_PAGES');
+                    return [
+                        'name' => 'MISSED',
+                        'value' => $Field->name,
+                        'description' => 'ERR_NO_PAGES'
+                    ];
                 }
             },
-            'import' => function($Field) { return $Field->Form->Item->pages_ids; },
-            'default' => array((int)$this->meta['Parent']->id),
-        ));
+            'import' => function ($Field) {
+                return $Field->Form->Item->pages_ids;
+            },
+            'default' => [(int)$this->meta['Parent']->id],
+        ]);
         return $tab;
+    }
+
+
+    /**
+     * Получает список категорий для отображения в поле страниц
+     * @param int $pid ID# родительской страницы
+     * @return array<[
+     *             'value' => int ID# страницы,
+     *             'caption' => string Наименование страницы,
+     *             'data-group' => int ID# шаблона страницы
+     *                             (группировочный параметр),
+     *             'children' => *рекурсивно*
+     *         ]>
+     */
+    public function getMetaCats($pid = 0)
+    {
+        $pageCache = PageRecursiveCache::i();
+        $result = [];
+        $pagesIds = $pageCache->getChildrenIds($pid);
+        $pagesData = [];
+        foreach ($pagesIds as $pageId) {
+            $pageData = $pageCache->cache[$pageId];
+            $pagesData[] = [
+                'value' => (int)$pageData['id'],
+                'caption' => $pageData['name'],
+                'data-group' => $pageData['template'],
+            ];
+        }
+        foreach ($pagesData as $pageData) {
+            if ($children = $this->getMetaCats((int)$pageData['value'])) {
+                $pageData['children'] = $children;
+            }
+            $result[] = $pageData;
+        }
+        return $result;
     }
 }
