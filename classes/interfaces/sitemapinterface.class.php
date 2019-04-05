@@ -139,7 +139,7 @@ class SitemapInterface extends AbstractInterface
     public function getUrlSet($content)
     {
         $text =  '<?xml version="1.0" encoding="UTF-8"?' . '>
-                  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="https://www.yandex.ru/schemas/sitemap-image/1.1">
+                  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
                     ' . $content . '
                   </urlset>';
         return $text;
