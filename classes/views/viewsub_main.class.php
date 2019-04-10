@@ -1,6 +1,7 @@
 <?php
 namespace RAAS\CMS;
 
+use SOME\SOME;
 use SOME\Text;
 use RAAS\Column as Column;
 
@@ -385,35 +386,49 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function pagesMenu($node, $current, array $treeList = array())
+    /**
+     * Возвращает меню для списка страниц
+     * @param Page|int $node Страница или ID# страницы, для которой строим меню
+     * @param Page|int $current Текущая страница или ID# текущей страницы
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'active' ?=> bool Пункт меню активен,
+     *             'class' ?=> string Класс пункта меню,
+     *             'submenu' => *рекурсивно*,
+     *         ]>
+     */
+    public function pagesMenu($node, $current)
     {
-        $menu = array();
-        foreach ($node->children as $row) {
-            $temp = array('name' => Text::cuttext($row->name, 64, '...'), 'href' => $this->url, 'class' => '', 'active' => false);
-            if ($node instanceof Menu) {
-                $temp['href'] .= '&sub=dev&action=menus';
-            } elseif ($node instanceof Dictionary) {
-                $temp['href'] .= '&sub=dev&action=dictionaries';
-            }
-            $temp['href'] .= '&id=' . (int)$row->id;
+        $pageCache = PageRecursiveCache::i();
+        $menu = [];
+        $nodeId = (int)(($node instanceof SOME) ? $node->id : $node);
+        $currentId = (int)(($current instanceof SOME) ? $current->id : $current);
+        $childrenIds = $pageCache->getChildrenIds($nodeId);
+        foreach ($childrenIds as $childId) {
+            $childData = $pageCache->cache[$childId];
+            $temp = [
+                'name' => Text::cuttext($childData['name'], 64, '...'),
+                'href' => $this->url . '&id=' . (int)$childId,
+                'class' => '',
+                'active' => false
+            ];
 
-            $submenu = $this->pagesMenu($row, $current, $treeList);
+            $submenu = $this->pagesMenu($childId, $currentId);
             $semiactive = (bool)array_filter($submenu, function ($x) {
                 return $x['active'];
             });
-            if ($row->id == $current->id || $semiactive) {
+            if (($childId == $current->id) || $semiactive) {
                 $temp['active'] = true;
             }
-            if ($node instanceof Page) {
-                $temp['submenu'] = $submenu;
-            }
+            $temp['submenu'] = $submenu;
 
-            if (!$row->vis) {
+            if (!$childData['vis']) {
                 $temp['class'] .= ' muted';
-            } elseif ($row->response_code) {
+            } elseif ($childData['response_code']) {
                 $temp['class'] .= ' text-error';
             }
-            if (!$row->pvis) {
+            if (!$childData['pvis']) {
                 $temp['class'] .= ' cms-inpvis';
             }
 

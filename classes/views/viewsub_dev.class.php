@@ -14,7 +14,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 {
     protected static $instance;
 
-    public function dictionaries(array $IN = array())
+    public function dictionaries(array $IN = [])
     {
         $IN['Table'] = new DictionariesTable($IN);
         $this->assignVars($IN);
@@ -31,7 +31,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function edit_dictionary(array $IN = array())
+    public function edit_dictionary(array $IN = [])
     {
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
         $this->path[] = array('href' => $this->url . '&action=dictionaries', 'name' => $this->_('DICTIONARIES'));
@@ -47,7 +47,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function move_dictionary(array $IN = array())
+    public function move_dictionary(array $IN = [])
     {
         $ids = array_map(function ($x) {
             return (int)$x->id;
@@ -59,7 +59,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         }, $IN['items']);
         $pids = array_unique($pids);
         $pids = array_values($pids);
-        $actives = array();
+        $actives = [];
         foreach ($IN['items'] as $row) {
             $actives = array_merge($actives, array($row->id), (array)$row->parents_ids);
         }
@@ -148,7 +148,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function edit_menu(array $IN = array())
+    public function edit_menu(array $IN = [])
     {
         $this->js[] = $this->publicURL . '/dev_edit_menu.js';
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
@@ -165,7 +165,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function move_menu(array $IN = array())
+    public function move_menu(array $IN = [])
     {
         $ids = array_map(function ($x) {
             return (int)$x->id;
@@ -177,7 +177,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         }, $IN['items']);
         $pids = array_unique($pids);
         $pids = array_values($pids);
-        $actives = array();
+        $actives = [];
         foreach ($IN['items'] as $row) {
             $actives = array_merge($actives, array($row->id), (array)$row->parents_ids);
         }
@@ -204,14 +204,14 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function dev(array $IN = array())
+    public function dev(array $IN = [])
     {
         $this->title = $this->_('DEVELOPMENT');
         $this->template = 'dev';
     }
 
 
-    public function templates(array $IN = array())
+    public function templates(array $IN = [])
     {
         $IN['Table'] = new TemplatesTable($IN);
         $this->assignVars($IN);
@@ -222,7 +222,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function edit_template(array $IN = array())
+    public function edit_template(array $IN = [])
     {
         $this->js[] = $this->publicURL . '/dev_edit_template.js';
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
@@ -231,7 +231,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function snippets(array $IN = array())
+    public function snippets(array $IN = [])
     {
         $view = $this;
         $IN['Table'] = new SnippetsTable();
@@ -247,7 +247,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function edit_snippet_folder(array $IN = array())
+    public function edit_snippet_folder(array $IN = [])
     {
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
         $this->path[] = array('name' => $this->_('SNIPPETS'), 'href' => $this->url . '&action=snippets');
@@ -255,7 +255,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function edit_snippet(array $IN = array())
+    public function edit_snippet(array $IN = [])
     {
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
         $this->path[] = array('name' => $this->_('SNIPPETS'), 'href' => $this->url . '&action=snippets');
@@ -263,7 +263,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function material_types(array $IN = array())
+    public function material_types(array $IN = [])
     {
         $view = $this;
         $IN['Table'] = new MaterialTypesTable($IN);
@@ -275,10 +275,10 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function edit_material_type(array $IN = array())
+    public function edit_material_type(array $IN = [])
     {
         $view = $this;
-        $Set = array();
+        $Set = [];
         $Set[] = new Material_Field(array('name' => $this->_('NAME'), 'urn' => 'name', 'datatype' => 'text'));
         $Set[] = new Material_Field(array('name' => $this->_('DESCRIPTION'), 'urn' => 'description', 'datatype' => 'htmlarea'));
         foreach ($IN['Item']->fields as $row) {
@@ -302,7 +302,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function edit_material_field(array $IN = array())
+    public function edit_material_field(array $IN = [])
     {
         $this->js[] = $this->publicURL . '/dev_edit_field.js';
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
@@ -317,7 +317,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function move_material_field(array $IN = array())
+    public function move_material_field(array $IN = [])
     {
         $ids = array_map(function ($x) {
             return (int)$x->id;
@@ -329,7 +329,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         }, $IN['items']);
         $pids = array_unique($pids);
         $pids = array_values($pids);
-        $actives = array();
+        $actives = [];
         foreach ($IN['items'] as $row) {
             $actives[] = (int)$row->pid;
         }
@@ -354,7 +354,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function forms(array $IN = array())
+    public function forms(array $IN = [])
     {
         $IN['Table'] = new FormsTable($IN);
         $this->assignVars($IN);
@@ -365,10 +365,10 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function edit_form(array $IN = array())
+    public function edit_form(array $IN = [])
     {
         $view = $this;
-        $Set = array();
+        $Set = [];
         foreach ($IN['Item']->fields as $row) {
             $Set[] = $row;
         }
@@ -383,7 +383,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function edit_form_field(array $IN = array())
+    public function edit_form_field(array $IN = [])
     {
         $this->js[] = $this->publicURL . '/dev_edit_field.js';
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
@@ -393,7 +393,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function pages_fields(array $IN = array())
+    public function pages_fields(array $IN = [])
     {
         $IN['Table'] = new FieldsTable(array_merge($IN, array('editAction' => 'edit_page_field', 'ctxMenu' => 'getPageFieldContextMenu')));
         $this->assignVars($IN);
@@ -404,7 +404,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function edit_page_field(array $IN = array())
+    public function edit_page_field(array $IN = [])
     {
         $this->js[] = $this->publicURL . '/dev_edit_field.js';
         $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
@@ -413,7 +413,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function diag(array $IN = array())
+    public function diag(array $IN = [])
     {
         $IN['Form'] = new DiagForm(array('Item' => $IN['Item'], 'from' => $IN['from'], 'to' => $IN['to']));
         $this->assignVars($IN);
@@ -437,7 +437,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function cache(array $IN = array())
+    public function cache(array $IN = [])
     {
         $this->js[] = $this->publicURL . '/dev_cache.js';
         $this->assignVars($IN);
@@ -459,57 +459,120 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
      */
     public function devMenu()
     {
-        $submenu = array();
-        $submenu[] = array(
+        $submenu = [];
+        $submenu[] = [
             'href' => $this->url . '&action=templates',
             'name' => $this->_('TEMPLATES'),
-            'active' => (in_array($this->action, array('templates', 'edit_template')) && !$this->moduleName)
-        );
-        $submenu[] = array(
+            'active' => (
+                in_array($this->action, ['templates', 'edit_template']) &&
+                !$this->moduleName
+            )
+        ];
+        $submenu[] = [
             'href' => $this->url . '&action=dictionaries',
             'name' => $this->_('DICTIONARIES'),
-            'active' => (in_array($this->action, array('dictionaries', 'edit_dictionary', 'move_dictionary')) && !$this->moduleName),
+            'active' => (
+                in_array(
+                    $this->action,
+                    ['dictionaries', 'edit_dictionary', 'move_dictionary']
+                ) &&
+                !$this->moduleName
+            ),
             'submenu' => (
-                in_array($this->action, array('dictionaries', 'edit_dictionary', 'move_dictionary')) ?
-                ViewSub_Main::i()->pagesMenu(new Dictionary(), new Dictionary($this->id ? $this->id : (isset($this->nav['pid']) ? $this->nav['pid'] : 0))) :
+                in_array(
+                    $this->action,
+                    ['dictionaries', 'edit_dictionary', 'move_dictionary']
+                ) ?
+                $this->dictionariesMenu(new Dictionary(
+                    $this->id ?:
+                    (isset($this->nav['pid']) ? $this->nav['pid'] : 0)
+                )) :
                 null
             )
-        );
-        $submenu[] = array(
+        ];
+        $submenu[] = [
             'href' => $this->url . '&action=snippets',
             'name' => $this->_('SNIPPETS'),
-            'active' => (in_array($this->action, array('snippets', 'edit_snippet', 'edit_snippet_folder', 'copy_snippet')) && !$this->moduleName)
-        );
-        $submenu[] = array(
+            'active' => (
+                in_array(
+                    $this->action,
+                    [
+                        'snippets',
+                        'edit_snippet',
+                        'edit_snippet_folder',
+                        'copy_snippet'
+                    ]
+                ) &&
+                !$this->moduleName
+            )
+        ];
+        $submenu[] = [
             'href' => $this->url . '&action=material_types',
             'name' => $this->_('MATERIAL_TYPES'),
-            'active' => (in_array($this->action, array('material_types', 'edit_material_type', 'edit_material_field')) && !$this->moduleName)
-        );
-        $submenu[] = array(
+            'active' => (
+                in_array(
+                    $this->action,
+                    [
+                        'material_types',
+                        'edit_material_type',
+                        'edit_material_field'
+                    ]
+                ) &&
+                !$this->moduleName
+            )
+        ];
+        $submenu[] = [
             'href' => $this->url . '&action=pages_fields',
             'name' => $this->_('PAGES_FIELDS'),
-            'active' => (in_array($this->action, array('pages_fields', 'edit_page_field')) && !$this->moduleName)
-        );
-        $submenu[] = array(
+            'active' => (
+                in_array(
+                    $this->action,
+                    ['pages_fields', 'edit_page_field']
+                ) &&
+                !$this->moduleName
+            )
+        ];
+        $submenu[] = [
             'href' => $this->url . '&action=forms',
             'name' => $this->_('FORMS'),
-            'active' => (in_array($this->action, array('forms', 'edit_form', 'edit_form_field')) && !$this->moduleName)
-        );
-        $submenu[] = array(
+            'active' => (
+                in_array(
+                    $this->action,
+                    ['forms', 'edit_form', 'edit_form_field']
+                ) &&
+                !$this->moduleName
+            )
+        ];
+        $submenu[] = [
             'href' => $this->url . '&action=menus',
             'name' => $this->_('MENUS'),
-            'active' => (in_array($this->action, array('menus', 'edit_menu', 'move_menu')) && !$this->moduleName),
+            'active' => (
+                in_array(
+                    $this->action,
+                    ['menus', 'edit_menu', 'move_menu']
+                ) &&
+                !$this->moduleName
+            ),
             'submenu' => (
-                in_array($this->action, array('menus', 'edit_menu', 'move_menu')) ?
-                $this->menusMenu(new Menu($this->id ? $this->id : (isset($this->nav['pid']) ? $this->nav['pid'] : 0))) :
+                in_array($this->action, ['menus', 'edit_menu', 'move_menu']) ?
+                $this->menusMenu(new Menu(
+                    $this->id ?:
+                    (isset($this->nav['pid']) ? $this->nav['pid'] : 0)
+                )) :
                 null
             )
-        );
+        ];
         if (Package::i()->registryGet('diag')) {
-            $submenu[] = array('href' => $this->url . '&action=diag',  'name' => $this->_('DIAGNOSTICS'));
+            $submenu[] = [
+                'href' => $this->url . '&action=diag',
+                'name' => $this->_('DIAGNOSTICS')
+            ];
         }
         if (Package::i()->registryGet('clear_cache_manually')) {
-            $submenu[] = array('href' => $this->url . '&action=cache',  'name' => $this->_('CACHE_CONTROL'));
+            $submenu[] = [
+                'href' => $this->url . '&action=cache',
+                'name' => $this->_('CACHE_CONTROL')
+            ];
         }
         foreach ($this->model->modules as $module) {
             $NS = \SOME\Namespaces::getNS($module);
@@ -574,6 +637,46 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
 
     /**
+     * Возвращает меню для списка справочников
+     * @param Dictionary $current Текущий выбранный справочник
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'active' ?=> bool Пункт справочника активен,
+     *             'class' ?=> string Класс пункта справочника,
+     *             'submenu' => *рекурсивно*,
+     *         ]>
+     */
+    public function dictionariesMenu(Dictionary $current)
+    {
+        $menu = [];
+        $node = new Dictionary();
+        foreach ($node->children as $row) {
+            $temp = [
+                'name' => Text::cuttext($row->name, 64, '...'),
+                'href' => $this->url . '&sub=dev&action=dictionaries&id='
+                       .  (int)$row->id,
+                'class' => '',
+                'active' => false
+            ];
+
+            if (($row->id == $current->id) ||
+                in_array($current->id, $node->all_children_ids)
+            ) {
+                $temp['active'] = true;
+            }
+
+            if (!$row->vis) {
+                $temp['class'] .= ' muted';
+            }
+
+            $menu[] = $temp;
+        }
+        return $menu;
+    }
+
+
+    /**
      * Возвращает меню для списка меню домена
      * @param Menu $current Текущий выбранный пункт меню
      * @param int|null $domainId ID# домена, либо null для всех
@@ -626,7 +729,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getAllTemplatesContextMenu()
     {
-        $arr = array();
+        $arr = [];
         $arr[] = array(
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_template&back=1',
@@ -639,7 +742,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getDictionaryContextMenu(Dictionary $Item, $i = 0, $c = 0)
     {
-        $arr = array();
+        $arr = [];
         if ($Item->id) {
             $edit = ($this->action == 'edit_dictionary');
             $showlist = ($this->action == 'dictionaries');
@@ -668,7 +771,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getAllDictionariesContextMenu()
     {
-        $arr = array();
+        $arr = [];
         $arr[] = array(
             'name' => $this->_('SHOW'),
             'href' => $this->url . '&action=vis_dictionary&back=1',
@@ -707,7 +810,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getAllSnippetFoldersContextMenu()
     {
-        $arr = array();
+        $arr = [];
         $arr[] = array(
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_snippet_folder&back=1',
@@ -732,7 +835,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getAllSnippetsContextMenu()
     {
-        $arr = array();
+        $arr = [];
         $arr[] = array(
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_snippet&back=1',
@@ -745,7 +848,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getMaterialTypeContextMenu(Material_Type $Item)
     {
-        $arr = array();
+        $arr = [];
         if ($Item->id) {
             if ($this->action == 'edit_material_type') {
                 $arr[] = array('href' => $this->url . '&action=edit_material_field&pid=' . (int)$Item->id, 'name' => $this->_('CREATE_FIELD'), 'icon' => 'plus');
@@ -759,7 +862,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getAllMaterialTypesContextMenu()
     {
-        $arr = array();
+        $arr = [];
         $arr[] = array(
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_material_type&back=1',
@@ -772,7 +875,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getMaterialFieldContextMenu(Material_Field $Item, $i = 0, $c = 0)
     {
-        $arr = array();
+        $arr = [];
         if ($Item->id) {
             $arr[] = array(
                 'name' => $this->_('SHOW_IN_TABLE'),
@@ -800,7 +903,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getAllMaterialFieldsContextMenu()
     {
-        $arr = array();
+        $arr = [];
         $arr[] = array(
             'name' => $this->_('SHOW_IN_TABLE'),
             'href' => $this->url . '&action=show_in_table_material_field&back=1',
@@ -828,7 +931,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getPageFieldContextMenu(Page_Field $Item, $i = 0, $c = 0)
     {
-        $arr = array();
+        $arr = [];
         if ($Item->id) {
             $arr[] = array(
                 'name' => $this->_('SHOW_IN_TABLE'),
@@ -851,7 +954,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getAllPageFieldsContextMenu()
     {
-        $arr = array();
+        $arr = [];
         $arr[] = array(
             'name' => $this->_('SHOW_IN_TABLE'),
             'href' => $this->url . '&action=show_in_table_page_field&back=1',
@@ -874,7 +977,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getFormContextMenu(Form $Item)
     {
-        $arr = array();
+        $arr = [];
         if ($Item->id &&$this->action == 'edit_form') {
             $arr[] = array('href' => $this->url . '&action=edit_form_field&pid=' . (int)$Item->id, 'name' => $this->_('CREATE_FIELD'), 'icon' => 'plus');
         }
@@ -885,7 +988,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getAllFormsContextMenu()
     {
-        $arr = array();
+        $arr = [];
         $arr[] = array(
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_form&back=1',
@@ -898,7 +1001,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getFormFieldContextMenu(Form_Field $Item, $i = 0, $c = 0)
     {
-        $arr = array();
+        $arr = [];
         if ($Item->id) {
             $arr[] = array(
                 'name' => $this->_('SHOW_IN_TABLE'),
@@ -921,7 +1024,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getAllFormFieldsContextMenu()
     {
-        $arr = array();
+        $arr = [];
         $arr[] = array(
             'name' => $this->_('SHOW_IN_TABLE'),
             'href' => $this->url . '&action=show_in_table_form_field&back=1',
@@ -944,7 +1047,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getMenuContextMenu(Menu $Item)
     {
-        $arr = array();
+        $arr = [];
         if ($Item->id) {
             $edit = ($this->action == 'edit_menu');
             $showlist = ($this->action == 'menus');
@@ -987,7 +1090,7 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     public function getAllMenusContextMenu()
     {
-        $arr = array();
+        $arr = [];
         $arr[] = array(
             'name' => $this->_('SHOW'),
             'href' => $this->url . '&action=vis_menu&back=1',
