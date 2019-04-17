@@ -418,7 +418,7 @@ class ViewSub_Main extends \RAAS\Abstract_Sub_View
             $semiactive = (bool)array_filter($submenu, function ($x) {
                 return $x['active'];
             });
-            if (($childId == $current->id) || $semiactive) {
+            if (($childId == $currentId) || $semiactive) {
                 $temp['active'] = true;
             }
             $temp['submenu'] = $submenu;
