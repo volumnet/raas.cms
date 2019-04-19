@@ -1,8 +1,15 @@
 <?php
+/**
+ * Таблица подразделов
+ */
 namespace RAAS\CMS;
 
 use RAAS\Column;
 
+/**
+ * Класс таблицы подразделов
+ * @property-read ViewSub_Main $view Представление
+ */
 class SubsectionsTable extends \RAAS\Table
 {
     public function __get($var)
@@ -18,10 +25,10 @@ class SubsectionsTable extends \RAAS\Table
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
-        $columns = array();
+        $columns = [];
         if ($params['Item']->id) {
             $i = 0;
             foreach (array_filter(
@@ -31,7 +38,7 @@ class SubsectionsTable extends \RAAS\Table
                 }
             ) as $key => $col) {
                 if ($i < 3) {
-                    $columns[$col->urn] = array(
+                    $columns[$col->urn] = [
                         'caption' => $col->name,
                         'callback' => function ($row) use ($col, $view, $params) {
                             $f = $row->fields[$col->urn];
@@ -41,26 +48,26 @@ class SubsectionsTable extends \RAAS\Table
                                           <img src="/' . $v->tnURL . '" style="max-width: 48px;" /></a>';
                             }
                         }
-                    );
+                    ];
                     $i++;
                 }
             }
-            $columns['name'] = array(
+            $columns['name'] = [
                 'caption' => $this->view->_('NAME'),
                 'callback' => function ($row) use ($view) {
                     return '<a href="' . $view->url . '&id=' . (int)$row->id . '" class="' . (!$row->vis ? 'muted' : ($row->response_code ? ' text-error' : '')) . ($row->pvis ? '' : ' cms-inpvis') . '">'
                          .    htmlspecialchars($row->name)
                          . '</a>';
                 }
-            );
-            $columns['urn'] = array(
+            ];
+            $columns['urn'] = [
                 'caption' => $this->view->_('URN'),
                 'callback' => function ($row) use ($view) {
-                    return '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . htmlspecialchars(preg_replace('/^http(s)?:\\/\\//umi', '', $row->domain . array_shift(explode(' ', $row->url)))) . '" class="' . (!$row->vis ? 'muted' : ($row->response_code ? ' text-error' : '')) . ($row->pvis ? '' : ' cms-inpvis') . '">'
+                    return '<a href="' . $view->url . '&id=' . (int)$row->id . '" class="' . (!$row->vis ? 'muted' : ($row->response_code ? ' text-error' : '')) . ($row->pvis ? '' : ' cms-inpvis') . '">'
                          .    htmlspecialchars(preg_replace('/^http(s)?:\\/\\//umi', '', array_shift(explode(' ', $row->urn))))
                          . '</a>';
                 }
-            );
+            ];
             foreach (array_filter(
                 Page_Field::getSet(),
                 function ($x) {
@@ -68,7 +75,7 @@ class SubsectionsTable extends \RAAS\Table
                 }
             ) as $key => $col) {
                 if ($i < 3) {
-                    $columns[$col->urn] = array(
+                    $columns[$col->urn] = [
                         'caption' => $col->name,
                         'callback' => function ($row) use ($col, $view) {
                             $f = $row->fields[$col->urn];
@@ -102,25 +109,24 @@ class SubsectionsTable extends \RAAS\Table
                                     return $f->doRich();
                                     break;
                             }
-
                         }
-                    );
+                    ];
                     $i++;
                 }
             }
-            $columns['priority'] = array(
+            $columns['priority'] = [
                 'caption' => $this->view->_('PRIORITY'),
                 'callback' => function ($row, $i) {
                     return '<input type="number" name="page_priority[' . (int)$row->id . ']" value="' . (($i + 1) * 10) . '" class="span1" min="0" />';
                 }
-            );
-            $columns[' '] = array(
+            ];
+            $columns[' '] = [
                 'callback' => function ($row, $i) use ($view, $params) {
                     return rowContextMenu($view->getPageContextMenu($row, $i, count($params['Set'])));
                 }
-            );
+            ];
         } else {
-            $columns['name'] = array(
+            $columns['name'] = [
                 'caption' => $this->view->_('NAME'),
                 'sortable' => Column::SORTABLE_REVERSABLE,
                 'callback' => function ($row) use ($view) {
@@ -128,8 +134,8 @@ class SubsectionsTable extends \RAAS\Table
                          .    htmlspecialchars($row->name)
                          . '</a>';
                 }
-            );
-            $columns['urn'] = array(
+            ];
+            $columns['urn'] = [
                 'caption' => $this->view->_('DOMAIN'),
                 'sortable' => Column::SORTABLE_REVERSABLE,
                 'callback' => function ($row) use ($view) {
@@ -137,12 +143,16 @@ class SubsectionsTable extends \RAAS\Table
                          .    htmlspecialchars(preg_replace('/^http(s)?:\\/\\//umi', '', array_shift(explode(' ', $row->urn))))
                          . '</a>';
                 }
-            );
-            $columns[' '] = array(
+            ];
+            $columns[' '] = [
                 'callback' => function ($row, $i) use ($view, $params) {
-                    return rowContextMenu($view->getPageContextMenu($row, $i, count($params['Set'])));
+                    return rowContextMenu($view->getPageContextMenu(
+                        $row,
+                        $i,
+                        count($params['Set'])
+                    ));
                 }
-            );
+            ];
         }
         $arr = $params;
         $arr['data-role'] = 'multitable';
@@ -154,9 +164,10 @@ class SubsectionsTable extends \RAAS\Table
             $this->class = 'table-condensed';
         } else {
             $this->sort = $params['sort'];
-            $this->order = ((strtolower($params['order']) == 'desc') ? Column::SORT_DESC : Column::SORT_ASC);
+            $this->order = (strtolower($params['order']) == 'desc')
+                         ? Column::SORT_DESC
+                         : Column::SORT_ASC;
             $this->emptyString = $this->view->_('NO_SITES_FOUND');
         }
-
     }
 }

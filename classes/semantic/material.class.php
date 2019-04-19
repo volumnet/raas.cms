@@ -357,4 +357,18 @@ class Material extends \SOME\SOME implements IAccessible
         $c = (bool)(int)$SQL_result;
         return $c;
     }
+
+
+    /**
+     * Очистить кэши материала
+     */
+    public function clearCache()
+    {
+        $globUrl = Package::i()->cacheDir . '/' . Package::i()->cachePrefix
+                 . '.*' . urlencode('/') . $this->urn . urlencode('/') . '*.php';
+        $glob = glob($globUrl);
+        foreach ($glob as $file) {
+            @unlink($file);
+        }
+    }
 }
