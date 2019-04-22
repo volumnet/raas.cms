@@ -17,6 +17,8 @@ class Catalog_Cache
     {
         switch ($var) {
             case 'data':
+                return $this->$var;
+                break;
             case 'mtype':
                 return $this->{'_' . $var};
                 break;
