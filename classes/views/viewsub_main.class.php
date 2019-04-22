@@ -379,12 +379,14 @@ class ViewSub_Main extends RAASAbstractSubView
                     'icon' => 'edit'
                 ];
             }
-            $arr[] = [
-                'href' => $this->url . '&action=clear_cache&id=' . (int)$Item->id
-                       .  ($showlist ? '&back=1' : ''),
-                'name' => $this->_('CLEAR_CACHE'),
-                'icon' => 'refresh',
-            ];
+            if ($Item->cache) {
+                $arr[] = [
+                    'href' => $this->url . '&action=clear_cache&id=' . (int)$Item->id
+                           .  ($showlist ? '&back=1' : ''),
+                    'name' => $this->_('CLEAR_CACHE'),
+                    'icon' => 'refresh',
+                ];
+            }
             $arr[] = [
                 'href' => $this->url . '&action=delete&id=' . (int)$Item->id
                        .  ($showlist ? '&back=1' : ''),
@@ -537,7 +539,7 @@ class ViewSub_Main extends RAASAbstractSubView
                     'icon' => 'share-alt'
                 ];
             }
-            if ($affectedPages) {
+            if ($affectedPages && $affectedPages[0]->cache) {
                 $arr[] = [
                     'href' => $this->url . '&action=clear_material_cache&id=' . (int)$item->id
                            .  ($showlist ? '&back=1' : ''),
