@@ -268,14 +268,26 @@ abstract class Block extends \SOME\SOME implements IAccessible
             ob_start();
             if (!$IN) {
                 // Не удалось, загрузим интерфейс
+                $st = microtime(true);
                 $IN = (array)$this->processInterface($config, $Page);
+                if (Controller_Frontend::i()->diag) {
+                    Controller_Frontend::i()->diag->blockInterfaceHandler(
+                        $row,
+                        microtime(true) - $bst
+                    );
+                }
                 $IN['config'] = $config;
                 if ($this->cache_type == static::CACHE_DATA) {
                     // Запишем в кэш данных
                     $IN = $this->processCache($IN, $Page);
                 }
             }
+            $st = microtime(true);
             $data = $this->processWidget($IN, $Page);
+            Controller_Frontend::i()->diag->blockWidgetHandler(
+                $row,
+                microtime(true) - $bst
+            );
             if ($this->cache_type == static::CACHE_HTML) {
                 // Запишем в HTML-кэш
                 $this->processCache($IN, $Page);

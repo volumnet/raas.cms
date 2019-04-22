@@ -1,13 +1,32 @@
 <?php
+/**
+ * Лог диагностики
+ */
 namespace RAAS\CMS;
 
+/**
+ * Класс лога диагностики
+ * @property-read string $logDir Директория, где хранится лог
+ * @property-read string $logFile Файл, где хранится лог
+ * @property-read int $queriesCounter Счетчик запросов
+ * @property-read float $queriesTime Общее время запросов
+ * @property-read int $blocksCounter Счетчик блоков
+ * @property-read float $blocksTime Общее время блоков
+ * @property-read int $pagesCounter Счетчик страниц
+ * @property-read float $pagesTime Общее время страниц
+ * @property-read array $stat Статистика диагностики
+ */
 class Diag
 {
     const logDir = 'logs';
 
     protected $filename;
-    protected $data = array();
-    protected static $criticalTime = array('queries' => 0.1, 'blocks' => 0.1, 'pages' => 1);
+    protected $data = [];
+    protected static $criticalTime = [
+        'queries' => 0.1,
+        'blocks' => 0.1,
+        'pages' => 1
+    ];
 
     public function __get($var)
     {
@@ -16,7 +35,9 @@ class Diag
                 return static::getLogDir();
                 break;
             case 'logFile':
-                if ($this->filename && stristr($this->filename, $this->logDir)) {
+                if ($this->filename &&
+                    stristr($this->filename, $this->logDir)
+                ) {
                     if (!is_file($this->filename)) {
                         touch($this->filename);
                     }
@@ -79,36 +100,86 @@ class Diag
                 return $temp;
                 break;
             case 'stat':
-                $temp = array();
-                foreach (array('queries', 'blocks', 'pages') as $statKey) {
+                $temp = [];
+                foreach (['queries', 'blocks', 'pages'] as $statKey) {
                     if (isset($this->data[$statKey])) {
                         $ct = static::$criticalTime[$statKey];
-                        $all = array();
+                        $all = [];
                         foreach ($this->data[$statKey] as $key => $val) {
-                            $all[] = array_merge(array('key' => $key, 'id' => abs(crc32($key) % 1000)), (array)$val);
+                            $all[] = array_merge(
+                                [
+                                    'key' => $key,
+                                    'id' => abs(crc32($key) % 1000)
+                                ],
+                                (array)$val
+                            );
                         }
                         $L = $all;
-                        $L = array_filter($L, function($x) use ($ct) { return ($x['time'] / $x['counter']) > $ct; });
-                        usort($L, function($a, $b) { return (((float)$b['time'] / $b['counter']) - ((float)$a['time'] / $a['counter'])) * 1000; });
+                        $L = array_filter($L, function ($x) use ($ct) {
+                            return ($x['time'] / $x['counter']) > $ct;
+                        });
+                        usort($L, function ($a, $b) {
+                            return (
+                                ((float)$b['time'] / $b['counter']) -
+                                ((float)$a['time'] / $a['counter'])
+                            ) * 1000;
+                        });
                         $L = array_slice($L, 0, 10);
-                        $Lids = array_map(function($x) { return $x['id']; }, $L);
+                        $Lids = array_map(function ($x) {
+                            return $x['id'];
+                        }, $L);
 
                         $F = $all;
-                        $F = array_filter($F, function($x) use ($ct, $statKey) { return ($statKey != 'queries' ? ($x['time'] / $x['counter']) : $x['time']) > $ct; });
-                        usort($F, function($a, $b) { return ($b['counter'] - $a['counter']) * 1000; });
+                        $F = array_filter($F,
+                            function ($x) use ($ct, $statKey) {
+                                return (
+                                    $statKey != 'queries' ?
+                                    ($x['time'] / $x['counter']) :
+                                    $x['time']
+                                ) > $ct;
+                            }
+                        );
+                        usort($F, function ($a, $b) {
+                            return ($b['counter'] - $a['counter']) * 1000;
+                        });
                         $F = array_slice($F, 0, 10);
-                        $Fids = array_map(function($x) { return $x['id']; }, $F);
+                        $Fids = array_map(function ($x) {
+                            return $x['id'];
+                        }, $F);
 
                         $M = $all;
-                        $M = array_filter($M, function($x) use ($ct, $statKey) { return ($statKey != 'queries' ? ($x['time'] / $x['counter']) : $x['time']) > $ct; });
-                        usort($M, function($a, $b) { return ((float)$b['time'] - (float)$a['time']) * 1000; });
+                        $M = array_filter(
+                            $M,
+                            function ($x) use ($ct, $statKey) {
+                                return (
+                                    $statKey != 'queries' ?
+                                    ($x['time'] / $x['counter']) :
+                                    $x['time']
+                                ) > $ct;
+                            }
+                        );
+                        usort($M, function ($a, $b) {
+                            return (
+                                (float)$b['time'] - (float)$a['time']
+                            ) * 1000;
+                        });
                         $M = array_slice($M, 0, 10);
-                        $Mids = array_map(function($x) { return $x['id']; }, $M);
+                        $Mids = array_map(function ($x) {
+                            return $x['id'];
+                        }, $M);
 
-                        $ids = array_merge(array_intersect($Lids, $Mids), array_intersect($Lids, $Fids), array_intersect($Fids, $Mids));
+                        $ids = array_merge(
+                            array_intersect($Lids, $Mids),
+                            array_intersect($Lids, $Fids),
+                            array_intersect($Fids, $Mids)
+                        );
                         $ids = array_unique($ids);
                         $ids = array_values($ids);
-                        foreach (array('long' => 'L', 'freq' => 'F', 'main' => 'M') as $key => $key2) {
+                        foreach ([
+                            'long' => 'L',
+                            'freq' => 'F',
+                            'main' => 'M'
+                        ] as $key => $key2) {
                             foreach ($$key2 as $row) {
                                 $row['type'] = $statKey;
                                 if (in_array($row['id'], $ids)) {
@@ -144,7 +215,7 @@ class Diag
 
     public function __construct()
     {
-        $this->data = array('queries' => array(), 'blocks' => array(), 'pages' => array());
+        $this->data = ['queries' => [], 'blocks' => [], 'pages' => []];
     }
 
 
@@ -170,13 +241,25 @@ class Diag
     }
 
 
-    public function blockHandler(Block $Block, $microtime = 0)
+    public function blockHandler(Block $block, $microtime = 0)
     {
-        $this->data['blocks'][(int)$Block->id]['counter']++;
-        $this->data['blocks'][(int)$Block->id]['time'] += (float)$microtime;
+        $this->data['blocks'][(int)$block->id]['counter']++;
+        $this->data['blocks'][(int)$block->id]['time'] += (float)$microtime;
     }
 
-    
+
+    public function blockInterfaceHandler(Block $block, $microtime = 0)
+    {
+        $this->data['blocks'][(int)$block->id]['interfaceTime'] += (float)$microtime;
+    }
+
+
+    public function blockWidgetHandler(Block $block, $microtime = 0)
+    {
+        $this->data['blocks'][(int)$block->id]['widgetTime'] += (float)$microtime;
+    }
+
+
     public function pageHandler(Page $Page, $microtime = 0)
     {
         // $u = $this->beautifyURL($_SERVER['REQUEST_URI']);
@@ -217,7 +300,7 @@ class Diag
                 $val[$k] = $this->beautifyValue($v);
             }
         } elseif (is_numeric($val)) {
-            if (!in_array($val, array(-1, 0, 1))) {
+            if (!in_array($val, [-1, 0, 1])) {
                 $val = 'D';
             }
         } elseif ($val) {
@@ -269,7 +352,7 @@ class Diag
     public static function merge()
     {
         $args = func_get_args();
-        $temp = array();
+        $temp = [];
         foreach ($args as $row) {
             if ($row instanceof Diag) {
                 $temp[] = $row;
@@ -285,7 +368,7 @@ class Diag
         if ($temp) {
             $diag = new self();
             foreach ($temp as $row) {
-                foreach (array('queries', 'blocks', 'pages') as $key) {
+                foreach (['queries', 'blocks', 'pages'] as $key) {
                     foreach ($row->data[$key] as $k => $arr) {
                         $diag->data[$key][$k]['counter'] += (int)$arr['counter'];
                         $diag->data[$key][$k]['time'] += (float)$arr['time'];
@@ -299,17 +382,22 @@ class Diag
 
     protected static function getFiles($date_from = null, $date_to = null)
     {
-        $temp = array();
+        $temp = [];
         $dir = scandir(static::getLogDir());
         foreach ($dir as $f) {
             if (preg_match('/diag(\\d{4}-\\d{2}-\\d{2}).dat/i', $f, $regs)) {
-                if (($d = strtotime($regs[1])) > 0) { // Учитываем только валидные файлы
-                    if ($date_from && (($fromtime = strtotime($date_from)) > 0)) {  // Только в этом случае работает дата от
+                if (($d = strtotime($regs[1])) > 0) {
+                    // Учитываем только валидные файлы
+                    if ($date_from &&
+                        (($fromtime = strtotime($date_from)) > 0)
+                    ) {
+                        // Только в этом случае работает дата от
                         if ($d < $fromtime) {
                             continue; // Файл датирован ранее даты от
                         }
                     }
-                    if ($date_to && (($totime = strtotime($date_to)) > 0)) { // Только в этом случае работает дата до
+                    if ($date_to && (($totime = strtotime($date_to)) > 0)) {
+                        // Только в этом случае работает дата до
                         if ($d > $totime) {
                             continue; // Файл датирован позднее даты до
                         }
@@ -334,7 +422,9 @@ class Diag
     public static function getMerged($date_from = null, $date_to = null)
     {
         $temp = static::getFiles($date_from, $date_to);
-        $temp = array_map(function($x) { return Diag::getInstance($x); }, $temp);
+        $temp = array_map(function ($x) {
+            return Diag::getInstance($x);
+        }, $temp);
         $diag = static::merge($temp);
         return $diag;
     }

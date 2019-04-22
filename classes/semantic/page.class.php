@@ -351,7 +351,12 @@ class Page extends \SOME\SOME implements IAccessible
                     ob_start();
                     $bst = microtime(true);
                     $row->process($this);
-                    Controller_Frontend::i()->diag ? Controller_Frontend::i()->diag->blockHandler($row, microtime(true) - $bst) : null;
+                    if (Controller_Frontend::i()->diag) {
+                        Controller_Frontend::i()->diag->blockHandler(
+                            $row,
+                            microtime(true) - $bst
+                        );
+                    }
                     $texts[$row->id] = ob_get_contents();
                     ob_end_clean();
                 }
