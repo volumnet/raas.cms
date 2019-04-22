@@ -666,6 +666,14 @@ class ViewSub_Main extends RAASAbstractSubView
         $arr = [];
         if ($block->id) {
             $edit = ($this->action == 'edit_block');
+            if ($block->cache_type) {
+                $cacheItem = [
+                    'href' => $this->url . '&action=clear_block_cache&id=' . (int)$block->id
+                           .  ($showlist ? '&back=1' : ''),
+                    'name' => $this->_('CLEAR_CACHE'),
+                    'icon' => 'refresh',
+                ];
+            }
             if (!$edit) {
                 $arr[] = [
                     'href' => $this->url . '&action=edit_block&id='
@@ -707,6 +715,9 @@ class ViewSub_Main extends RAASAbstractSubView
                         'icon' => 'arrow-down'
                     ];
                 }
+                if ($block->cache_type) {
+                    $arr[] = $cacheItem;
+                }
                 $arr[] = [
                     'href' => $this->url . '&action=delete_block&id='
                            .  (int)$block->id . ($edit ? '' : '&back=1'),
@@ -717,6 +728,9 @@ class ViewSub_Main extends RAASAbstractSubView
                               .  '\')'
                 ];
             } else {
+                if ($block->cache_type) {
+                    $arr[] = $cacheItem;
+                }
                 $arr[] = [
                     'href' => $this->url . '&action=delete_block&id='
                            .  (int)$block->id

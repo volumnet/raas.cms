@@ -373,6 +373,24 @@ abstract class Block extends \SOME\SOME implements IAccessible
     }
 
 
+    public function clearCache()
+    {
+        $OUT = array();
+        if ($this->cache_type != static::CACHE_NONE) {
+            $filename = $this->getCacheFile();
+            $globname = str_replace('.php', '.*.php', $filename);
+            $glob = array_merge(
+                glob($filename),
+                glob($globname)
+            );
+            foreach ($glob as $file) {
+                @unlink($file);
+            }
+        }
+        return $OUT;
+    }
+
+
     protected function _Location()
     {
         return $this->parent->Template->locations[$this->location];

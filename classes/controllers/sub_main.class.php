@@ -175,6 +175,9 @@ class Sub_Main extends RAASAbstractSubController
             case 'clear_material_cache':
                 $this->clearMaterialCache();
                 break;
+            case 'clear_block_cache':
+                $this->clearBlockCache();
+                break;
             default:
                 $this->show_page();
                 break;
@@ -622,5 +625,16 @@ class Sub_Main extends RAASAbstractSubController
                 '#_' . $material->material_type->urn
             )
         );
+    }
+
+
+    /**
+     * Очистка кэша блока
+     */
+    public function clearBlockCache()
+    {
+        $material = Block::spawn((int)$this->id);
+        $material->clearCache();
+        new Redirector('history:back');
     }
 }
