@@ -92,8 +92,16 @@ abstract class AbstractInterface
      * @param array $server Поля $_SERVER параметров
      * @param array $files Поля $_FILES параметров
      */
-    public function __construct(Block $block = null, Page $page = null, array $get = array(), array $post = array(), array $cookie = array(), array $session = array(), array $server = array(), array $files = array())
-    {
+    public function __construct(
+        Block $block = null,
+        Page $page = null,
+        array $get = array(),
+        array $post = array(),
+        array $cookie = array(),
+        array $session = array(),
+        array $server = array(),
+        array $files = array()
+    ) {
         $this->block = $block;
         $this->page = $page;
         $this->get = $get;
@@ -137,6 +145,7 @@ abstract class AbstractInterface
      */
     public function getCurrentHostURL()
     {
-        return 'http' . ($this->isHTTPS() ? 's' : '') . '://' . $this->server['HTTP_HOST'];
+        return 'http' . ($this->isHTTPS() ? 's' : '') . '://' .
+               $this->server['HTTP_HOST'];
     }
 }

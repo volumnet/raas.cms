@@ -343,6 +343,7 @@ class ViewSub_Main extends RAASAbstractSubView
                 'href' => $domainUrl . $Item->url,
                 'icon' => 'globe',
                 'target' => '_blank',
+                'active' => false,
             ];
             $arr[] = [
                 'name' => $Item->vis
@@ -471,6 +472,7 @@ class ViewSub_Main extends RAASAbstractSubView
                     'href' => $domainUrl . $item->url,
                     'icon' => 'globe',
                     'target' => '_blank',
+                    'active' => false,
                 ];
             }
 

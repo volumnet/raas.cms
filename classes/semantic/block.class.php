@@ -248,6 +248,8 @@ abstract class Block extends \SOME\SOME implements IAccessible
 
     public function process(Page $Page, $nocache = false)
     {
+        $bst = microtime(true);
+        $diag = Controller_Frontend::i()->diag;
         if (!$this->currentUserHasAccess()) {
             return null;
         }
@@ -270,11 +272,8 @@ abstract class Block extends \SOME\SOME implements IAccessible
                 // Не удалось, загрузим интерфейс
                 $st = microtime(true);
                 $IN = (array)$this->processInterface($config, $Page);
-                if (Controller_Frontend::i()->diag) {
-                    Controller_Frontend::i()->diag->blockInterfaceHandler(
-                        $row,
-                        microtime(true) - $bst
-                    );
+                if ($diag) {
+                    $diag->blockInterfaceHandler($this, microtime(true) - $st);
                 }
                 $IN['config'] = $config;
                 if ($this->cache_type == static::CACHE_DATA) {
@@ -284,15 +283,17 @@ abstract class Block extends \SOME\SOME implements IAccessible
             }
             $st = microtime(true);
             $data = $this->processWidget($IN, $Page);
-            Controller_Frontend::i()->diag->blockWidgetHandler(
-                $row,
-                microtime(true) - $bst
-            );
+            if ($diag) {
+                $diag->blockWidgetHandler($this, microtime(true) - $st);
+            }
             if ($this->cache_type == static::CACHE_HTML) {
                 // Запишем в HTML-кэш
                 $this->processCache($IN, $Page);
             }
             ob_end_flush();
+            if ($diag) {
+                $diag->blockHandler($this, microtime(true) - $bst);
+            }
             if ($data) {
                 return $data;
             }

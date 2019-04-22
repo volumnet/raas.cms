@@ -372,6 +372,10 @@ class Diag
                     foreach ($row->data[$key] as $k => $arr) {
                         $diag->data[$key][$k]['counter'] += (int)$arr['counter'];
                         $diag->data[$key][$k]['time'] += (float)$arr['time'];
+                        if ($key == 'blocks') {
+                            $diag->data[$key][$k]['widgetTime'] += (float)$arr['widgetTime'];
+                            $diag->data[$key][$k]['interfaceTime'] += (float)$arr['interfaceTime'];
+                        }
                     }
                 }
             }
