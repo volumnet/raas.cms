@@ -5,7 +5,8 @@ use \RAAS\Attachment;
 
 class Catalog_Cache
 {
-    protected $_data = array();
+    use CacheTrait;
+
     protected $_mtype = array();
     protected $_textKeys = array(
         'urn', 'name', 'description', 'meta_title', 'meta_description', 'meta_keywords',
@@ -100,7 +101,7 @@ class Catalog_Cache
 
         // print_r ($SQL_result); exit;
 
-        $this->_data = $SQL_result;
+        $this->data = $SQL_result;
         $this->save();
     }
 
@@ -108,44 +109,6 @@ class Catalog_Cache
     public function getFilename()
     {
         return Package::i()->cacheDir . '/system/raas_cache_materials' . $this->_mtype->id . '.php';
-    }
-
-
-    public function getTMPFilename($cacheId)
-    {
-        return Package::i()->cacheDir . '/system/raas_cache_materials' . $this->_mtype->id . '.' . $cacheId . '.php';
-    }
-
-
-    public function load()
-    {
-        if (is_file($this->getFilename())) {
-            $this->_data = include $this->getFilename();
-            return true;
-        }
-        return false;
-    }
-
-
-    public function save()
-    {
-        $cacheId = 'RAASCACHE' . date('YmdHis') . md5(rand());
-        $text = '<' . '?php return unserialize(<<' . "<'" . $cacheId . "'\n" . serialize($this->_data) . "\n" . $cacheId . "\n);\n";
-        // return (bool)file_put_contents($this->getFilename(), '<' . '?php return ' . var_export((array)$this->_data, true) . ';');
-        $tmpFile = $this->getTMPFilename($cacheId);
-        $realfile = $this->getFilename();
-        $result = (bool)file_put_contents($tmpFile, $text);
-        if ($result) {
-            @unlink($realfile);
-            rename($tmpFile, $realfile);
-            return true;
-        }
-    }
-
-
-    public function clear()
-    {
-        $this->_data = array();
     }
 
 
