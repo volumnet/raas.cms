@@ -81,13 +81,23 @@ class DiagTable extends \RAAS\Table
             $defaultParams['columns']['interfaceTime'] = [
                 'caption' => $this->view->_('DIAGNOSTICS_INTERFACE_TIME'),
                 'callback' => function ($row) use ($view) {
-                    return number_format($row['interfaceTime'], 3, '.', ' ');
+                    return number_format(
+                        (float)$row['interfaceTime'] / $row['counter'],
+                        3,
+                        '.',
+                        ' '
+                    );
                 }
             ];
             $defaultParams['columns']['widgetTime'] = [
                 'caption' => $this->view->_('DIAGNOSTICS_WIDGET_TIME'),
                 'callback' => function ($row) use ($view) {
-                    return number_format($row['widgetTime'], 3, '.', ' ');
+                    return number_format(
+                        (float)$row['widgetTime'] / $row['counter'],
+                        3,
+                        '.',
+                        ' '
+                    );
                 }
             ];
         }
