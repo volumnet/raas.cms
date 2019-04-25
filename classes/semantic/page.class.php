@@ -656,7 +656,7 @@ class Page extends \SOME\SOME implements IAccessible
             [$domainId],
             $pageCache->getAllChildrenIds($domainId)
         );
-        $domainPagesData = array_intersect_key($pageCache->cache, $domainPagesIds);
+        $domainPagesData = array_intersect_key($pageCache->cache, array_flip($domainPagesIds));
 
         for ($i = count($url); $i >= 0; $i--) {
             $urlArrayToFind = array_slice($url, 0, $i);
