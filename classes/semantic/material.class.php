@@ -335,6 +335,83 @@ class Material extends \SOME\SOME implements IAccessible
     }
 
 
+    /**
+     * Обновляет связанные страницы
+     * @param Material_Type $materialType Ограничить обновление одним типом материалов
+     * @param Material $material Ограничить обновление одним материалом
+     */
+    public static function updateAffectedPages(Material_Type $materialType = null, Material $material = null)
+    {
+        $materialId = $material->id;
+        if ($materialTypeId = $materialType->id) {
+            $materialTypesIds = $materialType->selfAndChildrenIds;
+        }
+        $sqlQuery = "DELETE ";
+        if (!$materialId && $materialTypeId) {
+            $sqlQuery .= " tMAP ";
+        }
+        $sqlQuery .= " FROM " . static::$dbprefix . "cms_materials_affected_pages_cache ";
+        if (!$materialId && $materialTypeId) {
+            $sqlQuery .= "  AS tMAP JOIN " . static::_tablename() . " AS tM ON tM.id = tMAP.material_id ";
+        }
+        $sqlQuery .= " WHERE 1 ";
+        if ($materialId = $material->id) {
+            $sqlQuery .= " AND tMAP.material_id = " . (int)$materialId;
+        } elseif ($materialTypeId) {
+            $sqlQuery .= " AND tM.pid IN (" . implode(", ", $materialTypesIds) . ")";
+        }
+        static::_SQL()->query($sqlQuery);
+
+
+        $sqlQuery = "INSERT INTO " . static::$dbprefix . "cms_materials_affected_pages_cache
+                            (material_id, page_id)
+                     SELECT tMPA.id AS material_id,
+                            tMPA.pid AS page_id
+                       FROM " . static::_tablename() . " AS tM
+                       JOIN " . static::$dbprefix . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id
+                       JOIN " . static::$dbprefix . "cms_material_types_affected_pages_for_materials_cache AS tMTAPM ON tMTAPM.material_type_id = tM.pid AND tMTAPM.page_id = tMPA.pid
+                      WHERE 1";
+        if ($materialId) {
+            $sqlQuery .= " AND tM.id = " . (int)$materialId;
+        } elseif ($materialTypeId) {
+            $sqlQuery .= " AND tM.pid IN (" . implode(", ", $materialTypesIds) . ")";
+        }
+        static::_SQL()->query($sqlQuery);
+
+        // Определим родителей по URL
+        $sqlQuery = "UPDATE " . static::_tablename() . " AS tM
+                        SET tM.cache_url_parent_id = IFNULL((
+                            SELECT tP.id
+                              FROM " . static::$dbprefix . "cms_materials_affected_pages_cache AS tMAP
+                              JOIN " . Page::_tablename() . " AS tP ON tP.id = tMAP.page_id
+                             WHERE tMAP.material_id = tM.id
+                          ORDER BY (tMAP.page_id = tM.page_id) DESC, tP.priority ASC
+                             LIMIT 1
+                        ), 0)";
+        if ($materialId) {
+            $sqlQuery .= " WHERE tM.id = " . (int)$materialId;
+        } elseif ($materialTypeId) {
+            $sqlQuery .= " WHERE tM.pid IN (" . implode(", ", $materialTypesIds) . ")";
+        }
+        static::_SQL()->query($sqlQuery);
+
+        // Определим URL
+        $sqlQuery = "UPDATE " . static::_tablename() . " AS tM
+                  LEFT JOIN " . Page::_tablename() . " AS tP ON tP.id = tM.cache_url_parent_id
+                        SET tM.cache_url = IF(
+                                tP.id IS NOT NULL,
+                                CONCAT(tP.cache_url, tM.urn, '/'),
+                                ''
+                            )";
+        if ($materialId) {
+            $sqlQuery .= " WHERE tM.id = " . (int)$materialId;
+        } elseif ($materialTypeId) {
+            $sqlQuery .= " WHERE tM.pid IN (" . implode(", ", $materialTypesIds) . ")";
+        }
+        static::_SQL()->query($sqlQuery);
+    }
+
+
     protected function _relatedMaterialTypes()
     {
         $ids = array_merge(array(0, (int)$this->material_type->id), (array)$this->material_type->parents_ids);

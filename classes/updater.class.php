@@ -29,6 +29,7 @@ class Updater extends RAASUpdater
         $this->update20190123();
         $this->update20190317();
         $this->update20190403();
+        $this->update20190423();
     }
 
 
@@ -1093,6 +1094,61 @@ class Updater extends RAASUpdater
             $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_menus
                            ADD domain_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Domain ID#' AFTER pid";
             $this->SQL->query($sqlQuery);
+        }
+    }
+
+
+    /**
+     * Добавим таблицы связанных страниц для типов материалов, для материалов,
+     * а также поля таблицы материалов по URL и собственно URL для материалов
+     */
+    public function update20190423()
+    {
+        if (!in_array(SOME::_dbprefix() . 'cms_materials_affected_pages_cache', $this->tables)) {
+            $sqlQuery = "CREATE TABLE IF NOT EXISTS " . SOME::_dbprefix() . "cms_materials_affected_pages_cache (
+                             material_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
+                             page_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
+
+                             PRIMARY KEY (material_id, page_id),
+                             KEY (material_id),
+                             KEY (page_id)
+                         ) COMMENT 'Materials affected pages'";
+            $this->SQL->query($sqlQuery);
+        }
+        if (!in_array(SOME::_dbprefix() . 'cms_material_types_affected_pages_for_materials_cache', $this->tables)) {
+            $sqlQuery = "CREATE TABLE IF NOT EXISTS " . SOME::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache (
+                             material_type_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
+                             page_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
+
+                             PRIMARY KEY (material_type_id, page_id),
+                             KEY (material_type_id),
+                             KEY (page_id)
+                         ) COMMENT 'Material types affected pages for materials'";
+            $this->SQL->query($sqlQuery);
+        }
+        if (!in_array(SOME::_dbprefix() . 'cms_material_types_affected_pages_for_self_cache', $this->tables)) {
+            $sqlQuery = "CREATE TABLE IF NOT EXISTS " . SOME::_dbprefix() . "cms_material_types_affected_pages_for_self_cache (
+                             material_type_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
+                             page_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
+
+                             PRIMARY KEY (material_type_id, page_id),
+                             KEY (material_type_id),
+                             KEY (page_id)
+                         ) COMMENT 'Material types affected pages for self (for admin)'";
+            $this->SQL->query($sqlQuery);
+        }
+        if (in_array(SOME::_dbprefix() . "cms_materials", $this->tables) &&
+            !in_array('cache_url_parent_id', $this->columns(SOME::_dbprefix() . "cms_materials"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_materials
+                           ADD cache_url_parent_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cached URL Parent ID#',
+                           ADD cache_url VARCHAR(255) NOT NULL DEFAULT '/' COMMENT 'Cached URL',
+                           ADD INDEX cache_url_parent_id (cache_url_parent_id),
+                           ADD INDEX cache_url (cache_url)";
+            $this->SQL->query($sqlQuery);
+            Material_Type::updateAffectedPagesForMaterials();
+            Material_Type::updateAffectedPagesForSelf();
+            Material::updateAffectedPages();
         }
     }
 }
