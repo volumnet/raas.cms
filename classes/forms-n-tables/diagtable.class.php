@@ -26,15 +26,21 @@ class DiagTable extends \RAAS\Table
                     'callback' => function ($row) use ($view) {
                         switch ($row['type']) {
                             case 'blocks':
-                                $Block = Block::spawn($row['key']);
-                                return '<a href="' . $view->parent->url . '&action=edit_block&id=' . (int)$Block->id . '">'
-                                     .    htmlspecialchars($Block->name)
+                                $block = Block::spawn($row['key']);
+                                return '<a href="' . $view->parent->url . '&action=edit_block&id=' . (int)$block->id . '">'
+                                     .    htmlspecialchars($block->name)
                                      . '</a>';
                                 break;
                             case 'pages':
-                                $Page = new Page($row['key']);
-                                return '<a href="' . $view->parent->url . '&action=edit_page&id=' . (int)$Page->id . '">'
-                                     .    htmlspecialchars($Page->name)
+                                $page = new Page($row['key']);
+                                return '<a href="' . $view->parent->url . '&action=edit_page&id=' . (int)$page->id . '">'
+                                     .    htmlspecialchars($page->name)
+                                     . '</a>';
+                                break;
+                            case 'snippets':
+                                $snippet = new Snippet($row['key']);
+                                return '<a href="' . $view->parent->url . '&sub=dev&action=edit_snippet&id=' . (int)$snippet->id . '">'
+                                     .    htmlspecialchars($snippet->name)
                                      . '</a>';
                                 break;
                             default:

@@ -79,7 +79,7 @@ class Controller_Frontend extends Abstract_Controller
                 }
                 if ($this->diag) {
                     if ($Page) {
-                        $this->diag->pageHandler($Page, microtime(true) - $pst);
+                        $this->diag->handle('pages', $Page->id, microtime(true) - $pst);
                     }
                     $this->diag->save();
                 }

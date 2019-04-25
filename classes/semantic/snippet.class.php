@@ -23,8 +23,12 @@ class Snippet extends \SOME\SOME
 
     public function process(array $DATA = array())
     {
+        $st = microtime(true);
         extract($DATA);
         $result = eval('?' . '>' . $this->description);
+        if ($diag = Controller_Frontend::i()->diag) {
+            $diag->handle('snippets', $this->id, microtime(true) - $st);
+        }
         return $result;
     }
 

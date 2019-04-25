@@ -249,7 +249,6 @@ abstract class Block extends \SOME\SOME implements IAccessible
     public function process(Page $Page, $nocache = false)
     {
         $bst = microtime(true);
-        $diag = Controller_Frontend::i()->diag;
         if (!$this->currentUserHasAccess()) {
             return null;
         }
@@ -266,33 +265,26 @@ abstract class Block extends \SOME\SOME implements IAccessible
             if (!$nocache && ($this->cache_type == static::CACHE_DATA)) {
                 $IN = (array)$this->loadCache($_SERVER['REQUEST_URI']);
             }
-            // 2015-11-23, AVS: перенес ob_start, т.к., допустим, у блока Яндекс-Маркета нет виджета, а только интерфейс
+            // 2015-11-23, AVS: перенес ob_start, т.к., допустим, у блока
+            // Яндекс-Маркета нет виджета, а только интерфейс
             ob_start();
             if (!$IN) {
                 // Не удалось, загрузим интерфейс
-                $st = microtime(true);
                 $IN = (array)$this->processInterface($config, $Page);
-                if ($diag) {
-                    $diag->blockInterfaceHandler($this, microtime(true) - $st);
-                }
                 $IN['config'] = $config;
                 if ($this->cache_type == static::CACHE_DATA) {
                     // Запишем в кэш данных
                     $IN = $this->processCache($IN, $Page);
                 }
             }
-            $st = microtime(true);
             $data = $this->processWidget($IN, $Page);
-            if ($diag) {
-                $diag->blockWidgetHandler($this, microtime(true) - $st);
-            }
             if ($this->cache_type == static::CACHE_HTML) {
                 // Запишем в HTML-кэш
                 $this->processCache($IN, $Page);
             }
             ob_end_flush();
-            if ($diag) {
-                $diag->blockHandler($this, microtime(true) - $bst);
+            if ($diag = Controller_Frontend::i()->diag) {
+                $diag->handle('blocks', $this->id, microtime(true) - $bst);
             }
             if ($data) {
                 return $data;
@@ -321,27 +313,64 @@ abstract class Block extends \SOME\SOME implements IAccessible
     }
 
 
-    protected function processInterface($config, $Page)
+    /**
+     * Обрабатывает интерфейс
+     * @param array $config Конфигурация блока
+     * @param Page $page Страница, для которой обрабатываем интерфейс
+     * @return mixed Результат обработки интерфейса
+     */
+    protected function processInterface(array $config = [], Page $page = null)
     {
-        $SITE = $Page->Domain;
-        $Block = $this;
-        $OUT = null;
         if ($this->Interface->id) {
-            $Interface = $this->Interface;
-            $OUT = eval('?' . '>' . $Interface->description);
+            $st = microtime(true);
+            $out = $this->Interface->process([
+                'SITE' => $page->Domain,
+                'Page' => $page,
+                'page' => $page,
+                'Block' => $this,
+                'block' => $this,
+                'config' => $config,
+            ]);
+            if ($diag = Controller_Frontend::i()->diag) {
+                $diag->handle(
+                    'blocks',
+                    $this->id,
+                    microtime(true) - $st,
+                    null,
+                    'interfaceTime'
+                );
+            }
+            return $out;
         }
-        return $OUT;
     }
 
 
-    protected function processWidget(array $IN = array(), $Page = null)
+    /**
+     * Обрабатывает виджет
+     * @param array $in Входные данные
+     * @param Page $page Страница, для которой обрабатываем виджет
+     */
+    protected function processWidget(array $IN = array(), $page = null)
     {
-        $SITE = $Page->Domain;
-        $Block = $this;
-        extract($IN);
         if ($this->Widget->id) {
-            $Widget = $this->Widget;
-            eval('?' . '>' . $Widget->description);
+            $st = microtime(true);
+            $this->Widget->process(array_merge($IN, [
+                'IN' => $in,
+                'SITE' => $page->Domain,
+                'Page' => $page,
+                'page' => $page,
+                'Block' => $this,
+                'block' => $this,
+            ]));
+            if ($diag = Controller_Frontend::i()->diag) {
+                $diag->handle(
+                    'blocks',
+                    $this->id,
+                    microtime(true) - $st,
+                    null,
+                    'widgetTime'
+                );
+            }
         }
     }
 
