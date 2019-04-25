@@ -21,11 +21,20 @@ use SOME\SOME;
  */
 class Menu extends SOME
 {
+    use RecursiveTrait;
+
     protected static $tablename = 'cms_menus';
 
     protected static $defaultOrderBy = "priority";
 
-    protected static $cognizableVars = ['subMenu', 'visSubMenu'];
+    protected static $cognizableVars = [
+        'subMenu',
+        'visSubMenu',
+        'selfAndChildren',
+        'selfAndChildrenIds',
+        'selfAndParents',
+        'selfAndParentsIds',
+    ];
 
     protected static $references = [
         'parent' => [

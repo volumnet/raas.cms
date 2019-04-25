@@ -358,10 +358,12 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types_affected_p
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types_affected_pages_for_self_cache (
     material_type_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
     page_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
+    nat TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'NAT',
 
     PRIMARY KEY (material_type_id, page_id),
     KEY (material_type_id),
-    KEY (page_id)
+    KEY (page_id),
+    KEY (nat)
 ) COMMENT 'Material types affected pages for self (for admin)';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_menus (

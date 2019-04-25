@@ -458,15 +458,15 @@ class ViewSub_Main extends RAASAbstractSubView
     {
         $arr = [];
         if ($item->id) {
-            if ($affectedPages = $item->affectedPages) {
+            if ($urlParent = $item->urlParent) {
                 $pageCache = PageRecursiveCache::i();
                 $domainsIds = $pageCache->getChildrenIds(0);
                 $domainUrl = '';
                 if (count($domainsIds) > 1) {
-                    $domainId = (int)$affectedPages[0]->Domain->id;
+                    $domainId = (int)$urlParent->Domain->id;
                     $domainData = $pageCache->cache[$domainId];
                     if (!stristr($domainData['urn'], $_SERVER['HTTP_HOST'])) {
-                        $domainUrl = $affectedPages[0]->domain;
+                        $domainUrl = $urlParent->domain;
                     }
                 }
                 $arr[] = [
@@ -539,7 +539,7 @@ class ViewSub_Main extends RAASAbstractSubView
                     'icon' => 'share-alt'
                 ];
             }
-            if ($affectedPages && $affectedPages[0]->cache) {
+            if ($urlParent->cache) {
                 $arr[] = [
                     'href' => $this->url . '&action=clear_material_cache&id=' . (int)$item->id
                            .  ($showlist ? '&back=1' : ''),

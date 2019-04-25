@@ -5,10 +5,19 @@ use \RAAS\Application;
 
 class Dictionary extends \RAAS\Dictionary
 {
+    use RecursiveTrait;
+
     protected static $tablename = 'cms_dictionaries';
     protected static $references = array('parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Dictionary', 'cascade' => true));
     protected static $children = array('children' => array('classname' => 'RAAS\\CMS\\Dictionary', 'FK' => 'pid'));
     protected static $caches = array('pvis' => array('affected' => array('parent'), 'sql' => "IF(parent.id, (parent.vis AND parent.pvis), 1)"));
+
+    protected static $cognizableVars = [
+        'selfAndChildren',
+        'selfAndChildrenIds',
+        'selfAndParents',
+        'selfAndParentsIds',
+    ];
 
     public function __get($var)
     {
@@ -21,8 +30,8 @@ class Dictionary extends \RAAS\Dictionary
                 break;
         }
     }
-    
-    
+
+
     public function commit()
     {
         if (!$this->pid) {
@@ -45,8 +54,8 @@ class Dictionary extends \RAAS\Dictionary
         $c = (bool)(int)$SQL_result;
         return $c;
     }
-    
-    
+
+
     public static function importByURN($urn = '')
     {
         $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";

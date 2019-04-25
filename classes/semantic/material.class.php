@@ -1,28 +1,69 @@
 <?php
 namespace RAAS\CMS;
 
-use \RAAS\Attachment;
-use \RAAS\Application;
+use SOME\SOME;
+use RAAS\Attachment;
+use RAAS\Application;
+use RAAS\User as RAASUser;
 
-class Material extends \SOME\SOME implements IAccessible
+class Material extends SOME implements IAccessible
 {
     protected static $tablename = 'cms_materials';
-    protected static $defaultOrderBy = "post_date DESC";
-    protected static $objectCascadeDelete = true;
-    protected static $cognizableVars = array('fields', 'affectedPages', 'relatedMaterialTypes');
 
-    protected static $references = array(
-        'material_type' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => true),
-        'author' => array('FK' => 'author_id', 'classname' => 'RAAS\\User', 'cascade' => false),
-        'editor' => array('FK' => 'editor_id', 'classname' => 'RAAS\\User', 'cascade' => false),
-    );
-    protected static $children = array(
-        'access' => array('classname' => 'RAAS\\CMS\\CMSAccess', 'FK' => 'material_id'),
-    );
-    protected static $links = array(
-        'pages' => array('tablename' => 'cms_materials_pages_assoc', 'field_from' => 'id', 'field_to' => 'pid', 'classname' => 'RAAS\\CMS\\Page'),
-        'allowedUsers' => array('tablename' => 'cms_access_materials_cache', 'field_from' => 'material_id', 'field_to' => 'uid', 'classname' => 'RAAS\\CMS\\User'),
-    );
+    protected static $defaultOrderBy = "post_date DESC";
+
+    protected static $objectCascadeDelete = true;
+
+    protected static $cognizableVars = [
+        'fields',
+        'affectedPages',
+        'relatedMaterialTypes'
+    ];
+
+    protected static $references = [
+        'material_type' => [
+            'FK' => 'pid',
+            'classname' => Material_Type::class,
+            'cascade' => true
+        ],
+        'author' => [
+            'FK' => 'author_id',
+            'classname' => RAASUser::class,
+            'cascade' => false
+        ],
+        'editor' => [
+            'FK' => 'editor_id',
+            'classname' => RAASUser::class,
+            'cascade' => false
+        ],
+        'urlParent' => [
+            'FK' => 'cache_url_parent_id',
+            'classname' => Page::class,
+            'cascade' => false,
+        ]
+    ];
+
+    protected static $children = [
+        'access' => [
+            'classname' => CMSAccess::class,
+            'FK' => 'material_id'
+        ],
+    ];
+
+    protected static $links = [
+        'pages' => [
+            'tablename' => 'cms_materials_pages_assoc',
+            'field_from' => 'id',
+            'field_to' => 'pid',
+            'classname' => Page::class
+        ],
+        'allowedUsers' => [
+            'tablename' => 'cms_access_materials_cache',
+            'field_from' => 'material_id',
+            'field_to' => 'uid',
+            'classname' => User::class
+        ],
+    ];
 
     public function __get($var)
     {
@@ -33,7 +74,7 @@ class Material extends \SOME\SOME implements IAccessible
                 } elseif ($this->affectedPages) {
                     return $this->affectedPages;
                 } else {
-                    return array();
+                    return [];
                 }
                 break;
             case 'parents_ids':
@@ -46,8 +87,8 @@ class Material extends \SOME\SOME implements IAccessible
                 break;
             case 'parent':
                 if ($this->parents) {
-                    if ((int)$this->page_id && in_array($this->page_id, $this->parents_ids)) {
-                        return new Page((int)$this->page_id);
+                    if ($this->urlParent->id) {
+                        return $this->urlParent;
                     } else {
                         return $this->parents[0];
                     }
@@ -59,37 +100,42 @@ class Material extends \SOME\SOME implements IAccessible
                     // echo $var . ' = ' . $val; exit;
                 if ($val !== null) {
                     return $val;
-                } else {
-                    if (substr($var, 0, 3) == 'vis') {
-                        $var = strtolower(substr($var, 3));
-                        $vis = true;
+                }
+                if (substr($var, 0, 3) == 'vis') {
+                    $var = strtolower(substr($var, 3));
+                    $vis = true;
+                }
+                // 2019-02-11, AVS: Заменил isset($this->fields[$var])
+                // на $this->fields[$var]->id, т.к. на TimeWeb'е на PHP5.6
+                // isset($this->fields[$var]) выдает false, хотя на локальном
+                // PHP5.6 выдает true - хз почему
+                if ($this->fields[$var]->id &&
+                    ($this->fields[$var] instanceof Material_Field)
+                ) {
+                    $temp = $this->fields[$var]->getValues();
+                    if ($vis) {
+                        $temp = array_values(
+                            array_filter(
+                                (array)$temp,
+                                function ($x) {
+                                    return isset($x->vis) && $x->vis;
+                                }
+                            )
+                        );
                     }
-                    // 2019-02-11, AVS: Заменил isset($this->fields[$var])
-                    // на $this->fields[$var]->id, т.к. на TimeWeb'е на PHP5.6
-                    // isset($this->fields[$var]) выдает false, хотя на локальном
-                    // PHP5.6 выдает true - хз почему
-                    if ($this->fields[$var]->id && ($this->fields[$var] instanceof Material_Field)) {
-                        $temp = $this->fields[$var]->getValues();
-                        if ($vis) {
-                            $temp = array_values(
-                                array_filter(
-                                    (array)$temp,
-                                    function ($x) {
-                                        return isset($x->vis) && $x->vis;
-                                    }
-                                )
-                            );
-                        }
-                        return $temp;
-                    }
-                    if ((strtolower($var) == 'url') && !isset($temp)) {
-                        // Размещаем сюда из-за большого количества баннеров, где URL задан явно
-                        // 2015-06-21, AVS: заменили parent на affectedPages[0], т.к. зачастую, если новость задана и на главной и на странице новостей,
-                        // url по умолчанию ведет на главную, где нет nat'а
-                        // 2016-02-09, AVS: делаем проверку, а вообще есть ли affectedPages
-                        // Если нет, то и URL у материала по сути нет
-                        return $this->affectedPages ? ($this->affectedPages[0]->url . $this->urn . '/') : null;
-                    }
+                    return $temp;
+                }
+                if ((strtolower($var) == 'url') && !isset($temp)) {
+                    // Размещаем сюда из-за большого количества баннеров,
+                    // где URL задан явно
+                    // 2015-06-21, AVS: заменили parent на affectedPages[0],
+                    // т.к. зачастую, если новость задана и на главной и
+                    // на странице новостей,
+                    // url по умолчанию ведет на главную, где нет nat'а
+                    // 2016-02-09, AVS: делаем проверку, а вообще
+                    // есть ли affectedPages
+                    // Если нет, то и URL у материала по сути нет
+                    return $this->cache_url ?: null;
                 }
                 break;
         }
@@ -98,6 +144,12 @@ class Material extends \SOME\SOME implements IAccessible
 
     public function commit()
     {
+        if ($this->id &&
+            $this->updates['pid'] &&
+            ($this->updates['pid'] != $this->properties['pid'])
+        ) {
+            $oldMaterialTypeId = $this->properties['pid'];
+        }
         $this->modify(false);
         $this->modify_date = date('Y-m-d H:i:s');
         if (!$this->id) {
@@ -112,7 +164,9 @@ class Material extends \SOME\SOME implements IAccessible
             $this->urn = trim($this->urn, '-');
         }
         $need2UpdateURN = false;
-        if ($this->checkForSimilarPages() || Package::i()->checkForSimilar($this)) {
+        if ($this->checkForSimilarPages() ||
+            Package::i()->checkForSimilar($this)
+        ) {
             $need2UpdateURN = true;
         }
         parent::commit();
@@ -126,6 +180,17 @@ class Material extends \SOME\SOME implements IAccessible
             parent::commit();
         }
         $this->exportPages();
+
+        // 2019-04-25, AVS: обновим связанные страницы
+        static::updateAffectedPages(null, $this);
+        if ($oldMaterialTypeId) {
+            Material_Type::updateAffectedPagesForSelf(
+                new Material_Type($oldMaterialTypeId)
+            );
+            Material_Type::updateAffectedPagesForSelf($this->material_type);
+        }
+        Material_Type::updateAffectedPagesForSelf($this->material_type);
+
         $this->reload();
         foreach ($this->parents as $row) {
             $row->modify();
@@ -136,8 +201,13 @@ class Material extends \SOME\SOME implements IAccessible
     public function visit()
     {
         $this->visit_counter++;
-        // 2017-09-07, AVS: сделал через базу, чтобы не сохранялось изменение, если материал взят из кэша
-        static::_SQL()->update(static::_tablename(), "id = " . (int)$this->id, array('visit_counter' => (int)$this->visit_counter));
+        // 2017-09-07, AVS: сделал через базу, чтобы не сохранялось изменение,
+        // если материал взят из кэша
+        static::_SQL()->update(
+            static::_tablename(),
+            "id = " . (int)$this->id,
+            ['visit_counter' => (int)$this->visit_counter]
+        );
     }
 
 
@@ -188,7 +258,8 @@ class Material extends \SOME\SOME implements IAccessible
 
 
     /**
-     * Ассоциировать материал со страницей. Работает только для неглобальных материалов
+     * Ассоциировать материал со страницей.
+     * Работает только для неглобальных материалов
      * @param Page $page Страница, на которую нужно разместить материал
      * @return bool true в случае успешного завершения, false в случае неудачи
      */
@@ -200,8 +271,16 @@ class Material extends \SOME\SOME implements IAccessible
         if (in_array($page->id, (array)$this->pages_ids)) {
             return false;
         }
-        $arr = array('id' => (int)$this->id, 'pid' => (int)$page->id);
-        self::$SQL->add(self::$dbprefix . self::$links['pages']['tablename'], $arr);
+        $arr = ['id' => (int)$this->id, 'pid' => (int)$page->id];
+        self::$SQL->add(
+            self::$dbprefix . self::$links['pages']['tablename'],
+            $arr
+        );
+
+        // 2019-04-25, AVS: обновим связанные страницы
+        static::updateAffectedPages(null, $this);
+        Material_Type::updateAffectedPagesForSelf($this->material_type);
+
         return true;
     }
 
@@ -219,10 +298,16 @@ class Material extends \SOME\SOME implements IAccessible
         if (!in_array($page->id, (array)$this->pages_ids)) {
             return false;
         }
-        $SQL_query = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename']
+        $sqlQuery = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename']
                    . " WHERE id = " . (int)$this->id
                    . "   AND pid = " . (int)$page->id;
-        self::$SQL->query($SQL_query);
+        self::$SQL->query($sqlQuery);
+
+
+        // 2019-04-25, AVS: обновим связанные страницы
+        static::updateAffectedPages(null, $this);
+        Material_Type::updateAffectedPagesForSelf($this->material_type);
+
         return true;
     }
 
@@ -230,28 +315,36 @@ class Material extends \SOME\SOME implements IAccessible
     private function exportPages()
     {
         if ($this->cats) {
-            $SQL_query = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename'] . " WHERE id = " . (int)$this->id;
-            self::$SQL->query($SQL_query);
+            $sqlQuery = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename']
+                       . " WHERE id = " . (int)$this->id;
+            self::$SQL->query($sqlQuery);
             $id = (int)$this->id;
             $arr = array_map(
                 function ($x) use ($id) {
-                    return array('id' => $id, 'pid' => $x);
+                    return ['id' => $id, 'pid' => $x];
                 },
                 (array)$this->cats
             );
             unset($this->cats);
-            self::$SQL->add(self::$dbprefix . self::$links['pages']['tablename'], $arr);
+            self::$SQL->add(
+                self::$dbprefix . self::$links['pages']['tablename'],
+                $arr
+            );
         } elseif ($this->material_type->global_type) {
-            $SQL_query = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename'] . " WHERE id = " . (int)$this->id;
-            self::$SQL->query($SQL_query);
+            $sqlQuery = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename']
+                       . " WHERE id = " . (int)$this->id;
+            self::$SQL->query($sqlQuery);
         }
     }
 
 
     public static function delete(self $object)
     {
+        $mtype = $object->material_type;
+        $material = new Material($object->id);
+
         foreach ($object->fields as $row) {
-            if (in_array($row->datatype, array('image', 'file'))) {
+            if (in_array($row->datatype, ['image', 'file'])) {
                 foreach ($row->getValues(true) as $att) {
                     Attachment::delete($att);
                 }
@@ -261,7 +354,8 @@ class Material extends \SOME\SOME implements IAccessible
 
         parent::delete($object);
 
-        // 2019-01-24, AVS: добавил удаление из связанных данных несуществующих материалов
+        // 2019-01-24, AVS: добавил удаление из связанных данных
+        // несуществующих материалов
         $sqlQuery = "DELETE tD
                        FROM cms_data AS tD
                        JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
@@ -269,15 +363,18 @@ class Material extends \SOME\SOME implements IAccessible
                       WHERE tF.datatype = ?
                         AND tM.id IS NULL";
         $result = static::$SQL->query([$sqlQuery, ['material']]);
+
+        // 2019-04-25, AVS: обновим связанные страницы
+        static::updateAffectedPages(null, $material);
+        Material_Type::updateAffectedPagesForSelf($mtype);
     }
 
 
     public static function importByURN($urn)
     {
-        $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
-        $SQL_bind = array($urn);
-        if ($SQL_result = self::$SQL->getline(array($SQL_query, $SQL_bind))) {
-            return new self($SQL_result);
+        $sqlQuery = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
+        if ($sqlResult = self::$SQL->getline([$sqlQuery, [$urn]])) {
+            return new self($sqlResult);
         } else {
             return new self();
         }
@@ -287,7 +384,7 @@ class Material extends \SOME\SOME implements IAccessible
     protected function _fields()
     {
         $temp = $this->material_type->fields;
-        $arr = array();
+        $arr = [];
         foreach ((array)$temp as $row) {
             $row->Owner = $this;
             $arr[$row->urn] = $row;
@@ -296,52 +393,33 @@ class Material extends \SOME\SOME implements IAccessible
     }
 
 
+    /**
+     * Возвращает связанные страницы (где материал может раскрываться,
+     * начиная с явно указанной в page_id)
+     * @return array<Page>
+     */
     protected function _affectedPages()
     {
-        // 2015-07-13, AVS: Добавил, поменял tMt.id = " . (int)$this->pid в запросе на tMt.id IN (" . implode(", ", $types) . "), чтобы рассматривались
-        // также блоки, связанные с родительскими типами материалов
-        $MType = $this->material_type;
-        $types = array_merge(array((int)$MType->id), (array)$MType->parents_ids);
-        $SQL_query = "SELECT tP.*
-                        FROM " . Page::_tablename() . " AS tP
-                        JOIN " . self::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
-                        JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id
-                        JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.id = tB.id
-                        JOIN " . Material_Type::_tablename() . " AS tMt ON tMt.id = tBM.material_type
-                       WHERE tB.vis AND tB.nat AND tMt.id IN (" . implode(", ", $types) . ") ";
-        // 2015-06-21, AVS: добавил, т.к. иначе предлагает выбрать основную страницу из всех, на которых есть блок, без учета страниц материала
-        if ($this->pages) {
-            $SQL_query .= " AND tP.id IN (" . implode(", ", $this->pages_ids) . ")";
-        }
-        $Set = Page::getSQLSet($SQL_query);
-        // 2015-08-21, AVS: добавил сортировку, т.к. выбранная по умолчанию страница должна быть первой,
-        // в частности для реализации $this->url, где используется $this->affectedPages[0]
-        if ($dpid = $this->page_id) {
-            usort(
-                $Set,
-                function ($a, $b) use ($dpid) {
-                    if (($a->id == $dpid) && ($b->id != $dpid)) {
-                        return -1;
-                    } elseif (($b->id == $dpid) && ($a->id != $dpid)) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                }
-            );
-        }
-
-        return $Set;
+        $sqlQuery = "SELECT tP.*
+                       FROM " . Page::_tablename() . " AS tP
+                       JOIN " . static::$dbprefix . "cms_materials_affected_pages_cache AS tMAP ON tMAP.page_id = tP.id
+                      WHERE tMAP.material_id = ?
+                   ORDER BY (tMAP.page_id = ?) DESC, tP.priority ASC";
+        $set = Page::getSQLSet([$sqlQuery, [(int)$this->id, (int)$this->page_id]]);
+        return $set;
     }
 
 
     /**
      * Обновляет связанные страницы
-     * @param Material_Type $materialType Ограничить обновление одним типом материалов
+     * @param Material_Type $materialType Ограничить обновление одним
+     *                                    типом материалов
      * @param Material $material Ограничить обновление одним материалом
      */
-    public static function updateAffectedPages(Material_Type $materialType = null, Material $material = null)
-    {
+    public static function updateAffectedPages(
+        Material_Type $materialType = null,
+        Material $material = null
+    ) {
         $materialId = $material->id;
         if ($materialTypeId = $materialType->id) {
             $materialTypesIds = $materialType->selfAndChildrenIds;
@@ -352,13 +430,16 @@ class Material extends \SOME\SOME implements IAccessible
         }
         $sqlQuery .= " FROM " . static::$dbprefix . "cms_materials_affected_pages_cache ";
         if (!$materialId && $materialTypeId) {
-            $sqlQuery .= "  AS tMAP JOIN " . static::_tablename() . " AS tM ON tM.id = tMAP.material_id ";
+            $sqlQuery .= "  AS tMAP LEFT JOIN " . static::_tablename() . " AS tM ON tM.id = tMAP.material_id ";
         }
         $sqlQuery .= " WHERE 1 ";
         if ($materialId = $material->id) {
-            $sqlQuery .= " AND tMAP.material_id = " . (int)$materialId;
+            $sqlQuery .= " AND material_id = " . (int)$materialId;
         } elseif ($materialTypeId) {
-            $sqlQuery .= " AND tM.pid IN (" . implode(", ", $materialTypesIds) . ")";
+            $sqlQuery .= " AND (
+                                (tM.pid IN (" . implode(", ", $materialTypesIds) . "))
+                             OR (tM.pid IS NULL)
+                           )";
         }
         static::_SQL()->query($sqlQuery);
 
@@ -412,27 +493,34 @@ class Material extends \SOME\SOME implements IAccessible
     }
 
 
+    /**
+     * Возвращает связанные типы материалов (прикрепленные материалы в полях)
+     * @return array<Material_Type>
+     */
     protected function _relatedMaterialTypes()
     {
-        $ids = array_merge(array(0, (int)$this->material_type->id), (array)$this->material_type->parents_ids);
-        $SQL_query = "SELECT tMT.*
+        $ids = array_merge([0], (array)$this->material_type->selfAndParentsIds);
+        $sqlQuery = "SELECT tMT.*
                         FROM " . Material_Type::_tablename() . " AS tMT
                         JOIN " . Material_Field::_tablename() . " AS tF ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid = tMT.id
                         WHERE tF.datatype = 'material' AND source IN (" . implode(", ", $ids) . ")";
-        return Material_Type::getSQLSet($SQL_query);
+        return Material_Type::getSQLSet($sqlQuery);
     }
 
 
     /**
-     * Ищет страницы с таким же URN, как и текущий материал (для проверки на уникальность)
-     * @return bool TRUE, если есть страница с таким URN, как и текущий материал, FALSE в противном случае
+     * Ищет страницы с таким же URN, как и текущий материал
+     * (для проверки на уникальность)
+     * @return bool true, если есть страница с таким URN, как и текущий материал,
+     *              false в противном случае
      */
     protected function checkForSimilarPages()
     {
-        $SQL_query = "SELECT COUNT(*) FROM " . Page::_tablename() . " WHERE urn = ?";
-        $SQL_result = self::$SQL->getvalue(array($SQL_query, $this->urn));
-        $c = (bool)(int)$SQL_result;
-        return $c;
+        $sqlQuery = "SELECT COUNT(*)
+                        FROM " . Page::_tablename()
+                   . " WHERE urn = ?";
+        $sqlResult = self::$SQL->getvalue([$sqlQuery, $this->urn]);
+        return (bool)(int)$sqlResult;
     }
 
 
