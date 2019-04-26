@@ -12,6 +12,8 @@ use RAAS\Application;
  * @property-read string $logFile Файл, где хранится лог
  * @property-read int $queriesCounter Счетчик запросов
  * @property-read float $queriesTime Общее время запросов
+ * @property-read int $timersCounter Счетчик таймеров
+ * @property-read float $timersTime Общее время таймеров
  * @property-read int $blocksCounter Счетчик блоков
  * @property-read float $blocksTime Общее время блоков
  * @property-read int $snippetsCounter Счетчик сниппетов
@@ -28,13 +30,15 @@ class Diag
 
     protected $data = [
         'queries' => [],
+        'timers' => [],
         'blocks' => [],
         'pages' => [],
-        'snippets' => []
+        'snippets' => [],
     ];
 
     protected static $criticalTime = [
         'queries' => 0.1,
+        'timers' => 0,
         'blocks' => 0.1,
         'snippets' => 0.1,
         'pages' => 1
@@ -101,8 +105,14 @@ class Diag
             $this->logFile = $logFile;
         }
         if ($this->logFile) {
-            $this->data = (array)@unserialize(file_get_contents($this->logFile));
-            return $data;
+            $text = @file_get_contents($this->logFile);
+            if ($text) {
+                $data = @unserialize($text);
+                if (is_array($data)) {
+                    $this->data = $data;
+                }
+            }
+            return $this->data;
         }
     }
 
@@ -193,8 +203,8 @@ class Diag
         if ($temp) {
             $diag = new self();
             foreach ($temp as $row) {
-                foreach (['queries', 'blocks', 'pages', 'snippets'] as $key) {
-                    foreach ($row->data[$key] as $k => $arr) {
+                foreach ($row->data as $key => $keyData) {
+                    foreach ((array)$keyData as $k => $arr) {
                         $diag->data[$key][$k]['counter'] += (int)$arr['counter'];
                         $diag->data[$key][$k]['time'] += (float)$arr['time'];
                         if ($key == 'blocks') {

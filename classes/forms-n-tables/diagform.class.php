@@ -18,27 +18,31 @@ class DiagForm extends \RAAS\Form
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
 
-        $defaultParams = array(
+        $defaultParams = [
             'caption' => $view->_('DIAGNOSTICS'),
-            'meta' => array('Item' => $Item, 'from' => $params['from'], 'to' => $params['to']),
-            'children' => array(),
+            'meta' => [
+                'Item' => $Item,
+                'from' => $params['from'],
+                'to' => $params['to']
+            ],
+            'children' => [],
             'commit' => 'is_null',
             'template' => 'dev_diag.tmp.php'
-        );
-        foreach (array('queries', 'snippets', 'blocks', 'pages') as $key) {
-            $row = new FormTab(array(
+        ];
+        foreach (['queries', 'timers', 'snippets', 'blocks', 'pages'] as $key) {
+            $row = new FormTab([
                 'name' => $key,
                 'caption' => $this->view->_('DIAGNOSTICS_TAB_' . strtoupper($key)),
-                'children' => array(),
+                'children' => [],
                 'template' => 'dev_diag_tab.inc.php'
-            ));
-            foreach (array('main', 'long', 'freq') as $key2) {
-                $row->children[$key2] = new FieldSet(array(
+            ]);
+            foreach (['main', 'long', 'freq'] as $key2) {
+                $row->children[$key2] = new FieldSet([
                     'name' => $key2,
                     'caption' => $this->view->_('DIAGNOSTICS_TOP10') . ' '
                             . $this->view->_('DIAGNOSTICS_SET_' . strtoupper($key2)) . ' '
@@ -54,7 +58,7 @@ class DiagForm extends \RAAS\Form
                         ])
                     ],
                     'template' => 'dev_diag_set.inc.php'
-                ));
+                ]);
             }
             $defaultParams['children'][$key] = $row;
         }
