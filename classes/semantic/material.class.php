@@ -446,17 +446,18 @@ class Material extends SOME implements IAccessible
 
         $sqlQuery = "INSERT INTO " . static::$dbprefix . "cms_materials_affected_pages_cache
                             (material_id, page_id)
-                     SELECT tMPA.id AS material_id,
-                            tMPA.pid AS page_id
+                     SELECT tM.id AS material_id,
+                            tMTAPM.page_id AS page_id
                        FROM " . static::_tablename() . " AS tM
-                       JOIN " . static::$dbprefix . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id
-                       JOIN " . static::$dbprefix . "cms_material_types_affected_pages_for_materials_cache AS tMTAPM ON tMTAPM.material_type_id = tM.pid AND tMTAPM.page_id = tMPA.pid
-                      WHERE 1";
+                       JOIN " . static::$dbprefix . "cms_material_types_affected_pages_for_materials_cache AS tMTAPM ON tMTAPM.material_type_id = tM.pid
+                  LEFT JOIN " . static::$dbprefix . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id
+                      WHERE (tMTAPM.page_id = tMPA.pid OR tMPA.pid IS NULL)";
         if ($materialId) {
             $sqlQuery .= " AND tM.id = " . (int)$materialId;
         } elseif ($materialTypeId) {
             $sqlQuery .= " AND tM.pid IN (" . implode(", ", $materialTypesIds) . ")";
         }
+        $sqlQuery .= " GROUP BY tM.id, tMTAPM.page_id";
         static::_SQL()->query($sqlQuery);
 
         // Определим родителей по URL

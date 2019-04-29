@@ -458,7 +458,8 @@ class ViewSub_Main extends RAASAbstractSubView
     {
         $arr = [];
         if ($item->id) {
-            if ($urlParent = $item->urlParent) {
+            $urlParent = $item->urlParent;
+            if ($urlParent->id) {
                 $pageCache = PageRecursiveCache::i();
                 $domainsIds = $pageCache->getChildrenIds(0);
                 $domainUrl = '';
