@@ -234,6 +234,11 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                     new Redirector(\SOME\HTTP::queryString('action='));
                 }
                 break;
+            case 'update_affected_pages':
+                Material_Type::updateAffectedPagesForMaterials();
+                Material_Type::updateAffectedPagesForSelf();
+                new Redirector(\SOME\HTTP::queryString('action='));
+                break;
             case 'cache':
                 if (Package::i()->registryGet('clear_cache_manually')) {
                     // $this->model->getCacheMap();

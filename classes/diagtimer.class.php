@@ -4,7 +4,6 @@
  */
 namespace RAAS\CMS;
 
-use SOME\Exception;
 use RAAS\Timer;
 
 /**
@@ -44,13 +43,15 @@ class DiagTimer extends Timer
      */
     public function __construct($name = null, $filename = null, $autoStart = true)
     {
+        $debugBacktrace = debug_backtrace(0, 3);
         if ($name) {
             $this->name = $name;
+        } else {
+            $this->name = $debugBacktrace[1]['function'];
         }
         if ($filename) {
             $this->filename = $filename;
         } else {
-            $debugBacktrace = debug_backtrace();
             $filepath = $debugBacktrace[0]['file'];
             if (!stristr($filepath, 'eval()')) {
                 $filename = basename($filepath);
@@ -66,12 +67,12 @@ class DiagTimer extends Timer
     public function start()
     {
         if (!($diag = Controller_Frontend::i()->diag)) {
-            return false;
+            return;
         } elseif ($this->startLine) {
-            throw new Exception('Timer has been already started');
+            return;
         }
         if (!$this->startLine) {
-            $debugBacktrace = debug_backtrace();
+            $debugBacktrace = debug_backtrace(0, 3);
             foreach ($debugBacktrace as $dbRow) {
                 if ($dbRow['file'] != __FILE__) {
                     $this->startLine = $dbRow['line'];
@@ -86,12 +87,12 @@ class DiagTimer extends Timer
     public function stop()
     {
         if (!($diag = Controller_Frontend::i()->diag)) {
-            return false;
+            return;
         }
         if (!$this->startLine) {
-            return false;
+            return;
         }
-        $debugBacktrace = debug_backtrace();
+        $debugBacktrace = debug_backtrace(0, 3);
         $this->stopLine = $debugBacktrace[0]['line'];
         parent::stop();
 

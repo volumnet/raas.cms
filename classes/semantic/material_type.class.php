@@ -206,7 +206,7 @@ class Material_Type extends SOME
                 'material_type_id' => (int)$sqlRow['material_type_id'],
                 'page_id' => (int)$sqlRow['page_id']
             ];
-            foreach ($mtCache->getChildrenIds($sqlRow['material_type_id']) as $childMTypeId) {
+            foreach ($mtCache->getAllChildrenIds($sqlRow['material_type_id']) as $childMTypeId) {
                 $sqlArr[] = [
                     'material_type_id' => (int)$childMTypeId,
                     'page_id' => (int)$sqlRow['page_id']

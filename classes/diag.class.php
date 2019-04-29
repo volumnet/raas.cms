@@ -63,6 +63,8 @@ class Diag
                 break;
             case 'queriesCounter':
             case 'queriesTime':
+            case 'timersCounter':
+            case 'timersTime':
             case 'snippetsCounter':
             case 'snippetsTime':
             case 'blocksCounter':
@@ -75,7 +77,7 @@ class Diag
                 $sum = 0;
                 foreach ((array)$this->data[$key] as $row) {
                     if (isset($row[$val])) {
-                        $sum += (int)$row[$val];
+                        $sum += (float)$row[$val];
                     }
                 }
                 return $sum;
@@ -112,8 +114,8 @@ class Diag
                     $this->data = $data;
                 }
             }
-            return $this->data;
         }
+        return $this->data;
     }
 
 
@@ -253,6 +255,9 @@ class Diag
     {
         $stat = [];
         foreach ($this->data as $entityName => $entityData) {
+            if (is_numeric($entityName)) {
+                continue; // 2019-04-29, AVS: Почему-то появляется индекс [0], пока не знаю почему
+            }
             $criticalTime = static::$criticalTime[$entityName];
             $all = [];
             foreach ((array)$entityData as $id => $val) {
