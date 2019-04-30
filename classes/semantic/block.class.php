@@ -350,11 +350,11 @@ abstract class Block extends \SOME\SOME implements IAccessible
      * @param array $in Входные данные
      * @param Page $page Страница, для которой обрабатываем виджет
      */
-    protected function processWidget(array $IN = array(), $page = null)
+    protected function processWidget(array $in = array(), $page = null)
     {
         if ($this->Widget->id) {
             $st = microtime(true);
-            $this->Widget->process(array_merge($IN, [
+            $this->Widget->process(array_merge($in, [
                 'IN' => $in,
                 'SITE' => $page->Domain,
                 'Page' => $page,
