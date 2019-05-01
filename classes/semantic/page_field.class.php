@@ -1,13 +1,36 @@
 <?php
+/**
+ * Поле страницы
+ */
 namespace RAAS\CMS;
 
+/**
+ * Класс поля страницы
+ * @property-read Material_Type $parent Тип материала, к которому принадлежит
+ *                                      поле (пустой)
+ * @property-read Snippet $Preprocessor Препроцессор поля
+ * @property-read Snippet $Postprocessor Постпроцессор поля
+ * @property-read Page|null $Owner Страница-владелец поля (если назначена)
+ */
 class Page_Field extends Field
 {
-    protected static $references = array(
-        'parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => false),
-        'Preprocessor' => array('FK' => 'preprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
-        'Postprocessor' => array('FK' => 'postprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
-    );
+    protected static $references = [
+        'parent' => [
+            'FK' => 'pid',
+            'classname' => Material_Type::class,
+            'cascade' => false
+        ],
+        'Preprocessor' => [
+            'FK' => 'preprocessor_id',
+            'classname' => Snippet::class,
+            'cascade' => false
+        ],
+        'Postprocessor' => [
+            'FK' => 'postprocessor_id',
+            'classname' => Snippet::class,
+            'cascade' => false
+        ],
+    ];
 
     public function __set($var, $val)
     {
@@ -23,11 +46,12 @@ class Page_Field extends Field
         }
     }
 
+
     public static function getSet()
     {
         $args = func_get_args();
         if (!isset($args[0]['where'])) {
-            $args[0]['where'] = array();
+            $args[0]['where'] = [];
         } else {
             $args[0]['where'] = (array)$args[0]['where'];
         }
@@ -36,11 +60,23 @@ class Page_Field extends Field
     }
 
 
+    /**
+     * Поиск поля по URN
+     * @param string $urn URN для поиска
+     */
     public static function importByURN($urn = '')
     {
-        $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ? AND classname = 'RAAS\\\\CMS\\\\Material_Type' AND NOT pid";
-        if ($SQL_result = self::$SQL->getline(array($SQL_query, $urn))) {
-            return new self($SQL_result);
+        $sqlQuery = "SELECT *
+                       FROM " . self::_tablename()
+                  . " WHERE urn = ?
+                        AND classname = ?
+                        AND NOT pid";
+        if ($sqlResult = self::$SQL->getline([
+            $sqlQuery,
+            $urn,
+            Material_Type::class
+        ])) {
+            return new self($sqlResult);
         }
         return null;
     }

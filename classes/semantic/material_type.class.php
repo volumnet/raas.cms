@@ -1,11 +1,29 @@
 <?php
+/**
+ * Тип материалов
+ */
 namespace RAAS\CMS;
 
 use SOME\SOME;
 
+/**
+ * Класс типа материалов
+ * @property-read Material_Type $parent Родительский тип
+ * @property-read array<Material_Type> $parents Список родительских типов
+ * @property-read array<Material_Type> $children Список дочерних типов
+ * @property-read array<Page> $affectedPages Список связанных страниц
+ * @property-read array<Material_Field> $fields Список полей
+ * @property-read array<Material_Fiel> $selfFields Список собственных полей
+ *                                                 (без учета родительских)
+ * @property-read array<Material_Type> $selfAndChildren Тип и все родительские
+ * @property-read array<int> $selfAndChildrenIds ID# типа и всех родительских
+ * @property-read array<Material_Type> $selfAndParents Тип и все дочерние
+ * @property-read array<int> $selfAndParentsIds ID# типа и всех дочерних
+ */
 class Material_Type extends SOME
 {
     use RecursiveTrait;
+    use ImportByURNTrait;
 
     protected static $tablename = 'cms_material_types';
 
@@ -50,9 +68,6 @@ class Material_Type extends SOME
         'selfAndParentsIds',
     ];
 
-    /**
-     * Сохраняет сущность
-     */
     public function commit()
     {
         $new = !$this->id;
@@ -128,6 +143,10 @@ class Material_Type extends SOME
     }
 
 
+    /**
+     * Собственные поля (без учета родительских)
+     * @return array<Material_Field>
+     */
     protected function _selfFields()
     {
         $sqlQuery = "SELECT *
@@ -145,6 +164,10 @@ class Material_Type extends SOME
     }
 
 
+    /**
+     * Список полей (включая родительские)
+     * @return array<Material_Field>
+     */
     protected function _fields()
     {
         $arr1 = [];
@@ -157,23 +180,10 @@ class Material_Type extends SOME
     }
 
 
-    public static function importByURN($urn)
-    {
-        $sqlQuery = "SELECT *
-                       FROM " . self::_tablename()
-                  . " WHERE urn = ?";
-        $sqlBind = [$urn];
-        if ($sqlResult = self::$SQL->getline([$sqlQuery, $sqlBind])) {
-            return new self($sqlResult);
-        } else {
-            return new self();
-        }
-    }
-
-
     /**
      * Обновляет связанные страницы для материалов
-     * @param Material_Type $materialType Ограничить обновление одним типом материалов
+     * @param Material_Type $materialType Ограничить обновление одним
+     *                                    типом материалов
      */
     public static function updateAffectedPagesForMaterials(Material_Type $materialType = null)
     {
@@ -188,10 +198,18 @@ class Material_Type extends SOME
         $sqlQuery = "SELECT tP.id AS page_id,
                             tMt.id AS material_type_id
                         FROM " . Page::_tablename() . " AS tP
-                        JOIN " . static::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
-                        JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id
-                        JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.id = tB.id
-                        JOIN " . Material_Type::_tablename() . " AS tMt ON tMt.id = tBM.material_type
+                        JOIN " . static::$dbprefix . "cms_blocks_pages_assoc
+                          AS tBPA
+                          ON tBPA.page_id = tP.id
+                        JOIN " . Block::_tablename() . "
+                          AS tB
+                          ON tB.id = tBPA.block_id
+                        JOIN " . Block::_dbprefix() . "cms_blocks_material
+                          AS tBM
+                          ON tBM.id = tB.id
+                        JOIN " . Material_Type::_tablename() . "
+                          AS tMt
+                          ON tMt.id = tBM.material_type
                        WHERE tB.vis
                          AND tB.nat";
         if ($materialTypeId) {
@@ -229,7 +247,8 @@ class Material_Type extends SOME
 
     /**
      * Обновляет связанные страницы для собственного использования (для админки)
-     * @param Material_Type $materialType Ограничить обновление одним типом материалов
+     * @param Material_Type $materialType Ограничить обновление одним
+     *                                    типом материалов
      */
     public static function updateAffectedPagesForSelf(Material_Type $materialType = null)
     {
@@ -245,9 +264,15 @@ class Material_Type extends SOME
                      SELECT tMT.id AS material_type_id,
                             tP.id AS page_id
                        FROM " . Page::_tablename() . " AS tP
-                       JOIN " . static::$dbprefix . "cms_materials_pages_assoc AS tMPA ON tMPA.pid = tP.id
-                       JOIN " . Material::_tablename() . " AS tM ON tM.id = tMPA.id
-                       JOIN " . Material_Type::_tablename() . " AS tMT ON tMT.id = tM.pid
+                       JOIN " . static::$dbprefix . "cms_materials_pages_assoc
+                         AS tMPA
+                         ON tMPA.pid = tP.id
+                       JOIN " . Material::_tablename() . "
+                         AS tM
+                         ON tM.id = tMPA.id
+                       JOIN " . Material_Type::_tablename() . "
+                         AS tMT
+                         ON tMT.id = tM.pid
                       WHERE tMT.global_type";
         if ($materialTypeId) {
             $sqlQuery .= " AND tMT.id = " . $materialTypeId;
@@ -261,10 +286,18 @@ class Material_Type extends SOME
                             tP.id AS page_id,
                             MAX(tB.nat) AS nat
                        FROM " . Page::_tablename() . " AS tP
-                       JOIN " . static::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
-                       JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id
-                       JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.id = tB.id
-                       JOIN " . Material_Type::_tablename() . " AS tMT ON tMT.id = tBM.material_type";
+                       JOIN " . static::$dbprefix . "cms_blocks_pages_assoc
+                         AS tBPA
+                         ON tBPA.page_id = tP.id
+                       JOIN " . Block::_tablename() . "
+                         AS tB
+                         ON tB.id = tBPA.block_id
+                       JOIN " . Block::_dbprefix() . "cms_blocks_material
+                         AS tBM
+                         ON tBM.id = tB.id
+                       JOIN " . Material_Type::_tablename() . "
+                         AS tMT
+                         ON tMT.id = tBM.material_type";
         if ($materialTypeId) {
             $sqlQuery .= " AND tMT.id = " . $materialTypeId;
         }

@@ -8,9 +8,7 @@ use SOME\SOME;
 
 /**
  * Класс меню
- * @property-read string $url URL пункта меню
  * @property-read array<Menu> $visSubMenu Видимое подменю
- * @property-read array<Menu> $visChildren Видимые реальные дочерние пункты
  * @property-read array<Menu> $subMenu Подменю (реальные или виртуальные
  *                                     дочерние пункты)
  * @property-read Menu $parent Родительский элемент
@@ -18,10 +16,13 @@ use SOME\SOME;
  * @property-read array<Menu> $parents Набор родительских элементов, начиная с
  *                                     корневого
  * @property-read array<Menu> $children Набор дочерних элементов
+ * @property-read string $url URL пункта меню
+ * @property-read array<Menu> $visChildren Видимые реальные дочерние пункты
  */
 class Menu extends SOME
 {
     use RecursiveTrait;
+    use ImportByURNTrait;
 
     protected static $tablename = 'cms_menus';
 
@@ -181,22 +182,6 @@ class Menu extends SOME
             }
         }
         return false;
-    }
-
-
-    /**
-     * Импортирует сущность по URN
-     * @param string $urn URN для импорта
-     * @return static
-     */
-    public static function importByURN($urn = '')
-    {
-        $sqlQuery = "SELECT * FROM " . static::_tablename() . " WHERE urn = ?";
-        $sqlResult = static::$SQL->getline([$sqlQuery, $urn]);
-        if ($sqlResult) {
-            return new static($sqlResult);
-        }
-        return null;
     }
 
 

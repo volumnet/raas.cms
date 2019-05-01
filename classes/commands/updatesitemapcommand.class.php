@@ -16,10 +16,13 @@ class UpdateSitemapCommand extends LockCommand
     /**
      * Выполнение команды
      * @param string $catalogMTypeURN URN типа материалов каталога
-     * @param string $catalogPageURL Относительный путь страницы - корня каталога
+     * @param string $catalogPageURL Относительный путь страницы -
+     *                               корня каталога
      * @param bool $https Включен ли HTTPS
-     * @param bool $forceUpdate Принудительно выполнить обновление, даже если материалы не были обновлены
-     * @param bool $forceLockUpdate Принудительно выполнить обновление, даже если есть параллельный процесс
+     * @param bool $forceUpdate Принудительно выполнить обновление,
+     *                          даже если материалы не были обновлены
+     * @param bool $forceLockUpdate Принудительно выполнить обновление,
+     *                              даже если есть параллельный процесс
      */
     public function process(
         $catalogMTypeURN = 'catalog',
@@ -43,28 +46,39 @@ class UpdateSitemapCommand extends LockCommand
                       . " WHERE 1";
             $lastModifiedPageTimestamp = Material::_SQL()->getvalue($sqlQuery);
             if (is_file($outputFile)) {
-                if (filemtime($outputFile) >= max($lastModifiedMaterialTimestamp, $lastModifiedPageTimestamp)) {
+                if (filemtime($outputFile) >= max(
+                    $lastModifiedMaterialTimestamp,
+                    $lastModifiedPageTimestamp
+                )) {
                     $this->controller->doLog('Data is actual');
                     return;
                 }
             }
         }
         $this->lock();
-        $pages = Page::getSet(array('where' => "NOT pid"));
+        $pages = Page::getSet(['where' => "NOT pid"]);
         $page = array_shift($pages);
         if ($page->id) {
             if ($https) {
                 $_SERVER['HTTPS'] = 'on';
             }
             $_SERVER['HTTP_HOST'] = parse_url($page->domain, PHP_URL_HOST);
-            $interface = new SitemapInterfaceExtended(null, $page, array(), array(), array(), array(), $_SERVER);
+            $interface = new SitemapInterfaceExtended(
+                null,
+                $page,
+                [],
+                [],
+                [],
+                [],
+                $_SERVER
+            );
             EventProcessor::on(
                 SitemapInterface::class . ':' . 'showMenu:startpage',
                 null,
-                function ($page, $data) use ($t) {
+                function ($pageId, $data) use ($t) {
                     if (!($data['index'] % 100)) {
                         $t->controller->doLog(
-                            'Page #' . $page->id . ' started - ' .
+                            'Page #' . $pageId . ' started - ' .
                             (int)($data['index'] * 100 / $data['size']) . '%'
                         );
                     }
@@ -73,10 +87,10 @@ class UpdateSitemapCommand extends LockCommand
             EventProcessor::on(
                 SitemapInterface::class . ':' . 'showMaterials:startmaterial',
                 null,
-                function ($material, $data) use ($t) {
+                function ($materialId, $data) use ($t) {
                     if (!($data['index'] % 100)) {
                         $t->controller->doLog(
-                            'Material #' . $material->id . ' started - ' .
+                            'Material #' . $materialId . ' started - ' .
                             (int)($data['index'] * 100 / $data['size']) . '%'
                         );
                     }

@@ -1,4 +1,7 @@
 <?php
+/**
+ * Материал
+ */
 namespace RAAS\CMS;
 
 use SOME\SOME;
@@ -6,8 +9,33 @@ use RAAS\Attachment;
 use RAAS\Application;
 use RAAS\User as RAASUser;
 
-class Material extends SOME implements IAccessible
+/**
+ * Класс материала
+ * @property-read array<Page_Field> $fields Поля страницы с указанным $Owner
+ * @property-read array<Page> $affectedPages Связанные страницы
+ * @property-read array<Material_Type> $relatedMaterialTypes Связанные типы
+ *                                                           материалов
+ * @property-read Material_Type $material_type Тип материала
+ * @property-read RAASUser $author Автор материала
+ * @property-read RAASUser $editor Редактор материала
+ * @property-read Page $urlParent Родитель по URL
+ * @property-read array<CMSAccess> $access Доступы
+ * @property-read array<Page> $pages Страницы, на которых размещен материал
+ * @property-read array<User> $allowedUsers Пользователи, которым разрешен
+ *                                          просмотр материала
+ * @property-read array<Page> $parents Страницы, на которых размещен материал,
+ *                                     либо, при отсутствии, связанные страницы
+ * @property-read array<int> $parents_ids ID# страниц, на которых размещен
+ *                                        материал, либо, при отсутствии,
+ *                                        связанных страниц
+ * @property-read Page $parent Первый из массива $parents
+ */
+class Material extends SOME
 {
+    use AccessibleTrait;
+    use PageoidTrait;
+    use ImportByURNTrait;
+
     protected static $tablename = 'cms_materials';
 
     protected static $defaultOrderBy = "post_date DESC";
@@ -198,65 +226,6 @@ class Material extends SOME implements IAccessible
     }
 
 
-    public function visit()
-    {
-        $this->visit_counter++;
-        // 2017-09-07, AVS: сделал через базу, чтобы не сохранялось изменение,
-        // если материал взят из кэша
-        static::_SQL()->update(
-            static::_tablename(),
-            "id = " . (int)$this->id,
-            ['visit_counter' => (int)$this->visit_counter]
-        );
-    }
-
-
-    public function modify($commit = true)
-    {
-        $d0 = time();
-        $d1 = strtotime($this->modify_date);
-        $d2 = strtotime($this->last_modified);
-        if ((time() - $d1 >= 3600) && (time() - $d2 >= 3600)) {
-            $this->last_modified = date('Y-m-d H:i:s');
-            $this->modify_counter++;
-            if ($commit) {
-                parent::commit();
-            }
-        }
-    }
-
-
-    public function userHasAccess(User $user)
-    {
-        $a = CMSAccess::userHasCascadeAccess($this, $user);
-        return ($a >= 0);
-    }
-
-
-    public function currentUserHasAccess()
-    {
-        return $this->userHasAccess(Controller_Frontend::i()->user);
-    }
-
-
-    public function getH1()
-    {
-        return trim($this->h1) ?: trim($this->name);
-    }
-
-
-    public function getMenuName()
-    {
-        return trim($this->menu_name) ?: trim($this->name);
-    }
-
-
-    public function getBreadcrumbsName()
-    {
-        return trim($this->breadcrumbs_name) ?: trim($this->name);
-    }
-
-
     /**
      * Ассоциировать материал со страницей.
      * Работает только для неглобальных материалов
@@ -312,10 +281,14 @@ class Material extends SOME implements IAccessible
     }
 
 
+    /**
+     * Сохранить привязку к страницам
+     */
     private function exportPages()
     {
+        $tablename = self::_dbprefix() . self::$links['pages']['tablename'];
         if ($this->cats) {
-            $sqlQuery = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename']
+            $sqlQuery = "DELETE FROM " . $tablename
                        . " WHERE id = " . (int)$this->id;
             self::$SQL->query($sqlQuery);
             $id = (int)$this->id;
@@ -326,12 +299,9 @@ class Material extends SOME implements IAccessible
                 (array)$this->cats
             );
             unset($this->cats);
-            self::$SQL->add(
-                self::$dbprefix . self::$links['pages']['tablename'],
-                $arr
-            );
+            self::$SQL->add($tablename, $arr);
         } elseif ($this->material_type->global_type) {
-            $sqlQuery = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename']
+            $sqlQuery = "DELETE FROM " . $tablename
                        . " WHERE id = " . (int)$this->id;
             self::$SQL->query($sqlQuery);
         }
@@ -358,8 +328,12 @@ class Material extends SOME implements IAccessible
         // несуществующих материалов
         $sqlQuery = "DELETE tD
                        FROM cms_data AS tD
-                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
-                  LEFT JOIN " . static::_tablename() . " AS tM ON tM.id = tD.value
+                       JOIN " . Field::_tablename() . "
+                         AS tF
+                         ON tF.id = tD.fid
+                  LEFT JOIN " . static::_tablename() . "
+                         AS tM
+                         ON tM.id = tD.value
                       WHERE tF.datatype = ?
                         AND tM.id IS NULL";
         $result = static::$SQL->query([$sqlQuery, ['material']]);
@@ -370,17 +344,10 @@ class Material extends SOME implements IAccessible
     }
 
 
-    public static function importByURN($urn)
-    {
-        $sqlQuery = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
-        if ($sqlResult = self::$SQL->getline([$sqlQuery, [$urn]])) {
-            return new self($sqlResult);
-        } else {
-            return new self();
-        }
-    }
-
-
+    /**
+     * Возвращает поля материала с указанным свойством $Owner
+     * @return array<Material_Field>
+     */
     protected function _fields()
     {
         $temp = $this->material_type->fields;
@@ -402,7 +369,9 @@ class Material extends SOME implements IAccessible
     {
         $sqlQuery = "SELECT tP.*
                        FROM " . Page::_tablename() . " AS tP
-                       JOIN " . static::$dbprefix . "cms_materials_affected_pages_cache AS tMAP ON tMAP.page_id = tP.id
+                       JOIN " . static::$dbprefix . "cms_materials_affected_pages_cache
+                         AS tMAP
+                         ON tMAP.page_id = tP.id
                       WHERE tMAP.material_id = ?
                    ORDER BY (tMAP.page_id = ?) DESC, tP.priority ASC";
         $set = Page::getSQLSet([$sqlQuery, [(int)$this->id, (int)$this->page_id]]);
@@ -430,7 +399,10 @@ class Material extends SOME implements IAccessible
         }
         $sqlQuery .= " FROM " . static::$dbprefix . "cms_materials_affected_pages_cache ";
         if (!$materialId && $materialTypeId) {
-            $sqlQuery .= "  AS tMAP LEFT JOIN " . static::_tablename() . " AS tM ON tM.id = tMAP.material_id ";
+            $sqlQuery .= " AS tMAP
+                    LEFT JOIN " . static::_tablename() . "
+                           AS tM
+                           ON tM.id = tMAP.material_id ";
         }
         $sqlQuery .= " WHERE 1 ";
         if ($materialId = $material->id) {
@@ -449,8 +421,12 @@ class Material extends SOME implements IAccessible
                      SELECT tM.id AS material_id,
                             tMTAPM.page_id AS page_id
                        FROM " . static::_tablename() . " AS tM
-                       JOIN " . static::$dbprefix . "cms_material_types_affected_pages_for_materials_cache AS tMTAPM ON tMTAPM.material_type_id = tM.pid
-                  LEFT JOIN " . static::$dbprefix . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id
+                       JOIN " . static::$dbprefix . "cms_material_types_affected_pages_for_materials_cache
+                         AS tMTAPM
+                         ON tMTAPM.material_type_id = tM.pid
+                  LEFT JOIN " . static::$dbprefix . "cms_materials_pages_assoc
+                         AS tMPA
+                         ON tMPA.id = tM.id
                       WHERE (tMTAPM.page_id = tMPA.pid OR tMPA.pid IS NULL)";
         if ($materialId) {
             $sqlQuery .= " AND tM.id = " . (int)$materialId;
@@ -479,7 +455,8 @@ class Material extends SOME implements IAccessible
 
         // Определим URL
         $sqlQuery = "UPDATE " . static::_tablename() . " AS tM
-                  LEFT JOIN " . Page::_tablename() . " AS tP ON tP.id = tM.cache_url_parent_id
+                  LEFT JOIN " . Page::_tablename() . " AS tP
+                         ON tP.id = tM.cache_url_parent_id
                         SET tM.cache_url = IF(
                                 tP.id IS NOT NULL,
                                 CONCAT(tP.cache_url, tM.urn, '/'),
@@ -502,10 +479,14 @@ class Material extends SOME implements IAccessible
     {
         $ids = array_merge([0], (array)$this->material_type->selfAndParentsIds);
         $sqlQuery = "SELECT tMT.*
-                        FROM " . Material_Type::_tablename() . " AS tMT
-                        JOIN " . Material_Field::_tablename() . " AS tF ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid = tMT.id
-                        WHERE tF.datatype = 'material' AND source IN (" . implode(", ", $ids) . ")";
-        return Material_Type::getSQLSet($sqlQuery);
+                       FROM " . Material_Type::_tablename() . " AS tMT
+                       JOIN " . Material_Field::_tablename() . " AS tF
+                         ON tF.classname = ?
+                        AND tF.pid = tMT.id
+                      WHERE tF.datatype = ?
+                        AND source IN (" . implode(", ", $ids) . ")";
+        $sqlBind = [Material_Type::class, 'material'];
+        return Material_Type::getSQLSet([$sqlQuery, $sqlBind]);
     }
 
 

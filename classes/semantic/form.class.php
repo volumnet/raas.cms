@@ -1,16 +1,46 @@
 <?php
+/**
+ * Форма
+ */
 namespace RAAS\CMS;
 
-class Form extends \SOME\SOME
+use SOME\SOME;
+
+/**
+ * Класс формы
+ * @property-read array<Form_Field> $fields Поля формы
+ *                                          с установленным свойством $Owner
+ * @property-read int $unreadFeedbacks Количество непрочитанных сообщений
+ * @property-read Material_Type $Material_Type Тип создаваемых материалов
+ * @property-read Snippet $Interface Интерфейс уведомления формы
+ */
+class Form extends SOME
 {
+    use ImportByURNTrait;
+
     protected static $tablename = 'cms_forms';
+
     protected static $defaultOrderBy = "name";
+
     protected static $objectCascadeDelete = true;
-    protected static $cognizableVars = array('fields', 'unreadFeedbacks');
-    protected static $references = array(
-        'Material_Type' => array('FK' => 'material_type', 'classname' => 'RAAS\\CMS\\Material_Type', 'cascade' => false),
-        'Interface' => array('FK' => 'interface_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
-    );
+
+    protected static $cognizableVars = [
+        'fields',
+        'unreadFeedbacks'
+    ];
+
+    protected static $references = [
+        'Material_Type' => [
+            'FK' => 'material_type',
+            'classname' => Material_Type::class,
+            'cascade' => false
+        ],
+        'Interface' => [
+            'FK' => 'interface_id',
+            'classname' => Snippet::class,
+            'cascade' => false
+        ],
+    ];
 
     public function commit()
     {
@@ -20,7 +50,7 @@ class Form extends \SOME\SOME
         Package::i()->getUniqueURN($this);
         parent::commit();
     }
-    
+
 
     public static function delete(self $object)
     {
@@ -29,24 +59,22 @@ class Form extends \SOME\SOME
         }
         parent::delete($object);
     }
-    
-    
-    public static function importByURN($urn = '')
-    {
-        $SQL_query = "SELECT * FROM " . self::_tablename() . " WHERE urn = ?";
-        if ($SQL_result = self::$SQL->getline(array($SQL_query, $urn))) {
-            return new self($SQL_result);
-        }
-        return null;
-    }
 
 
+    /**
+     * Поля формы с установленным свойством $Owner
+     * @return array<Form_Field>
+     */
     protected function _fields()
     {
-        $SQL_query = "SELECT * FROM " . Form_Field::_tablename() . " WHERE classname = ? AND pid = ? ORDER BY priority";
-        $SQL_bind = array(get_class($this), (int)$this->id);
-        $temp = Form_Field::getSQLSet(array($SQL_query, $SQL_bind));
-        $arr = array();
+        $sqlQuery = "SELECT *
+                       FROM " . Form_Field::_tablename()
+                  . " WHERE classname = ?
+                        AND pid = ?
+                   ORDER BY priority";
+        $sqlBind = [get_class($this), (int)$this->id];
+        $temp = Form_Field::getSQLSet([$sqlQuery, $sqlBind]);
+        $arr = [];
         foreach ($temp as $row) {
             $arr[$row->urn] = $row;
         }
@@ -54,9 +82,16 @@ class Form extends \SOME\SOME
     }
 
 
+    /**
+     * Количество непрочитанных сообщений
+     * @return int
+     */
     protected function _unreadFeedbacks()
     {
-        $SQL_query = "SELECT COUNT(*) FROM " . Feedback::_tablename() . " WHERE pid = " . (int)$this->id . " AND NOT vis";
-        return self::$SQL->getvalue($SQL_query);
+        $sqlQuery = "SELECT COUNT(*)
+                       FROM " . Feedback::_tablename()
+                  . " WHERE pid = ?
+                        AND NOT vis";
+        return self::$SQL->getvalue([$sqlQuery, (int)$this->id]);
     }
 }

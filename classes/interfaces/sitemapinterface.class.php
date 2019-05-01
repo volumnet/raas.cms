@@ -21,10 +21,12 @@ class SitemapInterface extends AbstractInterface
      *              'title' =>? string alt картинки
      *          ]>,
      *          'pagesImages' => array<string[] ID# страницы => array<
-     *              string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *              string[] ID изображения (MD5 от URL) => string ID изображения
+     *                                                             (MD5 от URL)
      *          >>,
      *          'materialsImages' => array<string[] ID# материала => array<
-     *              string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *              string[] ID изображения (MD5 от URL) => string ID изображения
+     *                                                             (MD5 от URL)
      *          >>
      *      ]
      */
@@ -47,14 +49,17 @@ class SitemapInterface extends AbstractInterface
     public function process()
     {
         Timer::add('sitemap.xml');
+        $pageCache = PageRecursiveCache::i();
         $this->prepareMetaData();
-        $domainPage = $this->page->Domain;
-        $domainPageData = $domainPage->getArrayCopy();
-        $domainPageData['url'] = $domainPage->domain . $domainPageData['cache_url'];
+        $domainId = array_shift($pageCache->getParentsIds($this->page->id));
+        $domainPageData = $pageCache->cache[$domainId];
+        $domainPage = new Page($domainPageData);
+        $domainPageData['url'] = $domainPage->domain
+                               . $domainPageData['cache_url'];
 
         $pages = array_merge(
-            [trim($domainPage->id) => $domainPageData],
-            $this->getPages([$domainPage->id])
+            [trim($domainId) => $domainPageData],
+            $this->getPages([$domainId])
         );
         $content = $this->showMenu($pages) . $this->showMaterials($pages);
         $text = $this->getUrlSet($content)
@@ -82,51 +87,42 @@ class SitemapInterface extends AbstractInterface
      * Получает список данных страниц, пригодных для отображения
      * @param array<int> $parentsIds ID# родительских страниц
      * @param array<int> $ignoredIds ID# игнорируемых страниц
+     * @param array $pagesData Данные уже полученных страниц
      * @return array<string[] ID# страницы => array<string[] => mixed>>
      */
-    public function getPages(array $parentsIds = array(), array $ignoredIds = array(), array &$pagesData = array())
-    {
-        $sqlQuery = "SELECT id,
-                            pid,
-                            urn,
-                            changefreq,
-                            post_date,
-                            modify_counter,
-                            last_modified,
-                            sitemaps_priority,
-                            cache_url
-                       FROM " . Page::_tablename()
-                  . " WHERE vis
-                        AND pvis
-                        AND NOT response_code
-                        AND ";
+    public function getPages(
+        array $parentsIds = [],
+        array $ignoredIds = [],
+        array &$pagesData = []
+    ) {
+        $pageCache = PageRecursiveCache::i();
         if ($parentsIds) {
-            $sqlQuery .= " pid IN (" . implode(", ", $parentsIds) . ") ";
+            $pagesIds = $pageCache->getAllChildrenIds($parentsIds);
         } else {
-            $sqlQuery .= " NOT pid";
+            $pagesIds = array_keys($pageCache->cache);
         }
         if ($ignoredIds) {
-            $sqlQuery .= " AND id NOT IN (" . implode(", ", $ignoredIds) . ") ";
+            $pagesIds = array_diff($pagesIds, $ignoredIds);
         }
-        $sqlResult = Page::_SQL()->get($sqlQuery);
-        $pagesIds = array();
-        $result = array();
+        $sqlResult = array_intersect_key(
+            $pageCache->cache,
+            array_flip($pagesIds)
+        );
+        $sqlResult = array_filter($sqlResult, function ($x) {
+            return $x['vis'] && $x['pvis'] && !$x['response_code'];
+        });
+        $result = [];
+        $domainsURLs = [];
         foreach ($sqlResult as $sqlRow) {
-            $pagesIds[] = $sqlRow['id'];
-            if ($sqlRow['pid'] && $pagesData[$sqlRow['pid']]) {
-                $sqlRow['url'] = $pagesData[$sqlRow['pid']]['url'] . $sqlRow['urn'] . '/';
-            } else {
-                $row = new Page($sqlRow);
-                $sqlRow['url'] = $row->domain . $row->url;
+            $domainId = array_shift($pageCache->getParentsIds($sqlRow['id']));
+            if (!isset($domainsURLs[$domainId])) {
+                $domainPage = new Page($domainId);
+                $domainsURLs[trim($domainId)] = $domainPage->domain;
             }
+            $sqlRow['url'] = $domainsURLs[$domainId] . $sqlRow['cache_url'];
             $sqlRow['entry_type'] = 'page';
             $result[$sqlRow['id']] = $sqlRow;
         }
-        $childrenResult = array();
-        if ($pagesIds) {
-            $childrenResult = $this->getPages($pagesIds, $ignoredIds, $result);
-        }
-        $result = $result + $childrenResult;
         return $result;
     }
 
@@ -186,7 +182,8 @@ class SitemapInterface extends AbstractInterface
 
     /**
      * Получить блок <url>
-     * @param array $itemData Данные по странице или материалу, для которого получаем
+     * @param array $itemData Данные по странице или материалу,
+     *                        для которого получаем
      * @return string
      */
     public function getUrl(array $itemData)
@@ -245,7 +242,7 @@ class SitemapInterface extends AbstractInterface
         foreach ($pagesData as $pageRow) {
             EventProcessor::emit(
                 'startpage',
-                new Page($pageRow),
+                $pageRow['id'],
                 ['index' => ++$i, 'size' => $this->pagesCounter]
             );
             $text .= $this->getUrl($pageRow);
@@ -260,14 +257,19 @@ class SitemapInterface extends AbstractInterface
      * @param array<int> $materialTypesIds ID# типов материалов (ограничение)
      * @return string
      */
-    public function showMaterials(array $pagesData = array(), array $materialTypesIds = array())
-    {
+    public function showMaterials(
+        array $pagesData = [],
+        array $materialTypesIds = []
+    ) {
         $pagesIds = array_map(function ($x) {
             return $x['id'];
         }, $pagesData);
+        if (!$pagesIds) {
+            return '';
+        }
         $sqlQuery = "SELECT *
                        FROM " . Material::_tablename()
-                  . " WHERE 1 ";
+                  . " WHERE cache_url_parent_id IN (" . implode(", ", $pagesIds) . ")";
         if ($materialTypesIds) {
             $sqlQuery .= " AND pid IN (" . implode(", ", $materialTypesIds) . ") ";
         }
@@ -276,19 +278,25 @@ class SitemapInterface extends AbstractInterface
         $text = '';
         $i = 0;
         $c = $sqlResult->rowCount();
+        $domainsURLs = [];
         foreach ($sqlResult as $sqlRow) {
-            $material = new Material($sqlRow);
-            $affectedPages = $material->affectedPages;
-            if ($affectedPages[0] && in_array($affectedPages[0]->id, $pagesIds)) {
-                EventProcessor::emit(
-                    'startmaterial',
-                    $material,
-                    ['index' => ++$i, 'size' => $c]
-                );
-                $sqlRow['url'] = $pagesData[$affectedPages[0]->id]['url'] . $sqlRow['urn'] . '/';
-                $sqlRow['entry_type'] = 'material';
-                $text .= $this->getUrl($sqlRow);
+            $domainId = array_shift(
+                PageRecursiveCache::i()->getParentsIds(
+                    $sqlRow['cache_url_parent_id']
+                )
+            );
+            if (!isset($domainsURLs[$domainId])) {
+                $domainPage = new Page($domainId);
+                $domainsURLs[trim($domainId)] = $domainPage->domain;
             }
+            EventProcessor::emit(
+                'startmaterial',
+                $sqlRow['id'],
+                ['index' => ++$i, 'size' => $c]
+            );
+            $sqlRow['url'] = $domainsURLs[$domainId] . $sqlRow['cache_url'];
+            $sqlRow['entry_type'] = 'material';
+            $text .= $this->getUrl($sqlRow);
         }
         return $text;
     }
@@ -302,10 +310,12 @@ class SitemapInterface extends AbstractInterface
      *                 'title' =>? string alt картинки
      *             ]>,
      *             'pagesImages' => array<string[] ID# страницы => array<
-     *                 string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *                 string[] ID изображения (MD5 от URL) => string ID изображения
+     *                                                                (MD5 от URL)
      *             >>,
      *             'materialsImages' => array<string[] ID# материала => array<
-     *                 string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *                 string[] ID изображения (MD5 от URL) => string ID изображения
+     *                                                                (MD5 от URL)
      *             >>
      *         ]
      */
@@ -332,7 +342,8 @@ class SitemapInterface extends AbstractInterface
      *                 'title' =>? string alt картинки
      *             ]>,
      *             'pagesImages' => array<string[] ID# страницы => array<
-     *                 string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *                 string[] ID изображения (MD5 от URL) => string ID изображения
+     *                                                                (MD5 от URL)
      *             >>
      *         ]
      */
@@ -342,9 +353,15 @@ class SitemapInterface extends AbstractInterface
                             tBH.description,
                             GROUP_CONCAT(tBPA.page_id SEPARATOR ',') AS pages_ids
                        FROM " . Block::_tablename() . " AS tB
-                       JOIN " . Block_HTML::_tablename2() . " AS tBH ON tBH.id = tB.id
-                       JOIN cms_blocks_pages_assoc AS tBPA ON tBPA.block_id = tB.id
-                       JOIN " . Page::_tablename() . " AS tP ON tP.id = tBPA.page_id
+                       JOIN " . Block_HTML::_tablename2() . "
+                         AS tBH
+                         ON tBH.id = tB.id
+                       JOIN cms_blocks_pages_assoc
+                         AS tBPA
+                         ON tBPA.block_id = tB.id
+                       JOIN " . Page::_tablename() . "
+                         AS tP
+                         ON tP.id = tBPA.page_id
                       WHERE tB.vis
                         AND tP.response_code = ''
                         AND tBH.description LIKE ?
@@ -442,7 +459,8 @@ class SitemapInterface extends AbstractInterface
      *                 'title' =>? string alt картинки
      *             ]>,
      *             'materialsImages' => array<string[] ID# материала => array<
-     *                 string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *                 string[] ID изображения (MD5 от URL) => string ID изображения
+     *                                                                (MD5 от URL)
      *             >>
      *         ]
      */
@@ -464,7 +482,10 @@ class SitemapInterface extends AbstractInterface
         );
 
         // Применим счетчики
-        $imagesData = $this->applyMaterialImagesCounters($imagesData, $fieldsNames);
+        $imagesData = $this->applyMaterialImagesCounters(
+            $imagesData,
+            $fieldsNames
+        );
 
         // Схлопнем привязку относительно полей
         $imagesData['materialsImages'] = array_map(function ($materialImages) {
@@ -605,7 +626,8 @@ class SitemapInterface extends AbstractInterface
      *             ]>,
      *             'materialsImages' => array<string[] ID# материала => array<
      *                 string[] ID# поля => array<
-     *                     string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *                     string[] ID изображения (MD5 от URL) => string ID изображения
+     *                                                                    (MD5 от URL)
      *                 >
      *             >>
      *         ]
@@ -650,7 +672,8 @@ class SitemapInterface extends AbstractInterface
      *             ]>,
      *             'materialsImages' => array<string[] ID# материала => array<
      *                 string[] ID# поля => array<
-     *                     string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *                     string[] ID изображения (MD5 от URL) => string ID изображения
+     *                                                                    (MD5 от URL)
      *                 >
      *             >>
      *         ] $data Данные по привязке картинок к материалам
@@ -662,7 +685,8 @@ class SitemapInterface extends AbstractInterface
      *             ]>,
      *             'materialsImages' => array<string[] ID# материала => array<
      *                 string[] ID# поля => array<
-     *                     string[] ID изображения (MD5 от URL) => string ID изображения (MD5 от URL)
+     *                     string[] ID изображения (MD5 от URL) => string ID изображения
+     *                                                                    (MD5 от URL)
      *                 >
      *             >>
      *         ]
