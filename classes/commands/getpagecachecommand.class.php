@@ -140,7 +140,7 @@ class GetPageCacheCommand extends LockCommand
             );
             return false;
         }
-        $page = $material->affectedPages[0];
+        $page = $material->urlParent;
         if (!$page->cache) {
             $this->controller->doLog(
                 'Page "' . $page->url . '": is not cached'
