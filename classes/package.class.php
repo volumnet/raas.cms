@@ -594,7 +594,7 @@ class Package extends RAASPackage
             $sqlQuery .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::data_table . " AS tD2 ON tD2.pid = tM.id
                             LEFT JOIN " . Material_Field::_tablename() . " AS tF2 ON tD2.fid = tF2.id ";
         }
-        $types = $MType->selfAndChildrenIds;
+        $types = $mType->selfAndChildrenIds;
         $sqlQuery .= " WHERE tM.pid IN (" . implode(", ", $types) . ") AND tD.fid IN (" . implode(", ", $fields) . ") AND tD.value = " . (int)$item->id;
         if ($searchString) {
             $likeSearchString = $this->SQL->real_escape_string($searchString);
