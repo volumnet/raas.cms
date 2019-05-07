@@ -273,7 +273,7 @@ class Material_Type extends SOME
                        JOIN " . Material_Type::_tablename() . "
                          AS tMT
                          ON tMT.id = tM.pid
-                      WHERE tMT.global_type";
+                      WHERE NOT tMT.global_type";
         if ($materialTypeId) {
             $sqlQuery .= " AND tMT.id = " . $materialTypeId;
         }

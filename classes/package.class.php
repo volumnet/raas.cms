@@ -1055,6 +1055,8 @@ class Package extends RAASPackage
             CMSAccess::refreshPagesAccessCache();
             CMSAccess::refreshMaterialsAccessCache();
             CMSAccess::refreshBlocksAccessCache();
+            Material_Type::updateAffectedPagesForSelf();
+            Material_Type::updateAffectedPagesForMaterials();
         }
     }
 
