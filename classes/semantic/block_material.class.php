@@ -1,8 +1,18 @@
 <?php
+/**
+ * Блок материалов
+ */
 namespace RAAS\CMS;
 
 use RAAS\User as RAASUser;
 
+/**
+ * Класс блока материалов
+ * @property-read RAASUser $author Автор блока
+ * @property-read RAASUser $editor Редактор блока
+ * @property-read Material_Type $Material_Type Тип материалов, привязанный
+ *                                             к блоку
+ */
 class Block_Material extends Block
 {
     protected static $tablename2 = 'cms_blocks_material';
@@ -25,6 +35,10 @@ class Block_Material extends Block
         ],
     ];
 
+    /**
+     * Отношения для блока (для представления в админке)
+     * @var array<string[] значение => string ID# перевода>
+     */
     public static $filterRelations = [
         '=' => 'EQUALS',
         'LIKE' => 'CONTAINS',
@@ -34,6 +48,10 @@ class Block_Material extends Block
         '>=' => 'EQUALS_OR_GREATER'
     ];
 
+    /**
+     * Отношения для сортировки (для представления в админке)
+     * @var array<string[] значение => string ID# перевода>
+     */
     public static $orderRelations = [
         'asc!' => 'ASCENDING_ONLY',
         'desc!' => 'DESCENDING_ONLY',
@@ -41,9 +59,9 @@ class Block_Material extends Block
         'desc' => 'DESCENDING_FIRST'
     ];
 
-    public function __construct($import_data = null)
+    public function __construct($importData = null)
     {
-        parent::__construct($import_data);
+        parent::__construct($importData);
         $sqlQuery = "SELECT var, relation, field
                        FROM " . self::$dbprefix . "cms_blocks_material_filter
                       WHERE id = " . (int)$this->id
@@ -125,6 +143,27 @@ class Block_Material extends Block
     }
 
 
+    /**
+     * Получает дополнительные данные блока
+     * @return [
+     *             'id' => int ID# блока,
+     *             'material_type' => int ID# типа материалов,
+     *             'pages_var_name' => string GET-переменная постраничной
+     *                                        разбивки
+     *             'rows_per_page' => int Количество записей на страницу,
+     *             'sort_var_name' => string GET-переменная сортировки,
+     *             'order_var_name' => string GET-переменная упорядочения,
+     *             'sort_field_default' => string|int По какому полю
+     *                                                производится сортировка
+     *                                                по умолчанию
+     *                                                (URN нативного или ID#
+     *                                                кастомного поля)
+     *             'sort_order_default' => string Упорядочение по умолчанию
+     *                                            (из self::$orderRelations)
+     *             'legacy' => 0|1 поддерживается ли старый формат материалов
+     *                             (по id=...)
+     *         ]
+     */
     public function getAddData()
     {
         return [

@@ -1,25 +1,38 @@
 <?php
+/**
+ * Блок меню
+ */
 namespace RAAS\CMS;
 
+use RAAS\User as RAASUser;
+
+/**
+ * Класс блока меню
+ * @property-read RAASUser $author Автор блока
+ * @property-read RAASUser $editor Редактор блока
+ * @property-read Menu $Menu Меню, привязанное к блоку
+ */
 class Block_Menu extends Block
 {
     protected static $tablename2 = 'cms_blocks_menu';
 
-    protected static $references = array(
-        'author' => array('FK' => 'author_id', 'classname' => 'RAAS\\User', 'cascade' => false),
-        'editor' => array('FK' => 'editor_id', 'classname' => 'RAAS\\User', 'cascade' => false),
-        'Menu' => array('FK' => 'menu', 'classname' => 'RAAS\\CMS\\Menu', 'cascade' => false),
-    );
-
-    public function __get($var)
-    {
-        switch ($var) {
-            default:
-                return parent::__get($var);
-                break;
-        }
-    }
-
+    protected static $references = [
+        'author' => [
+            'FK' => 'author_id',
+            'classname' => RAASUser::class,
+            'cascade' => false
+        ],
+        'editor' => [
+            'FK' => 'editor_id',
+            'classname' => RAASUser::class,
+            'cascade' => false
+        ],
+        'Menu' => [
+            'FK' => 'menu',
+            'classname' => Menu::class,
+            'cascade' => false
+        ],
+    ];
 
     public function commit()
     {
@@ -30,12 +43,20 @@ class Block_Menu extends Block
     }
 
 
+    /**
+     * Получает дополнительные данные блока
+     * @return [
+     *             'id' => int ID# блока,
+     *             'menu' => int ID# меню,
+     *             'full_menu' => 0|1 полное меню (либо только подразделы)
+     *         ]
+     */
     public function getAddData()
     {
-        return array(
+        return [
             'id' => (int)$this->id,
             'menu' => (int)$this->menu,
             'full_menu' => (int)$this->full_menu,
-        );
+        ];
     }
 }

@@ -1,6 +1,14 @@
 <?php
+/**
+ * HTML-блок
+ */
 namespace RAAS\CMS;
 
+use SOME\Text;
+
+/**
+ * Класс HTML-блока
+ */
 class Block_HTML extends Block
 {
     protected static $tablename2 = 'cms_blocks_html';
@@ -8,7 +16,15 @@ class Block_HTML extends Block
     public function commit()
     {
         if (!$this->name) {
-            $this->name = trim(\SOME\Text::cuttext(html_entity_decode(strip_tags($this->description), ENT_QUOTES, mb_internal_encoding()), 32, '...'));
+            $this->name = trim(Text::cuttext(
+                html_entity_decode(
+                    strip_tags($this->description),
+                    ENT_QUOTES,
+                    mb_internal_encoding()
+                ),
+                32,
+                '...'
+            ));
         }
         parent::commit();
     }
@@ -27,12 +43,20 @@ class Block_HTML extends Block
     }
 
 
+    /**
+     * Получает дополнительные данные блока
+     * @return [
+     *             'id' => int ID# блока,
+     *             'description' => string текст блока,
+     *             'wysiwyg' => 0|1 включен ли визуальный редактор,
+     *         ]
+     */
     public function getAddData()
     {
-        return array(
+        return [
             'id' => (int)$this->id,
             'description' => $this->description,
             'wysiwyg' => (int)$this->wysiwyg
-        );
+        ];
     }
 }

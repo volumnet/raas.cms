@@ -1,25 +1,38 @@
 <?php
+/**
+ * Блок формы
+ */
 namespace RAAS\CMS;
 
+use RAAS\User as RAASUser;
+
+/**
+ * Класс блока формы
+ * @property-read RAASUser $author Автор блока
+ * @property-read RAASUser $editor Редактор блока
+ * @property-read Form $Form Форма, привязанная к блоку
+ */
 class Block_Form extends Block
 {
     protected static $tablename2 = 'cms_blocks_form';
 
-    protected static $references = array(
-        'author' => array('FK' => 'author_id', 'classname' => 'RAAS\\User', 'cascade' => false),
-        'editor' => array('FK' => 'editor_id', 'classname' => 'RAAS\\User', 'cascade' => false),
-        'Form' => array('FK' => 'form', 'classname' => 'RAAS\\CMS\\Form', 'cascade' => true),
-    );
-
-    public function __get($var)
-    {
-        switch ($var) {
-            default:
-                return parent::__get($var);
-                break;
-        }
-    }
-
+    protected static $references = [
+        'author' => [
+            'FK' => 'author_id',
+            'classname' => RAASUser::class,
+            'cascade' => false
+        ],
+        'editor' => [
+            'FK' => 'editor_id',
+            'classname' => RAASUser::class,
+            'cascade' => false
+        ],
+        'Form' => [
+            'FK' => 'form',
+            'classname' => Form::class,
+            'cascade' => true
+        ],
+    ];
 
     public function commit()
     {
@@ -30,11 +43,18 @@ class Block_Form extends Block
     }
 
 
+    /**
+     * Получает дополнительные данные блока
+     * @return [
+     *             'id' => int ID# блока,
+     *             'form' => int ID# формы,
+     *         ]
+     */
     public function getAddData()
     {
-        return array(
+        return [
             'id' => (int)$this->id,
             'form' => (int)$this->form,
-        );
+        ];
     }
 }

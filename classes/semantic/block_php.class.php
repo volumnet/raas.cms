@@ -1,6 +1,12 @@
 <?php
+/**
+ * PHP-блок
+ */
 namespace RAAS\CMS;
 
+/**
+ * Класс PHP-блока
+ */
 class Block_PHP extends Block
 {
     public function commit()

@@ -75,6 +75,7 @@ class Block_Type
         return null;
     }
 
+
     public function getForm(array $arr = array())
     {
         $classname = $this->editFormClassName;
