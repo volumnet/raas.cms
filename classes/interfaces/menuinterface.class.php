@@ -30,7 +30,16 @@ class MenuInterface extends AbstractInterface
         array $server = [],
         array $files = []
     ) {
-        parent::__construct($block, $page, $get, $post, $cookie, $session, $server, $files);
+        parent::__construct(
+            $block,
+            $page,
+            $get,
+            $post,
+            $cookie,
+            $session,
+            $server,
+            $files
+        );
     }
 
 
@@ -58,7 +67,7 @@ class MenuInterface extends AbstractInterface
      */
     public function getVisSubmenu(Menu $menu)
     {
-        $result = array();
+        $result = [];
         $subMenu = $menu->visSubMenu;
         foreach ($subMenu as $child) {
             $childData = [

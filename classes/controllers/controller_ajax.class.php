@@ -1,9 +1,14 @@
 <?php
+/**
+ * Контроллер AJAX
+ */
 namespace RAAS\CMS;
 
-use \RAAS\Redirector as Redirector;
-use \RAAS\Attachment as Attachment;
+use SOME\Text;
 
+/**
+ * Класс контроллера AJAX
+ */
 class Controller_Ajax extends Abstract_Controller
 {
     protected static $instance;
@@ -26,6 +31,20 @@ class Controller_Ajax extends Abstract_Controller
     }
 
 
+    /**
+     * Получает карту необходимых кэшей
+     * @return ['Set' => array<int[] ID# страницы => array<
+     *             int[] ID# материала => array<
+     *                 'id' => int ID# страницы,
+     *                 'mid' =>? int ID# материала,
+     *                 'url' => string Полный адрес страницы или
+     *                                 страницы материала,
+     *                 'name' => string Наименование страницы или материала,
+     *                 'cache' => int Включено ли кэширование (1)
+     *                                или отключено (0)
+     *             >
+     *         >>]
+     */
     protected function get_cache_map()
     {
         $OUT['Set'] = array_values($this->model->getCacheMap());
@@ -33,56 +52,87 @@ class Controller_Ajax extends Abstract_Controller
     }
 
 
+    /**
+     * Очищает кэши страниц
+     */
     protected function clear_cache()
     {
         $this->model->clearCache(true);
-        $this->view->clear_cache(array());
+        $this->view->clear_cache([]);
     }
 
 
+    /**
+     * Очищает кэши блоков
+     */
     protected function clear_blocks_cache()
     {
         $this->model->clearBlocksCache(true);
-        $this->view->clear_blocks_cache(array());
+        $this->view->clear_blocks_cache([]);
     }
 
 
+    /**
+     * Перестраивает кэши страниц
+     */
     protected function rebuild_page_cache()
     {
         $Page = new Page($this->nav['id']);
-        $Material = isset($this->nav['mid']) ? new Material($this->nav['mid']) : null;
+        $Material = isset($this->nav['mid'])
+                  ? new Material($this->nav['mid'])
+                  : null;
         if ($Material->id) {
             $Page->Material = $Material;
         }
         $Page->rebuildCache();
-        $this->view->rebuild_page_cache(array());
+        $this->view->rebuild_page_cache([]);
     }
 
 
+    /**
+     * Отображает поля типов материалов
+     * @return ['Set' => array<[
+     *             'id' => string|int URN нативного поля или ID# кастомного,
+     *             'name' => string Наименование поля
+     *         ]>]
+     */
     protected function material_fields()
     {
         $Material_Type = new Material_Type((int)$this->id);
-        $Set = array(
-            (object)array('id' => 'name', 'name' => $this->view->_('NAME')),
-            (object)array('id' => 'urn', 'name' => $this->view->_('URN')),
-            (object)array('id' => 'description', 'name' => $this->view->_('DESCRIPTION')),
-            (object)array('id' => 'post_date', 'name' => $this->view->_('CREATED_BY')),
-            (object)array('id' => 'modify_date', 'name' => $this->view->_('EDITED_BY'))
-        );
+        $Set = [
+            (object)[
+                'id' => 'name',
+                'name' => $this->view->_('NAME')
+            ],
+            (object)[
+                'id' => 'urn',
+                'name' => $this->view->_('URN')
+            ],
+            (object)[
+                'id' => 'description',
+                'name' => $this->view->_('DESCRIPTION')
+            ],
+            (object)[
+                'id' => 'post_date',
+                'name' => $this->view->_('CREATED_BY')
+            ],
+            (object)[
+                'id' => 'modify_date',
+                'name' => $this->view->_('EDITED_BY')
+            ],
+        ];
         $Set = array_merge(
             $Set,
-            array_values(
-                array_filter(
-                    $Material_Type->fields,
-                    function ($x) {
-                        return !($x->multiple || in_array($x->datatype, array('file', 'image')));
-                    }
-                )
-            )
+            array_values(array_filter($Material_Type->fields, function ($x) {
+                return !(
+                    $x->multiple ||
+                    in_array($x->datatype, ['file', 'image'])
+                );
+            }))
         );
         $OUT['Set'] = array_map(
             function ($x) {
-                return array('val' => $x->id, 'text' => $x->name);
+                return ['val' => $x->id, 'text' => $x->name];
             },
             $Set
         );
@@ -90,25 +140,50 @@ class Controller_Ajax extends Abstract_Controller
     }
 
 
+    /**
+     * Получает материалы по поиску
+     * @return ['Set' => array<[
+     *             'id' => int ID# материала,
+     *             'name' => string Наименование материала,
+     *             'description' => string Краткое описание материала,
+     *             'pid' =>? int ID# первой родительской страницы для материала,
+     *             'img' =>? string URL картинки материала
+     *         ]>]
+     */
     protected function get_materials_by_field()
     {
         if ((int)$this->id) {
             $Field = new Material_Field((int)$this->id);
-            $Set = array();
+            $Set = [];
             if ($Field->datatype == 'material') {
                 $mtype = (int)$Field->source;
             }
         } elseif ((int)$this->nav['mtype']) {
             $mtype = (int)$this->nav['mtype'];
         }
-        $Set = $this->model->getMaterialsBySearch(isset($_GET['search_string']) ? $_GET['search_string'] : '', $mtype);
+        $Set = $this->model->getMaterialsBySearch(
+            (
+                isset($_GET['search_string']) ?
+                $_GET['search_string'] :
+                ''
+            ),
+            $mtype
+        );
         $OUT['Set'] = array_map(
             function ($x) {
-                $y = array(
+                $y = [
                     'id' => (int)$x->id,
                     'name' => $x->name,
-                    'description' => \SOME\Text::cuttext(html_entity_decode(strip_tags($x->description), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...')
-                );
+                    'description' => Text::cuttext(
+                        html_entity_decode(
+                            strip_tags($x->description),
+                            ENT_COMPAT | ENT_HTML5,
+                            'UTF-8'
+                        ),
+                        256,
+                        '...'
+                    )
+                ];
                 if ($x->parents) {
                     $y['pid'] = (int)$x->parents_ids[0];
                 }
@@ -131,11 +206,11 @@ class Controller_Ajax extends Abstract_Controller
 
     /**
      * Получает список страниц домена для меню
-     * @return array<[
+     * @return ['Set' => array<[
      *             'val' => int ID# страницы,
      *             'text' => string Наименование страницы
      *             'src' => string URL страницы
-     *         ]>
+     *         ]>]
      */
     protected function getMenuDomainPages()
     {
@@ -149,7 +224,8 @@ class Controller_Ajax extends Abstract_Controller
      * Получает список страниц домена для меню
      * @param int|null $pid ID# родительской страницы или null,
      *                      если нужно отобразить корневую страницу
-     * @param int|null $domainId ID# домена (только для фильтрации корневых страниц)
+     * @param int|null $domainId ID# домена (только для фильтрации
+     *                               корневых страниц)
      * @param int $level Уровень вложенности
      * @return array<[
      *             'val' => int ID# страницы,

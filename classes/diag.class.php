@@ -9,7 +9,7 @@ use RAAS\Application;
 /**
  * Класс лога диагностики
  * @property-read string $logDir Директория, где хранится лог
- * @property-read string $logFile Файл, где хранится лог
+ * @property string $logFile Файл, где хранится лог
  * @property-read int $queriesCounter Счетчик запросов
  * @property-read float $queriesTime Общее время запросов
  * @property-read int $timersCounter Счетчик таймеров
@@ -20,14 +20,47 @@ use RAAS\Application;
  * @property-read float $snippetsTime Общее время сниппетов
  * @property-read int $pagesCounter Счетчик страниц
  * @property-read float $pagesTime Общее время страниц
- * @property-read array $stat Статистика диагностики
+ * @property-read array<string[] Тип данных => [
+ *                    'long' Долгие сущности |
+ *                    'freq' Частые сущности |
+ *                    'main' Тяжелые сущности => array<[
+ *                        'id' => string Внутренний ID сущности,
+ *                        'key' => string Заданный ID сущности,
+ *                        'counter' => int Количество обработанных сущностей,
+ *                        'time' => float Общее время в секундах,
+ *                        'interfaceTime' => float Общее время интерфейса
+ *                                                 (только для блоков)
+ *                        'widgetTime' => float Общее время виджета
+ *                                              (только для блоков)
+ *                    ]>
+ *                ]> $stat Статистика диагностики
  */
 class Diag
 {
+    /**
+     * Путь к папке (относительно корня сайта), где хранятся логи диагностики
+     */
     const logDir = '/logs';
 
+    /**
+     * Имя файла
+     * @var string
+     */
     protected $filename;
 
+    /**
+     * Данные диагностики
+     * @var array<string[] Тип данных => array<
+     *          string[] ID сущности => [
+     *              'counter' => int Количество обработанных сущностей,
+     *              'time' => float Общее время в секундах,
+     *              'interfaceTime' => float Общее время интерфейса
+     *                                       (только для блоков)
+     *              'widgetTime' => float Общее время виджета
+     *                                    (только для блоков)
+     *          ]
+     *      >>
+     */
     protected $data = [
         'queries' => [],
         'timers' => [],
@@ -36,6 +69,10 @@ class Diag
         'snippets' => [],
     ];
 
+    /**
+     * Критическое время для записи в диагностику
+     * @var array<string[] Тип данных => float Время в секундах>
+     */
     protected static $criticalTime = [
         'queries' => 0.1,
         'timers' => 0,
@@ -101,6 +138,20 @@ class Diag
     }
 
 
+    /**
+     * Загружает данные из лога
+     * @param string $logFile Файл, из которого загружаем
+     * @return array<string[] Тип данных => array<
+     *             string[] ID сущности => [
+     *                 'counter' => int Количество обработанных сущностей,
+     *                 'time' => float Общее время в секундах,
+     *                 'interfaceTime' => float Общее время интерфейса
+     *                                          (только для блоков)
+     *                 'widgetTime' => float Общее время виджета
+     *                                       (только для блоков)
+     *             ]
+     *         >> Загруженные данные
+     */
     public function load($logFile = null)
     {
         if ($logFile) {
@@ -119,8 +170,21 @@ class Diag
     }
 
 
-    public function handle($entityName, $entityId, $microtime = 0, $counterKey = 'counter', $timeKey = 'time')
-    {
+    /**
+     * Записывает данные о сущности
+     * @param string $entityName Тип данных (сущности)
+     * @param string $entityId ID сущности
+     * @param float $microtime Время сущности в секундах
+     * @param string $counterKey Поле с количеством сущностей
+     * @param string $timeKey Поле с общим временем сущности
+     */
+    public function handle(
+        $entityName,
+        $entityId,
+        $microtime = 0,
+        $counterKey = 'counter',
+        $timeKey = 'time'
+    ) {
         if ($counterKey) {
             $this->data[$entityName][$entityId][$counterKey]++;
         }
@@ -130,12 +194,22 @@ class Diag
     }
 
 
+    /**
+     * Обработчик SQL-запросов для SOME\DB
+     * @param string $query Шаблон SQL-запроса
+     * @param array $bind Привязки SQL-запроса
+     * @param float $microtime Время выполнения запроса
+     */
     public function queryHandler($query = "", $bind = null, $microtime = 0)
     {
         $this->handle('queries', $this->beautifyQuery($query), $microtime);
     }
 
 
+    /**
+     * Сохраняет данные в лог
+     * @param string $logFile Файл, в который сохраняем
+     */
     public function save($logFile = null)
     {
         if ($logFile) {
@@ -147,6 +221,12 @@ class Diag
     }
 
 
+    /**
+     * Бьютифицирует SQL-запрос
+     * (заменяет конкретные значения на "?")
+     * @param string $sql Входной запрос
+     * @return string
+     */
     protected function beautifyQuery($sql)
     {
         $sql = preg_replace('/\'(.*?[\\w\\%\\$])?\'/ims', '?', $sql);
@@ -158,6 +238,10 @@ class Diag
     }
 
 
+    /**
+     * Создает при необходимости и возвращает папку логов
+     * @return string|null null, если невозможно создать папку
+     */
     public static function getLogDir()
     {
         $dir = Application::i()->baseDir . self::logDir;
@@ -171,6 +255,13 @@ class Diag
     }
 
 
+    /**
+     * Получает объект диагностики для заданного файла
+     * @param string|null $filename Файл для открытия, либо null
+     *                              для файла по умолчанию на текущую дату
+     * @return self|null Объект диагностики, либо null, если не удалось
+     *                          открыть/создать объект с заданным файлом
+     */
     public static function getInstance($filename = null)
     {
         if (!$filename) {
@@ -186,7 +277,12 @@ class Diag
     }
 
 
-    public static function merge()
+    /**
+     * Объединяет несколько объектов диагностики
+     * @param array<Diag|array<Diag>> ...$args Объекты для объединения
+     * @return Diag|null null, если не удалось объединить
+     */
+    public static function merge(...$args)
     {
         $args = func_get_args();
         $temp = [];
@@ -221,7 +317,13 @@ class Diag
     }
 
 
-    protected static function getFiles($date_from = null, $date_to = null)
+    /**
+     * Получает список файлов с заданными границами дат
+     * @param string|null $dateFrom Дата, от (в формате ГГГГ-ММ-ДД)
+     * @param string|null $dateTo Дата, до (в формате ГГГГ-ММ-ДД)
+     * @return array<string>
+     */
+    protected static function getFiles($dateFrom = null, $dateTo = null)
     {
         $temp = [];
         $dir = scandir(static::getLogDir());
@@ -229,15 +331,15 @@ class Diag
             if (preg_match('/diag(\\d{4}-\\d{2}-\\d{2}).dat/i', $f, $regs)) {
                 if (($d = strtotime($regs[1])) > 0) {
                     // Учитываем только валидные файлы
-                    if ($date_from &&
-                        (($fromtime = strtotime($date_from)) > 0)
+                    if ($dateFrom &&
+                        (($fromtime = strtotime($dateFrom)) > 0)
                     ) {
                         // Только в этом случае работает дата от
                         if ($d < $fromtime) {
                             continue; // Файл датирован ранее даты от
                         }
                     }
-                    if ($date_to && (($totime = strtotime($date_to)) > 0)) {
+                    if ($dateTo && (($totime = strtotime($dateTo)) > 0)) {
                         // Только в этом случае работает дата до
                         if ($d > $totime) {
                             continue; // Файл датирован позднее даты до
@@ -251,12 +353,31 @@ class Diag
     }
 
 
+    /**
+     * Получает статистику по диагностике
+     * @return array<string[] Тип данных => [
+     *             'long' Долгие сущности |
+     *             'freq' Частые сущности |
+     *             'main' Тяжелые сущности => array<[
+     *                 'id' => string Внутренний ID сущности,
+     *                 'key' => string Заданный ID сущности,
+     *                 'counter' => int Количество обработанных сущностей,
+     *                 'time' => float Общее время в секундах,
+     *                 'interfaceTime' => float Общее время интерфейса
+     *                                          (только для блоков)
+     *                 'widgetTime' => float Общее время виджета
+     *                                       (только для блоков)
+     *             ]>
+     *         ]>
+     */
     protected function getStat()
     {
         $stat = [];
         foreach ($this->data as $entityName => $entityData) {
             if (is_numeric($entityName)) {
-                continue; // 2019-04-29, AVS: Почему-то появляется индекс [0], пока не знаю почему
+                continue;
+                // 2019-04-29, AVS: Почему-то появляется индекс [0],
+                // пока не знаю почему
             }
             $criticalTime = static::$criticalTime[$entityName];
             $all = [];
@@ -352,18 +473,29 @@ class Diag
     }
 
 
-    public static function deleteStat($date_from = null, $date_to = null)
+    /**
+     * Очищает диагностику с заданными границами дат
+     * @param string|null $dateFrom Дата, от (в формате ГГГГ-ММ-ДД)
+     * @param string|null $dateTo Дата, до (в формате ГГГГ-ММ-ДД)
+     */
+    public static function deleteStat($dateFrom = null, $dateTo = null)
     {
-        $temp = static::getFiles($date_from, $date_to);
+        $temp = static::getFiles($dateFrom, $dateTo);
         foreach ($temp as $f) {
             unlink($f);
         }
     }
 
 
-    public static function getMerged($date_from = null, $date_to = null)
+    /**
+     * Возвращает объединенную диагностику с заданными границами дат
+     * @param string|null $dateFrom Дата, от (в формате ГГГГ-ММ-ДД)
+     * @param string|null $dateTo Дата, до (в формате ГГГГ-ММ-ДД)
+     * @return Diag
+     */
+    public static function getMerged($dateFrom = null, $dateTo = null)
     {
-        $temp = static::getFiles($date_from, $date_to);
+        $temp = static::getFiles($dateFrom, $dateTo);
         $temp = array_map(function ($x) {
             return Diag::getInstance($x);
         }, $temp);

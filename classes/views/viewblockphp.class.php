@@ -1,6 +1,12 @@
 <?php
+/**
+ * Представление PHP-блока
+ */
 namespace RAAS\CMS;
 
+/**
+ * Класс представления PHP-блока
+ */
 class ViewBlockPHP extends ViewBlock
 {
     const blockListItemClass = 'cms-block-php';
@@ -11,8 +17,13 @@ class ViewBlockPHP extends ViewBlock
     }
 
 
-    public function locationContextMenu(Page $Page, Location $Location)
+    public function locationContextMenu(Page $page, Location $location)
     {
-        return parent::locationContextMenu($Page, $Location, $this->view->_('ADD_PHP_BLOCK'), 'Block_PHP');
+        return parent::locationContextMenu(
+            $page,
+            $location,
+            $this->view->_('ADD_PHP_BLOCK'),
+            'Block_PHP'
+        );
     }
 }

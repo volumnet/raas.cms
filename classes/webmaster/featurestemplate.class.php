@@ -66,8 +66,11 @@ class FeaturesTemplate extends MaterialTypeTemplate
     }
 
 
-    public function createBlock(Page $page, Snippet $widget = null, array $additionalData = [])
-    {
+    public function createBlock(
+        Page $page,
+        Snippet $widget = null,
+        array $additionalData = []
+    ) {
         $additionalData = array_merge(
             [
                 'pages_var_name' => '',
@@ -88,7 +91,9 @@ class FeaturesTemplate extends MaterialTypeTemplate
                 'pid' => (int)$this->materialType->id,
                 'vis' => 1,
                 'name' => View_Web::i()->_('FEATURE_' . ($i + 1)),
-                'description' => View_Web::i()->_('FEATURE_' . ($i + 1) . '_TEXT'),
+                'description' => View_Web::i()->_(
+                    'FEATURE_' . ($i + 1) . '_TEXT'
+                ),
                 'priority' => ($i + 1) * 10,
                 'sitemaps_priority' => 0.5
             ]);

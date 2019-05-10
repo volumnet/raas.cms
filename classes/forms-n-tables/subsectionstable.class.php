@@ -40,7 +40,11 @@ class SubsectionsTable extends \RAAS\Table
                 if ($i < 3) {
                     $columns[$col->urn] = [
                         'caption' => $col->name,
-                        'callback' => function ($row) use ($col, $view, $params) {
+                        'callback' => function ($row) use (
+                            $col,
+                            $view,
+                            $params
+                        ) {
                             $f = $row->fields[$col->urn];
                             $v = $f->getValue();
                             if ($v->id) {
@@ -63,8 +67,13 @@ class SubsectionsTable extends \RAAS\Table
             $columns['urn'] = [
                 'caption' => $this->view->_('URN'),
                 'callback' => function ($row) use ($view) {
+                    $name = preg_replace(
+                        '/^http(s)?:\\/\\//umi',
+                        '',
+                        array_shift(explode(' ', $row->urn))
+                    );
                     return '<a href="' . $view->url . '&id=' . (int)$row->id . '" class="' . (!$row->vis ? 'muted' : ($row->response_code ? ' text-error' : '')) . ($row->pvis ? '' : ' cms-inpvis') . '">'
-                         .    htmlspecialchars(preg_replace('/^http(s)?:\\/\\//umi', '', array_shift(explode(' ', $row->urn))))
+                         .    htmlspecialchars($name)
                          . '</a>';
                 }
             ];
@@ -85,7 +94,9 @@ class SubsectionsTable extends \RAAS\Table
                                     break;
                                 case 'file':
                                     $v = $f->getValue();
-                                    return '<a href="/' . $view->fileURL . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' . htmlspecialchars($row->name) . '</a>';
+                                    return '<a href="/' . $view->fileURL . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
+                                              htmlspecialchars($row->name) .
+                                           '</a>';
                                     break;
                                 case 'material':
                                     $v = $f->getValue();
@@ -122,7 +133,11 @@ class SubsectionsTable extends \RAAS\Table
             ];
             $columns[' '] = [
                 'callback' => function ($row, $i) use ($view, $params) {
-                    return rowContextMenu($view->getPageContextMenu($row, $i, count($params['Set'])));
+                    return rowContextMenu($view->getPageContextMenu(
+                        $row,
+                        $i,
+                        count($params['Set'])
+                    ));
                 }
             ];
         } else {
@@ -139,8 +154,13 @@ class SubsectionsTable extends \RAAS\Table
                 'caption' => $this->view->_('DOMAIN'),
                 'sortable' => Column::SORTABLE_REVERSABLE,
                 'callback' => function ($row) use ($view) {
+                    $name = preg_replace(
+                        '/^http(s)?:\\/\\//umi',
+                        '',
+                        array_shift(explode(' ', $row->urn))
+                    );
                     return '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . htmlspecialchars(preg_replace('/^http(s)?:\\/\\//umi', '', array_shift(explode(' ', $row->urn)))) . '"' . (!$row->vis ? ' class="muted"' : '') . '>'
-                         .    htmlspecialchars(preg_replace('/^http(s)?:\\/\\//umi', '', array_shift(explode(' ', $row->urn))))
+                         .    htmlspecialchars($name)
                          . '</a>';
                 }
             ];

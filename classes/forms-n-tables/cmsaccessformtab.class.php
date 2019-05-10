@@ -1,9 +1,18 @@
 <?php
+/**
+ * Вкладка доступа для пользователей
+ * (для редактирования блока, материала, страницы)
+ */
 namespace RAAS\CMS;
 
-use \RAAS\FormTab;
+use RAAS\FormTab;
 
-class CMSAccessFormTab extends \RAAS\FormTab
+/**
+ * Класс вкладки доступа для пользователей
+ * (для редактирования блока, материала, страницы)
+ * @property-read ViewSub_Main $view Представление
+ */
+class CMSAccessFormTab extends FormTab
 {
     public function __get($var)
     {
@@ -18,38 +27,81 @@ class CMSAccessFormTab extends \RAAS\FormTab
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
-        $view = $this->view;
-        $Item = isset($params['Item']) ? $params['Item'] : null;
-        $CONTENT = array();
-        $CONTENT['access_allow'] = array(
-            array('value' => 0, 'caption' => $this->view->_('DENY')),
-            array('value' => 1, 'caption' => $this->view->_('ALLOW')),
-        );
-        $CONTENT['access_to_type'] = array(
-            array('value' => CMSAccess::TO_ALL, 'caption' => $this->view->_('ACCESS_TO_ALL')),
-            array('value' => CMSAccess::TO_UNREGISTERED, 'caption' => $this->view->_('ACCESS_TO_UNREGISTERED')),
-            array('value' => CMSAccess::TO_REGISTERED, 'caption' => $this->view->_('ACCESS_TO_REGISTERED')),
-            array('value' => CMSAccess::TO_USER, 'caption' => $this->view->_('ACCESS_TO_USER'), 'data-show' => 'uid'),
-            array('value' => CMSAccess::TO_GROUP, 'caption' => $this->view->_('ACCESS_TO_GROUP'), 'data-show' => 'gid'),
-        );
-        $CONTENT['access_gid'] = array('Set' => Group::getSet());
+        $CONTENT = [];
+        $CONTENT['access_allow'] = [
+            [
+                'value' => 0,
+                'caption' => $this->view->_('DENY')
+            ],
+            [
+                'value' => 1,
+                'caption' => $this->view->_('ALLOW')
+            ],
+        ];
+        $CONTENT['access_to_type'] = [
+            [
+                'value' => CMSAccess::TO_ALL,
+                'caption' => $this->view->_('ACCESS_TO_ALL')
+            ],
+            [
+                'value' => CMSAccess::TO_UNREGISTERED,
+                'caption' => $this->view->_('ACCESS_TO_UNREGISTERED')
+            ],
+            [
+                'value' => CMSAccess::TO_REGISTERED,
+                'caption' => $this->view->_('ACCESS_TO_REGISTERED')
+            ],
+            [
+                'value' => CMSAccess::TO_USER,
+                'caption' => $this->view->_('ACCESS_TO_USER'),
+                'data-show' => 'uid'
+            ],
+            [
+                'value' => CMSAccess::TO_GROUP,
+                'caption' => $this->view->_('ACCESS_TO_GROUP'),
+                'data-show' => 'gid'
+            ],
+        ];
+        $CONTENT['access_gid'] = ['Set' => Group::getSet()];
 
 
-        $defaultParams = array(
+        $defaultParams = [
             'caption' => $this->view->_('ACCESS_RIGHTS'),
             'name' => 'access',
             'template' => 'cmsaccess.inc.php',
-            'children' => array(
-                'access_id' => array('type' => 'hidden', 'name' => 'access_id', 'multiple' => true),
-                'access_allow' => array('type' => 'select', 'name' => 'access_allow', 'multiple' => true, 'children' => $CONTENT['access_allow']),
-                'access_to_type' => array('type' => 'select', 'name' => 'access_to_type', 'multiple' => true, 'children' => $CONTENT['access_to_type']),
-                'access_uid' => array('name' => 'access_uid', 'multiple' => true),
-                'access_gid' => array('type' => 'select', 'name' => 'access_gid', 'multiple' => true, 'children' => $CONTENT['access_gid']),
-            ),
+            'children' => [
+                'access_id' => [
+                    'type' => 'hidden',
+                    'name' => 'access_id',
+                    'multiple' => true
+                ],
+                'access_allow' => [
+                    'type' => 'select',
+                    'name' => 'access_allow',
+                    'multiple' => true,
+                    'children' => $CONTENT['access_allow']
+                ],
+                'access_to_type' => [
+                    'type' => 'select',
+                    'name' => 'access_to_type',
+                    'multiple' => true,
+                    'children' => $CONTENT['access_to_type']
+                ],
+                'access_uid' => [
+                    'name' => 'access_uid',
+                    'multiple' => true
+                ],
+                'access_gid' => [
+                    'type' => 'select',
+                    'name' => 'access_gid',
+                    'multiple' => true,
+                    'children' => $CONTENT['access_gid']
+                ],
+            ],
             'import' => function ($FormTab) {
-                $DATA = array();
+                $DATA = [];
                 if ($FormTab->Form->Item->access) {
                     foreach ((array)$FormTab->Form->Item->access as $row) {
                         $DATA['access_id'][] = (int)$row->id;
@@ -70,9 +122,10 @@ class CMSAccessFormTab extends \RAAS\FormTab
                     $presentIds = array_filter($presentIds);
                     $presentIds[] = 0;
                     $presentIds = array_unique($presentIds);
-                    $SQL_query = "DELETE FROM " . CMSAccess::_tablename()
-                               . " WHERE " . $FK . " = " . (int)$Item->id . " AND id NOT IN (" . implode(", ", $presentIds) . ")";
-                    $Item->_SQL()->query($SQL_query);
+                    $sqlQuery = "DELETE FROM " . CMSAccess::_tablename()
+                              . " WHERE " . $FK . " = ?
+                                    AND id NOT IN (" . implode(", ", $presentIds) . ")";
+                    $Item->_SQL()->query([$sqlQuery, (int)$Item->id]);
                     foreach ((array)$_POST['access_id'] as $key => $val) {
                         $access = new CMSAccess($val);
                         $access->page_id = $access->material_id = $access->block_id = 0;
@@ -97,7 +150,7 @@ class CMSAccessFormTab extends \RAAS\FormTab
                     }
                 }
             }
-        );
+        ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
     }

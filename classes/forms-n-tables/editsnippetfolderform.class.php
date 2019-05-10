@@ -1,7 +1,16 @@
 <?php
+/**
+ * Форма редактирования папки сниппетов
+ */
 namespace RAAS\CMS;
 
-class EditSnippetFolderForm extends \RAAS\Form
+use RAAS\Form as RAASForm;
+
+/**
+ * Класс формы редактирования папки сниппетов
+ * @property-read ViewSub_Dev $view Представление
+ */
+class EditSnippetFolderForm extends RAASForm
 {
     public function __get($var)
     {
@@ -16,21 +25,41 @@ class EditSnippetFolderForm extends \RAAS\Form
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
-        $Item = isset($params['Item']) ? $params['Item'] : null;
-        $CONTENT = array('pid' => array(new Snippet_Folder(array('name' => $view->_('ROOT_FOLDER'), 'id' => 0))));
-        $filter = function($x) use ($Item) { return $x->id != $Item->id; };
-        $defaultParams = array(
+        $item = isset($params['Item']) ? $params['Item'] : null;
+        $defaultParams = [
             'caption' => $view->_('EDIT_SNIPPET_FOLDER'),
             'parentUrl' => Sub_Dev::i()->url . '&action=snippets',
-            'children' => array(
-                array('name' => 'name', 'caption' => $view->_('NAME'), 'required' => 'required'), 
-                array('name' => 'urn', 'caption' => $view->_('URN')), 
-                array('type' => 'select', 'name' => 'pid', 'caption' => $view->_('PARENT_FOLDER'), 'children' => array('Set' => $CONTENT['pid'], 'filter' => $filter))
-            )
-        );
+            'children' => [
+                [
+                    'name' => 'name',
+                    'caption' => $view->_('NAME'),
+                    'required' => 'required'
+                ],
+                [
+                    'name' => 'urn',
+                    'caption' => $view->_('URN')
+                ],
+                [
+                    'type' => 'select',
+                    'name' => 'pid',
+                    'caption' => $view->_('PARENT_FOLDER'),
+                    'children' => [
+                        'Set' => [
+                            new Snippet_Folder([
+                                'name' => $view->_('ROOT_FOLDER'),
+                                'id' => 0
+                            ])
+                        ],
+                        'filter' => function ($x) use ($item) {
+                            return $x->id != $item->id;
+                        }
+                    ]
+                ]
+            ]
+        ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
     }

@@ -1,7 +1,16 @@
 <?php
+/**
+ * Таблица диагностики
+ */
 namespace RAAS\CMS;
 
-class DiagTable extends \RAAS\Table
+use RAAS\Table;
+
+/**
+ * Класс таблицы диагностики
+ * @property-read ViewSub_Dev $view Представление
+ */
+class DiagTable extends Table
 {
     public function __get($var)
     {

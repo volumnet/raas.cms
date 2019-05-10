@@ -1,7 +1,16 @@
 <?php
+/**
+ * Таблица шаблонов
+ */
 namespace RAAS\CMS;
 
-class TemplatesTable extends \RAAS\Table
+use RAAS\Table;
+
+/**
+ * Класс таблицы шаблонов
+ * @property-read ViewSub_Dev $view Представление
+ */
+class TemplatesTable extends Table
 {
     public function __get($var)
     {
@@ -16,36 +25,46 @@ class TemplatesTable extends \RAAS\Table
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
-        $defaultParams = array(
-            'columns' => array(
-                'name' => array(
-                    'caption' => $this->view->_('NAME'), 
-                    'callback' => function($row) use ($view) { 
-                        return '<a href="' . $view->url . '&action=edit_template&id=' . (int)$row->id . '">
-                                  ' . htmlspecialchars($row->name) . '
-                                </a>';
+        $defaultParams = [
+            'columns' => [
+                'name' => [
+                    'caption' => $this->view->_('NAME'),
+                    'callback' => function ($row) use ($view) {
+                        return '<a href="' . $view->url . '&action=edit_template&id=' . (int)$row->id . '">' .
+                                  htmlspecialchars($row->name) .
+                               '</a>';
                     }
-                ),
-                'urn' => array(
-                    'caption' => $this->view->_('URN'), 
-                    'callback' => function($row) use ($view, $Item) { 
-                        return '<a href="' . $view->url . '&action=edit_template&id=' . (int)$row->id . '">
-                                  ' . htmlspecialchars($row->urn) . '
-                                </a>';
+                ],
+                'urn' => [
+                    'caption' => $this->view->_('URN'),
+                    'callback' => function ($row) use ($view, $Item) {
+                        return '<a href="' . $view->url . '&action=edit_template&id=' . (int)$row->id . '">' .
+                                  htmlspecialchars($row->urn) .
+                               '</a>';
                     }
-                ),
-                ' ' => array(
-                    'callback' => function ($row, $i) use ($view, $contextMenuName, $IN) { 
-                        return rowContextMenu($view->getTemplateContextMenu($row, $i, count($IN['Set']))); 
+                ],
+                ' ' => [
+                    'callback' => function (
+                        $row,
+                        $i
+                    ) use (
+                        $view,
+                        $contextMenuName,
+                        $IN
+                    ) {
+                        return rowContextMenu($view->getTemplateContextMenu(
+                            $row,
+                            $i,
+                            count($IN['Set'])
+                        ));
                     }
-                )
-
-            ),
+                ]
+            ],
             'emptyString' => $this->view->_('NO_TEMPLATES_FOUND'),
-        );
+        ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
     }

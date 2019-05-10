@@ -378,7 +378,11 @@ class PageCopyHelper
         } elseif (!$this->src->pid &&
             in_array(
                 $blockData['block_type'],
-                ['RAAS\CMS\Block_Menu', 'RAAS\CMS\Block_Search', 'RAAS\CMS\Shop\Block_YML']
+                [
+                    Block_Menu::class,
+                    Block_Search::class,
+                    'RAAS\CMS\Shop\Block_YML'
+                ]
             )
         ) {
             $copyOption = 'copy';

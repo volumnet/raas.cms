@@ -1,13 +1,35 @@
 <?php
+/**
+ * Поле формы
+ */
 namespace RAAS\CMS;
 
+/**
+ * Класс поля формы
+ * @property-read Form $parent Родительская форма
+ * @property-read Snippet $Preprocessor Препроцессор поля
+ * @property-read Snippet $Postprocessor Постпроцессор поля
+ * @property Feedback $Owner Владелец поля
+ */
 class Form_Field extends Field
 {
-    protected static $references = array(
-        'parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Form', 'cascade' => false),
-        'Preprocessor' => array('FK' => 'preprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
-        'Postprocessor' => array('FK' => 'postprocessor_id', 'classname' => 'RAAS\\CMS\\Snippet', 'cascade' => false),
-    );
+    protected static $references = [
+        'parent' => [
+            'FK' => 'pid',
+            'classname' => Form::class,
+            'cascade' => false
+        ],
+        'Preprocessor' => [
+            'FK' => 'preprocessor_id',
+            'classname' => Snippet::class,
+            'cascade' => false
+        ],
+        'Postprocessor' => [
+            'FK' => 'postprocessor_id',
+            'classname' => Snippet::class,
+            'cascade' => false
+        ],
+    ];
 
     public function __set($var, $val)
     {

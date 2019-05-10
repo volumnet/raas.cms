@@ -13,7 +13,8 @@ use RAAS\Dictionary as RAASDictionary;
  * @property-read array<Dictionary> $children Дочерний справочник
  * @property-read array<Dictionary> $selfAndChildren Текущая и дочерние страницы
  * @property-read array<int> $selfAndChildrenIds ID# текущей и дочерних страницы
- * @property-read array<Dictionary> $selfAndParents Текущая и родительские страницы
+ * @property-read array<Dictionary> $selfAndParents Текущая и родительские
+ *                                                  страницы
  * @property-read array<int> $selfAndParentsIds ID# текущей и родительских
  *                                                  страниц
  * @property-read array<Dictionary> $visChildren Список видимых дочерних

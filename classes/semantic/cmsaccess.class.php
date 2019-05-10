@@ -1,27 +1,84 @@
 <?php
+/**
+ * Правило доступа
+ */
 namespace RAAS\CMS;
 
-class CMSAccess extends \SOME\SOME
+use SOME\SOME;
+
+/**
+ * Класс правила доступа
+ * @property-read Page $page Для какой страницы установлено правило
+ * @property-read Material $material Для какого материала установлено правило
+ * @property-read Block $block Для какого блока установлено правило
+ * @property-read User $user Для какого пользователя установлено правило
+ * @property-read Group $group Для какой группы установлено правило
+ */
+class CMSAccess extends SOME
 {
+    /**
+     * Для всех
+     */
     const TO_ALL = 0;
+
+    /**
+     * Для незарегистрированных
+     */
     const TO_UNREGISTERED = 1;
+
+    /**
+     * Для зарегистрированных
+     */
     const TO_REGISTERED = 2;
+
+    /**
+     * Для пользователя
+     */
     const TO_USER = 3;
+
+    /**
+     * Для группы
+     */
     const TO_GROUP = 4;
 
     protected static $tablename = 'cms_access';
+
     protected static $defaultOrderBy = "priority";
-    protected static $cognizableVars = array();
 
-    protected static $references = array(
-        'page' => array('FK' => 'page_id', 'classname' => 'RAAS\\CMS\\Page', 'cascade' => true),
-        'material' => array('FK' => 'material_id', 'classname' => 'RAAS\\CMS\\Material', 'cascade' => true),
-        'block' => array('FK' => 'block_id', 'classname' => 'RAAS\\CMS\\Block', 'cascade' => true),
-        'user' => array('FK' => 'uid', 'classname' => 'RAAS\\CMS\\User', 'cascade' => true),
-        'group' => array('FK' => 'gid', 'classname' => 'RAAS\\CMS\\Group', 'cascade' => true),
-    );
+    protected static $references = [
+        'page' => [
+            'FK' => 'page_id',
+            'classname' => Page::class,
+            'cascade' => true
+        ],
+        'material' => [
+            'FK' => 'material_id',
+            'classname' => Material::class,
+            'cascade' => true
+        ],
+        'block' => [
+            'FK' => 'block_id',
+            'classname' => Block::class,
+            'cascade' => true
+        ],
+        'user' => [
+            'FK' => 'uid',
+            'classname' => User::class,
+            'cascade' => true
+        ],
+        'group' => [
+            'FK' => 'gid',
+            'classname' => Group::class,
+            'cascade' => true
+        ],
+    ];
 
 
+    /**
+     * Разрешает ли правило доступ для заданного пользователя
+     * @param User $user Пользователь для проверки
+     * @return -1|0|1 -1 - запрещено, 0 - не определено, 1 - разрешено
+     */
     public function userHasAccess(User $user)
     {
         switch ($this->to_type) {
@@ -48,7 +105,13 @@ class CMSAccess extends \SOME\SOME
     }
 
 
-    public static function userHasCascadeAccess(\SOME\SOME $entity, User $user)
+    /**
+     * Имеет ли пользователь каскадный доступ к сущности
+     * @param SOME $entity Сущность
+     * @param User $user Пользователь
+     * @return -1|0|1 -1 - запрещено, 0 - не определено, 1 - разрешено
+     */
+    public static function userHasCascadeAccess(SOME $entity, User $user)
     {
         if (is_array($entity->access)) {
             $accessSet = array_reverse($entity->access);
@@ -68,39 +131,55 @@ class CMSAccess extends \SOME\SOME
      * @param User $user фильтр по пользователю
      * @param Page $page фильтр по странице
      */
-    public static function refreshPagesAccessCache(User $user = null, Page $page = null)
-    {
+    public static function refreshPagesAccessCache(
+        User $user = null,
+        Page $page = null
+    ) {
         $tablename = Page::_links();
-        $tablename = Page::_dbprefix() . $tablename['allowedUsers']['tablename'];
-        $SQL_query = "DELETE FROM " . $tablename . " WHERE 1";
+        $tablename = Page::_dbprefix()
+                   . $tablename['allowedUsers']['tablename'];
+        $sqlQuery = "DELETE FROM " . $tablename . " WHERE 1";
         if ($user->id) {
-            $SQL_query .= " AND uid = " . (int)$user->id;
+            $sqlQuery .= " AND uid = " . (int)$user->id;
         }
         if ($page->id) {
-            $SQL_query .= " AND page_id = " . (int)$page->id;
+            $sqlQuery .= " AND page_id = " . (int)$page->id;
         }
-        self::_SQL()->query($SQL_query);
+        self::_SQL()->query($sqlQuery);
 
         if ((int)$user->id) {
-            $usersIds = array((int)$user->id);
+            $usersIds = [(int)$user->id];
         } else {
-            $SQL_query = "SELECT tU.id FROM " . User::_tablename() . " AS tU WHERE 1";
-            $usersIds = self::_SQL()->getcol($SQL_query);
+            $sqlQuery = "SELECT tU.id FROM " . User::_tablename() . " AS tU";
+            $usersIds = self::_SQL()->getcol($sqlQuery);
             $usersIds[] = 0;
         }
 
-        $SQL_query = "SELECT tP.id FROM " . Page::_tablename() . " AS tP JOIN " . self::_tablename() . " AS tA ON tA.page_id = tP.id WHERE 1";
+        $sqlQuery = "SELECT tP.id
+                       FROM " . Page::_tablename()
+                  . "    AS tP
+                       JOIN " . self::_tablename()
+                  . "    AS tA
+                         ON tA.page_id = tP.id
+                      WHERE 1";
         if ((int)$page->id) {
-            $SQL_query .= " AND tP.id = " . (int)$page->id;
+            $sqlQuery .= " AND tP.id = " . (int)$page->id;
         }
-        $SQL_query .= " GROUP BY tP.id";
-        $pagesIds = self::_SQL()->getcol($SQL_query);
+        $sqlQuery .= " GROUP BY tP.id";
+        $pagesIds = self::_SQL()->getcol($sqlQuery);
         foreach ($pagesIds as $pid) {
             foreach ($usersIds as $uid) {
                 $row = new Page($pid);
                 $u = new User($uid);
                 $a = $row->userHasAccess($u);
-                self::_SQL()->add($tablename, array('uid' => (int)$u->id, 'page_id' => (int)$row->id, 'allow' => (int)$a));
+                self::_SQL()->add(
+                    $tablename,
+                    [
+                        'uid' => (int)$u->id,
+                        'page_id' => (int)$row->id,
+                        'allow' => (int)$a
+                    ]
+                );
             }
         }
     }
@@ -111,39 +190,55 @@ class CMSAccess extends \SOME\SOME
      * @param User $user фильтр по пользователю
      * @param Material $material фильтр по материалу
      */
-    public static function refreshMaterialsAccessCache(User $user = null, Material $material = null)
-    {
+    public static function refreshMaterialsAccessCache(
+        User $user = null,
+        Material $material = null
+    ) {
         $tablename = Material::_links();
-        $tablename = Material::_dbprefix() . $tablename['allowedUsers']['tablename'];
-        $SQL_query = "DELETE FROM " . $tablename . " WHERE 1";
+        $tablename = Material::_dbprefix()
+                   . $tablename['allowedUsers']['tablename'];
+        $sqlQuery = "DELETE FROM " . $tablename . " WHERE 1";
         if ($user->id) {
-            $SQL_query .= " AND uid = " . (int)$user->id;
+            $sqlQuery .= " AND uid = " . (int)$user->id;
         }
         if ($material->id) {
-            $SQL_query .= " AND material_id = " . (int)$material->id;
+            $sqlQuery .= " AND material_id = " . (int)$material->id;
         }
-        self::_SQL()->query($SQL_query);
+        self::_SQL()->query($sqlQuery);
 
         if ((int)$user->id) {
-            $usersIds = array((int)$user->id);
+            $usersIds = [(int)$user->id];
         } else {
-            $SQL_query = "SELECT tU.id FROM " . User::_tablename() . " AS tU WHERE 1";
-            $usersIds = self::_SQL()->getcol($SQL_query);
+            $sqlQuery = "SELECT tU.id FROM " . User::_tablename() . " AS tU";
+            $usersIds = self::_SQL()->getcol($sqlQuery);
             $usersIds[] = 0;
         }
 
-        $SQL_query = "SELECT tM.id FROM " . Material::_tablename() . " AS tM JOIN " . self::_tablename() . " AS tA ON tA.material_id = tM.id WHERE 1";
+        $sqlQuery = "SELECT tM.id
+                       FROM " . Material::_tablename()
+                  . "    AS tM
+                       JOIN " . self::_tablename()
+                  . "    AS tA
+                         ON tA.material_id = tM.id
+                      WHERE 1";
         if ((int)$material->id) {
-            $SQL_query .= " AND tM.id = " . (int)$material->id;
+            $sqlQuery .= " AND tM.id = " . (int)$material->id;
         }
-        $SQL_query .= " GROUP BY tM.id";
-        $materialsIds = self::_SQL()->getcol($SQL_query);
+        $sqlQuery .= " GROUP BY tM.id";
+        $materialsIds = self::_SQL()->getcol($sqlQuery);
         foreach ($materialsIds as $mid) {
             foreach ($usersIds as $uid) {
                 $row = new Material($mid);
                 $u = new User($uid);
                 $a = $row->userHasAccess($u);
-                self::_SQL()->add($tablename, array('uid' => (int)$u->id, 'material_id' => (int)$row->id, 'allow' => (int)$a));
+                self::_SQL()->add(
+                    $tablename,
+                    [
+                        'uid' => (int)$u->id,
+                        'material_id' => (int)$row->id,
+                        'allow' => (int)$a
+                    ]
+                );
             }
         }
     }
@@ -154,39 +249,55 @@ class CMSAccess extends \SOME\SOME
      * @param User $user фильтр по пользователю
      * @param Block $block фильтр по блоку
      */
-    public static function refreshBlocksAccessCache(User $user = null, Block $block = null)
-    {
+    public static function refreshBlocksAccessCache(
+        User $user = null,
+        Block $block = null
+    ) {
         $tablename = Block::_links();
-        $tablename = Block::_dbprefix() . $tablename['allowedUsers']['tablename'];
-        $SQL_query = "DELETE FROM " . $tablename . " WHERE 1";
+        $tablename = Block::_dbprefix()
+                   . $tablename['allowedUsers']['tablename'];
+        $sqlQuery = "DELETE FROM " . $tablename . " WHERE 1";
         if ($user->id) {
-            $SQL_query .= " AND uid = " . (int)$user->id;
+            $sqlQuery .= " AND uid = " . (int)$user->id;
         }
         if ($block->id) {
-            $SQL_query .= " AND block_id = " . (int)$block->id;
+            $sqlQuery .= " AND block_id = " . (int)$block->id;
         }
-        self::_SQL()->query($SQL_query);
+        self::_SQL()->query($sqlQuery);
 
         if ((int)$user->id) {
-            $usersIds = array((int)$user->id);
+            $usersIds = [(int)$user->id];
         } else {
-            $SQL_query = "SELECT tU.id FROM " . User::_tablename() . " AS tU WHERE 1";
-            $usersIds = self::_SQL()->getcol($SQL_query);
+            $sqlQuery = "SELECT tU.id FROM " . User::_tablename() . " AS tU";
+            $usersIds = self::_SQL()->getcol($sqlQuery);
             $usersIds[] = 0;
         }
 
-        $SQL_query = "SELECT tM.id FROM " . Block::_tablename() . " AS tM JOIN " . self::_tablename() . " AS tA ON tA.block_id = tM.id WHERE 1";
+        $sqlQuery = "SELECT tM.id
+                       FROM " . Block::_tablename()
+                  . "    AS tM
+                       JOIN " . self::_tablename()
+                  . "    AS tA
+                         ON tA.block_id = tM.id
+                      WHERE 1";
         if ((int)$block->id) {
-            $SQL_query .= " AND tM.id = " . (int)$block->id;
+            $sqlQuery .= " AND tM.id = " . (int)$block->id;
         }
-        $SQL_query .= " GROUP BY tM.id";
-        $blocksIds = self::_SQL()->getcol($SQL_query);
+        $sqlQuery .= " GROUP BY tM.id";
+        $blocksIds = self::_SQL()->getcol($sqlQuery);
         foreach ($blocksIds as $bid) {
             foreach ($usersIds as $uid) {
                 $row = Block::spawn($bid);
                 $u = new User($uid);
                 $a = $row->userHasAccess($u);
-                self::_SQL()->add($tablename, array('uid' => (int)$u->id, 'block_id' => (int)$row->id, 'allow' => (int)$a));
+                self::_SQL()->add(
+                    $tablename,
+                    [
+                        'uid' => (int)$u->id,
+                        'block_id' => (int)$row->id,
+                        'allow' => (int)$a
+                    ]
+                );
             }
         }
     }

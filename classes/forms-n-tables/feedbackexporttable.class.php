@@ -1,9 +1,15 @@
 <?php
+/**
+ * Таблица экспорта обратной связи в Excel
+ */
 namespace RAAS\CMS;
 
-use \RAAS\Column;
 use RAAS\Table;
 
+/**
+ * Класс таблицы экспорта обратной связи в Excel
+ * @property-read ViewSub_Feedback $view Представление
+ */
 class FeedbackExportTable extends Table
 {
     public function __get($var)
@@ -19,38 +25,43 @@ class FeedbackExportTable extends Table
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
-        $columns = array();
-        $columns['post_date'] = array(
+        $columns = [];
+        $columns['post_date'] = [
             'caption' => $this->view->_('POST_DATE'),
             'callback' => function ($row) use ($view) {
-                return date($view->_('DATETIMEFORMAT'), strtotime($row->post_date));
+                return date(
+                    $view->_('DATETIMEFORMAT'),
+                    strtotime($row->post_date)
+                );
             }
-        );
+        ];
         if (!$params['Item']->id) {
-            $columns['pid'] = array(
+            $columns['pid'] = [
                 'caption' => $this->view->_('FORM'),
                 'callback' => function ($row) use ($view) {
                     return $row->parent->name;
                 }
-            );
+            ];
         }
-        $columns['name'] = array(
+        $columns['name'] = [
             'caption' => $this->view->_('PAGE'),
             'callback' => function ($row) use ($view) {
-                return ($row->material->id ? $row->material->name : $row->page->name);
+                return $row->material->id ?
+                       $row->material->name :
+                       $row->page->name;
             }
-        );
-        $columns['ip'] = array(
+        ];
+        $columns['ip'] = [
             'caption' => $this->view->_('IP_ADDRESS'),
-            'callback' => function($row) use ($view) {
+            'callback' => function ($row) use ($view) {
                 return $row->ip;
             }
-        );
+        ];
         foreach ($params['columns'] as $key => $col) {
-            $columns[$col->urn] = array(
+            $columns[$col->urn] = [
                 'caption' => $col->name,
                 'callback' => function ($row) use ($col) {
                     $f = $row->fields[$col->urn];
@@ -94,20 +105,21 @@ class FeedbackExportTable extends Table
                     }
                     return $text;
                 }
-            );
+            ];
         }
 
-        $defaultParams = array(
-            'caption' => $params['Item']->name ? $params['Item']->name : $this->view->_('FEEDBACK'),
+        $defaultParams = [
+            'caption' => $params['Item']->name
+                      ?  $params['Item']->name
+                      :  $this->view->_('FEEDBACK'),
             'columns' => $columns,
-            'callback' => function ($Row) {
-                if (!$Row->source->vis) {
-                    $Row->class = 'info';
+            'callback' => function ($row) {
+                if (!$row->source->vis) {
+                    $row->class = 'info';
                 }
             },
             'Set' => $params['Set'],
-
-        );
+        ];
         unset($params['columns']);
 
         $arr = $defaultParams;

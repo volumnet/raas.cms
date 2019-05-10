@@ -1,6 +1,12 @@
 <?php
+/**
+ * Форма редактирования PHP-блока
+ */
 namespace RAAS\CMS;
 
+/**
+ * Класс формы редактирования PHP-блока
+ */
 class EditBlockPHPForm extends EditBlockForm
 {
     protected function getCommonTab()

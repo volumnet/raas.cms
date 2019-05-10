@@ -4,10 +4,10 @@
  */
 namespace RAAS\CMS;
 
-use \RAAS\Field as RAASField;
+use RAAS\Field as RAASField;
 
 /**
- * Класс формы редактирования меню
+ * Класс формы редактирования блока меню
  */
 class EditBlockMenuForm extends EditBlockForm
 {

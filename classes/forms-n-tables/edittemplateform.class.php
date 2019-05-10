@@ -1,11 +1,20 @@
 <?php
+/**
+ * Форма редактирования шаблона
+ */
 namespace RAAS\CMS;
-use \RAAS\FormTab;
-use \RAAS\FieldSet;
-use \RAAS\Field as RAASField;
-use \ArrayObject;
 
-class EditTemplateForm extends \RAAS\Form
+use ArrayObject;
+use RAAS\Field as RAASField;
+use RAAS\FieldSet;
+use RAAS\Form as RAASForm;
+use RAAS\FormTab;
+
+/**
+ * Класс формы редактирования шаблона
+ * @property-read ViewSub_Dev $view Представление
+ */
+class EditTemplateForm extends RAASForm
 {
     public function __get($var)
     {
@@ -20,58 +29,101 @@ class EditTemplateForm extends \RAAS\Form
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
-        $NameField = new RAASField(array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required'));
-        $UrnField = new RAASField(array('name' => 'urn', 'caption' => $view->_('URN')));
-        $DescriptionField = new RAASField(array('type' => 'codearea', 'name' => 'description', 'caption' => $this->view->_('TEMPLATE_CODE'), 'required' => 'required'));
-        $BackgroundField = new RAASField(array(
-            'type' => 'image', 
-            'name' => 'background', 
-            'caption' => $this->view->_('BACKGROUND'), 
-            'meta' => array('attachmentVar' => 'Background', 'deleteAttachmentPath' => $this->view->url . '&action=delete_template_image&id=' . (int)$Item->id)
-        ));
-        $defaultParams = array(
-            'Item' => $Item, 'caption' => $this->view->_('EDIT_TEMPLATE'), 'parentUrl' => $this->view->url . '&action=templates'
-        );
+        $NameField = new RAASField([
+            'name' => 'name',
+            'caption' => $this->view->_('NAME'),
+            'required' => 'required'
+        ]);
+        $UrnField = new RAASField([
+            'name' => 'urn',
+            'caption' => $view->_('URN')
+        ]);
+        $DescriptionField = new RAASField([
+            'type' => 'codearea',
+            'name' => 'description',
+            'caption' => $this->view->_('TEMPLATE_CODE'),
+            'required' => 'required'
+        ]);
+        $BackgroundField = new RAASField([
+            'type' => 'image',
+            'name' => 'background',
+            'caption' => $this->view->_('BACKGROUND'),
+            'meta' => [
+                'attachmentVar' => 'Background',
+                'deleteAttachmentPath' => $this->view->url
+                                       .  '&action=delete_template_image&id='
+                                       . (int)$Item->id
+            ]
+        ]);
+        $defaultParams = [
+            'Item' => $Item,
+            'caption' => $this->view->_('EDIT_TEMPLATE'),
+            'parentUrl' => $this->view->url . '&action=templates'
+        ];
         if ($Item->id) {
-            $defaultParams['children'] = array(
-                new FormTab(array('name' => 'edit', 'caption' => $this->view->_('EDITING'), 'children' => array($NameField, $UrnField, $DescriptionField))),
-                new FormTab(array(
+            $defaultParams['children'] = [
+                new FormTab([
+                    'name' => 'edit',
+                    'caption' => $this->view->_('EDITING'),
+                    'children' => [
+                        $NameField,
+                        $UrnField,
+                        $DescriptionField
+                    ]
+                ]),
+                new FormTab([
                     'name' => 'layout',
                     'caption' => $this->view->_('LAYOUT'),
-                    'children' => array(
-                        new FieldSet(array(
+                    'children' => [
+                        new FieldSet([
                             'template' => 'dev_edit_template',
-                            'export' => function($FormTab) {
-                                $Item = $FormTab->Form->Item;
-                                foreach (array('width', 'height') as $key) {
-                                    if (isset($_POST[$key]) && (int)$_POST[$key]) {
+                            'export' => function ($formTab) {
+                                $Item = $formTab->Form->Item;
+                                foreach (['width', 'height'] as $key) {
+                                    if (isset($_POST[$key]) &&
+                                        (int)$_POST[$key]
+                                    ) {
                                         $Item->$key = (int)$_POST[$key];
                                     }
                                 }
                                 if (isset($_POST['location'])) {
                                     $Item->locs = new ArrayObject();
                                     foreach ($_POST['location'] as $key => $val) {
-                                        $Item->locs[] = array(
-                                            'urn' => isset($_POST['location'][$key]) ? (string)$_POST['location'][$key] : 'Location',
-                                            'x' => isset($_POST['location-left'][$key]) ? (string)$_POST['location-left'][$key] : 0,
-                                            'y' => isset($_POST['location-top'][$key]) ? (string)$_POST['location-top'][$key] : 0,
-                                            'width' => isset($_POST['location-width'][$key]) ? (string)$_POST['location-width'][$key] : $Item->width,
-                                            'height' => isset($_POST['location-height'][$key]) ? (string)$_POST['location-height'][$key] : Location::min_height,
-                                        );
+                                        $Item->locs[] = [
+                                            'urn' => isset($_POST['location'][$key])
+                                                  ?  (string)$_POST['location'][$key]
+                                                  : 'Location',
+                                            'x' => isset($_POST['location-left'][$key])
+                                                ?  (string)$_POST['location-left'][$key]
+                                                :  0,
+                                            'y' => isset($_POST['location-top'][$key])
+                                                ?  (string)$_POST['location-top'][$key]
+                                                :  0,
+                                            'width' => isset($_POST['location-width'][$key])
+                                                    ?  (string)$_POST['location-width'][$key]
+                                                    :  $Item->width,
+                                            'height' => isset($_POST['location-height'][$key])
+                                                     ?  (string)$_POST['location-height'][$key]
+                                                     :  Location::min_height,
+                                        ];
                                     }
                                 }
                             }
-                        )),
+                        ]),
                         $BackgroundField
-                    )
-                ))
-            );
+                    ]
+                ])
+            ];
         } else {
-            $defaultParams['children'] = array($NameField, $DescriptionField, $BackgroundField);
+            $defaultParams['children'] = [
+                $NameField,
+                $DescriptionField,
+                $BackgroundField
+            ];
         }
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);

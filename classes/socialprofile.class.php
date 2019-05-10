@@ -1,25 +1,99 @@
 <?php
+/**
+ * Профиль социальной сети
+ */
 namespace RAAS\CMS;
 
+/**
+ * Класс профиля социальной сети
+ * @property-read string $full_name Полное имя
+ * @property-read int $socialNetwork Код соц. сети из констант self::SN_*
+ * @property-read string $token Токен входа
+ * @property-read string $profile URL/URN пользователя
+ * @property-read string $last_name Фамилия
+ * @property-read string $first_name Имя
+ */
 abstract class SocialProfile
 {
+    /**
+     * ВКонтакте
+     */
     const SN_VK = 1;
+
+    /**
+     * Facebook
+     */
     const SN_FB = 2;
+
+    /**
+     * Одноклассники
+     */
     const SN_OK = 3;
+
+    /**
+     * Мой мир (mail.ru)
+     */
     const SN_MR = 4;
+
+    /**
+     * Twitter
+     */
     const SN_TW = 5;
+
+    /**
+     * LiveJournal
+     */
     const SN_LJ = 6;
+
+    /**
+     * Google
+     */
     const SN_GO = 7;
+
+    /**
+     * Яндекс
+     */
     const SN_YA = 8;
+
+    /**
+     * WebMoney
+     */
     const SN_WM = 9;
+
+    /**
+     * YouTube
+     */
     const SN_YT = 10;
 
+    /**
+     * Токен входа
+     * @var string
+     */
     protected $token;
+
+    /**
+     * URL/URN пользователя
+     * @var string
+     */
     protected $profile;
+
+    /**
+     * Фамилия
+     * @var string
+     */
     protected $last_name;
+
+    /**
+     * Имя
+     * @var string
+     */
     protected $first_name;
 
-    protected static $social = array(
+    /**
+     * Привязка типов адресов (регулярные выражения) к константам соц. сетей
+     * @var array<string[] => int>
+     */
+    protected static $social = [
         '(vk\\.com)|(vkontakte\\.ru)' => self::SN_VK,
         '(fb\\.com)|(facebook\\.com)' => self::SN_FB,
         '(ok\\.ru)|(odnoklassniki\\.ru)' => self::SN_OK,
@@ -30,7 +104,7 @@ abstract class SocialProfile
         'yandex\\.(com|ru)' => self::SN_YA,
         'webmoney\\.(com|ru)' => self::SN_WM,
         'youtube\\.(com|ru)' => self::SN_YT
-    );
+    ];
 
     public function __get($var)
     {
@@ -49,9 +123,11 @@ abstract class SocialProfile
     }
 
 
-    protected function __construct() {}
-
-
+    /**
+     * Получает профиль из токена доступа
+     * @param string $token Токен
+     * @return self|null null, если не удалось получить
+     */
     public static function getProfile($token)
     {
         $url = static::getProfileURL($token);
@@ -70,12 +146,28 @@ abstract class SocialProfile
     }
 
 
+    /**
+     * Разбирает профиль из массива
+     * @param array $arr Массив данных пользователя
+     * @return bool Удалось ли разобрать массив
+     */
     abstract protected function parseProfile(array $arr);
 
 
+    /**
+     * Получает URL профиля по токену доступа
+     * @param string $token Токен
+     * @return string
+     */
     abstract protected static function getProfileURL($token);
 
 
+    /**
+     * Определяет соц. сеть из адреса
+     * @param string $url Адрес
+     * @return int|null Код соц. сети из констант self::SN_*, либо null, если
+     *                  не удалось определить
+     */
     public static function getSocialNetwork($url)
     {
         foreach (static::$social as $key => $val) {

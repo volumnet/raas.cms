@@ -1,6 +1,12 @@
 <?php
+/**
+ * Представление блока поиска
+ */
 namespace RAAS\CMS;
 
+/**
+ * Класс представления блока поиска
+ */
 class ViewBlockSearch extends ViewBlock
 {
     const blockListItemClass = 'cms-block-search';
@@ -11,8 +17,13 @@ class ViewBlockSearch extends ViewBlock
     }
 
 
-    public function locationContextMenu(Page $Page, Location $Location)
+    public function locationContextMenu(Page $page, Location $location)
     {
-        return parent::locationContextMenu($Page, $Location, $this->view->_('ADD_SEARCH_BLOCK'), 'Block_Search');
+        return parent::locationContextMenu(
+            $page,
+            $location,
+            $this->view->_('ADD_SEARCH_BLOCK'),
+            'Block_Search'
+        );
     }
 }

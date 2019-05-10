@@ -233,7 +233,9 @@ class SitemapInterface extends AbstractInterface
 
     /**
      * Получить список блоков <url> для дерева страниц (включая материалы)
-     * @param array<array<string[] => mixed>> $pagesData Данные страниц для отображения
+     * @param array<
+     *            array<string[] => mixed>
+     *        > $pagesData Данные страниц для отображения
      * @return string
      */
     public function showMenu(array $pagesData)
@@ -253,7 +255,9 @@ class SitemapInterface extends AbstractInterface
 
     /**
      * Получить список блоков <url> для материалов
-     * @param array<array<string[] => mixed>> $pagesData Данные страниц для отображения
+     * @param array<
+     *            array<string[] => mixed>
+     *        > $pagesData Данные страниц для отображения
      * @param array<int> $materialTypesIds ID# типов материалов (ограничение)
      * @return string
      */
@@ -305,10 +309,12 @@ class SitemapInterface extends AbstractInterface
     /**
      * Получает данные по картинкам
      * @return [
-     *             'images' => array<string[] ID изображения (MD5 от URL) => [
-     *                 'url' => string абсолютный URL картинки,
-     *                 'title' =>? string alt картинки
-     *             ]>,
+     *             'images' => array<
+     *                 string[] ID изображения (MD5 от URL) => [
+     *                     'url' => string абсолютный URL картинки,
+     *                     'title' =>? string alt картинки
+     *                 ]
+     *             >,
      *             'pagesImages' => array<string[] ID# страницы => array<
      *                 string[] ID изображения (MD5 от URL) => string ID изображения
      *                                                                (MD5 от URL)
@@ -433,7 +439,8 @@ class SitemapInterface extends AbstractInterface
     /**
      * Форматирует URL картинки
      * @param string $url URL картинки
-     * @return string|false URL картинки или false, если картинка с другого сайта
+     * @return string|false URL картинки или false, если картинка с другого
+     *                          сайта
      */
     public function formatImageURL($url)
     {
@@ -526,8 +533,10 @@ class SitemapInterface extends AbstractInterface
      *                 'pid' => int|string ID# материала,
      *                 'name' => string заголовок изображения
      *             ]>,
-     *             'affectedAttachmentsIds' => array<int> ID# задействованных вложений,
-     *             'affectedMaterialsIds' => array<int> ID# задействованных материалов
+     *             'affectedAttachmentsIds' => array<int> ID# задействованных
+     *                                                    вложений,
+     *             'affectedMaterialsIds' => array<int> ID# задействованных
+     *                                                  материалов
      *         ]
      */
     public function getMaterialsAttachmentsData(array $fieldsIds = [])

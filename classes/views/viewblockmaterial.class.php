@@ -1,6 +1,12 @@
 <?php
+/**
+ * Представление блока материалов
+ */
 namespace RAAS\CMS;
 
+/**
+ * Класс представления блока материалов
+ */
 class ViewBlockMaterial extends ViewBlock
 {
     const blockListItemClass = 'cms-block-material';
@@ -11,8 +17,13 @@ class ViewBlockMaterial extends ViewBlock
     }
 
 
-    public function locationContextMenu(Page $Page, Location $Location)
+    public function locationContextMenu(Page $page, Location $location)
     {
-        return parent::locationContextMenu($Page, $Location, $this->view->_('ADD_MATERIAL_BLOCK'), 'Block_Material');
+        return parent::locationContextMenu(
+            $page,
+            $location,
+            $this->view->_('ADD_MATERIAL_BLOCK'),
+            'Block_Material'
+        );
     }
 }

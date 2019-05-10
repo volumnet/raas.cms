@@ -1,11 +1,38 @@
 <?php
+/**
+ * Поле пользователей
+ */
 namespace RAAS\CMS;
+
 use \RAAS\CMS\Field;
 
+/**
+ * Класс поля пользователей
+ * @property-read User $parent Пользователь (с нулевым ID#)
+ * @property-read Snippet $Preprocessor Препроцессор поля
+ * @property-read Snippet $Postprocessor Постпроцессор поля
+ * @property User $Owner Владелец поля
+ */
 class User_Field extends Field
 {
-    protected static $references = array('parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\User', 'cascade' => false));
-    
+    protected static $references = [
+        'parent' => [
+            'FK' => 'pid',
+            'classname' => User::class,
+            'cascade' => false
+        ],
+        'Preprocessor' => [
+            'FK' => 'preprocessor_id',
+            'classname' => Snippet::class,
+            'cascade' => false
+        ],
+        'Postprocessor' => [
+            'FK' => 'postprocessor_id',
+            'classname' => Snippet::class,
+            'cascade' => false
+        ],
+    ];
+
     public function __set($var, $val)
     {
         switch ($var) {
@@ -29,18 +56,18 @@ class User_Field extends Field
         if ($this->updates['urn']) {
             $this->urn = \SOME\Text::beautify($this->urn);
         }
-        while (in_array($this->urn, array('login', 'password', 'social', 'email'))) {
+        while (in_array($this->urn, ['login', 'password', 'social', 'email'])) {
             $this->urn = '_' . $this->urn . '_';
         }
         parent::commit();
     }
-    
+
 
     public static function getSet()
     {
         $args = func_get_args();
         if (!isset($args[0]['where'])) {
-            $args[0]['where'] = array();
+            $args[0]['where'] = [];
         } else {
             $args[0]['where'] = (array)$args[0]['where'];
         }

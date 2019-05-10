@@ -1,9 +1,15 @@
 <?php
+/**
+ * Форма копирования сниппета
+ */
 namespace RAAS\CMS;
 
+/**
+ * Класс формы копирования сниппета
+ */
 class CopySnippetForm extends EditSnippetForm
 {
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $params['selfUrl'] = Sub_Dev::i()->url . '&action=edit_snippet&id=%d';
         $params['newUrl'] = Sub_Dev::i()->url . '&action=edit_snippet';

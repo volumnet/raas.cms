@@ -96,6 +96,12 @@ class ViewSub_Main extends RAASAbstractSubView
      * @param [
      *            'Item' => Page Страница для редактирования
      *            'Parent' => Page Родительская страница
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditPageForm Форма редактирования,
      *        ] $IN Входные данные
      */
     public function edit_page(array $IN = [])
@@ -200,6 +206,12 @@ class ViewSub_Main extends RAASAbstractSubView
      * @param [
      *            'Item' => Block Блок для редактирования,
      *            'Parent' => Page Родительская страница для блока,
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditBlockForm Форма редактирования,
      *        ] $IN Входные данные
      */
     public function edit_block(array $IN = [])
@@ -235,6 +247,12 @@ class ViewSub_Main extends RAASAbstractSubView
      *            'Item' => Material Материал для редактирования,
      *            'Parent' => Page Родительская страница,
      *            'Type' => Material_Type Тип материалов,
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditMaterialForm Форма редактирования,
      *        ] $IN Входные данные
      */
     public function edit_material(array $IN = [])

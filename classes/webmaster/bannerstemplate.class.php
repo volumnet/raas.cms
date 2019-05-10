@@ -75,8 +75,11 @@ class BannersTemplate extends MaterialTypeTemplate
     }
 
 
-    public function createBlock(Page $page, Snippet $widget = null, array $additionalData = [])
-    {
+    public function createBlock(
+        Page $page,
+        Snippet $widget = null,
+        array $additionalData = []
+    ) {
         $additionalData = array_merge(
             [
                 'pages_var_name' => '',

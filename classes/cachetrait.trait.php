@@ -13,7 +13,7 @@ trait CacheTrait
      * Данные кэша
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * Возвращает данные кэша
@@ -29,6 +29,7 @@ trait CacheTrait
      * Получает (обновляет) данные кэша
      */
     abstract public function getCache();
+
 
     /**
      * Получает имя файла основного кэша
@@ -71,6 +72,10 @@ trait CacheTrait
     }
 
 
+    /**
+     * Загружает данные из файла
+     * @return bool Удалось ли загрузить данные
+     */
     public function load()
     {
         if (is_file($this->getFilename())) {
@@ -81,11 +86,17 @@ trait CacheTrait
     }
 
 
+    /**
+     * Записывает данные в файл
+     * @return bool Удалось ли записать данные
+     */
     public function save()
     {
         $cacheId = 'RAASCACHE' . date('YmdHis') . md5(rand());
-        $text = '<' . '?php return unserialize(<<' . "<'" . $cacheId . "'\n" . serialize($this->data) . "\n" . $cacheId . "\n);\n";
-        $debugText = '<' . '?php return ' . var_export((array)$this->data, true) . ";\n";
+        $text = '<' . '?php return unserialize(<<' . "<'" . $cacheId . "'\n"
+              . serialize($this->data) . "\n" . $cacheId . "\n);\n";
+        $debugText = '<' . '?php return ' . var_export((array)$this->data, true)
+                   . ";\n";
 
         $ok = (bool)file_put_contents($this->getTmpFilename(), $text);
         file_put_contents($this->getDebugFilename(), $debugText);
@@ -99,8 +110,11 @@ trait CacheTrait
     }
 
 
+    /**
+     * Очищает данные
+     */
     public function clear()
     {
-        $this->data = array();
+        $this->data = [];
     }
 }

@@ -41,8 +41,11 @@ class DiagTimer extends Timer
      * @param string|null $filename Имя файла
      * @param bool $autoStart Стартовать автоматически
      */
-    public function __construct($name = null, $filename = null, $autoStart = true)
-    {
+    public function __construct(
+        $name = null,
+        $filename = null,
+        $autoStart = true
+    ) {
         $debugBacktrace = debug_backtrace(0, 3);
         if ($name) {
             $this->name = $name;

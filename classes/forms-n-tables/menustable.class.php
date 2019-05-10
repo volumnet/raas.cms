@@ -41,14 +41,16 @@ class MenusTable extends Table
         ];
         if ($item->id) {
             $defaultParams['meta']['allContextMenu'] = $view->getAllMenusContextMenu();
-            $defaultParams['meta']['allValue'] = 'all&pid=' . (int)$params['Item']->id;
+            $defaultParams['meta']['allValue'] = 'all&pid='
+                                               . (int)$params['Item']->id;
         }
         $defaultParams['columns']['id'] = [
             'caption' => $this->view->_('ID'),
             'callback' => function (Menu $menu) use ($view, $item, $thisObj) {
                 $text = (int)$menu->id ?: '';
                 if ($menu->realized || !$item->id) {
-                    $thisObj->meta['realizedCounter'] = $thisObj->meta['realizedCounter'] + 1;
+                    $thisObj->meta['realizedCounter'] = $thisObj->meta['realizedCounter']
+                                                      + 1;
                     return '<a href="' . $this->getEditURL($menu) . '" class="' . $this->getLinkClass($menu) . '">
                               ' . $text . '
                             </a>';

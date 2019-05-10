@@ -1,8 +1,16 @@
 <?php
+/**
+ * Форма диагностики (вкладки с таблицами)
+ */
 namespace RAAS\CMS;
-use \RAAS\FormTab;
-use \RAAS\FieldSet;
 
+use RAAS\FormTab;
+use RAAS\FieldSet;
+
+/**
+ * Класс формы диагностики (вкладки с таблицами)
+ * @property-read ViewSub_Dev $view Представление
+ */
 class DiagForm extends \RAAS\Form
 {
     public function __get($var)
@@ -45,8 +53,9 @@ class DiagForm extends \RAAS\Form
                 $row->children[$key2] = new FieldSet([
                     'name' => $key2,
                     'caption' => $this->view->_('DIAGNOSTICS_TOP10') . ' '
-                            . $this->view->_('DIAGNOSTICS_SET_' . strtoupper($key2)) . ' '
-                            . $this->view->_('DIAGNOSTICS_SET_' . strtoupper($key)),
+                              . $this->view->_('DIAGNOSTICS_SET_' . strtoupper($key2))
+                              . ' '
+                              . $this->view->_('DIAGNOSTICS_SET_' . strtoupper($key)),
                     'meta' => [
                         'Table' => new DiagTable([
                             'Set' => isset($Item->stat[$key][$key2])

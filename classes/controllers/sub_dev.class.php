@@ -1,21 +1,19 @@
 <?php
+/**
+ * Подмодуль "Разработка"
+ */
 namespace RAAS\CMS;
 
-use \RAAS\Redirector as Redirector;
-use \RAAS\Attachment as Attachment;
-use \RAAS\Application;
-use \ArrayObject as ArrayObject;
-use \RAAS\Field as RAASField;
-use \RAAS\FieldSet as FieldSet;
-use \RAAS\FieldContainer as FieldContainer;
-use \RAAS\Form as RAASForm;
-use \RAAS\FormTab as FormTab;
-use \RAAS\CMS\Form as CMSForm;
-use \RAAS\OptGroup as OptGroup;
-use \RAAS\Option as Option;
-use \RAAS\StdSub as StdSub;
+use SOME\HTTP;
+use RAAS\Redirector;
+use RAAS\Application;
+use RAAS\StdSub;
+use RAAS\Abstract_Sub_Controller as RAASAbstractSubController;
 
-class Sub_Dev extends \RAAS\Abstract_Sub_Controller
+/**
+ * Класс подмодуля "Разработка"
+ */
+class Sub_Dev extends RAASAbstractSubController
 {
     protected static $instance;
 
@@ -45,11 +43,13 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'edit_material_field':
             case 'edit_form_field':
             case 'edit_page_field':
-                $f = str_replace('_material', '', str_replace('_page', '', str_replace('_form', '', $this->action)));
+                $f = str_replace('_form', '', $this->action);
+                $f = str_replace('_page', '', $f);
+                $f = str_replace('_material', '', $f);
                 $this->$f();
                 break;
             case 'templates':
-                $this->view->templates(array('Set' => $this->model->dev_templates()));
+                $this->view->templates(['Set' => $this->model->dev_templates()]);
                 break;
             case 'snippets':
                 $this->view->snippets();
@@ -58,14 +58,16 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'vis_dictionary':
             case 'invis_dictionary':
             case 'delete_dictionary':
-                $items = array();
+                $items = [];
                 $ids = (array)$_GET['id'];
                 if (in_array('all', $ids, true)) {
                     $pids = (array)$_GET['pid'];
                     $pids = array_filter($pids, 'trim');
                     $pids = array_map('intval', $pids);
                     if ($pids) {
-                        $items = Dictionary::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
+                        $items = Dictionary::getSet([
+                            'where' => "pid IN (" . implode(", ", $pids) . ")"
+                        ]);
                     }
                 } else {
                     $items = array_map(function ($x) {
@@ -75,21 +77,26 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $items = array_values($items);
                 $Item = isset($items[0]) ? $items[0] : new Dictionary();
                 $f = str_replace('_dictionary', '', $this->action);
-                StdSub::$f($items, $this->url . '&action=dictionaries&id=' . (int)$Item->pid);
+                StdSub::$f(
+                    $items,
+                    $this->url . '&action=dictionaries&id=' . (int)$Item->pid
+                );
                 break;
             case 'chvis_menu':
             case 'vis_menu':
             case 'invis_menu':
             case 'delete_menu':
             case 'realize_menu':
-                $items = array();
+                $items = [];
                 $ids = (array)$_GET['id'];
                 if (in_array('all', $ids, true)) {
                     $pids = (array)$_GET['pid'];
                     $pids = array_filter($pids, 'trim');
                     $pids = array_map('intval', $pids);
                     if ($pids) {
-                        $items = Menu::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
+                        $items = Menu::getSet([
+                            'where' => "pid IN (" . implode(", ", $pids) . ")"
+                        ]);
                     }
                 } else {
                     $items = array_map(function ($x) {
@@ -99,11 +106,26 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $items = array_values($items);
                 $Item = isset($items[0]) ? $items[0] : new Menu();
                 $f = str_replace('_menu', '', $this->action);
-                StdSub::$f($items, $this->url . '&action=menus&id=' . (int)$Item->id);
+                StdSub::$f(
+                    $items,
+                    $this->url . '&action=menus&id=' . (int)$Item->id
+                );
                 break;
             case 'delete_template_image':
                 $Item = new Template((int)$this->id);
-                StdSub::deleteBackground($Item, ($_GET['back'] ? 'history:back' : $this->url . '&action=edit_template&id=' . (int)$Item->id) . '#layout', false);
+                StdSub::deleteBackground(
+                    $Item,
+                    (
+                        $_GET['back'] ?
+                        'history:back' :
+                        (
+                            $this->url .
+                            '&action=edit_template&id=' .
+                            (int)$Item->id
+                        )
+                    ) . '#layout',
+                    false
+                );
                 break;
             case 'delete_template':
                 $ids = (array)$_GET['id'];
@@ -138,16 +160,24 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'delete_form':
                 $ids = (array)$_GET['id'];
                 $items = array_map(function ($x) {
-                    return new CMSForm((int)$x);
+                    return new Form((int)$x);
                 }, $ids);
                 $items = array_values($items);
                 StdSub::delete($items, $this->url . '&action=forms');
                 break;
             case 'delete_diag':
-                $from = (strtotime($_GET['from']) > 0) ? date('Y-m-d', strtotime($_GET['from'])) : null;
-                $to = (strtotime($_GET['to']) > 0) ? date('Y-m-d', strtotime($_GET['to'])) : null;
+                $from = (strtotime($_GET['from']) > 0)
+                      ? date('Y-m-d', strtotime($_GET['from']))
+                      : null;
+                $to = (strtotime($_GET['to']) > 0)
+                    ? date('Y-m-d', strtotime($_GET['to']))
+                    : null;
                 Diag::deleteStat($from, $to);
-                new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=diag');
+                new Redirector(
+                    isset($_GET['back']) ?
+                    'history:back' :
+                    $this->url . '&action=diag'
+                );
                 break;
             case 'delete_material_field':
             case 'show_in_table_material_field':
@@ -159,16 +189,16 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             case 'show_in_table_page_field':
             case 'required_page_field':
                 if (strstr($this->action, 'form')) {
-                    $classname = 'RAAS\\CMS\\Form_Field';
-                    $parentClassname = 'RAAS\\CMS\\Form';
+                    $classname = Form_Field::class;
+                    $parentClassname = Form::class;
                 } elseif (strstr($this->action, 'material')) {
-                    $classname = 'RAAS\\CMS\\Material_Field';
-                    $parentClassname = 'RAAS\\CMS\\Material_Type';
+                    $classname = Material_Field::class;
+                    $parentClassname = Material_Type::class;
                 } else {
-                    $classname = 'RAAS\\CMS\\Page_Field';
-                    $parentClassname = 'RAAS\\CMS\\Material_Type';
+                    $classname = Page_Field::class;
+                    $parentClassname = Material_Type::class;
                 }
-                $items = $where = array();
+                $items = $where = [];
                 $ids = (array)$_GET['id'];
                 if (in_array('all', $ids, true)) {
                     $where[] = "classname = '" . Application::i()->SQL->real_escape_string($parentClassname) . "'";
@@ -177,9 +207,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                     $pids = array_map('intval', $pids);
                     if ($pids) {
                         $where[] = "pid IN (" . implode(", ", $pids) . ")";
-                        $items = $classname::getSet(array('where' => $where));
-                    } elseif ($classname == 'RAAS\\CMS\\Page_Field') {
-                        $items = $classname::getSet(array('where' => $where));
+                        $items = $classname::getSet(['where' => $where]);
+                    } elseif ($classname == Page_Field::class) {
+                        $items = $classname::getSet(['where' => $where]);
                     }
                 } else {
                     $items = array_map(function ($x) use ($classname) {
@@ -188,11 +218,15 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 }
                 $items = array_values($items);
                 $Item = isset($items[0]) ? $items[0] : new $classname();
-                $f = str_replace('_field', '', str_replace('_material', '', str_replace('_page', '', str_replace('_form', '', $this->action))));
+                $f = str_replace('_form', '', $this->action);
+                $f = str_replace('_page', '', $f);
+                $f = str_replace('_material', '', $f);
+                $f = str_replace('_field', '', $f);
                 if (strstr($this->action, 'form')) {
                     $url2 .= '&action=edit_form&id=' . (int)$Item->parent->id;
                 } elseif (strstr($this->action, 'material')) {
-                    $url2 .= '&action=edit_material_type&id=' . (int)$Item->parent->id;
+                    $url2 .= '&action=edit_material_type&id='
+                          .  (int)$Item->parent->id;
                 } else {
                     $url2 .= '&action=pages_fields';
                 }
@@ -208,43 +242,51 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 break;
             case 'webmaster_faq':
                 $w = new Webmaster();
-                $w->createFAQ($this->view->_('FAQ'), 'faq', $this->view->_('FAQ_MAIN'));
-                new Redirector(\SOME\HTTP::queryString('action='));
+                $w->createFAQ(
+                    $this->view->_('FAQ'),
+                    'faq',
+                    $this->view->_('FAQ_MAIN')
+                );
+                new Redirector(HTTP::queryString('action='));
                 break;
             case 'webmaster_reviews':
                 $w = new Webmaster();
-                $w->createFAQ($this->view->_('REVIEWS'), 'reviews', $this->view->_('REVIEWS_MAIN'));
-                new Redirector(\SOME\HTTP::queryString('action='));
+                $w->createFAQ(
+                    $this->view->_('REVIEWS'),
+                    'reviews',
+                    $this->view->_('REVIEWS_MAIN')
+                );
+                new Redirector(HTTP::queryString('action='));
                 break;
             case 'webmaster_photos':
                 $w = new Webmaster();
                 $w->createPhotos($this->view->_('PHOTOS'), 'photos');
-                new Redirector(\SOME\HTTP::queryString('action='));
+                new Redirector(HTTP::queryString('action='));
                 break;
             case 'webmaster_search':
                 $w = new Webmaster();
                 $w->createSearch();
-                new Redirector(\SOME\HTTP::queryString('action='));
+                new Redirector(HTTP::queryString('action='));
                 break;
             case 'clear_cache':
                 if (Package::i()->registryGet('clear_cache_manually')) {
                     $this->model->clearCache(true);
-                    new Redirector(\SOME\HTTP::queryString('action=cache'));
+                    new Redirector(HTTP::queryString('action=cache'));
                 } else {
-                    new Redirector(\SOME\HTTP::queryString('action='));
+                    new Redirector(HTTP::queryString('action='));
                 }
                 break;
             case 'update_affected_pages':
                 Material_Type::updateAffectedPagesForMaterials();
                 Material_Type::updateAffectedPagesForSelf();
-                new Redirector(\SOME\HTTP::queryString('action='));
+                new Redirector(HTTP::queryString('action='));
                 break;
             case 'cache':
                 if (Package::i()->registryGet('clear_cache_manually')) {
                     // $this->model->getCacheMap();
                     $this->view->cache();
                 } else {
-                    new Redirector(\SOME\HTTP::queryString('action='));
+                    new Redirector(HTTP::queryString('action='));
                 }
                 break;
             default:
@@ -254,28 +296,43 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     }
 
 
+    /**
+     * Справочники
+     */
     protected function dictionaries()
     {
         $Item = new Dictionary((int)$this->id);
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $localError = array();
+            $localError = [];
             if ($Item->id) {
                 if (is_uploaded_file($_FILES['file']['tmp_name'])) {
                     $ext = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
                     if (!in_array($ext, Dictionary::$availableExtensions)) {
-                        $localError[] = array(
+                        $localError[] = [
                             'name' => 'INVALID',
                             'value' => 'file',
-                            'description' => sprintf($this->view->_('AVAILABLE_DICTIONARIES_FORMATS'), strtoupper(implode(', ', \RAAS\CMS\Dictionary::$availableExtensions)))
-                        );
+                            'description' => sprintf(
+                                $this->view->_('AVAILABLE_DICTIONARIES_FORMATS'),
+                                strtoupper(implode(
+                                    ', ',
+                                    Dictionary::$availableExtensions
+                                ))
+                            )
+                        ];
                     }
                     if (!$localError) {
-                        $this->model->dev_dictionaries_loadFile($Item, $_FILES['file']);
+                        $this->model->dev_dictionaries_loadFile(
+                            $Item,
+                            $_FILES['file']
+                        );
                     }
                 }
             }
             if (isset($_POST['priority']) && is_array($_POST['priority'])) {
-                $this->model->setEntitiesPriority('\RAAS\CMS\Dictionary', (array)$_POST['priority']);
+                $this->model->setEntitiesPriority(
+                    Dictionary::class,
+                    (array)$_POST['priority']
+                );
             }
             $OUT['localError'] = $localError;
         }
@@ -285,25 +342,37 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     }
 
 
+    /**
+     * Редактирование справочника
+     */
     protected function edit_dictionary()
     {
         $Item = new Dictionary((int)$this->id);
-        $Parent = $Item->pid ? $Item->parent : new Dictionary(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
-        $Form = new EditDictionaryForm(array('Item' => $Item, 'Parent' => $Parent));
-        $this->view->edit_dictionary(array_merge($Form->process(), array('Parent' => $Parent)));
+        $Parent = $Item->pid
+                ? $Item->parent
+                : new Dictionary(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
+        $Form = new EditDictionaryForm(['Item' => $Item, 'Parent' => $Parent]);
+        $this->view->edit_dictionary(
+            array_merge($Form->process(), ['Parent' => $Parent])
+        );
     }
 
 
+    /**
+     * Перемещение справочника
+     */
     protected function move_dictionary()
     {
-        $items = array();
+        $items = [];
         $ids = (array)$_GET['id'];
         if (in_array('all', $ids, true)) {
             $pids = (array)$_GET['pid'];
             $pids = array_filter($pids, 'trim');
             $pids = array_map('intval', $pids);
             if ($pids) {
-                $items = Dictionary::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
+                $items = Dictionary::getSet([
+                    'where' => "pid IN (" . implode(", ", $pids) . ")"
+                ]);
             }
         } else {
             $items = array_map(function ($x) {
@@ -315,21 +384,37 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
 
         if ($items) {
             if (isset($_GET['new_pid'])) {
-                StdSub::move($items, new Dictionary((int)$_GET['new_pid']), $this->url . '&action=dictionaries&id=%s');
+                StdSub::move(
+                    $items,
+                    new Dictionary((int)$_GET['new_pid']),
+                    $this->url . '&action=dictionaries&id=%s'
+                );
             } else {
-                $this->view->move_dictionary(array('Item' => $Item, 'items' => $items));
+                $this->view->move_dictionary([
+                    'Item' => $Item,
+                    'items' => $items
+                ]);
                 return;
             }
         }
-        new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=dictionaries&id=' . (int)$Item->pid);
+        new Redirector(
+            isset($_GET['back']) ?
+            'history:back' :
+            $this->url . '&action=dictionaries&id=' . (int)$Item->pid
+        );
     }
 
 
+    /**
+     * Меню
+     */
     protected function menus()
     {
         $Item = new Menu((int)$this->id);
-        $Parent = $Item->pid ? $Item->parent : new Menu(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
-        $OUT = array();
+        $Parent = $Item->pid
+                ? $Item->parent
+                : new Menu(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
+        $OUT = [];
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['priority']) && is_array($_POST['priority'])) {
                 foreach ($_POST['priority'] as $key => $val) {
@@ -356,7 +441,9 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
                 $set = [];
                 foreach ($menusIds as $menuId) {
                     $menuData = $menuCache->cache[$menuId];
-                    if (!isset($_GET['domain_id']) || ((string)$menuData['domain_id'] == (string)$_GET['domain_id'])) {
+                    if (!isset($_GET['domain_id']) ||
+                        ((string)$menuData['domain_id'] == (string)$_GET['domain_id'])
+                    ) {
                         $set[] = new Menu($menuData);
                     }
                 }
@@ -367,25 +454,37 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     }
 
 
+    /**
+     * Редактирование меню
+     */
     protected function edit_menu()
     {
         $Item = new Menu((int)$this->id);
-        $Parent = $Item->pid ? $Item->parent : new Menu(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
-        $Form = new EditMenuForm(array('Item' => $Item, 'Parent' => $Parent));
-        $this->view->edit_menu(array_merge($Form->process(), array('Parent' => $Parent)));
+        $Parent = $Item->pid
+                ? $Item->parent
+                : new Menu(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
+        $Form = new EditMenuForm(['Item' => $Item, 'Parent' => $Parent]);
+        $this->view->edit_menu(
+            array_merge($Form->process(), ['Parent' => $Parent])
+        );
     }
 
 
+    /**
+     * Перемещение меню
+     */
     protected function move_menu()
     {
-        $items = array();
+        $items = [];
         $ids = (array)$_GET['id'];
         if (in_array('all', $ids, true)) {
             $pids = (array)$_GET['pid'];
             $pids = array_filter($pids, 'trim');
             $pids = array_map('intval', $pids);
             if ($pids) {
-                $items = Menu::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")"));
+                $items = Menu::getSet([
+                    'where' => "pid IN (" . implode(", ", $pids) . ")"
+                ]);
             }
         } else {
             $items = array_map(function ($x) {
@@ -397,9 +496,13 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
 
         if ($items) {
             if (isset($_GET['new_pid'])) {
-                StdSub::move($items, new Menu((int)$_GET['new_pid']), $this->url . '&action=menus&id=%s');
+                StdSub::move(
+                    $items,
+                    new Menu((int)$_GET['new_pid']),
+                    $this->url . '&action=menus&id=%s'
+                );
             } else {
-                $this->view->move_menu(array('Item' => $Item, 'items' => $items));
+                $this->view->move_menu(['Item' => $Item, 'items' => $items]);
                 return;
             }
         }
@@ -407,101 +510,157 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     }
 
 
+    /**
+     * Редактирование шаблона
+     */
     protected function edit_template()
     {
         $Item = new Template((int)$this->id);
-        $Form = new EditTemplateForm(array('Item' => $Item));
+        $Form = new EditTemplateForm(['Item' => $Item]);
         $this->view->edit_template($Form->process());
     }
 
 
+    /**
+     * Редактирование папки сниппетов
+     */
     protected function edit_snippet_folder()
     {
         $Item = new Snippet_Folder((int)$this->id);
         if ($Item->locked) {
             exit;
         }
-        $Form = new EditSnippetFolderForm(array('Item' => $Item));
+        $Form = new EditSnippetFolderForm(['Item' => $Item]);
         $this->view->edit_snippet_folder($Form->process());
     }
 
 
+    /**
+     * Редактирование сниппета
+     */
     protected function edit_snippet()
     {
         $Item = new Snippet((int)$this->id);
         if ($Item->locked) {
             exit;
         }
-        $Form = new EditSnippetForm(array('Item' => $Item));
+        $Form = new EditSnippetForm(['Item' => $Item]);
         $this->view->edit_snippet($Form->process());
     }
 
 
+    /**
+     * Копирование снипппета
+     */
     protected function copy_snippet()
     {
         $Item = new Snippet((int)$this->id);
         $Item = $this->model->copyItem($Item);
         $Item->locked = 0;
-        $Form = new CopySnippetForm(array('Item' => $Item));
+        $Form = new CopySnippetForm(['Item' => $Item]);
         $this->view->edit_snippet($Form->process());
     }
 
 
+    /**
+     * Типы материалов
+     */
     protected function material_types()
     {
         $this->view->material_types();
     }
 
 
+    /**
+     * Редактирование типа материалов
+     */
     protected function edit_material_type()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['priority']) && is_array($_POST['priority'])) {
-                $this->model->setEntitiesPriority('\RAAS\CMS\Material_Field', (array)$_POST['priority']);
+                $this->model->setEntitiesPriority(
+                    Material_Field::class,
+                    (array)$_POST['priority']
+                );
             }
         }
         $Item = new Material_Type((int)$this->id);
-        $Parent = $Item->pid ? $Item->parent : new Material_Type(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
-        $Form = new EditMaterialTypeForm(array('Item' => $Item, 'Parent' => $Parent));
-        $this->view->edit_material_type(array_merge($Form->process(), array('Parent' => $Parent)));
+        if ($Item->pid) {
+            $Parent = $Item->parent;
+        } else {
+            $Parent = new Material_Type(
+                isset($_GET['pid']) ?
+                (int)$_GET['pid'] :
+                0
+            );
+        }
+        $Form = new EditMaterialTypeForm([
+            'Item' => $Item,
+            'Parent' => $Parent
+        ]);
+        $this->view->edit_material_type(
+            array_merge($Form->process(), ['Parent' => $Parent])
+        );
     }
 
 
+    /**
+     * Формы
+     */
     protected function forms()
     {
-        $this->view->forms(array('Set' => $this->model->forms()));
+        $this->view->forms(['Set' => $this->model->forms()]);
     }
 
 
+    /**
+     * Редактирование формы
+     */
     protected function edit_form()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['priority']) && is_array($_POST['priority'])) {
-                $this->model->setEntitiesPriority('\RAAS\CMS\Form_Field', (array)$_POST['priority']);
+                $this->model->setEntitiesPriority(
+                    Form_Field::class,
+                    (array)$_POST['priority']
+                );
             }
         }
-        $Item = new CMSForm((int)$this->id);
-        $Form = new EditFormForm(array('Item' => $Item));
+        $Item = new Form((int)$this->id);
+        $Form = new EditFormForm(['Item' => $Item]);
         $this->view->edit_form($Form->process());
     }
 
 
+    /**
+     * Поля страниц
+     */
     protected function pages_fields()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['priority']) && is_array($_POST['priority'])) {
-                $this->model->setEntitiesPriority('\RAAS\CMS\Page_Field', (array)$_POST['priority']);
+                $this->model->setEntitiesPriority(
+                    Page_Field::class,
+                    (array)$_POST['priority']
+                );
             }
         }
-        $this->view->pages_fields(array('Set' => $this->model->dev_pages_fields()));
+        $this->view->pages_fields(['Set' => $this->model->dev_pages_fields()]);
     }
 
 
+    /**
+     * Редактирование поля
+     */
     protected function edit_field()
     {
         if ($this->sub == 'dev' && $this->action == 'edit_form_field') {
             $Item = new Form_Field((int)$this->id);
-            $Parent = $Item->pid ? $Item->parent : new CMSForm(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
+            if ($Item->pid) {
+                $Parent =$Item->parent;
+            } else {
+                $Parent = new Form(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
+            }
             $parentUrl = $this->url . '&action=edit_form';
             if (!$Parent->id) {
                 new Redirector($parentUrl);
@@ -509,7 +668,15 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             $parentUrl .= '&id=' . (int)$Parent->id;
         } elseif (strstr($this->action, 'material')) {
             $Item = new Material_Field((int)$this->id);
-            $Parent = $Item->pid ? $Item->parent : new Material_Type(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
+            if ($Item->pid) {
+                $Parent = $Item->parent;
+            } else {
+                $Parent = new Material_Type(
+                    isset($_GET['pid']) ?
+                    (int)$_GET['pid'] :
+                    0
+                );
+            }
             $parentUrl = $this->url . '&action=edit_material_type';
             if (!$Parent->id) {
                 new Redirector($parentUrl);
@@ -520,7 +687,13 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
             $Parent = null;
             $parentUrl = $this->url . '&action=pages_fields';
         }
-        $Form = new EditFieldForm(array('Item' => $Item, 'meta' => array('Parent' => $Parent, 'parentUrl' => $parentUrl)));
+        $Form = new EditFieldForm([
+            'Item' => $Item,
+            'meta' => [
+                'Parent' => $Parent,
+                'parentUrl' => $parentUrl
+            ]
+        ]);
         $OUT = $Form->process();
         if ($Item instanceof Material_Field) {
             $OUT['Parent'] = $Parent;
@@ -534,16 +707,22 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
     }
 
 
+    /**
+     * Перемещение поля материалов
+     */
     protected function move_material_field()
     {
-        $items = array();
+        $items = [];
         $ids = (array)$_GET['id'];
         if (in_array('all', $ids, true)) {
             $pids = (array)$_GET['pid'];
             $pids = array_filter($pids, 'trim');
             $pids = array_map('intval', $pids);
             if ($pids) {
-                $items = Material_Field::getSet(array('where' => "classname = 'RAAS\\\\CMS\\\\Material_Type' AND pid IN (" . implode(", ", $pids) . ")"));
+                $items = Material_Field::getSet([
+                    'where' => "classname = 'RAAS\\\\CMS\\\\Material_Type'
+                            AND pid IN (" . implode(", ", $pids) . ")"
+                ]);
             }
         } else {
             $items = array_map(function ($x) {
@@ -555,21 +734,37 @@ class Sub_Dev extends \RAAS\Abstract_Sub_Controller
 
         if ($items) {
             if (isset($_GET['new_pid'])) {
-                StdSub::move($items, new Material_Type((int)$_GET['new_pid']), $this->url . '&action=edit_material_type&id=%s');
+                StdSub::move(
+                    $items,
+                    new Material_Type((int)$_GET['new_pid']),
+                    $this->url . '&action=edit_material_type&id=%s'
+                );
             } else {
-                $this->view->move_material_field(array('Item' => $Item, 'items' => $items));
+                $this->view->move_material_field([
+                    'Item' => $Item,
+                    'items' => $items
+                ]);
                 return;
             }
         }
-        new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=edit_material_type&id=' . (int)$Item->pid);
+        new Redirector(
+            isset($_GET['back']) ?
+            'history:back' :
+            $this->url . '&action=edit_material_type&id=' . (int)$Item->pid
+        );
     }
 
 
+    /**
+     * Диагностика
+     */
     protected function diag()
     {
-        $from = date('Y-m-d', (strtotime($_GET['from']) > 0) ? strtotime($_GET['from']) : time());
-        $to = date('Y-m-d', (strtotime($_GET['to']) > 0) ? strtotime($_GET['to']) : time());
+        $tFrom = strtotime($_GET['from']);
+        $tTo = strtotime($_GET['to']);
+        $from = date('Y-m-d', ($tFrom > 0) ? $tFrom : time());
+        $to = date('Y-m-d', ($tTo > 0) ? $tTo : time());
         $Item = Diag::getMerged($from, $to);
-        $this->view->diag(array('Item' => $Item, 'from' => $from, 'to' => $to));
+        $this->view->diag(['Item' => $Item, 'from' => $from, 'to' => $to]);
     }
 }

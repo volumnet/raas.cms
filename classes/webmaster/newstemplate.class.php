@@ -60,8 +60,11 @@ class NewsTemplate extends MaterialTypeTemplate
     }
 
 
-    public function createBlock(Page $page, Snippet $widget = null, array $additionalData = [])
-    {
+    public function createBlock(
+        Page $page,
+        Snippet $widget = null,
+        array $additionalData = []
+    ) {
         $additionalData = array_merge(
             [
                 'sort_field_default' => $this->materialType->fields['date']->id,

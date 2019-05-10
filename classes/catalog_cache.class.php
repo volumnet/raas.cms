@@ -1,14 +1,32 @@
 <?php
+/**
+ * Кэш каталога
+ * @deprecated Сейчас используется фильтр каталога из модуля RAAS\CMS\Shop
+ */
 namespace RAAS\CMS;
 
 use RAAS\Attachment;
 
+/**
+ * Класс кэша каталога
+ * @deprecated Сейчас используется фильтр каталога из модуля RAAS\CMS\Shop
+ * @property-read array<array<string[] URN поля => mixed>> $data Данные кэша
+ * @property-read Material_Type $mtype Тип материалов
+ */
 class Catalog_Cache
 {
     use CacheTrait;
 
-    protected $_mtype = [];
+    /**
+     * Тип материалов
+     * @var Material_Type
+     */
+    protected $_mtype = null;
 
+    /**
+     * Заведомо текстовые поля
+     * @var array<string>
+     */
     protected $_textKeys = [
         'urn',
         'name',
@@ -35,6 +53,10 @@ class Catalog_Cache
     }
 
 
+    /**
+     * Конструктор класса
+     * @param Material_Type $materialType Тип материалов
+     */
     public function __construct(Material_Type $materialType)
     {
         $this->_mtype = $materialType;
@@ -53,7 +75,9 @@ class Catalog_Cache
         $sqlFrom = $sqlWhere = [];
         $sort = $order = "";
         if (!$this->_mtype->global_type) {
-            $sqlFrom['tMPA'] = " LEFT JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id ";
+            $sqlFrom['tMPA'] = " LEFT JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc
+                                   AS tMPA
+                                   ON tMPA.id = tM.id ";
         }
         $sqlWhere[] = " tM.vis ";
         $sqlWhere[] = " tM.pid IN (" . implode(", ", $this->_mtype->selfAndChildrenIds) . ") ";
@@ -63,7 +87,10 @@ class Catalog_Cache
 
         // Набор полей
         if (!$this->_mtype->global_type) {
-            $sqlWhat['pages_ids'] = "GROUP_CONCAT(DISTINCT tMPA.pid SEPARATOR '@@@') AS pages_ids";
+            $sqlWhat['pages_ids'] = "GROUP_CONCAT(
+                                        DISTINCT tMPA.pid
+                                       SEPARATOR '@@@'
+                                    ) AS pages_ids";
         }
         foreach ($this->_mtype->selfAndChildren as $mtype) {
             foreach ($mtype->selfFields as $row) {
@@ -73,7 +100,11 @@ class Catalog_Cache
                     $temp = "value";
                 }
                 $sqlWhat[$row->urn] = "(
-                    SELECT GROUP_CONCAT(DISTINCT " . $temp . " ORDER BY fii ASC SEPARATOR '@@@')
+                    SELECT GROUP_CONCAT(
+                                DISTINCT " . $temp . "
+                                   ORDER BY fii ASC
+                               SEPARATOR '@@@'
+                            )
                       FROM " . Field::data_table . "
                      WHERE pid = tM.id
                        AND fid = " . (int)$row->id . "
@@ -84,10 +115,13 @@ class Catalog_Cache
         /*** QUERY ***/
         Material::_SQL()->query("SET SESSION group_concat_max_len=1000000");
         Material::_SQL()->query("SET SQL_BIG_SELECTS=1");
-        $sqlQuery = "SELECT SQL_CALC_FOUND_ROWS tM.* " . ($sqlWhat ? ", " . implode(", ", $sqlWhat) : "")
-                   . "  FROM " . Material::_tablename() . " AS tM " . implode(" ", $sqlFrom)
-                   . ($sqlWhere ? " WHERE " . implode(" AND ", $sqlWhere) : "")
-                   . " GROUP BY tM.id ORDER BY NOT tM.priority, tM.priority ASC ";
+        $sqlQuery = "SELECT SQL_CALC_FOUND_ROWS tM.* "
+                  . ($sqlWhat ? ", " . implode(", ", $sqlWhat) : "")
+                  . "  FROM " . Material::_tablename() . " AS tM "
+                  . implode(" ", $sqlFrom)
+                  . ($sqlWhere ? " WHERE " . implode(" AND ", $sqlWhere) : "")
+                  . " GROUP BY tM.id
+                      ORDER BY NOT tM.priority, tM.priority ASC ";
         // echo $sqlQuery; exit;
         $sqlResult = Material::_SQL()->get($sqlQuery);
         $sqlResult = array_map(
@@ -118,10 +152,18 @@ class Catalog_Cache
 
     public function getFilename()
     {
-        return Package::i()->cacheDir . '/system/raas_cache_materials' . $this->_mtype->id . '.php';
+        return Package::i()->cacheDir . '/system/raas_cache_materials' .
+               $this->_mtype->id . '.php';
     }
 
 
+    /**
+     * Рекурсивно преобразует значения в числовую форму,
+     * кроме заведомо текстовых полей
+     * @param mixed $data Данные для преобразования
+     * @param string|null $key Ключ для проверки на заведомо текстовое поле
+     * @return mixed
+     */
     public function checkDeepNumeric($data, $key = null)
     {
         if (is_array($data)) {
@@ -132,7 +174,9 @@ class Catalog_Cache
             return $temp;
         } else {
             $data = trim($data);
-            if (is_numeric($data) && (!$key || !in_array($key, $this->_textKeys))) {
+            if (is_numeric($data) &&
+                (!$key || !in_array($key, $this->_textKeys))
+            ) {
                 return (float)$data;
             }
             return $data;
