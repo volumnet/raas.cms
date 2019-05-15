@@ -1,9 +1,30 @@
 <?php
-$_RAASForm_Control = function(\RAAS\Field $Field) use (&$_RAASForm_Attrs, &$_RAASForm_Options, &$_RAASForm_Checkbox, &$_RAASForm_Control) {
-    $Item = $Field->Form->Item;
-    if (\RAAS\Application::i()->user->root) { 
-        echo '<a href="' . \RAAS\CMS\Sub_Dev::i()->url . '&action=edit_form&id=' . (int)$Item->pid . '">' . htmlspecialchars($Item->parent->name) . '</a>';
+/**
+ * Поле "Форма" в просмотре сообщения обратной связи
+ */
+namespace RAAS\CMS;
+
+use RAAS\Application;
+use RAAS\Field as RAASField;
+
+/**
+ * Отображает поле
+ * @param RAASField $field Поле для отображения
+ */
+$_RAASForm_Control = function (RAASField $field) use (
+    &$_RAASForm_Attrs,
+    &$_RAASForm_Options,
+    &$_RAASForm_Checkbox,
+    &$_RAASForm_Control
+) {
+    $Item = $field->Form->Item;
+    if (Application::i()->user->root) {
+        echo '<a href="' . Sub_Dev::i()->url . '&action=edit_form&id=' . (int)$Item->pid . '">' .
+                htmlspecialchars($Item->parent->name) .
+              '</a>';
     } else {
-        echo '<a href="' . \RAAS\CMS\Sub_Feedback::i()->url . '&id=' . (int)$Item->pid . '">' . htmlspecialchars($Item->parent->name) . '</a>';
+        echo '<a href="' . Sub_Feedback::i()->url . '&id=' . (int)$Item->pid . '">' .
+                htmlspecialchars($Item->parent->name) .
+              '</a>';
     }
 };

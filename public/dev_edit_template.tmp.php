@@ -1,6 +1,17 @@
 <?php
-$_RAASForm_FieldSet = function(\RAAS\FieldSet $FieldSet, $level = 0) use (&$_RAASForm_Options) {
-    $Item = $FieldSet->Form->Item;
+/**
+ * Редактирование шаблона
+ */
+namespace RAAS\CMS;
+
+use RAAS\FieldSet;
+
+/**
+ * Отображение группы полей
+ * @param FieldSet $fieldSet Группа полей для отображения
+ */
+$_RAASForm_FieldSet = function(FieldSet $fieldSet) use (&$_RAASForm_Options) {
+    $Item = $fieldSet->Form->Item;
     ?>
     <div class="cms-template" style="<?php echo htmlspecialchars($Item->style)?>">
       <input type="hidden" name="width" id="width" value="<?php echo (int)$Item->width?>" />

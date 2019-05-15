@@ -1,6 +1,20 @@
 <?php
+/**
+ * Перенос поля материалов
+ */
 namespace RAAS\CMS;
 
+use SOME\HTTP;
+
+/**
+ * Отображает дерево типов материалов
+ * @param Material_Type $node Текущий узел
+ * @param array<int> $ids Список ID# переносимых узлов
+ * @param array<int> $pids Список ID# родительских узлов к переносимым
+ * @param array<int> $actives Список ID# переносимых узлов и всех их
+ *                            родительских всех уровней
+ * @return string
+ */
 function showMoveMaterialField(Material_Type $node, array $ids, array $pids, array $actives)
 {
     static $level = 0;
@@ -10,7 +24,9 @@ function showMoveMaterialField(Material_Type $node, array $ids, array $pids, arr
         if (in_array($row->id, $pids)) {
             $text .= '<span>' . htmlspecialchars($row->name) . '</span>';
         } else {
-            $text .= '<a href="' . \SOME\HTTP::queryString('new_pid=' . (int)$row->id) . '">' . htmlspecialchars($row->name) . '</a>';
+            $text .= '<a href="' . HTTP::queryString('new_pid=' . (int)$row->id) . '">'
+                  .     htmlspecialchars($row->name)
+                  .  '</a>';
         }
         if (!in_array($row->id, $ids)) {
             $level++;
@@ -21,7 +37,9 @@ function showMoveMaterialField(Material_Type $node, array $ids, array $pids, arr
     }
 
     if ($text) {
-        $text = '<ul' . (!$level ? ' class="tree" data-role="move-material-field" style="margin-bottom: 20px"' : '') . '>' . $text . '</ul>';
+        $text = '<ul' . (!$level ? ' class="tree" data-role="move-material-field" style="margin-bottom: 20px"' : '') . '>'
+              .    $text
+              . '</ul>';
     }
     return $text;
 }
