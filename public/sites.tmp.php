@@ -29,7 +29,7 @@ if ($Set) { ?>
         </tr>
       </thead>
       <tbody>
-        <?php for($i = 0, $row = $Set[$i]; $i < count($Set); $i++, $row = $Set[$i]) { ?>
+        <?php for ($i = 0, $row = $Set[$i]; $i < count($Set); $i++, $row = $Set[$i]) { ?>
             <tr>
               <td>
                 <a href="?p=<?php echo $VIEW->packageName?>&sub=<?php echo $VIEW->sub?>&id=<?php echo (int)$row->id?>"<?php echo !$row->vis ? ' class="muted"' : ''?>>
