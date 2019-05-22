@@ -259,6 +259,7 @@ abstract class Block extends SOME
      */
     public function getAddData()
     {
+        return [];
     }
 
 
