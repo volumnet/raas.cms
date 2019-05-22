@@ -471,6 +471,8 @@ abstract class Block extends SOME
                 'page' => $page,
                 'Block' => $this,
                 'block' => $this,
+                'Interface' => $this->Interface,
+                'Widget' => $this->Widget,
                 'config' => $config,
             ]);
             if ($diag = Controller_Frontend::i()->diag) {
@@ -503,6 +505,8 @@ abstract class Block extends SOME
                 'page' => $page,
                 'Block' => $this,
                 'block' => $this,
+                'Interface' => $this->Interface,
+                'Widget' => $this->Widget,
             ]));
             if ($diag = Controller_Frontend::i()->diag) {
                 $diag->handle(
