@@ -1125,7 +1125,12 @@ class Package extends RAASPackage
      * @param 'inline'|'frame'|'crop'|null $mode Режим создания эскиза
      * @return string
      */
-    public static function tn($filename, $width = null, $height = null, $mode = null)
+    public static function tn(
+        $filename,
+        $width = null,
+        $height = null,
+        $mode = null
+    )
     {
         $temp = pathinfo($filename);
         $outputFile = ltrim($temp['dirname'] ? $temp['dirname'] . '/' : '')
@@ -1137,7 +1142,8 @@ class Package extends RAASPackage
 
 
     /**
-     * Ищет сущности с таким же URN, как и текущая (для проверки на уникальность)
+     * Ищет сущности с таким же URN, как и текущая
+     * (для проверки на уникальность)
      * @param SOME $Object сущность для проверки
      * @return bool true, если уже есть сущность с таким URN, как и текущий,
      *              false в противном случае
