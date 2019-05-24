@@ -19,13 +19,18 @@ jQuery(function($) {
                 return url; 
             },
             materialSelect : function(id, pid, name) {
-                $thisObj.val(id).attr({ 'data-material-id': id, 'data-material-pid': pid, 'data-material-name': name });
+                $thisObj.val(id).attr({ 
+                    'data-material-id': id, 
+                    'data-material-pid': pid, 
+                    'data-material-name': name 
+                });
                 methods.checkIfExists();
                 $thisObj.trigger('RAAS.material-field.selected');
             },
             materialDelete : function() {
                 methods.materialSelect('', '', '');
-                $('[data-role="material-field-without"] input:text', $container).val('');
+                $('[data-role="material-field-without"] input:text', $container)
+                    .val('');
                 methods.checkIfExists();
                 $thisObj.trigger('RAAS.material-field.deleted');
             },
@@ -42,8 +47,11 @@ jQuery(function($) {
                 id = isNaN(id) ? 0 : id;
                 pid = isNaN(pid) ? 0 : pid;
                 if (id > 0) {
-                    var url = methods.getBaseURL() + '&action=edit_material&id=' + id + ((pid > 0) ? '&pid=' + pid : '');
-                    $('[data-role="raas-autotext-link"]', $container).attr('href', url).text($thisObj.attr('data-material-name'));
+                    var url = methods.getBaseURL() + '&action=edit_material&id=' 
+                            + id + ((pid > 0) ? '&pid=' + pid : '');
+                    $('[data-role="raas-autotext-link"]', $container)
+                        .attr('href', url)
+                        .text($thisObj.attr('data-material-name'));
                     $('[data-role="material-field-with"]', $container).show();
                     $('[data-role="material-field-without"]', $container).hide();
                 } else {
@@ -74,12 +82,16 @@ jQuery(function($) {
                 methods.wrap();
                 methods.checkIfExists();
                 $container.on('click', '[data-role="raas-autotext-clear"]', methods.clearMaterialClick);
-                var url = 'ajax.php' + methods.getBaseURL() + '&action=get_materials_by_field'; 
+                var url = 'ajax.php' + methods.getBaseURL() 
+                        + '&action=get_materials_by_field'; 
                 var fid;
                 if (fid = parseInt($thisObj.attr('data-field-id'))) {
                     url += '&id=' + fid;
                 } else if (fid = parseInt($thisObj.attr('data-material-type-id'))) {
                     url += '&mtype=' + fid;
+                }
+                if ($thisObj.attr('data-only-by-name')) {
+                    url += '&only_by_name=1';
                 }
                 url += '&search_string=';
                 $('[data-role="material-field-without"] input:text', $container).RAAS_autocompleter({
