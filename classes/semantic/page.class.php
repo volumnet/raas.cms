@@ -377,6 +377,7 @@ class Page extends SOME
     {
         $new = !$this->id;
         $urnUpdated = false;
+        $pidUpdated = false;
 
         $this->modify(false);
         $this->modify_date = date('Y-m-d H:i:s');
@@ -392,6 +393,9 @@ class Page extends SOME
         }
         if ($this->updates['urn']) {
             $urnUpdated = true;
+        }
+        if ($this->updates['pid']) {
+            $pidUpdated = true;
         }
         if ($this->updates['urn'] && $this->pid) {
             $this->urn = Text::beautify($this->urn, '-');
@@ -465,7 +469,7 @@ class Page extends SOME
         if ($new) {
             Material_Type::updateAffectedPagesForMaterials();
             Material_Type::updateAffectedPagesForSelf();
-        } elseif ($urnUpdated) {
+        } elseif ($urnUpdated || $pidUpdated) {
             Material::updateAffectedPages();
         }
     }
