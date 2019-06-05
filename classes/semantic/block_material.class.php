@@ -138,8 +138,8 @@ class Block_Material extends Block
             Material_Type::updateAffectedPagesForMaterials($oldMaterialType);
             Material_Type::updateAffectedPagesForSelf($oldMaterialType);
         }
-        Material_Type::updateAffectedPagesForMaterials($this->material_type);
-        Material_Type::updateAffectedPagesForSelf($this->material_type);
+        Material_Type::updateAffectedPagesForMaterials($this->Material_Type);
+        Material_Type::updateAffectedPagesForSelf($this->Material_Type);
     }
 
 
