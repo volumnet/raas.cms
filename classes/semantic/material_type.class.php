@@ -196,7 +196,8 @@ class Material_Type extends SOME
             );
         }
         $sqlQuery = "SELECT tP.id AS page_id,
-                            tMt.id AS material_type_id
+                            tMT.id AS material_type_id,
+                            MAX(tB.nat) AS nat
                         FROM " . Page::_tablename() . " AS tP
                         JOIN " . static::$dbprefix . "cms_blocks_pages_assoc
                           AS tBPA
@@ -208,26 +209,28 @@ class Material_Type extends SOME
                           AS tBM
                           ON tBM.id = tB.id
                         JOIN " . Material_Type::_tablename() . "
-                          AS tMt
-                          ON tMt.id = tBM.material_type
-                       WHERE tB.vis
-                         AND tB.nat";
+                          AS tMT
+                          ON tMT.id = tBM.material_type
+                       WHERE tB.vis";
         if ($materialTypeId) {
-            $sqlQuery .= " AND tMt.id IN (" . implode(", ", $materialTypesIds) . ")";
+            $sqlQuery .= " AND tMT.id IN (" . implode(", ", $materialTypesIds) . ")";
         }
-        $sqlQuery .= " ORDER BY tP.id";
+        $sqlQuery .= " GROUP BY tMT.id, tP.id
+                       ORDER BY tP.id";
         $sqlResult = static::_SQL()->get($sqlQuery);
         $sqlArr = [];
         $pagesByTypes = [];
         foreach ($sqlResult as $sqlRow) {
             $sqlArr[] = [
                 'material_type_id' => (int)$sqlRow['material_type_id'],
-                'page_id' => (int)$sqlRow['page_id']
+                'page_id' => (int)$sqlRow['page_id'],
+                'nat' => (int)$sqlRow['nat'],
             ];
             foreach ($mtCache->getAllChildrenIds($sqlRow['material_type_id']) as $childMTypeId) {
                 $sqlArr[] = [
                     'material_type_id' => (int)$childMTypeId,
-                    'page_id' => (int)$sqlRow['page_id']
+                    'page_id' => (int)$sqlRow['page_id'],
+                    'nat' => (int)$sqlRow['nat'],
                 ];
             }
         }

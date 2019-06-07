@@ -427,7 +427,8 @@ class Material extends SOME
                   LEFT JOIN " . static::$dbprefix . "cms_materials_pages_assoc
                          AS tMPA
                          ON tMPA.id = tM.id
-                      WHERE (tMTAPM.page_id = tMPA.pid OR tMPA.pid IS NULL)";
+                      WHERE (tMTAPM.page_id = tMPA.pid OR tMPA.pid IS NULL)
+                        AND tMTAPM.nat";
         if ($materialId) {
             $sqlQuery .= " AND tM.id = " . (int)$materialId;
         } elseif ($materialTypeId) {

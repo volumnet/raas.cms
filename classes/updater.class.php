@@ -1708,4 +1708,24 @@ class Updater extends RAASUpdater
             Material::updateAffectedPages();
         }
     }
+
+
+    /**
+     * Добавим поле NAT в таблицу связанных страниц типов материалов для
+     * материалов
+     */
+    public function update20190607()
+    {
+        if (in_array(SOME::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache", $this->tables) &&
+            !in_array('nat', $this->columns(SOME::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache
+                           ADD nat TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'NAT',
+                           ADD INDEX nat (nat)";
+            $this->SQL->query($sqlQuery);
+            Material_Type::updateAffectedPagesForMaterials();
+            Material_Type::updateAffectedPagesForSelf();
+            Material::updateAffectedPages();
+        }
+    }
 }
