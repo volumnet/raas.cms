@@ -254,81 +254,97 @@ class SearchInterface extends AbstractInterface
         $searchPagesIds = $this->getSearchPagesIds($block, $page);
 
         // 1. Ищем страницы по имени
-        $pagesNameResult = $this->searchPagesByName(
-            $searchString,
-            $searchArray,
-            $searchPagesIds,
-            $pageNameSentenceRatio,
-            $pageNameWordRatio
-        );
-        foreach ($pagesNameResult as $pageId => $pageWeight) {
-            $result['p' . $pageId] += $pageWeight;
+        if ($pageNameSentenceRatio || $pageNameWordRatio) {
+            $pagesNameResult = $this->searchPagesByName(
+                $searchString,
+                $searchArray,
+                $searchPagesIds,
+                $pageNameSentenceRatio,
+                $pageNameWordRatio
+            );
+            foreach ($pagesNameResult as $pageId => $pageWeight) {
+                $result['p' . $pageId] += $pageWeight;
+            }
         }
 
         // 2. Ищем страницы по данным
-        $pagesDataResult = $this->searchPagesByData(
-            $searchString,
-            $searchArray,
-            $searchPagesIds,
-            $pageDataSentenceRatio,
-            $pageDataWordRatio,
-            $searchLimit
-        );
-        foreach ($pagesDataResult as $pageId => $pageWeight) {
-            $result['p' . $pageId] += $pageWeight;
+        if ($pageDataSentenceRatio || $pageDataWordRatio) {
+            $pagesDataResult = $this->searchPagesByData(
+                $searchString,
+                $searchArray,
+                $searchPagesIds,
+                $pageDataSentenceRatio,
+                $pageDataWordRatio,
+                $searchLimit
+            );
+            foreach ($pagesDataResult as $pageId => $pageWeight) {
+                $result['p' . $pageId] += $pageWeight;
+            }
         }
 
         // 3. Ищем все материалы по имени и описанию
-        $materialsNameDescriptionResult = $this->searchMaterialsByNameAndDescription(
-            $searchString,
-            $searchArray,
-            (array)$block->material_types_ids,
-            $materialNameSentenceRatio,
-            $materialNameWordRatio,
-            $materialDescriptionSentenceRatio,
-            $materialDescriptionWordRatio,
-            $searchLimit
-        );
-        foreach ($materialsNameDescriptionResult as $materialId => $materialWeight) {
-            $materials[$materialId] = $materialWeight;
+        if ($materialNameSentenceRatio ||
+            $materialNameWordRatio ||
+            $materialDescriptionSentenceRatio ||
+            $materialDescriptionWordRatio
+        ) {
+            $materialsNameDescriptionResult = $this->searchMaterialsByNameAndDescription(
+                $searchString,
+                $searchArray,
+                (array)$block->material_types_ids,
+                $materialNameSentenceRatio,
+                $materialNameWordRatio,
+                $materialDescriptionSentenceRatio,
+                $materialDescriptionWordRatio,
+                $searchLimit
+            );
+            foreach ($materialsNameDescriptionResult as $materialId => $materialWeight) {
+                $materials[$materialId] = $materialWeight;
+            }
         }
 
         // 4. Ищем все материалы по данным
-        $materialsDataResult = $this->searchMaterialsByData(
-            $searchString,
-            $searchArray,
-            (array)$block->material_types_ids,
-            $materialDataSentenceRatio,
-            $materialDataWordRatio,
-            $searchLimit
-        );
-        foreach ($materialsDataResult as $materialId => $materialWeight) {
-            $materials[$materialId] = $materialWeight;
+        if ($materialDataSentenceRatio || $materialDataWordRatio) {
+            $materialsDataResult = $this->searchMaterialsByData(
+                $searchString,
+                $searchArray,
+                (array)$block->material_types_ids,
+                $materialDataSentenceRatio,
+                $materialDataWordRatio,
+                $searchLimit
+            );
+            foreach ($materialsDataResult as $materialId => $materialWeight) {
+                $materials[$materialId] = $materialWeight;
+            }
         }
 
         // 5. Выбираем блоки по типам данных
-        $materialsPagesResult = getMaterialPageRatings(
-            $materials,
-            $pageMaterialsRatio
-        );
-        foreach ($materialsPagesResult['pages'] as $pageId => $pageWeight) {
-            $result['p' . $pageId] += $pageWeight;
-        }
-        foreach ($materialsPagesResult['materials'] as $materialId => $materialWeight) {
-            $result['m' . $materialId] += $materialWeight;
+        if ($materials) {
+            $materialsPagesResult = getMaterialPageRatings(
+                $materials,
+                $pageMaterialsRatio
+            );
+            foreach ($materialsPagesResult['pages'] as $pageId => $pageWeight) {
+                $result['p' . $pageId] += $pageWeight;
+            }
+            foreach ($materialsPagesResult['materials'] as $materialId => $materialWeight) {
+                $result['m' . $materialId] += $materialWeight;
+            }
         }
 
         // 6. Выбираем блоки по HTML-коду
-        $pagesHTMLResult = $this->searchPagesByHTMLBlocks(
-            $searchString,
-            $searchArray,
-            $searchPagesIds,
-            $pageHTMLSentenceRatio,
-            $pageHTMLWordRatio,
-            $searchLimit
-        );
-        foreach ($pagesHTMLResult as $pageId => $pageWeight) {
-            $result['p' . $pageId] += $pageWeight;
+        if ($pageHTMLSentenceRatio || $pageHTMLWordRatio) {
+            $pagesHTMLResult = $this->searchPagesByHTMLBlocks(
+                $searchString,
+                $searchArray,
+                $searchPagesIds,
+                $pageHTMLSentenceRatio,
+                $pageHTMLWordRatio,
+                $searchLimit
+            );
+            foreach ($pagesHTMLResult as $pageId => $pageWeight) {
+                $result['p' . $pageId] += $pageWeight;
+            }
         }
 
         arsort($result);
@@ -519,7 +535,7 @@ class SearchInterface extends AbstractInterface
                 $wordRatio
             );
         }
-        return $result;
+        return array_filter($result);
     }
 
 
@@ -566,7 +582,7 @@ class SearchInterface extends AbstractInterface
                 );
             }
         }
-        return $result;
+        return array_filter($result);
     }
 
 
@@ -631,7 +647,7 @@ class SearchInterface extends AbstractInterface
                 );
             }
         }
-        return $result;
+        return array_filter($result);
     }
 
 
@@ -684,7 +700,7 @@ class SearchInterface extends AbstractInterface
                 );
             }
         }
-        return $result;
+        return array_filter($result);
     }
 
 
@@ -724,23 +740,25 @@ class SearchInterface extends AbstractInterface
                 array_flip($sqlResult)
             );
 
-            $sqlQuery = "SELECT tM.id AS material_id, tMTAPM.page_id
-                           FROM " . Material::tablename() . "
-                             AS tM
-                           JOIN " . Material::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache
-                             AS tMTAPM
-                             ON tMTAPM.material_type_id = tM.pid
-                          WHERE tM.id IN (" . implode(", ", array_keys($materialRatings)) . ")
-                       GROUP BY tM.id, tMTAPM.page_id";
-            $sqlResult = Material::_SQL()->get($sqlQuery);
+            if ($pageMaterialsRatio) {
+                $sqlQuery = "SELECT tM.id AS material_id, tMTAPM.page_id
+                               FROM " . Material::tablename() . "
+                                 AS tM
+                               JOIN " . Material::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache
+                                 AS tMTAPM
+                                 ON tMTAPM.material_type_id = tM.pid
+                              WHERE tM.id IN (" . implode(", ", array_keys($materialRatings)) . ")
+                           GROUP BY tM.id, tMTAPM.page_id";
+                $sqlResult = Material::_SQL()->get($sqlQuery);
 
-            foreach ($sqlResult as $sqlRow) {
-                $result['pages'][$sqlRow['page_id']] += $materialRatings[$sqlRow['material_id']]
-                                                     *  $pageMaterialsRatio;
+                foreach ($sqlResult as $sqlRow) {
+                    $result['pages'][$sqlRow['page_id']] += $materialRatings[$sqlRow['material_id']]
+                                                         *  $pageMaterialsRatio;
+                }
             }
         }
 
-        return $result;
+        return array_filter($result);
     }
 
 
@@ -797,6 +815,6 @@ class SearchInterface extends AbstractInterface
                 );
             }
         }
-        return $result;
+        return array_filter($result);
     }
 }
