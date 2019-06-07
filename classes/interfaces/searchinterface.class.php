@@ -174,37 +174,16 @@ class SearchInterface extends AbstractInterface
             $searchLimit = 100
         );
         $pages = null;
-        if (isset($this->block->pages_var_name) &&
-            isset($this->block->rows_per_page) &&
+        if (isset($this->block->pages_var_name, $this->block->rows_per_page) &&
             (int)$this->block->rows_per_page
         ) {
-            $pages = new Pages(
-                (
-                    isset($this->get[$this->block->pages_var_name]) ?
-                    (int)$this->get[$this->block->pages_var_name] :
-                    1
-                ),
-                (int)$this->block->rows_per_page
-            );
+            $pagesVarName = $this->block->pages_var_name;
+            $currentPage = isset($this->get[$pagesVarName])
+                         ? (int)$this->get[$pagesVarName]
+                         : 1;
+            $pages = new Pages($currentPage, (int)$this->block->rows_per_page);
         }
-        $resultIds = array_slice(array_keys($result), 0, $searchLimit);
-        $set = array_values(array_filter(array_map(function ($x) {
-            if ($x[0] == 'm') {
-                $row = new Material(substr($x, 1));
-                if ($row->currentUserHasAccess() &&
-                    $row->parent->currentUserHasAccess()
-                ) {
-                    return $row;
-                }
-            } else {
-                $row = new Page(PageRecursiveCache::i()->cache[substr($x, 1)]);
-                if ($row->currentUserHasAccess()) {
-                    return $row;
-                }
-            }
-            $row->rollback();
-        }, $resultIds)));
-        $set = SOME::getArraySet($set, $pages);
+        $set = $this->getSearchResults($result, $pages, $searchLimit);
         if (!$set) {
             $out['localError'] = 'NO_RESULTS_FOUND';
         }
@@ -354,6 +333,45 @@ class SearchInterface extends AbstractInterface
 
         arsort($result);
         return $result;
+    }
+
+
+    /**
+     * Получает результаты поиска по рейтингам
+     * @param array<
+     *            (
+     *                ('p' страница |'m' материал) .
+     *                (int ID# страницы или материала)
+     *            ) => int Рейтинг
+     *        > $ratios Рейтинги
+     * @param Pages $pages Постраничная разбивка
+     * @param int $searchLimit Лимит поиска
+     * @return array<Page|Material>
+     */
+    public function getSearchResults(
+        array $ratios,
+        Pages $pages = null,
+        $searchLimit = 100
+    ) {
+        $resultIds = array_slice(array_keys($ratios), 0, $searchLimit);
+        $set = array_values(array_filter(array_map(function ($x) {
+            if ($x[0] == 'm') {
+                $row = new Material(substr($x, 1));
+                if ($row->currentUserHasAccess() &&
+                    $row->parent->currentUserHasAccess()
+                ) {
+                    return $row;
+                }
+            } else {
+                $row = new Page(PageRecursiveCache::i()->cache[substr($x, 1)]);
+                if ($row->currentUserHasAccess()) {
+                    return $row;
+                }
+            }
+            $row->rollback();
+        }, $resultIds)));
+        $set = SOME::getArraySet($set, $pages);
+        return $set;
     }
 
 
