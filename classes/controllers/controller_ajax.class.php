@@ -161,13 +161,19 @@ class Controller_Ajax extends Abstract_Controller
         } elseif ((int)$this->nav['mtype']) {
             $mtype = (int)$this->nav['mtype'];
         }
+        $onlyByName = false;
+        if ((int)$this->nav['only_by_name']) {
+            $onlyByName = true;
+        }
         $Set = $this->model->getMaterialsBySearch(
             (
                 isset($_GET['search_string']) ?
                 $_GET['search_string'] :
                 ''
             ),
-            $mtype
+            $mtype,
+            10,
+            $onlyByName
         );
         $OUT['Set'] = array_map(
             function ($x) {

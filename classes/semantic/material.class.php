@@ -215,7 +215,6 @@ class Material extends SOME
             Material_Type::updateAffectedPagesForSelf(
                 new Material_Type($oldMaterialTypeId)
             );
-            Material_Type::updateAffectedPagesForSelf($this->material_type);
         }
         Material_Type::updateAffectedPagesForSelf($this->material_type);
 
