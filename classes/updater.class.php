@@ -36,6 +36,7 @@ class Updater extends RAASUpdater
         $this->update20190317();
         $this->update20190403();
         $this->update20190423();
+        $this->update20190607();
     }
 
 
