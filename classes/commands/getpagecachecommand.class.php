@@ -98,7 +98,7 @@ class GetPageCacheCommand extends LockCommand
     {
         if (!$page->cache) {
             $this->controller->doLog(
-                'Page "' . $page->url . '": is not cached'
+                'Page #' . (int)$page->id . ' "' . $page->url . '": is not cached'
             );
             return false;
         }
@@ -108,14 +108,14 @@ class GetPageCacheCommand extends LockCommand
             $ft = filemtime($cachefile);
             if (($ft >= $mt) && !$forceUpdate) {
                 $this->controller->doLog(
-                    'Page "' . $page->url . '": data is actual'
+                    'Page #' . (int)$page->id . ' "' . $page->url . '": data is actual'
                 );
                 return false;
             }
         }
         $page->rebuildCache();
         $this->controller->doLog(
-            'Page "' . $page->url . '": (' .
+            'Page #' . (int)$page->id . ' "' . $page->url . '": (' .
             ($ft > 0 ? date('Y-m-d H:i:s ', $ft) : '') .
             '->' .
             ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : '') .
@@ -136,14 +136,15 @@ class GetPageCacheCommand extends LockCommand
     {
         if (!$material->cache_url) {
             $this->controller->doLog(
-                'Material "' . $page->url . '": has no actual URL'
+                'Material #' . (int)$material->id . ' "' . $page->url .
+                '": has no actual URL'
             );
             return false;
         }
         $page = $material->urlParent;
         if (!$page->cache) {
             $this->controller->doLog(
-                'Page "' . $page->url . '": is not cached'
+                'Page #' . (int)$page->id . ' "' . $page->url . '": is not cached'
             );
             return false;
         }
@@ -154,14 +155,15 @@ class GetPageCacheCommand extends LockCommand
             $ft = filemtime($cachefile);
             if (($ft >= $mt) && !$forceUpdate) {
                 $this->controller->doLog(
-                    'Material "' . $material->url . '": data is actual'
+                    'Material #' . (int)$material->id . ' "' . $material->url .
+                    '": data is actual'
                 );
                 return false;
             }
         }
         $page->rebuildCache();
         $this->controller->doLog(
-            'Material "' . $material->url . '": (' .
+            'Material #' . (int)$material->id . ' "' . $material->url . '": (' .
             ($ft > 0 ? date('Y-m-d H:i:s ', $ft) : '') .
             '->' .
             ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : '') .

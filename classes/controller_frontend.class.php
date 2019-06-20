@@ -197,7 +197,8 @@ class Controller_Frontend extends Abstract_Controller
             $Page->Material->visit();
         }
         echo $content;
-        if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET') && $content) {
+
+        if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET')) {
             $headers = (array)headers_list();
             if (($status1 = array_filter($headers, function ($x) {
                 return stristr($x, 'Status:');
