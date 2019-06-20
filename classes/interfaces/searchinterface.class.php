@@ -618,10 +618,14 @@ class SearchInterface extends AbstractInterface
         if ($searchArray) {
             $sqlBind = $sqlWhereArr = [];
             foreach ($searchArray as $searchWord) {
-                $sqlBind[] = '%' . $searchWord . '%';
-                $sqlBind[] = '%' . $searchWord . '%';
-                $sqlWhereArr[] = "name LIKE ?";
-                $sqlWhereArr[] = "description LIKE ?";
+                if ($nameSentenceRatio || $nameWordRatio) {
+                    $sqlWhereArr[] = "name LIKE ?";
+                    $sqlBind[] = '%' . $searchWord . '%';
+                }
+                if ($descriptionSentenceRatio || $descriptionWordRatio) {
+                    $sqlWhereArr[] = "description LIKE ?";
+                    $sqlBind[] = '%' . $searchWord . '%';
+                }
             }
 
             $sqlQuery = "SELECT id, name, description
