@@ -441,7 +441,7 @@ class SearchInterface extends AbstractInterface
      */
     public function getSearchArray($searchString, $minLength = 3)
     {
-        $searchArray = preg_split('/[^\\w\\-]/umi', $searchString);
+        $searchArray = preg_split('/\\s|,/umi', $searchString);
         $searchArray = array_map('trim', $searchArray);
         $searchArray = array_filter($searchArray);
         if ((int)$minLength) {
