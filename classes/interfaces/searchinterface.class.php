@@ -473,10 +473,13 @@ class SearchInterface extends AbstractInterface
         $wordRatio = 10
     ) {
         $result = 0;
+        $haystack = preg_replace('/\\s+/umi', ' ', $haystack);
+        $searchString = preg_replace('/\\s+/umi', ' ', $searchString);
         if (mb_stristr($haystack, $searchString)) {
             $result += $sentenceRatio;
         } else {
             foreach ($searchArray as $searchWord) {
+                $searchWord = preg_replace('/\\s+/umi', ' ', $searchWord);
                 if (mb_stristr($haystack, $searchWord)) {
                     $result += $wordRatio;
                 }
