@@ -443,7 +443,9 @@ class Material extends SOME
                               FROM " . static::$dbprefix . "cms_materials_affected_pages_cache AS tMAP
                               JOIN " . Page::_tablename() . " AS tP ON tP.id = tMAP.page_id
                              WHERE tMAP.material_id = tM.id
-                          ORDER BY (tMAP.page_id = tM.page_id) DESC, tP.priority ASC
+                          ORDER BY (tMAP.page_id = tM.page_id) DESC,
+                                   (tMAP.page_id = tM.cache_url_parent_id) DESC,
+                                   tP.priority ASC
                              LIMIT 1
                         ), 0)";
         if ($materialId) {
