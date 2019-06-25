@@ -5,81 +5,156 @@
 namespace RAAS\CMS;
 
 use SOME\Text;
-use RAAS\Application;
+use RAAS\Abstract_Sub_View as RAASAbstractSubView;
 
 /**
  * Класс представления для подмодуля "Разработка"
  */
-class ViewSub_Dev extends \RAAS\Abstract_Sub_View
+class ViewSub_Dev extends RAASAbstractSubView
 {
     protected static $instance;
 
-    public function dictionaries(array $IN = [])
+    /**
+     * Список справочников
+     * @param [
+     *            'Item' => Dictionary Родительский справочник
+     *            'Set' => array<Dictionary> набор подразделов,
+     *            'Pages' => Pages Постраничная разбивка,
+     *            'sort' => string Поля для сортировки,
+     *            'order' => 'asc'|'desc' Порядок сортировки,
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *        ] $in Входные данные
+     */
+    public function dictionaries(array $in = [])
     {
-        $IN['Table'] = new DictionariesTable($IN);
-        $this->assignVars($IN);
-        $this->title = $IN['Item']->id ? $IN['Item']->name : $this->_('DICTIONARIES');
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('href' => $this->url . '&action=dictionaries', 'name' => $this->_('DICTIONARIES'));
-        if ($IN['Item']->parents) {
-            foreach ($IN['Item']->parents as $row) {
-                $this->path[] = array('href' => $this->url . '&action=dictionaries&id=' . (int)$row->id, 'name' => $row->name);
+        $in['Table'] = new DictionariesTable($in);
+        $this->assignVars($in);
+        $this->title = $in['Item']->id
+                     ? $in['Item']->name
+                     : $this->_('DICTIONARIES');
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'href' => $this->url . '&action=dictionaries',
+            'name' => $this->_('DICTIONARIES')
+        ];
+        if ($in['Item']->parents) {
+            foreach ($in['Item']->parents as $row) {
+                $this->path[] = [
+                    'href' => $this->url . '&action=dictionaries&id='
+                           .  (int)$row->id,
+                    'name' => $row->name
+                ];
             }
         }
-        $this->contextmenu = $this->getDictionaryContextMenu($IN['Item']);
-        $this->template = $IN['Table']->template;
+        $this->contextmenu = $this->getDictionaryContextMenu($in['Item']);
+        $this->template = $in['Table']->template;
     }
 
 
-    public function edit_dictionary(array $IN = [])
+    /**
+     * Редактирование справочника
+     * @param [
+     *            'Parent' => Dictionary Родительский справочник,
+     *            'Item' => Dictionary Текущий справочник,
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditDictionaryForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function edit_dictionary(array $in = [])
     {
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('href' => $this->url . '&action=dictionaries', 'name' => $this->_('DICTIONARIES'));
-        if ($IN['Parent']->id) {
-            if ($IN['Parent']->parents) {
-                foreach ($IN['Parent']->parents as $row) {
-                    $this->path[] = array('href' => $this->url . '&action=dictionaries&id=' . (int)$row->id, 'name' => $row->name);
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'href' => $this->url . '&action=dictionaries',
+            'name' => $this->_('DICTIONARIES')
+        ];
+        if ($in['Parent']->id) {
+            if ($in['Parent']->parents) {
+                foreach ($in['Parent']->parents as $row) {
+                    $this->path[] = [
+                        'href' => $this->url . '&action=dictionaries&id='
+                               .  (int)$row->id,
+                        'name' => $row->name
+                    ];
                 }
             }
-            $this->path[] = array('href' => $this->url . '&action=dictionaries&id=' . (int)$IN['Parent']->id, 'name' => $IN['Parent']->name);
+            $this->path[] = [
+                'href' => $this->url . '&action=dictionaries&id='
+                       .  (int)$in['Parent']->id,
+                'name' => $in['Parent']->name
+            ];
         }
-        $this->stdView->stdEdit($IN, 'getDictionaryContextMenu');
+        $this->stdView->stdEdit($in, 'getDictionaryContextMenu');
     }
 
 
-    public function move_dictionary(array $IN = [])
+    /**
+     * Перемещение справочников
+     * @param [
+     *            'Item' => Dictionary Текущий справочник,
+     *            'items' =>? array<Dictionary> Список текущих справочников,
+     *        ] $in Входные данные
+     */
+    public function move_dictionary(array $in = [])
     {
         $ids = array_map(function ($x) {
             return (int)$x->id;
-        }, $IN['items']);
+        }, $in['items']);
         $ids = array_unique($ids);
         $ids = array_values($ids);
         $pids = array_map(function ($x) {
             return (int)$x->pid;
-        }, $IN['items']);
+        }, $in['items']);
         $pids = array_unique($pids);
         $pids = array_values($pids);
         $actives = [];
-        foreach ($IN['items'] as $row) {
-            $actives = array_merge($actives, array($row->id), (array)$row->parents_ids);
+        foreach ($in['items'] as $row) {
+            $actives = array_merge($actives, $row->selfAndParentsIds);
         }
         $actives = array_unique($actives);
         $actives = array_values($actives);
-        $IN['ids'] = $ids;
-        $IN['pids'] = $pids;
-        $IN['actives'] = $actives;
+        $in['ids'] = $ids;
+        $in['pids'] = $pids;
+        $in['actives'] = $actives;
 
-        $this->assignVars($IN);
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('href' => $this->url . '&action=dictionaries', 'name' => $this->_('DICTIONARIES'));
-        if ($IN['Item']->parents) {
-            foreach ($IN['Item']->parents as $row) {
-                $this->path[] = array('href' => $this->url . '&action=dictionaries' . '&id=' . (int)$row->id, 'name' => $row->name);
+        $this->assignVars($in);
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'href' => $this->url . '&action=dictionaries',
+            'name' => $this->_('DICTIONARIES')
+        ];
+        if ($in['Item']->parents) {
+            foreach ($in['Item']->parents as $row) {
+                $this->path[] = [
+                    'href' => $this->url . '&action=dictionaries'
+                           .  '&id=' . (int)$row->id,
+                    'name' => $row->name
+                ];
             }
         }
-        $this->path[] = array('href' => $this->url . '&action=dictionaries' . '&id=' . (int)$IN['Item']->id, 'name' => $IN['Item']->name);
-        if (count($IN['items']) == 1) {
-            $this->contextmenu = $this->getDictionaryContextMenu($IN['Item']);
+        $this->path[] = [
+            'href' => $this->url . '&action=dictionaries'
+                   .  '&id=' . (int)$in['Item']->id,
+            'name' => $in['Item']->name
+        ];
+        if (count($in['items']) == 1) {
+            $this->contextmenu = $this->getDictionaryContextMenu($in['Item']);
         }
         $this->title = $this->_('MOVING_NOTE');
         $this->template = 'dev_move_dictionary';
@@ -127,14 +202,21 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
 
     /**
      * Отображает страницу списка меню
-     * @param ['Item' => Menu текущее меню] $IN Входные данные
+     * @param [
+     *            'Item' => Menu Текущий пункт меню
+     *            'Parent' => Menu Родительский пункт меню,
+     *            'Set' => array<Menu> Список пунктов,
+     *            'DATA' => array<
+     *                string[] => mixed
+     *            > Представление текущего пункта меню в виде массива
+     *        ] $in Входные данные
      */
-    public function menus(array $IN = [])
+    public function menus(array $in = [])
     {
-        $item = $IN['Item'];
+        $item = $in['Item'];
 
-        $IN['Table'] = new MenusTable($IN);
-        $this->assignVars($IN);
+        $in['Table'] = new MenusTable($in);
+        $this->assignVars($in);
         $this->title = $item->id ? $item->name : $this->_('MENUS');
         $this->path[] = [
             'name' => $this->_('DEVELOPMENT'),
@@ -143,306 +225,665 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
         if ($item->id) {
             $this->getMenuBreadcrumbs($item);
         }
-        $this->contextmenu = $this->getMenuContextMenu($IN['Item']);
+        $this->contextmenu = $this->getMenuContextMenu($in['Item']);
         $this->template = 'dev_menus';
     }
 
 
-    public function edit_menu(array $IN = [])
+    /**
+     * Редактирование меню
+     * @param [
+     *            'Parent' => Menu Родительский пункт меню,
+     *            'Item' => Menu Текущий пункт меню,
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditMenuForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function edit_menu(array $in = [])
     {
         $this->js[] = $this->publicURL . '/dev_edit_menu.js';
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('href' => $this->url . '&action=menus', 'name' => $this->_('MENUS'));
-        if ($IN['Parent']->id) {
-            if ($IN['Parent']->parents) {
-                foreach ($IN['Parent']->parents as $row) {
-                    $this->path[] = array('href' => $this->url . '&action=menus' . '&id=' . (int)$row->id, 'name' => $row->name);
-                }
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'href' => $this->url . '&action=menus',
+            'name' => $this->_('MENUS')
+        ];
+        if ($in['Parent']->id) {
+            foreach ((array)$in['Parent']->parents as $row) {
+                $this->path[] = [
+                    'href' => $this->url . '&action=menus&id=' . (int)$row->id,
+                    'name' => $row->name
+                ];
             }
-            $this->path[] = array('href' => $this->url . '&action=menus&id=' . (int)$IN['Parent']->id, 'name' => $IN['Parent']->name);
+            $this->path[] = [
+                'href' => $this->url . '&action=menus&id='
+                       .  (int)$in['Parent']->id,
+                'name' => $in['Parent']->name
+            ];
         }
-        $this->stdView->stdEdit($IN, 'getMenuContextMenu');
+        $this->stdView->stdEdit($in, 'getMenuContextMenu');
     }
 
 
-    public function move_menu(array $IN = [])
+    /**
+     * Перемещение меню
+     * @param [
+     *            'Item' =>? Menu Текущий пункт меню,
+     *            'items' =>? array<Menu> Текущие пункты меню
+     *        ] $in Входные данные
+     */
+    public function move_menu(array $in = [])
     {
         $ids = array_map(function ($x) {
             return (int)$x->id;
-        }, $IN['items']);
+        }, $in['items']);
         $ids = array_unique($ids);
         $ids = array_values($ids);
         $pids = array_map(function ($x) {
             return (int)$x->pid;
-        }, $IN['items']);
+        }, $in['items']);
         $pids = array_unique($pids);
         $pids = array_values($pids);
         $actives = [];
-        foreach ($IN['items'] as $row) {
-            $actives = array_merge($actives, array($row->id), (array)$row->parents_ids);
+        foreach ($in['items'] as $row) {
+            $actives = array_merge($actives, $row->selfAndParentsIds);
         }
         $actives = array_unique($actives);
         $actives = array_values($actives);
-        $IN['ids'] = $ids;
-        $IN['pids'] = $pids;
-        $IN['actives'] = $actives;
+        $in['ids'] = $ids;
+        $in['pids'] = $pids;
+        $in['actives'] = $actives;
 
-        $this->assignVars($IN);
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('href' => $this->url . '&action=menus', 'name' => $this->_('MENUS'));
-        if ($IN['Item']->parents) {
-            foreach ($IN['Item']->parents as $row) {
-                $this->path[] = array('href' => $this->url . '&action=menus' . '&id=' . (int)$row->id, 'name' => $row->name);
+        $this->assignVars($in);
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'href' => $this->url . '&action=menus',
+            'name' => $this->_('MENUS')
+        ];
+        if ($in['Item']->parents) {
+            foreach ($in['Item']->parents as $row) {
+                $this->path[] = [
+                    'href' => $this->url . '&action=menus&id=' .  (int)$row->id,
+                    'name' => $row->name
+                ];
             }
         }
-        $this->path[] = array('href' => $this->url . '&action=menus' . '&id=' . (int)$IN['Item']->id, 'name' => $IN['Item']->name);
-        if (count($IN['items']) == 1) {
-            $this->contextmenu = $this->getMenuContextMenu($IN['Item']);
+        $this->path[] = [
+            'href' => $this->url . '&action=menus&id=' .  (int)$in['Item']->id,
+            'name' => $in['Item']->name
+        ];
+        if (count($in['items']) == 1) {
+            $this->contextmenu = $this->getMenuContextMenu($in['Item']);
         }
         $this->title = $this->_('MOVING_NOTE');
         $this->template = 'dev_move_menu';
     }
 
 
-    public function dev(array $IN = [])
+    /**
+     * Корень раздела "Разработка"
+     * @param [] $in Входные данные
+     */
+    public function dev(array $in = [])
     {
         $this->title = $this->_('DEVELOPMENT');
         $this->template = 'dev';
     }
 
 
-    public function templates(array $IN = [])
+    /**
+     * Список шаблонов
+     * @param [
+     *            'Set' => array<Template> Список шаблонов
+     *        ] $in Входные данные
+     */
+    public function templates(array $in = [])
     {
-        $IN['Table'] = new TemplatesTable($IN);
-        $this->assignVars($IN);
+        $in['Table'] = new TemplatesTable($in);
+        $this->assignVars($in);
         $this->title = $this->_('TEMPLATES');
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->contextmenu = array(array('href' => $this->url . '&action=edit_template', 'name' => $this->_('ADD_TEMPLATE'), 'icon' => 'plus'));
-        $this->template = $IN['Table']->template;
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->contextmenu = [
+            [
+                'href' => $this->url . '&action=edit_template',
+                'name' => $this->_('ADD_TEMPLATE'),
+                'icon' => 'plus'
+            ]
+        ];
+        $this->template = $in['Table']->template;
     }
 
 
-    public function edit_template(array $IN = [])
+    /**
+     * Редактирование шаблона
+     * @param [
+     *            'Item' => Template Шаблон для редактирования
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditTemplateForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function edit_template(array $in = [])
     {
         $this->js[] = $this->publicURL . '/dev_edit_template.js';
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('name' => $this->_('TEMPLATES'), 'href' => $this->url . '&action=templates');
-        $this->stdView->stdEdit($IN, 'getTemplateContextMenu');
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('TEMPLATES'),
+            'href' => $this->url . '&action=templates'
+        ];
+        $this->stdView->stdEdit($in, 'getTemplateContextMenu');
     }
 
 
-    public function snippets(array $IN = [])
+    /**
+     * Список сниппетов
+     * @param [] $in Входные данные
+     */
+    public function snippets(array $in = [])
     {
         $view = $this;
-        $IN['Table'] = new SnippetsTable();
-        $IN['Set'] = (array)$IN['Table']->Set;
-        $this->assignVars($IN);
+        $in['Table'] = new SnippetsTable();
+        $in['Set'] = (array)$in['Table']->Set;
+        $this->assignVars($in);
         $this->title = $this->_('SNIPPETS');
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->contextmenu = array(
-            array('name' => $this->_('CREATE_SNIPPET'), 'href' => $this->url . '&action=edit_snippet', 'icon' => 'plus'),
-            array('name' => $this->_('CREATE_SNIPPET_FOLDER'), 'href' => $this->url . '&action=edit_snippet_folder', 'icon' => 'plus'),
-        );
-        $this->template = $IN['Table']->template;
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->contextmenu = [
+            [
+                'name' => $this->_('CREATE_SNIPPET'),
+                'href' => $this->url . '&action=edit_snippet',
+                'icon' => 'plus'
+            ],
+            [
+                'name' => $this->_('CREATE_SNIPPET_FOLDER'),
+                'href' => $this->url . '&action=edit_snippet_folder',
+                'icon' => 'plus'
+            ],
+        ];
+        $this->template = $in['Table']->template;
     }
 
 
-    public function edit_snippet_folder(array $IN = [])
+    /**
+     * Редактирование папки сниппетов
+     * @param [
+     *            'Item' => Snippet_Folder Папка для редактирования,
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditSnippetFolderForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function edit_snippet_folder(array $in = [])
     {
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('name' => $this->_('SNIPPETS'), 'href' => $this->url . '&action=snippets');
-        $this->stdView->stdEdit($IN, 'getSnippetFolderContextMenu');
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('SNIPPETS'),
+            'href' => $this->url . '&action=snippets'
+        ];
+        $this->stdView->stdEdit($in, 'getSnippetFolderContextMenu');
     }
 
 
-    public function edit_snippet(array $IN = [])
+    /**
+     * Редактирование сниппета
+     * @param [
+     *            'Item' => Snippet Сниппет для редактирования,
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditSnippetForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function edit_snippet(array $in = [])
     {
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('name' => $this->_('SNIPPETS'), 'href' => $this->url . '&action=snippets');
-        $this->stdView->stdEdit($IN, 'getSnippetContextMenu');
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('SNIPPETS'),
+            'href' => $this->url . '&action=snippets'
+        ];
+        $this->stdView->stdEdit($in, 'getSnippetContextMenu');
     }
 
 
-    public function material_types(array $IN = [])
+    /**
+     * Список типов материалов
+     * @param [] $in Входные данные
+     */
+    public function material_types(array $in = [])
     {
         $view = $this;
-        $IN['Table'] = new MaterialTypesTable($IN);
-        $this->assignVars($IN);
+        $in['Table'] = new MaterialTypesTable($in);
+        $this->assignVars($in);
         $this->title = $this->_('MATERIAL_TYPES');
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->contextmenu = array(array('name' => $this->_('CREATE_MATERIAL_TYPE'), 'href' => $this->url . '&action=edit_material_type', 'icon' => 'plus'));
-        $this->template = $IN['Table']->template;
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->contextmenu = [
+            [
+                'name' => $this->_('CREATE_MATERIAL_TYPE'),
+                'href' => $this->url . '&action=edit_material_type',
+                'icon' => 'plus'
+            ]
+        ];
+        $this->template = $in['Table']->template;
     }
 
 
-    public function edit_material_type(array $IN = [])
+    /**
+     * Редактирование типа материалов
+     * @param [
+     *            'Item' => Material_Type Текущий тип материалов,
+     *            'Parent' =>? Material_Type Родительский тип материалов,
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditMaterialTypeForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function edit_material_type(array $in = [])
     {
         $view = $this;
         $Set = [];
-        $Set[] = new Material_Field(array('name' => $this->_('NAME'), 'urn' => 'name', 'datatype' => 'text'));
-        $Set[] = new Material_Field(array('name' => $this->_('DESCRIPTION'), 'urn' => 'description', 'datatype' => 'htmlarea'));
-        foreach ($IN['Item']->fields as $row) {
+        $Set[] = new Material_Field([
+            'name' => $this->_('NAME'),
+            'urn' => 'name',
+            'datatype' => 'text'
+        ]);
+        $Set[] = new Material_Field([
+            'name' => $this->_('DESCRIPTION'),
+            'urn' => 'description',
+            'datatype' => 'htmlarea'
+        ]);
+        foreach ($in['Item']->fields as $row) {
             $Set[] = $row;
         }
-        $IN['Table'] = new MaterialFieldsTable(array_merge($IN, array('Set' => $Set)));
-        $this->assignVars($IN);
-        $this->title = $IN['Form']->caption;
+        $in['Table'] = new MaterialFieldsTable(
+            array_merge($in, ['Set' => $Set])
+        );
+        $this->assignVars($in);
+        $this->title = $in['Form']->caption;
         $this->template = 'form_table';
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('name' => $this->_('MATERIAL_TYPES'), 'href' => $this->url . '&action=material_types');
-        if ($IN['Parent']->id) {
-            if ($IN['Parent']->parents) {
-                foreach ($IN['Parent']->parents as $row) {
-                    $this->path[] = array('href' => $this->url . '&action=edit_material_type' . '&id=' . (int)$row->id, 'name' => $row->name);
-                }
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('MATERIAL_TYPES'),
+            'href' => $this->url . '&action=material_types'
+        ];
+        if ($in['Parent']->id) {
+            foreach ((array)$in['Parent']->parents as $row) {
+                $this->path[] = [
+                    'href' => $this->url . '&action=edit_material_type&id='
+                           .  (int)$row->id,
+                    'name' => $row->name
+                ];
             }
-            $this->path[] = array('href' => $this->url . '&action=edit_material_type&id=' . (int)$IN['Parent']->id, 'name' => $IN['Parent']->name);
+            $this->path[] = [
+                'href' => $this->url . '&action=edit_material_type&id='
+                       .  (int)$in['Parent']->id,
+                'name' => $in['Parent']->name
+            ];
         }
-        $this->contextmenu = $this->getMaterialTypeContextMenu($IN['Item']);
+        $this->contextmenu = $this->getMaterialTypeContextMenu($in['Item']);
     }
 
 
-    public function edit_material_field(array $IN = [])
+    /**
+     * Редактирование поля материалов
+     * @param [
+     *            'Item' => Material_Field Поле для редактирования,
+     *            'Parent' =>? Material_Type Родительский тип материала
+     *            'meta' => [
+     *                'Parent' =>? Material_Type Родительский тип материала,
+     *                'parentUrl' => string URL родительской страницы
+     *            ],
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditFieldForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function edit_material_field(array $in = [])
     {
         $this->js[] = $this->publicURL . '/dev_edit_field.js';
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('name' => $this->_('MATERIAL_TYPES'), 'href' => $this->url . '&action=material_types');
-        if ($IN['Parent']->parents) {
-            foreach ($IN['Parent']->parents as $row) {
-                $this->path[] = array('href' => $this->url . '&action=edit_material_type' . '&id=' . (int)$row->id, 'name' => $row->name);
-            }
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('MATERIAL_TYPES'),
+            'href' => $this->url . '&action=material_types'
+        ];
+        foreach ((array)$in['Parent']->parents as $row) {
+            $this->path[] = [
+                'href' => $this->url . '&action=edit_material_type&id='
+                       .  (int)$row->id,
+                'name' => $row->name
+            ];
         }
-        $this->path[] = array('name' => $IN['Parent']->name, 'href' => $this->url . '&action=edit_material_type&id=' . (int)$IN['Parent']->id);
-        $this->stdView->stdEdit($IN, 'getMaterialFieldContextMenu');
+        $this->path[] = [
+            'name' => $in['Parent']->name,
+            'href' => $this->url . '&action=edit_material_type&id='
+                   .  (int)$in['Parent']->id
+        ];
+        $this->stdView->stdEdit($in, 'getMaterialFieldContextMenu');
     }
 
 
-    public function move_material_field(array $IN = [])
+    /**
+     * Перемещение поля материалов
+     * @param [
+     *            'Item' =>? Material_Field Текущее поле,
+     *            'items' =>? array<Material_Field> Список текущих полей
+     *        ] $in Входные данные
+     */
+    public function move_material_field(array $in = [])
     {
         $ids = array_map(function ($x) {
             return (int)$x->id;
-        }, $IN['items']);
+        }, $in['items']);
         $ids = array_unique($ids);
         $ids = array_values($ids);
         $pids = array_map(function ($x) {
             return (int)$x->pid;
-        }, $IN['items']);
+        }, $in['items']);
         $pids = array_unique($pids);
         $pids = array_values($pids);
         $actives = [];
-        foreach ($IN['items'] as $row) {
+        foreach ($in['items'] as $row) {
             $actives[] = (int)$row->pid;
         }
         $actives = array_unique($actives);
         $actives = array_values($actives);
-        $IN['ids'] = $ids;
-        $IN['pids'] = $pids;
-        $IN['actives'] = $actives;
+        $in['ids'] = $ids;
+        $in['pids'] = $pids;
+        $in['actives'] = $actives;
 
-        $this->assignVars($IN);
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('href' => $this->url . '&action=material_types', 'name' => $this->_('MATERIAL_TYPES'));
-        if ($IN['Item']->Owner->id) {
-            $this->path[] = array('href' => $this->url . '&action=edit_material_type' . '&id=' . (int)$IN['Item']->Owner->id, 'name' => $IN['Item']->Owner->name);
+        $this->assignVars($in);
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'href' => $this->url . '&action=material_types',
+            'name' => $this->_('MATERIAL_TYPES')
+        ];
+        if ($in['Item']->Owner->id) {
+            $this->path[] = [
+                'href' => $this->url . '&action=edit_material_type&id='
+                       .  (int)$in['Item']->Owner->id,
+                'name' => $in['Item']->Owner->name
+            ];
         }
-        $this->path[] = array('href' => $this->url . '&action=edit_material_field' . '&id=' . (int)$IN['Item']->id, 'name' => $IN['Item']->name);
-        if (count($IN['items']) == 1) {
-            $this->contextmenu = $this->getMaterialFieldContextMenu($IN['Item']);
+        $this->path[] = [
+            'href' => $this->url . '&action=edit_material_field&id='
+                   .  (int)$in['Item']->id,
+            'name' => $in['Item']->name
+        ];
+        if (count($in['items']) == 1) {
+            $this->contextmenu = $this->getMaterialFieldContextMenu($in['Item']);
         }
         $this->title = $this->_('MOVING_NOTE');
         $this->template = 'dev_move_material_field';
     }
 
 
-    public function forms(array $IN = [])
+    /**
+     * Список форм
+     * @param [
+     *            'Set' => array<Form> Список форм
+     *        ] $in Входные данные
+     */
+    public function forms(array $in = [])
     {
-        $IN['Table'] = new FormsTable($IN);
-        $this->assignVars($IN);
+        $in['Table'] = new FormsTable($in);
+        $this->assignVars($in);
         $this->title = $this->_('FORMS');
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->contextmenu = array(array('href' => $this->url . '&action=edit_form', 'name' => $this->_('CREATE_FORM'), 'icon' => 'plus'));
-        $this->template = $IN['Table']->template;
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->contextmenu = [
+            [
+                'href' => $this->url . '&action=edit_form',
+                'name' => $this->_('CREATE_FORM'),
+                'icon' => 'plus'
+            ]
+        ];
+        $this->template = $in['Table']->template;
     }
 
 
-    public function edit_form(array $IN = [])
+    /**
+     * Редактирование формы
+     * @param [
+     *            'Item' => Form Форма для редактирования,
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditFormForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function edit_form(array $in = [])
     {
         $view = $this;
         $Set = [];
-        foreach ($IN['Item']->fields as $row) {
+        foreach ($in['Item']->fields as $row) {
             $Set[] = $row;
         }
-        $IN['Table'] = new FieldsTable(array_merge($IN, array('editAction' => 'edit_form_field', 'ctxMenu' => 'getFormFieldContextMenu', 'Set' => $Set)));
-        $this->assignVars($IN);
-        $this->title = $IN['Form']->caption;
+        $in['Table'] = new FieldsTable(array_merge($in, [
+            'editAction' => 'edit_form_field',
+            'ctxMenu' => 'getFormFieldContextMenu',
+            'Set' => $Set
+        ]));
+        $this->assignVars($in);
+        $this->title = $in['Form']->caption;
         $this->template = 'form_table';
         $this->js[] = $this->publicURL . '/dev_edit_form.js';
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('name' => $this->_('FORMS'), 'href' => $this->url . '&action=forms');
-        $this->contextmenu = $this->getFormContextMenu($IN['Item']);
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('FORMS'),
+            'href' => $this->url . '&action=forms'
+        ];
+        $this->contextmenu = $this->getFormContextMenu($in['Item']);
     }
 
 
-    public function edit_form_field(array $IN = [])
+    /**
+     * Редактирование поля формы
+     * @param [
+     *            'Item' => Form_Field Поле для редактирования,
+     *            'Parent' =>? Form Родительская форма,
+     *            'meta' => [
+     *                'Parent' =>? Form Родительская форма,
+     *                'parentUrl' => string URL родительской страницы
+     *            ],
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditFieldForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function edit_form_field(array $in = [])
     {
         $this->js[] = $this->publicURL . '/dev_edit_field.js';
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('name' => $this->_('FORMS'), 'href' => $this->url . '&action=forms');
-        $this->path[] = array('name' => $IN['Parent']->name, 'href' => $this->url . '&action=edit_form&id=' . (int)$IN['Parent']->id);
-        $this->stdView->stdEdit($IN, 'getFormFieldContextMenu');
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('FORMS'),
+            'href' => $this->url . '&action=forms'
+        ];
+        $this->path[] = [
+            'name' => $in['Parent']->name,
+            'href' => $this->url . '&action=edit_form&id='
+                   .  (int)$in['Parent']->id
+        ];
+        $this->stdView->stdEdit($in, 'getFormFieldContextMenu');
     }
 
 
-    public function pages_fields(array $IN = [])
+    /**
+     * Список полей страниц
+     * @param [
+     *            'Set' => array<Page_Field> Список полей
+     *        ] $in Входные данные
+     */
+    public function pages_fields(array $in = [])
     {
-        $IN['Table'] = new FieldsTable(array_merge($IN, array('editAction' => 'edit_page_field', 'ctxMenu' => 'getPageFieldContextMenu')));
-        $this->assignVars($IN);
+        $in['Table'] = new FieldsTable(array_merge($in, [
+            'editAction' => 'edit_page_field',
+            'ctxMenu' => 'getPageFieldContextMenu'
+        ]));
+        $this->assignVars($in);
         $this->title = $this->_('PAGES_FIELDS');
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->contextmenu = array(array('name' => $this->_('CREATE_FIELD'), 'href' => $this->url . '&action=edit_page_field', 'icon' => 'plus'));
-        $this->template = $IN['Table']->template;
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->contextmenu = [
+            [
+                'name' => $this->_('CREATE_FIELD'),
+                'href' => $this->url . '&action=edit_page_field',
+                'icon' => 'plus'
+            ]
+        ];
+        $this->template = $in['Table']->template;
     }
 
 
-    public function edit_page_field(array $IN = [])
+    /**
+     * Редактирование поля страниц
+     * @param [
+     *            'Item' => Page_Field Поле для редактирования,
+     *            'meta' => [
+     *                'parentUrl' => string URL родительской страницы
+     *            ],
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditFieldForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function edit_page_field(array $in = [])
     {
         $this->js[] = $this->publicURL . '/dev_edit_field.js';
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->path[] = array('name' => $this->_('PAGES_FIELDS'), 'href' => $this->url . '&action=pages_fields');
-        $this->stdView->stdEdit($IN, 'getPageFieldContextMenu');
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('PAGES_FIELDS'),
+            'href' => $this->url . '&action=pages_fields'
+        ];
+        $this->stdView->stdEdit($in, 'getPageFieldContextMenu');
     }
 
 
-    public function diag(array $IN = [])
+    /**
+     * Диагностика
+     * @param [
+     *            'Item' => Diag Объект диагностики,
+     *            'from' =>? string Дата, от (формат ГГГГ-ММ-ДД),
+     *            'to' => string Дата, до (формат ГГГГ-ММ-ДД),
+     *        ] $in Входные данные
+     */
+    public function diag(array $in = [])
     {
-        $IN['Form'] = new DiagForm(array('Item' => $IN['Item'], 'from' => $IN['from'], 'to' => $IN['to']));
-        $this->assignVars($IN);
-        $this->title = $IN['Form']->caption;
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
-        $this->contextmenu = array(
-            array(
+        $in['Form'] = new DiagForm([
+            'Item' => $in['Item'],
+            'from' => $in['from'],
+            'to' => $in['to']
+        ]);
+        $this->assignVars($in);
+        $this->title = $in['Form']->caption;
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->contextmenu = [
+            [
                 'name' => $this->_('CLEAR_DIAGNOSTICS_PERIOD'),
-                'href' => $this->url . '&action=delete_diag&from=' . $IN['from'] . '&to=' . $IN['to'],
+                'href' => $this->url . '&action=delete_diag&from=' . $in['from']
+                       .  '&to=' . $in['to'],
                 'icon' => 'remove',
-                'onclick' => 'return confirm("' . addslashes($this->_('CLEAR_DIAGNOSTICS_CONFIRM')) . '")'
-            ),
-            array(
+                'onclick' => 'return confirm("'
+                          .  addslashes($this->_('CLEAR_DIAGNOSTICS_CONFIRM'))
+                          .  '")'
+            ],
+            [
                 'name' => $this->_('CLEAR_DIAGNOSTICS_ALL'),
                 'href' => $this->url . '&action=delete_diag',
                 'icon' => 'remove',
-                'onclick' => 'return confirm("' . addslashes($this->_('CLEAR_DIAGNOSTICS_CONFIRM')) . '")'
-            ),
-        );
-        $this->template = $IN['Form']->template;
+                'onclick' => 'return confirm("'
+                          .  addslashes($this->_('CLEAR_DIAGNOSTICS_CONFIRM'))
+                          .  '")'
+            ],
+        ];
+        $this->template = $in['Form']->template;
     }
 
 
-    public function cache(array $IN = [])
+    /**
+     * Управление кэшированием
+     * @param [] $in Входные данные
+     */
+    public function cache(array $in = [])
     {
         $this->js[] = $this->publicURL . '/dev_cache.js';
-        $this->assignVars($IN);
+        $this->assignVars($in);
         $this->title = $this->_('CACHE_CONTROL');
-        $this->path[] = array('name' => $this->_('DEVELOPMENT'), 'href' => $this->url);
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
         $this->template = 'cache';
     }
 
@@ -614,8 +1055,10 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
                 }
                 $subMenu = $this->menusMenuByDomainId($current, $domainId);
                 if ($subMenu) {
-                    $active =  in_array($this->action, ['menus', 'edit_menu', 'move_menu'])
-                            && ((string)$_GET['domain_id'] === (string)$domainId);
+                    $active =  in_array(
+                        $this->action,
+                        ['menus', 'edit_menu', 'move_menu']
+                    ) && ((string)$_GET['domain_id'] === (string)$domainId);
                     $semiactive = (bool)array_filter($subMenu, function ($x) {
                         return (bool)$x['active'];
                     });
@@ -705,7 +1148,10 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
                 'class' => '',
                 'active' => (
                     ($row['id'] == $current->id) ||
-                    in_array($row['id'], MenuRecursiveCache::i()->getParentsIds($current->id))
+                    in_array(
+                        $row['id'],
+                        MenuRecursiveCache::i()->getParentsIds($current->id)
+                    )
                 )
             ];
 
@@ -721,399 +1167,789 @@ class ViewSub_Dev extends \RAAS\Abstract_Sub_View
     }
 
 
-    public function getTemplateContextMenu(Template $Item)
+    /**
+     * Возвращает контекстое меню для шаблона
+     * @param Template $template Шаблон для получения контекстого меню
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getTemplateContextMenu(Template $template)
     {
-        return $this->stdView->stdContextMenu($Item, 0, 0, 'edit_template', 'templates', 'delete_template');
+        return $this->stdView->stdContextMenu(
+            $template,
+            0,
+            0,
+            'edit_template',
+            'templates',
+            'delete_template'
+        );
     }
 
 
+    /**
+     * Возвращает контекстное меню для списка шаблонов
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
     public function getAllTemplatesContextMenu()
     {
         $arr = [];
-        $arr[] = array(
+        $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_template&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
-        );
+            'onclick' => 'return confirm(\''
+                      .  $this->_('DELETE_MULTIPLE_TEXT')
+                      .  '\')'
+        ];
         return $arr;
     }
 
 
-    public function getDictionaryContextMenu(Dictionary $Item, $i = 0, $c = 0)
-    {
+    /**
+     * Возвращает контекстное меню для справочника
+     * @param Dictionary $dictionary Справочник для получения меню
+     * @param int $i Порядок справочника в списке
+     * @param int $c Количество справочников в списке
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getDictionaryContextMenu(
+        Dictionary $dictionary,
+        $i = 0,
+        $c = 0
+    ) {
         $arr = [];
-        if ($Item->id) {
+        if ($dictionary->id) {
             $edit = ($this->action == 'edit_dictionary');
             $showlist = ($this->action == 'dictionaries');
-            if ($this->id == $Item->id) {
-                $arr[] = array('href' => $this->url . '&action=edit_dictionary&pid=' . (int)$Item->id, 'name' => $this->_('CREATE_SUBNOTE'), 'icon' => 'plus');
+            if ($this->id == $dictionary->id) {
+                $arr[] = [
+                    'href' => $this->url . '&action=edit_dictionary&pid='
+                           .  (int)$dictionary->id,
+                    'name' => $this->_('CREATE_SUBNOTE'),
+                    'icon' => 'plus'
+                ];
             }
             if ($edit) {
-                $arr[] = array('href' => $this->url . '&action=dictionaries&id=' . (int)$Item->id, 'name' => htmlspecialchars($Item->name), 'icon' => 'th-list');
+                $arr[] = [
+                    'href' => $this->url . '&action=dictionaries&id='
+                           .  (int)$dictionary->id,
+                    'name' => htmlspecialchars($dictionary->name),
+                    'icon' => 'th-list'
+                ];
             }
-            $arr[] = array(
-                'name' => $Item->vis ? $this->_('VISIBLE') : '<span class="muted">' . $this->_('INVISIBLE') . '</span>',
-                'href' => $this->url . '&action=chvis_dictionary&id=' . (int)$Item->id . '&back=1',
-                'icon' => $Item->vis ? 'ok' : '',
-                'title' => $this->_($Item->vis ? 'HIDE' : 'SHOW')
-            );
+            $arr[] = [
+                'name' => $dictionary->vis
+                       ?  $this->_('VISIBLE')
+                       :  '<span class="muted">' . $this->_('INVISIBLE') . '</span>',
+                'href' => $this->url . '&action=chvis_dictionary&id='
+                       .  (int)$dictionary->id . '&back=1',
+                'icon' => $dictionary->vis ? 'ok' : '',
+                'title' => $this->_($dictionary->vis ? 'HIDE' : 'SHOW')
+            ];
             if ($this->action != 'move_dictionary') {
-                $arr[] = array('href' => $this->url . '&action=move_dictionary&id=' . (int)$Item->id, 'name' => $this->_('MOVE'), 'icon' => 'share-alt');
+                $arr[] = [
+                    'href' => $this->url . '&action=move_dictionary&id='
+                           .  (int)$dictionary->id,
+                    'name' => $this->_('MOVE'),
+                    'icon' => 'share-alt'
+                ];
             }
-            $arr = array_merge($arr, $this->stdView->stdContextMenu($Item, 0, 0, 'edit_dictionary', 'dictionaries', 'delete_dictionary'));
+            $arr = array_merge(
+                $arr,
+                $this->stdView->stdContextMenu(
+                    $dictionary,
+                    0,
+                    0,
+                    'edit_dictionary',
+                    'dictionaries',
+                    'delete_dictionary'
+                )
+            );
         } elseif (!$edit) {
-            $arr[] = array('href' => $this->url . '&action=edit_dictionary', 'name' => $this->_('CREATE_NOTE'), 'icon' => 'plus');
+            $arr[] = [
+                'href' => $this->url . '&action=edit_dictionary',
+                'name' => $this->_('CREATE_NOTE'),
+                'icon' => 'plus'
+            ];
         }
         return $arr;
     }
 
 
+    /**
+     * Возвращает контекстное меню для списка справочников
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
     public function getAllDictionariesContextMenu()
     {
         $arr = [];
-        $arr[] = array(
+        $arr[] = [
             'name' => $this->_('SHOW'),
             'href' => $this->url . '&action=vis_dictionary&back=1',
             'icon' => 'eye-open',
             'title' => $this->_('SHOW')
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('HIDE'),
             'href' => $this->url . '&action=invis_dictionary&back=1',
             'icon' => 'eye-close',
             'title' => $this->_('HIDE')
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('MOVE'),
             'href' => $this->url . '&action=move_dictionary',
             'icon' => 'share-alt'
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_dictionary&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
-        );
+            'onclick' => 'return confirm(\''
+                      .  $this->_('DELETE_MULTIPLE_TEXT')
+                      .  '\')'
+        ];
         return $arr;
     }
 
 
-    public function getSnippetFolderContextMenu(Snippet_Folder $Item)
+    /**
+     * Возвращает контекстное меню для папки сниппетов
+     * @param Snippet_Folder $snippetFolder Папка сниппетов для получения меню
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getSnippetFolderContextMenu(Snippet_Folder $snippetFolder)
     {
-        if (!$Item->locked) {
-            $arr = $this->stdView->stdContextMenu($Item, 0, 0, 'edit_snippet_folder', 'snippets', 'delete_snippet_folder');
+        if (!$snippetFolder->locked) {
+            $arr = $this->stdView->stdContextMenu(
+                $snippetFolder,
+                0,
+                0,
+                'edit_snippet_folder',
+                'snippets',
+                'delete_snippet_folder'
+            );
         }
         return $arr;
     }
 
 
+    /**
+     * Возвращает контекстное меню для списка папок сниппетов
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
     public function getAllSnippetFoldersContextMenu()
     {
         $arr = [];
-        $arr[] = array(
+        $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_snippet_folder&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
-        );
+            'onclick' => 'return confirm(\''
+                      .  $this->_('DELETE_MULTIPLE_TEXT')
+                      .  '\')'
+        ];
         return $arr;
     }
 
 
-    public function getSnippetContextMenu(Snippet $Item)
+    /**
+     * Возвращает контекстное меню для сниппета
+     * @param Snippet $snippet Сниппет для получения контекстного меню
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getSnippetContextMenu(Snippet $snippet)
     {
-        if (!$Item->locked) {
-            $arr = $this->stdView->stdContextMenu($Item, 0, 0, 'edit_snippet', 'snippets', 'delete_snippet');
+        if (!$snippet->locked) {
+            $arr = $this->stdView->stdContextMenu(
+                $snippet,
+                0,
+                0,
+                'edit_snippet',
+                'snippets',
+                'delete_snippet'
+            );
         }
-        if ($Item->id) {
-            $arr[] = array('href' => $this->url . '&action=copy_snippet&id=' . (int)$Item->id, 'name' => $this->_('COPY'), 'icon' => 'tags');
+        if ($snippet->id) {
+            $arr[] = [
+                'href' => $this->url . '&action=copy_snippet&id='
+                       .  (int)$snippet->id,
+                'name' => $this->_('COPY'),
+                'icon' => 'tags'
+            ];
         }
         return $arr;
     }
 
 
+    /**
+     * Возвращает контекстное меню для списка сниппетов
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
     public function getAllSnippetsContextMenu()
     {
         $arr = [];
-        $arr[] = array(
+        $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_snippet&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
-        );
+            'onclick' => 'return confirm(\''
+                      .  $this->_('DELETE_MULTIPLE_TEXT')
+                      .  '\')'
+        ];
         return $arr;
     }
 
 
-    public function getMaterialTypeContextMenu(Material_Type $Item)
+    /**
+     * Возвращает контекстное меню для типа материалов
+     * @param Material_Type $materialType Тип материалов для получения меню
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getMaterialTypeContextMenu(Material_Type $materialType)
     {
         $arr = [];
-        if ($Item->id) {
+        if ($materialType->id) {
             if ($this->action == 'edit_material_type') {
-                $arr[] = array('href' => $this->url . '&action=edit_material_field&pid=' . (int)$Item->id, 'name' => $this->_('CREATE_FIELD'), 'icon' => 'plus');
+                $arr[] = [
+                    'href' => $this->url . '&action=edit_material_field&pid='
+                           .  (int)$materialType->id,
+                    'name' => $this->_('CREATE_FIELD'),
+                    'icon' => 'plus'
+                ];
             }
-            $arr[] = array('href' => $this->url . '&action=edit_material_type&pid=' . (int)$Item->id, 'name' => $this->_('CREATE_CHILD_TYPE'), 'icon' => 'plus');
+            $arr[] = [
+                'href' => $this->url . '&action=edit_material_type&pid='
+                       .  (int)$materialType->id,
+                'name' => $this->_('CREATE_CHILD_TYPE'),
+                'icon' => 'plus'
+            ];
         }
-        $arr = array_merge($arr, $this->stdView->stdContextMenu($Item, 0, 0, 'edit_material_type', 'material_types', 'delete_material_type'));
+        $arr = array_merge($arr, $this->stdView->stdContextMenu(
+            $materialType,
+            0,
+            0,
+            'edit_material_type',
+            'material_types',
+            'delete_material_type'
+        ));
         return $arr;
     }
 
 
+    /**
+     * Возвращает контекстное меню для списка типов материалов
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
     public function getAllMaterialTypesContextMenu()
     {
         $arr = [];
-        $arr[] = array(
+        $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_material_type&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
-        );
+            'onclick' => 'return confirm(\''
+                      .  $this->_('DELETE_MULTIPLE_TEXT')
+                      .  '\')'
+        ];
         return $arr;
     }
 
 
-    public function getMaterialFieldContextMenu(Material_Field $Item, $i = 0, $c = 0)
-    {
+    /**
+     * Возвращает контекстное меню для поля материалов
+     * @param Material_Field $field Поле для получения контекстного меню
+     * @param int $i Порядок поля в списке
+     * @param int $c Количество полей в списке
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getMaterialFieldContextMenu(
+        Material_Field $field,
+        $i = 0,
+        $c = 0
+    ) {
         $arr = [];
-        if ($Item->id) {
-            $arr[] = array(
+        if ($field->id) {
+            $arr[] = [
                 'name' => $this->_('SHOW_IN_TABLE'),
-                'href' => $this->url . '&action=show_in_table_material_field&id=' . (int)$Item->id . '&back=1',
-                'icon' => $Item->show_in_table ? 'ok' : '',
-            );
-            $arr[] = array(
+                'href' => $this->url
+                       .  '&action=show_in_table_material_field&id='
+                       .  (int)$field->id . '&back=1',
+                'icon' => $field->show_in_table ? 'ok' : '',
+            ];
+            $arr[] = [
                 'name' => $this->_('REQUIRED'),
-                'href' => $this->url . '&action=required_material_field&id=' . (int)$Item->id . '&back=1',
-                'icon' => $Item->required ? 'ok' : '',
-            );
-            $arr[] = array(
+                'href' => $this->url . '&action=required_material_field&id='
+                       .  (int)$field->id . '&back=1',
+                'icon' => $field->required ? 'ok' : '',
+            ];
+            $arr[] = [
                 'name' => $this->_('MOVE'),
-                'href' => $this->url . '&action=move_material_field&id=' . (int)$Item->id,
+                'href' => $this->url . '&action=move_material_field&id='
+                       .  (int)$field->id,
                 'icon' => 'share-alt'
-            );
+            ];
         }
         $arr = array_merge(
             $arr,
-            $this->stdView->stdContextMenu($Item, $i, $c, 'edit_material_field', 'material_types', 'delete_material_field')
+            $this->stdView->stdContextMenu(
+                $field,
+                $i,
+                $c,
+                'edit_material_field',
+                'material_types',
+                'delete_material_field'
+            )
         );
         return $arr;
     }
 
 
+    /**
+     * Возвращает контекстное меню для списка полей материалов
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
     public function getAllMaterialFieldsContextMenu()
     {
         $arr = [];
-        $arr[] = array(
+        $arr[] = [
             'name' => $this->_('SHOW_IN_TABLE'),
-            'href' => $this->url . '&action=show_in_table_material_field&back=1',
+            'href' => $this->url
+                   .  '&action=show_in_table_material_field&back=1',
             'icon' => 'align-justify',
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('REQUIRED'),
             'href' => $this->url . '&action=required_material_field&back=1',
             'icon' => 'asterisk',
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('MOVE'),
             'href' => $this->url . '&action=move_material_field',
             'icon' => 'share-alt'
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_material_field&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
-        );
+            'onclick' => 'return confirm(\''
+                      .  $this->_('DELETE_MULTIPLE_TEXT')
+                      .  '\')'
+        ];
         return $arr;
     }
 
 
-    public function getPageFieldContextMenu(Page_Field $Item, $i = 0, $c = 0)
+    /**
+     * Возвращает контекстное меню для поля страниц
+     * @param Page_Field $field Поле для получения контекстного меню
+     * @param int $i Порядок поля в списке
+     * @param int $c Количество полей в списке
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getPageFieldContextMenu(Page_Field $field, $i = 0, $c = 0)
     {
         $arr = [];
-        if ($Item->id) {
-            $arr[] = array(
+        if ($field->id) {
+            $arr[] = [
                 'name' => $this->_('SHOW_IN_TABLE'),
-                'href' => $this->url . '&action=show_in_table_page_field&id=' . (int)$Item->id . '&back=1',
-                'icon' => $Item->show_in_table ? 'ok' : '',
-            );
-            $arr[] = array(
+                'href' => $this->url . '&action=show_in_table_page_field&id='
+                       .  (int)$field->id . '&back=1',
+                'icon' => $field->show_in_table ? 'ok' : '',
+            ];
+            $arr[] = [
                 'name' => $this->_('REQUIRED'),
-                'href' => $this->url . '&action=required_page_field&id=' . (int)$Item->id . '&back=1',
-                'icon' => $Item->required ? 'ok' : '',
-            );
+                'href' => $this->url . '&action=required_page_field&id='
+                       .  (int)$field->id . '&back=1',
+                'icon' => $field->required ? 'ok' : '',
+            ];
         }
         $arr = array_merge(
             $arr,
-            $this->stdView->stdContextMenu($Item, $i, $c, 'edit_page_field', 'pages_fields', 'delete_page_field')
+            $this->stdView->stdContextMenu(
+                $field,
+                $i,
+                $c,
+                'edit_page_field',
+                'pages_fields',
+                'delete_page_field'
+            )
         );
         return $arr;
     }
 
 
+    /**
+     * Возвращает контекстное меню для списка полей страниц
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
     public function getAllPageFieldsContextMenu()
     {
         $arr = [];
-        $arr[] = array(
+        $arr[] = [
             'name' => $this->_('SHOW_IN_TABLE'),
             'href' => $this->url . '&action=show_in_table_page_field&back=1',
             'icon' => 'align-justify',
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('REQUIRED'),
             'href' => $this->url . '&action=required_page_field&back=1',
             'icon' => 'asterisk',
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_page_field&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
-        );
+            'onclick' => 'return confirm(\''
+                      .  $this->_('DELETE_MULTIPLE_TEXT')
+                      .  '\')'
+        ];
         return $arr;
     }
 
 
-    public function getFormContextMenu(Form $Item)
+    /**
+     * Возвращает контекстное меню для формы
+     * @param Form $form Форма для получения контекстного меню
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getFormContextMenu(Form $form)
     {
         $arr = [];
-        if ($Item->id &&$this->action == 'edit_form') {
-            $arr[] = array('href' => $this->url . '&action=edit_form_field&pid=' . (int)$Item->id, 'name' => $this->_('CREATE_FIELD'), 'icon' => 'plus');
+        if ($form->id &&$this->action == 'edit_form') {
+            $arr[] = [
+                'href' => $this->url . '&action=edit_form_field&pid='
+                       .  (int)$form->id,
+                'name' => $this->_('CREATE_FIELD'),
+                'icon' => 'plus'
+            ];
         }
-        $arr = array_merge($arr, $this->stdView->stdContextMenu($Item, $i, $c, 'edit_form', 'forms', 'delete_form'));
+        $arr = array_merge($arr, $this->stdView->stdContextMenu(
+            $form,
+            $i,
+            $c,
+            'edit_form',
+            'forms',
+            'delete_form'
+        ));
         return $arr;
     }
 
 
+    /**
+     * Возвращает контекстное меню для списка форм
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
     public function getAllFormsContextMenu()
     {
         $arr = [];
-        $arr[] = array(
+        $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_form&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
-        );
+            'onclick' => 'return confirm(\''
+                      .  $this->_('DELETE_MULTIPLE_TEXT')
+                      .  '\')'
+        ];
         return $arr;
     }
 
 
+    /**
+     * Возвращает контекстное меню для поля формы
+     * @param Form_Field $field Поле для получения контекстного меню
+     * @param int $i Порядок поля в списке
+     * @param int $c Количество полей в списке
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
     public function getFormFieldContextMenu(Form_Field $Item, $i = 0, $c = 0)
     {
         $arr = [];
         if ($Item->id) {
-            $arr[] = array(
+            $arr[] = [
                 'name' => $this->_('SHOW_IN_TABLE'),
-                'href' => $this->url . '&action=show_in_table_form_field&id=' . (int)$Item->id . '&back=1',
+                'href' => $this->url . '&action=show_in_table_form_field&id='
+                       .  (int)$Item->id . '&back=1',
                 'icon' => $Item->show_in_table ? 'ok' : '',
-            );
-            $arr[] = array(
+            ];
+            $arr[] = [
                 'name' => $this->_('REQUIRED'),
-                'href' => $this->url . '&action=required_form_field&id=' . (int)$Item->id . '&back=1',
+                'href' => $this->url . '&action=required_form_field&id='
+                       .  (int)$Item->id . '&back=1',
                 'icon' => $Item->required ? 'ok' : '',
-            );
+            ];
         }
         $arr = array_merge(
             $arr,
-            $this->stdView->stdContextMenu($Item, $i, $c, 'edit_form_field', 'pages_fields', 'delete_form_field')
+            $this->stdView->stdContextMenu(
+                $Item,
+                $i,
+                $c,
+                'edit_form_field',
+                'pages_fields',
+                'delete_form_field'
+            )
         );
         return $arr;
     }
 
 
+    /**
+     * Возвращает контекстное меню для списка полей формы
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
     public function getAllFormFieldsContextMenu()
     {
         $arr = [];
-        $arr[] = array(
+        $arr[] = [
             'name' => $this->_('SHOW_IN_TABLE'),
             'href' => $this->url . '&action=show_in_table_form_field&back=1',
             'icon' => 'align-justify',
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('REQUIRED'),
             'href' => $this->url . '&action=required_form_field&back=1',
             'icon' => 'asterisk',
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_form_field&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
-        );
+            'onclick' => 'return confirm(\''
+                      .  $this->_('DELETE_MULTIPLE_TEXT')
+                      .  '\')'
+        ];
         return $arr;
     }
 
 
-    public function getMenuContextMenu(Menu $Item)
+    /**
+     * Возвращает контекстное меню для меню
+     * @param Menu $menu Меню для получения контекстного меню
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getMenuContextMenu(Menu $menu)
     {
         $arr = [];
-        if ($Item->id) {
+        if ($menu->id) {
             $edit = ($this->action == 'edit_menu');
             $showlist = ($this->action == 'menus');
-            if ($this->id == $Item->id) {
-                $arr[] = array('href' => $this->url . '&action=edit_menu&pid=' . (int)$Item->id, 'name' => $this->_('CREATE_SUBNOTE'), 'icon' => 'plus');
+            if ($this->id == $menu->id) {
+                $arr[] = [
+                    'href' => $this->url . '&action=edit_menu&pid='
+                           .  (int)$menu->id,
+                    'name' => $this->_('CREATE_SUBNOTE'),
+                    'icon' => 'plus'
+                ];
             }
-            if ($Item->vis) {
-                $arr[] = array(
+            if ($menu->vis) {
+                $arr[] = [
                     'name' => $this->_('VISIBLE'),
-                    'href' => $this->url . '&action=chvis_menu&id=' . (int)$Item->id . '&back=1',
+                    'href' => $this->url . '&action=chvis_menu&id='
+                           .  (int)$menu->id . '&back=1',
                     'icon' => 'ok',
                     'title' => $this->_('HIDE')
-                );
+                ];
             } else {
-                $arr[] = array(
-                    'name' => '<span class="muted">' . $this->_('INVISIBLE') . '</span>',
-                    'href' => $this->url . '&action=chvis_menu&id=' . (int)$Item->id . '&back=1',
+                $arr[] = [
+                    'name' => '<span class="muted">'
+                           .     $this->_('INVISIBLE')
+                           .  '</span>',
+                    'href' => $this->url . '&action=chvis_menu&id='
+                           .  (int)$menu->id . '&back=1',
                     'icon' => '',
                     'title' => $this->_('SHOW')
-                );
+                ];
             }
             if ($this->action != 'move_menu') {
-                $arr[] = array('href' => $this->url . '&action=move_menu&id=' . (int)$Item->id, 'name' => $this->_('MOVE'), 'icon' => 'share-alt');
+                $arr[] = [
+                    'href' => $this->url . '&action=move_menu&id='
+                           .  (int)$menu->id,
+                    'name' => $this->_('MOVE'),
+                    'icon' => 'share-alt'
+                ];
             }
-            if (($this->id == $Item->id) && ($Item->inherit > 0)) {
-                $arr[] = array(
-                    'href' => $this->url . '&action=realize_menu&id=' . (int)$Item->id . ($edit || $showlist ? '' : '&back=1'),
+            if (($this->id == $menu->id) && ($menu->inherit > 0)) {
+                $arr[] = [
+                    'href' => $this->url . '&action=realize_menu&id='
+                           .  (int)$menu->id
+                           .  ($edit || $showlist ? '' : '&back=1'),
                     'name' => $this->_('REALIZE'),
                     'icon' => 'asterisk',
-                    'onclick' => 'return confirm(\'' . $this->_('REALIZE_MENU_TEXT') . '\')'
-                );
+                    'onclick' => 'return confirm(\''
+                              .  $this->_('REALIZE_MENU_TEXT')
+                              .  '\')'
+                ];
             }
-            $arr = array_merge($arr, $this->stdView->stdContextMenu($Item, 0, 0, 'edit_menu', 'menus', 'delete_menu'));
+            $arr = array_merge($arr, $this->stdView->stdContextMenu(
+                $menu,
+                0,
+                0,
+                'edit_menu',
+                'menus',
+                'delete_menu'
+            ));
         } elseif (!$edit) {
-            $arr[] = array('href' => $this->url . '&action=edit_menu', 'name' => $this->_('CREATE_NOTE'), 'icon' => 'plus');
+            $arr[] = [
+                'href' => $this->url . '&action=edit_menu',
+                'name' => $this->_('CREATE_NOTE'),
+                'icon' => 'plus'
+            ];
         }
         return $arr;
     }
 
 
+    /**
+     * Возвращает контекстное меню для списка меню
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
     public function getAllMenusContextMenu()
     {
         $arr = [];
-        $arr[] = array(
+        $arr[] = [
             'name' => $this->_('SHOW'),
             'href' => $this->url . '&action=vis_menu&back=1',
             'icon' => 'eye-open',
             'title' => $this->_('SHOW')
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('HIDE'),
             'href' => $this->url . '&action=invis_menu&back=1',
             'icon' => 'eye-close',
             'title' => $this->_('HIDE')
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('MOVE'),
             'href' => $this->url . '&action=move_menu',
             'icon' => 'share-alt'
-        );
-        $arr[] = array(
+        ];
+        $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_menu&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
-        );
+            'onclick' => 'return confirm(\''
+                      .  $this->_('DELETE_MULTIPLE_TEXT')
+                      .  '\')'
+        ];
         return $arr;
     }
 }

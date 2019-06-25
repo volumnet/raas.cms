@@ -1,9 +1,15 @@
 <?php
+/**
+ * Таблица обратной связи
+ */
 namespace RAAS\CMS;
 
-use \RAAS\Column;
+use RAAS\Table;
 
-class FeedbackTable extends \RAAS\Table
+/**
+ * Класс таблицы обратной связи
+ */
+class FeedbackTable extends Table
 {
     public function __get($var)
     {
@@ -18,40 +24,49 @@ class FeedbackTable extends \RAAS\Table
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
-        $columns = array();
-        $columns['post_date'] = array(
+        $columns = [];
+        $columns['post_date'] = [
             'caption' => $this->view->_('POST_DATE'),
             'callback' => function ($row) use ($view) {
-                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' . date(DATETIMEFORMAT, strtotime($row->post_date)) . '</a>';
+                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' .
+                          date(DATETIMEFORMAT, strtotime($row->post_date)) .
+                       '</a>';
             }
-        );
+        ];
         if (!$params['Item']->id) {
-            $columns['pid'] = array(
+            $columns['pid'] = [
                 'caption' => $this->view->_('FORM'),
                 'callback' => function ($row) use ($view) {
-                    return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' . htmlspecialchars($row->parent->name) . '</a>';
+                    return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' .
+                              htmlspecialchars($row->parent->name) .
+                           '</a>';
                 }
-            );
+            ];
         }
-        $columns['name'] = array(
+        $columns['name'] = [
             'caption' => $this->view->_('PAGE'),
             'callback' => function ($row) use ($view) {
-                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' . htmlspecialchars($row->material->id ? $row->material->name : $row->page->name) . '</a>';
+                $name = $row->material->id
+                      ? $row->material->name
+                      : $row->page->name;
+                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' .
+                          htmlspecialchars($name) .
+                       '</a>';
             }
-        );
-        $columns['ip'] = array(
+        ];
+        $columns['ip'] = [
             'caption' => $this->view->_('IP_ADDRESS'),
             'callback' => function ($row) use ($view) {
                 return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '" title="' . htmlspecialchars($row->description) . '">'
                      .    htmlspecialchars($row->ip)
                      . '</a>';
             }
-        );
+        ];
         foreach ($params['columns'] as $key => $col) {
-            $columns[$col->urn] = array(
+            $columns[$col->urn] = [
                 'caption' => $col->name,
                 'callback' => function ($row) use ($col) {
                     $text = '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '" title="' . htmlspecialchars($row->description) . '">';
@@ -59,9 +74,9 @@ class FeedbackTable extends \RAAS\Table
                     switch ($f->datatype) {
                         case 'color':
                             $v = $f->getValue();
-                            return '<span style="color: ' . htmlspecialchars($v) . '">
-                                      ' . htmlspecialchars($v) . '
-                                    </span>';
+                            return '<span style="color: ' . htmlspecialchars($v) . '">' .
+                                      htmlspecialchars($v) .
+                                   '</span>';
                             break;
                         case 'htmlarea':
                             $text .= strip_tags($f->doRich());
@@ -100,14 +115,18 @@ class FeedbackTable extends \RAAS\Table
                     $text .= '</a>';
                     return $text;
                 }
-            );
+            ];
         }
-        $columns[' '] = array('callback' => function ($row) use ($view) {
-            return rowContextMenu($view->getFeedbackContextMenu($row));
-        });
+        $columns[' '] = [
+            'callback' => function ($row) use ($view) {
+                return rowContextMenu($view->getFeedbackContextMenu($row));
+            }
+        ];
 
-        $defaultParams = array(
-            'caption' => $params['Item']->name ? $params['Item']->name : $this->view->_('FEEDBACK'),
+        $defaultParams = [
+            'caption' => $params['Item']->name
+                      ?  $params['Item']->name
+                      :  $this->view->_('FEEDBACK'),
             'columns' => $columns,
             'emptyString' => $this->view->_('NO_NOTES_FOUND'),
             'callback' => function ($Row) {
@@ -119,11 +138,10 @@ class FeedbackTable extends \RAAS\Table
             'Pages' => $params['Pages'],
             'template' => 'feedback',
             'data-role' => 'multitable',
-            'meta' => array(
+            'meta' => [
                 'allContextMenu' => $view->getAllFeedbacksContextMenu(),
-            ),
-
-        );
+            ],
+        ];
         unset($params['columns']);
 
         // $arr = array_merge($defaultParams, $params);

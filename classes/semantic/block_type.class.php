@@ -1,15 +1,46 @@
 <?php
+/**
+ * Тип блока
+ */
 namespace RAAS\CMS;
 
+use RAAS\Exception;
+
+/**
+ * Класс типа блока
+ * @property-read Block Новый блок соответствующего типа
+ * @property-read ViewBlock Представление блока
+ */
 class Block_Type
 {
-    const defaultBlockType = 'RAAS\\CMS\\HTML';
+    /**
+     * Тип блока по умолчанию
+     */
+    const defaultBlockType = Block_HTML::class;
 
+    /**
+     * Класс блока
+     * @var string
+     */
     protected $className;
+
+    /**
+     * Класс представления
+     * @var string
+     */
     protected $viewerClassName;
+
+    /**
+     * Класс формы редактирования блока
+     * @var string
+     */
     protected $editFormClassName;
 
-    protected static $_types = array();
+    /**
+     * Зарегистрированные типы блоков
+     * @var array<static>
+     */
+    protected static $_types = [];
 
     protected function __construct()
     {}
@@ -34,17 +65,28 @@ class Block_Type
     }
 
 
-    public static function registerType($className, $viewerClassName, $editFormClassName)
-    {
+    /**
+     *
+     * @param string $className Класс блока
+     * @param string $viewerClassName Класс представления
+     * @param string $editFormClassName Класс формы редактирования
+     * @throws Exception Выбрасывает исключение, когда класс блока,
+     *                   представления или формы редактирования не найден
+     */
+    public static function registerType(
+            $className,
+            $viewerClassName,
+            $editFormClassName
+    ) {
         $Item = new static();
         if (!class_exists($className)) {
-            throw new \Exception($className . ' doesn\'t exist');
+            throw new Exception($className . ' doesn\'t exist');
         }
         if (!class_exists($viewerClassName)) {
-            throw new \Exception($viewerClassName . ' doesn\'t exist');
+            throw new Exception($viewerClassName . ' doesn\'t exist');
         }
         if (!class_exists($editFormClassName)) {
-            throw new \Exception($editFormClassName . ' doesn\'t exist');
+            throw new Exception($editFormClassName . ' doesn\'t exist');
         }
         $Item->className = $className;
         $Item->viewerClassName = $viewerClassName;
@@ -53,18 +95,31 @@ class Block_Type
     }
 
 
+    /**
+     * Отменить регистрацию блока
+     * @param string $className Класс блока
+     */
     public static function unregisterType($className)
     {
         unset(self::$_types[$className]);
     }
 
 
+    /**
+     * Получить список типов блоков
+     * @return array<static>
+     */
     public static function getTypes()
     {
         return self::$_types;
     }
 
 
+    /**
+     * Получает тип для класса блока
+     * @param string $className Класс блока
+     * @return static
+     */
     public static function getType($className)
     {
         if (isset(self::$_types[$className])) {
@@ -75,7 +130,13 @@ class Block_Type
         return null;
     }
 
-    public function getForm(array $arr = array())
+
+    /**
+     * Получает форму редактирования блока
+     * @param array $arr Параметры создания формы
+     * @return Form
+     */
+    public function getForm(array $arr = [])
     {
         $classname = $this->editFormClassName;
         return new $classname($arr);

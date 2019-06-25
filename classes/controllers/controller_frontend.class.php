@@ -1,7 +1,14 @@
 <?php
+/**
+ * Контроллер сайта (дублер)
+ */
 namespace RAAS\CMS;
 
-class Controller_Frontend extends \RAAS\Controller_Frontend
+use RAAS\Controller_Frontend as RAASControllerFrontend;
+
+/**
+ * Класс контроллера сайта (дублер)
+ */
+class Controller_Frontend extends RAASControllerFrontend
 {
-    
 }

@@ -33,37 +33,37 @@ abstract class AbstractInterface
      * Поля $_GET параметров
      * @var array
      */
-    protected $get = array();
+    protected $get = [];
 
     /**
      * Поля $_POST параметров
      * @var array
      */
-    protected $post = array();
+    protected $post = [];
 
     /**
      * Поля $_COOKIE параметров
      * @var array
      */
-    protected $cookie = array();
+    protected $cookie = [];
 
     /**
      * Поля $_SESSION параметров
      * @var array
      */
-    protected $session = array();
+    protected $session = [];
 
     /**
      * Поля $_SERVER параметров
      * @var array
      */
-    protected $server = array();
+    protected $server = [];
 
     /**
      * Поля $_FILES параметров
      * @var array
      */
-    protected $files = array();
+    protected $files = [];
 
     public function __get($var)
     {
@@ -92,8 +92,16 @@ abstract class AbstractInterface
      * @param array $server Поля $_SERVER параметров
      * @param array $files Поля $_FILES параметров
      */
-    public function __construct(Block $block = null, Page $page = null, array $get = array(), array $post = array(), array $cookie = array(), array $session = array(), array $server = array(), array $files = array())
-    {
+    public function __construct(
+        Block $block = null,
+        Page $page = null,
+        array $get = [],
+        array $post = [],
+        array $cookie = [],
+        array $session = [],
+        array $server = [],
+        array $files = []
+    ) {
         $this->block = $block;
         $this->page = $page;
         $this->get = $get;
@@ -137,6 +145,7 @@ abstract class AbstractInterface
      */
     public function getCurrentHostURL()
     {
-        return 'http' . ($this->isHTTPS() ? 's' : '') . '://' . $this->server['HTTP_HOST'];
+        return 'http' . ($this->isHTTPS() ? 's' : '') . '://' .
+               $this->server['HTTP_HOST'];
     }
 }

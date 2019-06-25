@@ -1,22 +1,37 @@
 <?php
+/**
+ * Контроллер сайта
+ */
 namespace RAAS;
 
+use SOME\Graphics;
+use SOME\Thumbnail;
 use RAAS\CMS\Page;
 use RAAS\CMS\Material;
 use RAAS\CMS\User as CMSUser;
 use RAAS\CMS\Auth;
 use RAAS\CMS\Diag;
+use RAAS\CMS\Package as CMSPackage;
 
+/**
+ * Класс контроллера сайта
+ * @property-read CMSPackage $model Модель контроллера
+ * @property CMSUser $user Текущий пользователь
+ * @property-read Diag $diag Объект диагностики
+ */
 class Controller_Frontend extends Abstract_Controller
 {
+    protected static $instance;
+
     private $user;
+
     protected $diag = null;
 
     public function __get($var)
     {
         switch ($var) {
             case 'model':
-                return \RAAS\CMS\Package::i();
+                return CMSPackage::i();
                 break;
             case 'user':
                 if (!$this->user) {
@@ -48,17 +63,21 @@ class Controller_Frontend extends Abstract_Controller
         }
     }
 
-    protected static $instance;
 
     protected function init()
     {
     }
 
+
     public function run()
     {
         if (!$this->getCache()) {
             $p = pathinfo($_SERVER['REQUEST_URI']);
-            if (preg_match('/(\\.(\\d+|auto)x(\\d+|auto)(_(\\w+))?)(\\.|$)/i', $p['basename'], $regs)) {
+            if (preg_match(
+                '/(\\.(\\d+|auto)x(\\d+|auto)(_(\\w+))?)(\\.|$)/i',
+                $p['basename'],
+                $regs
+            )) {
                 $this->parseThumbnail($regs);
             }
             if ($this->checkCompatibility()) {
@@ -67,10 +86,13 @@ class Controller_Frontend extends Abstract_Controller
                         if ((int)$this->model->registryGet('clear_cache_by_time')) {
                             $this->model->clearCache(false);
                         }
-                        if (\RAAS\CMS\Package::i()->registryGet('diag')) {
+                        if (CMSPackage::i()->registryGet('diag')) {
                             $this->diag = Diag::getInstance();
                             if ($this->diag) {
-                                $this->application->SQL->query_handler = array($this->diag, 'queryHandler');
+                                $this->application->SQL->query_handler = [
+                                    $this->diag,
+                                    'queryHandler'
+                                ];
                             }
                             $pst = microtime(true);
                         }
@@ -79,7 +101,11 @@ class Controller_Frontend extends Abstract_Controller
                 }
                 if ($this->diag) {
                     if ($Page) {
-                        $this->diag->pageHandler($Page, microtime(true) - $pst);
+                        $this->diag->handle(
+                            'pages',
+                            $Page->id,
+                            microtime(true) - $pst
+                        );
                     }
                     $this->diag->save();
                 }
@@ -88,9 +114,14 @@ class Controller_Frontend extends Abstract_Controller
     }
 
 
-    public function exportLang(IContext $Context, $language)
+    /**
+     * Экспортирует переводы в константы
+     * @param IContext $context Контекст переводов
+     * @param string $language Код языка
+     */
+    public function exportLang(IContext $context, $language)
     {
-        $filename = $Context->systemDir . '/languages/' . $language . '.ini';
+        $filename = $context->systemDir . '/languages/' . $language . '.ini';
         if (is_file($filename)) {
             $translations = parse_ini_file($filename);
         }
@@ -105,7 +136,8 @@ class Controller_Frontend extends Abstract_Controller
 
     protected function checkCompatibility()
     {
-        return ($this->application->phpVersionCompatible && !$this->application->missedExt);
+        return $this->application->phpVersionCompatible &&
+               !$this->application->missedExt;
     }
 
 
@@ -135,7 +167,10 @@ class Controller_Frontend extends Abstract_Controller
         $url = parse_url($_SERVER['REQUEST_URI']);
         $url = $url['path'];
         $url = str_replace('\\', '/', $url);
-        $Page = Page::importByURL('http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $url);
+        $Page = Page::importByURL(
+            'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' .
+            $_SERVER['HTTP_HOST'] . $url
+        );
         $doCache = (bool)(int)$Page->cache;
         $Page->initialURL = $url;
 
@@ -162,7 +197,8 @@ class Controller_Frontend extends Abstract_Controller
             $Page->Material->visit();
         }
         echo $content;
-        if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET') && $content) {
+
+        if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET')) {
             $headers = (array)headers_list();
             if (($status1 = array_filter($headers, function ($x) {
                 return stristr($x, 'Status:');
@@ -210,7 +246,9 @@ class Controller_Frontend extends Abstract_Controller
     {
         if (count($Page->additionalURLArray) == 1) {
             $Material = Material::importByURN($Page->additionalURLArray[0]);
-            // 2016-02-24, AVS: Добавил проверку in_array(...), т.к. странице присваивались материалы, которых на ней в принципе быть не может
+            // 2016-02-24, AVS: Добавил проверку in_array(...),
+            // т.к. странице присваивались материалы, которых на ней
+            // в принципе быть не может
             if ($Material
                 && $Material->id
                 && in_array($Page->id, array_map(function ($x) {
@@ -237,15 +275,30 @@ class Controller_Frontend extends Abstract_Controller
     }
 
 
-    protected function saveCache($content = '', array $headers = array(), $prefix = '')
-    {
+    /**
+     * Сохраняет кэш страницы
+     * @param string $content Текст страницы
+     * @param array<string> $headers HTTP-заголовки страницы
+     * @param string $prefix Префикс файла кэша
+     */
+    protected function saveCache(
+        $content = '',
+        array $headers = [],
+        $prefix = ''
+    ) {
         if (!is_dir($this->model->cacheDir)) {
             @mkdir($this->model->cacheDir, 0777, true);
         }
-        $filename = $this->model->cachePrefix . $prefix . '.' . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-        $replace = array();
-        // 2015-11-23, AVS: заменил, т.к. в кэше меню <?php так же заменяется и глючит
-        $content = preg_replace('/\\<\\?xml (.*?)\\?\\>/umi', '<?php echo \'<\' . \'?xml $1?\' . ">\\n"?' . '>', $content);
+        $filename = $this->model->cachePrefix . $prefix . '.'
+                  . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        $replace = [];
+        // 2015-11-23, AVS: заменил, т.к. в кэше меню <?php так же заменяется
+        // и глючит
+        $content = preg_replace(
+            '/\\<\\?xml (.*?)\\?\\>/umi',
+            '<' . '?php echo \'<\' . \'?xml $1?\' . ">\\n"?' . '>',
+            $content
+        );
         $text = '';
         if ($headers) {
             $text .= '<' . "?php\n";
@@ -257,14 +310,18 @@ class Controller_Frontend extends Abstract_Controller
             $text .= '?' . ">";
         }
         $text .= $content;
-        file_put_contents($this->model->cacheDir . '/' . $filename . '.php', $text);
+        file_put_contents(
+            $this->model->cacheDir . '/' . $filename . '.php',
+            $text
+        );
         chmod($this->model->cacheDir . '/' . $filename . '.php', 0777);
     }
 
 
     /**
      * Разбор эскиза из адреса
-     * @param array $regs обработка регулярного выражения из адреса: '/(\\.(\\d+|auto)x(\\d+|auto)(_(\\w+))?)(\\.|$)/i'
+     * @param array $regs обработка регулярного выражения из адреса:
+     *                    '/(\\.(\\d+|auto)x(\\d+|auto)(_(\\w+))?)(\\.|$)/i'
      */
     private function parseThumbnail($regs)
     {
@@ -283,18 +340,41 @@ class Controller_Frontend extends Abstract_Controller
     }
 
 
-    protected function getThumbnail($filename, $w = null, $h = null, $mode = null)
-    {
+    /**
+     * Выводит в stdout содержимое эскиза
+     * @param string $filename Имя файла, для которого нужно построить эскиз
+     * @param int|null $width Ширина эскиза, либо null, если не ограничена
+     * @param int|null $height Высота эскиза, либо null, если не ограничена
+     * @param 'inline'|'frame'|'crop'|null $mode Режим создания эскиза
+     */
+    protected function getThumbnail(
+        $filename,
+        $width = null,
+        $height = null,
+        $mode = null
+    ) {
         $temp = pathinfo($filename);
-        $outputFile = \RAAS\CMS\Package::tn($filename, $w, $h, $mode);
-        $mime = \SOME\Graphics::extension_to_mime_type(strtolower($temp['extension']));
+        $outputFile = CMSPackage::tn($filename, $width, $height, $mode);
+        $ext = strtolower($temp['extension']);
+        $mime = Graphics::extension_to_mime_type($ext);
         if (!is_file($outputFile)) {
             if (defined('SOME\Thumbnail::THUMBNAIL_' . strtoupper($mode))) {
-                $mode = constant('SOME\Thumbnail::THUMBNAIL_' . strtoupper($mode));
+                $mode = constant(
+                    'SOME\Thumbnail::THUMBNAIL_' . strtoupper($mode)
+                );
             } else {
-                $mode = \SOME\Thumbnail::THUMBNAIL_CROP;
+                $mode = Thumbnail::THUMBNAIL_CROP;
             }
-            \SOME\Thumbnail::make($filename, $outputFile, $w ?: INF, $h ?: INF, $mode, true, true, 90);
+            Thumbnail::make(
+                $filename,
+                $outputFile,
+                $width ?: INF,
+                $height ?: INF,
+                $mode,
+                true,
+                true,
+                90
+            );
             chmod($outputFile, 0777);
         }
         header('Content-Type: ' . $mime);
@@ -302,16 +382,18 @@ class Controller_Frontend extends Abstract_Controller
     }
 
 
+    /**
+     * Получает кэш текущей страницы
+     * @return false Если не удалось получить
+     */
     protected function getCache()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            $filename = substr(
+            if ($f = glob(
                 $this->model->cacheDir . '/' . $this->model->cachePrefix . '.' .
-                urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']),
-                0,
-                250
-            ) . '.php';
-            if ($f = glob($filename)) {
+                urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) .
+                '.php'
+            )) {
                 include $f[0];
                 exit;
             }

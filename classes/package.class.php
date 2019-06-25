@@ -1,14 +1,76 @@
 <?php
+/**
+ * Пакет CMS
+ */
 namespace RAAS\CMS;
 
-use \RAAS\Attachment;
-use \RAAS\Application;
+use SOME\File;
+use SOME\Pages;
+use SOME\SOME;
+use SOME\Text;
+use RAAS\Attachment;
+use RAAS\Application;
+use RAAS\Package as RAASPackage;
 
-class Package extends \RAAS\Package
+/**
+ * Класс пакета CMS
+ * @property-read string $cacheDir Директория, где хранятся кэши
+ * @property-read string $cachePrefix Префикс файлов кэшей
+ * @property-read string $formTemplateFile Файл стандартного уведомления формы
+ * @property-read string $stdFormTemplate Текст стандартного уведомления формы
+ * @property-read string $stdMaterialInterfaceFile Файл стандартного интерфейса
+ *                                                 материалов
+ * @property-read string $stdMaterialViewFile Файл стандартного виджета
+ *                                            материалов
+ * @property-read string $stdMaterialView Текст стандартного виджета материалов
+ * @property-read string $stdMenuInterfaceFile Файл стандартного интерфейса меню
+ * @property-read string $stdMenuInterface Текст стандартного интерфейса меню
+ * @property-read string $stdMenuViewFile Файл стандартного виджета меню
+ * @property-read string $stdMenuView Текст стандартного виджета меню
+ * @property-read string $stdFormInterfaceFile Файл стандартного интерфейса
+ *                                             формы
+ * @property-read string $stdFormInterface Текст стандартного интерфейса формы
+ * @property-read string $stdFormViewFile Файл стандартного виджета формы
+ * @property-read string $stdFormView Текст стандартного виджета формы
+ * @property-read string $stdSearchInterfaceFile Файл стандартного интерфейса
+ *                                               поиска
+ * @property-read string $stdSearchInterface Текст стандартного интерфейса
+ *                                           поиска
+ * @property-read string $stdSearchViewFile Файл стандартного виджета поиска
+ * @property-read string $stdSearchView Текст стандартного виджета поиска
+ * @property-read string $stdCacheInterfaceFile Файл стандартного интерфейса
+ *                                              кэширования
+ * @property-read string $stdCacheInterface Файл стандартного интерфейса
+ *                                          кэширования
+ * @property-read string $stdWatermarkInterfaceFile Файл стандартного интерфейса
+ *                                                  водяных знаков
+ * @property-read string $stdWatermarkInterface Текст стандартного интерфейса
+ *                                              водяных знаков
+ * @property-read string $isAndroid Использует ли пользователь Android
+ * @property-read string $isAndroidTablet Использует ли пользователь Android на
+ *                                        планшете
+ * @property-read string $isAndroidPhone Использует ли пользователь Android на
+ *                                       телефоне
+ * @property-read string $isIPad Использует ли пользователь iPad
+ * @property-read string $isIPhone Использует ли пользователь iPhone
+ * @property-read string $isIPod Использует ли пользователь iPod
+ * @property-read string $isApple Использует ли пользователь устройство Apple
+ * @property-read string $isWindowsPhone Использует ли пользователь устройство
+ *                                       на Windows Phone
+ * @property-read string $isPhone Использует ли пользователь телефон
+ * @property-read string $isTablet Использует ли пользователь планшет
+ */
+class Package extends RAASPackage
 {
+    /**
+     * Папка шаблонов
+     */
     const templatesDir = 'templates';
 
-    const version = '2013-12-01 18:23:01';
+    /**
+     * Версия пакета
+     */
+    const version = '2018-05-01 11:30:00';
 
     protected static $instance;
 
@@ -23,21 +85,15 @@ class Package extends \RAAS\Package
                 return 'raas_cache';
                 break;
             case 'formTemplateFile':
-                return $this->resourcesDir . '/interfaces/form_notification.php';
+                return $this->resourcesDir .
+                       '/interfaces/form_notification.php';
                 break;
             case 'stdFormTemplate':
                 $text = file_get_contents($this->formTemplateFile);
-                /*preg_match_all('/\\<\\?php echo @@@(CMS\\\\)?(\\w+) *\\?\\>/i', $text, $regs);
-                foreach ($regs[2] as $key => $val) {
-                    $text = str_replace($regs[0][$key], $this->view->_($val), $text);
-                }
-                preg_match_all('/@@(CMS\\\\)?(\\w+)/i', $text, $regs);
-                foreach ($regs[2] as $key => $val) {
-                    $text = str_replace($regs[0][$key], "'" . addslashes($this->view->_($val)) . "'", $text);
-                }*/
                 return $text;
             case 'stdMaterialInterfaceFile':
-                return $this->resourcesDir . '/interfaces/material_interface.php';
+                return $this->resourcesDir .
+                       '/interfaces/material_interface.php';
                 break;
             case 'stdMaterialInterface':
                 $text = file_get_contents($this->stdMaterialInterfaceFile);
@@ -100,7 +156,8 @@ class Package extends \RAAS\Package
                 return $text;
                 break;
             case 'stdWatermarkInterfaceFile':
-                return $this->resourcesDir . '/interfaces/watermark_interface.php';
+                return $this->resourcesDir .
+                       '/interfaces/watermark_interface.php';
                 break;
             case 'stdWatermarkInterface':
                 $text = file_get_contents($this->stdWatermarkInterfaceFile);
@@ -128,10 +185,14 @@ class Package extends \RAAS\Package
                 return $this->iPad || $this->iPhone || $this->iPod;
                 break;
             case 'isWindowsPhone':
-                return (bool)stristr($ua, 'windows') && (bool)stristr($ua, 'phone');
+                return (bool)stristr($ua, 'windows') &&
+                       (bool)stristr($ua, 'phone');
                 break;
             case 'isPhone':
-                return $this->isAndroidPhone || $this->isWindowsPhone || $this->isIPhone || $this->isIPod;
+                return $this->isAndroidPhone ||
+                       $this->isWindowsPhone ||
+                       $this->isIPhone ||
+                       $this->isIPod;
                 break;
             case 'isTablet':
                 return $this->isAndroidTablet || $this->isIPad;
@@ -148,12 +209,36 @@ class Package extends \RAAS\Package
         $_SESSION['KCFINDER']['uploadURL'] = '/files/cms/common/';
         $_SESSION['KCFINDER']['disabled'] = false;
         parent::init();
-        Block_Type::registerType('RAAS\\CMS\\Block_HTML', 'RAAS\\CMS\\ViewBlockHTML', 'RAAS\\CMS\\EditBlockHTMLForm');
-        Block_Type::registerType('RAAS\\CMS\\Block_PHP', 'RAAS\\CMS\\ViewBlockPHP', 'RAAS\\CMS\\EditBlockPHPForm');
-        Block_Type::registerType('RAAS\\CMS\\Block_Material', 'RAAS\\CMS\\ViewBlockMaterial', 'RAAS\\CMS\\EditBlockMaterialForm');
-        Block_Type::registerType('RAAS\\CMS\\Block_Menu', 'RAAS\\CMS\\ViewBlockMenu', 'RAAS\\CMS\\EditBlockMenuForm');
-        Block_Type::registerType('RAAS\\CMS\\Block_Form', 'RAAS\\CMS\\ViewBlockForm', 'RAAS\\CMS\\EditBlockFormForm');
-        Block_Type::registerType('RAAS\\CMS\\Block_Search', 'RAAS\\CMS\\ViewBlockSearch', 'RAAS\\CMS\\EditBlockSearchForm');
+        Block_Type::registerType(
+            Block_HTML::class,
+            ViewBlockHTML::class,
+            EditBlockHTMLForm::class
+        );
+        Block_Type::registerType(
+            Block_PHP::class,
+            ViewBlockPHP::class,
+            EditBlockPHPForm::class
+        );
+        Block_Type::registerType(
+            Block_Material::class,
+            ViewBlockMaterial::class,
+            EditBlockMaterialForm::class
+        );
+        Block_Type::registerType(
+            Block_Menu::class,
+            ViewBlockMenu::class,
+            EditBlockMenuForm::class
+        );
+        Block_Type::registerType(
+            Block_Form::class,
+            ViewBlockForm::class,
+            EditBlockFormForm::class
+        );
+        Block_Type::registerType(
+            Block_Search::class,
+            ViewBlockSearch::class,
+            EditBlockSearchForm::class
+        );
         foreach ($this->modules as $module) {
             if (method_exists($module, 'registerBlockTypes')) {
                 $module->registerBlockTypes();
@@ -162,9 +247,22 @@ class Package extends \RAAS\Package
     }
 
 
+    /**
+     * Подготовка данных для отображения страницы
+     * @return [
+     *             'Set' => array<Page> набор подразделов,
+     *             'sort' => string Поля для сортировки,
+     *             'order' => 'asc'|'desc' Порядок сортировки,
+     *             'columns' => array<Page_Field> Колонки для отображения,
+     *         ]
+     */
     public function show_page()
     {
-        $Parent = new Page((isset($this->controller->nav['id']) ? (int)$this->controller->nav['id'] : 0));
+        $Parent = new Page(
+            isset($this->controller->nav['id']) ?
+            (int)$this->controller->nav['id'] :
+            0
+        );
         $columns = array_filter(
             $Parent->fields,
             function ($x) {
@@ -177,7 +275,9 @@ class Package extends \RAAS\Package
         } else {
             $sort = 'urn';
             if (isset($this->controller->nav['sort'])) {
-                if (isset($columns[$this->controller->nav['sort']]) && ($row = $columns[$this->controller->nav['sort']])) {
+                if (isset($columns[$this->controller->nav['sort']]) &&
+                    ($row = $columns[$this->controller->nav['sort']])
+                ) {
                     $sort = $row->urn;
                 } else {
                     switch ($this->controller->nav['sort']) {
@@ -188,7 +288,10 @@ class Package extends \RAAS\Package
                 }
             }
         }
-        if (!isset($this->controller->nav['id']) && isset($this->controller->nav['order']) && ($this->controller->nav['order'] == 'desc')) {
+        if (!isset($this->controller->nav['id']) &&
+            isset($this->controller->nav['order']) &&
+            ($this->controller->nav['order'] == 'desc')
+        ) {
             $order = 'desc';
             $reverse = true;
         } else {
@@ -197,126 +300,226 @@ class Package extends \RAAS\Package
         }
         $f = $this->getCompareFunction($sort, $reverse);
         usort($Set, $f);
-        return array('Set' => $Set, 'sort' => $sort, 'order' => $order, 'columns' => $columns);
+        return [
+            'Set' => $Set,
+            'sort' => $sort,
+            'order' => $order,
+            'columns' => $columns
+        ];
     }
 
 
+    /**
+     * Подготовка данных для отображения справочников
+     * @return [
+     *             'Set' => array<Dictionary> набор подразделов,
+     *             'Pages' => Pages Постраничная разбивка,
+     *             'sort' => string Поля для сортировки,
+     *             'order' => 'asc'|'desc' Порядок сортировки,
+     *         ]
+     */
     public function dev_dictionaries()
     {
-        $Parent = new Dictionary(isset($this->controller->nav['id']) ? (int)$this->controller->nav['id'] : 0);
-        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS * FROM " . Dictionary::_tablename() . " WHERE pid = " . (int)$Parent->id;
+        $Parent = new Dictionary(
+            isset($this->controller->nav['id']) ?
+            (int)$this->controller->nav['id'] :
+            0
+        );
+        $sqlQuery = "SELECT SQL_CALC_FOUND_ROWS *
+                       FROM " . Dictionary::_tablename()
+                  . " WHERE pid = " . (int)$Parent->id;
         if ($Parent->orderby && ($Parent->orderby != 'priority')) {
             $sort = $Parent->orderby;
         }
-        if ($Parent->orderby && isset($this->controller->nav['order']) && ($this->controller->nav['order'] == 'desc')) {
+        if ($Parent->orderby &&
+            isset($this->controller->nav['order']) &&
+            ($this->controller->nav['order'] == 'desc')
+        ) {
             $order = 'desc';
         } else {
             $order = 'asc';
         }
-        $SQL_query .= " ORDER BY priority " . strtoupper($order) . ($sort ? ", " . $sort . " " . strtoupper($order) : "");
-        $Pages = new \SOME\Pages(isset($this->controller->nav['page']) ? $this->controller->nav['page'] : 1, Application::i()->registryGet('rowsPerPage'));
-        $Set = Dictionary::getSQLSet($SQL_query, $Pages);
-        return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $order);
+        $sqlQuery .= " ORDER BY priority " . strtoupper($order)
+                  .  ($sort ? ", " . $sort . " " . strtoupper($order) : "");
+        $Pages = new Pages(
+            (
+                isset($this->controller->nav['page']) ?
+                $this->controller->nav['page'] :
+                1
+            ),
+            Application::i()->registryGet('rowsPerPage')
+        );
+        $Set = Dictionary::getSQLSet($sqlQuery, $Pages);
+        return [
+            'Set' => $Set,
+            'Pages' => $Pages,
+            'sort' => $sort,
+            'order' => $order
+        ];
     }
 
 
-    public function dev_dictionaries_loadFile(Dictionary $Item, $file)
+    /**
+     * Загружает справочник из файла
+     * @param Dictionary $dictionary Справочник, в который загружаем
+     * @param string $file Имя файла
+     */
+    public function dev_dictionaries_loadFile(Dictionary $dictionary, $file)
     {
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
         $text = file_get_contents($file['tmp_name']);
-        if (in_array($ext, array('csv', 'ini', 'sql')) && !mb_check_encoding($text)) {
+        if (in_array($ext, ['csv', 'ini', 'sql']) &&
+            !mb_check_encoding($text)
+        ) {
             switch ($this->view->language) {
                 default:
-                    $text = iconv('Windows-1251', mb_internal_encoding(), $text);
+                    $text = iconv(
+                        'Windows-1251',
+                        mb_internal_encoding(),
+                        $text
+                    );
                     break;
             }
         }
         switch ($ext) {
             case 'csv':
-                $Item->parseCSV($text);
+                $dictionary->parseCSV($text);
                 break;
             case 'ini':
-                $Item->parseINI($text);
+                $dictionary->parseINI($text);
                 break;
             case 'xml':
-                $Item->parseXML($text);
+                $dictionary->parseXML($text);
                 break;
             case 'sql':
-                $Item->parseSQL($text);
+                $dictionary->parseSQL($text);
                 break;
         }
     }
 
 
+    /**
+     * Готовит данные для отображения списка шаблонов
+     * @return array<Template>
+     */
     public function dev_templates()
     {
         return Template::getSet();
     }
 
 
+    /**
+     * Готовит данные для отображения списка типов материалов
+     * @return array<Material_Type>
+     */
     public function material_types()
     {
         return Material_Type::getSet();
     }
 
 
+    /**
+     * Готовит данные для отображения списка форм
+     * @return array<Form>
+     */
     public function forms()
     {
         return Form::getSet();
     }
 
 
+    /**
+     * Готовит данные для отображения списка полей страниц
+     * @return array<Page_Field>
+     */
     public function dev_pages_fields()
     {
         return Page_Field::getSet();
     }
 
 
+    /**
+     * Возвращает список корневых справочников
+     * @return array<Dictionary>
+     */
     public function getDictionaries()
     {
-        return Dictionary::getSet(array('where' => "NOT pid"));
+        return Dictionary::getSet(['where' => "NOT pid"]);
     }
 
 
-    public function getPageMaterials(Page $Page, Material_Type $MType, $search_string = null, $sort = 'post_date', $order = 'asc', $page = 1)
-    {
+    /**
+     * Получает материалы страницы
+     * @param Page $page Страница, для которой получаем материалы
+     * @param Material_Type $mType Тип материалов, которые получаем
+     * @param string $searchString Поисковая строка
+     * @param string $sort Поле для сортировки
+     * @param 'asc'|'desc' $order Порядок сортировки
+     * @param int $pageNum Номер страницы в постраничной разбивке
+     * @return [
+     *             'Set' => array<Material> набор материалов,
+     *             'Pages' => Pages Постраничная разбивка,
+     *             'sort' => string Поля для сортировки,
+     *             'order' => 'asc'|'desc' Порядок сортировки,
+     *         ]
+     */
+    public function getPageMaterials(
+        Page $page,
+        Material_Type $mType,
+        $searchString = null,
+        $sort = 'post_date',
+        $order = 'asc',
+        $pageNum = 1
+    ) {
         $columns = array_filter(
-            $MType->fields,
+            $mType->fields,
             function ($x) {
                 return $x->show_in_table;
             }
         );
 
-        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.*
+        $sqlQuery = "SELECT SQL_CALC_FOUND_ROWS tM.*
                         FROM " . Material::_tablename() . " AS tM ";
         // 2016-01-14, AVS: добавил поиск по данным
-        if ($search_string) {
-            $SQL_query .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id
-                            LEFT JOIN " . Material_Field::_tablename() . " AS tF ON tD.fid = tF.id ";
+        if ($searchString) {
+            $sqlQuery .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::data_table
+                      .  "   AS tD
+                             ON tD.pid = tM.id
+                           LEFT JOIN " . Material_Field::_tablename()
+                      .  "   AS tF
+                             ON tD.fid = tF.id ";
         }
-        if (!$MType->global_type) {
-            $SQL_query .= " LEFT JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id ";
+        if (!$mType->global_type) {
+            $sqlQuery .= " LEFT JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc
+                             AS tMPA
+                             ON tMPA.id = tM.id ";
         }
-        $types = array_merge(array($MType->id), (array)$MType->all_children_ids);
-        $SQL_query .= " WHERE tM.pid IN (" . implode(", ", $types) . ")";
-        if (!$MType->global_type) {
-            $SQL_query .= " AND (tMPA.pid = " . (int)$this->controller->id . " OR tMPA.pid IS NULL) ";
+        $sqlQuery .= " WHERE tM.pid IN (" . implode(", ", $mType->selfAndChildrenIds) . ")";
+        if (!$mType->global_type) {
+            $sqlQuery .= " AND (
+                                    tMPA.pid = " . (int)$this->controller->id . "
+                                 OR tMPA.pid IS NULL
+                                ) ";
         }
         // 2016-01-14, AVS: добавил поиск по данным
-        if ($search_string) {
-            $SQL_query .= " AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid
+        if ($searchString) {
+            $likeSearchString = $this->SQL->real_escape_string($searchString);
+            $sqlQuery .= " AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid
                             AND (
-                                    tM.name LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
-                                 OR tM.description LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
-                                 OR tM.urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
-                                 OR tD.value LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
+                                    tM.name LIKE '%" . $likeSearchString . "%'
+                                 OR tM.description LIKE '%" . $likeSearchString . "%'
+                                 OR tM.urn LIKE '%" . $likeSearchString . "%'
+                                 OR tD.value LIKE '%" . $likeSearchString . "%'
                             )";
         }
-        $SQL_query .= " GROUP BY tM.id ";
-        $Pages = new \SOME\Pages($page, Application::i()->registryGet('rowsPerPage'));
+        $sqlQuery .= " GROUP BY tM.id ";
+        $Pages = new Pages(
+            $pageNum,
+            Application::i()->registryGet('rowsPerPage')
+        );
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
-            $Set = Material::getSQLSet($SQL_query);
+            $Set = Material::getSQLSet($sqlQuery);
             if (isset($order) && ($order == 'desc')) {
                 $_order = 'desc';
                 $reverse = true;
@@ -326,7 +529,7 @@ class Package extends \RAAS\Package
             }
             $f = $this->getCompareFunction($_sort, $reverse, true);
             usort($Set, $f);
-            $Set = \SOME\SOME::getArraySet($Set, $Pages);
+            $Set = SOME::getArraySet($Set, $Pages);
         } else {
             switch ($sort) {
                 case 'name':
@@ -341,60 +544,106 @@ class Package extends \RAAS\Package
             }
             if (isset($order) && ($order == 'desc')) {
                 $_order = 'desc';
-            } elseif (!isset($order) && in_array($sort, array('post_date', 'modify_date'))) {
+            } elseif (!isset($order) &&
+                in_array($sort, ['post_date', 'modify_date'])
+            ) {
                 $_order = 'desc';
             } else {
                 $_order = 'asc';
             }
 
-            $SQL_query .= " ORDER BY NOT tM.priority ASC, tM.priority ASC, " . $_sort . " " . strtoupper($_order);
-            $Set = Material::getSQLSet($SQL_query, $Pages);
+            $sqlQuery .= " ORDER BY NOT tM.priority ASC,
+                                    tM.priority ASC, "
+                      .             $_sort . " " . strtoupper($_order);
+            $Set = Material::getSQLSet($sqlQuery, $Pages);
         }
-        return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $_order);
+        return [
+            'Set' => $Set,
+            'Pages' => $Pages,
+            'sort' => $sort,
+            'order' => $_order
+        ];
     }
 
 
-    public function getRelatedMaterials(Material $Item, Material_Type $MType, $search_string = null, $sort = 'post_date', $order = 'asc', $page = 1)
-    {
+    /**
+     * Получает связанные материалы для текущего материала
+     * @param Material $item Материал, для которой получаем связанные
+     * @param Material_Type $mType Тип материалов, которые получаем
+     * @param string $searchString Поисковая строка
+     * @param string $sort Поле для сортировки
+     * @param 'asc'|'desc' $order Порядок сортировки
+     * @param int $pageNum Номер страницы в постраничной разбивке
+     * @return [
+     *             'Set' => array<Material> набор материалов,
+     *             'Pages' => Pages Постраничная разбивка,
+     *             'sort' => string Поля для сортировки,
+     *             'order' => 'asc'|'desc' Порядок сортировки,
+     *         ]
+     */
+    public function getRelatedMaterials(
+        Material $item,
+        Material_Type $mType,
+        $searchString = null,
+        $sort = 'post_date',
+        $order = 'asc',
+        $pageNum = 1
+    ) {
         $columns = array_filter(
-            $MType->fields,
+            $mType->fields,
             function ($x) {
                 return $x->show_in_table;
             }
         );
 
-        $ids = array_merge(array(0, (int)$Item->material_type->id), (array)$Item->material_type->parents_ids);
-        $SQL_query = "SELECT tF.id
+        $ids = array_merge([0], $item->material_type->selfAndParentsIds);
+        $sqlQuery = "SELECT tF.id
                         FROM " . Material_Field::_tablename() . " AS tF
                        WHERE tF.classname = 'RAAS\\\\CMS\\\\Material_Type'
-                         AND tF.pid = " . (int)$MType->id . "
+                         AND tF.pid = " . (int)$mType->id . "
                          AND tF.datatype = 'material'
                          AND source IN (" . implode(", ", $ids) . ")";
-        $fields = $this->SQL->getcol($SQL_query);
+        $fields = $this->SQL->getcol($sqlQuery);
 
-        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tM.* FROM " . Material::_tablename() . " AS tM
-                        JOIN " . Material_Field::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id";
+        $sqlQuery = "SELECT SQL_CALC_FOUND_ROWS tM.*
+                       FROM " . Material::_tablename()
+                  . "    AS tM
+                       JOIN " . Material_Field::_dbprefix() . Material_Field::data_table
+                  . "    AS tD
+                         ON tD.pid = tM.id";
         // 2016-01-14, AVS: добавил поиск по данным
-        if ($search_string) {
-            $SQL_query .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::data_table . " AS tD2 ON tD2.pid = tM.id
-                            LEFT JOIN " . Material_Field::_tablename() . " AS tF2 ON tD2.fid = tF2.id ";
+        if ($searchString) {
+            $sqlQuery .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::data_table
+                      .  "   AS tD2
+                             ON tD2.pid = tM.id
+                           LEFT JOIN " . Material_Field::_tablename()
+                      .  "   AS tF2
+                             ON tD2.fid = tF2.id ";
         }
-        $types = array_merge(array($MType->id), (array)$MType->all_children_ids);
-        $SQL_query .= " WHERE tM.pid IN (" . implode(", ", $types) . ") AND tD.fid IN (" . implode(", ", $fields) . ") AND tD.value = " . (int)$Item->id;
-        if ($search_string) {
-            $SQL_query .= " AND tF2.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF2.pid
-                            AND (
-                                    tM.name LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
-                                 OR tM.urn LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
-                                 OR tD2.value LIKE '%" . $this->SQL->real_escape_string($search_string) . "%'
+        $types = $mType->selfAndChildrenIds;
+        $sqlQuery .= " WHERE tM.pid IN (" . implode(", ", $types) . ")
+                         AND tD.fid IN (" . implode(", ", $fields) . ")
+                         AND tD.value = " . (int)$item->id;
+        if ($searchString) {
+            $likeSearchString = $this->SQL->real_escape_string($searchString);
+            $sqlQuery .= " AND tF2.classname = 'RAAS\\\\CMS\\\\Material_Type'
+                           AND tF2.pid
+                           AND (
+                                    tM.name LIKE '%" . $likeSearchString . "%'
+                                 OR tM.urn LIKE '%" . $likeSearchString . "%'
+                                 OR tD2.value LIKE '%" . $likeSearchString . "%'
                             )";
         }
-        // 2016-12-27, AVS: добавил группировку одинаковых материалов, иначе ссылающиеся несколько раз перечислялись тоже несколько раз
-        $SQL_query .= " GROUP BY tM.id ";
-        $Pages = new \SOME\Pages($page, Application::i()->registryGet('rowsPerPage'));
+        // 2016-12-27, AVS: добавил группировку одинаковых материалов, иначе
+        // ссылающиеся несколько раз перечислялись тоже несколько раз
+        $sqlQuery .= " GROUP BY tM.id ";
+        $Pages = new Pages(
+            $pageNum,
+            Application::i()->registryGet('rowsPerPage')
+        );
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
             $_sort = $row->urn;
-            $Set = Material::getSQLSet($SQL_query);
+            $Set = Material::getSQLSet($sqlQuery);
             if (isset($order) && ($order == 'desc')) {
                 $_order = 'desc';
                 $reverse = true;
@@ -404,7 +653,7 @@ class Package extends \RAAS\Package
             }
             $f = $this->getCompareFunction($_sort, $reverse, true);
             usort($Set, $f);
-            $Set = \SOME\SOME::getArraySet($Set, $Pages);
+            $Set = SOME::getArraySet($Set, $Pages);
         } else {
             switch ($sort) {
                 case 'name':
@@ -419,77 +668,134 @@ class Package extends \RAAS\Package
             }
             if (isset($order) && ($order == 'desc')) {
                 $_order = 'desc';
-            } elseif (!isset($order) && in_array($sort, array('post_date', 'modify_date'))) {
+            } elseif (!isset($order) &&
+                in_array($sort, ['post_date', 'modify_date'])
+            ) {
                 $_order = 'desc';
             } else {
                 $_order = 'asc';
             }
 
-            $SQL_query .= " ORDER BY NOT tM.priority, tM.priority, " . $_sort . " " . strtoupper($_order);
-            $Set = Material::getSQLSet($SQL_query, $Pages);
+            $sqlQuery .= " ORDER BY NOT tM.priority,
+                                    tM.priority, "
+                      .             $_sort . " " . strtoupper($_order);
+            $Set = Material::getSQLSet($sqlQuery, $Pages);
         }
-        return array('Set' => $Set, 'Pages' => $Pages, 'sort' => $sort, 'order' => $_order);
+        return [
+            'Set' => $Set,
+            'Pages' => $Pages,
+            'sort' => $sort,
+            'order' => $_order
+        ];
     }
 
 
+    /**
+     * Получает данные для отображения заявок обратной связи
+     * @param bool $pagination Включить постраничную разбивку
+     * @return [
+     *             'Set' => array<Feedback> набор заявок,
+     *             'Pages' => Pages Постраничная разбивка,
+     *             'Parent' => Form Родительская форма,
+     *             'columns' => array<Form_Field> Поля для отображения,
+     *         ]
+     */
     public function feedback($pagination = true)
     {
-        $Parent = new Form(isset($this->controller->nav['id']) ? (int)$this->controller->nav['id'] : 0);
+        $Parent = new Form(
+            isset($this->controller->nav['id']) ?
+            (int)$this->controller->nav['id'] :
+            0
+        );
         $col_where = "classname = 'RAAS\\\\CMS\\\\Form' ";
         if ($pagination) {
             $col_where .= " AND show_in_table ";
         }
-        $SQL_query = "SELECT SQL_CALC_FOUND_ROWS tF.*
-                        FROM " . Feedback::_tablename() .  " AS tF
-                   LEFT JOIN " . Field::_tablename() .  " AS tFi ON tFi.pid = tF.pid AND tFi.classname = 'RAAS\\\\CMS\\\\Form'
-                   LEFT JOIN " . Feedback::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tF.id AND tD.fid = tFi.id
-                       WHERE 1 ";
-        $columns = array();
+        $sqlQuery = "SELECT SQL_CALC_FOUND_ROWS tF.*
+                       FROM " . Feedback::_tablename()
+                  . "    AS tF
+                  LEFT JOIN " . Field::_tablename()
+                  . "    AS tFi
+                         ON tFi.pid = tF.pid
+                        AND tFi.classname = 'RAAS\\\\CMS\\\\Form'
+                  LEFT JOIN " . Feedback::_dbprefix() . Material_Field::data_table
+                  .  "   AS tD
+                         ON tD.pid = tF.id
+                        AND tD.fid = tFi.id
+                      WHERE 1 ";
+        $columns = [];
         if ($Parent->id) {
-            $SQL_query .= " AND tF.pid = " . (int)$Parent->id;
+            $sqlQuery .= " AND tF.pid = " . (int)$Parent->id;
             $col_where .= " AND pid = " . (int)$Parent->id;
-            $columns = Form_Field::getSet(array('where' => $col_where));
+            $columns = Form_Field::getSet(['where' => $col_where]);
         }
-        if (isset($this->controller->nav['search_string']) && $this->controller->nav['search_string']) {
-            $SQL_query .= " AND (
-                                (tF.id = '" . $this->SQL->real_escape_string($this->controller->nav['search_string']) . "') OR
-                                (tF.ip LIKE '%" . $this->SQL->escape_like($this->controller->nav['search_string']) . "%') OR
-                                (tD.value LIKE '%" . $this->SQL->escape_like($this->controller->nav['search_string']) . "%')
+        if (isset($this->controller->nav['search_string']) &&
+            $this->controller->nav['search_string']
+        ) {
+            $likeSearchString = $this->SQL->escape_like(
+                $this->controller->nav['search_string']
+            );
+            $sqlQuery .= " AND (
+                                    (tF.id = '" . $this->SQL->real_escape_string($this->controller->nav['search_string']) . "')
+                                 OR (tF.ip LIKE '%" . $likeSearchString . "%')
+                                 OR (tD.value LIKE '%" . $likeSearchString . "%')
                             ) ";
         }
-        if (isset($this->controller->nav['from']) && $this->controller->nav['from']) {
+        if (isset($this->controller->nav['from']) &&
+            $this->controller->nav['from']
+        ) {
             $t = strtotime($this->controller->nav['from']);
             if ($t > 0) {
-                $SQL_query .= " AND tF.post_date >= '" . date('Y-m-d H:i:s', $t) . "'";
+                $sqlQuery .= " AND tF.post_date >= '" . date('Y-m-d H:i:s', $t) . "'";
             }
         }
-        if (isset($this->controller->nav['to']) && $this->controller->nav['to']) {
+        if (isset($this->controller->nav['to']) &&
+            $this->controller->nav['to']
+        ) {
             $t = strtotime($this->controller->nav['to']);
             if ($t > 0) {
-                $SQL_query .= " AND tF.post_date <= '" . date('Y-m-d H:i:s', $t) . "'";
+                $sqlQuery .= " AND tF.post_date <= '" . date('Y-m-d H:i:s', $t) . "'";
             }
         }
 
-        $SQL_query .= " GROUP BY tF.id ORDER BY tF.post_date DESC ";
+        $sqlQuery .= " GROUP BY tF.id ORDER BY tF.post_date DESC ";
         if ($pagination) {
-            $Pages = new \SOME\Pages(isset($this->controller->nav['page']) ? $this->controller->nav['page'] : 1, Application::i()->registryGet('rowsPerPage'));
-            $Set = Feedback::getSQLSet($SQL_query, $Pages);
+            $Pages = new Pages(
+                (
+                    isset($this->controller->nav['page']) ?
+                    $this->controller->nav['page'] :
+                    1
+                ),
+                Application::i()->registryGet('rowsPerPage')
+            );
         } else {
             $Pages = null;
-            $Set = Feedback::getSQLSet($SQL_query);
         }
-        return array('Set' => $Set, 'Pages' => $Pages, 'Parent' => $Parent, 'columns' => $columns);
+        $Set = Feedback::getSQLSet($sqlQuery);
+        return [
+            'Set' => $Set,
+            'Pages' => $Pages,
+            'Parent' => $Parent,
+            'columns' => $columns
+        ];
     }
 
 
+    /**
+     * Очищает кэши
+     * @param bool $all Очистить все кэши (если false, то по времени)
+     */
     public function clearCache($all = true)
     {
-        $files = array();
+        $files = [];
         $t = $this->registryGet('clear_cache_by_time');
         if (is_dir($this->cacheDir)) {
-            $dir = \SOME\File::scandir($this->cacheDir);
+            $dir = File::scandir($this->cacheDir);
             foreach ($dir as $f) {
-                if (is_file($this->cacheDir . '/' . $f) && preg_match('/^' . preg_quote($this->cachePrefix) . '(.*?)\\.php$/i', $f)) {
+                if (is_file($this->cacheDir . '/' . $f) && preg_match(
+                    '/^' . preg_quote($this->cachePrefix) . '(.*?)\\.php$/i',
+                    $f
+                )) {
                     $f = $this->cacheDir . '/' . $f;
                     if ($all || !$t || (filemtime($f) < time() - ($t * 60))) {
                         $files[] = $f;
@@ -503,13 +809,22 @@ class Package extends \RAAS\Package
     }
 
 
+    /**
+     * Очищает кэши блоков
+     */
     public function clearBlocksCache()
     {
-        $files = array();
+        $files = [];
         if (is_dir($this->cacheDir)) {
-            $dir = \SOME\File::scandir($this->cacheDir);
+            $dir = File::scandir($this->cacheDir);
             foreach ($dir as $f) {
-                if (is_file($this->cacheDir . '/' . $f) && preg_match('/^' . preg_quote($this->cachePrefix) . '_block(.*?)\\.php$/i', $f)) {
+                if (is_file($this->cacheDir . '/' . $f) && preg_match(
+                    (
+                        '/^' . preg_quote($this->cachePrefix) .
+                        '_block(.*?)\\.php$/i'
+                    ),
+                    $f
+                )) {
                     $f = $this->cacheDir . '/' . $f;
                     @unlink($f);
                 }
@@ -520,22 +835,50 @@ class Package extends \RAAS\Package
 
     /**
      * Получает карту необходимых кэшей
+     * @return array<int[] ID# страницы => array<int[] ID# материала => array<
+     *             'id' => int ID# страницы,
+     *             'mid' =>? int ID# материала,
+     *             'url' => string Полный адрес страницы или страницы материала,
+     *             'name' => string Наименование страницы или материала,
+     *             'cache' => int Включено ли кэширование (1) или отключено (0)
+     *         >>>
      */
     public function getCacheMap()
     {
-        $Set = array();
+        $Set = [];
 
         // Строим полную карту сайта
-        $siteMap = array();
-        $SQL_result = Page::_SQL()->get("SELECT * FROM " . Page::_tablename() . " WHERE vis AND NOT response_code");
-        foreach ($SQL_result as $row) {
+        $siteMap = [];
+        $sqlQuery = "SELECT *
+                       FROM " . Page::_tablename()
+                  . " WHERE vis
+                        AND NOT response_code";
+        $sqlResult = Page::_SQL()->get($sqlQuery);
+        foreach ($sqlResult as $row) {
             $row = new Page($row);
-            $domainUrl = preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $row->Domain->urn)
-                       ? 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST']
-                       : $row->domain;
-            $siteMap[(int)$row->id][0] = array('id' => $row->id, 'url' => $domainUrl . $row->url, 'name' => $row->name, 'cache' => $row->cache);
+            if (preg_match(
+                '/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i',
+                $row->Domain->urn
+            )) {
+                $domainUrl = 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '')
+                           . '://' . $_SERVER['HTTP_HOST'];
+            } else {
+                $domainUrl = $row->domain;
+            }
+            $siteMap[(int)$row->id][0] = [
+                'id' => $row->id,
+                'url' => $domainUrl . $row->url,
+                'name' => $row->name,
+                'cache' => $row->cache
+            ];
             foreach ($row->affectedMaterials as $row2) {
-                $siteMap[(int)$row->id][(int)$row2->id] = array('id' => $row->id, 'mid' => $row2->id, 'url' => $domainUrl . $row2->url, 'name' => $row2->name, 'cache' => $row->cache);
+                $siteMap[(int)$row->id][(int)$row2->id] = [
+                    'id' => $row->id,
+                    'mid' => $row2->id,
+                    'url' => $domainUrl . $row2->url,
+                    'name' => $row2->name,
+                    'cache' => $row->cache
+                ];
                 $row2->reload();
             }
             $row->reload();
@@ -551,16 +894,26 @@ class Package extends \RAAS\Package
         }
 
         // Блоки
-        $blocksData = Block::_SQL()->get("SELECT * FROM " . Block::_tablename() . " WHERE cache_type");
+        $sqlQuery = "SELECT *
+                       FROM " . Block::_tablename()
+                  . " WHERE cache_type";
+        $blocksData = Block::_SQL()->get($sqlQuery);
         foreach ($blocksData as $block) {
             $block = Block::spawn($block);
             if ($block->cache_single_page) {
-                // Блок везде разный. Нужны все страницы, на которых присутствует блок
+                // Блок везде разный. Нужны все страницы, на которых
+                // присутствует блок
                 foreach ($block->pages_ids as $pid) {
                     foreach ($siteMap[$pid] as $mid => $val) {
                         if (($block->vis_material == Block::BYMATERIAL_BOTH) ||
-                            ($mid && ($block->vis_material == Block::BYMATERIAL_WITH)) ||
-                            (!$mid && ($block->vis_material == Block::BYMATERIAL_WITHOUT))
+                            (
+                                $mid &&
+                                ($block->vis_material == Block::BYMATERIAL_WITH)
+                            ) ||
+                            (
+                                !$mid &&
+                                ($block->vis_material == Block::BYMATERIAL_WITHOUT)
+                            )
                         ) {
                             $Set[$pid][$mid] = $val;
                         }
@@ -571,15 +924,23 @@ class Package extends \RAAS\Package
                 foreach ($block->pages_ids as $pid) {
                     if (isset($Set[$pid])) {
                         if (($block->vis_material == Block::BYMATERIAL_BOTH) ||
-                            (($block->vis_material == Block::BYMATERIAL_WITH) && (array_keys($Set[$pid]) != array(0))) ||
-                            (($block->vis_material == Block::BYMATERIAL_WITHOUT) && isset($Set[$pid][0]))
+                            (
+                                ($block->vis_material == Block::BYMATERIAL_WITH) &&
+                                (array_keys($Set[$pid]) != [0])
+                            ) ||
+                            (
+                                ($block->vis_material == Block::BYMATERIAL_WITHOUT) &&
+                                isset($Set[$pid][0])
+                            )
                         ) {
                             continue;
                         }
                     }
                 }
                 $pid = $block->pages_ids[0];
-                if (($block->vis_material == Block::BYMATERIAL_BOTH) || ($block->vis_material == Block::BYMATERIAL_WITHOUT)) {
+                if (($block->vis_material == Block::BYMATERIAL_BOTH) ||
+                    ($block->vis_material == Block::BYMATERIAL_WITHOUT)
+                ) {
                     $Set[$pid][0] = $siteMap[$pid][0];
                 } else {
                     foreach ($siteMap[$pid] as $mid => $val) {
@@ -592,7 +953,7 @@ class Package extends \RAAS\Package
             }
         }
 
-        $Set2 = array();
+        $Set2 = [];
         foreach ($Set as $pid => $temp) {
             foreach ($temp as $mid => $val) {
                 unset($val['cache']);
@@ -605,6 +966,7 @@ class Package extends \RAAS\Package
 
 
     /**
+     * Очищает кэши
      * @deprecated
      */
     public function cleanCache()
@@ -613,67 +975,124 @@ class Package extends \RAAS\Package
     }
 
 
-    public function copyItem(\SOME\SOME $Item)
+    /**
+     * Копирует сущность, без коммита
+     * @param SOME $item Копируемая сущность
+     * @return SOME Скопированная сущность
+     */
+    public function copyItem(SOME $item)
     {
-        $classname = get_class($Item);
-        $Item2 = clone($Item);
-        // 2018-04-03, AVS: заменил везде '/\\d+$/umi' на / \\d+$/umi, чтобы не травмировать числовые наименования
+        $classname = get_class($item);
+        $item2 = clone($item);
+        // 2018-04-03, AVS: заменил везде '/\\d+$/umi' на / \\d+$/umi,
+        // чтобы не травмировать числовые наименования
+        $sqlQuery = "SELECT COUNT(*)
+                       FROM " . $classname::_tablename()
+                  . " WHERE name = ?";
         do {
-            if (preg_match('/ \\d+$/umi', trim($Item2->name), $regs)) {
+            if (preg_match('/ \\d+$/umi', trim($item2->name), $regs)) {
                 $i = (int)$regs[0] + 1;
-                $Item2->name = preg_replace('/ \\d+$/umi', ' ' . $i, trim($Item2->name));
+                $item2->name = preg_replace(
+                    '/ \\d+$/umi',
+                    ' ' . $i,
+                    trim($item2->name)
+                );
             } else {
                 $i = 2;
-                $Item2->name .= ' ' . $i;
+                $item2->name .= ' ' . $i;
             }
-        } while ((int)$this->SQL->getvalue(array("SELECT COUNT(*) FROM " . $classname::_tablename() . " WHERE name = ?", $Item2->name)));
-        // 2018-04-03, AVS: заменил везде '/\\d+$/umi' на /_\\d+$/umi, чтобы не травмировать числовые URN'ы
-        if (preg_match('/_\\d+$/umi', trim($Item2->urn), $regs)) {
-            $Item2->urn = preg_replace('/_\\d+$/umi', '_' . $i, trim($Item2->urn));
+        } while ((int)$this->SQL->getvalue([$sqlQuery, $item2->name]));
+
+        // 2018-04-03, AVS: заменил везде '/\\d+$/umi' на /_\\d+$/umi,
+        // чтобы не травмировать числовые URN'ы
+        if (preg_match('/_\\d+$/umi', trim($item2->urn), $regs)) {
+            $item2->urn = preg_replace(
+                '/_\\d+$/umi',
+                '_' . $i,
+                trim($item2->urn)
+            );
         } else {
-            $Item2->urn .= '_' . $i;
+            $item2->urn .= '_' . $i;
         }
-        while ((int)Package::i()->SQL->getvalue(array("SELECT COUNT(*) FROM " . $classname::_tablename() . " WHERE urn = ? AND id != ?", $Item2->urn, (int)$Item2->id))) {
-            $Item2->urn = '_' . $Item2->urn . '_';
+        $sqlQuery = "SELECT COUNT(*)
+                       FROM " . $classname::_tablename()
+                  . " WHERE urn = ?
+                        AND id != ?";
+        while ((int)Package::i()->SQL->getvalue([
+            $sqlQuery,
+            $item2->urn,
+            (int)$item2->id
+        ])) {
+            $item2->urn = '_' . $item2->urn . '_';
         }
-        return $Item2;
+        return $item2;
     }
 
 
-    public function setEntitiesPriority($classname, array $priorities = array())
+    /**
+     * Устанавливает порядки отображения для сущностей
+     * @param string $classname Класс сущности
+     * @param array<
+     *            (int|string)[] ID# сущности => int Порядок отображения
+     *        > $priorities Порядки отображения
+     */
+    public function setEntitiesPriority($classname, array $priorities = [])
     {
         foreach ($priorities as $key => $val) {
-            $this->SQL->update($classname::_tablename(), "id = " . (int)$key, array('priority' => (int)$val));
+            $this->SQL->update(
+                $classname::_tablename(),
+                "id = " . (int)$key,
+                ['priority' => (int)$val]
+            );
         }
     }
 
 
-    public function getMaterialsBySearch($search, $mtype = 0, $limit = 50)
-    {
+    /**
+     * Получает материалы по поиску
+     * @param string $search Поисковая строка
+     * @param int $mtypeId ID# типа материалов
+     * @param int $limit Лимит выборки
+     * @param bool $onlyByName Искать только по наименованию
+     * @return array<Material>
+     */
+    public function getMaterialsBySearch(
+        $search,
+        $mtypeId = 0,
+        $limit = 50,
+        $onlyByName = false
+    ) {
         // 2016-01-14, AVS: Сделал $limit 50 вместо 10
-        $Material_Type = new Material_Type((int)$mtype);
-        // 2016-01-14, AVS: сделал поиск по данным вместо названия. Возможно, вызовет перегруз, но нужно тогда решать вопрос с базой
-        // 2017-09-25, AVS: заменил JOIN на LEFT JOIN у cms_data и cms_fields, т.к. у материалов может и не быть кастомных полей
-        $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM
-                   LEFT JOIN " . Material_Field::_dbprefix() . Material_Field::data_table . " AS tD ON tD.pid = tM.id
-                   LEFT JOIN " . Material_Field::_tablename() . " AS tF ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.id = tD.fid
-                       WHERE (
-                                tM.name LIKE '%" . $this->SQL->escape_like($search) . "%'
-                             OR tM.urn LIKE '%" . $this->SQL->escape_like($search) . "%'
-                             OR tM.description LIKE '%" . $this->SQL->escape_like($search) . "%'
-                             OR tD.value LIKE '%" . $this->SQL->escape_like($search) . "%'
-                        ) ";
-        // $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM
-        //                WHERE (
-        //                         tM.name LIKE '%" . $this->SQL->escape_like($search) . "%'
-        //                      OR tM.description LIKE '%" . $this->SQL->escape_like($search) . "%'
-        //                 ) ";
-        if ($Material_Type->id) {
-            $ids = array_merge(array((int)$Material_Type->id), (array)$Material_Type->all_children_ids);
-            $SQL_query .= " AND tM.pid IN (" . implode(", ", $ids) . ") ";
+        $Material_Type = new Material_Type((int)$mtypeId);
+        // 2016-01-14, AVS: сделал поиск по данным вместо названия.
+        // Возможно, вызовет перегруз, но нужно тогда решать вопрос с базой
+        // 2017-09-25, AVS: заменил JOIN на LEFT JOIN у cms_data и cms_fields,
+        // т.к. у материалов может и не быть кастомных полей
+        $likeSearchString = $this->SQL->escape_like($search);
+        $sqlQuery = "SELECT tM.* FROM " . Material::_tablename() . " AS tM ";
+        if (!$onlyByName) {
+            $sqlQuery .= " LEFT JOIN " . Material_Field::_dbprefix() . Material_Field::data_table
+                      .  "   AS tD
+                             ON tD.pid = tM.id
+                           LEFT JOIN " . Material_Field::_tablename()
+                      . "    AS tF
+                             ON tF.classname = 'RAAS\\\\CMS\\\\Material_Type'
+                            AND tF.id = tD.fid";
         }
-        $SQL_query .= " GROUP BY tM.id ORDER BY tM.name LIMIT " . (int)$limit;
-        $Set = Material::getSQLSet($SQL_query);
+        $sqlQuery .= " WHERE (
+                               tM.name LIKE '%" . $likeSearchString . "%' ";
+        if (!$onlyByName) {
+            $sqlQuery .= "  OR tM.urn LIKE '%" . $likeSearchString . "%'
+                            OR tM.description LIKE '%" . $likeSearchString . "%'
+                            OR tD.value LIKE '%" . $likeSearchString . "%' ";
+        }
+        $sqlQuery .= " ) ";
+        if ($Material_Type->id) {
+            $ids = $Material_Type->selfAndChildrenIds;
+            $sqlQuery .= " AND tM.pid IN (" . implode(", ", $ids) . ") ";
+        }
+        $sqlQuery .= " GROUP BY tM.id ORDER BY tM.name LIMIT " . ((int)$limit ?: 50);
+        $Set = Material::getSQLSet($sqlQuery);
         return $Set;
     }
 
@@ -692,41 +1111,68 @@ class Package extends \RAAS\Package
             CMSAccess::refreshPagesAccessCache();
             CMSAccess::refreshMaterialsAccessCache();
             CMSAccess::refreshBlocksAccessCache();
+            Material_Type::updateAffectedPagesForSelf();
+            Material_Type::updateAffectedPagesForMaterials();
         }
     }
 
 
-    public static function tn($filename, $w = null, $h = null, $mode = null)
+    /**
+     * Получает имя файла эскиза к изображению
+     * @param string $filename Имя файла оригинального изображения
+     * @param int|null $width Ширина эскиза
+     * @param int|null $height Высота эскиза
+     * @param 'inline'|'frame'|'crop'|null $mode Режим создания эскиза
+     * @return string
+     */
+    public static function tn(
+        $filename,
+        $width = null,
+        $height = null,
+        $mode = null
+    )
     {
         $temp = pathinfo($filename);
-        $outputFile = ltrim($temp['dirname'] ? $temp['dirname'] . '/' : '') . $temp['filename'] . '.' . ($w ?: 'auto') . 'x' . ($h ?: 'auto') . ($mode ? '_' . $mode : '') . '.' . $temp['extension'];
+        $outputFile = ltrim($temp['dirname'] ? $temp['dirname'] . '/' : '')
+                    . $temp['filename'] . '.'
+                    . ($width ?: 'auto') . 'x' . ($height ?: 'auto')
+                    . ($mode ? '_' . $mode : '') . '.' . $temp['extension'];
         return $outputFile;
     }
 
 
     /**
-     * Ищет сущности с таким же URN, как и текущая (для проверки на уникальность)
-     * @param \SOME\SOME $Object сущность для проверки
-     * @return bool TRUE, если уже есть сущность с таким URN, как и текущий, FALSE в противном случае
+     * Ищет сущности с таким же URN, как и текущая
+     * (для проверки на уникальность)
+     * @param SOME $Object сущность для проверки
+     * @return bool true, если уже есть сущность с таким URN, как и текущий,
+     *              false в противном случае
      */
-    public function checkForSimilar(\SOME\SOME $Object)
+    public function checkForSimilar(SOME $Object)
     {
         $classname = get_class($Object);
-        $SQL_query = "SELECT COUNT(*) FROM " . $classname::_tablename() . " WHERE urn = ? AND id != ?";
-        $SQL_result = $classname::_SQL()->getvalue(array($SQL_query, $Object->urn, (int)$Object->id));
-        $c = (bool)(int)$SQL_result;
+        $sqlQuery = "SELECT COUNT(*)
+                       FROM " . $classname::_tablename()
+                  . " WHERE urn = ?
+                        AND id != ?";
+        $sqlResult = $classname::_SQL()->getvalue([
+            $sqlQuery,
+            $Object->urn,
+            (int)$Object->id
+        ]);
+        $c = (bool)(int)$sqlResult;
         return $c;
     }
 
 
     /**
      * Меняет URN до тех пор, пока не находит уникальный
-     * @param \SOME\SOME $Object сущность для изменения URN
+     * @param SOME $Object сущность для изменения URN
      * @return string Назначенный URN
      */
-    public function getUniqueURN(\SOME\SOME $Object)
+    public function getUniqueURN(SOME $Object)
     {
-        $Object->urn = \SOME\Text::beautify($Object->urn);
+        $Object->urn = Text::beautify($Object->urn);
         for ($i = 0; $this->checkForSimilar($Object); $i++) {
             $Object->urn = Application::i()->getNewURN($Object->urn, !$i);
         }
@@ -737,10 +1183,15 @@ class Package extends \RAAS\Package
     /**
      * Возвращает функцию сравнения для полей
      * @param string $key поле для сравнения
+     * @param bool $reverse В обратном порядке
+     * @param bool $priorityFirst Сначала по порядку отображения
      * @return callable
      */
-    public function getCompareFunction($key, $reverse = false, $priorityFirst = false)
-    {
+    public function getCompareFunction(
+        $key,
+        $reverse = false,
+        $priorityFirst = false
+    ) {
         return function ($a, $b) use ($key, $reverse, $priorityFirst) {
             if ($priorityFirst && ($a->priority != $b->priority)) {
                 if ($a->priority && !$b->priority) {
@@ -750,20 +1201,33 @@ class Package extends \RAAS\Package
                 }
                 return (int)$a->priority - (int)$b->priority;
             }
-            if (in_array($key, array('urn', 'name', 'post_date', 'modify_date'))) {
+            if (in_array($key, ['urn', 'name', 'post_date', 'modify_date'])) {
                 $c = strcasecmp($a->$key, $b->$key);
-            } elseif (in_array($key, array('priority'))) {
+            } elseif (in_array($key, ['priority'])) {
                 $c = ((int)$a->$key - (int)$b->$key);
             } elseif (isset($a->fields[$key], $b->fields[$key])) {
-                if (is_object($a->fields[$key]->doRich()) || is_object($b->fields[$key]->doRich())) {
-                    $c = ((bool)$a->fields[$key]->doRich() - (bool)$b->fields[$key]->doRich());
+                if (is_object($a->fields[$key]->doRich()) ||
+                    is_object($b->fields[$key]->doRich())
+                ) {
+                    $c = (bool)$a->fields[$key]->doRich()
+                       - (bool)$b->fields[$key]->doRich();
                 } else {
-                    $c = strcasecmp($a->fields[$key]->doRich(), $b->fields[$key]->doRich());
+                    $c = strcasecmp(
+                        $a->fields[$key]->doRich(),
+                        $b->fields[$key]->doRich()
+                    );
                 }
             } else {
                 $c = strcasecmp($a->$key, $b->$key);
             }
             return ($reverse ? -1 : 1) * $c;
         };
+    }
+
+
+    public function autoload($class)
+    {
+        require_once $this->classesDir . '/controller_frontend.class.php';
+        parent::autoload($class);
     }
 }

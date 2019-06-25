@@ -14,8 +14,10 @@ class GetPageCacheCommand extends LockCommand
     /**
      * Выполнение команды
      * @param string|null $mtypeURN URN типа материалов кэша
-     * @param bool $forceUpdate Принудительно выполнить обновление, даже если материалы не были обновлены
-     * @param bool $forceLockUpdate Принудительно выполнить обновление, даже если есть параллельный процесс
+     * @param bool $forceUpdate Принудительно выполнить обновление,
+     *                          даже если материалы не были обновлены
+     * @param bool $forceLockUpdate Принудительно выполнить обновление,
+     *                              даже если есть параллельный процесс
      * @param bool $clearBlocksCache Очистить кэши блоков
      */
     public function process(
@@ -28,7 +30,7 @@ class GetPageCacheCommand extends LockCommand
         }
         $args = func_get_args();
         $args = array_slice($args, 3);
-        $pagesToUpdate = array();
+        $pagesToUpdate = [];
         $limit = 0;
         $this->lock();
         if ($clearBlocksCache) {
@@ -48,12 +50,19 @@ class GetPageCacheCommand extends LockCommand
             }
         } else {
             $limit = (int)$args[0];
-            $sqlQuery = "( SELECT id, 'p' AS datatype, visit_counter, last_modified
+            $sqlQuery = "( SELECT id,
+                                  'p' AS datatype,
+                                  visit_counter,
+                                  last_modified
                              FROM " . Page::_tablename()
                       . " ) UNION ALL (
-                           SELECT id, 'm' AS datatype, visit_counter, last_modified
+                           SELECT id,
+                                  'm' AS datatype,
+                                  visit_counter,
+                                  last_modified
                              FROM " . Material::_tablename()
-                      . " )
+                      . "   WHERE cache_url != ''
+                          )
                           ORDER BY (datatype = 'p') DESC, visit_counter DESC";
             $sqlResult = Page::_SQL()->get($sqlQuery);
             $i = 0;
@@ -63,12 +72,11 @@ class GetPageCacheCommand extends LockCommand
                 }
                 $result = false;
                 if ($sqlRow['datatype'] == 'p') {
-                    $result = $this->updatePage(new Page($sqlRow['id']), $forceUpdate);
+                    $page = new Page($sqlRow['id']);
+                    $result = $this->updatePage($page, $forceUpdate);
                 } else {
                     $material = new Material($sqlRow['id']);
-                    if ($material->affectedPages) {
-                        $result = $this->updateMaterial($material, $forceUpdate);
-                    }
+                    $result = $this->updateMaterial($material, $forceUpdate);
                 }
                 if ($result) {
                     $i++;
@@ -82,13 +90,16 @@ class GetPageCacheCommand extends LockCommand
     /**
      * Обновить кэш страницы
      * @param Page $page Страница
-     * @param bool $forceUpdate Принудительно выполнить обновление, даже если страница не была обновлена
+     * @param bool $forceUpdate Принудительно выполнить обновление,
+     *                          даже если страница не была обновлена
      * @return bool Обновлен ли кэш страницы
      */
     public function updatePage(Page $page, $forceUpdate)
     {
         if (!$page->cache) {
-            $this->controller->doLog('Page "' . $page->url . '": is not cached');
+            $this->controller->doLog(
+                'Page #' . (int)$page->id . ' "' . $page->url . '": is not cached'
+            );
             return false;
         }
         $cachefile = $page->cacheFile;
@@ -96,13 +107,15 @@ class GetPageCacheCommand extends LockCommand
         if (is_file($cachefile)) {
             $ft = filemtime($cachefile);
             if (($ft >= $mt) && !$forceUpdate) {
-                $this->controller->doLog('Page "' . $page->url . '": data is actual');
+                $this->controller->doLog(
+                    'Page #' . (int)$page->id . ' "' . $page->url . '": data is actual'
+                );
                 return false;
             }
         }
         $page->rebuildCache();
         $this->controller->doLog(
-            'Page "' . $page->url . '": (' .
+            'Page #' . (int)$page->id . ' "' . $page->url . '": (' .
             ($ft > 0 ? date('Y-m-d H:i:s ', $ft) : '') .
             '->' .
             ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : '') .
@@ -115,18 +128,24 @@ class GetPageCacheCommand extends LockCommand
     /**
      * Обновить кэш материала
      * @param Material $material Материал
-     * @param bool $forceUpdate Принудительно выполнить обновление, даже если материал не были обновлен
+     * @param bool $forceUpdate Принудительно выполнить обновление,
+     *                          даже если материал не были обновлен
      * @return bool Обновлен ли кэш материала
      */
     public function updateMaterial(Material $material, $forceUpdate)
     {
-        if (!$material->affectedPages) {
-            $this->controller->doLog('Material "' . $page->url . '": has no affected pages');
+        if (!$material->cache_url) {
+            $this->controller->doLog(
+                'Material #' . (int)$material->id . ' "' . $page->url .
+                '": has no actual URL'
+            );
             return false;
         }
-        $page = $material->affectedPages[0];
+        $page = $material->urlParent;
         if (!$page->cache) {
-            $this->controller->doLog('Page "' . $page->url . '": is not cached');
+            $this->controller->doLog(
+                'Page #' . (int)$page->id . ' "' . $page->url . '": is not cached'
+            );
             return false;
         }
         $page->Material = $material;
@@ -135,13 +154,16 @@ class GetPageCacheCommand extends LockCommand
         if (is_file($cachefile)) {
             $ft = filemtime($cachefile);
             if (($ft >= $mt) && !$forceUpdate) {
-                $this->controller->doLog('Material "' . $material->url . '": data is actual');
+                $this->controller->doLog(
+                    'Material #' . (int)$material->id . ' "' . $material->url .
+                    '": data is actual'
+                );
                 return false;
             }
         }
         $page->rebuildCache();
         $this->controller->doLog(
-            'Material "' . $material->url . '": (' .
+            'Material #' . (int)$material->id . ' "' . $material->url . '": (' .
             ($ft > 0 ? date('Y-m-d H:i:s ', $ft) : '') .
             '->' .
             ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : '') .
@@ -167,7 +189,9 @@ class GetPageCacheCommand extends LockCommand
             $page->initialURL = $initUrl;
             if (count($page->additionalURLArray) == 1) {
                 $material = Material::importByURN($page->additionalURLArray[0]);
-                // 2016-02-24, AVS: Добавил проверку in_array(...), т.к. странице присваивались материалы, которых на ней в принципе быть не может
+                // 2016-02-24, AVS: Добавил проверку in_array(...),
+                // т.к. странице присваивались материалы, которых на ней
+                // в принципе быть не может
                 if ($material
                     && $material->id
                     && in_array($page->id, array_map(function ($x) {

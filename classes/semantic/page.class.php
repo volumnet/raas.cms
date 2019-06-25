@@ -1,43 +1,158 @@
 <?php
+/**
+ * Страница
+ */
 namespace RAAS\CMS;
 
-use \RAAS\Attachment;
-use \RAAS\Application;
+use SOME\SOME;
+use SOME\Text;
+use RAAS\Attachment;
+use RAAS\Application;
+use RAAS\User as RAASUser;
 
-class Page extends \SOME\SOME implements IAccessible
+/**
+ * Класс страницы
+ * @property-read array<Block> $blocksOrdered Упорядоченные по порядку
+ *                                            отображения блоки страницы
+ * @property-read array<Page_Field> $fields Поля страницы
+ *                                          с установленным свойством $Owner
+ * @property-read array<
+ *                    Material_Type
+ *                > $affectedMaterialTypesWithChildren Типы материалов,
+ *                                                     присутствующие на данной
+ *                                                     и дочерних страницах
+ * @property-read Page $Domain Доменная страница
+ * @property-read array<Page> $selfAndChildren Текущая и дочерние страницы
+ * @property-read array<int> $selfAndChildrenIds ID# текущей и дочерних страницы
+ * @property-read array<Page> $selfAndParents Текущая и родительские страницы
+ * @property-read array<int> $selfAndParentsIds ID# текущей и родительских
+ *                                                  страниц
+ * @property-read Page $parent Родительская страница
+ * @property-read RAASUser $author Автор страницы
+ * @property-read RAASUser $editor Редактор страницы
+ * @property-read Template $Template Шаблон страницы
+ * @property-read array<Page> $parents Родительские страницы
+ * @property-read array<Page> $children Дочерние страницы
+ * @property-read array<CMSAccess> $access Доступы страницы
+ * @property-read array<Block> $blocks Блоки страницы
+ * @property-read array<Material> $materials Материалы, привязанные к странице
+ * @property-read array<User> $allowedUsers Пользователи, которым разрешен
+ *                                          просмотр страницы
+ * @property-read array<
+ *                    Material_Type
+ *                > $affectedMaterialTypes Типы материалов, задействованные
+ *                                         на странице
+ * @property-read array<Material> $affectedMaterials Материалы, задействованные
+ *                                                   на странице
+ * @property-read array<string> $URLArray Массив URN из URL
+ * @property-read string $url URL страницы
+ * @property-read string $additionalURL Дополнительная часть ("хвост") URL
+ * @property-read array<string> $additionalURLArray Массив URN из дополнительной
+ *                                                  части ("хвоста") URL
+ * @property-read array<
+ *                    string[] URN размещения => array<Block>
+ *                > $blocksByLocations Блоки по размещениям
+ * @property-read string $domain URL домена (включая схему)
+ * @property-read array<Page> $visChildren Видимые страницы
+ * @property-read array<
+ *                    string[] URN размещения => array<string>
+ *                > $locationBlocksText Тексты обработанных блоков
+ *                                      по размещениям
+ * @property-read string $cacheFile Путь к файлу кэша
+ */
+class Page extends SOME
 {
+    use RecursiveTrait;
+    use AccessibleTrait;
+    use PageoidTrait;
+
     protected static $tablename = 'cms_pages';
+
     protected static $defaultOrderBy = "priority";
-    protected static $cognizableVars = array(
+
+    protected static $cognizableVars = [
         'blocksOrdered',
         'fields',
-        'affectedMaterialTypes',
         'affectedMaterialTypesWithChildren',
-        'affectedMaterials',
         'Domain',
         'selfAndChildren',
         'selfAndChildrenIds',
         'selfAndParents',
         'selfAndParentsIds',
-    );
+    ];
+
     protected static $objectCascadeDelete = true;
 
-    protected static $references = array(
-        'parent' => array('FK' => 'pid', 'classname' => 'RAAS\\CMS\\Page', 'cascade' => true),
-        'author' => array('FK' => 'author_id', 'classname' => 'RAAS\\User', 'cascade' => false),
-        'editor' => array('FK' => 'editor_id', 'classname' => 'RAAS\\User', 'cascade' => false),
-        'Template' => array('FK' => 'template', 'classname' => 'RAAS\\CMS\\Template', 'cascade' => false),
-    );
-    protected static $parents = array('parents' => 'parent');
-    protected static $children = array(
-        'children' => array('classname' => 'RAAS\\CMS\\Page', 'FK' => 'pid'),
-        'access' => array('classname' => 'RAAS\\CMS\\CMSAccess', 'FK' => 'page_id'),
-    );
-    protected static $links = array(
-        'blocks' => array('tablename' => 'cms_blocks_pages_assoc', 'field_from' => 'page_id', 'field_to' => 'block_id', 'classname' => 'RAAS\\CMS\\Block'),
-        'materials' => array('tablename' => 'cms_materials_pages_assoc', 'field_from' => 'pid', 'field_to' => 'id', 'classname' => 'RAAS\\CMS\\Material'),
-        'allowedUsers' => array('tablename' => 'cms_access_pages_cache', 'field_from' => 'page_id', 'field_to' => 'uid', 'classname' => 'RAAS\\CMS\\User'),
-    );
+    protected static $references = [
+        'parent' => [
+            'FK' => 'pid',
+            'classname' => Page::class,
+            'cascade' => true
+        ],
+        'author' => [
+            'FK' => 'author_id',
+            'classname' => RAASUser::class,
+            'cascade' => false
+        ],
+        'editor' => [
+            'FK' => 'editor_id',
+            'classname' => RAASUser::class,
+            'cascade' => false
+        ],
+        'Template' => [
+            'FK' => 'template',
+            'classname' => Template::class,
+            'cascade' => false
+        ],
+    ];
+
+    protected static $parents = [
+        'parents' => 'parent'
+    ];
+
+    protected static $children = [
+        'children' => [
+            'classname' => Page::class,
+            'FK' => 'pid'
+        ],
+        'access' => [
+            'classname' => CMSAccess::class,
+            'FK' => 'page_id'
+        ],
+    ];
+
+    protected static $links = [
+        'blocks' => [
+            'tablename' => 'cms_blocks_pages_assoc',
+            'field_from' => 'page_id',
+            'field_to' => 'block_id',
+            'classname' => Block::class
+        ],
+        'materials' => [
+            'tablename' => 'cms_materials_pages_assoc',
+            'field_from' => 'pid',
+            'field_to' => 'id',
+            'classname' => Material::class
+        ],
+        'allowedUsers' => [
+            'tablename' => 'cms_access_pages_cache',
+            'field_from' => 'page_id',
+            'field_to' => 'uid',
+            'classname' => User::class
+        ],
+        'affectedMaterialTypes' => [
+            'tablename' => 'cms_material_types_affected_pages_for_self_cache',
+            'field_from' => 'page_id',
+            'field_to' => 'material_type_id',
+            'classname' => Material_Type::class
+        ],
+        'affectedMaterials' => [
+            'tablename' => 'cms_materials_affected_pages_cache',
+            'field_from' => 'page_id',
+            'field_to' => 'material_id',
+            'classname' => Material::class
+        ],
+    ];
 
     protected static $caches = [
         'pvis' => [
@@ -50,7 +165,11 @@ class Page extends \SOME\SOME implements IAccessible
         ],
     ];
 
-    public static $httpStatuses = array(
+    /**
+     * Расшифровки HTTP-статусов
+     * @var array<int[] Код статуса => string Расшифровка>
+     */
+    public static $httpStatuses = [
         100 => '100 Continue',
         101 => '101 Switching Protocols',
         102 => '102 Processing',
@@ -107,7 +226,7 @@ class Page extends \SOME\SOME implements IAccessible
         508 => '508 Loop Detected',
         509 => '509 Bandwidth Limit Exceeded',
         510 => '510 Not Extended',
-    );
+    ];
 
     /**
      * MIME-типы
@@ -122,7 +241,13 @@ class Page extends \SOME\SOME implements IAccessible
         'application/json',
     ];
 
-    protected static $inheritedFields = array(
+    /**
+     * Список наследуемых полей
+     * @var array<
+     *          string[] URN поля наследования => string URN оригинального поля
+     *      >
+     */
+    protected static $inheritedFields = [
         'inherit_meta_title' => 'meta_title',
         'inherit_meta_description' => 'meta_description',
         'inherit_meta_keywords' => 'meta_keywords',
@@ -131,9 +256,13 @@ class Page extends \SOME\SOME implements IAccessible
         'inherit_template' => 'template',
         'inherit_lang' => 'lang',
         'inherit_cache' => 'cache'
-    );
+    ];
 
-    private $locationBlocksText = array();
+    /**
+     * Блоки по размещениям
+     * @var array<string[] URN размещения => array<Block>>
+     */
+    private $locationBlocksText = [];
 
     public function __get($var)
     {
@@ -145,7 +274,11 @@ class Page extends \SOME\SOME implements IAccessible
                 return $this->cache_url;
                 break;
             case 'additionalURL':
-                $url = preg_replace('/^' . preg_quote($this->url, '/') . '/umi', '', $this->initialURL);
+                $url = preg_replace(
+                    '/^' . preg_quote($this->url, '/') . '/umi',
+                    '',
+                    $this->initialURL
+                );
                 $url = trim($url);
                 return $url;
             case 'additionalURLArray':
@@ -156,7 +289,7 @@ class Page extends \SOME\SOME implements IAccessible
                 $urlArray = array_values($urlArray);
                 return $urlArray;
             case 'blocksByLocations':
-                $blocks = array();
+                $blocks = [];
                 foreach ($this->blocksOrdered as $row) {
                     if (isset($this->Template->locations[$row->location])) {
                         $blocks[$row->location][] = $row;
@@ -168,7 +301,8 @@ class Page extends \SOME\SOME implements IAccessible
                 break;
             case 'domain':
                 $temp = explode(' ', $this->Domain->urn);
-                return 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . preg_replace('/^http(s)?:\\/\\//umi', '', $temp[0]);
+                return 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' .
+                       preg_replace('/^http(s)?:\\/\\//umi', '', $temp[0]);
                 break;
             case 'visChildren':
                 return array_values(
@@ -184,15 +318,25 @@ class Page extends \SOME\SOME implements IAccessible
                 return $this->locationBlocksText;
                 break;
             case 'cacheFile':
-                $url = preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $this->Domain->urn)
-                     ? $_SERVER['HTTP_HOST']
-                     : preg_replace('/^http(s)?:\\/\\//umi', '', $this->domain);
+                if (preg_match(
+                    '/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i',
+                    $this->Domain->urn
+                )) {
+                    $url = $_SERVER['HTTP_HOST'];
+                } else {
+                    $url = preg_replace(
+                        '/^http(s)?:\\/\\//umi',
+                        '',
+                        $this->domain
+                    );
+                }
                 if ($this->Material->id) {
                     $url .= $this->Material->url;
                 } else {
                     $url .= $this->url;
                 }
-                $url = Package::i()->cacheDir . '/' . Package::i()->cachePrefix . '.' . urlencode($url) . '.php';
+                $url = Package::i()->cacheDir . '/' . Package::i()->cachePrefix
+                     . '.' . urlencode($url) . '.php';
                 return $url;
                 break;
             default:
@@ -204,7 +348,9 @@ class Page extends \SOME\SOME implements IAccessible
                         $var = strtolower(substr($var, 3));
                         $vis = true;
                     }
-                    if (isset($this->fields[$var]) && ($this->fields[$var] instanceof Page_Field)) {
+                    if (isset($this->fields[$var]) &&
+                        ($this->fields[$var] instanceof Page_Field)
+                    ) {
                         $temp = $this->fields[$var]->getValues();
                         if ($vis) {
                             $temp = array_values(
@@ -230,19 +376,29 @@ class Page extends \SOME\SOME implements IAccessible
     public function commit()
     {
         $new = !$this->id;
+        $urnUpdated = false;
+        $pidUpdated = false;
+
         $this->modify(false);
         $this->modify_date = date('Y-m-d H:i:s');
         if (!$this->id) {
             $this->post_date = $this->modify_date;
         }
         if (!$this->id || !$this->priority) {
-            $this->priority = self::$SQL->getvalue("SELECT MAX(priority) FROM " . self::_tablename()) + 1;
+            $sqlQuery = "SELECT MAX(priority) FROM " . self::_tablename();
+            $this->priority = self::$SQL->getvalue($sqlQuery) + 1;
         }
         if ($this->pid && !$this->urn && $this->name) {
             $this->urn = $this->name;
         }
+        if ($this->updates['urn']) {
+            $urnUpdated = true;
+        }
+        if ($this->updates['pid']) {
+            $pidUpdated = true;
+        }
         if ($this->updates['urn'] && $this->pid) {
-            $this->urn = \SOME\Text::beautify($this->urn, '-');
+            $this->urn = Text::beautify($this->urn, '-');
             $this->urn = preg_replace('/\\-\\-/umi', '-', $this->urn);
             $this->urn = trim($this->urn, '-');
         }
@@ -259,11 +415,15 @@ class Page extends \SOME\SOME implements IAccessible
         }
         if ($enableHeritage) {
             foreach ($this->children as $row) {
-                // 2014-11-18, AVS: добавлено, поскольку childrens создаются по SQL-запросу и массив properties у них нулевой, поэтому сравнивать проблематично
+                // 2014-11-18, AVS: добавлено, поскольку childrens создаются
+                // по SQL-запросу и массив properties у них нулевой,
+                // поэтому сравнивать проблематично
                 $row->reload();
                 foreach (self::$inheritedFields as $key => $val) {
-                    // Если наследуется и значение дочернего элемента совпадает со старым значением текущего
-                    // 2014-11-18, AVS: сменил $this->update[$key] на $this->$key, т.к. сам факт наследования не обязательно должен меняться
+                    // Если наследуется и значение дочернего элемента
+                    // совпадает со старым значением текущего
+                    // 2014-11-18, AVS: сменил $this->update[$key] на $this->$key,
+                    // т.к. сам факт наследования не обязательно должен меняться
                     if ($this->$key && ($row->$key == $this->properties[$key])) {
                         $row->$val = $this->$val;
                     }
@@ -276,34 +436,61 @@ class Page extends \SOME\SOME implements IAccessible
         parent::commit();
 
         if (($this->template == $this->parent->template) && $new) {
-            $SQL_query = "SELECT tB.*
+            $sqlQuery = "SELECT tB.*
                             FROM " . Block::_tablename() . " AS tB
                             JOIN " . self::$dbprefix . self::$links['blocks']['tablename'] . " AS tBPA ON tBPA.block_id = tB.id
                            WHERE tBPA.page_id = " . (int)$this->pid . " AND inherit ORDER BY priority";
-            $SQL_result = array_map(
+            $sqlResult = array_map(
                 function ($x) {
                     return Block::spawn($x);
                 },
-                \SOME\SOME::getSQLSet($SQL_query)
+                SOME::getSQLSet($sqlQuery)
             );
-            if ($SQL_result) {
-                $arr = array();
-                $priority = (int)self::$SQL->getvalue("SELECT MAX(priority) FROM " . self::$dbprefix . self::$links['blocks']['tablename']);
-                foreach ($SQL_result as $row) {
-                    $arr[] = array('page_id' => $this->id, 'block_id' => $row->id, 'priority' => ++$priority);
+            if ($sqlResult) {
+                $arr = [];
+                $sqlQuery = "SELECT MAX(priority)
+                               FROM " . self::$dbprefix . self::$links['blocks']['tablename'];
+                $priority = (int)self::$SQL->getvalue($sqlQuery);
+                foreach ($sqlResult as $row) {
+                    $arr[] = [
+                        'page_id' => $this->id,
+                        'block_id' => $row->id,
+                        'priority' => ++$priority
+                    ];
                 }
-                self::$SQL->add(self::$dbprefix . self::$links['blocks']['tablename'], $arr);
+                self::$SQL->add(
+                    self::$dbprefix . self::$links['blocks']['tablename'],
+                    $arr
+                );
             }
+        }
+
+        // 2019-04-25, AVS: обновим связанные страницы типов материалов
+        if ($new) {
+            Material_Type::updateAffectedPagesForMaterials();
+            Material_Type::updateAffectedPagesForSelf();
+        } elseif ($urnUpdated || $pidUpdated) {
+            Material::updateAffectedPages();
         }
     }
 
 
+    /**
+     * Возвращает страницу (текущую или вверх по родительским) с заданным кодом
+     * @param int $code Код ответа для поиска страницы
+     * @return Page
+     */
     public function getCodePage($code = 404)
     {
-        $SQL_query = "SELECT * FROM " . Page::_tablename() . " WHERE pid = ? AND response_code = ? ORDER BY priority LIMIT 1";
-        $SQL_bind = array($this->id, $code);
-        if ($SQL_result = self::$SQL->getline(array($SQL_query, $SQL_bind))) {
-            return new self($SQL_result);
+        $sqlQuery = "SELECT *
+                       FROM " . Page::_tablename()
+                  . " WHERE pid = ?
+                        AND response_code = ?
+                   ORDER BY priority
+                      LIMIT 1";
+        $sqlBind = [$this->id, $code];
+        if ($sqlResult = self::$SQL->getline([$sqlQuery, $sqlBind])) {
+            return new self($sqlResult);
         } elseif ($this->id) {
             return $this->parent->getCodePage($code);
         } else {
@@ -312,6 +499,10 @@ class Page extends \SOME\SOME implements IAccessible
     }
 
 
+    /**
+     * Отрабатывает страницу
+     * @return string HTML-код страницы
+     */
     public function process()
     {
         ob_start();
@@ -340,18 +531,21 @@ class Page extends \SOME\SOME implements IAccessible
     }
 
 
+    /**
+     * Отрабатывает размещение
+     * @param string $location URN размещения
+     * @return string HTML-код размещения
+     */
     public function location($location)
     {
         if (!isset($this->locationBlocksText[$location])) {
             $Location = new Location($this->Template, $location);
             $Set = (array)$this->blocksByLocations[$Location->urn];
-            $texts = array();
+            $texts = [];
             foreach ($Set as $row) {
                 if ($row->vis) {
                     ob_start();
-                    $bst = microtime(true);
                     $row->process($this);
-                    Controller_Frontend::i()->diag ? Controller_Frontend::i()->diag->blockHandler($row, microtime(true) - $bst) : null;
                     $texts[$row->id] = ob_get_contents();
                     ob_end_clean();
                 }
@@ -366,28 +560,6 @@ class Page extends \SOME\SOME implements IAccessible
     }
 
 
-    public function visit()
-    {
-        self::$SQL->update(self::_tablename(), "id = " . (int)$this->id, array('visit_counter' => $this->visit_counter++));
-    }
-
-
-    public function modify($commit = true)
-    {
-        $d0 = time();
-        $d1 = strtotime($this->modify_date);
-        $d2 = strtotime($this->last_modified);
-        $arr = array();
-        if ((time() - $d1 >= 3600) && (time() - $d2 >= 3600)) {
-            $arr['last_modified'] = $this->last_modified = date('Y-m-d H:i:s');
-            $arr['modify_counter'] = $this->modify_counter++;
-            if ($commit) {
-                self::$SQL->update(self::_tablename(), "id = " . (int)$this->id, $arr);
-            }
-        }
-    }
-
-
     public function userHasAccess(User $user)
     {
         $a = CMSAccess::userHasCascadeAccess($this, $user);
@@ -398,12 +570,6 @@ class Page extends \SOME\SOME implements IAccessible
             return $this->parent->userHasAccess($user);
         }
         return true;
-    }
-
-
-    public function currentUserHasAccess()
-    {
-        return $this->userHasAccess(Controller_Frontend::i()->user);
     }
 
 
@@ -437,7 +603,7 @@ class Page extends \SOME\SOME implements IAccessible
     public static function delete(self $object)
     {
         foreach ($object->fields as $row) {
-            if (in_array($row->datatype, array('image', 'file'))) {
+            if (in_array($row->datatype, ['image', 'file'])) {
                 foreach ($row->getValues(true) as $att) {
                     Attachment::delete($att);
                 }
@@ -447,27 +613,41 @@ class Page extends \SOME\SOME implements IAccessible
         parent::delete($object);
         static::clearLostBlocks();
         static::clearLostMaterials();
+
+        // 2019-04-25, AVS: обновим связанные страницы типов материалов
+        Material_Type::updateAffectedPagesForMaterials();
+        Material_Type::updateAffectedPagesForSelf();
     }
 
 
+    /**
+     * Упорядоченные по порядку отображения блоки страницы
+     * @return array<Block>
+     */
     protected function _blocksOrdered()
     {
-        $SQL_query = "SELECT tB.*, tBPA.priority
-                        FROM " . Block::_tablename() . " AS tB JOIN " . self::$dbprefix . self::$links['blocks']['tablename'] . " AS tBPA ON tB.id = tBPA.block_id
+        $sqlQuery = "SELECT tB.*, tBPA.priority
+                        FROM " . Block::_tablename() . " AS tB
+                        JOIN " . self::$dbprefix . self::$links['blocks']['tablename'] . " AS tBPA ON tB.id = tBPA.block_id
                        WHERE tBPA.page_id = " . (int)$this->id . "
                     ORDER BY tBPA.priority";
-        $SQL_result = \SOME\SOME::getSQLSet($SQL_query);
+        $sqlResult = SOME::getSQLSet($sqlQuery);
         return array_map(
             function ($x) {
                 return Block::spawn($x);
             },
-            $SQL_result
+            $sqlResult
         );
     }
 
+
+    /**
+     * Поля страницы с установленным свойством $Owner
+     * @return array<Page_Field>
+     */
     protected function _fields()
     {
-        $arr = array();
+        $arr = [];
         $temp = Page_Field::getSet();
         foreach ($temp as $row) {
             $row->Owner = $this;
@@ -476,134 +656,35 @@ class Page extends \SOME\SOME implements IAccessible
         return $arr;
     }
 
-    /**
-     * Типы материалов, присутствующие на данной странице
-     *
-     * Присутствующими считаются типы, если либо на странице есть материальный блок
-     * данного типа, либо хотя бы один материал напрямую связан со страницей
-     * @return array<Material_Type> у NAT-типов добавляется nat = true
-     */
-    protected function _affectedMaterialTypes()
-    {
-        $SQL_query = "SELECT tMt.id
-                        FROM " . Material::_tablename() . " AS tM
-                        JOIN " . self::$dbprefix . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id
-                        JOIN " . Material_Type::_tablename() . " AS tMt ON tMt.id = tM.pid
-                       WHERE NOT tMt.global_type AND tMPA.pid = " . (int)$this->id . "
-                    ORDER BY tMt.name";
-        $col1 = (array)self::$SQL->getcol($SQL_query);
-        $SQL_query = "SELECT tMt.id, tB.nat
-                        FROM " . Material_Type::_tablename() . " AS tMt
-                        JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.material_type = tMt.id
-                        JOIN " . Block::_tablename() . " AS tB ON tB.id = tBM.id
-                        JOIN " . self::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.block_id = tB.id
-                       WHERE tBPA.page_id = " . (int)$this->id;
-        $temp = self::$SQL->get($SQL_query);
-        $col2 = array_map(function ($x) {
-            return (int)$x['id'];
-        }, $temp);
-        $nat = array_map(function ($x) {
-            return (int)$x['id'];
-        }, array_filter($temp, function ($x) {
-            return $x['nat'];
-        }));
-        $Set = array_values(array_unique(array_merge($col1, $col2)));
-        $Set = array_map(
-            function ($x) use ($nat) {
-                $y = new \RAAS\CMS\Material_Type($x);
-                if (in_array($x, $nat)) {
-                    $y->nat = true;
-                }
-                return $y;
-            },
-            $Set
-        );
-        return $Set;
-    }
-
 
     /**
      * Типы материалов, присутствующие на данной и дочерних страницах
      *
-     * Присутствующими считаются типы, если либо на странице есть материальный блок
-     * данного типа, либо хотя бы один материал напрямую связан со страницей
-     * @return array<Material_Type> у NAT-типов добавляется nat = true, также counter - количество страниц, на которых задействован тип
+     * Присутствующими считаются типы, если либо на странице есть материальный
+     * блок данного типа, либо хотя бы один материал напрямую связан
+     * со страницей
+     * @return array<Material_Type> у NAT-типов добавляется nat = true,
+     *                              также counter - количество страниц,
+     *                              на которых задействован тип
      */
     protected function _affectedMaterialTypesWithChildren()
     {
-        $mtypes = array();
-        foreach ($this->selfAndChildren as $row) {
-            $temp = $row->affectedMaterialTypes;
-            foreach ($temp as $mtype) {
-                if (!$mtypes[$mtype->id] || (!$mtypes[$mtype->id]->nat && $mtype->nat)) {
-                    $mtypes[$mtype->id] = $mtype;
-                }
-                $mtypes[$mtype->id]->counter = $mtypes[$mtype->id]->counter + 1;
-            }
-        }
+        $sqlQuery = "SELECT tMT.*,
+                            MAX(tMTAPS.nat) AS nat,
+                            COUNT(tMTAPS.page_id) AS counter
+                       FROM " . Material_Type::_tablename() . " AS tMT
+                       JOIN cms_material_types_affected_pages_for_self_cache AS tMTAPS ON tMTAPS.material_type_id = tMT.id
+                      WHERE tMTAPS.page_id IN (" . implode(", ", $this->selfAndChildrenIds) . ")
+                   GROUP BY tMT.id";
+        $mtypes = Material_Type::getSQLSet($sqlQuery);
         return $mtypes;
     }
 
 
-    protected function _affectedMaterials()
-    {
-        $SQL_query = "SELECT tMt.*
-                        FROM " . Material_Type::_tablename() . " AS tMt
-                        JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.material_type = tMt.id
-                        JOIN " . Block::_tablename() . " AS tB ON tB.id = tBM.id
-                        JOIN " . self::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.block_id = tB.id
-                       WHERE tB.vis AND tB.nat AND tBPA.page_id = " . (int)$this->id;
-        $SQL_result = Material_Type::getSQLSet($SQL_query);
-        $mts = array();
-        foreach ($SQL_result as $row) {
-            $mts = array_merge($mts, array($row), (array)$row->all_children);
-        }
-        $Set = array();
-        // Глобальные
-        if ($mts_global = array_map(
-            function ($x) {
-                return (int)$x->id;
-            },
-            array_values(
-                array_filter(
-                    $mts,
-                    function ($x) {
-                        return $x->global_type;
-                    }
-                )
-            )
-        )) {
-            $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM WHERE tM.vis AND tM.pid IN(" . implode(", ", $mts_global) . ")";
-            $Set = array_merge($Set, Material::getSQLSet($SQL_query));
-        }
-        if ($mts_nonGlobal = array_map(
-            function ($x) {
-                return (int)$x->id;
-            },
-            array_values(
-                array_filter(
-                    $mts,
-                    function ($x) {
-                        return !$x->global_type;
-                    }
-                )
-            )
-        )) {
-            $SQL_query = "SELECT tM.*
-                            FROM " . Material::_tablename() . " AS tM
-                            JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id
-                           WHERE tM.vis
-                             AND tM.pid IN(" . implode(", ", $mts_nonGlobal) . ")
-                             AND tMPA.pid = " . (int)$this->id . "
-                             AND (NOT tM.show_from OR tM.show_from <= NOW())
-                             AND (NOT tM.show_to OR tM.show_to >= NOW())
-                        GROUP BY tM.id";
-            $Set = array_merge($Set, Material::getSQLSet($SQL_query));
-        }
-        return $Set;
-    }
-
-
+    /**
+     * Доменная страница
+     * @return Page
+     */
     protected function _Domain()
     {
         $id = $this->pid ? $this->parents[0]->id : $this->id;
@@ -611,32 +692,14 @@ class Page extends \SOME\SOME implements IAccessible
     }
 
 
-    protected function _selfAndChildren()
-    {
-        return array_merge(array($this), (array)$this->all_children);
-    }
-
-
-    protected function _selfAndParents()
-    {
-        return array_merge(array($this), (array)$this->parents);
-    }
-
-
-    protected function _selfAndChildrenIds()
-    {
-        return array_merge(array($this->id), (array)$this->all_children_ids);
-    }
-
-
-    protected function _selfAndParentsIds()
-    {
-        return array_merge(array($this->id), (array)$this->parents_ids);
-    }
-
-
+    /**
+     * Импортирует страницу по URL
+     * @param string $url URL для импорта (возможно, включая схему и хост)
+     * @return Page
+     */
     public static function importByURL($url)
     {
+        $pageCache = PageRecursiveCache::i();
         if (!is_array($url)) {
             $url = preg_replace('/^(http(s)?:\\/\\/)?(www\\.)?/umi', '', $url);
             $url = explode('/', trim(str_replace('\\', '/', $url), '/'));
@@ -646,28 +709,44 @@ class Page extends \SOME\SOME implements IAccessible
         }
         $domain = array_shift($url);
 
-        $Page = new self();
-
         // Найдем домен
-        $SQL_query = "SELECT * FROM " . Page::_tablename() . " WHERE NOT pid AND urn REGEXP ?";
-        $SQL_bind = array('(^| )' . preg_quote($domain) . '( |$)');
-        if ($SQL_result = self::$SQL->getline(array($SQL_query, $SQL_bind))) {
-            $Page = new self($SQL_result);
-        } else {
-            return $Page;
+        $domainData = array_filter(
+            $pageCache->cache,
+            function ($x) use ($domain) {
+                return !$x['pid'] && preg_match(
+                    '/(^| )' . preg_quote($domain) . '( |$)/umi',
+                    $x['urn']
+                );
+            }
+        );
+        if (!$domainData) {
+            return new static();
         }
+        $domainId = array_shift(array_keys($domainData));
+        $domainPagesIds = array_merge(
+            [$domainId],
+            $pageCache->getAllChildrenIds($domainId)
+        );
+        $domainPagesData = array_intersect_key($pageCache->cache, array_flip($domainPagesIds));
 
-        // Найдем страницу
-        foreach ($url as $urn) {
-            $SQL_query = "SELECT * FROM " . Page::_tablename() . " WHERE urn = ? AND pid = ?";
-            $SQL_bind = array($urn, $Page->id);
-            if ($SQL_result = self::$SQL->getvalue(array($SQL_query, $SQL_bind))) {
-                $Page = new self($SQL_result);
+        for ($i = count($url); $i >= 0; $i--) {
+            $urlArrayToFind = array_slice($url, 0, $i);
+            if ($i > 0) {
+                $urlToFind = '/' . implode('/', $urlArrayToFind) . '/';
             } else {
-                break;
+                $urlToFind = '/';
+            }
+            $pageData = array_filter(
+                $domainPagesData,
+                function ($x) use ($urlToFind) {
+                    return ($x['cache_url'] == $urlToFind);
+                }
+            );
+            if ($pageData) {
+                return new static(array_shift($pageData));
             }
         }
-        return $Page;
+        return new static();
     }
 
 
@@ -677,7 +756,11 @@ class Page extends \SOME\SOME implements IAccessible
     public function clearCache()
     {
         $globUrl = $this->cacheFile;
-        $globUrl = preg_replace('/\\.php$/umi', urlencode('?') . '*.php', $globUrl);
+        $globUrl = preg_replace(
+            '/\\.php$/umi',
+            urlencode('?') . '*.php',
+            $globUrl
+        );
         @unlink($this->cacheFile);
         $glob = glob($globUrl);
         foreach ($glob as $file) {
@@ -694,7 +777,10 @@ class Page extends \SOME\SOME implements IAccessible
         $this->clearCache();
         $url = 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://'
              . (
-                    preg_match('/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i', $this->Domain->urn) ?
+                    preg_match(
+                        '/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i',
+                        $this->Domain->urn
+                    ) ?
                     $_SERVER['HTTP_HOST'] :
                     preg_replace('/^http(s)?:\\/\\//umi', '', $this->domain)
                 );
@@ -712,21 +798,28 @@ class Page extends \SOME\SOME implements IAccessible
      */
     protected static function clearLostBlocks()
     {
+        $blockLink = static::$links['blocks'];
+        $tablename = static::_dbprefix() . $blockLink['tablename'];
         // 2017-02-10, AVS: сначала почистим связки на страницы, без реальных страниц
         // так сказать, во избежание
-        $SQL_query = "DELETE tBPA
-                        FROM " . static::_dbprefix() . static::$links['blocks']['tablename'] . " AS tBPA
-                   LEFT JOIN " . static::_tablename() . " AS tP ON tP." . static::_idN() . " = tBPA." . static::$links['blocks']['field_from']
+        $sqlQuery = "DELETE tBPA
+                        FROM " . $tablename . " AS tBPA
+                   LEFT JOIN " . static::_tablename() . "
+                          AS tP
+                          ON tP." . static::_idN() . " = tBPA." . $blockLink['field_from']
                    . " WHERE tP." . static::_idN() . " IS NULL ";
-        static::$SQL->query($SQL_query);
+        static::$SQL->query($sqlQuery);
 
         // сейчас выберем и удалим блоки, которые не привязаны ни к одной странице
-        $SQL_query = "SELECT tB." . Block::_idN() . " FROM " . Block::_tablename() . " AS tB
-                        LEFT JOIN " . static::_dbprefix() . static::$links['blocks']['tablename'] . " AS tBPA ON tB." . Block::_idN() . " = tBPA." . static::$links['blocks']['field_to']
-                   . " WHERE tBPA." . static::$links['blocks']['field_from'] . " IS NULL ";
-        $SQL_result = static::$SQL->getcol($SQL_query);
-        if ($SQL_result) {
-            foreach ($SQL_result as $id) {
+        $sqlQuery = "SELECT tB." . Block::_idN() . "
+                       FROM " . Block::_tablename() . " AS tB
+                  LEFT JOIN " . $tablename . "
+                         AS tBPA
+                         ON tB." . Block::_idN() . " = tBPA." . $blockLink['field_to']
+                  . " WHERE tBPA." . $blockLink['field_from'] . " IS NULL ";
+        $sqlResult = static::$SQL->getcol($sqlQuery);
+        if ($sqlResult) {
+            foreach ($sqlResult as $id) {
                 $row = Block::spawn($id);
                 $classname = get_class($row);
                 $classname::delete($row);
@@ -740,20 +833,29 @@ class Page extends \SOME\SOME implements IAccessible
      */
     protected static function clearLostMaterials()
     {
-        // 2017-02-10, AVS: сначала почистим связки на страницы, без реальных страниц
-        // так сказать, во избежание
-        $SQL_query = "DELETE tMPA
-                        FROM  " . static::_dbprefix() . static::$links['materials']['tablename'] . " AS tMPA
-                   LEFT JOIN " . static::_tablename() . " AS tP ON tP." . static::_idN() . " = tMPA." . static::$links['materials']['field_from']
+        $materialLink = static::$links['materials'];
+        $tablename = static::_dbprefix() . $materialLink['tablename'];
+        // 2017-02-10, AVS: сначала почистим связки на страницы,
+        // без реальных страниц - так сказать, во избежание
+        $sqlQuery = "DELETE tMPA
+                        FROM  " . $tablename . " AS tMPA
+                   LEFT JOIN " . static::_tablename() . "
+                          AS tP
+                          ON tP." . static::_idN() . " = tMPA." . $materialLink['field_from']
                    . " WHERE tP." . static::_idN() . " IS NULL ";
-        static::$SQL->query($SQL_query);
+        static::$SQL->query($sqlQuery);
 
         // сейчас выберем и удалим материалы, которые не привязаны ни к одной странице, при этом не глобальные
-        $SQL_query = "SELECT tM.* FROM " . Material::_tablename() . " AS tM
-                        JOIN " . Material_Type::_tablename() . " AS tMT ON tMT.id = tM.pid
-                   LEFT JOIN " . static::_dbprefix() . static::$links['materials']['tablename'] . " AS tMPA ON tM." . Material::_idN() . " = tMPA." . static::$links['materials']['field_to']
-                   . " WHERE NOT tMT.global_type AND tMPA." . static::$links['materials']['field_from'] . " IS NULL ";
-        $Set = Material::getSQLSet($SQL_query);
+        $sqlQuery = "SELECT tM.* FROM " . Material::_tablename() . " AS tM
+                        JOIN " . Material_Type::_tablename() . "
+                          AS tMT
+                          ON tMT.id = tM.pid
+                   LEFT JOIN " . $tablename . "
+                          AS tMPA
+                          ON tM." . Material::_idN() . " = tMPA." . $materialLink['field_to']
+                   . " WHERE NOT tMT.global_type
+                         AND tMPA." . $materialLink['field_from'] . " IS NULL ";
+        $Set = Material::getSQLSet($sqlQuery);
         if ($Set) {
             foreach ($Set as $row) {
                 Material::delete($row);
@@ -763,27 +865,43 @@ class Page extends \SOME\SOME implements IAccessible
 
 
     /**
-     * Ищет страницы с таким же URN и родителем, как и текущая (для проверки на уникальность)
-     * @return bool TRUE, если в том же родительском разделе уже есть страница с таким URN, FALSE в противном случае
+     * Ищет страницы с таким же URN и родителем, как и текущая
+     * (для проверки на уникальность)
+     * @return bool true, если в том же родительском разделе уже есть страница
+     *              с таким URN,
+     *              false в противном случае
      */
     protected function checkForSimilarPages()
     {
-        $SQL_query = "SELECT COUNT(*) FROM " . self::_tablename() . " WHERE urn = ? AND pid = ? AND id != ?";
-        $SQL_result = self::$SQL->getvalue(array($SQL_query, $this->urn, $this->pid, (int)$this->id));
-        $c = (bool)(int)$SQL_result;
+        $sqlQuery = "SELECT COUNT(*)
+                       FROM " . self::_tablename()
+                  . " WHERE urn = ?
+                        AND pid = ?
+                        AND id != ?";
+        $sqlResult = self::$SQL->getvalue([
+            $sqlQuery,
+            $this->urn,
+            $this->pid,
+            (int)$this->id
+        ]);
+        $c = (bool)(int)$sqlResult;
         return $c;
     }
 
 
     /**
-     * Ищет материалы с таким же URN, как и текущая страница (для проверки на уникальность)
-     * @return bool TRUE, если есть материал с таким URN, как и текущая страница, FALSE в противном случае
+     * Ищет материалы с таким же URN, как и текущая страница
+     * (для проверки на уникальность)
+     * @return bool true, если есть материал с таким URN, как и текущая страница,
+     *              false в противном случае
      */
     protected function checkForSimilarMaterials()
     {
-        $SQL_query = "SELECT COUNT(*) FROM " . Material::_tablename() . " WHERE urn = ?";
-        $SQL_result = self::$SQL->getvalue(array($SQL_query, $this->urn));
-        $c = (bool)(int)$SQL_result;
+        $sqlQuery = "SELECT COUNT(*)
+                       FROM " . Material::_tablename()
+                  . " WHERE urn = ?";
+        $sqlResult = self::$SQL->getvalue([$sqlQuery, $this->urn]);
+        $c = (bool)(int)$sqlResult;
         return $c;
     }
 }

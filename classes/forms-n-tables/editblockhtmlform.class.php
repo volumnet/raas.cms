@@ -23,10 +23,6 @@ class EditBlockHTMLForm extends EditBlockForm
     }
 
 
-    /**
-     * Получает поле "Интерфейс"
-     * @return RAASField
-     */
     protected function getInterfaceField()
     {
         $field = parent::getInterfaceField();
@@ -35,10 +31,6 @@ class EditBlockHTMLForm extends EditBlockForm
     }
 
 
-    /**
-     * Получает поле "Виджет"
-     * @return RAASField
-     */
     protected function getWidgetField()
     {
         $field = parent::getWidgetField();
@@ -83,10 +75,6 @@ class EditBlockHTMLForm extends EditBlockForm
     }
 
 
-    /**
-     * Получает вкладку "Служебные"
-     * @return FormTab
-     */
     protected function getServiceTab()
     {
         $tab = parent::getServiceTab();

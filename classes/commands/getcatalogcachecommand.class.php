@@ -14,8 +14,10 @@ class GetCatalogCacheCommand extends LockCommand
     /**
      * Выполнение команды
      * @param string|null $mtypeURN URN типа материалов кэша
-     * @param bool $forceUpdate Принудительно выполнить обновление, даже если материалы не были обновлены
-     * @param bool $forceLockUpdate Принудительно выполнить обновление, даже если есть параллельный процесс
+     * @param bool $forceUpdate Принудительно выполнить обновление,
+     *                          даже если материалы не были обновлены
+     * @param bool $forceLockUpdate Принудительно выполнить обновление,
+     *                              даже если есть параллельный процесс
      */
     public function process(
         $mtypeURN = 'catalog',
@@ -27,7 +29,9 @@ class GetCatalogCacheCommand extends LockCommand
         }
         $mtype = Material_Type::importByURN($mtypeURN);
         if (!$mtype->id) {
-            $this->controller->doLog('Material type ' . $mtypeURN . ' doesn\t exist');
+            $this->controller->doLog(
+                'Material type ' . $mtypeURN . ' doesn\t exist'
+            );
             return;
         }
         if ($mtypesIds = $mtype->selfAndChildrenIds) {
@@ -37,8 +41,12 @@ class GetCatalogCacheCommand extends LockCommand
             $lastModifiedMaterialTimestamp = Material::_SQL()->getvalue($sqlQuery);
             $cc = new Catalog_Cache($mtype);
             $cacheFilename = $cc->getFilename();
-            $cacheModifiedTimestamp = is_file($cacheFilename) ? filemtime($cacheFilename) : 0;
-            if ($forceUpdate || ($lastModifiedMaterialTimestamp > $cacheModifiedTimestamp)) {
+            $cacheModifiedTimestamp = is_file($cacheFilename)
+                                    ? filemtime($cacheFilename)
+                                    : 0;
+            if ($forceUpdate ||
+                ($lastModifiedMaterialTimestamp > $cacheModifiedTimestamp)
+            ) {
                 while (ob_get_level()) {
                     ob_end_clean();
                 }

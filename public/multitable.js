@@ -17,7 +17,7 @@ jQuery(document).ready(function($) {
                 })
             }
             var ids = '';
-            if ($all.is(':checked')) {
+            if ($all.is(':checked') && $all.val() && ($all.val() != 'ids')) {
                 ids += '&id=' + $all.val();
             } else {
                 $checkbox.filter(':checked').each(function() {

@@ -1,6 +1,12 @@
 <?php
+/**
+ * Представление блока формы
+ */
 namespace RAAS\CMS;
 
+/**
+ * Класс представления блока формы
+ */
 class ViewBlockForm extends ViewBlock
 {
     const blockListItemClass = 'cms-block-form';
@@ -11,8 +17,13 @@ class ViewBlockForm extends ViewBlock
     }
 
 
-    public function locationContextMenu(Page $Page, Location $Location)
+    public function locationContextMenu(Page $page, Location $location)
     {
-        return parent::locationContextMenu($Page, $Location, $this->view->_('ADD_FORM_BLOCK'), 'Block_Form');
+        return parent::locationContextMenu(
+            $page,
+            $location,
+            $this->view->_('ADD_FORM_BLOCK'),
+            'Block_Form'
+        );
     }
 }

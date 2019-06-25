@@ -1,22 +1,19 @@
 <?php
+/**
+ * Подмодуль "Обратная связь"
+ */
 namespace RAAS\CMS;
 
-use \RAAS\Redirector as Redirector;
-use \RAAS\Attachment as Attachment;
-use \ArrayObject as ArrayObject;
-use \RAAS\Field as Field;
-use \RAAS\FieldSet as FieldSet;
-use \RAAS\FieldContainer as FieldContainer;
-use \RAAS\FormTab as FormTab;
-use \RAAS\CMS\Form as CMSForm;
-use \RAAS\OptGroup as OptGroup;
-use \RAAS\Option as Option;
-use \RAAS\StdSub as StdSub;
 use PHPExcel;
 use PHPExcel_Cell;
 use PHPExcel_IOFactory;
 use PHPExcel_Cell_DataType;
+use RAAS\Redirector;
+use RAAS\StdSub;
 
+/**
+ * Класс подмодуля "Обратная связь"
+ */
 class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
 {
     protected static $instance;
@@ -38,7 +35,10 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
                     $pids = array_filter($pids, 'trim');
                     $pids = array_map('intval', $pids);
                     if ($pids) {
-                        $items = Feedback::getSet(array('where' => "pid IN (" . implode(", ", $pids) . ")", 'orderBy' => "id"));
+                        $items = Feedback::getSet([
+                            'where' => "pid IN (" . implode(", ", $pids) . ")",
+                            'orderBy' => "id"
+                        ]);
                     }
                 } else {
                     $items = array_map(function ($x) {
@@ -56,25 +56,28 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
     }
 
 
+    /**
+     * Экспорт в Excel
+     */
     protected function export()
     {
         $IN = $this->model->feedback(false);
         $Set = $IN['Set'];
         $columns = $IN['columns'];
         $Item = $IN['Parent'];
-        $table = new FeedbackExportTable(array(
+        $table = new FeedbackExportTable([
             'Item' => $Item,
             'Set' => $Set,
             'columns' => $columns,
-        ));
-        $data = array();
-        $row = array();
+        ]);
+        $data = [];
+        $row = [];
         foreach ($table->columns as $col) {
             $row[] = $col->caption;
         }
         $data[] = $row;
         foreach ($Set as $item) {
-            $row = array();
+            $row = [];
             foreach ($table->columns as $key => $col) {
                 if ($f = $col->callback) {
                     $var = (string)$f($item);
@@ -101,19 +104,30 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
                     $maxcol = max($maxcol, count($data[$i]));
                     for ($j = 0; $j < count($data[$i]); $j++) {
                         $cell = $x->getActiveSheet()->getCellByColumnAndRow($j, $i + 1);
-                        $cell->setValueExplicit($data[$i][$j], PHPExcel_Cell_DataType::TYPE_STRING);
+                        $cell->setValueExplicit(
+                            $data[$i][$j],
+                            PHPExcel_Cell_DataType::TYPE_STRING
+                        );
                     }
                 }
-                $range = 'A1:' . PHPExcel_Cell::stringFromColumnIndex($maxcol) . '1';
+                $range = 'A1:'
+                       . PHPExcel_Cell::stringFromColumnIndex($maxcol)
+                       . '1';
                 $x->getActiveSheet()->getStyle($range)->getFont()->setBold(true);
                 switch ($type) {
                     case 'xlsx':
                         $writerName = 'Excel2007';
-                        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; name="' . $filename . '"');
+                        $header = 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; name="'
+                                . $filename
+                                . '"';
+                        header($header);
                         break;
                     default:
                         $writerName = 'Excel5';
-                        header('Content-Type: application/excel; name="' . $filename . '"');
+                        $header = 'Content-Type: application/excel; name="'
+                                . $filename
+                                . '"';
+                        header($header);
                         break;
                 }
                 $objWriter = PHPExcel_IOFactory::createWriter($x, $writerName);
@@ -140,6 +154,9 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
     }
 
 
+    /**
+     * Список сообщений
+     */
     protected function feedback()
     {
         $IN = $this->model->feedback();
@@ -153,11 +170,16 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
         $OUT['Set'] = $Set;
         $OUT['Pages'] = $Pages;
         $OUT['Forms'] = $Forms;
-        $OUT['search_string'] = isset($_GET['search_string']) ? (string)$_GET['search_string'] : '';
+        $OUT['search_string'] = isset($_GET['search_string'])
+                              ? (string)$_GET['search_string']
+                              : '';
         $this->view->feedback($OUT);
     }
 
 
+    /**
+     * Просмотр сообщения
+     */
     protected function view()
     {
         $Item = new Feedback($this->id);
@@ -169,7 +191,7 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
         $Item->commit();
         $OUT['Item'] = $Item;
         $OUT['Forms'] = $Forms;
-        $OUT['Form'] = new ViewFeedbackForm(array('Item' => $Item));
+        $OUT['Form'] = new ViewFeedbackForm(['Item' => $Item]);
         $this->view->view($OUT);
     }
 }

@@ -9,6 +9,46 @@ use Mustache_Engine;
 /**
  * Класс вебмастера
  * @property-read Page $Site Первая корневая страница
+ * @property-read string $nextImage URL следующей картинки
+ * @property-read [
+ *                    'name' => string Заголовок статьи,
+ *                    'text' => string Текст статьи в формате HTML,
+ *                    'brief' => string Краткий текст статьи в формате
+ *                                      plain text,
+ *                ] $nextText Следующий текст
+ * @property-read [
+ *                    'name' => [
+ *                        'first' => string Имя,
+ *                        'last' => string Фамилия,
+ *                        'middle' => string Отчество
+ *                    ],
+ *                    'location' => [
+ *                        'building' => int Дом,
+ *                        'street' => string Улица,
+ *                        'city' => string Город,
+ *                        'state' => string Область,
+ *                        'zip' => int Индекс,
+ *                    ],
+ *                    'username' => string Логин,
+ *                    'email' => string E-mail,
+ *                    'password' => string Пароль,
+ *                    'salt' => string Соль для пароля,
+ *                    'md5' => string MD5 пароля,
+ *                    'sha1' => string SHA1 пароля,
+ *                    'sha256' => string SHA256 пароля,
+ *                    'phone' => string Телефон,
+ *                    'cell' => string Мобильный телефон,
+ *                    'picture' => [
+ *                        'large' => string URL большой картинки,
+ *                        'medium' => string URL средней картинки,
+ *                        'thumbnail' => string URL эскиза
+ *                    ],
+ *                    'pic' => [
+ *                        'name' => string Имя оригинального файла,
+ *                        'filepath' => string Местоположение файла во временной
+ *                                             папке
+ *                    ],
+ *                ] $nextUser Следующий пользователь
  */
 class Webmaster
 {
@@ -94,7 +134,9 @@ class Webmaster
             case 'nextImage':
                 if (!self::$imagesRetrieved) {
                     $fpr = new FishPhotosRetriever();
-                    self::$imagesRetrieved = $fpr->retrieve(self::IMAGES_TO_RETRIEVE);
+                    self::$imagesRetrieved = $fpr->retrieve(
+                        self::IMAGES_TO_RETRIEVE
+                    );
                 }
                 $images = self::$imagesRetrieved;
                 shuffle($images);
@@ -448,7 +490,10 @@ class Webmaster
                     $urn,
                     $name,
                     (int)$formsFolder->id,
-                    $this->resourcesDir . '/widgets/feedback/' . $urn . '.tmp.php',
+                    (
+                        $this->resourcesDir . '/widgets/feedback/' . $urn .
+                        '.tmp.php'
+                    ),
                     []
                 );
             }
@@ -601,7 +646,8 @@ class Webmaster
             ]);
             $menuFolder->commit();
         }
-        $menuWidgetFilename = Package::i()->resourcesDir . '/widgets/menu/menu.tmp.php';
+        $menuWidgetFilename = Package::i()->resourcesDir
+                            . '/widgets/menu/menu.tmp.php';
         $cacheInterfaceId = Snippet::importByURN('__raas_cache_interface')->id;
         $menuInterface =  Snippet::importByURN('__raas_menu_interface');
         $menus = [];
@@ -713,7 +759,7 @@ class Webmaster
 
 
     /**
-     * Добавим баннеры
+     * Создает баннеры
      */
     public function createBanners()
     {
@@ -746,7 +792,7 @@ class Webmaster
 
 
     /**
-     * Добавим особенности
+     * Создает особенности
      */
     public function createFeatures()
     {
@@ -927,7 +973,8 @@ class Webmaster
             $B = new Block_HTML([
                 'name' => $this->view->_('COOKIES_NOTIFICATION'),
                 'description' => file_get_contents(
-                    $this->resourcesDir . '/html/privacy/cookies_notification.html'
+                    $this->resourcesDir .
+                    '/html/privacy/cookies_notification.html'
                 ),
                 'wysiwyg' => 0
             ]);
@@ -1376,9 +1423,18 @@ class Webmaster
     }
 
 
+    /**
+     * Создает страницу
+     * @param array<string[] => mixed> $params Дополнительные параметры для
+     *                                         создания страницы
+     * @param Page $parent Родительская страница
+     * @param bool $addUnderConstruction Добавить текстовый блок
+     *                                   "страница в стадии наполнения"
+     * @return Page
+     */
     protected function createPage(
         array $params,
-        Page $Parent = null,
+        Page $parent = null,
         $addUnderConstruction = false
     ) {
         $uid = Application::i()->user->id;
@@ -1392,9 +1448,9 @@ class Webmaster
             'lang' => 'ru',
             'inherit_lang' => 1,
         ]);
-        if ($Parent) {
-            $P->pid = $Parent->id;
-            foreach ($Parent->getArrayCopy() as $key => $val) {
+        if ($parent) {
+            $P->pid = $parent->id;
+            foreach ($parent->getArrayCopy() as $key => $val) {
                 if (!in_array($key, ['id', 'pid'])) {
                     $P->$key = $val;
                 }
@@ -1474,7 +1530,6 @@ class Webmaster
                         'rows_per_page' => 0,
                     ]
                 );
-
             }
             // Создадим материалы
             $materialTemplate->createMaterials();
@@ -1483,6 +1538,11 @@ class Webmaster
     }
 
 
+    /**
+     * Создает раздел "Фотогалерея"
+     * @param string $name Наименование модуля
+     * @param string $urn URN модуля
+     */
     public function createPhotos($name, $urn)
     {
         $temp = Material_Type::importByURN($urn);
@@ -1932,7 +1992,11 @@ class Webmaster
                     $answer['pic']['filepath'],
                     $MT->fields['answer_image']
                 );
-                // $att = $this->getAttachmentFromFilename($answer['pic']['name'], $answer['pic']['filepath'], $MT->fields['answer_image']);
+                // $att = $this->getAttachmentFromFilename(
+                //     $answer['pic']['name'],
+                //     $answer['pic']['filepath'],
+                //     $MT->fields['answer_image']
+                // );
                 $Item->fields['answer_image']->addValue(json_encode([
                     'vis' => 1,
                     'name' => '',
@@ -1948,7 +2012,8 @@ class Webmaster
      * Создать блок
      * @param Block $block Подготовленный для сохранения блок
      * @param string $location Размещение блока
-     * @param Snippet|int|string $interface Интерфейс, ID# или URN интерфейса блока
+     * @param Snippet|int|string $interface Интерфейс, ID# или URN интерфейса
+     *                                      блока
      * @param Snippet|int|string $widget Виджет, ID# или URN виджета блока
      * @param Page $startPage Исходная страница блока
      * @param boolean $inherit Наследовать ли блок

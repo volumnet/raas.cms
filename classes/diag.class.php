@@ -1,13 +1,85 @@
 <?php
+/**
+ * Лог диагностики
+ */
 namespace RAAS\CMS;
 
+use RAAS\Application;
+
+/**
+ * Класс лога диагностики
+ * @property-read string $logDir Директория, где хранится лог
+ * @property string $logFile Файл, где хранится лог
+ * @property-read int $queriesCounter Счетчик запросов
+ * @property-read float $queriesTime Общее время запросов
+ * @property-read int $timersCounter Счетчик таймеров
+ * @property-read float $timersTime Общее время таймеров
+ * @property-read int $blocksCounter Счетчик блоков
+ * @property-read float $blocksTime Общее время блоков
+ * @property-read int $snippetsCounter Счетчик сниппетов
+ * @property-read float $snippetsTime Общее время сниппетов
+ * @property-read int $pagesCounter Счетчик страниц
+ * @property-read float $pagesTime Общее время страниц
+ * @property-read array<string[] Тип данных => [
+ *                    'long' Долгие сущности |
+ *                    'freq' Частые сущности |
+ *                    'main' Тяжелые сущности => array<[
+ *                        'id' => string Внутренний ID сущности,
+ *                        'key' => string Заданный ID сущности,
+ *                        'counter' => int Количество обработанных сущностей,
+ *                        'time' => float Общее время в секундах,
+ *                        'interfaceTime' => float Общее время интерфейса
+ *                                                 (только для блоков)
+ *                        'widgetTime' => float Общее время виджета
+ *                                              (только для блоков)
+ *                    ]>
+ *                ]> $stat Статистика диагностики
+ */
 class Diag
 {
-    const logDir = 'logs';
+    /**
+     * Путь к папке (относительно корня сайта), где хранятся логи диагностики
+     */
+    const logDir = '/logs';
 
+    /**
+     * Имя файла
+     * @var string
+     */
     protected $filename;
-    protected $data = array();
-    protected static $criticalTime = array('queries' => 0.1, 'blocks' => 0.1, 'pages' => 1);
+
+    /**
+     * Данные диагностики
+     * @var array<string[] Тип данных => array<
+     *          string[] ID сущности => [
+     *              'counter' => int Количество обработанных сущностей,
+     *              'time' => float Общее время в секундах,
+     *              'interfaceTime' => float Общее время интерфейса
+     *                                       (только для блоков)
+     *              'widgetTime' => float Общее время виджета
+     *                                    (только для блоков)
+     *          ]
+     *      >>
+     */
+    protected $data = [
+        'queries' => [],
+        'timers' => [],
+        'blocks' => [],
+        'pages' => [],
+        'snippets' => [],
+    ];
+
+    /**
+     * Критическое время для записи в диагностику
+     * @var array<string[] Тип данных => float Время в секундах>
+     */
+    protected static $criticalTime = [
+        'queries' => 0.1,
+        'timers' => 0,
+        'blocks' => 0.1,
+        'snippets' => 0.1,
+        'pages' => 1
+    ];
 
     public function __get($var)
     {
@@ -16,7 +88,9 @@ class Diag
                 return static::getLogDir();
                 break;
             case 'logFile':
-                if ($this->filename && stristr($this->filename, $this->logDir)) {
+                if ($this->filename &&
+                    stristr($this->filename, $this->logDir)
+                ) {
                     if (!is_file($this->filename)) {
                         touch($this->filename);
                     }
@@ -25,106 +99,28 @@ class Diag
                 return null;
                 break;
             case 'queriesCounter':
-                $temp = 0;
-                foreach ($this->data['queries'] as $row) {
-                    if (isset($row['counter'])) {
-                        $temp += (int)$row['counter'];
-                    }
-                }
-                return $temp;
-                break;
             case 'queriesTime':
-                $temp = 0;
-                foreach ($this->data['queries'] as $row) {
-                    if (isset($row['time'])) {
-                        $temp += (float)$row['time'];
-                    }
-                }
-                return $temp;
-                break;
+            case 'timersCounter':
+            case 'timersTime':
+            case 'snippetsCounter':
+            case 'snippetsTime':
             case 'blocksCounter':
-                $temp = 0;
-                foreach ($this->data['blocks'] as $row) {
-                    if (isset($row['counter'])) {
-                        $temp += (int)$row['counter'];
-                    }
-                }
-                return $temp;
-                break;
             case 'blocksTime':
-                $temp = 0;
-                foreach ($this->data['blocks'] as $row) {
-                    if (isset($row['time'])) {
-                        $temp += (float)$row['time'];
-                    }
-                }
-                return $temp;
-                break;
             case 'pagesCounter':
-                $temp = 0;
-                foreach ($this->data['pages'] as $row) {
-                    if (isset($row['counter'])) {
-                        $temp += (int)$row['counter'];
-                    }
-                }
-                return $temp;
-                break;
             case 'pagesTime':
-                $temp = 0;
-                foreach ($this->data['pages'] as $row) {
-                    if (isset($row['time'])) {
-                        $temp += (float)$row['time'];
+                preg_match('/^(.*?)(Time|Counter)$/umi', $var, $regs);
+                $key = $regs[1];
+                $val = mb_strtolower($regs[2]);
+                $sum = 0;
+                foreach ((array)$this->data[$key] as $row) {
+                    if (isset($row[$val])) {
+                        $sum += (float)$row[$val];
                     }
                 }
-                return $temp;
+                return $sum;
                 break;
             case 'stat':
-                $temp = array();
-                foreach (array('queries', 'blocks', 'pages') as $statKey) {
-                    if (isset($this->data[$statKey])) {
-                        $ct = static::$criticalTime[$statKey];
-                        $all = array();
-                        foreach ($this->data[$statKey] as $key => $val) {
-                            $all[] = array_merge(array('key' => $key, 'id' => abs(crc32($key) % 1000)), (array)$val);
-                        }
-                        $L = $all;
-                        $L = array_filter($L, function($x) use ($ct) { return ($x['time'] / $x['counter']) > $ct; });
-                        usort($L, function($a, $b) { return (((float)$b['time'] / $b['counter']) - ((float)$a['time'] / $a['counter'])) * 1000; });
-                        $L = array_slice($L, 0, 10);
-                        $Lids = array_map(function($x) { return $x['id']; }, $L);
-
-                        $F = $all;
-                        $F = array_filter($F, function($x) use ($ct, $statKey) { return ($statKey != 'queries' ? ($x['time'] / $x['counter']) : $x['time']) > $ct; });
-                        usort($F, function($a, $b) { return ($b['counter'] - $a['counter']) * 1000; });
-                        $F = array_slice($F, 0, 10);
-                        $Fids = array_map(function($x) { return $x['id']; }, $F);
-
-                        $M = $all;
-                        $M = array_filter($M, function($x) use ($ct, $statKey) { return ($statKey != 'queries' ? ($x['time'] / $x['counter']) : $x['time']) > $ct; });
-                        usort($M, function($a, $b) { return ((float)$b['time'] - (float)$a['time']) * 1000; });
-                        $M = array_slice($M, 0, 10);
-                        $Mids = array_map(function($x) { return $x['id']; }, $M);
-
-                        $ids = array_merge(array_intersect($Lids, $Mids), array_intersect($Lids, $Fids), array_intersect($Fids, $Mids));
-                        $ids = array_unique($ids);
-                        $ids = array_values($ids);
-                        foreach (array('long' => 'L', 'freq' => 'F', 'main' => 'M') as $key => $key2) {
-                            foreach ($$key2 as $row) {
-                                $row['type'] = $statKey;
-                                if (in_array($row['id'], $ids)) {
-                                    if ($row['time'] > static::$criticalTime[$statKey]) {
-                                        $row['danger'] = true;
-                                    } else {
-                                        $row['alert'] = true;
-                                    }
-                                }
-                                $temp[$statKey][$key][] = $row;
-                            }
-                        }
-                        unset($L, $Lids, $F, $Fids, $M, $Mids, $ids, $ct);
-                    }
-                }
-                return $temp;
+                return $this->getStat();
                 break;
         }
     }
@@ -142,50 +138,78 @@ class Diag
     }
 
 
-    public function __construct()
-    {
-        $this->data = array('queries' => array(), 'blocks' => array(), 'pages' => array());
-    }
-
-
+    /**
+     * Загружает данные из лога
+     * @param string $logFile Файл, из которого загружаем
+     * @return array<string[] Тип данных => array<
+     *             string[] ID сущности => [
+     *                 'counter' => int Количество обработанных сущностей,
+     *                 'time' => float Общее время в секундах,
+     *                 'interfaceTime' => float Общее время интерфейса
+     *                                          (только для блоков)
+     *                 'widgetTime' => float Общее время виджета
+     *                                       (только для блоков)
+     *             ]
+     *         >> Загруженные данные
+     */
     public function load($logFile = null)
     {
         if ($logFile) {
             $this->logFile = $logFile;
         }
         if ($this->logFile) {
-            $data = (array)@unserialize(file_get_contents($this->logFile));
-            if ($data && is_array($data)) {
-                $this->data = $data;
+            $text = @file_get_contents($this->logFile);
+            if ($text) {
+                $data = @unserialize($text);
+                if (is_array($data)) {
+                    $this->data = $data;
+                }
             }
-            return $data;
+        }
+        return $this->data;
+    }
+
+
+    /**
+     * Записывает данные о сущности
+     * @param string $entityName Тип данных (сущности)
+     * @param string $entityId ID сущности
+     * @param float $microtime Время сущности в секундах
+     * @param string $counterKey Поле с количеством сущностей
+     * @param string $timeKey Поле с общим временем сущности
+     */
+    public function handle(
+        $entityName,
+        $entityId,
+        $microtime = 0,
+        $counterKey = 'counter',
+        $timeKey = 'time'
+    ) {
+        if ($counterKey) {
+            $this->data[$entityName][$entityId][$counterKey]++;
+        }
+        if ($timeKey) {
+            $this->data[$entityName][$entityId][$timeKey] += (float)$microtime;
         }
     }
 
 
+    /**
+     * Обработчик SQL-запросов для SOME\DB
+     * @param string $query Шаблон SQL-запроса
+     * @param array $bind Привязки SQL-запроса
+     * @param float $microtime Время выполнения запроса
+     */
     public function queryHandler($query = "", $bind = null, $microtime = 0)
     {
-        $this->data['queries'][$this->beautifyQuery($query)]['counter']++;
-        $this->data['queries'][$this->beautifyQuery($query)]['time'] += (float)$microtime;
+        $this->handle('queries', $this->beautifyQuery($query), $microtime);
     }
 
 
-    public function blockHandler(Block $Block, $microtime = 0)
-    {
-        $this->data['blocks'][(int)$Block->id]['counter']++;
-        $this->data['blocks'][(int)$Block->id]['time'] += (float)$microtime;
-    }
-
-    
-    public function pageHandler(Page $Page, $microtime = 0)
-    {
-        // $u = $this->beautifyURL($_SERVER['REQUEST_URI']);
-        $u = $Page->id;
-        $this->data['pages'][$u]['counter']++;
-        $this->data['pages'][$u]['time'] += $microtime;
-    }
-
-
+    /**
+     * Сохраняет данные в лог
+     * @param string $logFile Файл, в который сохраняем
+     */
     public function save($logFile = null)
     {
         if ($logFile) {
@@ -197,36 +221,12 @@ class Diag
     }
 
 
-    protected function beautifyURL($url)
-    {
-        $get = parse_url($url, PHP_URL_QUERY);
-        parse_str($get, $getarr);
-        foreach ($getarr as $key => $val) {
-            $getarr[$key] = $this->beautifyValue($val);
-        }
-        $get = http_build_query($getarr);
-        $url = str_replace(parse_url($url, PHP_URL_QUERY), $get, $url);
-        return $url;
-    }
-
-
-    protected function beautifyValue($val)
-    {
-        if (is_array($val)) {
-            foreach ($val as $k => $v) {
-                $val[$k] = $this->beautifyValue($v);
-            }
-        } elseif (is_numeric($val)) {
-            if (!in_array($val, array(-1, 0, 1))) {
-                $val = 'D';
-            }
-        } elseif ($val) {
-            $val = 'S';
-        }
-        return $val;
-    }
-
-
+    /**
+     * Бьютифицирует SQL-запрос
+     * (заменяет конкретные значения на "?")
+     * @param string $sql Входной запрос
+     * @return string
+     */
     protected function beautifyQuery($sql)
     {
         $sql = preg_replace('/\'(.*?[\\w\\%\\$])?\'/ims', '?', $sql);
@@ -238,9 +238,13 @@ class Diag
     }
 
 
+    /**
+     * Создает при необходимости и возвращает папку логов
+     * @return string|null null, если невозможно создать папку
+     */
     public static function getLogDir()
     {
-        $dir = __DIR__ . '/../../../../' . self::logDir;
+        $dir = Application::i()->baseDir . self::logDir;
         if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
@@ -251,6 +255,13 @@ class Diag
     }
 
 
+    /**
+     * Получает объект диагностики для заданного файла
+     * @param string|null $filename Файл для открытия, либо null
+     *                              для файла по умолчанию на текущую дату
+     * @return self|null Объект диагностики, либо null, если не удалось
+     *                          открыть/создать объект с заданным файлом
+     */
     public static function getInstance($filename = null)
     {
         if (!$filename) {
@@ -266,10 +277,15 @@ class Diag
     }
 
 
-    public static function merge()
+    /**
+     * Объединяет несколько объектов диагностики
+     * @param array<Diag|array<Diag>> ...$args Объекты для объединения
+     * @return Diag|null null, если не удалось объединить
+     */
+    public static function merge(...$args)
     {
         $args = func_get_args();
-        $temp = array();
+        $temp = [];
         foreach ($args as $row) {
             if ($row instanceof Diag) {
                 $temp[] = $row;
@@ -285,10 +301,14 @@ class Diag
         if ($temp) {
             $diag = new self();
             foreach ($temp as $row) {
-                foreach (array('queries', 'blocks', 'pages') as $key) {
-                    foreach ($row->data[$key] as $k => $arr) {
+                foreach ($row->data as $key => $keyData) {
+                    foreach ((array)$keyData as $k => $arr) {
                         $diag->data[$key][$k]['counter'] += (int)$arr['counter'];
                         $diag->data[$key][$k]['time'] += (float)$arr['time'];
+                        if ($key == 'blocks') {
+                            $diag->data[$key][$k]['widgetTime'] += (float)$arr['widgetTime'];
+                            $diag->data[$key][$k]['interfaceTime'] += (float)$arr['interfaceTime'];
+                        }
                     }
                 }
             }
@@ -297,19 +317,30 @@ class Diag
     }
 
 
-    protected static function getFiles($date_from = null, $date_to = null)
+    /**
+     * Получает список файлов с заданными границами дат
+     * @param string|null $dateFrom Дата, от (в формате ГГГГ-ММ-ДД)
+     * @param string|null $dateTo Дата, до (в формате ГГГГ-ММ-ДД)
+     * @return array<string>
+     */
+    protected static function getFiles($dateFrom = null, $dateTo = null)
     {
-        $temp = array();
+        $temp = [];
         $dir = scandir(static::getLogDir());
         foreach ($dir as $f) {
             if (preg_match('/diag(\\d{4}-\\d{2}-\\d{2}).dat/i', $f, $regs)) {
-                if (($d = strtotime($regs[1])) > 0) { // Учитываем только валидные файлы
-                    if ($date_from && (($fromtime = strtotime($date_from)) > 0)) {  // Только в этом случае работает дата от
+                if (($d = strtotime($regs[1])) > 0) {
+                    // Учитываем только валидные файлы
+                    if ($dateFrom &&
+                        (($fromtime = strtotime($dateFrom)) > 0)
+                    ) {
+                        // Только в этом случае работает дата от
                         if ($d < $fromtime) {
                             continue; // Файл датирован ранее даты от
                         }
                     }
-                    if ($date_to && (($totime = strtotime($date_to)) > 0)) { // Только в этом случае работает дата до
+                    if ($dateTo && (($totime = strtotime($dateTo)) > 0)) {
+                        // Только в этом случае работает дата до
                         if ($d > $totime) {
                             continue; // Файл датирован позднее даты до
                         }
@@ -322,19 +353,152 @@ class Diag
     }
 
 
-    public static function deleteStat($date_from = null, $date_to = null)
+    /**
+     * Получает статистику по диагностике
+     * @return array<string[] Тип данных => [
+     *             'long' Долгие сущности |
+     *             'freq' Частые сущности |
+     *             'main' Тяжелые сущности => array<[
+     *                 'id' => string Внутренний ID сущности,
+     *                 'key' => string Заданный ID сущности,
+     *                 'counter' => int Количество обработанных сущностей,
+     *                 'time' => float Общее время в секундах,
+     *                 'interfaceTime' => float Общее время интерфейса
+     *                                          (только для блоков)
+     *                 'widgetTime' => float Общее время виджета
+     *                                       (только для блоков)
+     *             ]>
+     *         ]>
+     */
+    protected function getStat()
     {
-        $temp = static::getFiles($date_from, $date_to);
+        $stat = [];
+        foreach ($this->data as $entityName => $entityData) {
+            if (is_numeric($entityName)) {
+                continue;
+                // 2019-04-29, AVS: Почему-то появляется индекс [0],
+                // пока не знаю почему
+            }
+            $criticalTime = static::$criticalTime[$entityName];
+            $all = [];
+            foreach ((array)$entityData as $id => $val) {
+                $all[] = array_merge(
+                    [
+                        'key' => $id,
+                        'id' => abs(crc32($id) % 1000)
+                    ],
+                    (array)$val
+                );
+            }
+
+            $long = array_filter(
+                $all,
+                function ($x) use ($criticalTime) {
+                    return ($x['time'] / $x['counter']) > $criticalTime;
+                }
+            );
+            usort($long, function ($a, $b) {
+                return (
+                    ((float)$b['time'] / $b['counter']) -
+                    ((float)$a['time'] / $a['counter'])
+                ) * 1000;
+            });
+            $long = array_slice($long, 0, 10);
+            $longIds = array_map(function ($x) {
+                return $x['id'];
+            }, $long);
+
+            $frequent = array_filter(
+                $all,
+                function ($x) use ($criticalTime, $entityName) {
+                    return (
+                        $entityName != 'queries' ?
+                        ($x['time'] / $x['counter']) :
+                        $x['time']
+                    ) > $criticalTime;
+                }
+            );
+            usort($frequent, function ($a, $b) {
+                return ($b['counter'] - $a['counter']);
+            });
+            $frequent = array_slice($frequent, 0, 10);
+            $frequentIds = array_map(function ($x) {
+                return $x['id'];
+            }, $frequent);
+
+            $main = array_filter(
+                $all,
+                function ($x) use ($criticalTime, $entityName) {
+                    return (
+                        $entityName != 'queries' ?
+                        ($x['time'] / $x['counter']) :
+                        $x['time']
+                    ) > $criticalTime;
+                }
+            );
+            usort($main, function ($a, $b) {
+                return (
+                    (float)$b['time'] - (float)$a['time']
+                ) * 1000;
+            });
+            $main = array_slice($main, 0, 10);
+            $mainIds = array_map(function ($x) {
+                return $x['id'];
+            }, $main);
+
+            $ids = array_values(array_unique(array_merge(
+                array_intersect($longIds, $mainIds),
+                array_intersect($longIds, $frequentIds),
+                array_intersect($frequentIds, $mainIds)
+            )));
+            foreach ([
+                'long' => $long,
+                'freq' => $frequent,
+                'main' => $main
+            ] as $key => $subset) {
+                foreach ($subset as $row) {
+                    $row['type'] = $entityName;
+                    if (in_array($row['id'], $ids)) {
+                        if ($row['time'] > static::$criticalTime[$entityName]) {
+                            $row['danger'] = true;
+                        } else {
+                            $row['alert'] = true;
+                        }
+                    }
+                    $stat[$entityName][$key][] = $row;
+                }
+            }
+        }
+        return $stat;
+    }
+
+
+    /**
+     * Очищает диагностику с заданными границами дат
+     * @param string|null $dateFrom Дата, от (в формате ГГГГ-ММ-ДД)
+     * @param string|null $dateTo Дата, до (в формате ГГГГ-ММ-ДД)
+     */
+    public static function deleteStat($dateFrom = null, $dateTo = null)
+    {
+        $temp = static::getFiles($dateFrom, $dateTo);
         foreach ($temp as $f) {
             unlink($f);
         }
     }
 
 
-    public static function getMerged($date_from = null, $date_to = null)
+    /**
+     * Возвращает объединенную диагностику с заданными границами дат
+     * @param string|null $dateFrom Дата, от (в формате ГГГГ-ММ-ДД)
+     * @param string|null $dateTo Дата, до (в формате ГГГГ-ММ-ДД)
+     * @return Diag
+     */
+    public static function getMerged($dateFrom = null, $dateTo = null)
     {
-        $temp = static::getFiles($date_from, $date_to);
-        $temp = array_map(function($x) { return Diag::getInstance($x); }, $temp);
+        $temp = static::getFiles($dateFrom, $dateTo);
+        $temp = array_map(function ($x) {
+            return Diag::getInstance($x);
+        }, $temp);
         $diag = static::merge($temp);
         return $diag;
     }

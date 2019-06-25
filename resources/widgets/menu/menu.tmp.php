@@ -87,5 +87,5 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>
 <?php if (is_file('js/{{MENU_CSS_CLASSNAME}}.js')) { ?>
-    <script src="js/{{MENU_CSS_CLASSNAME}}.js?v=<?php echo date('Y-m-d', filemtime('js/{{MENU_CSS_CLASSNAME}}.js'))?>"></script>
+    <script src="/js/{{MENU_CSS_CLASSNAME}}.js?v=<?php echo date('Y-m-d', filemtime('js/{{MENU_CSS_CLASSNAME}}.js'))?>"></script>
 <?php } ?>

@@ -1,5 +1,19 @@
 <?php
-function showMoveMenu(\RAAS\CMS\Page $node, array $ids, array $actives)
+/**
+ * Перемещение или размещение материала
+ */
+namespace RAAS\CMS;
+
+use SOME\HTTP;
+
+/**
+ * Отображает дерево разделов для размещения
+ * @param Page $node Текущий узел
+ * @param array<int> $ids Список ID# переносимых материалов
+ * @param array<int> $actives Список ID# родительских узлов
+ *                            к переносимым материалам
+ */
+function showMoveMenu(Page $node, array $ids, array $actives)
 {
     static $level = 0;
     foreach ($node->children as $row) {
@@ -8,7 +22,9 @@ function showMoveMenu(\RAAS\CMS\Page $node, array $ids, array $actives)
         if (in_array($row->id, $ids)) {
             $text .= '<b>' . htmlspecialchars($row->name) . '</b>';
         } else {
-            $text .= '<a href="' . \SOME\HTTP::queryString('new_pid=' . (int)$row->id) . '">' . htmlspecialchars($row->name) . '</a>';
+            $text .= '<a href="' . HTTP::queryString('new_pid=' . (int)$row->id) . '">'
+                  .     htmlspecialchars($row->name)
+                  .  '</a>';
         }
         $level++;
         $text .= showMoveMenu($row, $ids, $actives);
@@ -20,14 +36,16 @@ function showMoveMenu(\RAAS\CMS\Page $node, array $ids, array $actives)
         if ($level) {
             $text = '<ul>' . $text . '</ul>';
         } else {
-            $text = '<ul class="tree" data-role="move-menu" style="margin-bottom: 20px">' . $text . '</ul>';
+            $text = '<ul class="tree" data-role="move-menu" style="margin-bottom: 20px">'
+                  .    $text
+                  . '</ul>';
         }
     }
     return $text;
 }
 ?>
-<p><?php echo CMS\CHOOSE_NEW_PARENT?>:</p>
-<?php echo showMoveMenu(new \RAAS\CMS\Page(), $ids, $actives)?>
+<p><?php echo \CMS\CHOOSE_NEW_PARENT?>:</p>
+<?php echo showMoveMenu(new Page(), $ids, $actives)?>
 <script>
 jQuery(document).ready(function($) {
     $('[data-role="move-menu"]').RAAS_menuTree();

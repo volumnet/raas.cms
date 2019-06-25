@@ -346,8 +346,11 @@ class MaterialTypeTemplate
      * @param array $additionalData Дополнительные параметры
      * @return Block_Material
      */
-    public function createBlock(Page $page, Snippet $widget = null, array $additionalData = [])
-    {
+    public function createBlock(
+        Page $page,
+        Snippet $widget = null,
+        array $additionalData = []
+    ) {
         if ($widget->id && $page->id) {
             $blockData = array_merge([
                 'vis' => 1,

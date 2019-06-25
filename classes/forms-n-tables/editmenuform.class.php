@@ -29,7 +29,10 @@ class EditMenuForm extends RAASForm
     {
         $view = $this->view;
         $Item = isset($params['Item']) ? $params['Item'] : null;
-        if (!$Item->id && $params['Parent']->id && $params['Parent']->domain_id) {
+        if (!$Item->id &&
+            $params['Parent']->id &&
+            $params['Parent']->domain_id
+        ) {
             $Item->domain_id = $params['Parent']->domain_id;
         }
         $Parent = isset($params['Parent']) ? $params['Parent'] : null;
@@ -162,7 +165,8 @@ class EditMenuForm extends RAASForm
      * Получает список страниц для отображения в поле "Страница"
      * @param int|null $pid ID# родительской страницы или null,
      *                      если нужно отобразить корневую страницу
-     * @param int|null $domainId ID# домена (только для фильтрации корневых страниц)
+     * @param int|null $domainId ID# домена (только для фильтрации
+     *                               корневых страниц)
      * @return array<[
      *             'value' => int ID# страницы,
      *             'caption' => string Наименование страницы,
@@ -196,7 +200,10 @@ class EditMenuForm extends RAASForm
                 ];
             }
             foreach ($pagesData as $pageData) {
-                if ($children = $this->getPages((int)$pageData['value'], null)) {
+                if ($children = $this->getPages(
+                    (int)$pageData['value'],
+                    null
+                )) {
                     $pageData['children'] = $children;
                 }
                 $result[] = $pageData;

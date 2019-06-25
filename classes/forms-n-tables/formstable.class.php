@@ -26,48 +26,55 @@ class FormsTable extends Table
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
-        $defaultParams = array(
-            'columns' => array(
-                'id' => array(
+        $defaultParams = [
+            'columns' => [
+                'id' => [
                     'caption' => $this->view->_('ID'),
                     'callback' => function (Form $form) use ($view) {
                         return '<a href="' . $this->getEditURL($form) . '">
                                   ' . (int)$form->id . '
                                 </a>';
                     }
-                ),
-                'name' => array(
+                ],
+                'name' => [
                     'caption' => $this->view->_('NAME'),
                     'callback' => function (Form $form) use ($view) {
                         return '<a href="' . $this->getEditURL($form) . '">
                                   ' . htmlspecialchars($form->name) . '
                                 </a>';
                     }
-                ),
-                'urn' => array(
+                ],
+                'urn' => [
                     'caption' => $this->view->_('URN'),
                     'callback' => function (Form $form) use ($view, $Item) {
                         return '<a href="' . $this->getEditURL($form) . '">
                                   ' . htmlspecialchars($form->urn) . '
                                 </a>';
                     }
-                ),
-                ' ' => array(
-                    'callback' => function (Form $form, $i) use ($view, $contextMenuName, $IN) {
+                ],
+                ' ' => [
+                    'callback' => function (
+                        Form $form,
+                        $i
+                    ) use (
+                        $view,
+                        $contextMenuName,
+                        $IN
+                    ) {
                         return rowContextMenu($view->getFormContextMenu(
                             $form,
                             $i,
                             count($IN['Set'])
                         ));
                     }
-                )
+                ]
 
-            ),
+            ],
             'emptyString' => $this->view->_('NO_FORMS_FOUND'),
-        );
+        ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
     }

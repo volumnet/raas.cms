@@ -20,11 +20,14 @@ class SitemapInterfaceExtended extends SitemapInterface
     /**
      * Обрабатывает интерфейс
      * @param string $catalogMTypeURN URN типа материалов каталога
-     * @param string $catalogPageURL Относительный путь страницы - корня каталога
+     * @param string $catalogPageURL Относительный путь страницы -
+     *                               корня каталога
      * @return text
      */
-    public function process($catalogMTypeURN = 'catalog', $catalogPageUrl = '/catalog/')
-    {
+    public function process(
+        $catalogMTypeURN = 'catalog',
+        $catalogPageUrl = '/catalog/'
+    ) {
         Timer::add('sitemap.xml');
         $this->prepareMetaData();
         $page = $this->page->Domain;
@@ -43,13 +46,15 @@ class SitemapInterfaceExtended extends SitemapInterface
     public function getAndSaveIndex()
     {
         $text = '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-        foreach (array('sections', 'catalog', 'goods') as $key) {
-            if (is_file(Application::i()->baseDir . '/sitemap.' . $key . '.xml')) {
+        $host = $this->getCurrentHostURL();
+        foreach (['sections', 'catalog', 'goods'] as $key) {
+            $filename = Application::i()->baseDir . '/sitemap.' . $key . '.xml';
+            if (is_file($filename)) {
+                $fileURL = $host . '/sitemap.' . $key . '.xml';
+                $date = date(DATE_W3C, filemtime($filename));
                 $text .= '<sitemap>'
-                      .    '<loc>' . $this->getCurrentHostURL() . '/sitemap.' . $key . '.xml</loc>'
-                      .    '<lastmod>'
-                      .       date(DATE_W3C, filemtime(Application::i()->baseDir . '/sitemap.' . $key . '.xml'))
-                      .    '</lastmod>'
+                      .    '<loc>' . $fileURL . '</loc>'
+                      .    '<lastmod>' . $date . '</lastmod>'
                       .  '</sitemap>';
             }
         }
@@ -62,10 +67,13 @@ class SitemapInterfaceExtended extends SitemapInterface
     /**
      * Получает и сохраняет семейство sitemap
      * @param string $catalogMTypeURN URN типа материалов каталога
-     * @param string $catalogPageURL Относительный путь страницы - корня каталога
+     * @param string $catalogPageURL Относительный путь страницы -
+     *                               корня каталога
      */
-    public function getAndSaveSitemaps($catalogMTypeURN = 'catalog', $catalogPageUrl = '/catalog/')
-    {
+    public function getAndSaveSitemaps(
+        $catalogMTypeURN = 'catalog',
+        $catalogPageUrl = '/catalog/'
+    ) {
         $page = $this->page->Domain;
 
         $catalogPage = Page::importByURL($page->domain . $catalogPageUrl);
@@ -75,40 +83,48 @@ class SitemapInterfaceExtended extends SitemapInterface
         $allMTypesIds = Material_Type::_SQL()->getcol($sqlQuery);
 
         $catalogMTypesIds = $catalogMType->selfAndChildrenIds;
-        $restMTypesIds = array_values(array_diff($allMTypesIds, $catalogMTypesIds));
+        $restMTypesIds = array_values(
+            array_diff($allMTypesIds, $catalogMTypesIds)
+        );
+
         $catalogPagesIds = $catalogPage->selfAndChildrenIds;
+        file_put_contents(
+            Application::i()->baseDir . '/sitemap.sections.xml',
+            $this->getSectionsSitemap($catalogPagesIds, $restMTypesIds)
+        );
 
-        $sectionsSitemap = $this->getSectionsSitemap($catalogPagesIds, $restMTypesIds);
-        file_put_contents(Application::i()->baseDir . '/sitemap.sections.xml', $sectionsSitemap);
-        unset($sectionsSitemap);
+        file_put_contents(
+            Application::i()->baseDir . '/sitemap.catalog.xml',
+            $this->getCatalogSitemap($catalogPage)
+        );
 
-        $catalogSitemap = $this->getCatalogSitemap($catalogPage);
-        file_put_contents(Application::i()->baseDir . '/sitemap.catalog.xml', $catalogSitemap);
-        unset($catalogSitemap);
-
-        $goodsSitemap = $this->getGoodsSitemap($catalogPage, $catalogMTypesIds);
-        file_put_contents(Application::i()->baseDir . '/sitemap.goods.xml', $goodsSitemap);
-        unset($goodsSitemap);
+        file_put_contents(
+            Application::i()->baseDir . '/sitemap.goods.xml',
+            $this->getGoodsSitemap($catalogPage, $catalogMTypesIds)
+        );
     }
 
 
     /**
      * Получает содержимое файла sitemap.sections.xml
      * @param array<int> $catalogPagesIds Список ID# категорий каталога
-     * @param array<int> $restMTypesIds Список ID# типов материалов кроме каталога
+     * @param array<int> $restMTypesIds Список ID# типов материалов
+     *                                  кроме каталога
      * @return string
      */
     public function getSectionsSitemap($catalogPagesIds, $restMTypesIds)
     {
         $domainPage = $this->page->Domain;
         $domainPageData = $domainPage->getArrayCopy();
-        $domainPageData['url'] = $domainPage->domain . $domainPageData['cache_url'];
+        $domainPageData['url'] = $domainPage->domain
+                               . $domainPageData['cache_url'];
 
         $pages = array_merge(
             [trim($domainPage->id) => $domainPageData],
             $this->getPages([$domainPage->id], $catalogPagesIds)
         );
-        $content = $this->showMenu($pages) . $this->showMaterials($pages, $restMTypesIds);
+        $content = $this->showMenu($pages)
+                 . $this->showMaterials($pages, $restMTypesIds);
         $text = $this->getUrlSet($content);
         return $text;
     }
@@ -121,7 +137,7 @@ class SitemapInterfaceExtended extends SitemapInterface
      */
     public function getCatalogSitemap(Page $catalogRoot)
     {
-        $pages = $this->getPages(array($catalogRoot->id));
+        $pages = $this->getPages([$catalogRoot->id]);
         $content = $this->showMenu($pages);
         $text = $this->getUrlSet($content);
         return $text;
@@ -134,9 +150,11 @@ class SitemapInterfaceExtended extends SitemapInterface
      * @param array<int> $catalogMTypesIds Список ID# типов материалов каталога
      * @return string
      */
-    public function getGoodsSitemap(Page $catalogRoot, array $catalogMTypesIds = array())
-    {
-        $pages = $this->getPages(array($catalogRoot->id));
+    public function getGoodsSitemap(
+        Page $catalogRoot,
+        array $catalogMTypesIds = []
+    ) {
+        $pages = $this->getPages([$catalogRoot->id]);
         $content = $this->showMaterials($pages, $catalogMTypesIds);
         $text = $this->getUrlSet($content);
         return $text;

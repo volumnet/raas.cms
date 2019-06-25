@@ -1,7 +1,16 @@
 <?php
+/**
+ * Форма редактирования справочника
+ */
 namespace RAAS\CMS;
 
-class EditDictionaryForm extends \RAAS\Form
+use RAAS\Form as RAASForm;
+
+/**
+ * Класс формы редактирования справочника
+ * @property-read ViewSub_Dev $view Представление
+ */
+class EditDictionaryForm extends RAASForm
 {
     public function __get($var)
     {
@@ -16,25 +25,51 @@ class EditDictionaryForm extends \RAAS\Form
     }
 
 
-    public function __construct(array $params = array())
+    public function __construct(array $params = [])
     {
         $view = $this->view;
-        $Item = isset($params['Item']) ? $params['Item'] : null;
-        $Parent = isset($params['Parent']) ? $params['Parent'] : null;
-        $CONTENT = array();
-        foreach (\RAAS\CMS\Dictionary::$ordersBy as $key => $val) {
-            $CONTENT['orderBy'][] = array('value' => $key, 'caption' => $this->view->_($val));
+        $item = isset($params['Item']) ? $params['Item'] : null;
+        $parent = isset($params['Parent']) ? $params['Parent'] : null;
+        $CONTENT = [];
+        foreach (Dictionary::$ordersBy as $key => $val) {
+            $CONTENT['orderBy'][] = [
+                'value' => $key,
+                'caption' => $this->view->_($val)
+            ];
         }
-        $defaultParams = array(
-            'caption' => $Item->id ? $Item->name : ($Parent->id ? $this->view->_('CREATING_NOTE') : $this->view->_('CREATING_DICTIONARY')),
-            'export' => function($Form) use ($Parent) { $Form->exportDefault(); $Form->Item->pid = (int)$Parent->id; },
-            'parentUrl' => $this->view->url . '&action=dictionaries&id=' . (int)$Parent->id,
+        $defaultParams = [
+            'caption' => $item->id
+                      ?  $item->name
+                      :  $this->view->_('CREATING_' . ($parent->id ? 'NOTE' : 'DICTIONARY')),
+            'export' => function ($form) use ($parent) {
+                $form->exportDefault();
+                $form->Item->pid = (int)$parent->id;
+            },
+            'parentUrl' => $this->view->url . '&action=dictionaries&id='
+                        .  (int)$parent->id,
             'newUrl' => $this->view->url . '&action=edit_dictionary&pid=%s'
-        );
-        $defaultParams['children'][] = array('type' => 'checkbox', 'name' => 'vis', 'caption' => $this->view->_('VISIBLE'), 'default' => 1);
-        $defaultParams['children'][] = array('name' => 'name', 'caption' => $this->view->_('NAME'), 'required' => 'required');
-        $defaultParams['children'][] = array('name' => 'urn', 'caption' => $this->view->_($Parent->id ? 'VALUE' : 'URN'));
-        $defaultParams['children'][] = array('type' => 'radio', 'name' => 'orderby', 'children' => $CONTENT['orderBy'], 'default' => 'priority');
+        ];
+        $defaultParams['children'][] = [
+            'type' => 'checkbox',
+            'name' => 'vis',
+            'caption' => $this->view->_('VISIBLE'),
+            'default' => 1
+        ];
+        $defaultParams['children'][] = [
+            'name' => 'name',
+            'caption' => $this->view->_('NAME'),
+            'required' => 'required'
+        ];
+        $defaultParams['children'][] = [
+            'name' => 'urn',
+            'caption' => $this->view->_($parent->id ? 'VALUE' : 'URN')
+        ];
+        $defaultParams['children'][] = [
+            'type' => 'radio',
+            'name' => 'orderby',
+            'children' => $CONTENT['orderBy'],
+            'default' => 'priority'
+        ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
     }

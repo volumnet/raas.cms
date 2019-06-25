@@ -61,7 +61,9 @@ class MenuRecursiveCache extends VisibleRecursiveCache
         $this->allowedIds = [];
         $allowedPageIds = PageRecursiveCache::i()->allowedIds;
         foreach ($this->cache as $id => $cacheData) {
-            if (!(int)$cacheData['page_id'] || isset($allowedPageIds[$cacheData['page_id']])) {
+            if (!(int)$cacheData['page_id'] ||
+                isset($allowedPageIds[$cacheData['page_id']])
+            ) {
                 $this->allowedIds[(string)$id] = (int)$id;
             }
         }

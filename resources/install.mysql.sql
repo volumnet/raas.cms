@@ -304,6 +304,9 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   sitemaps_priority decimal(8,2) unsigned NOT NULL DEFAULT '0.50' COMMENT 'Sitemaps priority',
   show_from datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish from date/time',
   show_to datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Publish to date/time',
+  cache_url_parent_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Cached URL Parent ID#',
+  cache_url VARCHAR(255) NOT NULL DEFAULT '/' COMMENT 'Cached URL',
+
   PRIMARY KEY (id),
   KEY pid (pid),
   KEY author_id (author_id),
@@ -311,7 +314,9 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   KEY urn (urn),
   KEY show_from (show_from),
   KEY show_to (show_to),
-  INDEX priority (priority)
+  INDEX priority (priority),
+  INDEX cache_url_parent_id (cache_url_parent_id),
+  INDEX cache_url (cache_url)
 ) COMMENT='Translator exceptions';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_pages_assoc (
@@ -322,6 +327,15 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_pages_assoc (
   KEY pid (pid)
 ) COMMENT='Materials to pages associations';
 
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_affected_pages_cache (
+    material_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
+    page_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
+
+    PRIMARY KEY (material_id, page_id),
+    KEY (material_id),
+    KEY (page_id)
+) COMMENT 'Materials affected pages';
+
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent type ID#',
@@ -331,6 +345,28 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types (
   PRIMARY KEY (id),
   KEY urn (urn)
 ) COMMENT='Material types';
+
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types_affected_pages_for_materials_cache (
+    material_type_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
+    page_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
+    nat TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'NAT',
+
+    PRIMARY KEY (material_type_id, page_id),
+    KEY (material_type_id),
+    KEY (page_id),
+    KEY (nat)
+) COMMENT 'Material types affected pages for materials';
+
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types_affected_pages_for_self_cache (
+    material_type_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
+    page_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
+    nat TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'NAT',
+
+    PRIMARY KEY (material_type_id, page_id),
+    KEY (material_type_id),
+    KEY (page_id),
+    KEY (nat)
+) COMMENT 'Material types affected pages for self (for admin)';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_menus (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
