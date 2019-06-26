@@ -356,7 +356,9 @@ $_RAASForm_Control = function (
                   <div data-role="raas-repo-container">
                     <?php foreach ((array)$field->Form->DATA[$field->name] as $key => $val) { ?>
                         <div data-role="raas-repo-element">
-                          <textarea<?php echo $_RAASForm_Attrs($field, $attrs)?>><?php echo htmlspecialchars($val)?></textarea>
+                          <textarea<?php echo $_RAASForm_Attrs($field, $attrs)?>><?php
+                            echo htmlspecialchars($val);
+                          ?></textarea>
                         </div>
                     <?php } ?>
                   </div>
@@ -365,14 +367,20 @@ $_RAASForm_Control = function (
                   </div>
                 </div>
             <?php } else { ?>
-                <textarea<?php echo $_RAASForm_Attrs($field, $attrs)?>><?php echo htmlspecialchars($field->Form->DATA[$field->name])?></textarea>
+                <textarea<?php echo $_RAASForm_Attrs($field, $attrs)?>><?php
+                  echo htmlspecialchars($field->Form->DATA[$field->name]);
+                ?></textarea>
             <?php }
             break;
         case 'password':
             $attrs = [];
             if ($confirm) {
                 $attrs['name'] = $field->name . '@confirm';
-            } ?>
+            }
+            if ($field->confirm) {
+                $attrs['autocomplete'] = 'new-password';
+            }
+            ?>
             <input<?php echo $_RAASForm_Attrs($field, $attrs)?> />
             <?php
             break;
