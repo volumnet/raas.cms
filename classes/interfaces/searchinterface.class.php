@@ -174,7 +174,7 @@ class SearchInterface extends AbstractInterface
             $this->materialDataSentenceRatio,
             $this->materialDataWordRatio,
             $this->pageMaterialsRatio,
-            $searchLimit = 100
+            $searchLimit
         );
         $pages = null;
         if (isset($this->block->pages_var_name, $this->block->rows_per_page) &&
