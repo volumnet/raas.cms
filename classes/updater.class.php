@@ -1027,34 +1027,38 @@ class Updater extends RAASUpdater
      */
     protected function update20141029()
     {
-        $sqlQuery = "SELECT COUNT(*)
-                        FROM " . SOME::_dbprefix() . "cms_snippets AS tS
-                   LEFT JOIN " . SOME::_dbprefix() . "cms_snippet_folders
-                          AS tSF
-                          ON tSF.id = tS.pid
-                       WHERE NOT tS.locked
-                         AND tSF.urn != '__raas_interfaces'
-                         AND (
-                                tS.description LIKE '%href=\"%?id=%->id%\"%'
-                             OR tS.description LIKE '%<loc>%?id=%</loc>'
-                         )";
-        if ((int)$this->SQL->getvalue($sqlQuery)) {
-            $rep = [];
-            $rep['href="<' . '?php echo $Page->url?' . '>?id=<' . '?php echo (int)$row->id?' . '>"'] = 'href="<'
-                                                                                                     . '?php echo $Page->url . $row->urn?'
-                                                                                                     . '>/"';
-            $rep['?id=<' . '?php echo (int)$row->id?' . '>"'] = '<'
-                                                              . '?php echo $row->urn?'
-                                                              . '>/"';
-            $rep['<loc>http://\' . htmlspecialchars($_SERVER[\'HTTP_HOST\'] . $row->url) . \'?id=\' . (int)$row2->id . \'</loc>'] = '<loc>http://\' . htmlspecialchars($_SERVER[\'HTTP_HOST\'] . $row->url . $row2->urn) . \'/</loc>';
-            foreach ($rep as $key => $val) {
-                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_snippets AS tS
-                           LEFT JOIN " . SOME::_dbprefix() . "cms_snippet_folders
-                                  AS tSF
-                                  ON tSF.id = tS.pid
-                                 SET tS.description = REPLACE(tS.description, ?, ?)
-                               WHERE NOT tS.locked AND tSF.urn != '__raas_interfaces'";
-                $this->SQL->query([$sqlQuery, $key, $val]);
+        if (in_array(SOME::_dbprefix() . "cms_snippets", $this->tables) &&
+            in_array(SOME::_dbprefix() . "cms_snippet_folders", $this->tables)
+        ) {
+            $sqlQuery = "SELECT COUNT(*)
+                            FROM " . SOME::_dbprefix() . "cms_snippets AS tS
+                       LEFT JOIN " . SOME::_dbprefix() . "cms_snippet_folders
+                              AS tSF
+                              ON tSF.id = tS.pid
+                           WHERE NOT tS.locked
+                             AND tSF.urn != '__raas_interfaces'
+                             AND (
+                                    tS.description LIKE '%href=\"%?id=%->id%\"%'
+                                 OR tS.description LIKE '%<loc>%?id=%</loc>'
+                             )";
+            if ((int)$this->SQL->getvalue($sqlQuery)) {
+                $rep = [];
+                $rep['href="<' . '?php echo $Page->url?' . '>?id=<' . '?php echo (int)$row->id?' . '>"'] = 'href="<'
+                                                                                                         . '?php echo $Page->url . $row->urn?'
+                                                                                                         . '>/"';
+                $rep['?id=<' . '?php echo (int)$row->id?' . '>"'] = '<'
+                                                                  . '?php echo $row->urn?'
+                                                                  . '>/"';
+                $rep['<loc>http://\' . htmlspecialchars($_SERVER[\'HTTP_HOST\'] . $row->url) . \'?id=\' . (int)$row2->id . \'</loc>'] = '<loc>http://\' . htmlspecialchars($_SERVER[\'HTTP_HOST\'] . $row->url . $row2->urn) . \'/</loc>';
+                foreach ($rep as $key => $val) {
+                    $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_snippets AS tS
+                               LEFT JOIN " . SOME::_dbprefix() . "cms_snippet_folders
+                                      AS tSF
+                                      ON tSF.id = tS.pid
+                                     SET tS.description = REPLACE(tS.description, ?, ?)
+                                   WHERE NOT tS.locked AND tSF.urn != '__raas_interfaces'";
+                    $this->SQL->query([$sqlQuery, $key, $val]);
+                }
             }
         }
     }
@@ -1669,10 +1673,12 @@ class Updater extends RAASUpdater
             $sqlQuery = "CREATE TABLE IF NOT EXISTS " . SOME::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache (
                              material_type_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
                              page_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Page ID#',
+                             nat TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'NAT',
 
                              PRIMARY KEY (material_type_id, page_id),
                              KEY (material_type_id),
-                             KEY (page_id)
+                             KEY (page_id),
+                             KEY (nat)
                          ) COMMENT 'Material types affected pages for materials'";
             $this->SQL->query($sqlQuery);
         }
@@ -1717,7 +1723,8 @@ class Updater extends RAASUpdater
      */
     public function update20190607()
     {
-        if (in_array(SOME::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache", $this->tables) &&
+        if (in_array(SOME::_dbprefix() . "cms_material_types", $this->tables) &&
+            in_array(SOME::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache", $this->tables) &&
             !in_array('nat', $this->columns(SOME::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache"))
         ) {
             $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache
