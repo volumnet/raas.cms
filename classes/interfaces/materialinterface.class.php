@@ -438,7 +438,9 @@ class MaterialInterface extends AbstractInterface
                 $filterItem['relation'],
                 $filterItem['field'],
                 $get[$filterItem['var']]
-            )) {
+            ) && $get[$filterItem['var']]) {
+                // 2019-07-30, AVS: добавили $get[$filterItem['var']], чтобы
+                // не учитывались в фильтре нули и пустые строки
                 $var = $filterItem['var'];
                 $val = $get[$var];
                 $relation = $filterItem['relation'];
