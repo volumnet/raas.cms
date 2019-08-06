@@ -201,18 +201,6 @@ class Webmaster
         $parentField
     ) {
         return Attachment::createFromFile($filepath, $parentField);
-        // $att = new Attachment();
-        // $att->copy = true;
-        // $att->upload = $filepath;
-        // $att->filename = $filename;
-        // $type = getimagesize($filepath);
-        // $att->mime = image_type_to_mime_type($type[2]);
-        // $att->parent = $parentField;
-        // $att->image = 1;
-        // $att->maxWidth = $att->maxHeight = 1920;
-        // $att->tnsize = 300;
-        // $att->commit();
-        // return $att;
     }
 
 
@@ -449,10 +437,7 @@ class Webmaster
         $widgets = [];
         $viewsFolderId = (int)Snippet_Folder::importByURN('__raas_views')->id;
         $widgetsData = [
-            // 'banners' => $this->view->_('BANNERS'),
-            // 'search' => $this->view->_('SITE_SEARCH'),
             'logo' => $this->view->_('LOGO'),
-            // 'features_main' => $this->view->_('FEATURES_MAIN'),
         ];
         foreach ($widgetsData as $urn => $name) {
             $widget = Snippet::importByURN($urn);
@@ -468,16 +453,6 @@ class Webmaster
             $widgets[$urn] = $widget;
         }
 
-        $formsFolder = Snippet_Folder::importByURN('__raas_forms');
-        if (!$formsFolder->id) {
-            $formsFolder = new Snippet_Folder([
-                'urn' => '__raas_forms',
-                'name' => $this->view->_('FORMS'),
-                'pid' => $viewsFolderId,
-                'locked' => 1
-            ]);
-            $formsFolder->commit();
-        }
         $formWidgetsData = [
             'feedback' => $this->view->_('FEEDBACK'),
             'feedback_modal' => $this->view->_('FEEDBACK_MODAL'),
@@ -489,7 +464,7 @@ class Webmaster
                 $widget = $this->createSnippet(
                     $urn,
                     $name,
-                    (int)$formsFolder->id,
+                    (int)$viewsFolderId,
                     (
                         $this->resourcesDir . '/widgets/feedback/' . $urn .
                         '.tmp.php'
@@ -1610,11 +1585,6 @@ class Webmaster
                         $this->nextImage,
                         $MT->fields['images']
                     );
-                    // $att = $this->getAttachmentFromFilename(
-                    //     $row['filename'],
-                    //     $row['url'],
-                    //     $MT->fields['images']
-                    // );
                     $Item->fields['images']->addValue(json_encode([
                         'vis' => 1,
                         'name' => '',
@@ -1963,11 +1933,6 @@ class Webmaster
                     $user['pic']['filepath'],
                     $MT->fields['image']
                 );
-                // $att = $this->getAttachmentFromFilename(
-                //     $user['pic']['name'],
-                //     $user['pic']['filepath'],
-                //     $MT->fields['image']
-                // );
                 $Item->fields['image']->addValue(json_encode([
                     'vis' => 1,
                     'name' => '',
@@ -1978,11 +1943,6 @@ class Webmaster
                     $answer['pic']['filepath'],
                     $MT->fields['answer_image']
                 );
-                // $att = $this->getAttachmentFromFilename(
-                //     $answer['pic']['name'],
-                //     $answer['pic']['filepath'],
-                //     $MT->fields['answer_image']
-                // );
                 $Item->fields['answer_image']->addValue(json_encode([
                     'vis' => 1,
                     'name' => '',
