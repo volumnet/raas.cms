@@ -636,16 +636,6 @@ class Webmaster
     public function createMenus(array $menusData = [])
     {
         $viewsFolderId = Snippet_Folder::importByURN('__raas_views')->id;
-        $menuFolder = Snippet_Folder::importByURN('__raas_menus');
-        if (!$menuFolder->id) {
-            $menuFolder = new Snippet_Folder([
-                'urn' => '__raas_menus',
-                'name' => $this->view->_('MENU'),
-                'pid' => $viewsFolderId,
-                'locked' => 1
-            ]);
-            $menuFolder->commit();
-        }
         $menuWidgetFilename = Package::i()->resourcesDir
                             . '/widgets/menu/menu.tmp.php';
         $cacheInterfaceId = Snippet::importByURN('__raas_cache_interface')->id;
@@ -672,7 +662,7 @@ class Webmaster
                 $menuWidget = $this->createSnippet(
                     trim('menu_' . $menuData['urn']),
                     trim($menuData['name']),
-                    (int)$menuFolder->id,
+                    (int)$viewsFolderId,
                     trim($menuWidgetFilename),
                     [
                         'MENU_NAME' => $menuData['name'],
@@ -779,8 +769,7 @@ class Webmaster
         }
         $widget = Snippet::importByURN('banners');
         if (!$widget->id) {
-            $snippets = $materialTemplate->createSnippets(false);
-            $widget = $snippets['banners'];
+            $widget = $materialTemplate->createBlockSnippet();
             $block = $materialTemplate->createBlock(
                 $this->Site,
                 $widget,
@@ -812,8 +801,7 @@ class Webmaster
         }
         $widget = Snippet::importByURN('features_main');
         if (!$widget->id) {
-            $snippets = $materialTemplate->createMainPageSnippets(false);
-            $widget = $snippets['features_main'];
+            $widget = $materialTemplate->createMainPageSnippet();
             $block = $materialTemplate->createBlock(
                 $this->Site,
                 $widget,
@@ -1500,15 +1488,13 @@ class Webmaster
 
         $widget = Snippet::importByURN($urn);
         if (!$widget->id) {
-            $snippets = $materialTemplate->createSnippets(true);
-            $widget = $snippets[$urn];
+            $widget = $materialTemplate->createBlockSnippet(true);
         }
 
         if ($nameMain) {
             $mainWidget = Snippet::importByURN($urn . '_main');
             if (!$mainWidget->id) {
-                $mainPageSnippets = $materialTemplate->createMainPageSnippets();
-                $mainWidget = $mainPageSnippets[$urn . '_main'];
+                $mainWidget = $materialTemplate->createMainPageSnippet();
             }
         }
 

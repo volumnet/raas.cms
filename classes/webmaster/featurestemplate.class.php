@@ -53,19 +53,6 @@ class FeaturesTemplate extends MaterialTypeTemplate
     }
 
 
-    public function createMainPageItemSnippet()
-    {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/features/features_main_item.tmp.php';
-        $snippet = $this->createSnippetByFile(
-            $filename,
-            'main_item',
-            View_Web::i()->_('MATERIAL_TEMPLATE_MAIN_LIST_ITEM_SUFFIX')
-        );
-        return $snippet;
-    }
-
-
     public function createBlock(
         Page $page,
         Snippet $widget = null,

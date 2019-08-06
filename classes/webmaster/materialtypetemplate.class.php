@@ -36,7 +36,7 @@ class MaterialTypeTemplate
         switch ($var) {
             case 'widgetsFolder':
                 if (!$this->_widgetsFolder) {
-                    $this->_widgetsFolder = $this->createWidgetsFolder();
+                    $this->_widgetsFolder = Snippet_Folder::importByURN('__raas_views');
                 }
                 return $this->_widgetsFolder;
                 break;
@@ -125,31 +125,6 @@ class MaterialTypeTemplate
 
 
     /**
-     * Создает папку представлений для типа
-     * @return Snippet_Folder Созданная или найденная папка
-     */
-    public function createWidgetsFolder()
-    {
-        $widgetsRootFolder = Snippet_Folder::importByURN('__raas_views');
-        $sqlResult = Snippet_Folder::getSet(['where' => [
-            "pid = " . (int)$widgetsRootFolder->id,
-            "urn = '" . Snippet_Folder::_SQL()->real_escape_string($this->materialType->urn) . "'",
-        ]]);
-        if ($sqlResult) {
-            $folder = array_shift($sqlResult);
-        } else {
-            $folder = new Snippet_Folder([
-                'pid' => (int)$widgetsRootFolder->id,
-                'urn' => $this->materialType->urn,
-                'name' => $this->materialType->name
-            ]);
-            $folder->commit();
-        }
-        return $folder;
-    }
-
-
-    /**
      * Создает основной сниппет для типа
      * @param bool $nat Существуют ли статьи материалов для данного типа
      * @return Snippet
@@ -176,125 +151,6 @@ class MaterialTypeTemplate
             $filename,
             'main',
             View_Web::i()->_('MATERIAL_TEMPLATE_MAIN_SUFFIX')
-        );
-        return $snippet;
-    }
-
-
-    /**
-     * Создает сниппет для списка
-     * @return Snippet
-     */
-    public function createListSnippet()
-    {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/material/material_list.tmp.php';
-        $snippet = $this->createSnippetByFile(
-            $filename,
-            'list',
-            View_Web::i()->_('MATERIAL_TEMPLATE_LIST_SUFFIX')
-        );
-        return $snippet;
-    }
-
-
-    /**
-     * Создает сниппет для списка главной страницы
-     * @return Snippet
-     */
-    public function createMainPageListSnippet()
-    {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/material/material_main_list.tmp.php';
-        $snippet = $this->createSnippetByFile(
-            $filename,
-            'main_list',
-            View_Web::i()->_('MATERIAL_TEMPLATE_MAIN_LIST_SUFFIX')
-        );
-        return $snippet;
-    }
-
-
-    /**
-     * Создает сниппет для элемента списка
-     * @return Snippet
-     */
-    public function createItemSnippet()
-    {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/material/material_item.tmp.php';
-        $snippet = $this->createSnippetByFile(
-            $filename,
-            'item',
-            View_Web::i()->_('MATERIAL_TEMPLATE_LIST_ITEM_SUFFIX')
-        );
-        return $snippet;
-    }
-
-
-    /**
-     * Создает сниппет для элемента списка
-     * @return Snippet
-     */
-    public function createMainPageItemSnippet()
-    {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/material/material_main_item.tmp.php';
-        $snippet = $this->createSnippetByFile(
-            $filename,
-            'main_item',
-            View_Web::i()->_('MATERIAL_TEMPLATE_MAIN_LIST_ITEM_SUFFIX')
-        );
-        return $snippet;
-    }
-
-
-    /**
-     * Создает сниппет для статьи материала
-     * @return Snippet
-     */
-    public function createArticleSnippet()
-    {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/material/material_article.tmp.php';
-        $snippet = $this->createSnippetByFile(
-            $filename,
-            'article',
-            View_Web::i()->_('MATERIAL_TEMPLATE_ARTICLE_SUFFIX')
-        );
-        return $snippet;
-    }
-
-
-    /**
-     * Создает сниппет списка изображений для статьи материала
-     * @return Snippet
-     */
-    public function createArticleImagesListSnippet()
-    {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/material/material_article_images_list.tmp.php';
-        $snippet = $this->createSnippetByFile(
-            $filename,
-            'article_images_list',
-            View_Web::i()->_('MATERIAL_TEMPLATE_ARTICLE_IMAGES_LIST_SUFFIX')
-        );
-        return $snippet;
-    }
-
-
-    /**
-     * Создает сниппет изображения из списка для статьи материала
-     * @return Snippet
-     */
-    public function createArticleImagesItemSnippet()
-    {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/material/material_article_images_item.tmp.php';
-        $snippet = $this->createSnippetByFile(
-            $filename,
-            'article_images_item',
-            View_Web::i()->_('MATERIAL_TEMPLATE_ARTICLE_IMAGES_LIST_ITEM_SUFFIX')
         );
         return $snippet;
     }
@@ -369,50 +225,5 @@ class MaterialTypeTemplate
             $block->commit();
             return $block;
         }
-    }
-
-
-    /**
-     * Создает основные сниппеты
-     * @return array<string[] URN сниппета>
-     */
-    public function createSnippets($nat = false)
-    {
-        $blockSnippet = $this->createBlockSnippet(true);
-        $listSnippet = $this->createListSnippet();
-        $itemSnippet = $this->createItemSnippet();
-        $result = [
-            $blockSnippet->urn => $blockSnippet,
-            $listSnippet->urn => $listSnippet,
-            $itemSnippet->urn => $itemSnippet,
-        ];
-        if ($nat) {
-            $articleSnippet = $this->createArticleSnippet();
-            $articleImagesListSnippet = $this->createArticleImagesListSnippet();
-            $articleImagesItemSnippet = $this->createArticleImagesItemSnippet();
-            $result = array_merge($result, [
-                $articleSnippet->urn => $articleSnippet,
-                $articleImagesListSnippet->urn => $articleImagesListSnippet,
-                $articleImagesItemSnippet->urn => $articleImagesItemSnippet,
-            ]);
-        }
-        return $result;
-    }
-
-
-    /**
-     * Создает сниппеты для главной страницы
-     * @return array<string[] URN сниппета>
-     */
-    public function createMainPageSnippets()
-    {
-        $blockSnippet = $this->createMainPageSnippet();
-        $listSnippet = $this->createMainPageListSnippet();
-        $itemSnippet = $this->createMainPageItemSnippet();
-        return [
-            $blockSnippet->urn => $blockSnippet,
-            $listSnippet->urn => $listSnippet,
-            $itemSnippet->urn => $itemSnippet,
-        ];
     }
 }

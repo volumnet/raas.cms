@@ -49,32 +49,6 @@ class BannersTemplate extends MaterialTypeTemplate
     }
 
 
-    public function createListSnippet()
-    {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/banners/banners_list.tmp.php';
-        $snippet = $this->createSnippetByFile(
-            $filename,
-            'list',
-            View_Web::i()->_('MATERIAL_TEMPLATE_LIST_SUFFIX')
-        );
-        return $snippet;
-    }
-
-
-    public function createItemSnippet()
-    {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/banners/banners_item.tmp.php';
-        $snippet = $this->createSnippetByFile(
-            $filename,
-            'item',
-            View_Web::i()->_('MATERIAL_TEMPLATE_LIST_ITEM_SUFFIX')
-        );
-        return $snippet;
-    }
-
-
     public function createBlock(
         Page $page,
         Snippet $widget = null,
