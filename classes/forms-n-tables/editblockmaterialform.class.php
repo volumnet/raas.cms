@@ -76,9 +76,9 @@ class EditBlockMaterialForm extends EditBlockForm
             $materialType = $this->meta['CONTENT']['material_types']['Set'][0];
         }
         foreach ((array)$materialType->fields as $row) {
-            if (!$row->multiple &&
-                !in_array($row->datatype, ['file', 'image'])
-            ) {
+            if (!in_array($row->datatype, ['file', 'image'])) {
+                // 2019-07-30, AVS: убрали проверку на единичность полей,
+                // т.к. фильтр может быть и по множественному полю
                 $this->meta['CONTENT']['fields'][] = [
                     'value' => (int)$row->id,
                     'caption' => $row->name
