@@ -242,7 +242,7 @@ class Controller_Frontend extends Abstract_Controller
      * @param bool $doCache есть ли кэширование
      * @return Page страница, которая должна быть
      */
-    private function checkMaterial(Page $Page, $doCache = false)
+    protected function checkMaterial(Page $Page, $doCache = false)
     {
         if (count($Page->additionalURLArray) == 1) {
             $Material = Material::importByURN($Page->additionalURLArray[0]);
