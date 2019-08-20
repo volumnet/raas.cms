@@ -285,7 +285,9 @@ class Page extends SOME
                 $url = trim($this->additionalURL, '/');
                 $url = trim($url);
                 $urlArray = explode('/', $url);
-                $urlArray = array_filter($urlArray, 'trim');
+                $urlArray = array_filter($urlArray, function ($x) {
+                    return trim($x) !== '';
+                });
                 $urlArray = array_values($urlArray);
                 return $urlArray;
             case 'blocksByLocations':

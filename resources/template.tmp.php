@@ -137,204 +137,242 @@ ob_start();
           </div>
           <div class="body__banners">
             <div class="body__banners-inner">
-                <?php echo $Page->location('banners')?>
+              <?php echo $Page->location('banners')?>
             </div>
           </div>
         </div>
       </header>
       <main class="body__main-container">
+        <?php
+        $leftText = $Page->location('left');
+        $rightText = $Page->location('right');
+        $contentText = $Page->location('content');
+        if ($contentText) {
+            $colspanSM = 4;
+            $colspanMD = 3;
+        } else {
+            $colspanSM = $colspanMD = 6;
+        }
+        $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
+        $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
+        ?>
         <div class="body__content-outer">
           <div class="container">
             <div class="row">
-                <?php
-                $leftText = $Page->location('left');
-                $rightText = $Page->location('right');
-                $contentText = $Page->location('content');
-                if ($contentText) {
-                    $colspanSM = 4;
-                    $colspanMD = 3;
-                } else {
-                    $colspanSM = $colspanMD = 6;
-                }
-                if ($leftText) { ?>
+                <?php if ($leftText) { ?>
                     <aside class="body__left col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                      <div class="body__left-inner"><?php echo $leftText?></div>
+                      <div class="body__left-inner">
+                        <?php echo $leftText?>
+                      </div>
                     </aside>
-                <?php } ?>
-                <?php if ($contentText) {
-                    $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
-                    $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
-                    ?>
-                  <div class="body__content col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
-                    <div class="body__content-inner">
-                        <?php if (!$Page->pid) { ?>
-                            <?php echo $contentText?>
-                        <?php } else { ?>
-                            <?php if ((count($Page->parents) + (bool)$Page->Material->id + (bool)$Page->Item->id) > 1) { ?>
-                              <ol class="breadcrumb">
-                                <?php foreach ($Page->parents as $row) { ?>
-                                    <li><a href="<?php echo htmlspecialchars($row->url)?>"><?php echo htmlspecialchars($row->getBreadcrumbsName())?></a></li>
-                                <?php } ?>
-                                <?php if ($Page->Material->id || $Page->Item->id) { ?>
-                                    <li><a href="<?php echo htmlspecialchars($Page->url)?>"><?php echo htmlspecialchars($Page->getBreadcrumbsName())?></a></li>
-                                <?php } ?>
-                              </ol>
+                <?php }
+                if ($contentText) { ?>
+                    <div class="body__content col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
+                      <div class="body__content-inner">
+                        <?php if (!$Page->pid) {
+                            echo $contentText;
+                        } else {
+                            if ((count($Page->parents) + (bool)$Page->Material->id + (bool)$Page->Item->id) > 1) { ?>
+                                <ol class="breadcrumb">
+                                  <?php foreach ($Page->parents as $row) { ?>
+                                      <li>
+                                        <a href="<?php echo htmlspecialchars($row->url)?>">
+                                          <?php echo htmlspecialchars($row->getBreadcrumbsName())?>
+                                        </a>
+                                      </li>
+                                  <?php } ?>
+                                  <?php if ($Page->Material->id || $Page->Item->id) { ?>
+                                      <li>
+                                        <a href="<?php echo htmlspecialchars($Page->url)?>">
+                                          <?php echo htmlspecialchars($Page->getBreadcrumbsName())?>
+                                        </a>
+                                      </li>
+                                  <?php } ?>
+                                </ol>
                             <?php } ?>
-                          <h1 class="h1"><?php echo htmlspecialchars($Page->getH1())?></h1>
-                            <?php echo $contentText?>
-                            <?php echo $Page->location('share')?>
-                        <?php } ?>
+                            <h1 class="h1">
+                              <?php echo htmlspecialchars($Page->getH1())?>
+                            </h1>
+                            <?php echo $contentText . $Page->location('share');
+                        } ?>
+                      </div>
                     </div>
-                  </div>
-                <?php } ?>
-                <?php if ($rightText) { ?>
-                  <aside class="body__right col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                    <div class="body__right-inner"><?php echo $rightText?></div>
-                  </aside>
+                <?php }
+                if ($rightText) { ?>
+                    <aside class="body__right col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
+                      <div class="body__right-inner">
+                        <?php echo $rightText?>
+                      </div>
+                    </aside>
                 <?php } ?>
             </div>
           </div>
         </div>
 
-        <div class="body__content2-outer">
-          <div class="container">
-            <div class="row">
-                <?php
-                $leftText = $Page->location('left2');
-                $rightText = $Page->location('right2');
-                $contentText = $Page->location('content2');
-                if ($contentText) {
-                    $colspanSM = 4;
-                    $colspanMD = 3;
-                } else {
-                    $colspanSM = $colspanMD = 6;
-                }
-                if ($leftText) { ?>
-                    <aside class="body__left2 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                      <div class="body__left2-inner"><?php echo $leftText?></div>
-                    </aside>
-                <?php } ?>
-                <?php if ($contentText) {
-                    $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
-                    $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
-                    ?>
-                  <div class="body__content2 col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
-                    <div class="body__content2-inner"><?php echo $contentText?></div>
-                  </div>
-                <?php } ?>
-                <?php if ($rightText) { ?>
-                  <aside class="body__right2 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                    <div class="body__right2-inner"><?php echo $rightText?></div>
-                  </aside>
-                <?php } ?>
+        <?php
+        $leftText = $Page->location('left2');
+        $rightText = $Page->location('right2');
+        $contentText = $Page->location('content2');
+        if ($contentText) {
+            $colspanSM = 4;
+            $colspanMD = 3;
+        } else {
+            $colspanSM = $colspanMD = 6;
+        }
+        $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
+        $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
+        if ($leftText || $contentText || $rightText) { ?>
+            <div class="body__content2-outer">
+              <div class="container">
+                <div class="row">
+                  <?php if ($leftText) { ?>
+                      <aside class="body__left2 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
+                        <div class="body__left2-inner">
+                          <?php echo $leftText?>
+                        </div>
+                      </aside>
+                  <?php }
+                  if ($contentText) { ?>
+                      <div class="body__content2 col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
+                        <div class="body__content2-inner">
+                          <?php echo $contentText?>
+                        </div>
+                      </div>
+                  <?php }
+                  if ($rightText) { ?>
+                      <aside class="body__right2 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
+                        <div class="body__right2-inner">
+                          <?php echo $rightText?>
+                        </div>
+                      </aside>
+                  <?php } ?>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+        <?php }
 
-        <div class="body__content3-outer">
-          <div class="container">
-            <div class="row">
-                <?php
-                $leftText = $Page->location('left3');
-                $rightText = $Page->location('right3');
-                $contentText = $Page->location('content3');
-                if ($contentText) {
-                    $colspanSM = 4;
-                    $colspanMD = 3;
-                } else {
-                    $colspanSM = $colspanMD = 6;
-                }
-                if ($leftText) { ?>
-                    <aside class="body__left3 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                      <div class="body__left3-inner"><?php echo $leftText?></div>
-                    </aside>
-                <?php } ?>
-                <?php if ($contentText) {
-                    $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
-                    $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
-                    ?>
-                  <div class="body__content3 col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
-                    <div class="body__content3-inner"><?php echo $contentText?></div>
-                  </div>
-                <?php } ?>
-                <?php if ($rightText) { ?>
-                  <aside class="body__right3 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                    <div class="body__right3-inner"><?php echo $rightText?></div>
-                  </aside>
-                <?php } ?>
+        $leftText = $Page->location('left3');
+        $rightText = $Page->location('right3');
+        $contentText = $Page->location('content3');
+        if ($contentText) {
+            $colspanSM = 4;
+            $colspanMD = 3;
+        } else {
+            $colspanSM = $colspanMD = 6;
+        }
+        $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
+        $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
+        if ($leftText || $contentText || $rightText) { ?>
+            <div class="body__content3-outer">
+              <div class="container">
+                <div class="row">
+                  <?php if ($leftText) { ?>
+                      <aside class="body__left3 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
+                        <div class="body__left3-inner">
+                          <?php echo $leftText?>
+                        </div>
+                      </aside>
+                  <?php }
+                  if ($contentText) { ?>
+                      <div class="body__content3 col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
+                        <div class="body__content3-inner">
+                          <?php echo $contentText?>
+                        </div>
+                      </div>
+                  <?php }
+                  if ($rightText) { ?>
+                      <aside class="body__right3 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
+                        <div class="body__right3-inner">
+                          <?php echo $rightText?>
+                        </div>
+                      </aside>
+                  <?php } ?>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+        <?php }
 
-        <div class="body__content4-outer">
-          <div class="container">
-            <div class="row">
-                <?php
-                $leftText = $Page->location('left4');
-                $rightText = $Page->location('right4');
-                $contentText = $Page->location('content4');
-                if ($contentText) {
-                    $colspanSM = 4;
-                    $colspanMD = 3;
-                } else {
-                    $colspanSM = $colspanMD = 6;
-                }
-                if ($leftText) { ?>
-                    <aside class="body__left4 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                      <div class="body__left4-inner"><?php echo $leftText?></div>
-                    </aside>
-                <?php } ?>
-                <?php if ($contentText) {
-                    $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
-                    $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
-                    ?>
-                  <div class="body__content4 col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
-                    <div class="body__content4-inner"><?php echo $contentText?></div>
-                  </div>
-                <?php } ?>
-                <?php if ($rightText) { ?>
-                  <aside class="body__right4 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                    <div class="body__right4-inner"><?php echo $rightText?></div>
-                  </aside>
-                <?php } ?>
+        $leftText = $Page->location('left4');
+        $rightText = $Page->location('right4');
+        $contentText = $Page->location('content4');
+        if ($contentText) {
+            $colspanSM = 4;
+            $colspanMD = 3;
+        } else {
+            $colspanSM = $colspanMD = 6;
+        }
+        $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
+        $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
+        if ($leftText || $contentText || $rightText) { ?>
+            <div class="body__content4-outer">
+              <div class="container">
+                <div class="row">
+                  <?php if ($leftText) { ?>
+                      <aside class="body__left4 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
+                        <div class="body__left4-inner">
+                          <?php echo $leftText?>
+                        </div>
+                      </aside>
+                  <?php }
+                  if ($contentText) { ?>
+                      <div class="body__content4 col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
+                        <div class="body__content4-inner">
+                          <?php echo $contentText?>
+                        </div>
+                      </div>
+                  <?php }
+                  if ($rightText) { ?>
+                      <aside class="body__right4 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
+                        <div class="body__right4-inner">
+                          <?php echo $rightText?>
+                        </div>
+                      </aside>
+                  <?php } ?>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+        <?php }
 
-        <div class="body__content5-outer">
-          <div class="container">
-            <div class="row">
-                <?php
-                $leftText = $Page->location('left5');
-                $rightText = $Page->location('right5');
-                $contentText = $Page->location('content5');
-                if ($contentText) {
-                    $colspanSM = 4;
-                    $colspanMD = 3;
-                } else {
-                    $colspanSM = $colspanMD = 6;
-                }
-                if ($leftText) { ?>
-                    <aside class="body__left5 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                      <div class="body__left5-inner"><?php echo $leftText?></div>
-                    </aside>
-                <?php } ?>
-                <?php if ($contentText) {
-                    $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
-                    $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
-                    ?>
-                  <div class="body__content5 col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
-                    <div class="body__content5-inner"><?php echo $contentText?></div>
-                  </div>
-                <?php } ?>
-                <?php if ($rightText) { ?>
-                  <aside class="body__right5 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
-                    <div class="body__right5-inner"><?php echo $rightText?></div>
-                  </aside>
-                <?php } ?>
+        $leftText = $Page->location('left5');
+        $rightText = $Page->location('right5');
+        $contentText = $Page->location('content5');
+        if ($contentText) {
+            $colspanSM = 4;
+            $colspanMD = 3;
+        } else {
+            $colspanSM = $colspanMD = 6;
+        }
+        $spanSM = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanSM);
+        $spanMD = 12 - (((int)(bool)$leftText + (int)(bool)$rightText) * $colspanMD);
+        if ($leftText || $contentText || $rightText) { ?>
+            <div class="body__content5-outer">
+              <div class="container">
+                <div class="row">
+                  <?php if ($leftText) { ?>
+                      <aside class="body__left5 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
+                        <div class="body__left5-inner">
+                          <?php echo $leftText?>
+                        </div>
+                      </aside>
+                  <?php }
+                  if ($contentText) { ?>
+                      <div class="body__content5 col-sm-<?php echo $spanSM?> col-md-<?php echo $spanMD?>">
+                        <div class="body__content5-inner">
+                          <?php echo $contentText?>
+                        </div>
+                      </div>
+                  <?php }
+                  if ($rightText) { ?>
+                      <aside class="body__right5 col-sm-<?php echo $colspanSM?> col-md-<?php echo $colspanMD?>">
+                        <div class="body__right5-inner">
+                          <?php echo $rightText?>
+                        </div>
+                      </aside>
+                  <?php } ?>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+        <?php } ?>
       </main>
       <footer class="body__footer">
         <div class="container">
