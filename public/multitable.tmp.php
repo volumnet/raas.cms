@@ -28,10 +28,10 @@ if ((array)$Table->Set || ($Table->emptyHeader && $Table->header)) { ?>
           </tr>
         </thead>
     <?php }
-    if ((array)$Table->Set) { ?>
+    if ((array)$Table->Set) { $rows = $Table->rows; ?>
         <tbody>
-          <?php for ($i = 0; $i < count($Table->rows); $i++) {
-              $row = $Table->rows[$i];
+          <?php for ($i = 0; $i < count($rows); $i++) {
+              $row = $rows[$i];
               include Package::i()->view->tmp('multirow.inc.php');
               if ($row->template) {
                   include Application::i()->view->context->tmp($row->template);

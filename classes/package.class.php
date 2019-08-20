@@ -341,7 +341,7 @@ class Package extends RAASPackage
         }
         $sqlQuery .= " ORDER BY priority " . strtoupper($order)
                   .  ($sort ? ", " . $sort . " " . strtoupper($order) : "");
-        $Pages = new Pages(
+        $pages = new Pages(
             (
                 isset($this->controller->nav['page']) ?
                 $this->controller->nav['page'] :
@@ -349,10 +349,10 @@ class Package extends RAASPackage
             ),
             Application::i()->registryGet('rowsPerPage')
         );
-        $Set = Dictionary::getSQLSet($sqlQuery, $Pages);
+        $Set = Dictionary::getSQLSet($sqlQuery, $pages);
         return [
             'Set' => $Set,
-            'Pages' => $Pages,
+            'Pages' => $pages,
             'sort' => $sort,
             'order' => $order
         ];
@@ -513,7 +513,7 @@ class Package extends RAASPackage
                             )";
         }
         $sqlQuery .= " GROUP BY tM.id ";
-        $Pages = new Pages(
+        $pages = new Pages(
             $pageNum,
             Application::i()->registryGet('rowsPerPage')
         );
@@ -529,7 +529,7 @@ class Package extends RAASPackage
             }
             $f = $this->getCompareFunction($_sort, $reverse, true);
             usort($Set, $f);
-            $Set = SOME::getArraySet($Set, $Pages);
+            $Set = SOME::getArraySet($Set, $pages);
         } else {
             switch ($sort) {
                 case 'name':
@@ -555,11 +555,11 @@ class Package extends RAASPackage
             $sqlQuery .= " ORDER BY NOT tM.priority ASC,
                                     tM.priority ASC, "
                       .             $_sort . " " . strtoupper($_order);
-            $Set = Material::getSQLSet($sqlQuery, $Pages);
+            $Set = Material::getSQLSet($sqlQuery, $pages);
         }
         return [
             'Set' => $Set,
-            'Pages' => $Pages,
+            'Pages' => $pages,
             'sort' => $sort,
             'order' => $_order
         ];
@@ -637,7 +637,7 @@ class Package extends RAASPackage
         // 2016-12-27, AVS: добавил группировку одинаковых материалов, иначе
         // ссылающиеся несколько раз перечислялись тоже несколько раз
         $sqlQuery .= " GROUP BY tM.id ";
-        $Pages = new Pages(
+        $pages = new Pages(
             $pageNum,
             Application::i()->registryGet('rowsPerPage')
         );
@@ -653,7 +653,7 @@ class Package extends RAASPackage
             }
             $f = $this->getCompareFunction($_sort, $reverse, true);
             usort($Set, $f);
-            $Set = SOME::getArraySet($Set, $Pages);
+            $Set = SOME::getArraySet($Set, $pages);
         } else {
             switch ($sort) {
                 case 'name':
@@ -679,11 +679,11 @@ class Package extends RAASPackage
             $sqlQuery .= " ORDER BY NOT tM.priority,
                                     tM.priority, "
                       .             $_sort . " " . strtoupper($_order);
-            $Set = Material::getSQLSet($sqlQuery, $Pages);
+            $Set = Material::getSQLSet($sqlQuery, $pages);
         }
         return [
             'Set' => $Set,
-            'Pages' => $Pages,
+            'Pages' => $pages,
             'sort' => $sort,
             'order' => $_order
         ];
@@ -760,7 +760,7 @@ class Package extends RAASPackage
 
         $sqlQuery .= " GROUP BY tF.id ORDER BY tF.post_date DESC ";
         if ($pagination) {
-            $Pages = new Pages(
+            $pages = new Pages(
                 (
                     isset($this->controller->nav['page']) ?
                     $this->controller->nav['page'] :
@@ -769,12 +769,12 @@ class Package extends RAASPackage
                 Application::i()->registryGet('rowsPerPage')
             );
         } else {
-            $Pages = null;
+            $pages = null;
         }
-        $Set = Feedback::getSQLSet($sqlQuery);
+        $Set = Feedback::getSQLSet($sqlQuery, $pages);
         return [
             'Set' => $Set,
-            'Pages' => $Pages,
+            'Pages' => $pages,
             'Parent' => $Parent,
             'columns' => $columns
         ];
