@@ -1104,7 +1104,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             ];
 
             if (($row->id == $current->id) ||
-                in_array($current->id, $node->all_children_ids)
+                in_array($current->id, $row->all_children_ids)
             ) {
                 $temp['active'] = true;
             }
