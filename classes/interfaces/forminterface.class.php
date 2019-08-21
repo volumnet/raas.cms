@@ -4,11 +4,12 @@
  */
 namespace RAAS\CMS;
 
+use Mustache_Engine;
 use SOME\SOME;
 use RAAS\Attachment;
 use RAAS\Application;
-use Mustache_Engine;
 use RAAS\Controller_Frontend as RAASControllerFrontend;
+use RAAS\View_Web as RAASViewWeb;
 
 /**
  * Класс стандартного интерфейса формы
@@ -106,7 +107,7 @@ class FormInterface extends AbstractInterface
      * @param array<string[] => mixed> $post Данные POST-запроса
      * @return bool
      */
-    protected function isFormProceed(
+    public function isFormProceed(
         Block $block,
         Form $form,
         $requestMethod = 'GET',
@@ -132,7 +133,7 @@ class FormInterface extends AbstractInterface
      * @param array $files Данные $_SESSION-полей
      * @return array<string[] URN поля => string Текстовое описание ошибки>
      */
-    protected function check(
+    public function check(
         Form $form,
         array $post = [],
         array $session = [],
@@ -170,7 +171,7 @@ class FormInterface extends AbstractInterface
      * @return string|null Текстовое описание ошибки, либо null,
      *                     если ошибка отсутствует
      */
-    protected function checkRegularField(Form_Field $field, array $post = [])
+    public function checkRegularField(Form_Field $field, array $post = [])
     {
         $fieldURN = $field->urn;
         $val = isset($post[$fieldURN]) ? $post[$fieldURN] : null;
@@ -180,18 +181,24 @@ class FormInterface extends AbstractInterface
         }
         if (!isset($val) || !$field->isFilled($val)) {
             if ($field->required) {
-                return sprintf(ERR_CUSTOM_FIELD_REQUIRED, $field->name);
+                return sprintf(
+                    View_Web::i()->_('ERR_CUSTOM_FIELD_REQUIRED'),
+                    $field->name
+                );
             }
         } elseif (!$field->multiple) {
             if (($field->datatype == 'password') &&
                 ($post[$fieldURN] != $post[$fieldURN . '@confirm'])
             ) {
                 return sprintf(
-                    ERR_CUSTOM_PASSWORD_DOESNT_MATCH_CONFIRM,
+                    View_Web::i()->_('ERR_CUSTOM_PASSWORD_DOESNT_MATCH_CONFIRM'),
                     $field->name
                 );
             } elseif (!$field->validate($val)) {
-                return sprintf(ERR_CUSTOM_FIELD_INVALID, $field->name);
+                return sprintf(
+                    View_Web::i()->_('ERR_CUSTOM_FIELD_INVALID'),
+                    $field->name
+                );
             }
         }
         return null;
@@ -199,13 +206,13 @@ class FormInterface extends AbstractInterface
 
 
     /**
-     * Проверка на корректность регулярного поля
+     * Проверка на корректность файлового поля
      * @param Form_Field $field Поле для проверки
      * @param array $files Данные $_FILES-полей
      * @return string|null Текстовое описание ошибки, либо null,
      *                     если ошибка отсутствует
      */
-    protected function checkFileField(Form_Field $field, array $files = [])
+    public function checkFileField(Form_Field $field, array $files = [])
     {
         $fieldURN = $field->urn;
         $val = isset($files[$fieldURN]['tmp_name'])
@@ -217,17 +224,23 @@ class FormInterface extends AbstractInterface
         }
         if (!isset($val) || !$field->isFilled($val)) {
             if ($field->required && !$field->countValues()) {
-                return sprintf(ERR_CUSTOM_FIELD_REQUIRED, $field->name);
+                return sprintf(
+                    View_Web::i()->_('ERR_CUSTOM_FIELD_REQUIRED'),
+                    $field->name
+                );
             }
         } elseif (!$field->multiple) {
             if (!$field->validate($val)) {
-                return sprintf(ERR_CUSTOM_FIELD_INVALID, $field->name);
+                return sprintf(
+                    View_Web::i()->_('ERR_CUSTOM_FIELD_INVALID'),
+                    $field->name
+                );
             }
         }
         $allowedExtensions = preg_split('/\\W+/umis', $field->source);
         if ($allowedExtensions) {
             $possibleExtensionError = sprintf(
-                INVALID_FILE_EXTENSION,
+                View_Web::i()->_('INVALID_FILE_EXTENSION'),
                 implode(', ', $allowedExtensions)
             );
             $fileTmpNameArr = (array)$files[$fieldURN]['tmp_name'];
@@ -251,14 +264,16 @@ class FormInterface extends AbstractInterface
      * @param string $filename Имя файла
      * @param string $filepath Реальный путь к файлу
      * @param array<string> $allowedExtensions Список допустимых расширений
+     * @param bool $debug Режим отладки
      * @return bool
      */
-    protected function checkFileMatchesAllowedExtensions(
+    public function checkFileMatchesAllowedExtensions(
         $filename,
         $filepath,
-        array $allowedExtensions = []
+        array $allowedExtensions = [],
+        $debug = false
     ) {
-        if (is_uploaded_file($filepath)) {
+        if (is_uploaded_file($filepath) || $debug) {
             $ext = mb_strtolower(pathinfo($filename, PATHINFO_EXTENSION));
             $allowedExtensions = array_map(
                 'mb_strtolower',
@@ -278,7 +293,7 @@ class FormInterface extends AbstractInterface
      * @return string|null Текстовое описание ошибки, либо null,
      *                     если ошибка отсутствует
      */
-    protected function checkAntispamField(
+    public function checkAntispamField(
         Form $form,
         array $post = [],
         array $session = []
@@ -292,12 +307,12 @@ class FormInterface extends AbstractInterface
                         !isset($session['captcha_keystring']) ||
                         ($post[$fieldURN] != $session['captcha_keystring'])
                     ) {
-                        return ERR_CAPTCHA_FIELD_INVALID;
+                        return View_Web::i()->_('ERR_CAPTCHA_FIELD_INVALID');
                     }
                     break;
                 case 'hidden':
                     if (isset($post[$fieldURN]) && $post[$fieldURN]) {
-                        return ERR_CAPTCHA_FIELD_INVALID;
+                        return View_Web::i()->_('ERR_CAPTCHA_FIELD_INVALID');
                     }
                     break;
             }
@@ -318,7 +333,7 @@ class FormInterface extends AbstractInterface
      *             'Material' =>? Material Созданный материал
      *         ]
      */
-    protected function processForm(
+    public function processForm(
         Form $form,
         Page $page,
         array $post = [],
@@ -358,7 +373,7 @@ class FormInterface extends AbstractInterface
      * @param Form $form Форма обратной связи
      * @return Feedback
      */
-    protected function getRawFeedback(Form $form)
+    public function getRawFeedback(Form $form)
     {
         return new Feedback(['pid' => (int)$form->id]);
     }
@@ -369,7 +384,7 @@ class FormInterface extends AbstractInterface
      * если форма поддерживает создание материала
      * @return Material|null null, если форма не поддерживает создание материала
      */
-    protected function getRawMaterial(Form $form)
+    public function getRawMaterial(Form $form)
     {
         if ($mTypeId = $form->Material_Type->id) {
             return new Material(['pid' => (int)$mTypeId, 'vis' => 0]);
@@ -384,18 +399,24 @@ class FormInterface extends AbstractInterface
      * @param Page $page Текущая страница
      * @param arrary $server Данные $_SERVER-полей
      */
-    protected function processFeedbackReferer(
+    public function processFeedbackReferer(
         Feedback $feedback,
         Page $page,
         array $server = []
     ) {
-        $refererURL = $server['HTTP_REFERER'];
-        $referer = Page::importByURL($server['HTTP_REFERER']);
+        $referer = $refererMaterial = null;
+        if ($refererURL = $server['HTTP_REFERER']) {
+            $referer = Page::importByURL($server['HTTP_REFERER']);
 
-        $refererRelativeURL = parse_URL($refererURL, PHP_URL_PATH);
-        $refererURLArray = explode('/', trim($refererRelativeURL, '/'));
-        $refererMaterialURN = $refererURLArray[count($refererURLArray) - 1];
-        $refererMaterial = Material::importByURN($refererMaterialURN);
+            $refererRelativeURL = parse_URL($refererURL, PHP_URL_PATH);
+            $refererURLArray = array_filter(
+                explode('/', trim($refererRelativeURL, '/'))
+            );
+            if ($refererURLArray) {
+                $refererMaterialURN = $refererURLArray[count($refererURLArray) - 1];
+                $refererMaterial = Material::importByURN($refererMaterialURN);
+            }
+        }
 
         $feedback->page_id = (int)$referer->id ?: (int)$page->id;
         if ($refererMaterial) {
@@ -411,7 +432,7 @@ class FormInterface extends AbstractInterface
      * @param SOME $object Объект для заполнения
      * @param array $server Данные $_SERVER-полей
      */
-    protected function processUserData(SOME $object, array $server = [])
+    public function processUserData(SOME $object, array $server = [])
     {
         foreach ([
             'ip' => 'REMOTE_ADDR',
@@ -465,7 +486,7 @@ class FormInterface extends AbstractInterface
      * @param Material $material Материал для заполнения
      * @param Feedback $feedback Уведомление формы обратной связи
      */
-    protected function processMaterialHeader(
+    public function processMaterialHeader(
         Material $material,
         Feedback $feedback
     ) {
@@ -473,7 +494,7 @@ class FormInterface extends AbstractInterface
             $material->name = $feedback->fields['_name_']->getValue();
         } else {
             $material->name = $feedback->parent->Material_Type->name . ': '
-                            . date(DATETIMEFORMAT);
+                            . date(RAASViewWeb::i()->_('DATETIMEFORMAT'));
         }
         if (isset($feedback->fields['_description_'])) {
             $material->description = $feedback->fields['_description_']->getValue();
@@ -486,7 +507,7 @@ class FormInterface extends AbstractInterface
      * @param SOME $object Объект для заполнения
      * @param Feedback $feedback Уведомление формы обратной связи
      */
-    protected function processObjectDates(SOME $object, array $post = [])
+    public function processObjectDates(SOME $object, array $post = [])
     {
         foreach ($object->fields as $fieldURN => $field) {
             if (!isset($post[$fieldURN])) {
@@ -512,7 +533,7 @@ class FormInterface extends AbstractInterface
      * @param SOME $object Объект для заполнения
      * @param array $server Данные $_SERVER-полей
      */
-    protected function processObjectUserData(SOME $object, array $server = [])
+    public function processObjectUserData(SOME $object, array $server = [])
     {
         foreach ([
             'ip' => 'REMOTE_ADDR',
@@ -535,7 +556,7 @@ class FormInterface extends AbstractInterface
      * @param array $post Данные $_POST-полей
      * @param array $files Данные $_FILES-полей
      */
-    protected function processObjectFields(
+    public function processObjectFields(
         SOME $object,
         Form $form,
         array $post = [],
@@ -564,7 +585,7 @@ class FormInterface extends AbstractInterface
      * @param Field $field Поле для заполнения (у материала или уведомления)
      * @param array $post Данные $_POST-полей
      */
-    protected function processRegularField(Field $field, array $post = [])
+    public function processRegularField(Field $field, array $post = [])
     {
         $field->deleteValues();
         $fieldURN = $field->urn;
@@ -584,7 +605,7 @@ class FormInterface extends AbstractInterface
      * @param array $post Данные $_POST-полей
      * @param array $files Данные $_FILES-полей
      */
-    protected function processFileField(
+    public function processFileField(
         Field $field,
         SOME $parent,
         array $post = [],
@@ -645,8 +666,9 @@ class FormInterface extends AbstractInterface
      *             'from' => string Поле "от",
      *             'fromEmail' => string Обратный адрес
      *         ]>|null Набор отправляемых писем либо URL SMS-шлюза
-     *                            (только в режиме отладки)*/
-    protected function notify(
+     *                            (только в режиме отладки)
+     */
+    public function notify(
         Feedback $feedback,
         Material $material = null,
         $debug = false
@@ -751,7 +773,7 @@ class FormInterface extends AbstractInterface
      *                                          или 79990000000
      *         ]
      */
-    protected function parseFormAddresses(Form $form)
+    public function parseFormAddresses(Form $form)
     {
         $addresses = preg_split('/( |;|,)/', trim($form->email));
         $addresses = array_map('trim', $addresses);
@@ -782,7 +804,7 @@ class FormInterface extends AbstractInterface
      * @param Feedback $feedback Уведомление обратной связи
      * @return string
      */
-    protected function getEmailSubject(Feedback $feedback)
+    public function getEmailSubject(Feedback $feedback)
     {
         $subject = date(DATETIMEFORMAT) . ' ' . sprintf(
             FEEDBACK_STANDARD_HEADER,
@@ -799,7 +821,7 @@ class FormInterface extends AbstractInterface
      * @param array $data Данные для отработки шаблона
      * @return string
      */
-    protected function getMessageBody(Snippet $template, array $data = [])
+    public function getMessageBody(Snippet $template, array $data = [])
     {
         ob_start();
         $template->process($data);
@@ -812,7 +834,7 @@ class FormInterface extends AbstractInterface
      * Получает значение поля "От"
      * @return string
      */
-    protected function getFromName()
+    public function getFromName()
     {
         $host = $this->server['HTTP_HOST'];
         if (function_exists('idn_to_utf8')) {
@@ -826,7 +848,7 @@ class FormInterface extends AbstractInterface
      * Получает значение обратного адреса
      * @return string
      */
-    protected function getFromEmail()
+    public function getFromEmail()
     {
         $host = $this->server['HTTP_HOST'];
         return 'info@' . $host;
