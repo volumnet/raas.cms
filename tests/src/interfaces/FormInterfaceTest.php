@@ -840,7 +840,10 @@ class MaterialInterfaceTest extends BaseDBTest
 
         $result = $interface->checkFileField($fileField, $files, true);
 
-        $this->assertEquals('Файл данного типа запрещен к загрузке. Разрешенные расширения: JPG, PNG', $result);
+        $this->assertEquals(
+            'Файл данного типа запрещен к загрузке. Разрешенные расширения: JPG, PNG',
+            $result
+        );
 
         Form_Field::delete($fileField);
     }
@@ -991,26 +994,53 @@ class MaterialInterfaceTest extends BaseDBTest
         $form->email = 'test@test.org, [79990000000@sms.test.org], [+79990000000]';
         $form->commit();
         $feedback = new Feedback(1);
-        Package::i()->registrySet('sms_gate', 'http://smsgate/{{PHONE}}/{{TEXT}}/');
+        Package::i()->registrySet(
+            'sms_gate',
+            'http://smsgate/{{PHONE}}/{{TEXT}}/'
+        );
         $interface = new FormInterface();
 
         $result = $interface->notify($feedback, null, true);
 
         $this->assertEquals(['test@test.org'], $result['emails']['emails']);
-        $this->assertContains('Новое сообщение с формы «Обратная связь»', $result['emails']['subject']);
+        $this->assertContains(
+            'Новое сообщение с формы «Обратная связь»',
+            $result['emails']['subject']
+        );
         $this->assertContains('<div>', $result['emails']['message']);
-        $this->assertContains('Телефон: +7 999 000-00-00', $result['emails']['message']);
+        $this->assertContains(
+            'Телефон: +7 999 000-00-00',
+            $result['emails']['message']
+        );
         $this->assertContains('/admin/', $result['emails']['message']);
         $this->assertContains('Администрация сайта', $result['emails']['from']);
         $this->assertContains('info@', $result['emails']['fromEmail']);
-        $this->assertEquals(['79990000000@sms.test.org'], $result['smsEmails']['emails']);
-        $this->assertContains('Новое сообщение с формы «Обратная связь»', $result['smsEmails']['subject']);
+        $this->assertEquals(
+            ['79990000000@sms.test.org'],
+            $result['smsEmails']['emails']
+        );
+        $this->assertContains(
+            'Новое сообщение с формы «Обратная связь»',
+            $result['smsEmails']['subject']
+        );
         $this->assertNotContains('<div>', $result['smsEmails']['message']);
-        $this->assertContains('Администрация сайта', $result['smsEmails']['from']);
+        $this->assertContains(
+            'Администрация сайта',
+            $result['smsEmails']['from']
+        );
         $this->assertContains('info@', $result['smsEmails']['fromEmail']);
-        $this->assertContains('Телефон: +7 999 000-00-00', $result['smsEmails']['message']);
-        $this->assertContains('smsgate/%2B79990000000/', $result['smsPhones'][0]);
-        $this->assertContains(urlencode('Телефон: +7 999 000-00-00'), $result['smsPhones'][0]);
+        $this->assertContains(
+            'Телефон: +7 999 000-00-00',
+            $result['smsEmails']['message']
+        );
+        $this->assertContains(
+            'smsgate/%2B79990000000/',
+            $result['smsPhones'][0]
+        );
+        $this->assertContains(
+            urlencode('Телефон: +7 999 000-00-00'),
+            $result['smsPhones'][0]
+        );
 
         $form->email = '';
         $form->commit();
