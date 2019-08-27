@@ -158,7 +158,7 @@ class FormInterface extends AbstractInterface
 
         // Проверка на антиспам
         if ($fieldError = $this->checkAntispamField($form, $post, $session)) {
-            $localError[$fieldURN] = $fieldError;
+            $localError[$form->antispam_field_name] = $fieldError;
         }
         return $localError;
     }
@@ -209,11 +209,15 @@ class FormInterface extends AbstractInterface
      * Проверка на корректность файлового поля
      * @param Form_Field $field Поле для проверки
      * @param array $files Данные $_FILES-полей
+     * @param bool $debug Режим отладки
      * @return string|null Текстовое описание ошибки, либо null,
      *                     если ошибка отсутствует
      */
-    public function checkFileField(Form_Field $field, array $files = [])
-    {
+    public function checkFileField(
+        Form_Field $field,
+        array $files = [],
+        $debug = false
+    ) {
         $fieldURN = $field->urn;
         $val = isset($files[$fieldURN]['tmp_name'])
              ? $files[$fieldURN]['tmp_name']
@@ -241,7 +245,7 @@ class FormInterface extends AbstractInterface
         if ($allowedExtensions) {
             $possibleExtensionError = sprintf(
                 View_Web::i()->_('INVALID_FILE_EXTENSION'),
-                implode(', ', $allowedExtensions)
+                mb_strtoupper(implode(', ', $allowedExtensions))
             );
             $fileTmpNameArr = (array)$files[$fieldURN]['tmp_name'];
             $fileNameArr = (array)$files[$fieldURN]['name'];
@@ -249,7 +253,8 @@ class FormInterface extends AbstractInterface
                 if (!$this->checkFileMatchesAllowedExtensions(
                     $fileNameArr[$i],
                     $val,
-                    $allowedExtensions
+                    $allowedExtensions,
+                    $debug
                 )) {
                     return $possibleExtensionError;
                 }
@@ -363,6 +368,7 @@ class FormInterface extends AbstractInterface
         }
         if (!$form->create_feedback) {
             Feedback::delete($feedback);
+            $feedback = null;
         }
         return ['Item' => $feedback, 'Material' => $material];
     }
@@ -555,12 +561,14 @@ class FormInterface extends AbstractInterface
      * @param Form $form Форма обратной связи
      * @param array $post Данные $_POST-полей
      * @param array $files Данные $_FILES-полей
+     * @param bool $debug Режим отладки
      */
     public function processObjectFields(
         SOME $object,
         Form $form,
         array $post = [],
-        array $files = []
+        array $files = [],
+        $debug = false
     ) {
         foreach ($form->fields as $fieldURN => $temp) {
             if (isset($object->fields[$fieldURN])) {
@@ -568,7 +576,7 @@ class FormInterface extends AbstractInterface
                 switch ($field->datatype) {
                     case 'file':
                     case 'image':
-                        $this->processFileField($field, $object, $post, $files);
+                        $this->processFileField($field, $post, $files, $debug);
                         $field->clearLostAttachments();
                         break;
                     default:
@@ -601,15 +609,15 @@ class FormInterface extends AbstractInterface
     /**
      * Обрабатывает файловое поле
      * @param Field $field Поле для заполнения (у материала или уведомления)
-     * @param SOME $parent Родительский объект для вложения
      * @param array $post Данные $_POST-полей
      * @param array $files Данные $_FILES-полей
+     * @param bool $debug Режим отладки
      */
     public function processFileField(
         Field $field,
-        SOME $parent,
         array $post = [],
-        array $files = []
+        array $files = [],
+        $debug = false
     ) {
         $field->deleteValues();
         $fieldURN = $field->urn;
@@ -621,19 +629,27 @@ class FormInterface extends AbstractInterface
         $fileNameArr = (array)$files[$fieldURN]['name'];
         $fileTypeArr = (array)$files[$fieldURN]['type'];
 
-        foreach ($fileTmpNameArr as $key => $val) {
+        $mergedKeys = array_values(array_unique(array_merge(
+            array_keys($fileTmpNameArr),
+            array_keys($attachmentArr)
+        )));
+
+        foreach ($mergedKeys as $key) {
+            $val = $fileTmpNameArr[$key];
             $data = [
                 'vis' => isset($visArr[$key]) ? (int)$visArr[$key] : 1,
                 'name' => trim($nameArr[$key]),
                 'description' => trim($descriptionArr[$key]),
                 'attachment' => (int)$attachmentArr[$key],
             ];
-            if (is_uploaded_file($val) && $field->validate($val)) {
+            if ((is_uploaded_file($val) && $field->validate($val)) ||
+                (is_file($val) && $debug)
+            ) {
                 $att = new Attachment((int)$data['attachment']);
                 $att->upload = $val;
                 $att->filename = $fileNameArr[$key];
                 $att->mime = $fileTypeArr[$key];
-                $att->parent = $parent;
+                $att->parent = $field;
                 if ($field->datatype == 'image') {
                     $att->image = 1;
                     if ($maxSize = (int)Package::i()->registryGet('maxsize')) {
@@ -659,13 +675,16 @@ class FormInterface extends AbstractInterface
      * @param Feedback $feedback Уведомление формы обратной связи
      * @param Material $material Созданный материал
      * @param bool $debug Режим отладки
-     * @return array<[
-     *             'emails' => array<string> e-mail адреса,
-     *             'subject' => string Тема письма,
-     *             'message' => string Тело письма,
-     *             'from' => string Поле "от",
-     *             'fromEmail' => string Обратный адрес
-     *         ]>|null Набор отправляемых писем либо URL SMS-шлюза
+     * @return array<
+     *             ('emails'|'smsEmails')[] => [
+     *                 'emails' => array<string> e-mail адреса,
+     *                 'subject' => string Тема письма,
+     *                 'message' => string Тело письма,
+     *                 'from' => string Поле "от",
+     *                 'fromEmail' => string Обратный адрес
+     *             ],
+     *             'smsPhones' => array<string URL SMS-шлюза>
+     *         >|null Набор отправляемых писем либо URL SMS-шлюза
      *                            (только в режиме отладки)
      */
     public function notify(
@@ -700,7 +719,7 @@ class FormInterface extends AbstractInterface
 
         if ($emails = $formAddresses['emails']) {
             if ($debug) {
-                $debugMessages[] = [
+                $debugMessages['emails'] = [
                     'emails' => $emails,
                     'subject' => $subject,
                     'message' => $message,
@@ -720,10 +739,10 @@ class FormInterface extends AbstractInterface
 
         if ($smsEmails = $formAddresses['smsEmails']) {
             if ($debug) {
-                $debugMessages[] = [
-                    'emails' => $emails,
+                $debugMessages['smsEmails'] = [
+                    'emails' => $smsEmails,
                     'subject' => $subject,
-                    'message' => $message,
+                    'message' => $smsMessage,
                     'from' => $fromName,
                     'fromEmail' => $fromEmail,
                 ];
@@ -748,7 +767,7 @@ class FormInterface extends AbstractInterface
                     'TEXT' => urlencode($smsMessage)
                 ]);
                 if ($debug) {
-                    $debugMessages[] = $url;
+                    $debugMessages['smsPhones'][] = $url;
                 } else {
                     $result = file_get_contents($url);
                 }
@@ -806,10 +825,16 @@ class FormInterface extends AbstractInterface
      */
     public function getEmailSubject(Feedback $feedback)
     {
-        $subject = date(DATETIMEFORMAT) . ' ' . sprintf(
-            FEEDBACK_STANDARD_HEADER,
+        $host = $this->server['HTTP_HOST'];
+        if (function_exists('idn_to_utf8')) {
+            $host = idn_to_utf8($host);
+        }
+        $host = mb_strtoupper($host);
+        $subject = date(View_Web::i()->_('DATETIMEFORMAT')) . ' ' . sprintf(
+            View_Web::i()->_('FEEDBACK_STANDARD_HEADER'),
             $feedback->parent->name,
-            $feedback->page->name
+            $feedback->page->name,
+            $host
         );
         return $subject;
     }
@@ -840,7 +865,7 @@ class FormInterface extends AbstractInterface
         if (function_exists('idn_to_utf8')) {
             $host = idn_to_utf8($host);
         }
-        return ADMINISTRATION_OF_SITE . ' ' . $host;
+        return View_Web::i()->_('ADMINISTRATION_OF_SITE') . ' ' . $host;
     }
 
 
