@@ -5,7 +5,10 @@
 namespace RAAS;
 
 use SOME\Graphics;
+use SOME\Namespaces;
 use SOME\Thumbnail;
+use RAAS\Application;
+use RAAS\View_Web as RAASViewWeb;
 use RAAS\CMS\Page;
 use RAAS\CMS\Material;
 use RAAS\CMS\User as CMSUser;
@@ -66,6 +69,7 @@ class Controller_Frontend extends Abstract_Controller
 
     protected function init()
     {
+        $this->view = View_Web::i();
     }
 
 
@@ -89,7 +93,7 @@ class Controller_Frontend extends Abstract_Controller
                         if (CMSPackage::i()->registryGet('diag')) {
                             $this->diag = Diag::getInstance();
                             if ($this->diag) {
-                                $this->application->SQL->query_handler = [
+                                Application::i()->SQL->query_handler = [
                                     $this->diag,
                                     'queryHandler'
                                 ];
@@ -136,15 +140,15 @@ class Controller_Frontend extends Abstract_Controller
 
     protected function checkCompatibility()
     {
-        return $this->application->phpVersionCompatible &&
-               !$this->application->missedExt;
+        return Application::i()->phpVersionCompatible &&
+               !Application::i()->missedExt;
     }
 
 
     protected function checkDB()
     {
-        if ($this->application->DSN) {
-            $ok = $this->application->initDB();
+        if (Application::i()->DSN) {
+            $ok = Application::i()->initDB();
             return $ok;
         }
         return false;
@@ -153,7 +157,7 @@ class Controller_Frontend extends Abstract_Controller
 
     protected function checkSOME()
     {
-        return $this->application->initSOME();
+        return Application::i()->initSOME();
     }
 
 
@@ -177,9 +181,11 @@ class Controller_Frontend extends Abstract_Controller
         $Page = $this->checkPageRights($Page, $doCache);
         $Page = $this->checkMaterial($Page, $doCache);
 
-        $this->exportLang($this->application, $Page->lang);
+        RAASViewWeb::i()->loadLanguage($Page->lang);
+        $this->exportLang(Application::i(), $Page->lang);
         $this->exportLang($this->model, $Page->lang);
         foreach ($this->model->modules as $mod) {
+            $classname = Namespaces::getNS($mod) . '\\View_Web';
             $this->exportLang($mod, $Page->lang);
         }
 
