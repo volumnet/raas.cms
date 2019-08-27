@@ -6,5 +6,14 @@
  */
 namespace RAAS\CMS;
 
-$interface = new MaterialInterface($Block, $Page, $_GET, $_POST, $_COOKIE, $_SESSION, $_SERVER, $_FILES);
+$interface = new MaterialInterface(
+    $Block,
+    $Page,
+    $_GET,
+    $_POST,
+    $_COOKIE,
+    $_SESSION,
+    $_SERVER,
+    $_FILES
+);
 return $interface->process();

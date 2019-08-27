@@ -7,5 +7,15 @@
  */
 namespace RAAS\CMS;
 
-$interface = new CacheInterface($Block, $Page, $_GET, $_POST, $_COOKIE, $_SESSION, $_SERVER, $_FILES, $OUT);
+$interface = new CacheInterface(
+    $Block,
+    $Page,
+    $_GET,
+    $_POST,
+    $_COOKIE,
+    $_SESSION,
+    $_SERVER,
+    $_FILES,
+    $OUT
+);
 return $interface->process();
