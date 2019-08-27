@@ -830,7 +830,7 @@ class FormInterface extends AbstractInterface
             $host = idn_to_utf8($host);
         }
         $host = mb_strtoupper($host);
-        $subject = date(View_Web::i()->_('DATETIMEFORMAT')) . ' ' . sprintf(
+        $subject = date(RAASViewWeb::i()->_('DATETIMEFORMAT')) . ' ' . sprintf(
             View_Web::i()->_('FEEDBACK_STANDARD_HEADER'),
             $feedback->parent->name,
             $feedback->page->name,
