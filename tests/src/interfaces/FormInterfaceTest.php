@@ -403,18 +403,21 @@ class MaterialInterfaceTest extends BaseDBTest
         $nameField->commit();
 
         $material = new Material(['pid' => 7]); // Отзывы к товарам
-        $feedback = new Feedback(['pid' => 6]); // Отзывы к товарам
-        $feedback->commit();
-        $feedback->fields['_name_']->addValue('Тестовый отзыв');
-        $feedback->fields['_description_']->addValue('Тестовое описание');
+        $form = new Form(6);
         $interface = new FormInterface();
 
-        $result = $interface->processMaterialHeader($material, $feedback);
+        $result = $interface->processMaterialHeader(
+            $material,
+            new Form(6),
+            [
+                '_name_' => 'Тестовый отзыв',
+                '_description_' => 'Тестовое описание'
+            ]
+        );
 
         $this->assertEquals('Тестовый отзыв', $material->name);
         $this->assertEquals('Тестовое описание', $material->description);
 
-        Feedback::delete($feedback);
         Form_Field::delete($nameField);
     }
 
@@ -426,20 +429,22 @@ class MaterialInterfaceTest extends BaseDBTest
     public function testProcessMaterialHeaderWithoutNameField()
     {
         $material = new Material(['pid' => 7]); // Отзывы к товарам
-        $feedback = new Feedback(['pid' => 6]); // Отзывы к товарам
-        $feedback->commit();
-        $feedback->fields['_description_']->addValue('Тестовое описание');
+        $form = new Form(6);
         $interface = new FormInterface();
 
-        $result = $interface->processMaterialHeader($material, $feedback);
+        $result = $interface->processMaterialHeader(
+            $material,
+            $form,
+            [
+                '_description_' => 'Тестовое описание'
+            ]
+        );
 
         $this->assertEquals(
             'Отзывы к товарам: ' . date('d.m.Y H:i:s'),
             $material->name
         );
         $this->assertEquals('Тестовое описание', $material->description);
-
-        Feedback::delete($feedback);
     }
 
 
@@ -949,12 +954,7 @@ class MaterialInterfaceTest extends BaseDBTest
             'name' => 'ip'
         ]);
         $ipField->commit();
-        $feedback = new Feedback([
-            'pid' => 6,
-            'ip' => '127.0.0.1',
-            'user_agent' => 'userAgent'
-        ]);
-        $feedback->commit();
+        $form = new Form(6);
 
         $post = [
             'full_name' => 'Test User',
@@ -971,7 +971,7 @@ class MaterialInterfaceTest extends BaseDBTest
         $material->commit();
         $interface = new FormInterface();
 
-        $interface->processObject($material, $feedback, $post, $server, $files);
+        $interface->processObject($material, $form, $post, $server, $files);
 
         $this->assertContains('Отзывы к товарам: ', $material->name);
         $this->assertContains(date('Y-m-d'), $material->date);
@@ -979,7 +979,6 @@ class MaterialInterfaceTest extends BaseDBTest
         $this->assertEquals(10, $material->material->id);
         $this->assertEquals('127.0.0.1', $material->ip);
 
-        Feedback::delete($feedback);
         Material::delete($material);
         Material_Field::delete($ipField);
     }
