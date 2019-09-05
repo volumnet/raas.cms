@@ -968,7 +968,6 @@ class MaterialInterfaceTest extends BaseDBTest
             'HTTP_USER_AGENT' => 'userAgent'
         ];
         $material = new Material(['pid' => 7]);
-        $material->commit();
         $interface = new FormInterface();
 
         $interface->processObject($material, $form, $post, $server, $files);

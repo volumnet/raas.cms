@@ -465,6 +465,7 @@ class FormInterface extends AbstractInterface
         array $server = [],
         array $files = []
     ) {
+        $new = !$object->id;
         // Заполняем основные данные создаваемого материала
         if ($object instanceof Material) {
             $this->processMaterialHeader($object, $form, $post);
@@ -473,7 +474,7 @@ class FormInterface extends AbstractInterface
         $object->commit();
 
         // Автоматически подставляем недостающие поля даты/времени у материала
-        if ($object instanceof Material) {
+        if ($new && ($object instanceof Material)) {
             $this->processObjectDates($object, $post);
         }
 
@@ -481,7 +482,7 @@ class FormInterface extends AbstractInterface
         $this->processObjectFields($object, $form, $post, $files);
 
         // Заполняем данные пользователя в полях материала
-        if ($object instanceof Material) {
+        if ($new && ($object instanceof Material)) {
             $this->processObjectUserData($object, $server);
         }
     }
@@ -500,7 +501,7 @@ class FormInterface extends AbstractInterface
     ) {
         if (isset($post['_name_']) && trim($post['_name_'])) {
             $material->name = trim($post['_name_']);
-        } else {
+        } elseif (!$material->id) {
             $material->name = $form->Material_Type->name . ': '
                             . date(RAASViewWeb::i()->_('DATETIMEFORMAT'));
         }
