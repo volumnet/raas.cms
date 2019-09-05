@@ -7,7 +7,7 @@ namespace RAAS\CMS;
 /**
  * Класс теста стандартного интерфейса формы
  */
-class MaterialInterfaceTest extends BaseDBTest
+class FormInterfaceTest extends BaseDBTest
 {
     /**
      * Тест проверки, действительно ли форма отправлена
