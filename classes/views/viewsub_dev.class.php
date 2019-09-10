@@ -1712,6 +1712,13 @@ class ViewSub_Dev extends RAASAbstractSubView
                 'icon' => 'plus'
             ];
         }
+        if ($form->id) {
+            $arr[] = [
+                'href' => $this->url . '&action=copy_form&id=' . (int)$form->id,
+                    'name' => $this->_('COPY'),
+                    'icon' => 'tags'
+            ];
+        }
         $arr = array_merge($arr, $this->stdView->stdContextMenu(
             $form,
             $i,

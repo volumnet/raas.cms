@@ -31,6 +31,19 @@ class SubsectionsTable extends \RAAS\Table
         $columns = [];
         if ($params['Item']->id) {
             $i = 0;
+            $columns['id'] = [
+                'caption' => $this->view->_('ID'),
+                'callback' => function ($row) use ($view) {
+                    if ($row->locked) {
+                        $text = (int)$row->id;
+                    } else {
+                        $text = '<a href="' . $view->url . '&id=' . (int)$row->id . '" class="' . (!$row->vis ? 'muted' : ($row->response_code ? ' text-error' : '')) . ($row->pvis ? '' : ' cms-inpvis') . '">'
+                              .    (int)$row->id
+                              . '</a>';
+                    }
+                    return $text;
+                }
+            ];
             foreach (array_filter(
                 Page_Field::getSet(),
                 function ($x) {

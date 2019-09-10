@@ -289,6 +289,9 @@ class Sub_Dev extends RAASAbstractSubController
                     new Redirector(HTTP::queryString('action='));
                 }
                 break;
+            case 'copy_form':
+                $this->copyForm();
+                break;
             default:
                 $this->view->dev();
                 break;
@@ -629,6 +632,27 @@ class Sub_Dev extends RAASAbstractSubController
         $Item = new Form((int)$this->id);
         $Form = new EditFormForm(['Item' => $Item]);
         $this->view->edit_form($Form->process());
+    }
+
+
+    /**
+     * Дублирование формы
+     */
+    protected function copyForm()
+    {
+        $original = $item = new Form((int)$this->id);
+        if (!$item->id) {
+            new Redirector($this->url);
+        }
+        $OUT = [];
+        $OUT['Original'] = $original;
+        $item = $this->model->copyItem($item);
+        $Form = new CopyFormForm([
+            'Item' => $item,
+            'Original' => $original,
+        ]);
+        $OUT = array_merge($OUT, (array)$Form->process());
+        $this->view->edit_form($OUT);
     }
 
 
