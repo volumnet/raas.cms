@@ -397,9 +397,12 @@ class ViewSub_Main extends RAASAbstractSubView
                     'icon' => 'edit'
                 ];
             }
-            if ($page->cache && Package::i()->registryGet('clear_cache_manually')) {
+            if ($page->cache &&
+                Package::i()->registryGet('clear_cache_manually')
+            ) {
                 $arr[] = [
-                    'href' => $this->url . '&action=clear_cache&id=' . (int)$page->id
+                    'href' => $this->url . '&action=clear_cache&id='
+                           .  (int)$page->id
                            .  ($showlist ? '&back=1' : ''),
                     'name' => $this->_('CLEAR_CACHE'),
                     'icon' => 'refresh',
