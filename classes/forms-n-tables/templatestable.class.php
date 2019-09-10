@@ -30,6 +30,14 @@ class TemplatesTable extends Table
         $view = $this->view;
         $defaultParams = [
             'columns' => [
+                'id' => [
+                    'caption' => $this->view->_('ID'),
+                    'callback' => function ($row) use ($view) {
+                        return '<a href="' . $view->url . '&action=edit_template&id=' . (int)$row->id . '">' .
+                                  (int)$row->id .
+                               '</a>';
+                    }
+                ],
                 'name' => [
                     'caption' => $this->view->_('NAME'),
                     'callback' => function ($row) use ($view) {

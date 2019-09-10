@@ -29,6 +29,14 @@ class DictionariesTable extends Table
     {
         $view = $this->view;
         $columns = [];
+        $columns['id'] = [
+            'caption' => $this->view->_('ID'),
+            'callback' => function ($row) use ($view) {
+                return '<a href="' . $view->url . '&action=dictionaries&id=' . (int)$row->id . '" class="' . (!$row->vis ? ' muted' : '') . ($row->pvis ? '' : ' cms-inpvis') . '">'
+                     .    (int)$row->id
+                     . '</a>';
+            }
+        ];
         $columns['name'] = [
             'caption' => $this->view->_('NAME'),
             'callback' => function ($row) use ($view) {
