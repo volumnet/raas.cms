@@ -228,7 +228,7 @@ class Controller_Frontend extends Abstract_Controller
      * @param bool $doCache есть ли кэширование
      * @return Page страница, которая должна быть
      */
-    private function checkPageRights(Page $Page, $doCache = false)
+    protected function checkPageRights(Page $Page, $doCache = false)
     {
         if ($Page->currentUserHasAccess()) {
             return $Page;
@@ -329,7 +329,7 @@ class Controller_Frontend extends Abstract_Controller
      * @param array $regs обработка регулярного выражения из адреса:
      *                    '/(\\.(\\d+|auto)x(\\d+|auto)(_(\\w+))?)(\\.|$)/i'
      */
-    private function parseThumbnail($regs)
+    protected function parseThumbnail($regs)
     {
         $width = ($regs[2] != 'auto') ? (int)$regs[2] : null;
         $height = ($regs[3] != 'auto') ? (int)$regs[3] : null;
