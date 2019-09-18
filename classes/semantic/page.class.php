@@ -508,14 +508,7 @@ class Page extends SOME
     public function process()
     {
         ob_start();
-        if ($this->response_code && ($this->response_code != 200)) {
-            header('HTTP/1.0 ' . Page::$httpStatuses[(int)$this->response_code]);
-            header('Status: ' . Page::$httpStatuses[(int)$this->response_code]);
-        }
-        if ($this->mime) {
-            header('Content-Type: ' . $this->mime . '; charset=UTF-8');
-        }
-
+        $this->processHeaders();
         $SITE = $this->Domain;
         $Page = $this;
         if ($this->blocksByLocations['']) {
@@ -530,6 +523,46 @@ class Page extends SOME
         $content = ob_get_contents();
         ob_end_clean();
         return $content;
+    }
+
+
+    /**
+     * Возвращает связанные HTTP-заголовки
+     */
+    protected function processHeaders()
+    {
+        $lastModificationTime = strtotime($this->last_modified);
+        $ifModifiedSinceTime = 0;
+        if (isset($_ENV['HTTP_IF_MODIFIED_SINCE'])) {
+            $ifModifiedSinceTime = strtotime(
+                substr($_ENV['HTTP_IF_MODIFIED_SINCE'], 5)
+            );
+        } elseif (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+            $ifModifiedSinceTime = strtotime(
+                substr($_SERVER['HTTP_IF_MODIFIED_SINCE'], 5)
+            );
+        }
+        if ($ifModifiedSinceTime &&
+            $this->cache &&
+            ($ifModifiedSinceTime >= $lastModificationTime)
+        ) {
+            header($_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified');
+            exit;
+        } elseif ($this->cache) {
+            header(
+                'Last-Modified: '.
+                gmdate('D, d M Y H:i:s \G\M\T', $lastModificationTime)
+            );
+        } else {
+            header('Last-Modified: '. gmdate('D, d M Y H:i:s \G\M\T'));
+        }
+        if ($this->response_code && ($this->response_code != 200)) {
+            header('HTTP/1.0 ' . Page::$httpStatuses[(int)$this->response_code]);
+            header('Status: ' . Page::$httpStatuses[(int)$this->response_code]);
+        }
+        if ($this->mime) {
+            header('Content-Type: ' . $this->mime . '; charset=UTF-8');
+        }
     }
 
 
