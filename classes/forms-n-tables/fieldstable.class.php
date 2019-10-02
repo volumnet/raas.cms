@@ -44,18 +44,20 @@ class FieldsTable extends Table
             ],
             'data-role' => 'multitable',
             'columns' => [
+                'id' => [
+                    'caption' => $this->view->_('ID'),
+                    'callback' => function ($row) use ($view, $editAction) {
+                        return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' .
+                                  (int)$row->id .
+                               '</a>';
+                    }
+                ],
                 'name' => [
                     'caption' => $this->view->_('NAME'),
                     'callback' => function ($row) use ($view, $editAction) {
-                        if ($row->id) {
-                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' .
-                                      htmlspecialchars($row->name) .
-                                   '</a>';
-                        } else {
-                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' .
-                                      htmlspecialchars($row->name) .
-                                   '</a>';
-                        }
+                        return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' .
+                                  htmlspecialchars($row->name) .
+                               '</a>';
                     }
                 ],
                 'urn' => [

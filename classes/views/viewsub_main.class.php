@@ -330,7 +330,7 @@ class ViewSub_Main extends RAASAbstractSubView
 
     /**
      * Возвращает контекстное меню для страницы
-     * @param Page $Item Страница
+     * @param Page $page Страница
      * @param int $i Порядок в списке
      * @return array<[
      *             'href' ?=> string Ссылка,
@@ -340,48 +340,48 @@ class ViewSub_Main extends RAASAbstractSubView
      *             'onclick' ?=> string JavaScript-команда при клике,
      *         ]>
      */
-    public function getPageContextMenu(Page $Item)
+    public function getPageContextMenu(Page $page)
     {
         $arr = [];
-        if ($Item->id) {
+        if ($page->id) {
             $pageCache = PageRecursiveCache::i();
             $domainsIds = $pageCache->getChildrenIds(0);
             $domainUrl = '';
             if (count($domainsIds) > 1) {
-                $domainId = (int)$Item->Domain->id;
+                $domainId = (int)$page->Domain->id;
                 $domainData = $pageCache->cache[$domainId];
                 if (!stristr($domainData['urn'], $_SERVER['HTTP_HOST'])) {
-                    $domainUrl = $Item->domain;
+                    $domainUrl = $page->domain;
                 }
             }
 
             $edit = ($this->action == 'edit');
             $arr[] = [
                 'name' => $this->_('BROWSE'),
-                'href' => $domainUrl . $Item->url,
+                'href' => $domainUrl . $page->url,
                 'icon' => 'globe',
                 'target' => '_blank',
                 'active' => false,
             ];
             $arr[] = [
-                'name' => $Item->vis
+                'name' => $page->vis
                        ?  $this->_('VISIBLE')
                        : '<span class="muted">' .
                             $this->_('INVISIBLE') .
                          '</span>',
-                'href' => $this->url . '&action=chvis&id=' . (int)$Item->id
+                'href' => $this->url . '&action=chvis&id=' . (int)$page->id
                        .  '&back=1',
-                'icon' => $Item->vis ? 'ok' : '',
-                'title' => $this->_($Item->vis ? 'HIDE' : 'SHOW')
+                'icon' => $page->vis ? 'ok' : '',
+                'title' => $this->_($page->vis ? 'HIDE' : 'SHOW')
             ];
             $arr[] = [
-                'href' => $this->url . '&action=copy&id=' . (int)$Item->id,
+                'href' => $this->url . '&action=copy&id=' . (int)$page->id,
                 'name' => $this->_('COPY'),
                 'icon' => 'tags'
             ];
-            if ($Item->pid && ($this->action != 'move')) {
+            if ($page->pid && ($this->action != 'move')) {
                 $arr[] = [
-                    'href' => $this->url . '&action=move&id=' . (int)$Item->id,
+                    'href' => $this->url . '&action=move&id=' . (int)$page->id,
                     'name' => $this->_('MOVE'),
                     'icon' => 'share-alt'
                 ];
@@ -389,24 +389,27 @@ class ViewSub_Main extends RAASAbstractSubView
 
 
             $edit = ($this->action == 'edit');
-            $showlist = (($this->action == '') && ($this->id != $Item->id));
+            $showlist = (($this->action == '') && ($this->id != $page->id));
             if (!$edit) {
                 $arr[] = [
-                    'href' => $this->url . '&action=edit&id=' . (int)$Item->id,
+                    'href' => $this->url . '&action=edit&id=' . (int)$page->id,
                     'name' => $this->_('EDIT'),
                     'icon' => 'edit'
                 ];
             }
-            if ($Item->cache) {
+            if ($page->cache &&
+                Package::i()->registryGet('clear_cache_manually')
+            ) {
                 $arr[] = [
-                    'href' => $this->url . '&action=clear_cache&id=' . (int)$Item->id
+                    'href' => $this->url . '&action=clear_cache&id='
+                           .  (int)$page->id
                            .  ($showlist ? '&back=1' : ''),
                     'name' => $this->_('CLEAR_CACHE'),
                     'icon' => 'refresh',
                 ];
             }
             $arr[] = [
-                'href' => $this->url . '&action=delete&id=' . (int)$Item->id
+                'href' => $this->url . '&action=delete&id=' . (int)$page->id
                        .  ($showlist ? '&back=1' : ''),
                 'name' => $this->_('DELETE'),
                 'icon' => 'remove',

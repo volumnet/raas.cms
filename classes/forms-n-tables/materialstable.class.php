@@ -34,6 +34,14 @@ class MaterialsTable extends Table
         $pidText = ($params['Item'] instanceof Page)
                  ? '&pid=' . (int)$params['Item']->id
                  : '';
+        $columns['id'] = [
+            'caption' => $this->view->_('ID'),
+            'callback' => function ($row) use ($view, $params, $pidText) {
+                return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>'
+                     .    (int)$row->id
+                     . '</a>';
+            }
+        ];
         foreach (array_filter(
             $params['mtype']->fields,
             function ($x) {

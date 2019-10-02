@@ -1227,7 +1227,9 @@ class Package extends RAASPackage
 
     public function autoload($class)
     {
-        require_once $this->classesDir . '/controller_frontend.class.php';
+        if (!class_exists('RAAS\\Controller_Frontend')) {
+            require_once $this->classesDir . '/controller_frontend.class.php';
+        }
         parent::autoload($class);
     }
 }

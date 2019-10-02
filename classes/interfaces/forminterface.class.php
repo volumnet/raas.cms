@@ -457,35 +457,36 @@ class FormInterface extends AbstractInterface
     /**
      * Обрабатывает объект, порождаемый формой (материал или уведомление)
      * @param Material|Feedback $object Объект для заполнения
-     * @param Feedback $feedback Уведомление обратной связи
+     * @param Form $form Текущая форма
      * @param array $post Данные $_POST-полей
      * @param array $server Данные $_SERVER-полей
      * @param array $files Данные $_FILES-полей
      */
     public function processObject(
         SOME $object,
-        Feedback $feedback,
+        Form $form,
         array $post = [],
         array $server = [],
         array $files = []
     ) {
+        $new = !$object->id;
         // Заполняем основные данные создаваемого материала
         if ($object instanceof Material) {
-            $this->processMaterialHeader($object, $feedback);
+            $this->processMaterialHeader($object, $form, $post);
         }
 
         $object->commit();
 
         // Автоматически подставляем недостающие поля даты/времени у материала
-        if ($object instanceof Material) {
+        if ($new && ($object instanceof Material)) {
             $this->processObjectDates($object, $post);
         }
 
         // Заполним кастомные поля
-        $this->processObjectFields($object, $feedback->parent, $post, $files);
+        $this->processObjectFields($object, $form, $post, $files);
 
         // Заполняем данные пользователя в полях материала
-        if ($object instanceof Material) {
+        if ($new && ($object instanceof Material)) {
             $this->processObjectUserData($object, $server);
         }
     }
@@ -494,20 +495,22 @@ class FormInterface extends AbstractInterface
     /**
      * Обрабатывает название и описание материала
      * @param Material $material Материал для заполнения
-     * @param Feedback $feedback Уведомление формы обратной связи
+     * @param Form $form Текущая форма
+     * @param array $post Данные $_POST-полей
      */
     public function processMaterialHeader(
         Material $material,
-        Feedback $feedback
+        Form $form,
+        array $post = []
     ) {
-        if (isset($feedback->fields['_name_'])) {
-            $material->name = $feedback->fields['_name_']->getValue();
-        } else {
-            $material->name = $feedback->parent->Material_Type->name . ': '
+        if (isset($post['_name_']) && trim($post['_name_'])) {
+            $material->name = trim($post['_name_']);
+        } elseif (!$material->id) {
+            $material->name = $form->Material_Type->name . ': '
                             . date(RAASViewWeb::i()->_('DATETIMEFORMAT'));
         }
-        if (isset($feedback->fields['_description_'])) {
-            $material->description = $feedback->fields['_description_']->getValue();
+        if (isset($post['_description_']) && trim($post['_description_'])) {
+            $material->description = trim($post['_description_']);
         }
     }
 

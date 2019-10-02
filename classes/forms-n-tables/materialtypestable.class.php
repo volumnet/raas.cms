@@ -41,6 +41,14 @@ class MaterialTypesTable extends Table
             return $Set;
         };
         $columns = [];
+        $columns['id'] = [
+            'caption' => $this->view->_('ID'),
+            'callback' => function ($row) use ($view) {
+                return '<a href="' . $view->url . '&action=edit_material_type&id=' . (int)$row->id . '">' .
+                          (int)$row->id .
+                       '</a>';
+            }
+        ];
         $columns['name'] = [
             'caption' => $this->view->_('NAME'),
             'callback' => function ($row) use ($view) {

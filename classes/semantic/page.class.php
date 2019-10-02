@@ -387,8 +387,8 @@ class Page extends SOME
             $this->post_date = $this->modify_date;
         }
         if (!$this->id || !$this->priority) {
-            $sqlQuery = "SELECT MAX(priority) FROM " . self::_tablename();
-            $this->priority = self::$SQL->getvalue($sqlQuery) + 1;
+            $sqlQuery = "SELECT MAX(priority) FROM " . static::_tablename();
+            $this->priority = static::$SQL->getvalue($sqlQuery) + 1;
         }
         if ($this->pid && !$this->urn && $this->name) {
             $this->urn = $this->name;
@@ -410,7 +410,7 @@ class Page extends SOME
 
 
         $enableHeritage = false;
-        foreach (self::$inheritedFields as $key => $val) {
+        foreach (static::$inheritedFields as $key => $val) {
             if ($this->$key) {
                 $enableHeritage = true;
             }
@@ -421,7 +421,7 @@ class Page extends SOME
                 // по SQL-запросу и массив properties у них нулевой,
                 // поэтому сравнивать проблематично
                 $row->reload();
-                foreach (self::$inheritedFields as $key => $val) {
+                foreach (static::$inheritedFields as $key => $val) {
                     // Если наследуется и значение дочернего элемента
                     // совпадает со старым значением текущего
                     // 2014-11-18, AVS: сменил $this->update[$key] на $this->$key,
@@ -440,7 +440,7 @@ class Page extends SOME
         if (($this->template == $this->parent->template) && $new) {
             $sqlQuery = "SELECT tB.*
                             FROM " . Block::_tablename() . " AS tB
-                            JOIN " . self::$dbprefix . self::$links['blocks']['tablename'] . " AS tBPA ON tBPA.block_id = tB.id
+                            JOIN " . static::$dbprefix . static::$links['blocks']['tablename'] . " AS tBPA ON tBPA.block_id = tB.id
                            WHERE tBPA.page_id = " . (int)$this->pid . " AND inherit ORDER BY priority";
             $sqlResult = array_map(
                 function ($x) {
@@ -451,8 +451,8 @@ class Page extends SOME
             if ($sqlResult) {
                 $arr = [];
                 $sqlQuery = "SELECT MAX(priority)
-                               FROM " . self::$dbprefix . self::$links['blocks']['tablename'];
-                $priority = (int)self::$SQL->getvalue($sqlQuery);
+                               FROM " . static::$dbprefix . static::$links['blocks']['tablename'];
+                $priority = (int)static::$SQL->getvalue($sqlQuery);
                 foreach ($sqlResult as $row) {
                     $arr[] = [
                         'page_id' => $this->id,
@@ -460,8 +460,8 @@ class Page extends SOME
                         'priority' => ++$priority
                     ];
                 }
-                self::$SQL->add(
-                    self::$dbprefix . self::$links['blocks']['tablename'],
+                static::$SQL->add(
+                    static::$dbprefix . static::$links['blocks']['tablename'],
                     $arr
                 );
             }
@@ -491,12 +491,12 @@ class Page extends SOME
                    ORDER BY priority
                       LIMIT 1";
         $sqlBind = [$this->id, $code];
-        if ($sqlResult = self::$SQL->getline([$sqlQuery, $sqlBind])) {
-            return new self($sqlResult);
+        if ($sqlResult = static::$SQL->getline([$sqlQuery, $sqlBind])) {
+            return new static($sqlResult);
         } elseif ($this->id) {
             return $this->parent->getCodePage($code);
         } else {
-            return new self();
+            return new static();
         }
     }
 
@@ -508,14 +508,7 @@ class Page extends SOME
     public function process()
     {
         ob_start();
-        if ($this->response_code && ($this->response_code != 200)) {
-            header('HTTP/1.0 ' . Page::$httpStatuses[(int)$this->response_code]);
-            header('Status: ' . Page::$httpStatuses[(int)$this->response_code]);
-        }
-        if ($this->mime) {
-            header('Content-Type: ' . $this->mime . '; charset=UTF-8');
-        }
-
+        $this->processHeaders();
         $SITE = $this->Domain;
         $Page = $this;
         if ($this->blocksByLocations['']) {
@@ -530,6 +523,46 @@ class Page extends SOME
         $content = ob_get_contents();
         ob_end_clean();
         return $content;
+    }
+
+
+    /**
+     * Возвращает связанные HTTP-заголовки
+     */
+    protected function processHeaders()
+    {
+        $lastModificationTime = strtotime($this->last_modified);
+        $ifModifiedSinceTime = 0;
+        if (isset($_ENV['HTTP_IF_MODIFIED_SINCE'])) {
+            $ifModifiedSinceTime = strtotime(
+                substr($_ENV['HTTP_IF_MODIFIED_SINCE'], 5)
+            );
+        } elseif (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+            $ifModifiedSinceTime = strtotime(
+                substr($_SERVER['HTTP_IF_MODIFIED_SINCE'], 5)
+            );
+        }
+        if ($ifModifiedSinceTime &&
+            $this->cache &&
+            ($ifModifiedSinceTime >= $lastModificationTime)
+        ) {
+            header($_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified');
+            exit;
+        } elseif ($this->cache) {
+            header(
+                'Last-Modified: '.
+                gmdate('D, d M Y H:i:s \G\M\T', $lastModificationTime)
+            );
+        } else {
+            header('Last-Modified: '. gmdate('D, d M Y H:i:s \G\M\T'));
+        }
+        if ($this->response_code && ($this->response_code != 200)) {
+            header('HTTP/1.0 ' . Page::$httpStatuses[(int)$this->response_code]);
+            header('Status: ' . Page::$httpStatuses[(int)$this->response_code]);
+        }
+        if ($this->mime) {
+            header('Content-Type: ' . $this->mime . '; charset=UTF-8');
+        }
     }
 
 
@@ -630,7 +663,7 @@ class Page extends SOME
     {
         $sqlQuery = "SELECT tB.*, tBPA.priority
                         FROM " . Block::_tablename() . " AS tB
-                        JOIN " . self::$dbprefix . self::$links['blocks']['tablename'] . " AS tBPA ON tB.id = tBPA.block_id
+                        JOIN " . static::$dbprefix . static::$links['blocks']['tablename'] . " AS tBPA ON tB.id = tBPA.block_id
                        WHERE tBPA.page_id = " . (int)$this->id . "
                     ORDER BY tBPA.priority";
         $sqlResult = SOME::getSQLSet($sqlQuery);
@@ -876,11 +909,11 @@ class Page extends SOME
     protected function checkForSimilarPages()
     {
         $sqlQuery = "SELECT COUNT(*)
-                       FROM " . self::_tablename()
+                       FROM " . static::_tablename()
                   . " WHERE urn = ?
                         AND pid = ?
                         AND id != ?";
-        $sqlResult = self::$SQL->getvalue([
+        $sqlResult = static::$SQL->getvalue([
             $sqlQuery,
             $this->urn,
             $this->pid,
@@ -902,7 +935,7 @@ class Page extends SOME
         $sqlQuery = "SELECT COUNT(*)
                        FROM " . Material::_tablename()
                   . " WHERE urn = ?";
-        $sqlResult = self::$SQL->getvalue([$sqlQuery, $this->urn]);
+        $sqlResult = static::$SQL->getvalue([$sqlQuery, $this->urn]);
         $c = (bool)(int)$sqlResult;
         return $c;
     }

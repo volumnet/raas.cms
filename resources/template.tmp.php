@@ -59,9 +59,6 @@ $separateScripts = function ($text) {
 ob_start();
 ?>
 <!DOCTYPE html>
-<?php if ($Page->noindex || $Page->Material->noindex) { ?>
-    <!--noindex-->
-<?php } ?>
 <html lang="<?php echo htmlspecialchars($Page->lang)?>">
   <head>
     <title><?php echo ($Page->meta_title ? $Page->meta_title : $Page->name)?></title>
@@ -395,6 +392,3 @@ ob_start();
     ?>
   </body>
 </html>
-<?php if ($Page->noindex || $Page->Material->noindex) { ?>
-    <!--/noindex-->
-<?php } ?>
