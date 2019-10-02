@@ -56,6 +56,10 @@ class FormInterface extends AbstractInterface
         $result = [];
         $form = $this->block->Form;
         if ($form->id) {
+            // 2019-10-02, AVS: добавили для совместимости с виджетом, где даже
+            // в случае ошибок проверяется соответствие
+            // ($Item instanceof Feedback)
+            $result['Item'] = new Feedback(['pid' => $form->id]);
             $localError = [];
             if ($this->isFormProceed(
                 $this->block,
