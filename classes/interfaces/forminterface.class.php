@@ -216,6 +216,7 @@ class FormInterface extends AbstractInterface
      * @param bool $debug Режим отладки
      * @return string|null Текстовое описание ошибки, либо null,
      *                     если ошибка отсутствует
+     * @todo Нужна проверка множественных требуемых полей изображений
      */
     public function checkFileField(
         Form_Field $field,
@@ -245,7 +246,10 @@ class FormInterface extends AbstractInterface
                 );
             }
         }
-        $allowedExtensions = preg_split('/\\W+/umis', $field->source);
+        // @todo: Нужна проверка множественных требуемых полей изображений
+        $allowedExtensions = trim($field->source)
+                           ? preg_split('/\\W+/umis', $field->source)
+                           : [];
         if ($allowedExtensions) {
             $possibleExtensionError = sprintf(
                 View_Web::i()->_('INVALID_FILE_EXTENSION'),
