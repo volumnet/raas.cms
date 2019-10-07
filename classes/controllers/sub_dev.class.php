@@ -413,6 +413,7 @@ class Sub_Dev extends RAASAbstractSubController
      */
     protected function menus()
     {
+        $menuCache = MenuRecursiveCache::i();
         $Item = new Menu((int)$this->id);
         $Parent = $Item->pid
                 ? $Item->parent
@@ -425,6 +426,7 @@ class Sub_Dev extends RAASAbstractSubController
                     if ($row->id) {
                         $row->priority = (int)$val;
                         $row->commit();
+                        $menuCache->refresh(); // 2019-10-07, AVS: сбрасываем, иначе порядок остается
                     }
                 }
             }
@@ -439,7 +441,6 @@ class Sub_Dev extends RAASAbstractSubController
             if ($Item->id) {
                 $OUT['Set'] = $Item->subMenu;
             } else {
-                $menuCache = MenuRecursiveCache::i();
                 $menusIds = $menuCache->getChildrenIds(0);
                 $set = [];
                 foreach ($menusIds as $menuId) {
