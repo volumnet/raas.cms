@@ -329,14 +329,15 @@ class Webmaster
         $temp = Template::getSet();
         if (!$temp) {
             $T = new Template();
-            $T->name = $this->view->_('MAIN_PAGE');
+            $T->name = $this->view->_('MAIN_TEMPLATE');
             $T->urn = 'main';
             $f = Package::i()->resourcesDir . '/template.tmp.php';
             $T->description = file_get_contents($f);
 
             $locations = [
-                [2, ['logo', 4], ['', 4], ['contacts_top', 4]],
-                [1, ['menu_top', 9], ['search_form']],
+                [1, ['menu_top', 9], ['socials_top', 3]],
+                [2, ['logo', 4], ['contacts_top', 4], ['menu_user', 4]],
+                [1, ['menu_main', 9], ['search_form', 3]],
                 [1, ['banners', 12]],
                 [4, ['left', 3], ['content', 6], ['right', 3]],
                 [1, ['', 3], ['share', 6]],
@@ -349,7 +350,13 @@ class Webmaster
                     ['right' . $i, 3]
                 ];
             }
-            $locations[] = [2, ['copyrights', 4], ['', 4], ['menu_bottom', 4]];
+            $locations[] = [
+                2,
+                ['copyrights', 3],
+                ['contacts_bottom', 3],
+                ['menu_bottom', 3],
+                ['socials_bottom', 3]
+            ];
             $locations[] = [4, ['head_counters', 6], ['footer_counters', 6]];
 
             $locationsInfo = [];
@@ -437,7 +444,11 @@ class Webmaster
         $widgets = [];
         $viewsFolderId = (int)Snippet_Folder::importByURN('__raas_views')->id;
         $widgetsData = [
-            'logo' => $this->view->_('LOGO'),
+            'share' => View_Web::i()->_('SHARE'),
+            'triggers' => View_Web::i()->_('TRIGGERS'),
+            'pagination' => View_Web::i()->_('PAGINATION'),
+            'breadcrumbs' => View_Web::i()->_('BREADCRUMBS'),
+            'cookies_notification' => View_Web::i()->_('COOKIES_NOTIFICATION'),
         ];
         foreach ($widgetsData as $urn => $name) {
             $widget = Snippet::importByURN($urn);
@@ -446,8 +457,12 @@ class Webmaster
                     $urn,
                     $name,
                     $viewsFolderId,
-                    $this->resourcesDir . '/' . $urn . '.tmp.php',
-                    []
+                    $this->resourcesDir . '/widgets/' . $urn . '/' . $urn . '.tmp.php',
+                    [
+                        'WIDGET_NAME' => $name,
+                        'WIDGET_URN' => $urn,
+                        'WIDGET_CSS_CLASSNAME' => str_replace('_', '-', $urn)
+                    ]
                 );
             }
             $widgets[$urn] = $widget;
@@ -474,17 +489,6 @@ class Webmaster
             }
             $widgets[$urn] = $widget;
         }
-        $widget = Snippet::importByURN('pagination');
-        if (!$widget->id) {
-            $widget = $this->createSnippet(
-                'pagination',
-                $this->view->_('PAGINATION'),
-                (int)$viewsFolderId,
-                $this->resourcesDir . '/widgets/pagination/pagination.tmp.php',
-                []
-            );
-        }
-        $widgets['pagination'] = $widget;
 
         return $widgets;
     }
@@ -724,6 +728,88 @@ class Webmaster
 
 
     /**
+     * Создает компанию и связанные блоки
+     */
+    public function createCompany()
+    {
+        $materialType = Material_Type::importByURN('company');
+        if (!$materialType->id) {
+            $materialType = new Material_Type([
+                'name' => $this->view->_('COMPANY'),
+                'urn' => 'company',
+                'global_type' => 1
+            ]);
+            $materialType->commit();
+            $newMaterialType = true;
+        }
+        $materialTemplate = new CompanyTemplate($materialType);
+        if ($newMaterialType) {
+            $fields = $materialTemplate->createFields();
+            $materialTemplate->createMaterials();
+        }
+        $logoWidget = Snippet::importByURN('logo');
+        if (!$logoWidget->id) {
+            $logoWidget = $materialTemplate->createLogoBlockSnippet();
+            $logoBlock = $materialTemplate->createLogoBlock(
+                $this->Site,
+                $logoWidget,
+                ['nat' => 0]
+            );
+        }
+
+        $contactsTopWidget = Snippet::importByURN('contacts_top');
+        if (!$widget->id) {
+            $contactsTopWidget = $materialTemplate->createContactsTopBlockSnippet();
+            $contactsTopBlock = $materialTemplate->createContactsTopBlock(
+                $this->Site,
+                $contactsTopWidget,
+                ['nat' => 0]
+            );
+        }
+
+        $contactsBottomWidget = Snippet::importByURN('contacts_bottom');
+        if (!$contactsBottomWidget->id) {
+            $contactsBottomWidget = $materialTemplate->createContactsBottomBlockSnippet();
+            $contactsBottomBlock = $materialTemplate->createContactsBottomBlock(
+                $this->Site,
+                $contactsBottomWidget,
+                ['nat' => 0]
+            );
+        }
+
+        $socialsTopWidget = Snippet::importByURN('socials_top');
+        if (!$socialsTopWidget->id) {
+            $socialsTopWidget = $materialTemplate->createSocialsTopBlockSnippet();
+            $socialsTopBlock = $materialTemplate->createSocialsTopBlock(
+                $this->Site,
+                $socialsTopWidget,
+                ['nat' => 0]
+            );
+        }
+
+        $socialsBottomWidget = Snippet::importByURN('socials_bottom');
+        if (!$socialsBottomWidget->id) {
+            $socialsBottomWidget = $materialTemplate->createSocialsBottomBlockSnippet();
+            $socialsBottomBlock = $materialTemplate->createSocialsBottomBlock(
+                $this->Site,
+                $socialsBottomWidget,
+                ['nat' => 0]
+            );
+        }
+
+        $copyrightsWidget = Snippet::importByURN('copyrights');
+        if (!$copyrightsWidget->id) {
+            $copyrightsWidget = $materialTemplate->createCopyrightsBlockSnippet();
+            $copyrightsBlock = $materialTemplate->createCopyrightsBlock(
+                $this->Site,
+                $copyrightsWidget,
+                ['nat' => 0]
+            );
+        }
+    }
+
+
+    /**
      * Создает баннеры
      */
     public function createBanners()
@@ -809,66 +895,6 @@ class Webmaster
                 'inherit_cache' => 0
             ]);
 
-            $B = new Block_HTML([
-                'name' => $this->view->_('LOGO'),
-                'description' => file_get_contents(
-                    $this->resourcesDir . '/logo_block.tmp.php'
-                ),
-                'wysiwyg' => 1
-            ]);
-            $this->createBlock($B, 'logo', null, 'logo', $this->site, true);
-
-            $B = new Block_HTML([
-                'name' => $this->view->_('CONTACTS_TOP'),
-                'description' => file_get_contents(
-                    $this->resourcesDir . '/html/contacts/contacts_top.html'
-                ),
-                'wysiwyg' => 0
-            ]);
-            $this->createBlock(
-                $B,
-                'contacts_top',
-                null,
-                null,
-                $this->site,
-                true
-            );
-
-            $B = new Block_HTML([
-                'name' => $this->view->_('SOCIAL_NETWORKS'),
-                'description' => file_get_contents(
-                    $this->resourcesDir . '/socials_top.tmp.php'
-                ),
-                'wysiwyg' => 0
-            ]);
-            $this->createBlock(
-                $B,
-                'contacts_top',
-                null,
-                null,
-                $this->site,
-                true
-            );
-
-
-            $B = new Block_HTML([
-                'name' => $this->view->_('COPYRIGHTS'),
-                'description' => file_get_contents(
-                    $this->resourcesDir . '/html/copyrights/copyrights.html'
-                ),
-                'wysiwyg' => 1,
-            ]);
-            $this->createBlock($B, 'copyrights', null, null, $this->site, true);
-
-            $B = new Block_HTML([
-                'name' => $this->view->_('PRIVACY_BLOCK_NAME'),
-                'description' => file_get_contents(
-                    $this->resourcesDir . '/html/privacy/privacy_block.html'
-                ),
-                'wysiwyg' => 1,
-            ]);
-            $this->createBlock($B, 'copyrights', null, null, $this->site, true);
-
             $B = new Block_Form(['form' => $forms['feedback']->id ?: 0]);
             $this->createBlock(
                 $B,
@@ -917,18 +943,11 @@ class Webmaster
                 true
             );
 
-            $B = new Block_HTML([
-                'name' => $this->view->_('TRIGGERS'),
-                'description' => file_get_contents(
-                    $this->resourcesDir . '/triggers.tmp.php'
-                ),
-                'wysiwyg' => 0,
-            ]);
             $this->createBlock(
-                $B,
+                new Block_PHP(),
                 'footer_counters',
                 null,
-                null,
+                'triggers',
                 $this->site,
                 true
             );
@@ -945,7 +964,7 @@ class Webmaster
                 $B,
                 'footer_counters',
                 null,
-                null,
+                'cookies_notification',
                 $this->site,
                 true
             );
@@ -1014,30 +1033,17 @@ class Webmaster
                 ['name' => $this->view->_('CONTACTS'), 'urn' => 'contacts'],
                 $this->Site
             );
-            $B = new Block_HTML([
-                'name' => $this->view->_('MAP'),
-                'description' => file_get_contents(
-                    $this->resourcesDir . '/html/contacts/map.html'
-                ),
-                'wysiwyg' => 0,
-            ]);
-            $this->createBlock($B, 'content', null, null, $contacts);
-
-            $B = new Block_HTML([
-                'name' => $this->view->_('CONTACTS'),
-                'description' => file_get_contents(
-                    $this->resourcesDir . '/html/contacts/contacts.html'
-                ),
-                'wysiwyg' => 0,
-            ]);
-            $this->createBlock($B, 'content', null, null, $contacts);
-
-            $B = new Block_HTML([
-                'name' => $this->view->_('FEEDBACK'),
-                'description' => '<h3>' . $this->view->_('FEEDBACK') . '</h3>',
-                'wysiwyg' => 1,
-            ]);
-            $this->createBlock($B, 'content', null, null, $contacts);
+            $contactsWidget = Snippet::importByURN('contacts');
+            if (!$contactsWidget->id) {
+                $materialType = Material_Type::importByURN('company');
+                $materialTemplate = new CompanyTemplate($materialType);
+                $contactsWidget = $materialTemplate->createContactsBlockSnippet();
+                $contactsBlock = $materialTemplate->createContactsBlock(
+                    $contacts,
+                    $contactsWidget,
+                    ['nat' => 0]
+                );
+            }
 
             $B = new Block_Form(['form' => (int)$feedbackForm->id]);
             $this->createBlock(
@@ -1081,6 +1087,16 @@ class Webmaster
             ]);
             $this->createBlock($B, 'content', null, null, $privacy);
         }
+
+        $B = new Block_HTML([
+            'name' => $this->view->_('PRIVACY_BLOCK_NAME'),
+            'description' => file_get_contents(
+                $this->resourcesDir . '/html/privacy/privacy_block.html'
+            ),
+            'wysiwyg' => 1,
+        ]);
+        $this->createBlock($B, 'copyrights', null, null, $this->site, true);
+
         return $privacy;
     }
 
@@ -1286,8 +1302,9 @@ class Webmaster
             ]
         ]);
         $this->site = $this->createMainPage($template, $forms);
-        $this->createPrivacy();
         $this->createBanners();
+        $this->createCompany();
+        $this->createPrivacy();
 
         $temp = Page::getSet([
             'where' => ["pid = " . (int)$this->Site->id, "urn = 'about'"]
@@ -1328,6 +1345,17 @@ class Webmaster
             ],
             [
                 'pageId' => (int)$this->Site->id,
+                'urn' => 'main',
+                'inherit' => 10,
+                'name' => $this->view->_('MAIN_MENU'),
+                'realize' => true,
+                'addMainPageLink' => true,
+                'blockLocation' => 'menu_main',
+                'fullMenu' => true,
+                'inheritBlock' => true,
+            ],
+            [
+                'pageId' => (int)$this->Site->id,
                 'urn' => 'bottom',
                 'inherit' => 1,
                 'name' => $this->view->_('BOTTOM_MENU'),
@@ -1346,6 +1374,15 @@ class Webmaster
                 'fullMenu' => false,
                 'blockPage' => $this->map,
                 'inheritBlock' => false,
+            ],
+            [
+                'pageId' => (int)$this->Site->id,
+                'urn' => 'mobile',
+                'inherit' => 10,
+                'name' => $this->view->_('MOBILE_MENU'),
+                'blockLocation' => 'footer_counters',
+                'fullMenu' => false,
+                'inheritBlock' => true,
             ],
         ]);
 
@@ -1367,22 +1404,14 @@ class Webmaster
             );
         }
 
-        if (!is_file(Package::i()->filesDir . '/image/logo.png')) {
-            copy(
-                Package::i()->resourcesDir . '/logo.png',
-                Package::i()->filesDir . '/image/logo.png'
-            );
-            chmod(Package::i()->filesDir . '/image/logo.png', 0777);
-        }
-
-        $B = new Block_HTML([
-            'name' => $this->view->_('SHARE'),
-            'description' => file_get_contents(
-                $this->resourcesDir . '/share.tmp.php'
-            ),
-            'wysiwyg' => 0,
-        ]);
-        $this->createBlock($B, 'share', null, null, $this->Site, true);
+        $this->createBlock(
+            new Block_PHP(),
+            'share',
+            null,
+            'share',
+            $this->Site,
+            true
+        );
     }
 
 

@@ -1232,4 +1232,44 @@ class Package extends RAASPackage
         }
         parent::autoload($class);
     }
+
+
+    /**
+     * Добавляет при наличии тег вставки скрипта/стиля
+     * @param string|array<string> $fileURL Ссылка или массив ссылок на файл
+     * @param string $alt Альтернативное описание у изображений
+     * @param string $title Всплывающая подсказка у изображений
+     */
+    public static function asset($fileURL, $alt = '')
+    {
+        if (is_array($fileURL)) {
+            $result = array_values(array_filter(array_map(function ($x) {
+                return static::asset($x);
+            }, $fileURL), 'trim'));
+            return implode("\n", $result);
+        }
+        $filepath = trim($fileURL, '/');
+        if (is_file($filepath)) {
+            $ext = mb_strtolower(pathinfo($fileURL, PATHINFO_EXTENSION));
+            $link = $fileURL . '?v=' . date('Y-m-d-H-i-s', filemtime($filepath));
+            switch ($ext) {
+                case 'js':
+                    return '<script src="' . htmlspecialchars($link) . '"></script>';
+                    break;
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif':
+                case 'svg':
+                    return '<img src="' . htmlspecialchars($link) . '" alt="' . htmlspecialchars($alt) . '" title="' . htmlspecialchars($title ?: $alt) . '" />';
+                    break;
+                case 'ico':
+                    return '<link rel="shortcut icon" type="image/x-icon" href="' . htmlspecialchars($link) . '" />';
+                    break;
+                case 'css':
+                    return '<link rel="stylesheet" href="' . htmlspecialchars($link) . '">';
+                    break;
+            }
+        }
+    }
 }

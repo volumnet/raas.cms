@@ -60,8 +60,14 @@ class MaterialTypeTemplate
      * @param string $templateText Текст шаблона
      * @return string
      */
-    protected function render($templateText)
+    protected function render($templateText, $widgetName = '', $widgetURN = '')
     {
+        if (!$widgetName) {
+            $widgetName = $this->materialType->name;
+        }
+        if (!$widgetURN) {
+            $widgetURN = $this->materialType->urn;
+        }
         $text = $this->mustache->render($templateText, [
             'MATERIAL_TYPE_NAME' => $this->materialType->name,
             'MATERIAL_TYPE_URN' => $this->materialType->urn,
@@ -70,6 +76,9 @@ class MaterialTypeTemplate
                 '-',
                 $this->materialType->urn
             ),
+            'WIDGET_NAME' => $widgetName,
+            'WIDGET_URN' => $widgetURN,
+            'WIDGET_CSS_CLASSNAME' => str_replace('_', '-', $widgetURN),
         ]);
         return $text;
     }
@@ -80,10 +89,10 @@ class MaterialTypeTemplate
      * @param string $templateFile Файл шаблона
      * @return string
      */
-    protected function renderFile($templateFile)
+    protected function renderFile($templateFile, $widgetName = '', $widgetCSSClassname = '')
     {
         $templateText = file_get_contents($templateFile);
-        $text = $this->render($templateText);
+        $text = $this->render($templateText, $widgetName, $widgetCSSClassname);
         return $text;
     }
 
