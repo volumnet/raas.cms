@@ -13,21 +13,22 @@ $company = $Set[0];
 
 ?>
 <div class="{{WIDGET_CSS_CLASSNAME}}">
-  <?php if ($phones = $company->fields['phone']->getValues(true)) { ?>
+  <?php if ($phones = $company->fields['phone']->getValues(true)) {
+      $phonesText = array_map(function ($phone) {
+          return '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-list__item">' .
+                   '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-item">' .
+                     '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '" itemprop="telephone">' .
+                        htmlspecialchars($phone) .
+                     '</a>' .
+                   '</span>' .
+                 '</span>';
+      }, $phones);?>
       <div class="{{WIDGET_CSS_CLASSNAME}}__phones">
-        <div class="{{WIDGET_CSS_CLASSNAME}}__phones-list">
-          <div class="{{WIDGET_CSS_CLASSNAME}}-phones-list">
-            <?php foreach ($phones as $phone) { ?>
-                <span class="{{WIDGET_CSS_CLASSNAME}}-phones-list__item">
-                  <span class="{{WIDGET_CSS_CLASSNAME}}-phones-item">
-                    <a href="tel:%2B7<?php echo Text::beautifyPhone($phone)?>">
-                      <?php echo htmlspecialchars($phone)?>
-                    </a>
-                  </span>
-                </span>
-            <?php } ?>
-          </div>
-        </div>
+        <span class="{{WIDGET_CSS_CLASSNAME}}__phones-list">
+          <span class="{{WIDGET_CSS_CLASSNAME}}-phones-list">
+            <?php echo implode(', ', $phonesText)?>
+          </span>
+        </span>
       </div>
   <?php }
   $addressArr = [];

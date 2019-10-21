@@ -26,7 +26,7 @@ if ($Item) { ?>
           <?php if ($Item->visImages) { ?>
               <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__image">
                 <a href="/<?php echo $Item->visImages[0]->fileURL?>" data-lightbox-gallery="g">
-                  <img src="/<?php echo $Item->visImages[0]->tnURL?>" alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $row->name)?>" /></a>
+                  <img src="/<?php echo Package::i()->tn($Item->visImages[0]->fileURL, 1140, 570)?>" alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $row->name)?>" /></a>
               </div>
           <?php } ?>
           <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__text">
@@ -98,6 +98,4 @@ if ($Item) { ?>
       <?php } ?>
     </div>
 <?php } ?>
-<?php if (is_file('js/{{MATERIAL_TYPE_CSS_CLASSNAME}}.js')) { ?>
-    <script src="/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}.js?v=<?php echo date('Y-m-d', strtotime('js/{{MATERIAL_TYPE_CSS_CLASSNAME}}.js'))?>"></script>
-<?php } ?>
+<?php Package::i()->asset('js/{{MATERIAL_TYPE_CSS_CLASSNAME}}.js')?>

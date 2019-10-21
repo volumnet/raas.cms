@@ -75,9 +75,8 @@ ob_start();
         '/css/animate.css',
         '/css/style.css'
     ])?>
-    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/custom.css">
     <?php echo Package::i()->asset([
-        '/custom.css',
         '/js/application.js',
         '/js/wow.min.js',
     ])?>

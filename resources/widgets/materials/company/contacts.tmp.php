@@ -36,78 +36,80 @@ $company = $Set[0];
                     . '</span>';
   }
   if ($office = $company->office) {
-      $addressArr[] = '<span class="{{WIDGET_CSS_CLASSNAME}}__address-office>'
+      $addressArr[] = '<span class="{{WIDGET_CSS_CLASSNAME}}__address-office">'
                     .    htmlspecialchars($office)
                     . '</span>';
   }
   if ($addressArr) { ?>
       <div class="{{WIDGET_CSS_CLASSNAME}}__address">
-        <div class="{{WIDGET_CSS_CLASSNAME}}__address-title">
+        <span class="{{WIDGET_CSS_CLASSNAME}}__address-title">
           <?php echo View_Web::i()->_('ADDRESS')?>:
-        </div>
-        <div class="{{WIDGET_CSS_CLASSNAME}}__address-value" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+        </span>
+        <span class="{{WIDGET_CSS_CLASSNAME}}__address-value" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
           <?php echo implode(', ', $addressArr)?>
-        </div>
+        </span>
       </div>
   <?php } ?>
-  <?php if ($phones = $company->fields['phone']->getValues(true)) { ?>
+  <?php if ($phones = $company->fields['phone']->getValues(true)) {
+      $phonesText = array_map(function ($phone) {
+          return '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-list__item">' .
+                   '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-item">' .
+                     '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '" itemprop="telephone">' .
+                        htmlspecialchars($phone) .
+                     '</a>' .
+                   '</span>' .
+                 '</span>';
+      }, $phones);?>
       <div class="{{WIDGET_CSS_CLASSNAME}}__phones">
-        <div class="{{WIDGET_CSS_CLASSNAME}}__phones-title">
-          <?php echo htmlspecialchars($company->field['phone']->name)?>:
-        </div>
-        <div class="{{WIDGET_CSS_CLASSNAME}}__phones-list">
-          <div class="{{WIDGET_CSS_CLASSNAME}}-phones-list">
-            <?php foreach ($phones as $phone) { ?>
-                <span class="{{WIDGET_CSS_CLASSNAME}}-phones-list__item">
-                  <span class="{{WIDGET_CSS_CLASSNAME}}-phones-item">
-                    <a href="tel:%2B7<?php echo Text::beautifyPhone($phone)?>" itemprop="telephone">
-                      <?php echo htmlspecialchars($phone)?>
-                    </a>
-                  </span>
-                </span>
-            <?php } ?>
-          </div>
-        </div>
+        <span class="{{WIDGET_CSS_CLASSNAME}}__phones-title">
+          <?php echo htmlspecialchars($company->fields['phone']->name)?>:
+        </span>
+        <span class="{{WIDGET_CSS_CLASSNAME}}__phones-list">
+          <span class="{{WIDGET_CSS_CLASSNAME}}-phones-list">
+            <?php echo implode(', ', $phonesText)?>
+          </span>
+        </span>
       </div>
   <?php } ?>
-  <?php if ($emails = $company->fields['email']->getValues(true)) { ?>
+  <?php if ($emails = $company->fields['email']->getValues(true)) {
+      $emailsText = array_map(function ($email) {
+          return '<span class="{{WIDGET_CSS_CLASSNAME}}-emails-list__item">' .
+                   '<span class="{{WIDGET_CSS_CLASSNAME}}-emails-item">' .
+                     '<a href="mailto:' . htmlspecialchars($email) . '" itemprop="telephone">' .
+                        htmlspecialchars($email) .
+                     '</a>' .
+                   '</span>' .
+                 '</span>';
+      }, $emails);?>
       <div class="{{WIDGET_CSS_CLASSNAME}}__emails">
-        <div class="{{WIDGET_CSS_CLASSNAME}}__emails-title">
-          <?php echo htmlspecialchars($company->field['email']->name)?>:
-        </div>
-        <div class="{{WIDGET_CSS_CLASSNAME}}__emails-list">
-          <div class="{{WIDGET_CSS_CLASSNAME}}-emails-list">
-            <?php foreach ($emails as $email) { ?>
-                <span class="{{WIDGET_CSS_CLASSNAME}}-emails-list__item">
-                  <span class="{{WIDGET_CSS_CLASSNAME}}-emails-item">
-                    <a href="mailto:<?php echo htmlspecialchars($email)?>" itemprop="email">
-                      <?php echo htmlspecialchars($email)?>
-                    </a>
-                  </span>
-                </span>
-            <?php } ?>
-          </div>
-        </div>
+        <span class="{{WIDGET_CSS_CLASSNAME}}__emails-title">
+          <?php echo htmlspecialchars($company->fields['email']->name)?>:
+        </span>
+        <span class="{{WIDGET_CSS_CLASSNAME}}__emails-list">
+          <span class="{{WIDGET_CSS_CLASSNAME}}-emails-list">
+            <?php echo implode(', ', $emailsText)?>
+          </span>
+        </span>
       </div>
   <?php } ?>
   <?php if ($schedule = $company->schedule) { ?>
       <div class="{{WIDGET_CSS_CLASSNAME}}__schedule">
-        <div class="{{WIDGET_CSS_CLASSNAME}}__schedule-title">
+        <span class="{{WIDGET_CSS_CLASSNAME}}__schedule-title">
           <?php echo View_Web::i()->_('SCHEDULE')?>:
-        </div>
-        <div class="{{WIDGET_CSS_CLASSNAME}}__schedule-value">
+        </span>
+        <span class="{{WIDGET_CSS_CLASSNAME}}__schedule-value">
           <?php echo htmlspecialchars($schedule)?>
-        </div>
+        </span>
       </div>
   <?php } ?>
   <?php if ($transport = $company->transport) { ?>
       <div class="{{WIDGET_CSS_CLASSNAME}}__transport">
-        <div class="{{WIDGET_CSS_CLASSNAME}}__transport-title">
+        <span class="{{WIDGET_CSS_CLASSNAME}}__transport-title">
           <?php echo View_Web::i()->_('TRANSPORT')?>:
-        </div>
-        <div class="{{WIDGET_CSS_CLASSNAME}}__transport-value">
+        </span>
+        <span class="{{WIDGET_CSS_CLASSNAME}}__transport-value">
           <?php echo htmlspecialchars($transport)?>
-        </div>
+        </span>
       </div>
   <?php } ?>
 </div>

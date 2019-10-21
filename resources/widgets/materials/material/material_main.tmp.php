@@ -16,7 +16,7 @@ $nat = true;
 if ($Set) { ?>
     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main">
       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main__title">
-        <a<?php echo $translateAddresses ? ' href="/{{MATERIAL_TYPE_CSS_CLASSNAME}}/"' : ''?>>
+        <a<?php echo $nat ? ' href="/{{MATERIAL_TYPE_CSS_CLASSNAME}}/"' : ''?>>
           <?php echo htmlspecialchars($Block->name)?>
         </a>
       </div>
@@ -28,7 +28,7 @@ if ($Set) { ?>
                     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item">
                       <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__image<?php echo !$item->visImages ? ' {{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__image_no-image' : ''?>"<?php echo ($nat ? ' href="' . htmlspecialchars($item->url) . '"' : '')?>>
                         <?php if ($item->visImages) { ?>
-                            <img src="/<?php echo htmlspecialchars($item->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($item->visImages[0]->name ?: $item->name)?>" />
+                            <img src="/<?php echo Package::i()->tn($item->visImages[0]->fileURL, 600, 600)?>" alt="<?php echo htmlspecialchars($item->visImages[0]->name ?: $item->name)?>" />
                         <?php } ?>
                       </a>
                       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__text">
