@@ -14,14 +14,18 @@ $company = $Set[0];
   <span class="{{WIDGET_CSS_CLASSNAME}}__image">
     <img src="/<?php echo htmlspecialchars($company->logo->fileURL)?>" alt="<?php echo htmlspecialchars($company->logo->name ?: $company->name)?>" />
   </span>
-  <span class="{{WIDGET_CSS_CLASSNAME}}__text">
-    <span class="{{WIDGET_CSS_CLASSNAME}}__title">
-      <?php echo htmlspecialchars($company->logo->name ?: $company->name)?>
-    </span>
-    <?php if (trim($company->logo->description)) { ?>
-        <span class="{{WIDGET_CSS_CLASSNAME}}__description">
-          <?php echo htmlspecialchars($company->logo->description)?>
-        </span>
-    <?php } ?>
-  </span>
+  <?php if ($company->logo->name || $company->logo->description) { ?>
+      <span class="{{WIDGET_CSS_CLASSNAME}}__text">
+        <?php if (trim($company->logo->name)) { ?>
+            <span class="{{WIDGET_CSS_CLASSNAME}}__title">
+              <?php echo htmlspecialchars($company->logo->name)?>
+            </span>
+        <?php } ?>
+        <?php if (trim($company->logo->description)) { ?>
+            <span class="{{WIDGET_CSS_CLASSNAME}}__description">
+              <?php echo htmlspecialchars($company->logo->description)?>
+            </span>
+        <?php } ?>
+      </span>
+  <?php } ?>
 </a>

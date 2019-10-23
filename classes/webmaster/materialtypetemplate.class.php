@@ -141,8 +141,7 @@ class MaterialTypeTemplate
     public function createBlockSnippet($nat = false)
     {
         $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/material/material'
-                  . ($nat ? '.nat' : '') . '.tmp.php';
+                  . '/widgets/materials/material/material.tmp.php';
         $snippet = $this->createSnippetByFile($filename);
         return $snippet;
     }

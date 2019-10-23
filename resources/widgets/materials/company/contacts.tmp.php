@@ -75,7 +75,7 @@ $company = $Set[0];
       $emailsText = array_map(function ($email) {
           return '<span class="{{WIDGET_CSS_CLASSNAME}}-emails-list__item">' .
                    '<span class="{{WIDGET_CSS_CLASSNAME}}-emails-item">' .
-                     '<a href="mailto:' . htmlspecialchars($email) . '" itemprop="telephone">' .
+                     '<a href="mailto:' . htmlspecialchars($email) . '" itemprop="email">' .
                         htmlspecialchars($email) .
                      '</a>' .
                    '</span>' .

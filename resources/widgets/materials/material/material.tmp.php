@@ -1,19 +1,60 @@
-<?php
+php
 /**
  * Виджет модуля "{{MATERIAL_TYPE_NAME}}"
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
  * @param Pages $Pages Постраничная разбивка
- * @param array<Material> $Set Список материалов
+ * @param array<Material>|null $Set Список материалов
+ * @param Material|null $Item Активный материал
  */
 namespace RAAS\CMS;
 
 use SOME\Pages;
 use SOME\Text;
 
-$nat = false;
+$nat = true;
 
-if ($Set) { ?>
+if ($Item) { ?>
+    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}">
+      <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__article">
+        <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article">
+          <?php if (($time = strtotime($Item->date)) > 0) { ?>
+              <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__date">
+                <?php echo date('d', $time) . ' ' . Text::$months[(int)date('m', $time)] . ' ' . date('Y', $time)?>
+              </div>
+          <?php } ?>
+          <?php if ($Item->visImages) { ?>
+              <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__image">
+                <a href="/<?php echo $Item->visImages[0]->fileURL?>" data-lightbox-gallery="g">
+                  <img src="/<?php echo Package::i()->tn($Item->visImages[0]->fileURL, 1140, 570)?>" alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $row->name)?>" /></a>
+              </div>
+          <?php } ?>
+          <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__text">
+            <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__description">
+              <?php echo $Item->description; ?>
+            </div>
+          </div>
+          <?php if (count($Item->visImages) > 1) { ?>
+              <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__images">
+                <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__images-title">
+                  <?php echo PHOTOS ?>
+                </div>
+                <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__images-list">
+                  <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-list">
+                    <?php foreach ($Item->visImages as $image) { ?>
+                        <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-list__item">
+                          <a href="/<?php echo htmlspecialchars($image->fileURL)?>" class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-item" data-lightbox-gallery="g">
+                            <img src="/<?php echo htmlspecialchars($image->tnURL)?>" alt="<?php echo htmlspecialchars($image->name)?>" /></a>
+                        </div>
+                    <?php } ?>
+                  </div>
+                </div>
+              </div>
+          <?php } ?>
+        </div>
+      </div>
+    </div>
+<?php } elseif ($Set) { ?>
     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}">
       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__list">
         <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-list">
@@ -56,7 +97,5 @@ if ($Set) { ?>
           </div>
       <?php } ?>
     </div>
-    <?php if (is_file('js/{{MATERIAL_TYPE_CSS_CLASSNAME}}.js')) { ?>
-        <script src="/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}.js?v=<?php echo date('Y-m-d', strtotime('js/{{MATERIAL_TYPE_CSS_CLASSNAME}}.js'))?>"></script>
-    <?php } ?>
 <?php } ?>
+<?php echo Package::i()->asset('/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}.js')?>

@@ -40,7 +40,7 @@ $company = $Set[0];
       $phonesText = array_map(function ($phone) {
           return '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-list__item">' .
                    '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-item">' .
-                     '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '" itemprop="telephone">' .
+                     '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '">' .
                         htmlspecialchars($phone) .
                      '</a>' .
                    '</span>' .
@@ -61,7 +61,7 @@ $company = $Set[0];
       $emailsText = array_map(function ($email) {
           return '<span class="{{WIDGET_CSS_CLASSNAME}}-emails-list__item">' .
                    '<span class="{{WIDGET_CSS_CLASSNAME}}-emails-item">' .
-                     '<a href="mailto:' . htmlspecialchars($email) . '" itemprop="telephone">' .
+                     '<a href="mailto:' . htmlspecialchars($email) . '">' .
                         htmlspecialchars($email) .
                      '</a>' .
                    '</span>' .

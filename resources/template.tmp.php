@@ -193,7 +193,7 @@ ob_start();
             $contentText = $contentLocations[$i]['content'];
             if (!$i || $leftText || $contentText || $rightText) {
                 ?>
-                <div class="body__row body__row_content<?php echo ($i + 1)?>">
+                <div class="body__row body__row_content body__row_content<?php echo ($i + 1)?>">
                   <div class="body__container body__container_content body__container_content_<?php echo ($i + 1)?>">
                     <?php if ($leftText) { ?>
                         <aside class="body__left body__left_<?php echo ($i + 1)?>">
