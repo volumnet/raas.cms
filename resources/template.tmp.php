@@ -97,6 +97,7 @@ ob_start();
             '/js/ajaxcart.js',
             '/js/ajaxcatalog.js',
             '/js/modal.js',
+            '/js/raas-catalog-item-mixin.vue.js',
             '/js/catalog.js',
         ]);
     }

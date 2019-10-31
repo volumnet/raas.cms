@@ -1184,6 +1184,7 @@ class Webmaster
                     'name' => $this->view->_('SITEMAP_XML'),
                     'urn' => 'sitemaps',
                     'template' => 0,
+                    'mime' => 'application/xml',
                     'cache' => 0,
                     'response_code' => 200
                 ],
