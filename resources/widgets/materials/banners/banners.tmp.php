@@ -39,8 +39,8 @@ if ($Set) { ?>
           <?php } ?>
         </div>
         <?php if (count($Set) > 1) { ?>
-            <a href="#{{MATERIAL_TYPE_CSS_CLASSNAME}}<?php echo (int)$Block->id?>" data-slide="prev" class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__arrow {{MATERIAL_TYPE_CSS_CLASSNAME}}__arrow_left"></a>
-            <a href="#{{MATERIAL_TYPE_CSS_CLASSNAME}}<?php echo (int)$Block->id?>" data-slide="next" class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__arrow {{MATERIAL_TYPE_CSS_CLASSNAME}}__arrow_right"></a>
+            <a href="#{{MATERIAL_TYPE_CSS_CLASSNAME}}<?php echo (int)$Block->id?>" data-slide="prev" class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__arrow {{MATERIAL_TYPE_CSS_CLASSNAME}}__arrow_prev"></a>
+            <a href="#{{MATERIAL_TYPE_CSS_CLASSNAME}}<?php echo (int)$Block->id?>" data-slide="next" class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__arrow {{MATERIAL_TYPE_CSS_CLASSNAME}}__arrow_next"></a>
         <?php } ?>
       </div>
     </div>

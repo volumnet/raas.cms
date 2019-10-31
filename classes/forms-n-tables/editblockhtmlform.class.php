@@ -26,7 +26,6 @@ class EditBlockHTMLForm extends EditBlockForm
     protected function getInterfaceField()
     {
         $field = parent::getInterfaceField();
-        $field->required = false;
         return $field;
     }
 
@@ -34,7 +33,6 @@ class EditBlockHTMLForm extends EditBlockForm
     protected function getWidgetField()
     {
         $field = parent::getWidgetField();
-        $field->required = false;
         return $field;
     }
 

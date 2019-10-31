@@ -6,5 +6,14 @@
  */
 namespace RAAS\CMS;
 
-$interface = new SitemapInterface($Block, $Page, $_GET, $_POST, $_COOKIE, $_SESSION, $_SERVER, $_FILES);
+$interface = new SitemapInterface(
+    $Block,
+    $Page,
+    $_GET,
+    $_POST,
+    $_COOKIE,
+    $_SESSION,
+    $_SERVER,
+    $_FILES
+);
 echo $interface->process();

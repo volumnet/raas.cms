@@ -59,8 +59,8 @@ $separateScripts = function ($text) {
 ob_start();
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($Page->lang)?>">
-  <head>
+<html lang="<?php echo htmlspecialchars($Page->lang)?>" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# <?php echo $Page->headPrefix?>">
+  <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# <?php echo $Page->headPrefix?>">
     <title><?php echo ($Page->meta_title ? $Page->meta_title : $Page->name)?></title>
     <?php if ($Page->meta_keywords) { ?>
         <meta name="keywords" content="<?php echo htmlspecialchars($Page->meta_keywords)?>" />
@@ -70,6 +70,7 @@ ob_start();
     <?php } ?>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <?php echo $Page->headData; ?>
     <?php echo Package::i()->asset([
         '/css/application.css',
         '/css/animate.css',
@@ -87,6 +88,8 @@ ob_start();
         '/js/sliders.js',
         '/js/setrawcookie.js',
         '/js/setcookie.js',
+        '/js/vue.min.js',
+        '/js/vue-w3c-valid.min.js',
     ];
     if (class_exists('RAAS\CMS\Shop\Module')) {
         $assets2 = array_merge($assets2, [
@@ -247,12 +250,18 @@ ob_start();
         </div>
       </footer>
     </div>
+    <script>
+    new VueW3CValid({
+        el: '.body'
+    });
+    </script>
     <?php
     echo $Page->location('footer_counters');
     $content = ob_get_contents();
     ob_end_clean();
     $content = $separateScripts($content);
     echo $sanitizeOutput($content[0] . $content[1] . $content[2]);
+    // Убрать </body> и </html> при использовании htmlMin - он закрывает их автоматически
     ?>
   </body>
 </html>

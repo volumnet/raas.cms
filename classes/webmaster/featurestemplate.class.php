@@ -4,7 +4,6 @@
  */
 namespace RAAS\CMS;
 
-use Mustache_Engine;
 use RAAS\Application;
 use RAAS\Attachment;
 
@@ -44,10 +43,18 @@ class FeaturesTemplate extends MaterialTypeTemplate
     {
         $filename = Package::i()->resourcesDir
                   . '/widgets/materials/features/features_main.tmp.php';
-        $snippet = $this->createSnippetByFile(
+        $snippet = $this->webmaster->createSnippet(
+            $this->materialType->urn . '_main',
+            (
+                $this->materialType->name . ' — ' .
+                View_Web::i()->_('MATERIAL_TEMPLATE_MAIN_SUFFIX')
+            ),
+            (int)$this->widgetsFolder->id,
             $filename,
-            'main',
-            View_Web::i()->_('MATERIAL_TEMPLATE_MAIN_SUFFIX')
+            $this->getReplaceData(
+                $this->materialType->name,
+                $this->materialType->urn
+            )
         );
         return $snippet;
     }

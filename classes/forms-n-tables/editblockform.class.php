@@ -105,7 +105,6 @@ class EditBlockForm extends RAASForm
         $interfaceField->placeholder = null;
         $s = Snippet::importByURN('__raas_cache_interface');
         $interfaceField->default = $s->id;
-        $interfaceField->required = false;
 
         $this->children['serviceTab']->children['cache_type'] = [
             'type' => 'select',
@@ -167,7 +166,6 @@ class EditBlockForm extends RAASForm
             'type' => 'select',
             'class' => 'input-xxlarge',
             'name' => 'interface_id',
-            'required' => true,
             'caption' => $this->view->_('INTERFACE'),
             'placeholder' => $this->view->_('_NONE'),
             'children' => $wf(new Snippet_Folder())
@@ -207,7 +205,6 @@ class EditBlockForm extends RAASForm
             'type' => 'select',
             'class' => 'input-xxlarge',
             'name' => 'widget_id',
-            'required' => true,
             'caption' => $this->view->_('WIDGET'),
             'placeholder' => $this->view->_('_NONE'),
             'children' => $wf(new Snippet_Folder())

@@ -4,7 +4,6 @@
  */
 namespace RAAS\CMS;
 
-use Mustache_Engine;
 use RAAS\Application;
 use RAAS\Attachment;
 
@@ -178,14 +177,14 @@ class CompanyTemplate extends MaterialTypeTemplate
                   . '/widgets/materials/company/logo.tmp.php';
         $urn = 'logo';
         $name = View_Web::i()->_('LOGO');
-        $text = $this->renderFile($filename, $name, $urn);
-        $snippet = new Snippet([
-            'pid' => (int)$this->widgetsFolder->id,
-            'urn' => $urn,
-            'name' => $name,
-            'description' => $text,
-        ]);
-        $snippet->commit();
+
+        $snippet = $this->webmaster->createSnippet(
+            $urn,
+            $name,
+            (int)$this->widgetsFolder->id,
+            $filename,
+            $this->getReplaceData($name, $urn)
+        );
         return $snippet;
     }
 
@@ -224,14 +223,14 @@ class CompanyTemplate extends MaterialTypeTemplate
                   . '/widgets/materials/company/contacts_top.tmp.php';
         $urn = 'contacts_top';
         $name = View_Web::i()->_('CONTACTS_TOP');
-        $text = $this->renderFile($filename, $name, $urn);
-        $snippet = new Snippet([
-            'pid' => (int)$this->widgetsFolder->id,
-            'urn' => $urn,
-            'name' => $name,
-            'description' => $text,
-        ]);
-        $snippet->commit();
+
+        $snippet = $this->webmaster->createSnippet(
+            $urn,
+            $name,
+            (int)$this->widgetsFolder->id,
+            $filename,
+            $this->getReplaceData($name, $urn)
+        );
         return $snippet;
     }
 
@@ -270,14 +269,14 @@ class CompanyTemplate extends MaterialTypeTemplate
                   . '/widgets/materials/company/socials.tmp.php';
         $urn = 'socials_top';
         $name = View_Web::i()->_('SOCIALS_TOP');
-        $text = $this->renderFile($filename, $name, $urn);
-        $snippet = new Snippet([
-            'pid' => (int)$this->widgetsFolder->id,
-            'urn' => $urn,
-            'name' => $name,
-            'description' => $text,
-        ]);
-        $snippet->commit();
+
+        $snippet = $this->webmaster->createSnippet(
+            $urn,
+            $name,
+            (int)$this->widgetsFolder->id,
+            $filename,
+            $this->getReplaceData($name, $urn)
+        );
         return $snippet;
     }
 
@@ -316,14 +315,14 @@ class CompanyTemplate extends MaterialTypeTemplate
                   . '/widgets/materials/company/copyrights.tmp.php';
         $urn = 'copyrights';
         $name = View_Web::i()->_('COPYRIGHTS');
-        $text = $this->renderFile($filename, $name, $urn);
-        $snippet = new Snippet([
-            'pid' => (int)$this->widgetsFolder->id,
-            'urn' => $urn,
-            'name' => $name,
-            'description' => $text,
-        ]);
-        $snippet->commit();
+
+        $snippet = $this->webmaster->createSnippet(
+            $urn,
+            $name,
+            (int)$this->widgetsFolder->id,
+            $filename,
+            $this->getReplaceData($name, $urn)
+        );
         return $snippet;
     }
 
@@ -362,14 +361,14 @@ class CompanyTemplate extends MaterialTypeTemplate
                   . '/widgets/materials/company/contacts_bottom.tmp.php';
         $urn = 'contacts_bottom';
         $name = View_Web::i()->_('CONTACTS_BOTTOM');
-        $text = $this->renderFile($filename, $name, $urn);
-        $snippet = new Snippet([
-            'pid' => (int)$this->widgetsFolder->id,
-            'urn' => $urn,
-            'name' => $name,
-            'description' => $text,
-        ]);
-        $snippet->commit();
+
+        $snippet = $this->webmaster->createSnippet(
+            $urn,
+            $name,
+            (int)$this->widgetsFolder->id,
+            $filename,
+            $this->getReplaceData($name, $urn)
+        );
         return $snippet;
     }
 
@@ -408,14 +407,14 @@ class CompanyTemplate extends MaterialTypeTemplate
                   . '/widgets/materials/company/socials.tmp.php';
         $urn = 'socials_bottom';
         $name = View_Web::i()->_('SOCIALS_BOTTOM');
-        $text = $this->renderFile($filename, $name, $urn);
-        $snippet = new Snippet([
-            'pid' => (int)$this->widgetsFolder->id,
-            'urn' => $urn,
-            'name' => $name,
-            'description' => $text,
-        ]);
-        $snippet->commit();
+
+        $snippet = $this->webmaster->createSnippet(
+            $urn,
+            $name,
+            (int)$this->widgetsFolder->id,
+            $filename,
+            $this->getReplaceData($name, $urn)
+        );
         return $snippet;
     }
 
@@ -454,14 +453,14 @@ class CompanyTemplate extends MaterialTypeTemplate
                   . '/widgets/materials/company/contacts.tmp.php';
         $urn = 'contacts';
         $name = View_Web::i()->_('CONTACTS');
-        $text = $this->renderFile($filename, $name, $urn);
-        $snippet = new Snippet([
-            'pid' => (int)$this->widgetsFolder->id,
-            'urn' => $urn,
-            'name' => $name,
-            'description' => $text,
-        ]);
-        $snippet->commit();
+
+        $snippet = $this->webmaster->createSnippet(
+            $urn,
+            $name,
+            (int)$this->widgetsFolder->id,
+            $filename,
+            $this->getReplaceData($name, $urn)
+        );
         return $snippet;
     }
 

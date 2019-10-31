@@ -1,10 +1,9 @@
 <?php
 namespace RAAS\CMS;
 
-use \RAAS\Application;
-use \RAAS\Attachment;
-use \SOME\SOME;
-use Mustache_Engine;
+use SOME\SOME;
+use RAAS\Application;
+use RAAS\Attachment;
 
 /**
  * Класс вебмастера
@@ -66,12 +65,6 @@ class Webmaster
      * Количество получаемых людей
      */
     const USERS_TO_RETRIEVE = 10;
-
-    /**
-     * Экземпляр Mustache
-     * @var Mustache_Engine
-     */
-    protected $mustache;
 
     protected static $instance;
 
@@ -219,15 +212,6 @@ class Webmaster
 
 
     /**
-     * Конструктор класса
-     */
-    public function __construct()
-    {
-        $this->mustache = new Mustache_Engine();
-    }
-
-
-    /**
      * Создаем стандартный сниппет
      * @param Snippet_Folder $parent папка, в которой нужно разместить сниппет
      * @param string $urn URN сниппета
@@ -275,11 +259,13 @@ class Webmaster
         $templateSnippetFilename,
         $replaceData = []
     ) {
-        $templateText = file_get_contents($templateSnippetFilename);
+        $snippetText = file_get_contents($templateSnippetFilename);
         if ($replaceData) {
-            $snippetText = $this->mustache->render($templateText, $replaceData);
-        } else {
-            $snippetText = $templateText;
+            $newReplaceData = [];
+            foreach ($replaceData as $key => $val) {
+                $newReplaceData['{{' . $key . '}}'] = $val;
+            }
+            $snippetText = strtr($snippetText, $newReplaceData);
         }
         $snippet = new Snippet([
             'name' => $name,
@@ -363,14 +349,6 @@ class Webmaster
                 )
             );
         }
-
-        $interfaces['dummy'] = $this->checkSnippet(
-            new Snippet_Folder(),
-            'dummy',
-            'DUMMY',
-            '',
-            false
-        );
         return $interfaces;
     }
 
@@ -467,7 +445,8 @@ class Webmaster
             [
                 'name' => View_Web::i()->_('IMAGE'),
                 'urn' => 'image',
-                'datatype' => 'image'
+                'datatype' => 'image',
+                'show_in_table' => 1,
             ],
             [
                 'name' => View_Web::i()->_('NO_INDEX'),
@@ -503,6 +482,7 @@ class Webmaster
             'triggers/triggers' => View_Web::i()->_('TRIGGERS'),
             'pagination/pagination' => View_Web::i()->_('PAGINATION'),
             'breadcrumbs/breadcrumbs' => View_Web::i()->_('BREADCRUMBS'),
+            'sitemap/sitemap_xml' => View_Web::i()->_('SITEMAP_XML'),
             'cookies_notification/cookies_notification' => View_Web::i()->_('COOKIES_NOTIFICATION'),
             'feedback/feedback' => View_Web::i()->_('FEEDBACK'),
             'feedback/feedback_modal' => View_Web::i()->_('FEEDBACK_MODAL'),
@@ -747,7 +727,7 @@ class Webmaster
             $materialType->commit();
             $newMaterialType = true;
         }
-        $materialTemplate = new CompanyTemplate($materialType);
+        $materialTemplate = new CompanyTemplate($materialType, $this);
         if ($newMaterialType) {
             $fields = $materialTemplate->createFields();
             $materialTemplate->createMaterials();
@@ -829,7 +809,7 @@ class Webmaster
             $materialType->commit();
             $newMaterialType = true;
         }
-        $materialTemplate = new BannersTemplate($materialType);
+        $materialTemplate = new BannersTemplate($materialType, $this);
         if ($newMaterialType) {
             $fields = $materialTemplate->createFields();
         }
@@ -861,7 +841,7 @@ class Webmaster
             $materialType->commit();
             $newMaterialType = true;
         }
-        $materialTemplate = new FeaturesTemplate($materialType);
+        $materialTemplate = new FeaturesTemplate($materialType, $this);
         if ($newMaterialType) {
             $fields = $materialTemplate->createFields();
         }
@@ -1048,7 +1028,7 @@ class Webmaster
             $contactsWidget = Snippet::importByURN('contacts');
             if (!$contactsWidget->id) {
                 $materialType = Material_Type::importByURN('company');
-                $materialTemplate = new CompanyTemplate($materialType);
+                $materialTemplate = new CompanyTemplate($materialType, $this);
                 $contactsWidget = $materialTemplate->createContactsBlockSnippet();
                 $contactsBlock = $materialTemplate->createContactsBlock(
                     $contacts,
@@ -1188,6 +1168,35 @@ class Webmaster
 
 
     /**
+     * Создание sitemap.xml
+     * @return Page Созданная или существующая страница
+     */
+    public function createSitemapsXml()
+    {
+        $temp = Page::getSet([
+            'where' => ["pid = " . (int)$this->Site->id, "urn = 'sitemaps'"]
+        ]);
+        if ($temp) {
+            $sitemaps = $temp[0];
+        } else {
+            $sitemaps = $this->createPage(
+                [
+                    'name' => $this->view->_('SITEMAP_XML'),
+                    'urn' => 'sitemaps',
+                    'template' => 0,
+                    'cache' => 0,
+                    'response_code' => 200
+                ],
+                $this->Site
+            );
+            $B = new Block_PHP(['name' => $this->view->_('SITEMAP_XML')]);
+            $this->createBlock($B, '', null, 'sitemap_xml', $sitemaps);
+        }
+        return $sitemaps;
+    }
+
+
+    /**
      * Создание robots.txt
      * @return Page Созданная или существующая страница
      */
@@ -1213,9 +1222,9 @@ class Webmaster
             $robotsTXT = file_get_contents(
                 Package::i()->resourcesDir . '/html/robots/robots.txt'
             );
-            $robotsTXT = $this->mustache->render(
+            $robotsTXT = strtr(
                 $robotsTXT,
-                ['HOST' => $_SERVER['HTTP_HOST']]
+                ['{{HOST}}' => $_SERVER['HTTP_HOST']]
             );
             $this->createBlock(
                 new Block_HTML([
@@ -1369,6 +1378,7 @@ class Webmaster
         $contacts = $this->createContacts($forms['feedback']);
         $p404 = $this->create404();
         $this->map = $this->createMap();
+        $sitemaps = $this->createSitemapsXml();
         $robots = $this->createRobotsTxt();
         $customCss = $this->createCustomCss();
         $menus = $this->createMenus([
@@ -1530,7 +1540,7 @@ class Webmaster
             $materialType->commit();
             $newMaterialType = true;
         }
-        $materialTemplate = new NewsTemplate($materialType);
+        $materialTemplate = new NewsTemplate($materialType, $this);
         if ($newMaterialType) {
             $fields = $materialTemplate->createFields();
         }

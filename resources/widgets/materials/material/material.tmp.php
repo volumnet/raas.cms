@@ -1,4 +1,4 @@
-php
+<?php
 /**
  * Виджет модуля "{{MATERIAL_TYPE_NAME}}"
  * @param Block_Material $Block Текущий блок

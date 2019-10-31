@@ -4,7 +4,6 @@
  */
 namespace RAAS\CMS;
 
-use Mustache_Engine;
 use RAAS\Application;
 use RAAS\Attachment;
 
@@ -44,7 +43,16 @@ class BannersTemplate extends MaterialTypeTemplate
     {
         $filename = Package::i()->resourcesDir
                   . '/widgets/materials/banners/banners.tmp.php';
-        $snippet = $this->createSnippetByFile($filename);
+        $snippet = $this->webmaster->createSnippet(
+            $this->materialType->urn,
+            $this->materialType->name,
+            (int)$this->widgetsFolder->id,
+            $filename,
+            $this->getReplaceData(
+                $this->materialType->name,
+                $this->materialType->urn
+            )
+        );
         return $snippet;
     }
 
