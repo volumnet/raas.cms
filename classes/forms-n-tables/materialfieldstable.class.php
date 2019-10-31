@@ -26,6 +26,22 @@ class MaterialFieldsTable extends FieldsTable
             ],
             'data-role' => 'multitable',
             'columns' => [
+                'id' => [
+                    'caption' => $this->view->_('ID'),
+                    'callback' => function ($row) use (
+                        $view,
+                        $editAction,
+                        $params
+                    ) {
+                        if ($row->id && ($row->pid == $params['Item']->id)) {
+                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' .
+                                      (int)$row->id .
+                                   '</a>';
+                        } elseif ($row->id) {
+                            return (int)$row->id;
+                        }
+                    }
+                ],
                 'name' => [
                     'caption' => $this->view->_('NAME'),
                     'callback' => function ($row) use (
