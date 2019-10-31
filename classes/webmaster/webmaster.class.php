@@ -1185,7 +1185,7 @@ class Webmaster
                     'urn' => 'sitemaps',
                     'template' => 0,
                     'mime' => 'application/xml',
-                    'cache' => 0,
+                    'cache' => 1,
                     'response_code' => 200
                 ],
                 $this->Site
