@@ -21,6 +21,11 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     exit;
 } else { ?>
     <div class="feedback">
+      <?php if ($Block->name[0] != '.') { ?>
+          <div class="feedback__title">
+            <?php echo htmlspecialchars($Block->name)?>
+          </div>
+      <?php } ?>
       <form class="form-horizontal" data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">
         <?php include Package::i()->resourcesDir . '/form2.inc.php'?>
         <div data-role="notifications" <?php echo ($success[(int)$Block->id] || $localError) ? '' : 'style="display: none"'?>>

@@ -134,7 +134,7 @@ class CompanyTemplate extends MaterialTypeTemplate
             'pid' => $this->materialType->id,
             'name' => View_Web::i()->_('LEGAL_EMAIL'),
             'urn' => 'legal_email',
-            'datatype' => 'text',
+            'datatype' => 'email',
         ]);
         $legalEmailField->commit();
 
