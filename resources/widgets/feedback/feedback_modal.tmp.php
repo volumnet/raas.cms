@@ -56,12 +56,12 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                     </p>
                     <?php if ($Form->signature) { ?>
                         <input type="hidden" name="form_signature" value="<?php echo md5('form' . (int)$Form->id . (int)$Block->id)?>" />
-                    <?php } ?>
-                    <?php if ($Form->antispam == 'hidden' && $Form->antispam_field_name) { ?>
+                    <?php }
+                    if ($Form->antispam == 'hidden' && $Form->antispam_field_name) { ?>
                         <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" value="<?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?>" style="position: absolute; left: -9999px" />
-                    <?php } ?>
-                    <?php foreach ($Form->fields as $row) { ?>
-                        <?php if ($row->urn == 'agree') { ?>
+                    <?php }
+                    foreach ($Form->fields as $row) {
+                        if ($row->urn == 'agree') { ?>
                             <div class="form-group">
                               <div class="col-sm-9 col-sm-offset-3">
                                 <label class="checkbox">
@@ -103,15 +103,13 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                           </div>
                         </div>
                     <?php } ?>
-                    <div class="form-group text-right">
-                      <div class="col-sm-12">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">
-                          <?php echo CANCEL?>
-                        </button>
-                        <button class="btn btn-primary" type="submit">
-                          <?php echo SEND?>
-                        </button>
-                      </div>
+                    <div class="feedback-modal__controls">
+                      <button type="button" class="feedback__cancel btn btn-default" data-dismiss="modal">
+                        <?php echo CANCEL?>
+                      </button>
+                      <button class="feedback__submit btn btn-primary" type="submit">
+                        <?php echo SEND?>
+                      </button>
                     </div>
                   </div>
                 </div>

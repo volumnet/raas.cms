@@ -41,7 +41,7 @@ $separateScripts = function ($text) {
     $result = $text;
     if (preg_match_all($rx, $text, $regs)) {
         foreach ($regs[0] as $i => $script) {
-            if (!preg_match('/(maps.*?yandex.*constructor)/umis', $script)) {
+            if (!preg_match('/(maps.*?yandex.*constructor)|(type="text\\/html")/umis', $script)) {
                 $scripts .= $script . "\n";
                 $result = str_replace($script, '', $result);
             }

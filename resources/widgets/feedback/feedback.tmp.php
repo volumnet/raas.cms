@@ -67,7 +67,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                   </div>
               <?php } elseif ($row->datatype == 'checkbox') { ?>
                   <div class="form-group">
-                    <div class="col-sm-9 col-sm-offset-3">
+                    <div class="col-sm-9 col-sm-offset-3 col-md-offset-2">
                       <label>
                         <?php $getField($row, $DATA);?>
                         <?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?>
@@ -96,12 +96,10 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                 </div>
               </div>
           <?php } ?>
-          <div class="form-group">
-            <div class="col-sm-9 col-md-4 col-sm-offset-3 col-md-offset-2">
-              <button class="btn btn-primary" type="submit">
-                <?php echo SEND?>
-              </button>
-            </div>
+          <div class="feedback__controls col-sm-offset-3 col-md-offset-2">
+            <button class="feedback__submit btn btn-primary" type="submit">
+              <?php echo SEND?>
+            </button>
           </div>
         </div>
       </form>

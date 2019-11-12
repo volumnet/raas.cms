@@ -1,44 +1,54 @@
 <?php
+/**
+ * Виджет модуля "{{MATERIAL_TYPE_NAME}}" для главной страницы
+ * @param Block_Material $Block Текущий блок
+ * @param Page $Page Текущая страница
+ * @param array<Material>|null $Set Список материалов
+ */
 namespace RAAS\CMS;
 
-use \SOME\Text;
+use SOME\Text;
 
-$translateAddresses = true;
+$nat = true;
 
 if ($Set) {
     ?>
-    <div class="faq-main left-block">
-      <div class="faq-main__title left-block__title"><a href="/{BLOCK_NAME}/">{FAQ_NAME}</a></div>
-      <div class="left-block__inner faq-main__list">
-        <div class="faq-main-list">
-          <?php foreach ($Set as $row) { ?>
-              <div class="faq-main-list__item">
-                <div class="faq-main-item">
-                  <div class="faq-main-item__text faq-main-item__text_question">
-                    <?php if ($row->image->id) { ?>
-                        <a class="faq-main-item__image"<?php echo $translateAddresses ? ' href="' . htmlspecialchars($row->url) . '"' : ''?>>
-                          <img src="/<?php echo htmlspecialchars($row->image->tnURL)?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" /></a>
+    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main">
+      <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main__title">
+        <a<?php echo $nat ? ' href="/{{MATERIAL_TYPE_CSS_CLASSNAME}}/"' : ''?>>
+          <?php echo htmlspecialchars($Block->name)?>
+        </a>
+      </div>
+      <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main__list">
+        <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-list">
+          <?php foreach ($Set as $item) { ?>
+              <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-list__item">
+                <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item">
+                  <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__text {{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__text_question">
+                    <?php if ($item->image->id) { ?>
+                        <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__image"<?php echo $nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
+                          <img src="/<?php echo htmlspecialchars($item->image->tnURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" /></a>
                     <?php } ?>
-                    <div class="faq-main-item__title">
-                      <a class="faq-main-item__name"<?php echo $translateAddresses ? ' href="' . htmlspecialchars($row->url) . '"' : ''?>>
-                        <?php echo htmlspecialchars($row->name)?></a>,
+                    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__title">
+                      <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__name"<?php echo $nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
+                        <?php echo htmlspecialchars($item->name)?></a>,
                       <?php
-                      $t = strtotime($row->date);
-                      if ($t <= 0) {
-                          $t = strtotime($row->post_date);
+                      $time = strtotime($item->date);
+                      if ($time <= 0) {
+                          $time = strtotime($item->post_date);
                       }
-                      if ($t > 0) {
+                      if ($time > 0) {
                           ?>
-                          <span class="faq-main-item__date">
-                            <?php echo date('d.m.Y', $t)?>
+                          <span class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__date">
+                            <?php echo date('d.m.Y', $time)?>
                           </span>
                       <?php } ?>
                     </div>
-                    <div class="faq-main-item__description">
-                      <?php echo $row->description?>
+                    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__description">
+                      <?php echo $item->description?>
                     </div>
-                    <div class="faq-main-item__more">
-                      <a href="<?php echo $translateAddresses ? htmlspecialchars($row->url) : '/{BLOCK_NAME}/'?>">
+                    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__more">
+                      <a href="<?php echo $nat ? htmlspecialchars($item->url) : '/{{MATERIAL_TYPE_CSS_CLASSNAME}}/'?>">
                         <?php echo READ_ANSWER?>
                       </a>
                     </div>

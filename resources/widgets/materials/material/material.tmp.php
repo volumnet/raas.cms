@@ -12,8 +12,6 @@ namespace RAAS\CMS;
 use SOME\Pages;
 use SOME\Text;
 
-$nat = true;
-
 if ($Item) { ?>
     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}">
       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__article">
@@ -61,13 +59,13 @@ if ($Item) { ?>
           <?php foreach ($Set as $item) { ?>
               <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-list__item">
                 <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item">
-                  <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image<?php echo !$item->visImages ? ' {{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image_no-image' : ''?>"<?php echo ($nat ? ' href="' . htmlspecialchars($item->url) . '"' : '')?>>
+                  <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image<?php echo !$item->visImages ? ' {{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image_no-image' : ''?>"<?php echo ($Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : '')?>>
                     <?php if ($item->visImages) { ?>
                         <img src="/<?php echo htmlspecialchars($item->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($item->visImages[0]->name ?: $item->name)?>" />
                     <?php } ?>
                   </a>
                   <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__text">
-                    <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__title"<?php echo $nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
+                    <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__title"<?php echo $Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
                       <?php echo htmlspecialchars($item->name)?>
                     </a>
                     <?php if (($time = strtotime($item->date)) > 0) { ?>
@@ -78,7 +76,7 @@ if ($Item) { ?>
                     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__description">
                       <?php echo htmlspecialchars($item->brief ?: Text::cuttext(html_entity_decode(strip_tags($item->description), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
                     </div>
-                    <?php if ($nat) { ?>
+                    <?php if ($Block->nat) { ?>
                         <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__more">
                           <a href="<?php echo htmlspecialchars($item->url)?>">
                             <?php echo SHOW_MORE?>
