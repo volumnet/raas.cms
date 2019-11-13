@@ -369,7 +369,7 @@ class FormInterface extends AbstractInterface
         }
 
         foreach ($objects as $object) {
-            $this->processObject($object, $feedback, $post, $server, $files);
+            $this->processObject($object, $form, $post, $server, $files);
         }
         if ($form->email) {
             $this->notify($feedback, $material);
