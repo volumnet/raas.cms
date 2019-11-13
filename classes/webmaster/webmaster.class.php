@@ -387,7 +387,8 @@ class Webmaster
             ['menu_bottom', 3],
             ['socials_bottom', 3]
         ];
-        $locations[] = [4, ['head_counters', 6], ['footer_counters', 6]];
+        $locations[] = [2, ['head_counters', 6], ['footer_counters', 6]];
+        $locations[] = [2, ['top_body_counters', 6]];
 
         $locationsInfo = [];
         $gap = 10;
@@ -401,7 +402,7 @@ class Webmaster
                 $locationURI = $row[$i][0];
                 $locationWidth = $row[$i][1] * $colWidth - $gap;
                 if ($locationURI) {
-                    $locationsInfo[] = [
+                    $locationsInfo[$locationURI] = [
                         'urn' => $locationURI,
                         'x' => $x,
                         'y' => $y,
@@ -413,6 +414,7 @@ class Webmaster
             }
             $y += $locationHeight + $gap;
         }
+        $locationsInfo['footer_counters']['height'] = ($locationsInfo['footer_counters']['height'] * 2) + $gap;
 
         $template = new Template([
             'name' => View_Web::i()->_('MAIN_TEMPLATE'),
@@ -908,7 +910,7 @@ class Webmaster
                     'description' => '',
                     'wysiwyg' => 0,
                 ]),
-                'footer_counters',
+                'top_body_counters',
                 null,
                 null,
                 $this->site,
@@ -1388,8 +1390,6 @@ class Webmaster
                 'urn' => 'top',
                 'inherit' => 10,
                 'name' => View_Web::i()->_('TOP_MENU'),
-                'realize' => true,
-                'addMainPageLink' => true,
                 'blockLocation' => 'menu_top',
                 'fullMenu' => true,
                 'inheritBlock' => true,
@@ -1399,8 +1399,6 @@ class Webmaster
                 'urn' => 'main',
                 'inherit' => 10,
                 'name' => View_Web::i()->_('MAIN_MENU'),
-                'realize' => true,
-                'addMainPageLink' => true,
                 'blockLocation' => 'menu_main',
                 'fullMenu' => true,
                 'inheritBlock' => true,
@@ -1410,8 +1408,6 @@ class Webmaster
                 'urn' => 'bottom',
                 'inherit' => 1,
                 'name' => View_Web::i()->_('BOTTOM_MENU'),
-                'realize' => true,
-                'addMainPageLink' => true,
                 'blockLocation' => 'menu_bottom',
                 'fullMenu' => true,
                 'inheritBlock' => true,

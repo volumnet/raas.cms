@@ -1,8 +1,16 @@
 <?php
+/**
+ * Виджет поиска по сайту
+ * @param Block_Search $Block Текущий блок
+ * @param Page $Page Текущая страница
+ * @param array<Page|Material> $Set Набор результатов для отображения
+ * @param string $search_string Строка поиска
+ * @param string $localError Ошибка поиска
+ */
 namespace RAAS\CMS;
 
-use \SOME\Text;
-use \SOME\HTTP;
+use SOME\Text;
+use SOME\HTTP;
 
 ?>
 <div class="search">
@@ -31,7 +39,7 @@ use \SOME\HTTP;
                             </a>
                           </div>
                           <div class="search-item__description">
-                            <?php echo htmlspecialchars(Text::cuttext(html_entity_decode(strip_tags($row->location('content')), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
+                            <?php echo htmlspecialchars(Text::cuttext(html_entity_decode(strip_tags($row->_description_), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...'))?>
                           </div>
                           <div class="search-item__more">
                             <a href="<?php echo htmlspecialchars($row->url)?>">
@@ -69,20 +77,10 @@ use \SOME\HTTP;
             <?php } ?>
           </div>
         </div>
-        <?php include Package::i()->resourcesDir . '/pages.inc.php'?>
         <?php if ($Pages->pages > 1) { ?>
-            <ul class="pagination pull-right">
-              <?php
-              echo $outputNav(
-                  $Pages,
-                  array(
-                      'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>',
-                      'pattern_active' => '<li class="active"><a>{text}</a></li>',
-                      'ellipse' => '<li class="disabled"><a>...</a></li>'
-                  )
-              );
-              ?>
-            </ul>
+            <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__pagination">
+              <?php Snippet::importByURN('pagination')->process(['pages' => $Pages]); ?>
+            </div>
         <?php } ?>
     <?php } elseif ($localError) { ?>
         <div class="alert alert-danger">
@@ -92,7 +90,7 @@ use \SOME\HTTP;
                   echo NO_SEARCH_QUERY;
                   break;
               case 'SEARCH_QUERY_TOO_SHORT':
-                  echo sprintf(SEARCH_QUERY_TOO_SHORT, $config['min_length']);
+                  echo sprintf(SEARCH_QUERY_TOO_SHORT, $Block->min_length);
                   break;
               case 'NO_RESULTS_FOUND':
                   echo NO_RESULTS_FOUND;

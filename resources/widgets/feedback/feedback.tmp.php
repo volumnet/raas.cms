@@ -21,6 +21,11 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     exit;
 } else { ?>
     <div class="feedback">
+      <?php if ($Block->name[0] != '.') { ?>
+          <div class="feedback__title">
+            <?php echo htmlspecialchars($Block->name)?>
+          </div>
+      <?php } ?>
       <form class="form-horizontal" data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">
         <?php include Package::i()->resourcesDir . '/form2.inc.php'?>
         <div data-role="notifications" <?php echo ($success[(int)$Block->id] || $localError) ? '' : 'style="display: none"'?>>
@@ -62,7 +67,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                   </div>
               <?php } elseif ($row->datatype == 'checkbox') { ?>
                   <div class="form-group">
-                    <div class="col-sm-9 col-sm-offset-3">
+                    <div class="col-sm-9 col-sm-offset-3 col-md-offset-2">
                       <label>
                         <?php $getField($row, $DATA);?>
                         <?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?>
@@ -91,12 +96,10 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                 </div>
               </div>
           <?php } ?>
-          <div class="form-group">
-            <div class="col-sm-9 col-md-4 col-sm-offset-3 col-md-offset-2">
-              <button class="btn btn-primary" type="submit">
-                <?php echo SEND?>
-              </button>
-            </div>
+          <div class="feedback__controls col-sm-offset-3 col-md-offset-2">
+            <button class="feedback__submit btn btn-primary" type="submit">
+              <?php echo SEND?>
+            </button>
           </div>
         </div>
       </form>

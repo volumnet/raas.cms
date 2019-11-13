@@ -17,7 +17,7 @@ $company = $Set[0];
       $phonesText = array_map(function ($phone) {
           return '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-list__item">' .
                    '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-item">' .
-                     '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '" itemprop="telephone">' .
+                     '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '">' .
                         htmlspecialchars($phone) .
                      '</a>' .
                    '</span>' .

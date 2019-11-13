@@ -13,8 +13,9 @@ $company = $Set[0];
 <div class="{{WIDGET_CSS_CLASSNAME}}">
   <?php
   if (!($copyrights = $company->copyrights)) {
-      $copyrights = '© ' . htmlspecialchars($company->legal_name) . ', '
-                  . date('Y') . '. '
+      $copyrights = '© '
+                  . htmlspecialchars($company->legal_name ?: $company->name)
+                  . ', ' . date('Y') . '. '
                   . View_Web::i()->_('ALL_RIGHTS_RESERVED') . '.';
   }
   echo htmlspecialchars($copyrights)

@@ -41,7 +41,7 @@ $separateScripts = function ($text) {
     $result = $text;
     if (preg_match_all($rx, $text, $regs)) {
         foreach ($regs[0] as $i => $script) {
-            if (!preg_match('/(maps.*?yandex.*constructor)/umis', $script)) {
+            if (!preg_match('/(maps.*?yandex.*constructor)|(type="text\\/html")/umis', $script)) {
                 $scripts .= $script . "\n";
                 $result = str_replace($script, '', $result);
             }
@@ -56,7 +56,8 @@ $separateScripts = function ($text) {
     return array($result, $scripts, $styles);
 };
 
-ob_start();
+ob_start(); // Для $sanitizeOutput
+ob_start(); // Для $separateScripts
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo htmlspecialchars($Page->lang)?>" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# <?php echo $Page->headPrefix?>">
@@ -97,7 +98,8 @@ ob_start();
             '/js/ajaxcart.js',
             '/js/ajaxcatalog.js',
             '/js/modal.js',
-            '/js/raas-catalog-item-mixin.vue.js',
+            '/js/raas-shop-cart-main-mixin.vue.js',
+            '/js/raas-shop-catalog-item-mixin.vue.js',
             '/js/catalog.js',
         ]);
     }
@@ -116,6 +118,7 @@ ob_start();
     <?php echo $Page->location('head_counters')?>
   </head>
   <body class="body <?php echo !$Page->pid ? ' body_main' : ''?>" data-page-id="<?php echo (int)$Page->id?>"<?php echo $Page->Material->id ? ' data-page-material-id="' . (int)$Page->Material->id . '"' : ''?>>
+    <?php echo $Page->location('top_body_counters')?>
     <div id="top" class="body__background-holder"<?php echo $bg->id ? ' style="background-image: url(\'/' . htmlspecialchars($bg->fileURL) . '\')"' : ''?>>
       <header class="body__header">
         <div class="body__row body__row_menu-top">
@@ -258,11 +261,10 @@ ob_start();
     </script>
     <?php
     echo $Page->location('footer_counters');
-    $content = ob_get_contents();
-    ob_end_clean();
-    $content = $separateScripts($content);
-    echo $sanitizeOutput($content[0] . $content[1] . $content[2]);
-    // Убрать </body> и </html> при использовании htmlMin - он закрывает их автоматически
+    $content = $separateScripts(ob_get_clean());
+    echo $content[0] . $content[1] . $content[2];
     ?>
   </body>
 </html>
+<?php
+echo $sanitizeOutput(ob_get_clean());

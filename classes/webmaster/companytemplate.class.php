@@ -134,7 +134,7 @@ class CompanyTemplate extends MaterialTypeTemplate
             'pid' => $this->materialType->id,
             'name' => View_Web::i()->_('LEGAL_EMAIL'),
             'urn' => 'legal_email',
-            'datatype' => 'text',
+            'datatype' => 'email',
         ]);
         $legalEmailField->commit();
 
@@ -510,7 +510,7 @@ class CompanyTemplate extends MaterialTypeTemplate
         $item->fields['postal_code']->addValue('000000');
         $item->fields['city']->addValue(View_Web::i()->_('CITY'));
         $item->fields['street_address']->addValue(View_Web::i()->_('TEST_COMPANY_STREET_ADDRESS'));
-        $item->fields['map']->addValue('<script type="text/javascript" charset="utf-8" src="//api-maps.yandex.ru/services/constructor/1.0/js/?sid=ac2qYbmG3G-Jl487_Mu2VedJiQSpaZLo&amp;width=100%25&amp;height=300&amp;lang=ru_RU&amp;sourceType=constructor&amp;scroll=true"></script>');
+        $item->fields['map']->addValue('<script type="text/javascript" charset="utf-8" src="//api-maps.yandex.ru/services/constructor/1.0/js/?sid=ac2qYbmG3G-Jl487_Mu2VedJiQSpaZLo&amp;width=100%25&amp;height=300&amp;lang=ru_RU&amp;sourceType=constructor&amp;scroll=false"></script>');
         $item->fields['office']->addValue(View_Web::i()->_('TEST_COMPANY_OFFICE'));
         $item->fields['phone']->addValue('+7 999 000-00-00');
         $item->fields['email']->addValue('test@test.org');
