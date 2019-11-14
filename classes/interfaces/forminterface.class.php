@@ -56,10 +56,6 @@ class FormInterface extends AbstractInterface
         $result = [];
         $form = $this->block->Form;
         if ($form->id) {
-            // 2019-10-02, AVS: добавили для совместимости с виджетом, где даже
-            // в случае ошибок проверяется соответствие
-            // ($Item instanceof Feedback)
-            $result['Item'] = new Feedback(['pid' => $form->id]);
             $localError = [];
             if ($this->isFormProceed(
                 $this->block,
@@ -67,6 +63,12 @@ class FormInterface extends AbstractInterface
                 $this->server['REQUEST_METHOD'],
                 $this->post
             )) {
+                // 2019-10-02, AVS: добавили для совместимости с виджетом, где даже
+                // в случае ошибок проверяется соответствие
+                // ($Item instanceof Feedback)
+                // 2019-11-14, AVS: перенес сюда, иначе при AJAX-запросе
+                // первая попавшаяся форма отключает
+                $result['Item'] = new Feedback(['pid' => $form->id]);
                 // Проверка полей на корректность
                 $localError = $this->check(
                     $form,
