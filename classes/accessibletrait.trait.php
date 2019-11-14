@@ -4,6 +4,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\Controller_Frontend;
+
 /**
  * Трейт сущности, имеющей доступы для пользователей
  */

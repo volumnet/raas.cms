@@ -26,7 +26,7 @@ class Controller_Frontend extends Abstract_Controller
 {
     protected static $instance;
 
-    private $user;
+    protected $user;
 
     protected $diag = null;
 
