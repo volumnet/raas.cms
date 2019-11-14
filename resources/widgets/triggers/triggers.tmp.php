@@ -13,6 +13,11 @@ namespace RAAS\CMS;
       <div class="{{WIDGET_CSS_CLASSNAME}}-list__item {{WIDGET_CSS_CLASSNAME}}-list__item_totop">
         <a class="{{WIDGET_CSS_CLASSNAME}}-item {{WIDGET_CSS_CLASSNAME}}-item_totop scrollTo" href="#top" title="Наверх"></a>
       </div>
+      <?php if ($Page->catalogFilter) { ?>
+          <div class="{{WIDGET_CSS_CLASSNAME}}-list__item {{WIDGET_CSS_CLASSNAME}}-list__item_filter">
+            <a class="{{WIDGET_CSS_CLASSNAME}}-item {{WIDGET_CSS_CLASSNAME}}-item_filter" href="#" title="Фильтр каталога"></a>
+          </div>
+      <?php } ?>
       <div class="{{WIDGET_CSS_CLASSNAME}}-list__item {{WIDGET_CSS_CLASSNAME}}-list__item_menu">
         <a class="{{WIDGET_CSS_CLASSNAME}}-item {{WIDGET_CSS_CLASSNAME}}-item_menu" href="#" title="Меню"></a>
       </div>
