@@ -4,7 +4,6 @@
  */
 namespace RAAS\CMS;
 
-use Mustache_Engine;
 use RAAS\Application;
 
 /**
@@ -20,25 +19,19 @@ class MaterialTypeTemplate
     protected $materialType;
 
     /**
-     * Папка виджетов типа
-     * @var Snippet_Folder
+     * Вебмастер
+     * @var Webmaster
      */
-    protected $_widgetsFolder;
-
-    /**
-     * Шаблонизатор Mustache
-     * @var Mustache_Engine
-     */
-    protected $mustache;
+    protected $webmaster;
 
     public function __get($var)
     {
         switch ($var) {
             case 'widgetsFolder':
-                if (!$this->_widgetsFolder) {
-                    $this->_widgetsFolder = Snippet_Folder::importByURN('__raas_views');
-                }
-                return $this->_widgetsFolder;
+                return $this->webmaster->widgetsFolder;
+                break;
+            case 'webmaster':
+                return $this->$var;
                 break;
         }
     }
@@ -47,22 +40,23 @@ class MaterialTypeTemplate
     /**
      * Конструктор класса
      * @param Material_Type $materialType Тип материалов
+     * @param Webmaster $webmaster Вебмастер
      */
-    public function __construct(Material_Type $materialType)
+    public function __construct(Material_Type $materialType, Webmaster $webmaster)
     {
-        $this->mustache = new Mustache_Engine();
         $this->materialType = $materialType;
+        $this->webmaster = $webmaster;
     }
 
 
     /**
-     * Производит рендеринг шаблона
-     * @param string $templateText Текст шаблона
-     * @return string
+     * Получает список данных для подстановки
+     * @param string $widgetName Наименование виджета
+     * @param string $widgetURN URN виджета
      */
-    protected function render($templateText)
+    protected function getReplaceData($widgetName, $widgetURN)
     {
-        $text = $this->mustache->render($templateText, [
+        return [
             'MATERIAL_TYPE_NAME' => $this->materialType->name,
             'MATERIAL_TYPE_URN' => $this->materialType->urn,
             'MATERIAL_TYPE_CSS_CLASSNAME' => str_replace(
@@ -70,48 +64,10 @@ class MaterialTypeTemplate
                 '-',
                 $this->materialType->urn
             ),
-        ]);
-        return $text;
-    }
-
-
-    /**
-     * Производит рендеринг шаблона из файла
-     * @param string $templateFile Файл шаблона
-     * @return string
-     */
-    protected function renderFile($templateFile)
-    {
-        $templateText = file_get_contents($templateFile);
-        $text = $this->render($templateText);
-        return $text;
-    }
-
-
-    /**
-     * Создает сниппет по файлу шаблона
-     * @param string $templateFile Файл шаблона
-     * @param string $urnSuffix Суффикс URN сниппета
-     * @param string $nameSuffix Суффикс имени сниппета
-     * @return Snippet
-     */
-    protected function createSnippetByFile(
-        $templateFile,
-        $urnSuffix = '',
-        $nameSuffix = ''
-    ) {
-        $urn = $this->materialType->urn . ($urnSuffix ? '_' . $urnSuffix : '');
-        $name = $this->materialType->name
-              . ($nameSuffix ? ' — ' . $nameSuffix : '');
-        $text = $this->renderFile($templateFile);
-        $snippet = new Snippet([
-            'pid' => (int)$this->widgetsFolder->id,
-            'urn' => $urn,
-            'name' => $name,
-            'description' => $text,
-        ]);
-        $snippet->commit();
-        return $snippet;
+            'WIDGET_NAME' => $widgetName,
+            'WIDGET_URN' => $widgetURN,
+            'WIDGET_CSS_CLASSNAME' => str_replace('_', '-', $widgetURN),
+        ];
     }
 
 
@@ -132,9 +88,17 @@ class MaterialTypeTemplate
     public function createBlockSnippet($nat = false)
     {
         $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/material/material'
-                  . ($nat ? '.nat' : '') . '.tmp.php';
-        $snippet = $this->createSnippetByFile($filename);
+                  . '/widgets/materials/material/material.tmp.php';
+        $snippet = $this->webmaster->createSnippet(
+            $this->materialType->urn,
+            $this->materialType->name,
+            (int)$this->widgetsFolder->id,
+            $filename,
+            $this->getReplaceData(
+                $this->materialType->name,
+                $this->materialType->urn
+            )
+        );
         return $snippet;
     }
 
@@ -147,10 +111,18 @@ class MaterialTypeTemplate
     {
         $filename = Package::i()->resourcesDir
                   . '/widgets/materials/material/material_main.tmp.php';
-        $snippet = $this->createSnippetByFile(
+        $snippet = $this->webmaster->createSnippet(
+            $this->materialType->urn . '_main',
+            (
+                $this->materialType->name . ' — ' .
+                View_Web::i()->_('MATERIAL_TEMPLATE_MAIN_SUFFIX')
+            ),
+            (int)$this->widgetsFolder->id,
             $filename,
-            'main',
-            View_Web::i()->_('MATERIAL_TEMPLATE_MAIN_SUFFIX')
+            $this->getReplaceData(
+                $this->materialType->name,
+                $this->materialType->urn
+            )
         );
         return $snippet;
     }

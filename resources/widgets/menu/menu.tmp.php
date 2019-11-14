@@ -86,6 +86,4 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
 <nav class="{{MENU_CSS_CLASSNAME}}">
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>
-<?php if (is_file('js/{{MENU_CSS_CLASSNAME}}.js')) { ?>
-    <script src="/js/{{MENU_CSS_CLASSNAME}}.js?v=<?php echo date('Y-m-d', filemtime('js/{{MENU_CSS_CLASSNAME}}.js'))?>"></script>
-<?php } ?>
+<?php echo Package::i()->asset('/js/{{MENU_CSS_CLASSNAME}}.js')?>

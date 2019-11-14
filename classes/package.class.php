@@ -16,36 +16,6 @@ use RAAS\Package as RAASPackage;
  * Класс пакета CMS
  * @property-read string $cacheDir Директория, где хранятся кэши
  * @property-read string $cachePrefix Префикс файлов кэшей
- * @property-read string $formTemplateFile Файл стандартного уведомления формы
- * @property-read string $stdFormTemplate Текст стандартного уведомления формы
- * @property-read string $stdMaterialInterfaceFile Файл стандартного интерфейса
- *                                                 материалов
- * @property-read string $stdMaterialViewFile Файл стандартного виджета
- *                                            материалов
- * @property-read string $stdMaterialView Текст стандартного виджета материалов
- * @property-read string $stdMenuInterfaceFile Файл стандартного интерфейса меню
- * @property-read string $stdMenuInterface Текст стандартного интерфейса меню
- * @property-read string $stdMenuViewFile Файл стандартного виджета меню
- * @property-read string $stdMenuView Текст стандартного виджета меню
- * @property-read string $stdFormInterfaceFile Файл стандартного интерфейса
- *                                             формы
- * @property-read string $stdFormInterface Текст стандартного интерфейса формы
- * @property-read string $stdFormViewFile Файл стандартного виджета формы
- * @property-read string $stdFormView Текст стандартного виджета формы
- * @property-read string $stdSearchInterfaceFile Файл стандартного интерфейса
- *                                               поиска
- * @property-read string $stdSearchInterface Текст стандартного интерфейса
- *                                           поиска
- * @property-read string $stdSearchViewFile Файл стандартного виджета поиска
- * @property-read string $stdSearchView Текст стандартного виджета поиска
- * @property-read string $stdCacheInterfaceFile Файл стандартного интерфейса
- *                                              кэширования
- * @property-read string $stdCacheInterface Файл стандартного интерфейса
- *                                          кэширования
- * @property-read string $stdWatermarkInterfaceFile Файл стандартного интерфейса
- *                                                  водяных знаков
- * @property-read string $stdWatermarkInterface Текст стандартного интерфейса
- *                                              водяных знаков
  * @property-read string $isAndroid Использует ли пользователь Android
  * @property-read string $isAndroidTablet Использует ли пользователь Android на
  *                                        планшете
@@ -63,14 +33,9 @@ use RAAS\Package as RAASPackage;
 class Package extends RAASPackage
 {
     /**
-     * Папка шаблонов
-     */
-    const templatesDir = 'templates';
-
-    /**
      * Версия пакета
      */
-    const version = '2018-05-01 11:30:00';
+    const version = '2019-10-23 19:15:00';
 
     protected static $instance;
 
@@ -83,85 +48,6 @@ class Package extends RAASPackage
                 break;
             case 'cachePrefix':
                 return 'raas_cache';
-                break;
-            case 'formTemplateFile':
-                return $this->resourcesDir .
-                       '/interfaces/form_notification.php';
-                break;
-            case 'stdFormTemplate':
-                $text = file_get_contents($this->formTemplateFile);
-                return $text;
-            case 'stdMaterialInterfaceFile':
-                return $this->resourcesDir .
-                       '/interfaces/material_interface.php';
-                break;
-            case 'stdMaterialInterface':
-                $text = file_get_contents($this->stdMaterialInterfaceFile);
-                return $text;
-                break;
-            case 'stdMaterialViewFile':
-                return $this->resourcesDir . '/material.tmp.php';
-                break;
-            case 'stdMaterialView':
-                $text = file_get_contents($this->stdMaterialViewFile);
-                return $text;
-                break;
-            case 'stdMenuInterfaceFile':
-                return $this->resourcesDir . '/interfaces/menu_interface.php';
-                break;
-            case 'stdMenuInterface':
-                $text = file_get_contents($this->stdMenuInterfaceFile);
-                return $text;
-                break;
-            case 'stdMenuViewFile':
-                return $this->resourcesDir . '/menu.tmp.php';
-                break;
-            case 'stdMenuView':
-                $text = file_get_contents($this->stdMenuViewFile);
-                return $text;
-                break;
-            case 'stdFormInterfaceFile':
-                return $this->resourcesDir . '/interfaces/form_interface.php';
-                break;
-            case 'stdFormInterface':
-                $text = file_get_contents($this->stdFormInterfaceFile);
-                return $text;
-                break;
-            case 'stdFormViewFile':
-                return $this->resourcesDir . '/form.tmp.php';
-                break;
-            case 'stdFormView':
-                $text = file_get_contents($this->stdFormViewFile);
-                return $text;
-                break;
-            case 'stdSearchInterfaceFile':
-                return $this->resourcesDir . '/interfaces/search_interface.php';
-                break;
-            case 'stdSearchInterface':
-                $text = file_get_contents($this->stdSearchInterfaceFile);
-                return $text;
-                break;
-            case 'stdSearchViewFile':
-                return $this->resourcesDir . '/search.tmp.php';
-                break;
-            case 'stdSearchView':
-                $text = file_get_contents($this->stdSearchViewFile);
-                return $text;
-                break;
-            case 'stdCacheInterfaceFile':
-                return $this->resourcesDir . '/interfaces/cache_interface.php';
-                break;
-            case 'stdCacheInterface':
-                $text = file_get_contents($this->stdCacheInterfaceFile);
-                return $text;
-                break;
-            case 'stdWatermarkInterfaceFile':
-                return $this->resourcesDir .
-                       '/interfaces/watermark_interface.php';
-                break;
-            case 'stdWatermarkInterface':
-                $text = file_get_contents($this->stdWatermarkInterfaceFile);
-                return $text;
                 break;
             case 'isAndroid':
                 return (bool)stristr($ua, 'android');
@@ -1130,8 +1016,7 @@ class Package extends RAASPackage
         $width = null,
         $height = null,
         $mode = null
-    )
-    {
+    ) {
         $temp = pathinfo($filename);
         $outputFile = ltrim($temp['dirname'] ? $temp['dirname'] . '/' : '')
                     . $temp['filename'] . '.'
@@ -1231,5 +1116,45 @@ class Package extends RAASPackage
             require_once $this->classesDir . '/controller_frontend.class.php';
         }
         parent::autoload($class);
+    }
+
+
+    /**
+     * Добавляет при наличии тег вставки скрипта/стиля
+     * @param string|array<string> $fileURL Ссылка или массив ссылок на файл
+     * @param string $alt Альтернативное описание у изображений
+     * @param string $title Всплывающая подсказка у изображений
+     */
+    public static function asset($fileURL, $alt = '')
+    {
+        if (is_array($fileURL)) {
+            $result = array_values(array_filter(array_map(function ($x) {
+                return static::asset($x);
+            }, $fileURL), 'trim'));
+            return implode("\n", $result);
+        }
+        $filepath = trim($fileURL, '/');
+        if (is_file($filepath)) {
+            $ext = mb_strtolower(pathinfo($fileURL, PATHINFO_EXTENSION));
+            $link = $fileURL . '?v=' . date('Y-m-d-H-i-s', filemtime($filepath));
+            switch ($ext) {
+                case 'js':
+                    return '<script src="' . htmlspecialchars($link) . '"></script>';
+                    break;
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif':
+                case 'svg':
+                    return '<img src="' . htmlspecialchars($link) . '" alt="' . htmlspecialchars($alt) . '" title="' . htmlspecialchars($title ?: $alt) . '" />';
+                    break;
+                case 'ico':
+                    return '<link rel="shortcut icon" type="image/x-icon" href="' . htmlspecialchars($link) . '" />';
+                    break;
+                case 'css':
+                    return '<link rel="stylesheet" href="' . htmlspecialchars($link) . '">';
+                    break;
+            }
+        }
     }
 }

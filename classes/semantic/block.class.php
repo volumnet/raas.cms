@@ -412,7 +412,13 @@ abstract class Block extends SOME
                     $in = $this->processCache($in, $page);
                 }
             }
-            $data = $this->processWidget($in, $page);
+            if ($this->Widget->id) {
+                $data = $this->processWidget($in, $page);
+            } else {
+                $data = $in;
+                unset($data['config']);
+                echo json_encode($data);
+            }
             if ($this->cache_type == static::CACHE_HTML) {
                 // Запишем в HTML-кэш
                 $this->processCache($in, $page);

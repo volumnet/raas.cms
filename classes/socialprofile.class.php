@@ -66,6 +66,16 @@ abstract class SocialProfile
     const SN_YT = 10;
 
     /**
+     * Instagram
+     */
+    const SN_IN = 11;
+
+    /**
+     * WhatsApp
+     */
+    const SN_WA = 12;
+
+    /**
      * Токен входа
      * @var string
      */
@@ -103,7 +113,9 @@ abstract class SocialProfile
         'google\\.(com|ru)' => self::SN_GO,
         'yandex\\.(com|ru)' => self::SN_YA,
         'webmoney\\.(com|ru)' => self::SN_WM,
-        'youtube\\.(com|ru)' => self::SN_YT
+        'youtube\\.(com|ru)' => self::SN_YT,
+        'instagram\\.(com|ru)' => self::SN_IN,
+        '(whatsapp|wa)\\.(com|ru|me)' => self::SN_WA,
     ];
 
     public function __get($var)

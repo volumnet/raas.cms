@@ -4,7 +4,6 @@
  */
 namespace RAAS\CMS;
 
-use Mustache_Engine;
 use RAAS\Application;
 use RAAS\Attachment;
 

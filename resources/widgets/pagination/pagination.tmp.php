@@ -10,11 +10,11 @@ use SOME\Pages;
 
 include Package::i()->resourcesDir . '/pages.inc.php';
 
-if ($Pages->pages > 1) { ?>
+if ($pages->pages > 1) { ?>
     <ul class="pagination pull-right">
       <?php
       echo $outputNav(
-          $Pages,
+          $pages,
           [
               'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>',
               'pattern_active' => '<li class="active"><span>{text}</span></li>',
