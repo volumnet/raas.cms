@@ -13,7 +13,7 @@ use \RAAS\FormTab;
  * Класс формы просмотра сообщения обратной связи
  * @property-read ViewSub_Feedback $view Представление
  */
-class viewFeedbackForm extends RAASForm
+class ViewFeedbackForm extends RAASForm
 {
     public function __get($var)
     {
