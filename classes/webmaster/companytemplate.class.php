@@ -498,7 +498,7 @@ class CompanyTemplate extends MaterialTypeTemplate
         ]);
         $item->commit();
         $att = Attachment::createFromFile(
-            Package::i()->filesDir . '/image/logo.png',
+            Package::i()->resourcesDir . '/logo.png',
             $this->materialType->fields['logo']
         );
         $item->fields['logo']->addValue(json_encode([
