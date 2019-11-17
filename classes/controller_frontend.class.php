@@ -73,8 +73,43 @@ class Controller_Frontend extends Abstract_Controller
     }
 
 
+    /**
+     * Обрабатывает стандартные редиректы
+     */
+    public function checkStdRedirects()
+    {
+        if ($_SERVER['REQUEST_URI'] == '/robots.txt') {
+            $_SERVER['REQUEST_URI'] = '/robots/';
+        } elseif ($_SERVER['REQUEST_URI'] == '/custom.css') {
+            $_SERVER['REQUEST_URI'] = '/custom_css/';
+        } elseif ($_SERVER['REQUEST_URI'] == '/sitemap.xml') {
+            $_SERVER['REQUEST_URI'] = '/sitemaps/';
+        } elseif ($_SERVER['REQUEST_URI'] == '/sitemaps.xml') {
+            header("HTTP/1.1 301 Moved Permanently");
+            header('Location: http://' . $_SERVER['HTTP_HOST'] . '/sitemap.xml');
+            exit;
+        } else {
+            $temp = parse_url($_SERVER['REQUEST_URI']);
+            if (preg_match('/[^\\/]$/i', $temp['path']) &&
+                !stristr(basename($temp['path']), '.')
+            ) {
+                $newUrl = 'http://' . $_SERVER['HTTP_HOST']
+                        . str_replace(
+                            $temp['path'],
+                            $temp['path'] . '/',
+                            $_SERVER['REQUEST_URI']
+                        );
+                header("HTTP/1.1 301 Moved Permanently");
+                header('Location: ' . $newUrl);
+                exit;
+            }
+        }
+    }
+
+
     public function run()
     {
+        $this->checkStdRedirects();
         if (!$this->getCache()) {
             $p = pathinfo($_SERVER['REQUEST_URI']);
             if (preg_match(
