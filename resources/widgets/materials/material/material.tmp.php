@@ -61,7 +61,7 @@ if ($Item) { ?>
                 <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item">
                   <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image<?php echo !$item->visImages ? ' {{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image_no-image' : ''?>"<?php echo ($Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : '')?>>
                     <?php if ($item->visImages) { ?>
-                        <img src="/<?php echo htmlspecialchars($item->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($item->visImages[0]->name ?: $item->name)?>" />
+                        <img src="/<?php echo Package::i()->tn($item->visImages[0]->fileURL, 600, 400)?>" alt="<?php echo htmlspecialchars($item->visImages[0]->name ?: $item->name)?>" />
                     <?php } ?>
                   </a>
                   <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__text">

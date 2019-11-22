@@ -414,7 +414,7 @@ abstract class Block extends SOME
             }
             if ($this->Widget->id) {
                 $data = $this->processWidget($in, $page);
-            } else {
+            } elseif ($page->mime == 'application/json') {
                 $data = $in;
                 unset($data['config']);
                 echo json_encode($data);
