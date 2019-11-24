@@ -146,4 +146,56 @@ class Block_Search extends Block
             'rows_per_page' => (int)$this->rows_per_page,
         ];
     }
+
+
+    /**
+     * Обработчик события сохранения страницы
+     *
+     * Добавляет в обработку новую страницу, если родительская там уже была
+     * @param Page $page Сохраненная страница
+     * @param mixed $data Дополнительные данные
+     */
+    public static function pageCommitEventListener(Page $page, $data)
+    {
+        if ($data['new']) {
+            $sqlQuery = "SELECT id
+                           FROM cms_blocks_search_pages_assoc
+                          WHERE page_id = ?";
+            $blocksIds = static::$SQL->getcol([$sqlQuery, (int)$page->pid]);
+            $sqlArr = [];
+            foreach ($blocksIds as $blockId) {
+                $sqlArr[] = ['id' => $blockId, 'page_id' => $page->id];
+            }
+            if ($sqlArr) {
+                static::$SQL->add('cms_blocks_search_pages_assoc', $sqlArr);
+            }
+        }
+    }
+
+
+    /**
+     * Обработчик события сохранения типа материала
+     *
+     * Добавляет в обработку новый тип материала, если родительский там уже был
+     * @param Material_Type $materialType Сохраненный тип материала
+     * @param mixed $data Дополнительные данные
+     */
+    public static function materialTypeCommitEventListener(
+        Material_Type $materialType,
+        $data
+    ) {
+        if ($data['new']) {
+            $sqlQuery = "SELECT id
+                           FROM cms_blocks_search_material_types_assoc
+                          WHERE material_type = ?";
+            $blocksIds = static::$SQL->getcol([$sqlQuery, (int)$materialType->pid]);
+            $sqlArr = [];
+            foreach ($blocksIds as $blockId) {
+                $sqlArr[] = ['id' => $blockId, 'material_type' => $materialType->id];
+            }
+            if ($sqlArr) {
+                static::$SQL->add('cms_blocks_search_material_types_assoc', $sqlArr);
+            }
+        }
+    }
 }

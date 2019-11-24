@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use SOME\EventProcessor;
 use SOME\File;
 use SOME\Pages;
 use SOME\SOME;
@@ -94,6 +95,16 @@ class Package extends RAASPackage
     {
         $_SESSION['KCFINDER']['uploadURL'] = '/files/cms/common/';
         $_SESSION['KCFINDER']['disabled'] = false;
+        EventProcessor::on(
+            SOME::class . ':commit:commit',
+            Page::class,
+            [Block_Search::class, 'pageCommitEventListener']
+        );
+        EventProcessor::on(
+            SOME::class . ':commit:commit',
+            Material_Type::class,
+            [Block_Search::class, 'materialTypeCommitEventListener']
+        );
         parent::init();
         Block_Type::registerType(
             Block_HTML::class,
