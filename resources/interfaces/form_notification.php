@@ -101,7 +101,7 @@ $emailField = function (Form_Field $field) {
 };
 ?>
 <?php if ($SMS) {
-    echo date(DATETIMEFORMAT) . ' ' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name) . "\n";
+    echo date(DATETIMEFORMAT) . ' ' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name, $Item->domain) . "\n";
     echo FEEDBACK_ID . ': ' . (int)$Item->id . "\n";
     foreach ($Item->fields as $field) {
         echo $smsField($field);
