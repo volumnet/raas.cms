@@ -102,11 +102,15 @@ $emailField = function (Form_Field $field) {
 ?>
 <?php if ($SMS) {
     echo date(DATETIMEFORMAT) . ' ' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name) . "\n";
+    echo FEEDBACK_ID . ': ' . (int)$Item->id . "\n";
     foreach ($Item->fields as $field) {
         echo $smsField($field);
     }
 } else { ?>
     <div>
+      <div>
+        <?php echo FEEDBACK_ID . ': ' . (int)$Item->id?>
+      </div>
       <?php
       foreach ($Item->fields as $field) {
           echo $emailField($field);
