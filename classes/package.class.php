@@ -95,6 +95,8 @@ class Package extends RAASPackage
     {
         $_SESSION['KCFINDER']['uploadURL'] = '/files/cms/common/';
         $_SESSION['KCFINDER']['disabled'] = false;
+        $_SESSION['KCFINDER']['dirPerms'] = 0777;
+        $_SESSION['KCFINDER']['filePerms'] = 0777;
         EventProcessor::on(
             SOME::class . ':commit:commit',
             Page::class,
