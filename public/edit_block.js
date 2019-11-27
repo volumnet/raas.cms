@@ -41,7 +41,7 @@ jQuery(function($) {
         }).val(text);
         $container.append($description);
         if ($(this).is(':checked')) {
-            $description.ckeditor();
+            $description.ckeditor(ckEditorConfig);
         } else {
             CodeMirror.fromTextArea(
                 $description[0], 
