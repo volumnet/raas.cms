@@ -293,7 +293,7 @@ class Controller_Ajax extends Abstract_Controller
             'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' .
             $_SERVER['HTTP_HOST'] . $url
         );
-        $host = $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'];
+        $host = 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . "://" . $_SERVER['HTTP_HOST'];
         $page->initialURL = $url;
         $material = Material::importByURN($page->additionalURLArray[0]);
         if ($page->id) {
@@ -304,7 +304,7 @@ class Controller_Ajax extends Abstract_Controller
         if ($material->id) {
             echo "console.log('Материал ID# " . (int)$material->id . " " . $material->name . "');";
             echo "console.log('" . $host . addslashes($material->url) . "');";
-            echo "console.log('" . $host . "/admin/?p=cms&id=" . (int)$material->id . "');";
+            echo "console.log('" . $host . "/admin/?p=cms&action=edit_material&id=" . (int)$material->id . "');";
             if ($material->url == $url) {
                 echo "console.info('Адрес материала совпадает с текущим адресом');";
             } else {
