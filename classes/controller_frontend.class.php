@@ -258,6 +258,7 @@ class Controller_Frontend extends Abstract_Controller
             }
             $this->saveCache($content, $headers, '', $originalPage);
         }
+        $this->outputDebug();
         return $Page;
     }
 
@@ -279,6 +280,30 @@ class Controller_Frontend extends Abstract_Controller
         }
         $cp->cache = (bool)(int)$cp->cache || $doCache;
         return $cp;
+    }
+
+
+    /**
+     * Выводит отладочную информацию в консоль
+     */
+    protected function outputDebug()
+    {
+        if ($_SESSION['login']) {
+            $headers = array_values(
+                array_filter(
+                    (array)headers_list(),
+                    function ($x) {
+                        return stristr($x, 'Content-Type');
+                    }
+                )
+            );
+            if ($headers) {
+                $header = $headers[count($headers) - 1];
+                if (preg_match('/text\\/html/umi', $header)) {
+                    echo '<script src="/admin/ajax.php?p=cms&action=debug_page&v=' . date('Y-m-d-H-i-s') . '"></script>';
+                }
+            }
+        }
     }
 
 
@@ -456,6 +481,7 @@ class Controller_Frontend extends Abstract_Controller
                 '.php'
             )) {
                 include $f[0];
+                $this->outputDebug();
                 exit;
             }
         }

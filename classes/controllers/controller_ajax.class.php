@@ -27,6 +27,8 @@ class Controller_Ajax extends Abstract_Controller
             case 'get_menu_domain_pages':
                 $this->getMenuDomainPages();
                 break;
+            case 'debug_page':
+                $this->debugPage();
         }
     }
 
@@ -273,5 +275,42 @@ class Controller_Ajax extends Abstract_Controller
             }
         }
         return $result;
+    }
+
+
+    /**
+     * Возвращает скрипт вывода отладочной информации в консоль
+     */
+    public function debugPage()
+    {
+        header('Content-Type: text/javascript');
+        if (!$_SERVER['HTTP_REFERER']) {
+            exit;
+        }
+        $url = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH);
+        $url = str_replace('\\', '/', $url);
+        $page = Page::importByURL(
+            'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' .
+            $_SERVER['HTTP_HOST'] . $url
+        );
+        $host = $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'];
+        $page->initialURL = $url;
+        $material = Material::importByURN($page->additionalURLArray[0]);
+        if ($page->id) {
+            echo "console.log('Страница ID# " . (int)$page->id . " " . $page->name . "');";
+            echo "console.log('" . $host . addslashes($page->url) . "');";
+            echo "console.log('" . $host . "/admin/?p=cms&id=" . (int)$page->id . "');";
+        }
+        if ($material->id) {
+            echo "console.log('Материал ID# " . (int)$material->id . " " . $material->name . "');";
+            echo "console.log('" . $host . addslashes($material->url) . "');";
+            echo "console.log('" . $host . "/admin/?p=cms&id=" . (int)$material->id . "');";
+            if ($material->url == $url) {
+                echo "console.info('Адрес материала совпадает с текущим адресом');";
+            } else {
+                echo "console.error('Адрес материала не совпадает с текущим адресом');";
+            }
+        }
+        exit;
     }
 }
