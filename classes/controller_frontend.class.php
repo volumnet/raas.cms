@@ -206,15 +206,20 @@ class Controller_Frontend extends Abstract_Controller
         $url = parse_url($_SERVER['REQUEST_URI']);
         $url = $url['path'];
         $url = str_replace('\\', '/', $url);
-        $Page = Page::importByURL(
+        $Page = $originalPage = Page::importByURL(
             'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' .
             $_SERVER['HTTP_HOST'] . $url
         );
         $doCache = (bool)(int)$Page->cache;
         $Page->initialURL = $url;
 
-        $Page = $this->checkPageRights($Page, $doCache);
-        $Page = $this->checkMaterial($Page, $doCache);
+        $cprPage = $this->checkPageRights($Page, $doCache);
+        $Page = $cprPage;
+        $cmPage = $this->checkMaterial($Page, $doCache);
+        if ($cmPage->Material) {
+            $originalPage->Material = $cmPage->Material;
+        }
+        $Page = $cmPage;
 
         RAASViewWeb::i()->loadLanguage($Page->lang);
         $this->exportLang(Application::i(), $Page->lang);
@@ -251,7 +256,7 @@ class Controller_Frontend extends Abstract_Controller
                 }, $status1);
                 $headers = array_merge($headers, $status2);
             }
-            $this->saveCache($content, $headers);
+            $this->saveCache($content, $headers, '', $originalPage);
         }
         return $Page;
     }
@@ -321,11 +326,13 @@ class Controller_Frontend extends Abstract_Controller
      * @param string $content Текст страницы
      * @param array<string> $headers HTTP-заголовки страницы
      * @param string $prefix Префикс файла кэша
+     * @param Page $originalPage Оригинальная страница
      */
     protected function saveCache(
         $content = '',
         array $headers = [],
-        $prefix = ''
+        $prefix = '',
+        Page $originalPage = null
     ) {
         if (!is_dir($this->model->cacheDir)) {
             @mkdir($this->model->cacheDir, 0777, true);
@@ -340,16 +347,29 @@ class Controller_Frontend extends Abstract_Controller
             '<' . '?php echo \'<\' . \'?xml $1?\' . ">\\n"?' . '>',
             $content
         );
-        $text = '';
+        $text = '<' . "?php\n"
+              . "/**\n"
+              . " * Файл кэша страницы\n"
+              . " * " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . "\n"
+              . " * Создан: " . date('Y-m-d H:i:s') . "\n"
+              . " * IP-адрес: " . $_SERVER['REMOTE_ADDR'] . "\n"
+              . " * User-Agent: " . $_SERVER['HTTP_USER_AGENT'] . "\n";
+        if ($originalPage->id) {
+            $text .= " * Страница ID#: " . (int)$originalPage->id . "\n";
+        }
+        if ($originalPage->Material->id) {
+            $text .= " * Материал ID#: " . (int)$originalPage->Material->id . "\n"
+                  .  " * Материал обработан: " . ($originalPage->Material->proceed ? 'да' : 'нет') . "\n";
+        }
+        $text .= " */\n";
         if ($headers) {
-            $text .= '<' . "?php\n";
             foreach ($headers as $header) {
                 if (!stristr($header, 'cookie')) {
                     $text .= 'header("' . addslashes($header) . '");' . "\n";
                 }
             }
-            $text .= '?' . ">";
         }
+        $text .= '?' . ">";
         $text .= $content;
         file_put_contents(
             $this->model->cacheDir . '/' . $filename . '.php',

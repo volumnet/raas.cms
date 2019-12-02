@@ -13,7 +13,6 @@ class GetPageCacheCommand extends LockCommand
 {
     /**
      * Выполнение команды
-     * @param string|null $mtypeURN URN типа материалов кэша
      * @param bool $forceUpdate Принудительно выполнить обновление,
      *                          даже если материалы не были обновлены
      * @param bool $forceLockUpdate Принудительно выполнить обновление,
