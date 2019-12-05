@@ -409,29 +409,24 @@ class Page extends SOME
         }
 
 
-        $enableHeritage = false;
-        foreach (static::$inheritedFields as $key => $val) {
-            if ($this->$key) {
-                $enableHeritage = true;
-            }
-        }
-        if ($enableHeritage) {
-            foreach ($this->children as $row) {
-                // 2014-11-18, AVS: добавлено, поскольку childrens создаются
-                // по SQL-запросу и массив properties у них нулевой,
-                // поэтому сравнивать проблематично
-                $row->reload();
-                foreach (static::$inheritedFields as $key => $val) {
-                    // Если наследуется и значение дочернего элемента
-                    // совпадает со старым значением текущего
-                    // 2014-11-18, AVS: сменил $this->update[$key] на $this->$key,
-                    // т.к. сам факт наследования не обязательно должен меняться
-                    if ($this->$key && ($row->$key == $this->properties[$key])) {
-                        $row->$val = $this->$val;
-                    }
+        foreach (static::$inheritedFields as $inheritanceFieldURN => $originalFieldURN) {
+            // Только если значение изменено (включая создание нового)
+            // и включено наследование (актуальное)
+            if ($this->updates[$originalFieldURN] &&
+                $this->$inheritanceFieldURN
+            ) {
+                $inheritanceChildrenIds = $this->getInheritedChildren(
+                    $inheritanceFieldURN,
+                    $originalFieldURN,
+                    $this->properties[$originalFieldURN]
+                );
+                if ($inheritanceChildrenIds) {
+                    static::_SQL()->update(
+                        static::_tablename(),
+                        "id IN (" . implode(", ", $inheritanceChildrenIds) . ")",
+                        [$originalFieldURN => $this->updates[$originalFieldURN]]
+                    );
                 }
-
-                $row->commit();
             }
         }
 
@@ -474,6 +469,33 @@ class Page extends SOME
         } elseif ($urnUpdated || $pidUpdated) {
             Material::updateAffectedPages();
         }
+    }
+
+
+    /**
+     * Находит ID# всех дочерних страниц (всех уровней) по наследуемому полю
+     * @param string $inheritanceFieldURN URN поля наследования
+     * @param string $originalFieldURN URN оригинального поля
+     * @param mixed $value Значение оригинального поля для поиска
+     * @return array<int>
+     */
+    public function getInheritedChildren(
+        $inheritanceFieldURN,
+        $originalFieldURN,
+        $value
+    ) {
+        $ch = [(int)$this->id];
+        $result = [];
+        do {
+            $sqlQuery = "SELECT id
+                           FROM " . static::_tablename()
+                      . " WHERE pid IN (" . implode(", ", $ch) . ")
+                            AND " . $inheritanceFieldURN
+                      . "   AND " . $originalFieldURN . " = ?";
+            $ch = static::_SQL()->getcol([$sqlQuery, $value]);
+            $result = array_merge($result, $ch);
+        } while ($ch);
+        return $result;
     }
 
 

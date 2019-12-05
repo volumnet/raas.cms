@@ -198,20 +198,12 @@ class Material_Type extends SOME
         $sqlQuery = "SELECT tP.id AS page_id,
                             tMT.id AS material_type_id,
                             MAX(tB.nat) AS nat
-                        FROM " . Page::_tablename() . " AS tP
-                        JOIN " . static::$dbprefix . "cms_blocks_pages_assoc
-                          AS tBPA
-                          ON tBPA.page_id = tP.id
-                        JOIN " . Block::_tablename() . "
-                          AS tB
-                          ON tB.id = tBPA.block_id
-                        JOIN " . Block::_dbprefix() . "cms_blocks_material
-                          AS tBM
-                          ON tBM.id = tB.id
-                        JOIN " . Material_Type::_tablename() . "
-                          AS tMT
-                          ON tMT.id = tBM.material_type
-                       WHERE tB.vis";
+                       FROM " . Page::_tablename() . " AS tP
+                       JOIN " . static::$dbprefix . "cms_blocks_pages_assoc AS tBPA ON tBPA.page_id = tP.id
+                       JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id
+                       JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.id = tB.id
+                       JOIN " . Material_Type::_tablename() . " AS tMT ON tMT.id = tBM.material_type
+                      WHERE tB.vis";
         if ($materialTypeId) {
             $sqlQuery .= " AND tMT.id IN (" . implode(", ", $materialTypesIds) . ")";
         }

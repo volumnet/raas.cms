@@ -399,9 +399,7 @@ class Material extends SOME
         $sqlQuery .= " FROM " . static::$dbprefix . "cms_materials_affected_pages_cache ";
         if (!$materialId && $materialTypeId) {
             $sqlQuery .= " AS tMAP
-                    LEFT JOIN " . static::_tablename() . "
-                           AS tM
-                           ON tM.id = tMAP.material_id ";
+                    LEFT JOIN " . static::_tablename() . " AS tM ON tM.id = tMAP.material_id ";
         }
         $sqlQuery .= " WHERE 1 ";
         if ($materialId = $material->id) {
@@ -414,27 +412,72 @@ class Material extends SOME
         }
         static::_SQL()->query($sqlQuery);
 
-
-        $sqlQuery = "INSERT INTO " . static::$dbprefix . "cms_materials_affected_pages_cache
-                            (material_id, page_id)
-                     SELECT tM.id AS material_id,
-                            tMTAPM.page_id AS page_id
-                       FROM " . static::_tablename() . " AS tM
-                       JOIN " . static::$dbprefix . "cms_material_types_affected_pages_for_materials_cache
-                         AS tMTAPM
-                         ON tMTAPM.material_type_id = tM.pid
-                  LEFT JOIN " . static::$dbprefix . "cms_materials_pages_assoc
-                         AS tMPA
-                         ON tMPA.id = tM.id
-                      WHERE (tMTAPM.page_id = tMPA.pid OR tMPA.pid IS NULL)
-                        AND tMTAPM.nat";
-        if ($materialId) {
-            $sqlQuery .= " AND tM.id = " . (int)$materialId;
-        } elseif ($materialTypeId) {
-            $sqlQuery .= " AND tM.pid IN (" . implode(", ", $materialTypesIds) . ")";
+        // Выберем привязку типов материалов к страницам (фильтрация по NAT)
+        $materialTypesToPagesAssoc = [];
+        $sqlQuery = "SELECT material_type_id, page_id
+                       FROM " . static::$dbprefix . "cms_material_types_affected_pages_for_materials_cache
+                      WHERE nat";
+        if ($materialTypeId) {
+            $sqlQuery .= " AND material_type_id IN (" . implode(", ", $materialTypesIds) . ")";
         }
-        $sqlQuery .= " GROUP BY tM.id, tMTAPM.page_id";
-        static::_SQL()->query($sqlQuery);
+        $sqlResult = Material::_SQL()->query($sqlQuery);
+        foreach ($sqlResult as $sqlRow) {
+            $materialTypesToPagesAssoc[trim($sqlRow['material_type_id'])][trim($sqlRow['page_id'])] = (int)$sqlRow['page_id'];
+        }
+
+        // Выберем собственную привязку материалов к страницам
+        $materialsToPagesAssoc = [];
+        $sqlQuery = "SELECT id, pid
+                       FROM " . static::$dbprefix . "cms_materials_pages_assoc";
+        if ($materialId) {
+            $sqlQuery .= " WHERE id = " . (int)$materialId;
+        }
+        $sqlResult = static::_SQL()->query($sqlQuery);
+        foreach ($sqlResult as $sqlRow) {
+            $materialsToPagesAssoc[trim($sqlRow['id'])][trim($sqlRow['pid'])] = (int)$sqlRow['pid'];
+        }
+
+        // Выберем привязку материалов к типам материалов
+        $materialsToMaterialTypesAssoc = [];
+        $sqlQuery = "SELECT id, pid FROM cms_materials";
+        if ($materialId) {
+            $sqlQuery .= " AND id = " . (int)$materialId;
+        } elseif ($materialTypeId) {
+            $sqlQuery .= " AND pid IN (" . implode(", ", $materialTypesIds) . ")";
+        }
+        $sqlResult = Material::_SQL()->query($sqlQuery);
+        foreach ($sqlResult as $sqlRow) {
+            $materialsToMaterialTypesAssoc[trim($sqlRow['id'])] = (int)$sqlRow['pid'];
+        }
+
+        // Соберем привязку материалов к страницам
+        $realMaterialsToPagesAssoc = [];
+        foreach ((array)$materialsToMaterialTypesAssoc as $mId => $mtId) {
+            foreach ((array)$materialTypesToPagesAssoc[$mtId] as $mtPageId) {
+                if (!isset($materialsToPagesAssoc[$mId]) ||
+                    isset($materialsToPagesAssoc[$mId][$mtPageId])
+                ) {
+                    $realMaterialsToPagesAssoc[trim($mId)][trim($mtPageId)] = (int)$mtPageId;
+                }
+            }
+        }
+
+        // Сформируем массив для записи в базу
+        $sqlArr = [];
+        foreach ($realMaterialsToPagesAssoc as $mId => $mPagesIds) {
+            foreach ($mPagesIds as $mPageId) {
+                $sqlArr[] = [
+                    'material_id' => (int)$mId,
+                    'page_id' => (int)$mPageId
+                ];
+            }
+        }
+        if ($sqlArr) {
+            static::_SQL()->add(
+                static::$dbprefix . "cms_materials_affected_pages_cache",
+                $sqlArr
+            );
+        }
 
         // Определим родителей по URL
         $sqlQuery = "UPDATE " . static::_tablename() . " AS tM

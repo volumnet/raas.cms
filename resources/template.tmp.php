@@ -120,7 +120,7 @@ ob_start(); // Для $separateScripts
   <body class="body <?php echo !$Page->pid ? ' body_main' : ''?>" data-page-id="<?php echo (int)$Page->id?>"<?php echo $Page->Material->id ? ' data-page-material-id="' . (int)$Page->Material->id . '"' : ''?>>
     <?php echo $Page->location('top_body_counters')?>
     <div id="top" class="body__background-holder"<?php echo $bg->id ? ' style="background-image: url(\'/' . htmlspecialchars($bg->fileURL) . '\')"' : ''?>>
-      <header class="body__header">
+      <header class="body__header" itemscope itemtype="http://schema.org/WPHeader">
         <div class="body__row body__row_menu-top">
           <div class="body__container body__container_menu-top">
             <div class="body__menu-top">
@@ -203,7 +203,7 @@ ob_start(); // Для $separateScripts
                 <div class="body__row body__row_content body__row_content_<?php echo ($i + 1)?>">
                   <div class="body__container body__container_content body__container_content_<?php echo ($i + 1)?>">
                     <?php if ($leftText) { ?>
-                        <aside class="body__left body__left_<?php echo ($i + 1)?>">
+                        <aside class="body__left body__left_<?php echo ($i + 1)?>" itemscope itemtype="http://schema.org/WPSideBar">
                           <?php echo $leftText?>
                         </aside>
                     <?php }
@@ -222,7 +222,7 @@ ob_start(); // Для $separateScripts
                         </div>
                     <?php }
                     if ($rightText) { ?>
-                        <aside class="body__right body__right<?php echo ($i + 1)?>">
+                        <aside class="body__right body__right<?php echo ($i + 1)?>"  itemscope itemtype="http://schema.org/WPSideBar">
                           <?php echo $rightText?>
                         </aside>
                     <?php } ?>
@@ -231,7 +231,7 @@ ob_start(); // Для $separateScripts
             <?php }
         } ?>
       </main>
-      <footer class="body__footer">
+      <footer class="body__footer" itemscope itemtype="http://schema.org/WPFooter">
         <div class="body__row body__row_footer">
           <div class="body__container body__container_footer">
             <div class="body__copyrights">

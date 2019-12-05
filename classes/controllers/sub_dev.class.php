@@ -271,6 +271,8 @@ class Sub_Dev extends RAASAbstractSubController
             case 'clear_cache':
                 if (Package::i()->registryGet('clear_cache_manually')) {
                     $this->model->clearCache(true);
+                    Material_Type::updateAffectedPagesForSelf();
+                    Material_Type::updateAffectedPagesForMaterials();
                     new Redirector(HTTP::queryString('action=cache'));
                 } else {
                     new Redirector(HTTP::queryString('action='));
