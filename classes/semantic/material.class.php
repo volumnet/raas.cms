@@ -441,9 +441,9 @@ class Material extends SOME
         $materialsToMaterialTypesAssoc = [];
         $sqlQuery = "SELECT id, pid FROM cms_materials";
         if ($materialId) {
-            $sqlQuery .= " AND id = " . (int)$materialId;
+            $sqlQuery .= " WHERE id = " . (int)$materialId;
         } elseif ($materialTypeId) {
-            $sqlQuery .= " AND pid IN (" . implode(", ", $materialTypesIds) . ")";
+            $sqlQuery .= " WHERE pid IN (" . implode(", ", $materialTypesIds) . ")";
         }
         $sqlResult = Material::_SQL()->query($sqlQuery);
         foreach ($sqlResult as $sqlRow) {
