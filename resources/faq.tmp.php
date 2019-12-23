@@ -49,7 +49,7 @@ if ($Item) { ?>
                 <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__title">
                   <span class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__name">
                     <?php if ($Item->answer_name) { ?>
-                        <?php echo ((string)$Item->answer_gender === '') ? ANSWERED_UNDEFINED : ($Item->answer_gender ? ANSWERED_MALE : ANSWERED_FEMALE) . ' ' . htmlspecialchars($Item->answer_name)?>
+                        <?php echo (((string)$Item->answer_gender === '') ? ANSWERED_UNDEFINED : ($Item->answer_gender ? ANSWERED_MALE : ANSWERED_FEMALE)) . ' ' . htmlspecialchars($Item->answer_name)?>
                     <?php } else { ?>
                         <?php echo ANSWER?>
                     <?php } ?>

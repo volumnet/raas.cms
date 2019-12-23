@@ -18,6 +18,11 @@ class GetPageCacheCommand extends LockCommand
      * @param bool $forceLockUpdate Принудительно выполнить обновление,
      *                              даже если есть параллельный процесс
      * @param bool $clearBlocksCache Очистить кэши блоков
+     * @param int|string[] $pagesLimit Ограничение числа страниц,
+     *                                 либо перечисление страниц
+     *                                 (отдельными аргументами)
+     * @param float|null $minFreeSpace Минимальное дисковое пространство,
+     *                                 которое нужно оставить (в МБ)
      */
     public function process(
         $forceUpdate = false,
@@ -36,8 +41,16 @@ class GetPageCacheCommand extends LockCommand
             Package::i()->clearBlocksCache();
             $this->controller->doLog('Blocks caches cleared');
         }
+        $minFreeSpace = 0;
         if ($args[0] && !is_numeric($args[0])) {
+            if ($args[count($args) - 1] && is_numeric($args[count($args) - 1])) {
+                $minFreeSpace = (float)$args[count($args) - 1];
+                $args = array_slice($args, 0, -1);
+            }
             foreach ($args as $url) {
+                if (!$this->checkFreeSpace($minFreeSpace, true)) {
+                    break;
+                }
                 $page = $this->importByURL($url);
                 if ($page->id) {
                     if ($page->Material->id) {
@@ -49,6 +62,9 @@ class GetPageCacheCommand extends LockCommand
             }
         } else {
             $limit = (int)$args[0];
+            if ($args[1] && is_numeric($args[1])) {
+                $minFreeSpace = (float)$args[1];
+            }
             $sqlQuery = "( SELECT id,
                                   'p' AS datatype,
                                   visit_counter,
@@ -66,6 +82,9 @@ class GetPageCacheCommand extends LockCommand
             $sqlResult = Page::_SQL()->get($sqlQuery);
             $i = 0;
             foreach ($sqlResult as $sqlRow) {
+                if (!$this->checkFreeSpace($minFreeSpace, true)) {
+                    break;
+                }
                 if ($limit && ($i > $limit)) {
                     break;
                 }
@@ -201,5 +220,31 @@ class GetPageCacheCommand extends LockCommand
             }
         }
         return $page;
+    }
+
+
+    /**
+     * Проверяет наличие необходимого свободного места на диске
+     * @param float $minFreeSpace Количество необходимого места, которое нужно
+     *                            оставить
+     * @param bool $doLog Выводить ошибку в случае, если места недостаточно
+     * @return bool true, если места достаточно, false в противном случае
+     */
+    public function checkFreeSpace($minFreeSpace = 0, $doLog = false)
+    {
+        if (!$minFreeSpace) {
+            return true;
+        }
+        $minFreeSpace = (float)$minFreeSpace;
+        $diskFreeSpace = @disk_free_space('/');
+        $diskFreeSpace = (float)$diskFreeSpace / 1024 / 1024;
+        $isEnough = ($diskFreeSpace > $minFreeSpace);
+        if ($doLog && !$isEnough) {
+            $message = 'There is no enough space for cache building: '
+                     . 'free: ' . (int)$diskFreeSpace . 'MB, '
+                     . 'required: ' . (int)$minFreeSpace . 'MB';
+            $this->controller->doLog($message);
+        }
+        return $isEnough;
     }
 }
