@@ -242,6 +242,7 @@ class Controller_Frontend extends Abstract_Controller
         if ($Page->Material && $Page->Material->proceed) {
             $Page->Material->visit();
         }
+        $content = CMSPackage::processInternalLinks($content, $Page);
         echo $content;
 
         if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET')) {

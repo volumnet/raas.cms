@@ -423,7 +423,9 @@ abstract class Block extends SOME
                 // Запишем в HTML-кэш
                 $this->processCache($in, $page);
             }
-            ob_end_flush();
+            $content = ob_get_clean();
+            $content = Package::processInternalLinks($content, $page);
+            echo $content;
             if ($diag = Controller_Frontend::i()->diag) {
                 $diag->handle('blocks', $this->id, microtime(true) - $bst);
             }

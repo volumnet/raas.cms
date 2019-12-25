@@ -1170,4 +1170,68 @@ class Package extends RAASPackage
             }
         }
     }
+
+
+    /**
+     * Обрабатывает внутренние ссылки
+     *
+     * raas://page/123 - относительная ссылка на страницу
+     * raas://material/123 - относительная ссылка на материал
+     * raas://domain/page/123 - абсолютная ссылка на страницу
+     * raas://domain/material/123 - абсолютная ссылка на материал
+     * блоки по тексту вида [Block#123]
+     * @param string $text Входящий текст
+     * @param Page $page Текущая страница
+     * @return string
+     */
+    public static function processInternalLinks($text, Page $page = null)
+    {
+        $result = $text;
+        $result = str_ireplace('http://raas://', 'raas://', $result);
+        $result = str_ireplace('https://raas://', 'raas://', $result);
+        $result = str_ireplace('//raas://', 'raas://', $result);
+
+        $result = preg_replace_callback(
+            '/raas:\\/\\/((domain\\/)?((page|material)\\/)(\\d+)(\\/?))/umis',
+            function ($matches) {
+                $internalUrl = trim($matches[1], '/');
+                $internalUrlArr = explode('/', $internalUrl);
+                switch ($internalUrlArr[0]) {
+                    case 'page':
+                        $p = new Page((int)$internalUrlArr[1]);
+                        return $p->url;
+                        break;
+                    case 'material':
+                        $m = new Material((int)$internalUrlArr[1]);
+                        return $m->url;
+                        break;
+                    case 'domain':
+                        switch ($internalUrlArr[1]) {
+                            case 'page':
+                                $p = new Page((int)$internalUrlArr[2]);
+                                return $p->domain . $p->url;
+                                break;
+                            case 'material':
+                                $m = new Material((int)$internalUrlArr[2]);
+                                return $m->urlParent->domain . $m->url;
+                                break;
+                        }
+                        break;
+                }
+            },
+            $result
+        );
+        $result = preg_replace_callback(
+            '/\\[raas:\\/\\/block\\/(\\d+)\\/?\\]/umis',
+            function ($matches) use ($page) {
+                $b = Block::spawn((int)$matches[1]);
+                ob_start();
+                $b->process($page);
+                $blockResult = ob_get_clean();
+                return $blockResult;
+            },
+            $result
+        );
+        return $result;
+    }
 }
