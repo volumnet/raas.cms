@@ -372,6 +372,25 @@ class FormInterfaceTest extends BaseDBTest
 
     /**
      * Тест проверки, соответствует ли имя файла допустимым расширениям
+     * (случай отсутствия файла)
+     */
+    public function testCheckFileMatchesAllowedExtensionsWithNoFile()
+    {
+        $interface = new FormInterface();
+
+        $result = $interface->checkFileMatchesAllowedExtensions(
+            'aaa.txt',
+            '/path/to/aaa.tmp',
+            $allowedExtensions = ['txt', 'jpg'],
+            false
+        );
+
+        $this->assertTrue($result);
+    }
+
+
+    /**
+     * Тест проверки, соответствует ли имя файла допустимым расширениям
      * (случай неуспешной проверки)
      */
     public function testCheckFileMatchesAllowedExtensionsWithError()
@@ -668,6 +687,64 @@ class FormInterfaceTest extends BaseDBTest
 
 
     /**
+     * Тест получения списка адресов пользователя
+     */
+    public function testParseUserAddresses()
+    {
+        $feedback = new Feedback(1);
+        $interface = new FormInterface();
+
+        $result = $interface->parseUserAddresses($feedback);
+
+        $this->assertEquals([
+            'emails' => [
+                'test@test.org',
+            ],
+            'smsPhones' => [
+                '+79990000000'
+            ]
+        ], $result);
+    }
+
+
+    /**
+     * Тест получения списка адресов пользователя
+     * (случай с неконвенциональными названиями полей)
+     */
+    public function testParseUserAddressesWithFieldsByType()
+    {
+        $phoneField = new Form_Field(6);
+        $phoneField->urn = 'telephone';
+        $phoneField->datatype = 'tel';
+        $phoneField->commit();
+        $emailField = new Form_Field(7);
+        $emailField->urn = 'post_address';
+        $emailField->datatype = 'email';
+        $emailField->commit();
+        $feedback = new Feedback(1);
+        $interface = new FormInterface();
+
+        $result = $interface->parseUserAddresses($feedback);
+
+        $this->assertEquals([
+            'emails' => [
+                'test@test.org',
+            ],
+            'smsPhones' => [
+                '+79990000000'
+            ]
+        ], $result);
+
+        $phoneField->urn = 'phone';
+        $phoneField->datatype = 'text';
+        $phoneField->commit();
+        $emailField->urn = 'email';
+        $emailField->datatype = 'text';
+        $emailField->commit();
+    }
+
+
+    /**
      * Тест получения заголовка e-mail сообщения
      */
     public function testGetEmailSubject()
@@ -749,13 +826,14 @@ class FormInterfaceTest extends BaseDBTest
             'multiple' => 1,
             'urn' => 'image',
             'name' => 'Изображение',
-            'required' => true
+            'required' => true,
+            'source' => 'gif,jpg,png',
         ]); // Обратная связь
         $fileField->commit();
         $files = ['image' => [
             'tmp_name' => [__DIR__ . '/../../resources/noname.gif'],
             'name' => ['noname.gif'],
-            'type' => ['image/jpeg'],
+            'type' => ['image/gif'],
         ]];
         $interface = new FormInterface();
 
@@ -998,7 +1076,7 @@ class FormInterfaceTest extends BaseDBTest
         );
         $interface = new FormInterface();
 
-        $result = $interface->notify($feedback, null, true);
+        $result = $interface->notify($feedback, null, true, true);
 
         $this->assertEquals(['test@test.org'], $result['emails']['emails']);
         $this->assertContains(
@@ -1047,6 +1125,47 @@ class FormInterfaceTest extends BaseDBTest
 
 
     /**
+     * Тест уведомления пользователя о заполненной форме
+     */
+    public function testNotifyWithForUser()
+    {
+        $form = new Form(1);
+        $feedback = new Feedback(1);
+        Package::i()->registrySet(
+            'sms_gate',
+            'http://smsgate/{{PHONE}}/{{TEXT}}/'
+        );
+        $interface = new FormInterface();
+
+        $result = $interface->notify($feedback, null, false, true);
+
+        $this->assertEquals(['test@test.org'], $result['emails']['emails']);
+        $this->assertContains(
+            'Новое сообщение с формы «Обратная связь»',
+            $result['emails']['subject']
+        );
+        $this->assertContains('<div>', $result['emails']['message']);
+        $this->assertContains(
+            'Телефон: +7 999 000-00-00',
+            $result['emails']['message']
+        );
+        $this->assertContains('Администрация сайта', $result['emails']['from']);
+        $this->assertContains('info@', $result['emails']['fromEmail']);
+        $this->assertEmpty($result['smsEmails']);
+        $this->assertContains(
+            'smsgate/%2B79990000000/',
+            $result['smsPhones'][0]
+        );
+        $this->assertContains(
+            urlencode('Телефон: +7 999 000-00-00'),
+            $result['smsPhones'][0]
+        );
+
+        Package::i()->registrySet('sms_gate', '');
+    }
+
+
+    /**
      * Тест уведомления администратора о заполненной форме
      * (случай с формой без интерфейса)
      */
@@ -1059,7 +1178,7 @@ class FormInterfaceTest extends BaseDBTest
         $feedback = new Feedback(1);
         $interface = new FormInterface();
 
-        $result = $interface->notify($feedback, null, true);
+        $result = $interface->notify($feedback, null, true, true);
 
         $this->assertNull($result);
 

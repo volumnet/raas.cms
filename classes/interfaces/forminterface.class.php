@@ -6,6 +6,7 @@ namespace RAAS\CMS;
 
 use Mustache_Engine;
 use SOME\SOME;
+use SOME\Text;
 use RAAS\Attachment;
 use RAAS\Application;
 use RAAS\Controller_Frontend as RAASControllerFrontend;
@@ -68,7 +69,7 @@ class FormInterface extends AbstractInterface
                 // ($Item instanceof Feedback)
                 // 2019-11-14, AVS: перенес сюда, иначе при AJAX-запросе
                 // первая попавшаяся форма отключает
-                $result['Item'] = new Feedback(['pid' => $form->id]);
+                $result['Item'] = $this->getRawFeedback($form);
                 // Проверка полей на корректность
                 $localError = $this->check(
                     $form,
@@ -373,9 +374,7 @@ class FormInterface extends AbstractInterface
         foreach ($objects as $object) {
             $this->processObject($object, $form, $post, $server, $files);
         }
-        if ($form->email) {
-            $this->notify($feedback, $material);
-        }
+        $this->notify($feedback, $material);
         if (!$form->create_feedback) {
             Feedback::delete($feedback);
             $feedback = null;
@@ -687,6 +686,8 @@ class FormInterface extends AbstractInterface
      * Уведомление администратора о заполненной форме
      * @param Feedback $feedback Уведомление формы обратной связи
      * @param Material $material Созданный материал
+     * @param bool $forAdmin Уведомление для администратора
+     *                       (если нет, то для пользователя)
      * @param bool $debug Режим отладки
      * @return array<
      *             ('emails'|'smsEmails')[] => [
@@ -703,22 +704,29 @@ class FormInterface extends AbstractInterface
     public function notify(
         Feedback $feedback,
         Material $material = null,
+        $forAdmin = true,
         $debug = false
     ) {
         if (!$feedback->parent->Interface->id) {
             return;
         }
         $form = $feedback->parent;
-        $formAddresses = $this->parseFormAddresses($form);
+        if ($forAdmin) {
+            $addresses = $this->parseFormAddresses($form);
+        } else {
+            $addresses = $this->parseUserAddresses($feedback);
+        }
         $template = $form->Interface;
 
         $notificationData = [
             'Item' => $feedback,
             'Material' => $material,
             'formInterface' => $this,
+            'ADMIN' => $forAdmin,
+            'forUser' => !$forAdmin,
         ];
 
-        $subject = $this->getEmailSubject($feedback);
+        $subject = $this->getEmailSubject($feedback, $forUser);
         $message = $this->getMessageBody(
             $template,
             array_merge($notificationData, ['SMS' => false])
@@ -729,8 +737,9 @@ class FormInterface extends AbstractInterface
         );
         $fromName = $this->getFromName();
         $fromEmail = $this->getFromEmail();
+        $debugMessages = [];
 
-        if ($emails = $formAddresses['emails']) {
+        if ($emails = $addresses['emails']) {
             if ($debug) {
                 $debugMessages['emails'] = [
                     'emails' => $emails,
@@ -750,7 +759,7 @@ class FormInterface extends AbstractInterface
             }
         }
 
-        if ($smsEmails = $formAddresses['smsEmails']) {
+        if ($smsEmails = $addresses['smsEmails']) {
             if ($debug) {
                 $debugMessages['smsEmails'] = [
                     'emails' => $smsEmails,
@@ -771,18 +780,19 @@ class FormInterface extends AbstractInterface
             }
         }
 
-        if ($smsPhones = $formAddresses['smsPhones']) {
-            $urlTemplate = Package::i()->registryGet('sms_gate');
-            $m = new Mustache_Engine();
-            foreach ($smsPhones as $phone) {
-                $url = $m->render($urlTemplate, [
-                    'PHONE' => urlencode($phone),
-                    'TEXT' => urlencode($smsMessage)
-                ]);
-                if ($debug) {
-                    $debugMessages['smsPhones'][] = $url;
-                } else {
-                    $result = file_get_contents($url);
+        if ($smsPhones = $addresses['smsPhones']) {
+            if ($urlTemplate = Package::i()->registryGet('sms_gate')) {
+                $m = new Mustache_Engine();
+                foreach ($smsPhones as $phone) {
+                    $url = $m->render($urlTemplate, [
+                        'PHONE' => urlencode($phone),
+                        'TEXT' => urlencode($smsMessage)
+                    ]);
+                    if ($debug) {
+                        $debugMessages['smsPhones'][] = $url;
+                    } else {
+                        $result = file_get_contents($url);
+                    }
                 }
             }
         }
@@ -832,11 +842,56 @@ class FormInterface extends AbstractInterface
 
 
     /**
+     * Получает список адресов пользователя
+     * @param SOME $object Объект, из которого берем данные
+     * @return [
+     *             'emails' => array<string> Список настоящих e-mail,
+     *             'smsPhones' => array<string> Список телефонов
+     *                                          для SMS-уведомлений
+     *                                          в формате +79990000000
+     *                                          или 79990000000
+     *         ]
+     */
+    public function parseUserAddresses(SOME $object)
+    {
+        $result = [];
+        if ($object->email) {
+            $result['emails'][] = $object->email;
+        } else {
+            foreach ($object->fields as $field) {
+                if ($field->datatype == 'email') {
+                    $result['emails'] = $field->getValues(true);
+                }
+            }
+        }
+        $phonesRaw = [];
+        if ($object->phone) {
+            $phonesRaw[] = $object->phone;
+        } else {
+            foreach ($object->fields as $field) {
+                if ($field->datatype == 'tel') {
+                    $phonesRaw = array_merge($phonesRaw, $field->getValues(true));
+                }
+            }
+        }
+        foreach ($phonesRaw as $phoneRaw) {
+            if (preg_match('/(\\+)?\\d+/umi', $phoneRaw)) {
+                $result['smsPhones'][] = '+7' . Text::beautifyPhone($phoneRaw);
+            }
+        }
+        $result['smsPhones'] = array_values(array_unique($result['smsPhones']));
+        return $result;
+    }
+
+
+    /**
      * Получает заголовок e-mail сообщения
      * @param Feedback $feedback Уведомление обратной связи
+     * @param bool $forAdmin Уведомление для администратора
+     *                       (если нет, то для пользователя)
      * @return string
      */
-    public function getEmailSubject(Feedback $feedback)
+    public function getEmailSubject(Feedback $feedback, $forAdmin = true)
     {
         $host = $this->server['HTTP_HOST'];
         if (function_exists('idn_to_utf8')) {
