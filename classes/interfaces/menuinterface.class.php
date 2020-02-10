@@ -51,7 +51,9 @@ class MenuInterface extends AbstractInterface
             $menu = $menu->findPage($this->page);
         }
         $out['Item'] = $menu;
-        $out['menuArr'] = ['children' => $this->getVisSubmenu($menu)];
+        $out['menuArr'] = [
+            'children' => $menu ? $this->getVisSubmenu($menu) : []
+        ];
         return $out;
     }
 

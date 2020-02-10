@@ -171,6 +171,7 @@ class User extends SOME
                 static::$dbprefix . static::$links['social']['tablename'],
                 $arr
             );
+            $this->rollback();
         }
     }
 
@@ -182,7 +183,7 @@ class User extends SOME
     public function addSocial($social)
     {
         $social = trim($social);
-        if (!in_array($social, $this->meta_social)) {
+        if (!in_array($social, (array)$this->meta_social)) {
             $arr = [
                 static::$links['social']['field_from'] => $this->id,
                 static::$links['social']['field_to'] => trim($social)
@@ -203,7 +204,7 @@ class User extends SOME
     public function deleteSocial($social)
     {
         $social = trim($social);
-        if (in_array($social, $this->meta_social)) {
+        if (in_array($social, (array)$this->meta_social)) {
             $sqlQuery = "DELETE FROM " . static::_dbprefix() . static::$links['social']['tablename']
                       . " WHERE " . static::$links['social']['field_from'] . " = ?
                             AND " . static::$links['social']['field_to'] . " = ?";

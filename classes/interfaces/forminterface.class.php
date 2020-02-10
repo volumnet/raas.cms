@@ -879,7 +879,7 @@ class FormInterface extends AbstractInterface
                 $result['smsPhones'][] = '+7' . Text::beautifyPhone($phoneRaw);
             }
         }
-        $result['smsPhones'] = array_values(array_unique($result['smsPhones']));
+        $result['smsPhones'] = array_values(array_unique((array)$result['smsPhones']));
         return $result;
     }
 

@@ -11,4 +11,4 @@ require __DIR__ . '/resources/ConcreteVisibleRecursiveCache.php';
 require __DIR__ . '/resources/Controller_Cron.php';
 require __DIR__ . '/src/BaseTest.php';
 require __DIR__ . '/src/BaseDBTest.php';
-Application::i()->run('cron', false);
+Application::i()->run('cron');

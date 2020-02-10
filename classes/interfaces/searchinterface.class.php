@@ -328,10 +328,10 @@ class SearchInterface extends AbstractInterface
                 $searchPagesIds,
                 $pageMaterialsRatio
             );
-            foreach ($materialsPagesResult['pages'] as $pageId => $pageWeight) {
+            foreach ((array)$materialsPagesResult['pages'] as $pageId => $pageWeight) {
                 $result['p' . $pageId] += $pageWeight;
             }
-            foreach ($materialsPagesResult['materials'] as $materialId => $materialWeight) {
+            foreach ((array)$materialsPagesResult['materials'] as $materialId => $materialWeight) {
                 $result['m' . $materialId] += $materialWeight;
             }
         }
