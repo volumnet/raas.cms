@@ -222,10 +222,15 @@ class Material extends SOME
             Material_Type::updateAffectedPagesForSelf($this->material_type);
         }
 
-        $this->reload();
-        foreach ($this->parents as $row) {
-            $row->modify();
+        if ($parentsIds = $this->parents_ids) {
+            $sqlQuery = "UPDATE " . Page::_tablename()
+                      .   " SET last_modified = NOW(),
+                                modify_counter = modify_counter + 1
+                          WHERE id IN (" . implode(", ", $parentsIds) . ")";
+            Page::_SQL()->query($sqlQuery);
         }
+
+        $this->reload();
     }
 
 
