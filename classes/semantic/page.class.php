@@ -462,12 +462,16 @@ class Page extends SOME
             }
         }
 
-        // 2019-04-25, AVS: обновим связанные страницы типов материалов
-        if ($new) {
-            Material_Type::updateAffectedPagesForMaterials();
-            Material_Type::updateAffectedPagesForSelf();
-        } elseif ($urnUpdated || $pidUpdated) {
-            Material::updateAffectedPages();
+        if (!$this->meta['dontUpdateAffectedPages']) {
+            // 2019-04-25, AVS: обновим связанные страницы типов материалов
+            // 2020-02-10, AVS: добавил условие для загрузчика прайсов
+            // (чтобы было быстрее)
+            if ($new) {
+                Material_Type::updateAffectedPagesForMaterials();
+                Material_Type::updateAffectedPagesForSelf();
+            } elseif ($urnUpdated || $pidUpdated) {
+                Material::updateAffectedPages();
+            }
         }
     }
 

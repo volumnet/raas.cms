@@ -209,14 +209,18 @@ class Material extends SOME
         }
         $this->exportPages();
 
-        // 2019-04-25, AVS: обновим связанные страницы
-        static::updateAffectedPages(null, $this);
-        if ($oldMaterialTypeId) {
-            Material_Type::updateAffectedPagesForSelf(
-                new Material_Type($oldMaterialTypeId)
-            );
+        if (!$this->meta['dontUpdateAffectedPages']) {
+            // 2019-04-25, AVS: обновим связанные страницы
+            // 2020-02-10, AVS: добавил условие для загрузчика прайсов
+            // (чтобы было быстрее)
+            static::updateAffectedPages(null, $this);
+            if ($oldMaterialTypeId) {
+                Material_Type::updateAffectedPagesForSelf(
+                    new Material_Type($oldMaterialTypeId)
+                );
+            }
+            Material_Type::updateAffectedPagesForSelf($this->material_type);
         }
-        Material_Type::updateAffectedPagesForSelf($this->material_type);
 
         $this->reload();
         foreach ($this->parents as $row) {
