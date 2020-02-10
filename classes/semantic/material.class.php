@@ -230,7 +230,9 @@ class Material extends SOME
             Page::_SQL()->query($sqlQuery);
         }
 
-        $this->reload();
+        // 2020-02-10, AVS: Заменил reload на rollback
+        // для ускорения загрузчика прайсов
+        $this->rollback();
     }
 
 
@@ -295,7 +297,7 @@ class Material extends SOME
     private function exportPages()
     {
         $tablename = self::_dbprefix() . self::$links['pages']['tablename'];
-        if ($this->cats) {
+        if ($this->meta['cats']) {
             $sqlQuery = "DELETE FROM " . $tablename
                        . " WHERE id = " . (int)$this->id;
             self::$SQL->query($sqlQuery);
@@ -304,14 +306,18 @@ class Material extends SOME
                 function ($x) use ($id) {
                     return ['id' => $id, 'pid' => $x];
                 },
-                (array)$this->cats
+                (array)$this->meta['cats']
             );
-            unset($this->cats);
+            unset($this->meta['cats']);
             self::$SQL->add($tablename, $arr);
-        } elseif ($this->material_type->global_type) {
-            $sqlQuery = "DELETE FROM " . $tablename
-                       . " WHERE id = " . (int)$this->id;
-            self::$SQL->query($sqlQuery);
+        } elseif (!$this->meta['dontCheckPages']) {
+            // 2020-02-10, AVS: добавил условие dontCheckPages
+            // для ускорения загрузчика прайсов
+            if ($this->material_type->global_type) {
+                $sqlQuery = "DELETE FROM " . $tablename
+                           . " WHERE id = " . (int)$this->id;
+                self::$SQL->query($sqlQuery);
+            }
         }
     }
 
