@@ -990,7 +990,11 @@ class Package extends RAASPackage
             $ids = $Material_Type->selfAndChildrenIds;
             $sqlQuery .= " AND tM.pid IN (" . implode(", ", $ids) . ") ";
         }
-        $sqlQuery .= " GROUP BY tM.id ORDER BY tM.name LIMIT " . ((int)$limit ?: 50);
+        // 2020-02-17, AVS: сделал сортировку сначала по совпадению названия
+        $sqlQuery .= " GROUP BY tM.id
+                       ORDER BY (tM.name LIKE '%" . $likeSearchString . "%') DESC,
+                                tM.name
+                          LIMIT " . ((int)$limit ?: 50);
         $Set = Material::getSQLSet($sqlQuery);
         return $Set;
     }
