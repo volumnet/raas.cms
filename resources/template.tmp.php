@@ -129,6 +129,9 @@ ob_start(); // Для $separateScripts
             <div class="body__socials-top">
               <?php echo $Page->location('socials_top')?>
             </div>
+            <div class="body__menu-user">
+              <?php echo $Page->location('menu_user')?>
+            </div>
           </div>
         </div>
         <div class="body__row body__row_header-inner">
@@ -139,8 +142,8 @@ ob_start(); // Для $separateScripts
             <div class="body__contacts-top">
               <?php echo $Page->location('contacts_top')?>
             </div>
-            <div class="body__menu-user">
-              <?php echo $Page->location('menu_user')?>
+            <div class="body__cart">
+              <?php echo $Page->location('cart')?>
             </div>
           </div>
         </div>

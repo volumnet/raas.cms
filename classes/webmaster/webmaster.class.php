@@ -365,8 +365,8 @@ class Webmaster
         }
 
         $locations = [
-            [1, ['menu_top', 9], ['socials_top', 3]],
-            [2, ['logo', 4], ['contacts_top', 4], ['menu_user', 4]],
+            [1, ['menu_top', 4], ['socials_top', 4], ['menu_user', 4]],
+            [2, ['logo', 4], ['contacts_top', 4], ['cart', 4]],
             [1, ['menu_main', 9], ['search_form', 3]],
             [1, ['banners', 12]],
             [4, ['left', 3], ['content', 6], ['right', 3]],
@@ -1477,7 +1477,7 @@ class Webmaster
         $addUnderConstruction = false
     ) {
         $uid = Application::i()->user->id;
-        $P = new Page([
+        $pageData = [
             'vis' => 1,
             'author_id' => $uid,
             'editor_id' => $uid,
@@ -1486,19 +1486,20 @@ class Webmaster
             'inherit_template' => 0,
             'lang' => 'ru',
             'inherit_lang' => 1,
-        ]);
+        ];
         if ($parent) {
-            $P->pid = $parent->id;
+            $pageData['pid'] = $parent->id;
             foreach ($parent->getArrayCopy() as $key => $val) {
-                if (!in_array($key, ['id', 'pid'])) {
-                    $P->$key = $val;
+                if (!in_array($key, ['id', 'pid', 'pvis', 'cache_url'])) {
+                    $pageData[$key] = $val;
                 }
             }
         }
+        $page = new Page($pageData);
         foreach ($params as $key => $val) {
-            $P->$key = $val;
+            $page->$key = $val;
         }
-        $P->commit();
+        $page->commit();
         if ($addUnderConstruction) {
             $this->createBlock(
                 new Block_HTML([
@@ -1511,10 +1512,10 @@ class Webmaster
                 'content',
                 null,
                 null,
-                $P
+                $page
             );
         }
-        return $P;
+        return $page;
     }
 
 
