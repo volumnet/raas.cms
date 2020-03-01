@@ -24,15 +24,28 @@ class Redirect extends SOME
      */
     public function process($url)
     {
-
+        $origUrl = $url;
+        $origRelUrl = parse_url($url, PHP_URL_PATH)
+                    . parse_url($url, PHP_URL_QUERY);
         if ($this->rx) {
             $rx = $this->url_from;
+            $url = preg_replace('/' . $rx . '/umi', $this->url_to, $origUrl);
+            if ($url == $origUrl) {
+                $relUrl = preg_replace('/' . $rx . '/umi', $this->url_to, $origRelUrl);
+                if ($relUrl != $origRelUrl) {
+                    $url = $relUrl;
+                }
+            }
         } else {
             $rx = preg_quote($this->url_from, '/');
             $rx = str_replace('\\*', '.*', $rx);
             $rx = '^(' . $rx . ')($|\\?)';
+            if (preg_match('/' . $rx . '/umi', $origUrl) ||
+                preg_match('/' . $rx . '/umi', $origRelUrl)
+            ) {
+                $url = $this->url_to;
+            }
         }
-        $url = preg_replace('/' . $rx . '/umi', $this->url_to, $url);
         $resolveInternalUrl = static::getInternalLink($url);
         return $resolveInternalUrl ?: $url;
     }
