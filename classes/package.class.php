@@ -1198,30 +1198,9 @@ class Package extends RAASPackage
         $result = preg_replace_callback(
             '/raas:\\/\\/((domain\\/)?((page|material)\\/)(\\d+)(\\/?))/umis',
             function ($matches) {
-                $internalUrl = trim($matches[1], '/');
-                $internalUrlArr = explode('/', $internalUrl);
-                switch ($internalUrlArr[0]) {
-                    case 'page':
-                        $p = new Page((int)$internalUrlArr[1]);
-                        return $p->url;
-                        break;
-                    case 'material':
-                        $m = new Material((int)$internalUrlArr[1]);
-                        return $m->url;
-                        break;
-                    case 'domain':
-                        switch ($internalUrlArr[1]) {
-                            case 'page':
-                                $p = new Page((int)$internalUrlArr[2]);
-                                return $p->domain . $p->url;
-                                break;
-                            case 'material':
-                                $m = new Material((int)$internalUrlArr[2]);
-                                return $m->urlParent->domain . $m->url;
-                                break;
-                        }
-                        break;
-                }
+                $oldUrl = $matches[0];
+                $newUrl = Redirect::getInternalLink($oldUrl);
+                return $newUrl ?: $oldUrl;
             },
             $result
         );

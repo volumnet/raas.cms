@@ -24,12 +24,56 @@ class Redirect extends SOME
      */
     public function process($url)
     {
+
         if ($this->rx) {
-            $url = preg_replace('/' . $this->url_from . '/umi', $this->url_to, $url);
+            $rx = $this->url_from;
         } else {
-            $url = str_ireplace($this->url_from, $this->url_to, $url);
+            $rx = preg_quote($this->url_from, '/');
+            $rx = str_replace('\\*', '.*', $rx);
+            $rx = '^(' . $rx . ')($|\\?)';
         }
-        return $url;
+        $url = preg_replace('/' . $rx . '/umi', $this->url_to, $url);
+        $resolveInternalUrl = static::getInternalLink($url);
+        return $resolveInternalUrl ?: $url;
+    }
+
+    /**
+     * Обрабатывает внутреннюю ссылку
+     * @param string $url Входной URL
+     * @return string|null Реальный URL, либо null, если не найдено
+     */
+    public static function getInternalLink($url)
+    {
+        $url = str_ireplace('http://raas://', 'raas://', $url);
+        $url = str_ireplace('https://raas://', 'raas://', $url);
+        $url = str_ireplace('//raas://', 'raas://', $url);
+
+        if (parse_url($url, PHP_URL_SCHEME) == 'raas') {
+            $internalUrlArr = explode('/', trim(parse_url($url, PHP_URL_HOST) . parse_url($url, PHP_URL_PATH), '/'));
+            switch ($internalUrlArr[0]) {
+                case 'page':
+                    $p = new Page((int)$internalUrlArr[1]);
+                    return $p->url;
+                    break;
+                case 'material':
+                    $m = new Material((int)$internalUrlArr[1]);
+                    return $m->url;
+                    break;
+                case 'domain':
+                    switch ($internalUrlArr[1]) {
+                        case 'page':
+                            $p = new Page((int)$internalUrlArr[2]);
+                            return $p->domain . $p->url;
+                            break;
+                        case 'material':
+                            $m = new Material((int)$internalUrlArr[2]);
+                            return $m->urlParent->domain . $m->url;
+                            break;
+                    }
+                    break;
+            }
+        }
+        return null;
     }
 
 
