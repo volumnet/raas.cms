@@ -330,6 +330,26 @@ class ViewSub_Dev extends RAASAbstractSubView
 
 
     /**
+     * Отображает страницу редиректов
+     * @param [
+     *            'Form' => RedirectsForm Форма редиректов,
+     *        ] $in Входные данные
+     */
+    public function redirects(array $in = [])
+    {
+        $this->assignVars($in);
+        $form = $in['Form'];
+        $this->title = $form->caption;
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->template = $form->template;
+        $this->js[] = $this->publicURL . '/redirects.js';
+    }
+
+
+    /**
      * Корень раздела "Разработка"
      * @param [] $in Входные данные
      */
@@ -1002,6 +1022,10 @@ class ViewSub_Dev extends RAASAbstractSubView
                 )) :
                 null
             )
+        ];
+        $submenu[] = [
+            'href' => $this->url . '&action=redirects',
+            'name' => $this->_('REDIRECTS'),
         ];
         if (Package::i()->registryGet('diag')) {
             $submenu[] = [

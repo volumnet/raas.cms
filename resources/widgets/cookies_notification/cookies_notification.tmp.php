@@ -13,4 +13,4 @@ namespace RAAS\CMS;
     <?php echo $Block->description?>
   </div>
 </div>
-<?php echo Package::i()->asset('cookies-notification.js')?>
+<?php echo Package::i()->asset('/js/cookies-notification.js')?>

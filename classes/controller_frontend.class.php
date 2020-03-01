@@ -15,12 +15,22 @@ use RAAS\CMS\User as CMSUser;
 use RAAS\CMS\Auth;
 use RAAS\CMS\Diag;
 use RAAS\CMS\Package as CMSPackage;
+use RAAS\CMS\Redirect;
 
 /**
  * Класс контроллера сайта
  * @property-read CMSPackage $model Модель контроллера
  * @property CMSUser $user Текущий пользователь
  * @property-read Diag $diag Объект диагностики
+ * @property-read bool $isHTTPS Подключение осуществляется по HTTPS-протоколу
+ * @property-read string $scheme Протокол подключения (http или https)
+ * @property-read string $host Имя сервера (Punycode)
+ * @property-read string $idnHost Имя сервера с учетом IDN
+ * @property-read string $requestMethod Метод запроса (строчными буквами)
+ * @property-read string $requestUri Запрос к серверу (относительный URL запроса)
+ * @property-read string $url Абсолютный URL запроса
+ * @property-read string $path Путь запроса
+ * @property-read string $query Параметры запроса
  */
 class Controller_Frontend extends Abstract_Controller
 {
@@ -45,6 +55,33 @@ class Controller_Frontend extends Abstract_Controller
                 break;
             case 'diag':
                 return $this->diag;
+                break;
+            case 'isHTTPS':
+                return (mb_strtolower($_SERVER['HTTPS']) == 'on');
+                break;
+            case 'scheme':
+                return 'http' . ($this->isHTTPS ? 's' : '');
+                break;
+            case 'host':
+                return $_SERVER['HTTP_HOST'];
+                break;
+            case 'idnHost':
+                return idn_to_utf8($this->host);
+                break;
+            case 'requestMethod':
+                return mb_strtolower($_SERVER['REQUEST_METHOD']);
+                break;
+            case 'requestUri':
+                return $_SERVER['REQUEST_URI'];
+                break;
+            case 'url':
+                return $this->scheme . '://' . $this->host . $this->requestUri;
+                break;
+            case 'path':
+                return parse_url($this->url, PHP_URL_PATH);
+                break;
+            case 'query':
+                return parse_url($this->url, PHP_URL_QUERY);
                 break;
             default:
                 return parent::__get($var);
@@ -78,27 +115,16 @@ class Controller_Frontend extends Abstract_Controller
      */
     public function checkStdRedirects()
     {
-        if ($_SERVER['REQUEST_URI'] == '/robots.txt') {
+        if ($this->requestUri == '/robots.txt') {
             $_SERVER['REQUEST_URI'] = '/robots/';
-        } elseif ($_SERVER['REQUEST_URI'] == '/custom.css') {
+        } elseif ($this->requestUri == '/custom.css') {
             $_SERVER['REQUEST_URI'] = '/custom_css/';
-        } elseif ($_SERVER['REQUEST_URI'] == '/sitemap.xml') {
+        } elseif ($this->requestUri == '/sitemap.xml') {
             $_SERVER['REQUEST_URI'] = '/sitemaps/';
-        } elseif ($_SERVER['REQUEST_URI'] == '/sitemaps.xml') {
-            header("HTTP/1.1 301 Moved Permanently");
-            header('Location: http://' . $_SERVER['HTTP_HOST'] . '/sitemap.xml');
-            exit;
         } else {
-            $temp = parse_url($_SERVER['REQUEST_URI']);
-            if (preg_match('/[^\\/]$/i', $temp['path']) &&
-                !stristr(basename($temp['path']), '.')
-            ) {
-                $newUrl = 'http://' . $_SERVER['HTTP_HOST']
-                        . str_replace(
-                            $temp['path'],
-                            $temp['path'] . '/',
-                            $_SERVER['REQUEST_URI']
-                        );
+            $oldUrl = $this->url;
+            $newUrl = Redirect::processAll($oldUrl);
+            if ($newUrl != $oldUrl) {
                 header("HTTP/1.1 301 Moved Permanently");
                 header('Location: ' . $newUrl);
                 exit;
@@ -109,9 +135,8 @@ class Controller_Frontend extends Abstract_Controller
 
     public function run()
     {
-        $this->checkStdRedirects();
         if (!$this->getCache()) {
-            $p = pathinfo($_SERVER['REQUEST_URI']);
+            $p = pathinfo($this->requestUri);
             if (preg_match(
                 '/(\\.(\\d+|auto)x(\\d+|auto)(_(\\w+))?)(\\.|$)/i',
                 $p['basename'],
@@ -122,6 +147,7 @@ class Controller_Frontend extends Abstract_Controller
             if ($this->checkCompatibility()) {
                 if ($this->checkDB()) {
                     if ($this->checkSOME()) {
+                        $this->checkStdRedirects();
                         if ((int)$this->model->registryGet('clear_cache_by_time')) {
                             $this->model->clearCache(false);
                         }
@@ -203,12 +229,11 @@ class Controller_Frontend extends Abstract_Controller
 
     protected function fork()
     {
-        $url = parse_url($_SERVER['REQUEST_URI']);
+        $url = parse_url($this->requestUri);
         $url = $url['path'];
         $url = str_replace('\\', '/', $url);
         $Page = $originalPage = Page::importByURL(
-            'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' .
-            $_SERVER['HTTP_HOST'] . $url
+            $this->scheme . '://' . $this->host . $url
         );
         $doCache = (bool)(int)$Page->cache;
         $Page->initialURL = $url;
@@ -245,7 +270,7 @@ class Controller_Frontend extends Abstract_Controller
         $content = CMSPackage::processInternalLinks($content, $Page);
         echo $content;
 
-        if ($Page->cache && ($_SERVER['REQUEST_METHOD'] == 'GET')) {
+        if ($Page->cache && ($this->requestMethod == 'get')) {
             $headers = (array)headers_list();
             if (($status1 = array_filter($headers, function ($x) {
                 return stristr($x, 'Status:');
@@ -363,8 +388,7 @@ class Controller_Frontend extends Abstract_Controller
         if (!is_dir($this->model->cacheDir)) {
             @mkdir($this->model->cacheDir, 0777, true);
         }
-        $filename = $this->model->cachePrefix . $prefix . '.'
-                  . urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        $filename = $this->model->cachePrefix . $prefix . '.' . urlencode($this->url);
         $replace = [];
         // 2015-11-23, AVS: заменил, т.к. в кэше меню <?php так же заменяется
         // и глючит
@@ -376,7 +400,7 @@ class Controller_Frontend extends Abstract_Controller
         $text = '<' . "?php\n"
               . "/**\n"
               . " * Файл кэша страницы\n"
-              . " * " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . "\n"
+              . " * " . $this->url . "\n"
               . " * Создан: " . date('Y-m-d H:i:s') . "\n"
               . " * IP-адрес: " . $_SERVER['REMOTE_ADDR'] . "\n"
               . " * User-Agent: " . $_SERVER['HTTP_USER_AGENT'] . "\n";
@@ -415,7 +439,7 @@ class Controller_Frontend extends Abstract_Controller
         $width = ($regs[2] != 'auto') ? (int)$regs[2] : null;
         $height = ($regs[3] != 'auto') ? (int)$regs[3] : null;
         $mode = $regs[5];
-        $originalFile = str_replace($regs[1], '', $_SERVER['REQUEST_URI']);
+        $originalFile = str_replace($regs[1], '', $this->requestUri);
         $originalFile = ltrim($originalFile, '/');
         $originalFile = rtrim($originalFile, '.');
         if (is_file($originalFile)) {
@@ -475,12 +499,10 @@ class Controller_Frontend extends Abstract_Controller
      */
     protected function getCache()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            if ($f = glob(
-                $this->model->cacheDir . '/' . $this->model->cachePrefix . '.' .
-                urlencode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) .
-                '.php'
-            )) {
+        if ($this->requestMethod == 'get') {
+            $filename = $this->model->cacheDir . '/' . $this->model->cachePrefix
+                      . '.' . urlencode($this->url) . '.php';
+            if ($f = glob($filename)) {
                 include $f[0];
                 $this->outputDebug();
                 exit;

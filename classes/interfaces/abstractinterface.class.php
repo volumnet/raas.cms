@@ -125,7 +125,7 @@ abstract class AbstractInterface
      */
     public function isHTTPS()
     {
-        return (bool)$this->server['HTTPS'];
+        return (mb_strtolower($this->server['HTTPS']) == 'on');
     }
 
 

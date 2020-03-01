@@ -436,6 +436,16 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
   INDEX cache_url (cache_url)
 ) COMMENT='Site pages';
 
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_redirects (
+  id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+  rx tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'RegExp',
+  url_from varchar(255) NOT NULL DEFAULT '' COMMENT 'URL from',
+  url_to varchar(255) NOT NULL DEFAULT '' COMMENT 'URL to',
+  priority int unsigned NOT NULL DEFAULT 0 COMMENT 'Priority',
+  PRIMARY KEY (id),
+  KEY url_from (url_from)
+) COMMENT='Redirects';
+
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippets (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent ID#',

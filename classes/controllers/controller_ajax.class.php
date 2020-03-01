@@ -5,6 +5,7 @@
 namespace RAAS\CMS;
 
 use SOME\Text;
+use RAAS\Controller_Frontend;
 
 /**
  * Класс контроллера AJAX
@@ -289,11 +290,9 @@ class Controller_Ajax extends Abstract_Controller
         }
         $url = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH);
         $url = str_replace('\\', '/', $url);
-        $page = Page::importByURL(
-            'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' .
-            $_SERVER['HTTP_HOST'] . $url
-        );
-        $host = 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . "://" . $_SERVER['HTTP_HOST'];
+        $host = Controller_Frontend::i()->scheme . '://' .
+                Controller_Frontend::i()->host;
+        $page = Page::importByURL($host . $url);
         $page->initialURL = $url;
         $material = Material::importByURN($page->additionalURLArray[0]);
         if ($page->id) {

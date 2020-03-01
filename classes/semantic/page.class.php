@@ -320,13 +320,16 @@ class Page extends SOME
                 return $this->locationBlocksText;
                 break;
             case 'cacheFile':
+                $url = 'http'
+                     . (mb_strtolower($_SERVER['HTTPS'] == 'on') ? 's' : '')
+                     . '://';
                 if (preg_match(
                     '/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i',
                     $this->Domain->urn
                 )) {
-                    $url = $_SERVER['HTTP_HOST'];
+                    $url .= $_SERVER['HTTP_HOST'];
                 } else {
-                    $url = preg_replace(
+                    $url .= preg_replace(
                         '/^http(s)?:\\/\\//umi',
                         '',
                         $this->domain

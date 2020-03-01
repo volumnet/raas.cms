@@ -294,6 +294,9 @@ class Sub_Dev extends RAASAbstractSubController
             case 'copy_form':
                 $this->copyForm();
                 break;
+            case 'redirects':
+                $this->redirects();
+                break;
             default:
                 $this->view->dev();
                 break;
@@ -793,5 +796,16 @@ class Sub_Dev extends RAASAbstractSubController
         $to = date('Y-m-d', ($tTo > 0) ? $tTo : time());
         $Item = Diag::getMerged($from, $to);
         $this->view->diag(['Item' => $Item, 'from' => $from, 'to' => $to]);
+    }
+
+
+    /**
+     * Редиректы
+     */
+    protected function redirects()
+    {
+        $set = Redirect::getSet();
+        $form = new RedirectsForm(['Set' => $set]);
+        $this->view->redirects($form->process());
     }
 }

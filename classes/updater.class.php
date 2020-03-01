@@ -37,6 +37,7 @@ class Updater extends RAASUpdater
         $this->update20190403();
         $this->update20190423();
         $this->update20190607();
+        $this->update20200301();
     }
 
 
@@ -1734,6 +1735,35 @@ class Updater extends RAASUpdater
             Material_Type::updateAffectedPagesForMaterials();
             Material_Type::updateAffectedPagesForSelf();
             Material::updateAffectedPages();
+        }
+    }
+
+
+    /**
+     * Добавим таблицу редиректов
+     */
+    public function update20200301()
+    {
+        if (!in_array(SOME::_dbprefix() . "cms_redirects", $this->tables)) {
+            $sqlQuery = "CREATE TABLE IF NOT EXISTS " . SOME::_dbprefix() . "cms_redirects (
+                           id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+                           rx tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'RegExp',
+                           url_from varchar(255) NOT NULL DEFAULT '' COMMENT 'URL from',
+                           url_to varchar(255) NOT NULL DEFAULT '' COMMENT 'URL to',
+                           priority int unsigned NOT NULL DEFAULT 0 COMMENT 'Priority',
+                           PRIMARY KEY (id),
+                           KEY url_from (url_from)
+                         ) COMMENT='Redirects';";
+            $this->SQL->query($sqlQuery);
+            $this->SQL->add(
+                SOME::_dbprefix() . 'cms_redirects',
+                [
+                    'rx' => 0,
+                    'url_from' => '/sitemaps.xml',
+                    'url_to' => '/sitemap.xml',
+                    'priority' => 0,
+                ]
+            );
         }
     }
 }
