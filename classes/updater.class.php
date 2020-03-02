@@ -1764,6 +1764,15 @@ class Updater extends RAASUpdater
                     'priority' => 0,
                 ]
             );
+            $this->SQL->add(
+                SOME::_dbprefix() . 'cms_redirects',
+                [
+                    'rx' => 0,
+                    'url_from' => '/www.',
+                    'url_to' => '/',
+                    'priority' => 0,
+                ]
+            );
         }
     }
 }
