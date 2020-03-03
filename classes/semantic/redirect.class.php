@@ -124,7 +124,6 @@ class Redirect extends SOME
         $url = preg_replace_callback('/\\/[^\\?]+\\//umis', function ($matches) {
             return mb_strtolower($matches[0]);
         }, $url);
-        var_dump($url); exit;
         return $url;
     }
 }
