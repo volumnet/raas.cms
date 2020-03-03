@@ -113,9 +113,6 @@ class Redirect extends SOME
      */
     public static function checkStdRedirects($url)
     {
-        $urlArray = explode('?', $url);
-        $urlArray[0] = mb_strtolower($urlArray[0]);
-        $url = implode('?', $urlArray);
         $url = trim($url);
         $url = str_replace('\\', '/', $url);
         $temp = parse_url($url);
@@ -124,6 +121,9 @@ class Redirect extends SOME
         ) {
             $url = str_replace($temp['path'], $temp['path'] . '/', $url);
         }
+        $url = preg_replace_callback('/\\/.*\\//umis', function ($matches) {
+            return mb_strtolower($matches[0]);
+        }, $url);
         return $url;
     }
 }
