@@ -315,19 +315,17 @@ class Controller_Frontend extends Abstract_Controller
     protected function outputDebug()
     {
         if ($_SESSION['login']) {
-            $headers = array_values(
+            $nonHtmlContentTypeHeaders = array_values(
                 array_filter(
                     (array)headers_list(),
                     function ($x) {
-                        return stristr($x, 'Content-Type');
+                        return stristr($x, 'Content-Type') &&
+                               !stristr($x, 'text/html');
                     }
                 )
             );
-            if ($headers) {
-                $header = $headers[count($headers) - 1];
-                if (preg_match('/text\\/html/umi', $header)) {
-                    echo '<script src="/admin/ajax.php?p=cms&action=debug_page&v=' . date('Y-m-d-H-i-s') . '"></script>';
-                }
+            if (!$nonHtmlContentTypeHeaders) {
+                echo '<script src="/admin/ajax.php?p=cms&action=debug_page&v=' . date('Y-m-d-H-i-s') . '"></script>';
             }
         }
     }
