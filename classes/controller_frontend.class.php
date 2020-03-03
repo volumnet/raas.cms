@@ -57,7 +57,8 @@ class Controller_Frontend extends Abstract_Controller
                 return $this->diag;
                 break;
             case 'isHTTPS':
-                return (mb_strtolower($_SERVER['HTTPS']) == 'on');
+                return (mb_strtolower($_SERVER['HTTPS']) == 'on') ||
+                       (mb_strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
                 break;
             case 'scheme':
                 return 'http' . ($this->isHTTPS ? 's' : '');
