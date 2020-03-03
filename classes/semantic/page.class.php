@@ -819,13 +819,18 @@ class Page extends SOME
      */
     public function clearCache()
     {
-        $globUrl = $this->cacheFile;
+        $globUrl = $anyProtocolCachesGlob = $this->cacheFile;
+        $anyProtocolCachesGlob = str_ireplace(urlencode('http:'), '*', $anyProtocolCachesGlob);
+        $anyProtocolCachesGlob = str_ireplace(urlencode('https:'), '*', $anyProtocolCachesGlob);
         $globUrl = preg_replace(
             '/\\.php$/umi',
             urlencode('?') . '*.php',
             $globUrl
         );
-        @unlink($this->cacheFile);
+        $glob = glob($anyProtocolCachesGlob);
+        foreach ($glob as $file) {
+            @unlink($file);
+        }
         $glob = glob($globUrl);
         foreach ($glob as $file) {
             @unlink($file);
