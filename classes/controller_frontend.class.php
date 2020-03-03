@@ -501,10 +501,12 @@ class Controller_Frontend extends Abstract_Controller
         if ($this->requestMethod == 'get') {
             $filename = $this->model->cacheDir . '/' . $this->model->cachePrefix
                       . '.' . urlencode($this->url) . '.php';
-            if ($f = glob($filename)) {
-                include $f[0];
-                $this->outputDebug();
-                exit;
+            if (strlen($filename) < 256) {
+                if ($f = glob($filename)) {
+                    include $f[0];
+                    $this->outputDebug();
+                    exit;
+                }
             }
         }
         return false;
