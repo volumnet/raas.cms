@@ -379,7 +379,17 @@ class FormInterface extends AbstractInterface
             Feedback::delete($feedback);
             $feedback = null;
         }
-        return ['Item' => $feedback, 'Material' => $material];
+        $result = [];
+        // 2020-03-10, AVS: сделал условие для добавления в результат, чтобы
+        // null не перекрывал стандартное значение $result['Item'], т.к. оно
+        // используется для проверки AJAX-версии формы
+        if ($feedback) {
+            $result['Item'] = $feedback;
+        }
+        if ($material) {
+            $result['Material'] = $material;
+        }
+        return $result;
     }
 
 
