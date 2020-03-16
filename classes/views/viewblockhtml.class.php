@@ -11,9 +11,9 @@ class ViewBlockHTML extends ViewBlock
 {
     const blockListItemClass = 'cms-block-html';
 
-    public function renderLegend()
+    public function renderBlockTypeName()
     {
-        return parent::renderLegend($this->view->_('BLOCK_LEGEND_HTML'));
+        return $this->view->_('BLOCK_LEGEND_HTML');
     }
 
 

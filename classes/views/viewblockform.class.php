@@ -11,9 +11,9 @@ class ViewBlockForm extends ViewBlock
 {
     const blockListItemClass = 'cms-block-form';
 
-    public function renderLegend()
+    public function renderBlockTypeName()
     {
-        return parent::renderLegend($this->view->_('BLOCK_LEGEND_FORM'));
+        return $this->view->_('BLOCK_LEGEND_FORM');
     }
 
 

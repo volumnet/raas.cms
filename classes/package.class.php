@@ -1002,7 +1002,10 @@ class Package extends RAASPackage
 
     public function install()
     {
-        if (!$this->registryGet('installDate')) {
+        if (!$this->registryGet('installDate') ||
+            !$this->registryGet('baseVersion') ||
+            ($this->registryGet('baseVersion') != $this->version)
+        ) {
             if (!$this->registryGet('tnsize')) {
                 $this->registrySet('tnsize', 300);
             }

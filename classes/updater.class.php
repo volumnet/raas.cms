@@ -16,28 +16,33 @@ class Updater extends RAASUpdater
 {
     public function preInstall()
     {
-        $this->oldUpdates();
-        $this->update20140202();
-        $this->update20140202_2();
-        $this->update20140619();
-        $this->update20140706();
-        $this->update20140717();
-        $this->update20140910();
-        $this->update20141104();
-        $this->update20141222();
-        $this->update20150125();
-        $this->update20150301();
-        $this->update20150504();
-        $this->update20150610();
-        $this->update20150617();
-        $this->update20151129();
-        $this->update20170305();
-        $this->update20190123();
-        $this->update20190317();
-        $this->update20190403();
-        $this->update20190423();
-        $this->update20190607();
-        $this->update20200301();
+        if (version_compare(
+            $this->Context->registryGet('baseVersion'),
+            '4.2.45'
+        ) < 0) {
+            $this->oldUpdates();
+            $this->update20140202();
+            $this->update20140202_2();
+            $this->update20140619();
+            $this->update20140706();
+            $this->update20140717();
+            $this->update20140910();
+            $this->update20141104();
+            $this->update20141222();
+            $this->update20150125();
+            $this->update20150301();
+            $this->update20150504();
+            $this->update20150610();
+            $this->update20150617();
+            $this->update20151129();
+            $this->update20170305();
+            $this->update20190123();
+            $this->update20190317();
+            $this->update20190403();
+            $this->update20190423();
+            $this->update20190607();
+            $this->update20200301();
+        }
     }
 
 

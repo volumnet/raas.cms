@@ -93,13 +93,30 @@ abstract class ViewBlock
 
 
     /**
+     * Получает название типа блока
+     * @return string
+     */
+    public function renderBlockTypeName()
+    {
+        return $this->view->_('BLOCK');
+    }
+
+
+    /**
      * Получает HTML-представление легенды блока
-     * @param string|null $name Наименование типа блока
+     * @param Block_Type|string|null $name Наименование типа блока
      * @return string
      */
     public function renderLegend()
     {
-        $name = func_get_arg(0);
+        $arg = func_get_arg(0);
+        if ($arg instanceof Block_Type) {
+            $name = $arg->viewer->renderBlockTypeName();
+        } elseif ($arg instanceof self) {
+            $name = $this->renderBlockTypeName();
+        } elseif (!is_object($arg)) {
+            $name = trim($arg);
+        }
         return '<div class="well well-small cms-block ' . static::blockListItemClass . '">
                   <span class="cms-block-name">' .
                     $name .

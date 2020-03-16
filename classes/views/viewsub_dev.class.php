@@ -55,6 +55,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         }
         $this->contextmenu = $this->getDictionaryContextMenu($in['Item']);
         $this->template = $in['Table']->template;
+        $this->subtitle = $this->getDictionarySubtitle($in['Item']);
     }
 
 
@@ -98,6 +99,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             ];
         }
         $this->stdView->stdEdit($in, 'getDictionaryContextMenu');
+        $this->subtitle = $this->getDictionarySubtitle($in['Item']);
     }
 
 
@@ -158,6 +160,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         }
         $this->title = $this->_('MOVING_NOTE');
         $this->template = 'dev_move_dictionary';
+        $this->subtitle = $this->getDictionarySubtitle($in['Item']);
     }
 
 
@@ -227,6 +230,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         }
         $this->contextmenu = $this->getMenuContextMenu($in['Item']);
         $this->template = 'dev_menus';
+        $this->subtitle = $this->getMenuSubtitle($in['Item']);
     }
 
 
@@ -268,6 +272,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             ];
         }
         $this->stdView->stdEdit($in, 'getMenuContextMenu');
+        $this->subtitle = $this->getMenuSubtitle($in['Item']);
     }
 
 
@@ -326,6 +331,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         }
         $this->title = $this->_('MOVING_NOTE');
         $this->template = 'dev_move_menu';
+        $this->subtitle = $this->getMenuSubtitle($in['Item']);
     }
 
 
@@ -410,6 +416,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=templates'
         ];
         $this->stdView->stdEdit($in, 'getTemplateContextMenu');
+        $this->subtitle = $this->getTemplateSubtitle($in['Item']);
     }
 
 
@@ -467,6 +474,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=snippets'
         ];
         $this->stdView->stdEdit($in, 'getSnippetFolderContextMenu');
+        $this->subtitle = $this->getSnippetFolderSubtitle($in['Item']);
     }
 
 
@@ -493,6 +501,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=snippets'
         ];
         $this->stdView->stdEdit($in, 'getSnippetContextMenu');
+        $this->subtitle = $this->getSnippetSubtitle($in['Item']);
     }
 
 
@@ -580,6 +589,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             ];
         }
         $this->contextmenu = $this->getMaterialTypeContextMenu($in['Item']);
+        $this->subtitle = $this->getMaterialTypeSubtitle($in['Item']);
     }
 
 
@@ -624,6 +634,7 @@ class ViewSub_Dev extends RAASAbstractSubView
                    .  (int)$in['Parent']->id
         ];
         $this->stdView->stdEdit($in, 'getMaterialFieldContextMenu');
+        $this->subtitle = $this->getFieldSubtitle($in['Item']);
     }
 
 
@@ -665,11 +676,11 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=material_types',
             'name' => $this->_('MATERIAL_TYPES')
         ];
-        if ($in['Item']->Owner->id) {
+        if ($in['Item']->parent->id) {
             $this->path[] = [
                 'href' => $this->url . '&action=edit_material_type&id='
-                       .  (int)$in['Item']->Owner->id,
-                'name' => $in['Item']->Owner->name
+                       .  (int)$in['Item']->parent->id,
+                'name' => $in['Item']->parent->name
             ];
         }
         $this->path[] = [
@@ -682,6 +693,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         }
         $this->title = $this->_('MOVING_NOTE');
         $this->template = 'dev_move_material_field';
+        $this->subtitle = $this->getFieldSubtitle($in['Item']);
     }
 
 
@@ -748,6 +760,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=forms'
         ];
         $this->contextmenu = $this->getFormContextMenu($in['Item']);
+        $this->subtitle = $this->getFormSubtitle($in['Item']);
     }
 
 
@@ -785,6 +798,7 @@ class ViewSub_Dev extends RAASAbstractSubView
                    .  (int)$in['Parent']->id
         ];
         $this->stdView->stdEdit($in, 'getFormFieldContextMenu');
+        $this->subtitle = $this->getFieldSubtitle($in['Item']);
     }
 
 
@@ -844,6 +858,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=pages_fields'
         ];
         $this->stdView->stdEdit($in, 'getPageFieldContextMenu');
+        $this->subtitle = $this->getFieldSubtitle($in['Item']);
     }
 
 
@@ -1982,5 +1997,143 @@ class ViewSub_Dev extends RAASAbstractSubView
                       .  '\')'
         ];
         return $arr;
+    }
+
+
+    /**
+     * Получает подзаголовок шаблона
+     * @param Template $template Шаблон для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getTemplateSubtitle(Template $template)
+    {
+        $subtitleArr = [];
+        if ($template->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$template->id;
+            return implode('; ', $subtitleArr);
+        }
+        return '';
+    }
+
+
+    /**
+     * Получает подзаголовок справочника
+     * @param Dictionary $dictionary Справочник для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getDictionarySubtitle(Dictionary $dictionary)
+    {
+        $subtitleArr = [];
+        if ($dictionary->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$dictionary->id;
+            $subtitleArr[] = $this->_('URN') . ': ' . htmlspecialchars($dictionary->urn);
+            return implode('; ', $subtitleArr);
+        }
+        return '';
+    }
+
+
+    /**
+     * Получает подзаголовок папки сниппетов
+     * @param Snippet_Folder $snippetFolder Папка для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getSnippetFolderSubtitle(Snippet_Folder $snippetFolder)
+    {
+        $subtitleArr = [];
+        if ($snippetFolder->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$snippetFolder->id;
+            return implode('; ', $subtitleArr);
+        }
+        return '';
+    }
+
+
+    /**
+     * Получает подзаголовок сниппета
+     * @param Snippet $snippet Сниппет для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getSnippetSubtitle(Snippet $snippet)
+    {
+        $subtitleArr = [];
+        if ($snippet->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$snippet->id;
+            return implode('; ', $subtitleArr);
+        }
+        return '';
+    }
+
+
+    /**
+     * Получает подзаголовок типа материалов
+     * @param Material_Type $materialType Тип материалов для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getMaterialTypeSubtitle(Material_Type $materialType)
+    {
+        $subtitleArr = [];
+        if ($materialType->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$materialType->id;
+            return implode('; ', $subtitleArr);
+        }
+        return '';
+    }
+
+
+    /**
+     * Получает подзаголовок поля
+     * @param Field $field Поле для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getFieldSubtitle(Field $field)
+    {
+        $subtitleArr = [];
+        if ($field->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$field->id;
+            return implode('; ', $subtitleArr);
+        }
+        return '';
+    }
+
+
+    /**
+     * Получает подзаголовок формы
+     * @param Form $form Форма для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getFormSubtitle(Form $form)
+    {
+        $subtitleArr = [];
+        if ($form->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$form->id;
+            return implode('; ', $subtitleArr);
+        }
+        return '';
+    }
+
+
+    /**
+     * Получает подзаголовок меню
+     * @param Form $menu Меню для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getMenuSubtitle(Menu $menu)
+    {
+        $subtitleArr = [];
+        if ($menu->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$menu->id;
+            if ($menu->urn) {
+                $subtitleArr[] = $this->_('URN') . ': ' . htmlspecialchars($menu->urn);
+            }
+            if ($menu->url) {
+                $subtitleArr[] = $this->_('URL') . ': '
+                               . '<a href="' . htmlspecialchars($menu->url) . '" target="_blank">'
+                               .    htmlspecialchars($menu->url)
+                               . '</a>';
+            }
+            return implode('; ', $subtitleArr);
+        }
+        return '';
     }
 }

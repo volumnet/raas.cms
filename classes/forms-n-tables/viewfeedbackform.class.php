@@ -31,7 +31,7 @@ class ViewFeedbackForm extends RAASForm
     public function __construct(array $params = [])
     {
         $view = $this->view;
-        $defaultParams = $this->getParams();
+        $defaultParams = $this->getParams($params);
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
         $this->__set('children', $this->getChildren());
@@ -40,15 +40,16 @@ class ViewFeedbackForm extends RAASForm
 
     /**
      * Получает параметры для конструктора формы
+     * @param array $params Входные параметры
      * @return [
      *             'caption' => string Заголовок формы,
      *             'template' => string Шаблон формы
      *         ]
      */
-    protected function getParams()
+    protected function getParams(array $params = [])
     {
         $arr = [];
-        $arr['caption'] = $this->view->_('FEEDBACK');
+        $arr['caption'] = sprintf($this->view->_('FEEDBACK_N'), (int)$params['Item']->id);
         $arr['template'] = 'cms/feedback_view';
         return $arr;
     }

@@ -66,6 +66,7 @@ class ViewSub_Main extends RAASAbstractSubView
 
         $this->assignVars($IN);
         $this->title = $IN['Item']->id ? $IN['Item']->name : $this->_('SITES');
+        $this->subtitle = $this->getPageSubtitle($IN['Item']);
         if ($IN['Item']->id) {
             $this->path[] = ['href' => $this->url, 'name' => $this->_('PAGES')];
             if ($IN['Item']->parents) {
@@ -137,6 +138,7 @@ class ViewSub_Main extends RAASAbstractSubView
         $this->js[] = $this->publicURL . '/edit_meta.inc.js';
         $this->js[] = $this->publicURL . '/edit_page.js';
         $this->stdView->stdEdit($IN, 'getPageContextMenu');
+        $this->subtitle = $this->getPageSubtitle($IN['Item']);
     }
 
 
@@ -198,6 +200,7 @@ class ViewSub_Main extends RAASAbstractSubView
         }
         $this->title = $this->_('MOVING_PAGE');
         $this->template = 'move_page';
+        $this->subtitle = $this->getPageSubtitle($IN['Item']);
     }
 
 
@@ -238,6 +241,7 @@ class ViewSub_Main extends RAASAbstractSubView
             $IN['Parent']
         );
         $this->stdView->stdEdit($IN);
+        $this->subtitle = $this->getBlockSubtitle($IN['Item']);
     }
 
 
@@ -279,6 +283,7 @@ class ViewSub_Main extends RAASAbstractSubView
         $this->js[] = $this->publicURL . '/edit_material.js';
         $this->js[] = $this->publicURL . '/edit_meta.inc.js';
         $this->stdView->stdEdit($IN, 'getMaterialContextMenu');
+        $this->subtitle = $this->getMaterialSubtitle($IN['Item']);
     }
 
 
@@ -325,6 +330,7 @@ class ViewSub_Main extends RAASAbstractSubView
         }
         $this->title = $this->_('MOVING_MATERIAL');
         $this->template = 'move_material';
+        $this->subtitle = $this->getMaterialSubtitle($IN['Item']);
     }
 
 
@@ -821,5 +827,72 @@ class ViewSub_Main extends RAASAbstractSubView
             $menu[] = $temp;
         }
         return $menu;
+    }
+
+
+    /**
+     * Получает подзаголовок страницы
+     * @param Page $page Страница для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getPageSubtitle(Page $page)
+    {
+        $subtitleArr = [];
+        if ($page->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$page->id;
+            $subtitleArr[] = $this->_('URL') . ': '
+                           . '<a href="' . htmlspecialchars($page->url) . '" target="_blank">'
+                           .    htmlspecialchars($page->url)
+                           . '</a>';
+            return implode('; ', $subtitleArr);
+        }
+        return '';
+    }
+
+
+    /**
+     * Получает подзаголовок материала
+     * @param Material $item Материал для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getMaterialSubtitle(Material $item)
+    {
+        $subtitleArr = [];
+        if ($item->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$item->id;
+            $subtitleArr[] = $this->_('MATERIAL_TYPE') . ': '
+                           . '<a href="' . htmlspecialchars(Sub_Dev::i()->url) . '&action=edit_material_type&id=' . (int)$item->pid . '" target="_blank">'
+                           .    htmlspecialchars($item->material_type->name)
+                           . '</a>';
+            if ($item->url) {
+                $subtitleArr[] = $this->_('URL') . ': '
+                               . '<a href="' . htmlspecialchars($item->url) . '" target="_blank">'
+                               .    htmlspecialchars($item->url)
+                               . '</a>';
+            }
+            return implode('; ', $subtitleArr);
+        }
+        return '';
+    }
+
+
+    /**
+     * Получает подзаголовок блока
+     * @param Block $block Блок для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getBlockSubtitle(Block $block)
+    {
+        $subtitleArr = [];
+        if ($block->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$block->id;
+            if ($blockType = Block_Type::getType($block->block_type)) {
+                if ($blockRenderer = $blockType->viewer) {
+                    $subtitleArr[] = $this->_('BLOCK_TYPE') .  ': ' . htmlspecialchars($blockRenderer->renderBlockTypeName());
+                }
+            }
+            return implode('; ', $subtitleArr);
+        }
+        return '';
     }
 }

@@ -11,9 +11,9 @@ class ViewBlockMenu extends ViewBlock
 {
     const blockListItemClass = 'cms-block-menu';
 
-    public function renderLegend()
+    public function renderBlockTypeName()
     {
-        return parent::renderLegend($this->view->_('BLOCK_LEGEND_MENU'));
+        return $this->view->_('BLOCK_LEGEND_MENU');
     }
 
 

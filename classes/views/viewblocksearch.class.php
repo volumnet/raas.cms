@@ -11,9 +11,9 @@ class ViewBlockSearch extends ViewBlock
 {
     const blockListItemClass = 'cms-block-search';
 
-    public function renderLegend()
+    public function renderBlockTypeName()
     {
-        return parent::renderLegend($this->view->_('BLOCK_LEGEND_SEARCH'));
+        return $this->view->_('BLOCK_LEGEND_SEARCH');
     }
 
 

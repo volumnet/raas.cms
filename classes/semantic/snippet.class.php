@@ -16,7 +16,7 @@ class Snippet extends SOME
 
     protected static $tablename = 'cms_snippets';
 
-    protected static $defaultOrderBy = "urn";
+    protected static $defaultOrderBy = "name";
 
     protected static $references = [
         'parent' => [

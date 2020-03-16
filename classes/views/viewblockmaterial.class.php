@@ -11,9 +11,9 @@ class ViewBlockMaterial extends ViewBlock
 {
     const blockListItemClass = 'cms-block-material';
 
-    public function renderLegend()
+    public function renderBlockTypeName()
     {
-        return parent::renderLegend($this->view->_('BLOCK_LEGEND_MATERIAL'));
+        return $this->view->_('BLOCK_LEGEND_MATERIAL');
     }
 
 

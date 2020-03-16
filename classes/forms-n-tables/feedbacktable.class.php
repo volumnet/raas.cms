@@ -28,6 +28,14 @@ class FeedbackTable extends Table
     {
         $view = $this->view;
         $columns = [];
+        $columns['id'] = [
+            'caption' => $this->view->_('ID'),
+            'callback' => function ($row) use ($view) {
+                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' .
+                          (int)$row->id .
+                       '</a>';
+            }
+        ];
         $columns['post_date'] = [
             'caption' => $this->view->_('POST_DATE'),
             'callback' => function ($row) use ($view) {
