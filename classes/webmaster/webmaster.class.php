@@ -1690,28 +1690,35 @@ class Webmaster
         $temp = Snippet::importByURN('search');
         if (!$temp->id) {
             $f = Package::i()->resourcesDir . '/search.tmp.php';
-            $S = new Snippet([
-                'name' => $name,
-                'urn' => 'search',
-                'pid' => $this->widgetsFolder->id,
-                'description' => file_get_contents($f),
-            ]);
-            $S->commit();
+            $this->createSnippet(
+                'search',
+                View_Web::i()->_('SITE_SEARCH'),
+                $this->widgetsFolder->id,
+                Package::i()->resourcesDir . '/widgets/search/search.tmp.php',
+                [
+                    'WIDGET_NAME' => View_Web::i()->_('SITE_SEARCH'),
+                    'WIDGET_URN' => 'search',
+                    'WIDGET_CSS_CLASSNAME' => 'search'
+                ]
+            );
         }
 
         $temp = Snippet::importByURN('search_form');
         if (!$temp->id) {
             $f = Package::i()->resourcesDir . '/search_form.tmp.php';
-            $S = new Snippet([
-                'name' => View_Web::i()->_('SEARCH_FORM'),
-                'urn' => 'search_form',
-                'pid' => $this->widgetsFolder->id,
-                'description' => file_get_contents($f),
-            ]);
-            $S->commit();
-            $B = new Block_PHP();
+            $this->createSnippet(
+                'search_form',
+                View_Web::i()->_('SEARCH_FORM'),
+                $this->widgetsFolder->id,
+                Package::i()->resourcesDir . '/widgets/search/search_form.tmp.php',
+                [
+                    'WIDGET_NAME' => View_Web::i()->_('SEARCH_FORM'),
+                    'WIDGET_URN' => 'search_form',
+                    'WIDGET_CSS_CLASSNAME' => 'search-form'
+                ]
+            );
             $this->createBlock(
-                $B,
+                new Block_PHP(),
                 'search_form',
                 '',
                 'search_form',
@@ -1730,14 +1737,13 @@ class Webmaster
                 ['name' => $name, 'urn' => 'search', 'response_code' => 200],
                 $this->Site
             );
-            $B = new Block_Search([
-                'search_var_name' => 'search_string',
-                'min_length' => 3,
-                'pages_var_name' => 'page',
-                'rows_per_page' => 20,
-            ]);
             $this->createBlock(
-                $B,
+                new Block_Search([
+                    'search_var_name' => 'search_string',
+                    'min_length' => 3,
+                    'pages_var_name' => 'page',
+                    'rows_per_page' => 20,
+                ]),
                 'content',
                 '__raas_search_interface',
                 'search',

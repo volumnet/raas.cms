@@ -49,7 +49,7 @@ class EditPageForm extends RAASForm
 
         $tabs = [];
         $tabs['common'] = $this->getCommonTab($Item, $Parent);
-        $tabs['seo'] = $this->getSeoTab($Parent);
+        $tabs['seo'] = $this->getSeoTab($Parent, $Item);
         if (isset(Application::i()->packages['cms']->modules['users'])) {
             $tabs['access'] = new CMSAccessFormTab($params);
         }
@@ -141,9 +141,10 @@ class EditPageForm extends RAASForm
     /**
      * Получает вкладку "Продвижение"
      * @param Page $parent Родительская страница
+     * @param Page $item Текущая страница
      * @return FormTab
      */
-    private function getSeoTab(Page $parent)
+    private function getSeoTab(Page $parent, Page $item = null)
     {
         $seoTab = new FormTab(
             [
@@ -159,6 +160,7 @@ class EditPageForm extends RAASForm
                     'name' => 'meta_title',
                     'class' => 'span5',
                     'caption' => $this->view->_(strtoupper('meta_title')),
+                    'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
                     'data-hint' => sprintf(
                         $this->view->_('META_TITLE_RECOMMENDED_LIMIT'),
                         SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
@@ -233,19 +235,19 @@ class EditPageForm extends RAASForm
         $seoTab->children[] = [
             'name' => 'h1',
             'caption' => $this->view->_('H1'),
-            'placeholder' => $this->view->_('FROM_NAME'),
+            'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
             'class' => 'span5'
         ];
         $seoTab->children[] = [
             'name' => 'menu_name',
             'caption' => $this->view->_('MENU_NAME'),
-            'placeholder' => $this->view->_('FROM_NAME'),
+            'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
             'class' => 'span5'
         ];
         $seoTab->children[] = [
             'name' => 'breadcrumbs_name',
             'caption' => $this->view->_('BREADCRUMBS_NAME'),
-            'placeholder' => $this->view->_('FROM_NAME'),
+            'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
             'class' => 'span5'
         ];
 

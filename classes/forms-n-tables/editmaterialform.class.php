@@ -46,7 +46,7 @@ class EditMaterialForm extends \RAAS\Form
 
         $tabs = [];
         $tabs['common'] = $this->getCommonTab($Item, $Type);
-        $tabs['seo'] = $this->getSeoTab();
+        $tabs['seo'] = $this->getSeoTab($Item);
         if (isset(Application::i()->packages['cms']->modules['users'])) {
             $tabs['access'] = new CMSAccessFormTab($params);
         }
@@ -142,9 +142,10 @@ class EditMaterialForm extends \RAAS\Form
 
     /**
      * Получает вкладку "Продвижение"
+     * @param Material $item Текущий материал
      * @return FormTab
      */
-    protected function getSeoTab()
+    protected function getSeoTab(Material $item = null)
     {
         $seoTab = new FormTab([
             'name' => 'seo',
@@ -159,6 +160,7 @@ class EditMaterialForm extends \RAAS\Form
                     'name' => 'meta_title',
                     'class' => 'span5',
                     'caption' => $this->view->_('META_TITLE'),
+                    'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
                     'data-hint' => sprintf(
                         $this->view->_('META_TITLE_RECOMMENDED_LIMIT'),
                         SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
@@ -191,19 +193,19 @@ class EditMaterialForm extends \RAAS\Form
                 [
                     'name' => 'h1',
                     'caption' => $this->view->_('H1'),
-                    'placeholder' => $this->view->_('FROM_NAME'),
+                    'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
                     'class' => 'span5'
                 ],
                 [
                     'name' => 'menu_name',
                     'caption' => $this->view->_('MENU_NAME'),
-                    'placeholder' => $this->view->_('FROM_NAME'),
+                    'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
                     'class' => 'span5'
                 ],
                 [
                     'name' => 'breadcrumbs_name',
                     'caption' => $this->view->_('BREADCRUMBS_NAME'),
-                    'placeholder' => $this->view->_('FROM_NAME'),
+                    'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
                     'class' => 'span5'
                 ],
                 [
