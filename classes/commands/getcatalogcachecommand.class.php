@@ -35,7 +35,7 @@ class GetCatalogCacheCommand extends LockCommand
             return;
         }
         if ($mtypesIds = $mtype->selfAndChildrenIds) {
-            $sqlQuery = "SELECT MAX(UNIX_TIMESTAMP(modify_date))
+            $sqlQuery = "SELECT MAX(UNIX_TIMESTAMP(last_modified))
                            FROM " . Material::_tablename()
                       . " WHERE pid IN (" . implode(", ", $mtypesIds) . ")";
             $lastModifiedMaterialTimestamp = Material::_SQL()->getvalue($sqlQuery);

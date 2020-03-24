@@ -256,6 +256,9 @@ class Material extends SOME
             $arr
         );
 
+        // 2020-03-24, AVS: обновим дату связанного изменения
+        $this->modify();
+
         // 2019-04-25, AVS: обновим связанные страницы
         static::updateAffectedPages(null, $this);
         Material_Type::updateAffectedPagesForSelf($this->material_type);
@@ -282,6 +285,8 @@ class Material extends SOME
                    . "   AND pid = " . (int)$page->id;
         self::$SQL->query($sqlQuery);
 
+        // 2020-03-24, AVS: обновим дату связанного изменения
+        $this->modify();
 
         // 2019-04-25, AVS: обновим связанные страницы
         static::updateAffectedPages(null, $this);

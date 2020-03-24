@@ -66,16 +66,18 @@ trait PageoidTrait
         $d1 = strtotime($this->modify_date);
         $d2 = strtotime($this->last_modified);
         $arr = [];
-        if (($d0 - $d1 >= 3600) && ($d0 - $d2 >= 3600)) {
-            $arr['last_modified'] = $this->last_modified = date('Y-m-d H:i:s');
-            $arr['modify_counter'] = $this->modify_counter++;
-            if ($commit) {
-                self::$SQL->update(
-                    self::_tablename(),
-                    "id = " . (int)$this->id,
-                    $arr
-                );
-            }
+        // 2020-03-24, AVS: убрали условие
+        // if (($d0 - $d1 >= 3600) && ($d0 - $d2 >= 3600)) { , т.к.
+        // 1) оно ничем не обосновано,
+        // 2) теряется информация о частых изменениях
+        $arr['last_modified'] = $this->last_modified = date('Y-m-d H:i:s');
+        $arr['modify_counter'] = $this->modify_counter++;
+        if ($commit) {
+            self::$SQL->update(
+                self::_tablename(),
+                "id = " . (int)$this->id,
+                $arr
+            );
         }
     }
 }

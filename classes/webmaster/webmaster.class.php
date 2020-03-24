@@ -1418,7 +1418,7 @@ class Webmaster
                 'inherit' => 10,
                 'name' => View_Web::i()->_('SITEMAP'),
                 'blockLocation' => 'content',
-                'fullMenu' => false,
+                'fullMenu' => true,
                 'blockPage' => $this->map,
                 'inheritBlock' => false,
             ],

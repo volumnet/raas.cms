@@ -225,7 +225,7 @@ ob_start(); // Для $separateScripts
                         </div>
                     <?php }
                     if ($rightText) { ?>
-                        <aside class="body__right body__right<?php echo ($i + 1)?>"  itemscope itemtype="http://schema.org/WPSideBar">
+                        <aside class="body__right body__right_<?php echo ($i + 1)?>"  itemscope itemtype="http://schema.org/WPSideBar">
                           <?php echo $rightText?>
                         </aside>
                     <?php } ?>
