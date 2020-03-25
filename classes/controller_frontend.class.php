@@ -122,14 +122,13 @@ class Controller_Frontend extends Abstract_Controller
             $_SERVER['REQUEST_URI'] = '/custom_css/';
         } elseif ($this->requestUri == '/sitemap.xml') {
             $_SERVER['REQUEST_URI'] = '/sitemaps/';
-        } else {
-            $oldUrl = $this->url;
-            $newUrl = Redirect::processAll($oldUrl);
-            if ($newUrl != $oldUrl) {
-                header("HTTP/1.1 301 Moved Permanently");
-                header('Location: ' . $newUrl);
-                exit;
-            }
+        }
+        $oldUrl = $this->url;
+        $newUrl = Redirect::processAll($oldUrl);
+        if ($newUrl != $oldUrl) {
+            header("HTTP/1.1 301 Moved Permanently");
+            header('Location: ' . $newUrl);
+            exit;
         }
     }
 
