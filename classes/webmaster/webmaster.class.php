@@ -4,6 +4,7 @@ namespace RAAS\CMS;
 use SOME\SOME;
 use RAAS\Application;
 use RAAS\Attachment;
+use RAAS\Crontab;
 
 /**
  * Класс вебмастера
@@ -569,7 +570,7 @@ class Webmaster
             'create_feedback' => (int)!$formData['material_type'],
             'signature' => true,
             'antispam' => 'hidden',
-            'antispam_field_name' => '_question',
+            'antispam_field_name' => '_name',
             'interface_id' => (int)$formData['interface_id'],
         ]);
         $form->commit();
@@ -970,6 +971,8 @@ class Webmaster
             );
 
             $this->createFeatures();
+
+            $this->createCron();
         }
         return $this->site;
     }
@@ -2111,5 +2114,37 @@ class Webmaster
         }
         $block->commit();
         return $block;
+    }
+
+
+    /**
+     * Создает cron-задачи
+     */
+    public function createCron()
+    {
+        $updateSitemapTask = new Crontab([
+            'name' => $this->view->_('UPDATING_SITEMAP_XML'),
+            'vis' => 0,
+            'once' => 0,
+            'minutes' => '*',
+            'hours' => '*',
+            'days' => '*',
+            'weekdays' => '*',
+            'command_classname' => UpdateSitemapCommand::class,
+            'args' => '[]'
+        ]);
+        $updateSitemapTask->commit();
+        $getPageCacheCommand = new Crontab([
+            'name' => $this->view->_('UPDATING_PAGE_CACHES'),
+            'vis' => 0,
+            'once' => 0,
+            'minutes' => '*',
+            'hours' => '*',
+            'days' => '*',
+            'weekdays' => '*',
+            'command_classname' => GetPageCacheCommand::class,
+            'args' => '[false, false, false, 20]'
+        ]);
+        $getPageCacheCommand->commit();
     }
 }
