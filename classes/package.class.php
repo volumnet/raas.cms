@@ -705,6 +705,7 @@ class Package extends RAASPackage
         foreach ($files as $file) {
             unlink($file);
         }
+        EventProcessor::emit('clearCache', $this);
     }
 
 

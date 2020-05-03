@@ -567,7 +567,9 @@ class ViewSub_Main extends RAASAbstractSubView
                     'icon' => 'share-alt'
                 ];
             }
-            if ($urlParent->cache) {
+            if ($urlParent->cache &&
+                Package::i()->registryGet('clear_cache_manually')
+            ) {
                 $arr[] = [
                     'href' => $this->url . '&action=clear_material_cache&id=' . (int)$item->id
                            .  ($showlist ? '&back=1' : ''),

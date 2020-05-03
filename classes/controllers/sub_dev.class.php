@@ -269,14 +269,10 @@ class Sub_Dev extends RAASAbstractSubController
                 new Redirector(HTTP::queryString('action='));
                 break;
             case 'clear_cache':
-                if (Package::i()->registryGet('clear_cache_manually')) {
-                    $this->model->clearCache(true);
-                    Material_Type::updateAffectedPagesForSelf();
-                    Material_Type::updateAffectedPagesForMaterials();
-                    new Redirector(HTTP::queryString('action=cache'));
-                } else {
-                    new Redirector(HTTP::queryString('action='));
-                }
+                $this->model->clearCache(true);
+                Material_Type::updateAffectedPagesForSelf();
+                Material_Type::updateAffectedPagesForMaterials();
+                new Redirector(HTTP::queryString('action=cache'));
                 break;
             case 'update_affected_pages':
                 Material_Type::updateAffectedPagesForMaterials();
@@ -284,12 +280,7 @@ class Sub_Dev extends RAASAbstractSubController
                 new Redirector(HTTP::queryString('action='));
                 break;
             case 'cache':
-                if (Package::i()->registryGet('clear_cache_manually')) {
-                    // $this->model->getCacheMap();
-                    $this->view->cache();
-                } else {
-                    new Redirector(HTTP::queryString('action='));
-                }
+                $this->view->cache();
                 break;
             case 'copy_form':
                 $this->copyForm();

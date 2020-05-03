@@ -1048,12 +1048,10 @@ class ViewSub_Dev extends RAASAbstractSubView
                 'name' => $this->_('DIAGNOSTICS')
             ];
         }
-        if (Package::i()->registryGet('clear_cache_manually')) {
-            $submenu[] = [
-                'href' => $this->url . '&action=cache',
-                'name' => $this->_('CACHE_CONTROL')
-            ];
-        }
+        $submenu[] = [
+            'href' => $this->url . '&action=cache',
+            'name' => $this->_('CACHE_CONTROL')
+        ];
         foreach ($this->model->modules as $module) {
             $NS = \SOME\Namespaces::getNS($module);
             $sub_classname = $NS . '\\Sub_Dev';
