@@ -20,7 +20,7 @@
         "mustache/mustache": ">=2.5",
         "phpoffice/phpexcel": ">=1.8",
         "volumnet/some4": "^4.5.3",
-        "volumnet/raas.kernel": "^4.2.24",
+        "volumnet/raas.kernel": "^4.2.28",
         "electrolinux/phpquery": "^0.9.6" 
     },
     "require-dev": {

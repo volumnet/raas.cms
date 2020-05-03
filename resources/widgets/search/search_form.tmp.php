@@ -25,7 +25,7 @@ $jsonLd = [
   <form action="/search/" class="{{WIDGET_CSS_CLASSNAME}}" itemscope itemtype="http://schema.org/SearchAction">
     <meta itemprop="target" content="http<?php echo $_SERVER['HTTPS'] ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/search/?search_string={search_string}" />
     <div class="{{WIDGET_CSS_CLASSNAME}}__inner">
-      <input itemprop="query-input" name="search_string" class="{{WIDGET_CSS_CLASSNAME}}__input" type="text" value="<?php echo htmlspecialchars($_GET['search_string'])?>" placeholder="<?php echo SITE_SEARCH?>..." required="required" />
+      <input itemprop="query-input" name="search_string" autocomplete="off" class="{{WIDGET_CSS_CLASSNAME}}__input" type="text" value="<?php echo htmlspecialchars($_GET['search_string'])?>" placeholder="<?php echo SITE_SEARCH?>..." required="required" />
     </div>
     <button class="{{WIDGET_CSS_CLASSNAME}}__button"></button>
   </form>

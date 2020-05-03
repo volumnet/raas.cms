@@ -569,7 +569,7 @@ class Webmaster
             'create_feedback' => (int)!$formData['material_type'],
             'signature' => true,
             'antispam' => 'hidden',
-            'antispam_field_name' => '_name',
+            'antispam_field_name' => '_question',
             'interface_id' => (int)$formData['interface_id'],
         ]);
         $form->commit();

@@ -55,7 +55,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                         <input type="hidden" name="form_signature" value="<?php echo md5('form' . (int)$Form->id . (int)$Block->id)?>" />
                     <?php } ?>
                     <?php if ($Form->antispam == 'hidden' && $Form->antispam_field_name) { ?>
-                        <input type="text" autocomplete="new-password" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" value="<?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?>" style="position: absolute; left: -9999px" />
+                        <textarea autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" style="position: absolute; left: -9999px"><?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?></textarea>
                     <?php } ?>
                     <?php $row = $Form->fields['phone_call']; $row->placeholder = $row->name; ?>
                     <div class="form-group">
@@ -84,7 +84,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                           </label>
                           <div class="col-sm-9">
                             <img src="/assets/kcaptcha/?<?php echo session_name() . '=' . session_id()?>" /><br />
-                            <input type="text" autocomplete="new-password" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />
+                            <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />
                           </div>
                         </div>
                     <?php } ?>
