@@ -683,8 +683,9 @@ class Package extends RAASPackage
     /**
      * Очищает кэши
      * @param bool $all Очистить все кэши (если false, то по времени)
+     * @param bool $emitEvent Сгенерировать событие
      */
-    public function clearCache($all = true)
+    public function clearCache($all = true, $emitEvent = false)
     {
         $files = [];
         $t = $this->registryGet('clear_cache_by_time');
@@ -705,7 +706,9 @@ class Package extends RAASPackage
         foreach ($files as $file) {
             unlink($file);
         }
-        EventProcessor::emit('clearCache', $this);
+        if ($emitEvent) {
+            EventProcessor::emit('clearCache', $this);
+        }
     }
 
 

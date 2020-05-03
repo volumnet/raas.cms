@@ -269,7 +269,7 @@ class Sub_Dev extends RAASAbstractSubController
                 new Redirector(HTTP::queryString('action='));
                 break;
             case 'clear_cache':
-                $this->model->clearCache(true);
+                $this->model->clearCache(true, true);
                 Material_Type::updateAffectedPagesForSelf();
                 Material_Type::updateAffectedPagesForMaterials();
                 new Redirector(HTTP::queryString('action=cache'));
