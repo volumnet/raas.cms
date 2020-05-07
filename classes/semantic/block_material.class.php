@@ -31,7 +31,7 @@ class Block_Material extends Block
         'Material_Type' => [
             'FK' => 'material_type',
             'classname' => Material_Type::class,
-            'cascade' => true
+            'cascade' => false
         ],
     ];
 

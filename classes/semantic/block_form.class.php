@@ -30,7 +30,7 @@ class Block_Form extends Block
         'Form' => [
             'FK' => 'form',
             'classname' => Form::class,
-            'cascade' => true
+            'cascade' => false
         ],
     ];
 
