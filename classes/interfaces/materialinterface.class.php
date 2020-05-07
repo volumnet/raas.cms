@@ -699,11 +699,15 @@ class MaterialInterface extends AbstractInterface
         $sqlQuery .=  " FROM " . Material::_tablename() . " AS tM "
                   .  implode(" ", $sqlFrom)
                   .  ($sqlWhere ? " WHERE " . implode(" AND ", $sqlWhere) : "")
-                  .  " GROUP BY tM.id
-                       ORDER BY NOT tM.priority,
-                                tM.priority ASC";
-        if ($sqlSort) {
-            $sqlQuery .= ", " . $sqlSort . ($sqlOrder ? " " . $sqlOrder : "");
+                  .  " GROUP BY tM.id ";
+        if ($sqlSort == "RAND()") {
+            $sqlQuery .= " ORDER BY RAND()";
+        } else {
+            $sqlQuery .= " ORDER BY NOT tM.priority,
+                                        tM.priority ASC";
+            if ($sqlSort) {
+                $sqlQuery .= ", " . $sqlSort . ($sqlOrder ? " " . $sqlOrder : "");
+            }
         }
         return $sqlQuery;
     }
@@ -758,6 +762,8 @@ class MaterialInterface extends AbstractInterface
             } else {
                 $fieldSQL = $as . ".value";
             }
+        } elseif ($field == 'random') {
+            $fieldSQL = "RAND()";
         } else {
             $fieldSQL = "tM." . $field;
         }

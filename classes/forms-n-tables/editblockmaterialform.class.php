@@ -87,6 +87,10 @@ class EditBlockMaterialForm extends EditBlockForm
                 ];
             }
         }
+        $this->meta['CONTENT']['fields'][] = [
+            'value' => 'random',
+            'caption' => $this->view->_('RANDOM')
+        ];
         foreach (Block_Material::$orderRelations as $key => $val) {
             $this->meta['CONTENT']['orders'][] = [
                 'value' => $key,
