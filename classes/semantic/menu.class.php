@@ -262,4 +262,23 @@ class Menu extends SOME
         }
         return $temp;
     }
+
+
+    public static function delete(self $object)
+    {
+        $id = (int)$object->id;
+        parent::delete($object);
+        // 2020-05-07, AVS: Удаление блоков делаем после основного,
+        // иначе в методе SOME:ondelete класс Block_Menu подхватывается
+        // в качестве ссылки, а поскольку там ссылка на Menu идет из вторичной
+        // таблицы, возникает ошибка MySQL
+        $sqlQuery = "SELECT id
+                      FROM " . Block::_dbprefix() . "cms_blocks_menu
+                     WHERE menu = ?";
+        $blocksIds = Block_Menu::_SQL()->getcol([$sqlQuery, (int)$id]);
+        foreach ($blocksIds as $blockId) {
+            $block = new Block_Menu($blockId);
+            Block_Menu::delete($block);
+        }
+    }
 }

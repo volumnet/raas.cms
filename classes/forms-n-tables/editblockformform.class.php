@@ -28,7 +28,9 @@ class EditBlockFormForm extends EditBlockForm
             'type' => 'select',
             'name' => 'form',
             'caption' => $this->view->_('FORM'),
-            'children' => ['Set' => CMSForm::getSet()]
+            'children' => ['Set' => CMSForm::getSet()],
+            'required' => true,
+            'placeholder' => '--',
         ]);
         $tab->children[] = $this->getWidgetField();
         return $tab;

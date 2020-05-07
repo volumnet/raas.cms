@@ -332,14 +332,73 @@ class Material extends SOME
         $mtype = $object->material_type;
         $material = new Material($object->id);
 
-        foreach ($object->fields as $row) {
-            if (in_array($row->datatype, ['image', 'file'])) {
-                foreach ($row->getValues(true) as $att) {
-                    Attachment::delete($att);
-                }
-            }
-            $row->deleteValues();
+        // Удалим файловые поля с проверкой на совместное использование
+        // Найдем используемые значения файловых полей в данном материале
+        $sqlQuery = "SELECT tD.value
+                       FROM " . static::_dbprefix() . "cms_data AS tD
+                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
+                      WHERE tD.pid = ?
+                        AND tF.classname = ?
+                        AND tF.pid
+                        AND tF.datatype IN ('image', 'file')";
+        $sqlResult = static::_SQL()->getcol([
+            $sqlQuery,
+            (int)$object->id,
+            Material_Type::class
+        ]);
+        $affectedAttachmentsIds = array_map(function ($x) {
+            $json = (array)json_decode($x, true);
+            $attachmentId = (int)$json['attachment'];
+            return $attachmentId;
+        }, $sqlResult);
+        $affectedAttachmentsIds = array_filter($affectedAttachmentsIds);
+        $affectedAttachmentsIds = array_values($affectedAttachmentsIds);
+
+        // Найдем используемые значения файловых полей вне данного материала
+        $sqlQuery = "SELECT tD.value
+                       FROM " . static::_dbprefix() . "cms_data AS tD
+                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
+                      WHERE NOT (
+                                    tD.pid = ?
+                                AND tF.classname = ?
+                                AND tF.pid
+                            )
+                        AND tF.datatype IN ('image', 'file')";
+        $sqlResult = static::_SQL()->getcol([
+            $sqlQuery,
+            (int)$object->id,
+            Material_Type::class
+        ]);
+        $otherAttachmentsIds = array_map(function ($x) {
+            $json = (array)json_decode($x, true);
+            $attachmentId = (int)$json['attachment'];
+            return $attachmentId;
+        }, $sqlResult);
+        $otherAttachmentsIds = array_filter($otherAttachmentsIds);
+        $otherAttachmentsIds = array_values($otherAttachmentsIds);
+
+        $attachmentsToDelete = array_diff(
+            $affectedAttachmentsIds,
+            $otherAttachmentsIds
+        );
+
+        foreach ($attachmentsToDelete as $attachmentToDelete) {
+            $att = new Attachment($attachmentToDelete);
+            Attachment::delete($att);
         }
+
+        // Удалим данные из cms_data
+        $sqlQuery = "DELETE tD
+                       FROM " . static::_dbprefix() . "cms_data AS tD
+                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
+                      WHERE tD.pid = ?
+                        AND tF.classname = ?
+                        AND tF.pid";
+        $sqlResult = static::_SQL()->getcol([
+            $sqlQuery,
+            (int)$object->id,
+            Material_Type::class
+        ]);
 
         parent::delete($object);
 
@@ -347,12 +406,8 @@ class Material extends SOME
         // несуществующих материалов
         $sqlQuery = "DELETE tD
                        FROM cms_data AS tD
-                       JOIN " . Field::_tablename() . "
-                         AS tF
-                         ON tF.id = tD.fid
-                  LEFT JOIN " . static::_tablename() . "
-                         AS tM
-                         ON tM.id = tD.value
+                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
+                  LEFT JOIN " . static::_tablename() . " AS tM ON tM.id = tD.value
                       WHERE tF.datatype = ?
                         AND tM.id IS NULL";
         $result = static::$SQL->query([$sqlQuery, ['material']]);

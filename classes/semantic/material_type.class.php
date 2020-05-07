@@ -134,12 +134,26 @@ class Material_Type extends SOME
     public static function delete(self $object)
     {
         $mtype = new Material_Type($object->id);
+        $selfAndChildrenIds = (array)$mtype->selfAndChildrenIds;
         foreach ($object->selfFields as $row) {
             Material_Field::delete($row);
         }
         parent::delete($object);
         static::updateAffectedPagesForMaterials();
         static::updateAffectedPagesForSelf();
+        // 2020-05-07, AVS: Удаление блоков делаем после основного,
+        // иначе в методе SOME:ondelete класс Block_Material подхватывается
+        // в качестве ссылки, а поскольку там ссылка на Material_Type идет из вторичной
+        // таблицы, возникает ошибка MySQL
+        $sqlQuery = "SELECT id
+                      FROM " . Block::_dbprefix() . "cms_blocks_material
+                     WHERE material_type IN (" . implode(", ", $selfAndChildrenIds) . ")";
+        $blocksIds = Block_Material::_SQL()->getcol($sqlQuery);
+        foreach ($blocksIds as $blockId) {
+            $block = new Block_Material($blockId);
+            Block_Material::delete($block);
+        }
+
     }
 
 

@@ -30,7 +30,9 @@ class EditBlockMaterialForm extends EditBlockForm
             'type' => 'select',
             'name' => 'material_type',
             'caption' => $this->view->_('MATERIAL_TYPE'),
-            'children' => $this->meta['CONTENT']['material_types']
+            'children' => $this->meta['CONTENT']['material_types'],
+            'required' => true,
+            'placeholder' => '--',
         ]);
         $tab->children[] = new RAASField([
             'type' => 'checkbox',

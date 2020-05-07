@@ -54,10 +54,23 @@ class Form extends SOME
 
     public static function delete(self $object)
     {
+        $id = (int)$object->id;
         foreach ($object->fields as $row) {
             Form_Field::delete($row);
         }
         parent::delete($object);
+        // 2020-05-07, AVS: Удаление блоков делаем после основного,
+        // иначе в методе SOME:ondelete класс Block_Form подхватывается
+        // в качестве ссылки, а поскольку там ссылка на Form идет из вторичной
+        // таблицы, возникает ошибка MySQL
+        $sqlQuery = "SELECT id
+                      FROM " . Block::_dbprefix() . "cms_blocks_form
+                     WHERE form = ?";
+        $blocksIds = Block_Form::_SQL()->getcol([$sqlQuery, (int)$id]);
+        foreach ($blocksIds as $blockId) {
+            $block = new Block_Form($blockId);
+            Block_Form::delete($block);
+        }
     }
 
 

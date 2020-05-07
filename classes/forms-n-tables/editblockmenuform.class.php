@@ -38,7 +38,9 @@ class EditBlockMenuForm extends EditBlockForm
             'type' => 'select',
             'name' => 'menu',
             'caption' => $this->view->_('MENU'),
-            'children' => $this->meta['CONTENT']['menus']
+            'children' => $this->meta['CONTENT']['menus'],
+            'required' => true,
+            'placeholder' => '--',
         ]);
         $tab->children[] = new RAASField([
             'type' => 'select',
