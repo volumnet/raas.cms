@@ -20,6 +20,7 @@ $jsonLd = [
     ]
 ];
 ?>
+<a href="#" class="{{WIDGET_CSS_CLASSNAME}}-trigger"></a>
 <div itemscope itemtype="http://schema.org/WebSite">
   <link itemprop="url" href="http<?php echo $_SERVER['HTTPS'] ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/" />
   <form action="/search/" class="{{WIDGET_CSS_CLASSNAME}}" itemscope itemtype="http://schema.org/SearchAction">

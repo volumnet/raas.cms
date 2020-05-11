@@ -626,6 +626,13 @@ class Webmaster
             // Создадим виджет под меню
             $menuWidget = Snippet::importByURN('menu_' . $menuData['urn']);
             if (!$menuWidget->id) {
+                $menuWidgetFilename = Package::i()->resourcesDir
+                                    . '/widgets/menu/menu_' . $menuData['urn']
+                                    . '.tmp.php';
+                if (!is_file($menuWidgetFilename)) {
+                    $menuWidgetFilename = Package::i()->resourcesDir
+                                        . '/widgets/menu/menu.tmp.php';
+                }
                 $menuWidget = $this->createSnippet(
                     trim('menu_' . $menuData['urn']),
                     trim($menuData['name']),
