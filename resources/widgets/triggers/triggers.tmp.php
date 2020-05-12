@@ -14,7 +14,7 @@ namespace RAAS\CMS;
         <a class="{{WIDGET_CSS_CLASSNAME}}-item {{WIDGET_CSS_CLASSNAME}}-item_totop scrollTo" href="#top" title="Наверх"></a>
       </div>
       <?php if ($Page->catalogFilter) { ?>
-          <div class="{{WIDGET_CSS_CLASSNAME}}-list__item {{WIDGET_CSS_CLASSNAME}}-list__item_filter">
+          <div class="{{WIDGET_CSS_CLASSNAME}}-list__item {{WIDGET_CSS_CLASSNAME}}-list__item_filter" style="display: none">
             <a class="{{WIDGET_CSS_CLASSNAME}}-item {{WIDGET_CSS_CLASSNAME}}-item_filter" href="#" title="Фильтр каталога"></a>
           </div>
       <?php } ?>

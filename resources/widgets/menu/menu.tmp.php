@@ -60,9 +60,11 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
         );
         if ($active) {
             $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_active';
+            $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_focused';
             $aClasses[] = '{{MENU_CSS_CLASSNAME}}__link_active';
         } elseif ($semiactive) {
             $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_semiactive';
+            $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_focused';
             $aClasses[] = '{{MENU_CSS_CLASSNAME}}__link_semiactive';
         }
         if ($ch) {
@@ -70,7 +72,10 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
             $aClasses[] = '{{MENU_CSS_CLASSNAME}}__link_has-children';
         }
         $text .= '<li class="' . implode(' ', $liClasses) . '">'
-              .  '  <a class="' . implode(' ', $aClasses) . '" ' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>' . htmlspecialchars($name) . '</a>'
+              .  '  <a class="' . implode(' ', $aClasses) . '" ' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>'
+              .       htmlspecialchars($name)
+              .       ($ch ? '<span class="{{MENU_CSS_CLASSNAME}}__children-trigger"></span>' : '')
+              .  '  </a>'
               .     $ch
               .  '</li>';
     }
