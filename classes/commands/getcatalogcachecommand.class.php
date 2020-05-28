@@ -7,7 +7,7 @@ namespace RAAS\CMS;
 use RAAS\LockCommand;
 
 /**
- * Класс команды получения кэша каталога
+ * Команда получения кэша каталога
  */
 class GetCatalogCacheCommand extends LockCommand
 {

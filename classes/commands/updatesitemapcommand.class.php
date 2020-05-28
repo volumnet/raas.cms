@@ -9,7 +9,7 @@ use RAAS\Application;
 use RAAS\LockCommand;
 
 /**
- * Класс команды обновления файла sitemap.xml
+ * Команда обновления файла sitemap.xml
  */
 class UpdateSitemapCommand extends LockCommand
 {

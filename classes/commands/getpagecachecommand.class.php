@@ -7,7 +7,7 @@ namespace RAAS\CMS;
 use RAAS\LockCommand;
 
 /**
- * Класс команды получения кэша страниц
+ * Команда получения кэша страниц
  */
 class GetPageCacheCommand extends LockCommand
 {
