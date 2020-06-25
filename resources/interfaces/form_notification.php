@@ -12,9 +12,14 @@ namespace RAAS\CMS;
  * @param Form_Field $field Поле для получения представления
  * @return string
  */
-$smsField = function (Form_Field $field) {
+$smsField = function (Form_Field $field) use ($forUser) {
     $values = $field->getValues(true);
-    $arr = array();
+    if (!array_filter($values, function ($x) {
+        return is_scalar($x) ? trim($x) : (bool)$x;
+    })) {
+        return '';
+    }
+    $arr = [];
     foreach ($values as $key => $val) {
         $val = $field->doRich($val);
         switch ($field->datatype) {
@@ -51,9 +56,14 @@ $smsField = function (Form_Field $field) {
  * @param Form_Field $field Поле для получения представления
  * @return string
  */
-$emailField = function (Form_Field $field) {
+$emailField = function (Form_Field $field) use ($forUser) {
     $values = $field->getValues(true);
-    $arr = array();
+    if (!array_filter($values, function ($x) {
+        return is_scalar($x) ? trim($x) : (bool)$x;
+    })) {
+        return '';
+    }
+    $arr = [];
     foreach ($values as $key => $val) {
         $val = $field->doRich($val);
         switch ($field->datatype) {
@@ -84,9 +94,17 @@ $emailField = function (Form_Field $field) {
                 $arr[$key] = '<div>' . $val . '</div>';
                 break;
             case 'material':
-                $arr[$key] = '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . htmlspecialchars($val->url) . '">
-                                ' . htmlspecialchars($val->name) . '
-                              </a>';
+                if (!$forUser) {
+                    $arr[$key] = '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . htmlspecialchars($_SERVER['HTTP_HOST'] . '/admin/?p=cms&m=shop&sub=orders&action=view&id=' . $Item->id) . '">
+                                    ' . htmlspecialchars($val->name) . '
+                                  </a>';
+                } elseif ($val->url) {
+                    $arr[$key] = '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . htmlspecialchars($val->url) . '">
+                                    ' . htmlspecialchars($val->name) . '
+                                  </a>';
+                } else {
+                    $arr[$key] = htmlspecialchars($val->name);
+                }
                 break;
             default:
                 if (!$field->multiple && ($field->datatype == 'checkbox')) {

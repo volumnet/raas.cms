@@ -145,6 +145,7 @@ ob_start(); // Для $separateScripts
             <div class="body__cart">
               <?php echo $Page->location('cart')?>
             </div>
+            <div class="body__menu-mobile"></div>
           </div>
         </div>
         <div class="body__row body__row_menu-main">

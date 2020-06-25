@@ -18,6 +18,12 @@ Disallow: /search/
 Disallow: /sitemaps/
 Disallow: /system/
 Disallow: /yml/
+Disallow: /register/
+Disallow: /profile/
+Disallow: /activate/
+Disallow: /login/
+Disallow: /recovery/
+Disallow: /my_orders/
 Disallow: *print=1
 Clean-param: sort&order&print&price_from&price_to
 
@@ -41,6 +47,12 @@ Disallow: /search/
 Disallow: /sitemaps/
 Disallow: /system/
 Disallow: /yml/
+Disallow: /register/
+Disallow: /profile/
+Disallow: /activate/
+Disallow: /login/
+Disallow: /recovery/
+Disallow: /my_orders/
 Disallow: *print=1
 
 Host: {{HOST}}
