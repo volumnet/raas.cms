@@ -282,6 +282,7 @@ $_RAASForm_Control = function (
                       <input type="checkbox" name="<?php echo htmlspecialchars($field->name . '@vis[]')?>" value="1" disabled="disabled" checked="checked" />
                       <?php echo \CMS\VISIBLE?>
                     </label>
+                    <input type="checkbox" style="display: none" name="<?php echo htmlspecialchars($field->name . '@vis[]')?>" disabled value="0" data-role="checkbox-shadow" />
                     <div class="cms-filecard__fields">
                       <input type="text" name="<?php echo htmlspecialchars($field->name . '@name[]')?>" placeholder="<?php echo $field->type == 'image' ? \CMS\IMG_NAME_ALT_TITLE : NAME?>" disabled="disabled" />
                       <textarea name="<?php echo htmlspecialchars($field->name . '@description[]')?>" placeholder="<?php echo DESCRIPTION?>"></textarea>

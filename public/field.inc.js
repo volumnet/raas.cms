@@ -128,13 +128,13 @@ jQuery(function($) {
         }
         return false;
     });
-    $('.well:has(input:file) input:checkbox:visible').click(function() {
-        var checked = $(this).attr('checked');
+    $('body').on('click', '.well:has(input:file) input:checkbox:visible', function () {
+        var checked = $(this).prop('checked');
         var $w = $(this).closest('.well');
         if (checked) {
-            $('input:checkbox[data-role="checkbox-shadow"]', $w).removeAttr('checked');
+            $('input:checkbox[data-role="checkbox-shadow"]', $w).prop('checked', false);
         } else {
-            $('input:checkbox[data-role="checkbox-shadow"]', $w).attr('checked', 'checked');
+            $('input:checkbox[data-role="checkbox-shadow"]', $w).prop('checked', true);
         }
     });
     $('[datatype="material"]:not([disabled])').each(function() { $(this).RAAS_CMS_materialField(); });
