@@ -116,7 +116,7 @@ if ($Item) { ?>
                         <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__title">
                           <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__name"<?php echo $Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
                             <?php if ($item->answer_name) { ?>
-                                <?php echo ((string)$item->answer_gender === '') ? ANSWERED_UNDEFINED : ($item->answer_gender ? ANSWERED_MALE : ANSWERED_FEMALE) . ' ' . htmlspecialchars($item->answer_name)?>
+                                <?php echo (((string)$item->answer_gender === '') ? ANSWERED_UNDEFINED : ($item->answer_gender ? ANSWERED_MALE : ANSWERED_FEMALE)) . ' ' . htmlspecialchars($item->answer_name)?>
                             <?php } else { ?>
                                 <?php echo ANSWER?>
                             <?php } ?>

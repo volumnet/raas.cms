@@ -109,7 +109,7 @@ class EditFormForm extends RAASForm
                 [
                     'name' => 'antispam_field_name',
                     'caption' => $view->_('ANTISPAM_VARIABLE'),
-                    'default' => '_name'
+                    'default' => '_question'
                 ],
                 [
                     'name' => 'email',
