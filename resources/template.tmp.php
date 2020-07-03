@@ -262,6 +262,17 @@ ob_start(); // Для $separateScripts
     new VueW3CValid({
         el: '.body'
     });
+    document.querySelectorAll('[data-inline-template]').forEach(function (x) {
+        x.removeAttribute('data-inline-template');
+        x.setAttribute('inline-template', null);
+    });
+
+    jQuery(document).ready(function($) {
+      testApp = new Vue({
+          el: '#top'
+      })
+
+    });
     </script>
     <?php
     echo $Page->location('footer_counters');
