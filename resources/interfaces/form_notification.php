@@ -15,7 +15,13 @@ namespace RAAS\CMS;
 $smsField = function (Form_Field $field) use ($forUser) {
     $values = $field->getValues(true);
     if (!array_filter($values, function ($x) {
-        return is_scalar($x) ? trim($x) : (bool)$x;
+        if (is_scalar($x)) {
+            return trim($x);
+        } elseif ($x instanceof SOME) {
+            return (bool)$x->id;
+        } else {
+            return (bool)$x;
+        }
     })) {
         return '';
     }
@@ -59,7 +65,13 @@ $smsField = function (Form_Field $field) use ($forUser) {
 $emailField = function (Form_Field $field) use ($forUser) {
     $values = $field->getValues(true);
     if (!array_filter($values, function ($x) {
-        return is_scalar($x) ? trim($x) : (bool)$x;
+        if (is_scalar($x)) {
+            return trim($x);
+        } elseif ($x instanceof SOME) {
+            return (bool)$x->id;
+        } else {
+            return (bool)$x;
+        }
     })) {
         return '';
     }
