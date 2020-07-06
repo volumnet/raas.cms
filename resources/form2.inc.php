@@ -4,7 +4,7 @@ namespace RAAS\CMS;
 $getSelect = function (Field $Item, array $DATA, $current = 0, $placeholder = '') use (&$getSelect) {
     static $level = 0;
     $text = '';
-    if (!$level && !$Item->required) {
+    if (!$level && (!$Item->required || $placeholder)) {
         $text .= '<option value="" ' . (!$current ? 'selected="selected"' : '') . '>' . htmlspecialchars($placeholder ? $placeholder : '--') . '</option>';
     }
     foreach ($DATA as $key => $val) {
