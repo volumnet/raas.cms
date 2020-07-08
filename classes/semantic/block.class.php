@@ -26,8 +26,9 @@ use RAAS\User as RAASUser;
  * @property-read int $pid ID# родительской страницы (первой из $pages)
  * @property-read string $title Заголовок блока
  * @property-read array<Page> $pages_assoc Страницы, на которых размещен блок
- * @property-read array<string[] => mixed> $config Дополнительные параметры
- *                                                 блока
+ * @property-read array<string[] => mixed> $config Конфигурация блока
+ * @property-read array $additionalParams Дополнительные параметры блока
+ *                                        <pre>array<string[] => mixed></pre>
  */
 abstract class Block extends SOME
 {
@@ -203,6 +204,10 @@ abstract class Block extends SOME
                 break;
             case 'config':
                 return $this->getAddData();
+                break;
+            case 'additionalParams':
+                parse_str(trim($this->params), $temp);
+                return $temp;
                 break;
             default:
                 return parent::__get($var);
