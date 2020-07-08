@@ -200,10 +200,6 @@ class EditBlockMaterialForm extends EditBlockForm
             'name' => 'legacy',
             'caption' => $this->view->_('REDIRECT_LEGACY_ADDRESSES')
         ]);
-        $tab->children[] = new RAASField([
-            'name' => 'params',
-            'caption' => $this->view->_('ADDITIONAL_PARAMS')
-        ]);
         $tab->children[] = $this->getInterfaceField();
         return $tab;
     }

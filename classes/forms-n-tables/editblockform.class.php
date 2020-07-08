@@ -294,7 +294,11 @@ class EditBlockForm extends RAASForm
                             'caption' => $this->view->_('BYMATERIAL_WITHOUT')
                         ],
                     ],
-                ]
+                ],
+                [
+                    'name' => 'params',
+                    'caption' => $this->view->_('ADDITIONAL_PARAMS')
+                ],
             ]
         ]);
         return $tab;
