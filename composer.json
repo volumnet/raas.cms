@@ -1,7 +1,7 @@
 {
     "name": "volumnet/raas.cms",
     "description": "RAAS.CMS",
-    "version": "4.2.67",
+    "version": "4.2.68",
     "license": "GPL-3.0-or-later",
     "minimum-stability": "dev",
     "prefer-stable": true,

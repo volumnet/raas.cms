@@ -74,23 +74,15 @@ ob_start(); // Для $separateScripts
     <?php echo $Page->headData; ?>
     <?php echo Package::i()->asset([
         '/css/application.css',
-        '/css/animate.css',
         '/css/style.css'
     ])?>
     <link rel="stylesheet" href="/custom.css">
     <?php echo Package::i()->asset([
         '/js/application.js',
-        '/js/wow.min.js',
     ])?>
-    <script>new WOW().init();</script>
     <?php
     $assets2 = [
-        '/js/jquery.jcarousel.min.js',
         '/js/sliders.js',
-        '/js/setrawcookie.js',
-        '/js/setcookie.js',
-        '/js/vue.min.js',
-        '/js/vue-w3c-valid.min.js',
     ];
     if (class_exists('RAAS\CMS\Shop\Module')) {
         $assets2 = array_merge($assets2, [
@@ -103,7 +95,6 @@ ob_start(); // Для $separateScripts
             '/js/catalog.js',
         ]);
     }
-    $assets2[] = '/js/script.js';
     echo Package::i()->asset($assets2);
     ?>
     <?php if (is_file('favicon.ico')) { ?>
