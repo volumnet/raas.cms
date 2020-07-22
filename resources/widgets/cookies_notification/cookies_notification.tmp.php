@@ -7,10 +7,8 @@
 namespace RAAS\CMS;
 
 ?>
-<div class="cookies-notification">
-  <a href="#" class="cookies-notification__close"></a>
-  <div class="cookies-notification__inner">
-    <?php echo $Block->description?>
-  </div>
+<!--noindex-->
+<div class="cookies-notification" data-vue-role="cookies-notification">
+  <?php echo $Block->description?>
 </div>
-<?php echo Package::i()->asset('/js/cookies-notification.js')?>
+<!--/noindex-->

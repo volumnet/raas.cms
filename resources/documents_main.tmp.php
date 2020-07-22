@@ -27,6 +27,6 @@ if ($Set) {
         <a href="#" class="documents-main__arrow documents-main__arrow_left" data-role="slider-prev"></a>
         <a href="#" class="documents-main__arrow documents-main__arrow_right" data-role="slider-next"></a>
       </div>
-      <script src="/js/documents-main.js"></script>
+      <?php Package::i()->requestJS(['/js/sliders.js', '/js/documents-main.js']);?>
     </div>
 <?php } ?>

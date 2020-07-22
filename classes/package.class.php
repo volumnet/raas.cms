@@ -33,12 +33,27 @@ use RAAS\Package as RAASPackage;
  */
 class Package extends RAASPackage
 {
-    /**
-     * Версия пакета
-     */
-    const version = '2019-10-23 19:15:00';
-
     protected static $instance;
+
+    /**
+     * URL подключенных JS-файлов
+     * @var array <pre>array<
+     *     string[] группа файлов => array<
+     *         string[] URL файла => string URL файла
+     *     >
+     * ></pre>
+     */
+    protected $requestedJS = [];
+
+    /**
+     * URL подключенных CSS-файлов
+     * @var array <pre>array<
+     *     string[] группа файлов => array<
+     *         string[] URL файла => string URL файла
+     *     >
+     * ></pre>
+     */
+    protected $requestedCSS = [];
 
     public function __get($var)
     {
@@ -83,6 +98,10 @@ class Package extends RAASPackage
                 break;
             case 'isTablet':
                 return $this->isAndroidTablet || $this->isIPad;
+                break;
+            case 'requestedCSS':
+            case 'requestedJS':
+                return $this->$var;
                 break;
             default:
                 return parent::__get($var);
@@ -1149,7 +1168,7 @@ class Package extends RAASPackage
      * @param string $alt Альтернативное описание у изображений
      * @param string $title Всплывающая подсказка у изображений
      */
-    public static function asset($fileURL, $alt = '')
+    public static function asset($fileURL, $alt = '', $title = '')
     {
         if (is_array($fileURL)) {
             $result = array_values(array_filter(array_map(function ($x) {
@@ -1158,9 +1177,13 @@ class Package extends RAASPackage
             return implode("\n", $result);
         }
         $filepath = trim($fileURL, '/');
-        if (is_file($filepath)) {
+        if (stristr($fileURL, '//') || ($isFile = is_file($filepath))) {
             $ext = mb_strtolower(pathinfo($fileURL, PATHINFO_EXTENSION));
-            $link = $fileURL . '?v=' . date('Y-m-d-H-i-s', filemtime($filepath));
+            $version = '';
+            if ($isFile) {
+                $version = '?v=' . date('Y-m-d-H-i-s', filemtime($filepath));
+            }
+            $link = $fileURL . $version;
             switch ($ext) {
                 case 'js':
                     return '<script src="' . htmlspecialchars($link) . '"></script>';
@@ -1223,5 +1246,132 @@ class Package extends RAASPackage
             $result
         );
         return $result;
+    }
+
+
+    /**
+     * Запросить подключение файла(ов)
+     * @param string|string[] $file Файл(ы) для подключения
+     * @param string $var Название переменной для добавления
+     * @param string $group Название группы для подключения
+     */
+    protected function requestFile($file, $var, $group = '')
+    {
+        if (is_array($file)) {
+            foreach ($file as $f) {
+                $this->requestFile($f, $var, $group);
+            }
+        } elseif (is_string($file) &&
+            (stristr($file, '//') || is_file(Application::i()->baseDir . $file))
+        ) {
+            $val = &$this->$var;
+            $val[$group][$file] = $file;
+        }
+    }
+
+
+    /**
+     * Запросить подключение JS-файла(ов)
+     * @param string|string[] $file Файл(ы) для подключения
+     * @param string $group Название группы для подключения
+     */
+    public function requestJS($file, $group = '')
+    {
+        $this->requestFile($file, 'requestedJS', $group);
+    }
+
+
+    /**
+     * Запросить подключение CSS-файла(ов)
+     * @param string|string[] $file Файл(ы) для подключения
+     * @param string $group Название группы для подключения
+     */
+    public function requestCSS($file, $group = '')
+    {
+        $this->requestFile($file, 'requestedCSS', $group);
+    }
+
+
+    /**
+     * Получает HTML-код для вставки запрошенных файлов
+     * @param string $var Название переменной с добавленными файлами
+     * @param string|null $group Название группы,
+     *                           либо null для получения файлов из всех групп
+     * @return string
+     */
+    protected function getRequestedFiles($var, $group = '')
+    {
+        $val = $this->$var;
+        if ($group === null) {
+            $result = array_reduce($val, 'array_merge', []);
+        } else {
+            $result = isset($val[$group]) ? $val[$group] : [];
+        }
+        return static::asset($result);
+    }
+
+
+    /**
+     * Получает HTML-код для вставки запрошенных JS-файлов
+     * @param string|null $group Название группы,
+     *                           либо null для получения файлов из всех групп
+     * @return string
+     */
+    public function getRequestedJS($group = '')
+    {
+        return $this->getRequestedFiles('requestedJS', $group);
+    }
+
+
+    /**
+     * Получает HTML-код для вставки запрошенных CSS-файлов
+     * @param string|null $group Название группы,
+     *                           либо null для получения файлов из всех групп
+     * @return string
+     */
+    public function getRequestedCSS($group = '')
+    {
+        return $this->getRequestedFiles('requestedCSS', $group);
+    }
+
+
+    /**
+     * Очищает запрошенные файлы
+     * @param string $var Название переменной с добавленными файлами
+     * @param string|null $group Название группы,
+     *                           либо null для очистки всех групп
+     * @return string
+     */
+    protected function clearRequestedFiles($var, $group = '')
+    {
+        if ($group === null) {
+            $this->$var = [];
+        } else {
+            $this->$var[$group] = [];
+        }
+    }
+
+
+    /**
+     * Очищает запрошенны JS-файлы
+     * @param string|null $group Название группы,
+     *                           либо null для очистки всех групп
+     * @return string
+     */
+    public function clearRequestedJS($group = '')
+    {
+        return $this->clearRequestedFiles('requestedJS', $group);
+    }
+
+
+    /**
+     * Очищает запрошенны CSS-файлы
+     * @param string|null $group Название группы,
+     *                           либо null для очистки всех групп
+     * @return string
+     */
+    public function clearRequestedCSS($group = '')
+    {
+        return $this->clearRequestedFiles('requestedCSS', $group);
     }
 }

@@ -77,26 +77,12 @@ ob_start(); // Для $separateScripts
         '/css/style.css'
     ])?>
     <link rel="stylesheet" href="/custom.css">
-    <?php echo Package::i()->asset([
-        '/js/application.js',
-    ])?>
     <?php
-    $assets2 = [
-        '/js/sliders.js',
-    ];
-    if (class_exists('RAAS\CMS\Shop\Module')) {
-        $assets2 = array_merge($assets2, [
-            '/js/cookiecart.js',
-            '/js/ajaxcart.js',
-            '/js/ajaxcatalog.js',
-            '/js/modal.js',
-            '/js/raas-shop-cart-main-mixin.vue.js',
-            '/js/raas-shop-catalog-item-mixin.vue.js',
-            '/js/catalog.js',
-        ]);
-    }
-    echo Package::i()->asset($assets2);
-    ?>
+    echo Package::i()->getRequestedJS('beforeApp');
+    echo Package::i()->asset([
+        '/js/application.js',
+    ]);
+    echo Package::i()->getRequestedJS();?>
     <?php if (is_file('favicon.ico')) { ?>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <?php } ?>
@@ -249,22 +235,6 @@ ob_start(); // Для $separateScripts
         </div>
       </footer>
     </div>
-    <script>
-    new VueW3CValid({
-        el: '.body'
-    });
-    document.querySelectorAll('[data-inline-template]').forEach(function (x) {
-        x.removeAttribute('data-inline-template');
-        x.setAttribute('inline-template', null);
-    });
-
-    jQuery(document).ready(function($) {
-      testApp = new Vue({
-          el: '#top'
-      })
-
-    });
-    </script>
     <?php
     echo $Page->location('footer_counters');
     $content = $separateScripts(ob_get_clean());

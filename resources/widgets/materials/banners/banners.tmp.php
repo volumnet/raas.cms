@@ -44,4 +44,6 @@ if ($Set) { ?>
         <?php } ?>
       </div>
     </div>
-<?php } ?>
+    <?php
+    Package::i()->requestJS('/js/sliders.js');
+} ?>

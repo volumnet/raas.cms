@@ -1,6 +1,6 @@
 <?php
 /**
- * {{MENU_NAME}}
+ * Мобильное меню
  * @param Page $Page Текущая страница
  * @param Block_Menu $Block Текущий блок
  * @param array<[
@@ -36,25 +36,25 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
         $nodeUrl = $node['url'];
     }
     if (!$level || $children) {
-        $text = '   <li class="{{MENU_CSS_CLASSNAME}}__header">';
+        $text = '   <li class="menu-mobile__header">';
         if (!$level) {
-            $text .= '<div class="{{MENU_CSS_CLASSNAME}}__logo"></div>';
+            $text .= '<div class="menu-mobile__logo"></div>';
         } else {
-            $text .= ' <div class="{{MENU_CSS_CLASSNAME}}__back">
-                         <a class="{{MENU_CSS_CLASSNAME}}__back-link"></a>
+            $text .= ' <div class="menu-mobile__back">
+                         <a class="menu-mobile__back-link"></a>
                        </div>
-                       <div class="{{MENU_CSS_CLASSNAME}}__title">
+                       <div class="menu-mobile__title">
                          <a href="' . htmlspecialchars($nodeUrl) . '">
                            ' . htmlspecialchars($nodeName) . '
                          </a>
                        </div>';
         }
-        $text .= '     <div class="{{MENU_CSS_CLASSNAME}}__close">
-                         <a class="{{MENU_CSS_CLASSNAME}}__close-link"></a>
+        $text .= '     <div class="menu-mobile__close">
+                         <a class="menu-mobile__close-link"></a>
                        </div>
                      </li>';
         if (!$level) {
-            $text .= '<li class="{{MENU_CSS_CLASSNAME}}__item {{MENU_CSS_CLASSNAME}}__item_main {{MENU_CSS_CLASSNAME}}__item_level_0 {{MENU_CSS_CLASSNAME}}__item_phone"></li>';
+            $text .= '<li class="menu-mobile__item menu-mobile__item_main menu-mobile__item_level_0 menu-mobile__item_phone"></li>';
         }
     }
     for ($i = 0; $i < count($children); $i++) {
@@ -76,27 +76,27 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
             $semiactive = true;
         }
         $liClasses = array(
-            '{{MENU_CSS_CLASSNAME}}__item',
-            '{{MENU_CSS_CLASSNAME}}__item_' . (!$level ? 'main' : 'inner'),
-            '{{MENU_CSS_CLASSNAME}}__item_level_' . $level,
-            '{{MENU_CSS_CLASSNAME}}__item_' . $urn
+            'menu-mobile__item',
+            'menu-mobile__item_' . (!$level ? 'main' : 'inner'),
+            'menu-mobile__item_level_' . $level,
+            'menu-mobile__item_' . $urn
         );
         $aClasses = array(
-            '{{MENU_CSS_CLASSNAME}}__link',
-            '{{MENU_CSS_CLASSNAME}}__link_' . (!$level ? 'main' : 'inner'),
-            '{{MENU_CSS_CLASSNAME}}__link_level_' . $level,
-            '{{MENU_CSS_CLASSNAME}}__link_' . $urn
+            'menu-mobile__link',
+            'menu-mobile__link_' . (!$level ? 'main' : 'inner'),
+            'menu-mobile__link_level_' . $level,
+            'menu-mobile__link_' . $urn
         );
         if ($active) {
-            $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_active';
-            $aClasses[] = '{{MENU_CSS_CLASSNAME}}__link_active';
+            $liClasses[] = 'menu-mobile__item_active';
+            $aClasses[] = 'menu-mobile__link_active';
         } elseif ($semiactive) {
-            $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_semiactive';
-            $aClasses[] = '{{MENU_CSS_CLASSNAME}}__link_semiactive';
+            $liClasses[] = 'menu-mobile__item_semiactive';
+            $aClasses[] = 'menu-mobile__link_semiactive';
         }
         if ($ch) {
-            $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_has-children';
-            $aClasses[] = '{{MENU_CSS_CLASSNAME}}__link_has-children';
+            $liClasses[] = 'menu-mobile__item_has-children';
+            $aClasses[] = 'menu-mobile__link_has-children';
         }
         $text .= '<li class="' . implode(' ', $liClasses) . '">'
               .  '  <a class="' . implode(' ', $aClasses) . '" ' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>' . htmlspecialchars($name) . '</a>'
@@ -104,15 +104,16 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
               .  '</li>';
     }
     $ulClasses = array(
-        '{{MENU_CSS_CLASSNAME}}__list',
-        '{{MENU_CSS_CLASSNAME}}__list_' . (!$level ? 'main' : 'inner'),
-        '{{MENU_CSS_CLASSNAME}}__list_level_' . $level
+        'menu-mobile__list',
+        'menu-mobile__list_' . (!$level ? 'main' : 'inner'),
+        'menu-mobile__list_level_' . $level
     );
     return $text ? '<ul class="' . implode(' ', $ulClasses) . '">' . $text . '</ul>' : $text;
 };
 ?>
 <a class="menu-trigger"></a>
-<nav class="{{MENU_CSS_CLASSNAME}}">
-  <?php echo $showMenu($menuArr ?: $Item, $Page)?>
-</nav>
-<?php echo Package::i()->asset('/js/{{MENU_CSS_CLASSNAME}}.js')?>
+<div data-vue-role="menu-mobile" data-inline-template>
+  <nav class="menu-mobile">
+    <?php echo $showMenu($menuArr ?: $Item, $Page)?>
+  </nav>
+</div>
