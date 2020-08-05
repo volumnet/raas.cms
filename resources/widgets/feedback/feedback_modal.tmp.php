@@ -72,7 +72,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                                 </label>
                               </div>
                             </div>
-                        <?php } elseif ($row->datatype == 'checkbox') { ?>
+                        <?php } elseif (($row->datatype == 'checkbox') && !$row->multiple) { ?>
                             <div class="form-group">
                               <div class="col-sm-9 col-sm-offset-3">
                                 <label class="checkbox">

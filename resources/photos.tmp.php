@@ -48,19 +48,9 @@ if ($Item) {
         </div>
       </div>
     </div>
-    <?php include Package::i()->resourcesDir . '/pages.inc.php'?>
     <?php if ($Pages->pages > 1) { ?>
-        <ul class="pagination pull-right">
-          <?php
-          echo $outputNav(
-              $Pages,
-              array(
-                  'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>',
-                  'pattern_active' => '<li class="active"><a>{text}</a></li>',
-                  'ellipse' => '<li class="disabled"><a>...</a></li>'
-              )
-          );
-          ?>
-        </ul>
+        <div class="photos__pagination">
+          <?php Snippet::importByURN('pagination')->process(['pages' => $Pages]); ?>
+        </div>
     <?php } ?>
 <?php } ?>

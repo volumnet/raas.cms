@@ -1,4 +1,7 @@
 <?php
+/**
+ * @deprecated Используется сниппет pagination
+ */
 namespace RAAS\CMS;
 
 use SOME\HTTP;

@@ -8,19 +8,76 @@ namespace RAAS\CMS;
 use SOME\HTTP;
 use SOME\Pages;
 
-include Package::i()->resourcesDir . '/pages.inc.php';
-
 if ($pages->pages > 1) { ?>
     <ul class="pagination pull-right">
       <?php
-      echo $outputNav(
-          $pages,
-          [
-              'pattern' => '<li><a href="' . HTTP::queryString('page={link}') . '">{text}</a></li>',
-              'pattern_active' => '<li class="active"><span>{text}</span></li>',
-              'ellipse' => '<li class="disabled"><a>...</a></li>'
-          ]
-      );
-      ?>
+      $links = [];
+      $trace = 2;
+
+      if ($pages->page > 1) {
+          $link = '';
+          if (($pages->page - 1) > 1) {
+              $link = ($pages->page - 1);
+          }
+          $links[] = [
+              'href' => HTTP::queryString('page=' . $link),
+              'text' => '«'
+          ];
+      }
+      if ($pages->page > 1 + $trace) {
+          $links[] = ['href' => HTTP::queryString('page='), 'text' => '1'];
+      }
+      if ($pages->page == 3 + $trace) {
+          $links[] = ['href' => HTTP::queryString('page=2'), 'text' => '2'];
+      } elseif ($pages->page > 2 + $trace) {
+          $links[] = ['ellipsis' => true];
+      }
+      for ($i = max(1, $pages->page - $trace);
+          $i <= min($pages->page + $trace, $pages->pages);
+          $i++
+      ) {
+          $links[] = [
+              'href' => HTTP::queryString('page=' . (($i > 1) ? $i : '')),
+              'text' => $i,
+              'active' => ($pages->page == $i),
+          ];
+      }
+      if ($pages->page == $pages->pages - $trace - 2) {
+          $links[] = [
+              'href' => HTTP::queryString('page=' . ($pages->pages - 1)),
+              'text' => ($pages->pages - 1)
+          ];
+      } elseif ($pages->page < $pages->pages - $trace - 1) {
+          $links[] = ['ellipsis' => true];
+      }
+      if ($pages->page < $pages->pages - $trace) {
+          $links[] = [
+              'href' => HTTP::queryString('page=' . $pages->pages),
+              'text' => $pages->pages
+          ];
+      }
+      if ($pages->page < $pages->pages) {
+          $links[] = [
+              'href' => HTTP::queryString('page=' . ($pages->page + 1)),
+              'text' => '»'
+          ];
+      }
+      foreach ($links as $link) {
+          if ($link['ellipsis']) { ?>
+              <li class="disabled"><a>...</a></li>
+          <?php } elseif ($link['active']) { ?>
+              <li class="active">
+                <span>
+                  <?php echo htmlspecialchars($link['text'])?>
+                </span>
+              </li>
+          <?php } else { ?>
+              <li>
+                <a href="<?php echo htmlspecialchars($link['href'])?>">
+                  <?php echo htmlspecialchars($link['text'])?>
+                </a>
+              </li>
+          <?php }
+      } ?>
     </ul>
 <?php } ?>
