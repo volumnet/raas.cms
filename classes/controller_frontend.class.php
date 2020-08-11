@@ -419,11 +419,17 @@ class Controller_Frontend extends Abstract_Controller
         }
         $text .= '?' . ">";
         $text .= $content;
-        file_put_contents(
-            $this->model->cacheDir . '/' . $filename . '.php',
-            $text
-        );
-        chmod($this->model->cacheDir . '/' . $filename . '.php', 0777);
+        $cacheLeaveFreeSpace = (int)CMSPackage::i()->registryGet('cache_leave_free_space')
+                             * (1024 * 1024);
+        $diskFreeSpace = disk_free_space(Application::i()->baseDir);
+        $availableCacheSpace = $diskFreeSpace - $cacheLeaveFreeSpace - strlen($text);
+        if ($availableCacheSpace > 0) {
+            file_put_contents(
+                $this->model->cacheDir . '/' . $filename . '.php',
+                $text
+            );
+            chmod($this->model->cacheDir . '/' . $filename . '.php', 0777);
+        }
     }
 
 

@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\Application;
 use RAAS\LockCommand;
 
 /**
@@ -11,6 +12,12 @@ use RAAS\LockCommand;
  */
 class GetPageCacheCommand extends LockCommand
 {
+    /**
+     * Оставлять свободного места при построении кэша, МБ
+     * @var int
+     */
+    protected $cacheLeaveFreeSpace = 0;
+
     /**
      * Выполнение команды
      * @param bool $forceUpdate Принудительно выполнить обновление,
@@ -37,6 +44,8 @@ class GetPageCacheCommand extends LockCommand
         $pagesToUpdate = [];
         $limit = 0;
         $this->lock();
+        $this->cacheLeaveFreeSpace = (int)Package::i()->registryGet('cache_leave_free_space')
+                                   * (1024 * 1024);
         if ($clearBlocksCache) {
             Package::i()->clearBlocksCache();
             $this->controller->doLog('Blocks caches cleared');
@@ -122,11 +131,21 @@ class GetPageCacheCommand extends LockCommand
         }
         $cachefile = $page->cacheFile;
         $mt = strtotime($page->last_modified);
+
         if (is_file($cachefile)) {
             $ft = filemtime($cachefile);
             if (($ft >= $mt) && !$forceUpdate) {
                 $this->controller->doLog(
                     'Page #' . (int)$page->id . ' "' . $page->url . '": data is actual'
+                );
+                return false;
+            }
+        } else {
+            $diskFreeSpace = disk_free_space(Application::i()->baseDir);
+            $availableCacheSpace = $diskFreeSpace - $this->cacheLeaveFreeSpace;
+            if ($availableCacheSpace <= 0) {
+                $this->controller->doLog(
+                    'Page #' . (int)$page->id . ' "' . $page->url . '": cache quota is full, skipped'
                 );
                 return false;
             }

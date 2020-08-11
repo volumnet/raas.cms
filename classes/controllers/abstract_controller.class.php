@@ -63,6 +63,11 @@ abstract class Abstract_Controller extends RAASAbstractPackageController
                 'name' => 'clear_cache_by_time',
                 'caption' => $this->view->_('CLEAR_CACHE_BY_TIME')
             ],
+            [
+                'type' => 'number',
+                'name' => 'cache_leave_free_space',
+                'caption' => $this->view->_('CACHE_LEAVE_FREE_SPACE')
+            ],
         ];
     }
 }

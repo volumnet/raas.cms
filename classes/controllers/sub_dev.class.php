@@ -4,6 +4,8 @@
  */
 namespace RAAS\CMS;
 
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use SOME\HTTP;
 use RAAS\Redirector;
 use RAAS\Application;
@@ -280,7 +282,29 @@ class Sub_Dev extends RAASAbstractSubController
                 new Redirector(HTTP::queryString('action='));
                 break;
             case 'cache':
-                $this->view->cache();
+                $diskFreeSpace = disk_free_space(Application::i()->baseDir);
+                $usedByCache = 0;
+                $directory = new RecursiveDirectoryIterator(Package::i()->cacheDir);
+                $iterator = new RecursiveIteratorIterator($directory);
+                $filesCounter = 0;
+                foreach ($iterator as $fileEntry) {
+                    if ($fileEntry->isFile()) {
+                        $usedByCache += $fileEntry->getSize();
+                        $filesCounter++;
+                    }
+                }
+                $diskFreeSpace /= (1024 * 1024);
+                $usedByCache /= (1024 * 1024);
+                $cacheLeaveFreeSpace = (int)Package::i()->registryGet('cache_leave_free_space');
+                $availableForCache = $diskFreeSpace - $cacheLeaveFreeSpace;
+                $result = [
+                    'diskFreeSpace' => $diskFreeSpace,
+                    'usedByCache' => $usedByCache,
+                    'cacheLeaveFreeSpace' => $cacheLeaveFreeSpace,
+                    'availableForCache' => $availableForCache,
+                    'filesCounter' => $filesCounter,
+                ];
+                $this->view->cache($result);
                 break;
             case 'copy_form':
                 $this->copyForm();

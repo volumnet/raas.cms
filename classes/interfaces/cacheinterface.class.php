@@ -4,6 +4,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\Application;
+
 /**
  * Класс интерфейса кэширования
  */
@@ -64,14 +66,20 @@ class CacheInterface extends AbstractInterface
                 break;
         }
         if ($cacheCode) {
-            $tmpFile = tempnam(sys_get_temp_dir(), 'raas');
-            $filename = $this->block->getCacheFile(
-                isset($this->server['REQUEST_URI']) ?
-                $this->server['REQUEST_URI'] :
-                ''
-            );
-            file_put_contents($tmpFile, $cacheCode);
-            rename($tmpFile, $filename);
+            $cacheLeaveFreeSpace = (int)Package::i()->registryGet('cache_leave_free_space')
+                                 * (1024 * 1024);
+            $diskFreeSpace = disk_free_space(Application::i()->baseDir);
+            $availableCacheSpace = $diskFreeSpace - $cacheLeaveFreeSpace - strlen($cacheCode);
+            if ($availableCacheSpace > 0) {
+                $tmpFile = tempnam(sys_get_temp_dir(), 'raas');
+                $filename = $this->block->getCacheFile(
+                    isset($this->server['REQUEST_URI']) ?
+                    $this->server['REQUEST_URI'] :
+                    ''
+                );
+                file_put_contents($tmpFile, $cacheCode);
+                rename($tmpFile, $filename);
+            }
         }
         return $this->data;
     }
