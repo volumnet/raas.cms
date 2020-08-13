@@ -89,7 +89,7 @@ ob_start(); // Для $separateScripts
     <?php if (HTTP::queryString()) { ?>
         <link rel="canonical" href="http<?php echo (mb_strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))?>">
     <?php } ?>
-    <?php if ($Page->noindex || $Page->Material->noindex) { ?>
+    <?php if ($Page->noindex || $Page->Material->noindex || $Page->catalogFilter->filter) { ?>
         <meta name="robots" content="noindex,nofollow" />
     <?php } ?>
     <?php echo $Page->location('head_counters')?>

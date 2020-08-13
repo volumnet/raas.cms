@@ -756,13 +756,12 @@ class SearchInterface extends AbstractInterface
 
             if ($pageMaterialsRatio) {
                 $sqlQuery = "SELECT tM.id AS material_id, tMTAPM.page_id
-                               FROM " . Material::_tablename() . "
-                                 AS tM
-                               JOIN " . Material::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache
-                                 AS tMTAPM
-                                 ON tMTAPM.material_type_id = tM.pid
+                               FROM " . Material::_tablename() . " AS tM
+                               JOIN " . Material::_dbprefix() . "cms_material_types_affected_pages_for_materials_cache AS tMTAPM ON tMTAPM.material_type_id = tM.pid
+                          LEFT JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id
                               WHERE tM.id IN (" . implode(", ", array_keys($materialRatings)) . ")
                                 AND tMTAPM.page_id IN (" . implode(", ", array_map('intval', (array)$searchPagesIds)) . ")
+                                AND ((tMPA.pid = tMTAPM.page_id) OR (tMPA.pid IS NULL))
                            GROUP BY tM.id, tMTAPM.page_id";
                 $sqlResult = Material::_SQL()->get($sqlQuery);
 
