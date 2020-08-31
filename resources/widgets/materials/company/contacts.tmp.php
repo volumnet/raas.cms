@@ -33,7 +33,11 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   </span>
   <?php if ($map = $company->map) { ?>
       <div class="{{WIDGET_CSS_CLASSNAME}}__map">
-        <?php echo $map?>
+        <?php
+        $map = preg_replace('/width=\\d+("|&)/i', 'width=100%$1', $map);
+        $map = preg_replace('/type=".*?"/i', 'type="application/javascript"', $map);
+        echo $map;
+        ?>
       </div>
   <?php }
   $addressArr = [];

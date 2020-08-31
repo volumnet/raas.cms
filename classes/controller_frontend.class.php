@@ -325,7 +325,17 @@ class Controller_Frontend extends Abstract_Controller
                 )
             );
             if (!$nonHtmlContentTypeHeaders) {
-                echo '<script src="/admin/ajax.php?p=cms&action=debug_page&v=' . date('Y-m-d-H-i-s') . '"></script>';
+                echo '<script>
+                var f = function (d) {
+                    var s = d.createElement("script");
+                    s.type = "text/javascript";
+                    s.async = true;
+                    s.src = "/admin/ajax.php?p=cms&action=debug_page&v=' . date('Y-m-d-H-i-s') . '";
+                    d.body.append(s);
+                };
+                document.addEventListener("DOMContentLoaded", function() {
+                    f(document);;
+                });</script>';
             }
         }
     }
