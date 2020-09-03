@@ -194,11 +194,16 @@ ob_start(); // Для $separateScripts
                               echo $contentText;
                           } else {
                               Snippet::importByURN('breadcrumbs')->process(['page' => $Page]);
-                              ?>
-                              <h1 class="h1 body__title">
-                                <?php echo htmlspecialchars($Page->getH1())?>
-                              </h1>
-                              <?php echo $contentText . $Page->location('share');
+                              /*if (!$Page->Material->id || !in_array(
+                                  5,
+                                  MaterialTypeRecursiveCache::i()->getSelfAndParentsIds($Page->Material->pid)
+                              )) {*/ ?>
+                                  <h1 class="h1 body__title">
+                                    <?php echo htmlspecialchars($Page->getH1())?>
+                                  </h1>
+                                  <?php
+                              /* } */
+                              echo $contentText . $Page->location('share');
                           } ?>
                         </div>
                     <?php }
