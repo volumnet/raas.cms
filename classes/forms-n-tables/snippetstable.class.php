@@ -65,6 +65,41 @@ class SnippetsTable extends Table
                         return htmlspecialchars($row->urn);
                     }
                 ],
+                'usage' => [
+                    'caption' => $this->view->_('USAGE'),
+                    'callback' => function ($row) {
+                        if ($row instanceof Snippet) {
+                            $textArr = [];
+                            $sum = 0;
+                            if ($c = count($row->usingBlocks)) {
+                                $sum += $c;
+                                $textArr[] = $this->view->_('BLOCKS') . ': ' . $c;
+                            }
+                            if ($c = count($row->usingForms)) {
+                                $sum += $c;
+                                $textArr[] = $this->view->_('FORMS') . ': ' . $c;
+                            }
+                            if ($c = count($row->usingSnippets)) {
+                                $sum += $c;
+                                $textArr[] = $this->view->_('SNIPPETS') . ': ' . $c;
+                            }
+                            if ($c = count($row->usingFields)) {
+                                $sum += $c;
+                                $textArr[] = $this->view->_('FIELDS') . ': ' . $c;
+                            }
+                            if ($c = count($row->usingPriceloaders)) {
+                                $sum += $c;
+                                $textArr[] = $this->view->_('PRICELOADERS') . ': ' . $c;
+                            }
+                            if ($textArr) {
+                                return '<span title="' . htmlspecialchars(implode('; ', $textArr)) . '">' .
+                                          $sum .
+                                       '</span>';
+                            }
+                        }
+                        return '';
+                    },
+                ],
                 ' ' => [
                     'callback' => function ($row) use ($view) {
                         return rowContextMenu(

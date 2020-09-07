@@ -5,6 +5,7 @@
 namespace RAAS\CMS;
 
 use RAAS\Form as RAASForm;
+use RAAS\FormTab;
 
 /**
  * Класс формы редактирования сниппета
@@ -33,19 +34,81 @@ class EditSnippetForm extends RAASForm
             'caption' => $view->_('EDIT_SNIPPET'),
             'parentUrl' => Sub_Dev::i()->url . '&action=snippets',
             'children' => [
-                [
+                'common' => $this->getCommonTab(),
+            ]
+        ];
+        if ($item->id) {
+            if ($usingBlocks = $item->usingBlocks) {
+                $defaultParams['children']['blocks'] = $this->getSnippetUsersTab(
+                    $this->view->_('BLOCKS'),
+                    'blocks',
+                    $usingBlocks
+                );
+            }
+            if ($usingSnippets = $item->usingSnippets) {
+                $defaultParams['children']['snippets'] = $this->getSnippetUsersTab(
+                    $this->view->_('SNIPPETS'),
+                    'snippets',
+                    $usingSnippets
+                );
+            }
+            if ($usingForms = $item->usingForms) {
+                $defaultParams['children']['forms'] = $this->getSnippetUsersTab(
+                    $this->view->_('FORMS'),
+                    'forms',
+                    $usingForms
+                );
+            }
+            if ($usingFields = $item->usingFields) {
+                $defaultParams['children']['fields'] = $this->getSnippetUsersTab(
+                    $this->view->_('FIELDS'),
+                    'fields',
+                    $usingFields
+                );
+            }
+            if ($usingPriceloaders = $item->usingPriceloaders) {
+                $defaultParams['children']['priceloaders'] = $this->getSnippetUsersTab(
+                    $this->view->_('PRICELOADERS'),
+                    'priceloaders',
+                    $usingPriceloaders
+                );
+            }
+            if ($usingImageloaders = $item->usingImageloaders) {
+                $defaultParams['children']['imageloaders'] = $this->getSnippetUsersTab(
+                    $this->view->_('IMAGELOADERS'),
+                    'imageloaders',
+                    $usingImageloaders
+                );
+            }
+        }
+        $arr = array_merge($defaultParams, $params);
+        parent::__construct($arr);
+    }
+
+
+    /**
+     * Получает основную вкладку редактирования сниппета
+     * @return FormTab
+     */
+    public function getCommonTab()
+    {
+        $tab = new FormTab([
+            'name' => 'common',
+            'caption' => $this->view->_('MAIN'),
+            'children' => [
+                'name' => [
                     'name' => 'name',
-                    'caption' => $view->_('NAME'),
+                    'caption' => $this->view->_('NAME'),
                     'required' => 'required',
                 ],
-                [
+                'urn' => [
                     'name' => 'urn',
-                    'caption' => $view->_('URN'),
+                    'caption' => $this->view->_('URN'),
                 ],
-                [
+                'pid' => [
                     'type' => 'select',
                     'name' => 'pid',
-                    'caption' => $view->_('PARENT_FOLDER'),
+                    'caption' => $this->view->_('PARENT_FOLDER'),
                     'children' => [
                         'Set' => [
                             new Snippet_Folder([
@@ -55,14 +118,28 @@ class EditSnippetForm extends RAASForm
                         ]
                     ],
                 ],
-                [
+                'description' => [
                     'type' => 'codearea',
                     'name' => 'description',
-                    'caption' => $view->_('SOURCE_CODE'),
+                    'caption' => $this->view->_('SOURCE_CODE'),
                 ],
             ]
-        ];
-        $arr = array_merge($defaultParams, $params);
-        parent::__construct($arr);
+        ]);
+        return $tab;
+    }
+
+
+    public function getSnippetUsersTab($name, $urn, array $snippetUsers)
+    {
+        $table = new SnippetUsersTable([
+            'Set' => $snippetUsers,
+        ]);
+        $tab = new FormTab([
+            'name' => $urn,
+            'caption' => $name,
+            'meta' => ['Table' => $table],
+            'template' => 'snippet_users.inc.php'
+        ]);
+        return $tab;
     }
 }

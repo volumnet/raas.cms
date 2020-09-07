@@ -16,7 +16,7 @@ class CopySnippetForm extends EditSnippetForm
         $params['caption'] = $this->view->_('COPY_SNIPPET');
         parent::__construct($params);
         $Item = isset($params['Item']) ? $params['Item'] : null;
-        foreach ($this->children as $row) {
+        foreach ($this->children['common']->children as $row) {
             if ($Item->{$row->name}) {
                 $row->default = $Item->{$row->name};
             }
