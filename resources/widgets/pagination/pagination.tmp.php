@@ -20,12 +20,15 @@ if ($pages->pages > 1) { ?>
               $link = ($pages->page - 1);
           }
           $links[] = [
-              'href' => HTTP::queryString('page=' . $link),
+              'href' => HTTP::queryString('page=' . $link, false, null, true, true),
               'text' => '«'
           ];
       }
       if ($pages->page > 1 + $trace) {
-          $links[] = ['href' => HTTP::queryString('page='), 'text' => '1'];
+          $links[] = [
+            'href' => HTTP::queryString('page=', false, null, true, true),
+            'text' => '1'
+          ];
       }
       if ($pages->page == 3 + $trace) {
           $links[] = ['href' => HTTP::queryString('page=2'), 'text' => '2'];
