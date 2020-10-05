@@ -26,8 +26,8 @@ if ($pages->pages > 1) { ?>
       }
       if ($pages->page > 1 + $trace) {
           $links[] = [
-            'href' => HTTP::queryString('page=', false, null, true, true),
-            'text' => '1'
+              'href' => HTTP::queryString('page=', false, null, true, true),
+              'text' => '1'
           ];
       }
       if ($pages->page == 3 + $trace) {
@@ -40,7 +40,13 @@ if ($pages->pages > 1) { ?>
           $i++
       ) {
           $links[] = [
-              'href' => HTTP::queryString('page=' . (($i > 1) ? $i : '')),
+              'href' => HTTP::queryString(
+                  'page=' . (($i > 1) ? $i : ''),
+                  false,
+                  null,
+                  true,
+                  true
+              ),
               'text' => $i,
               'active' => ($pages->page == $i),
           ];

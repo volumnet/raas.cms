@@ -70,6 +70,7 @@ class Snippet extends SOME
         $st = microtime(true);
         $DATA = $data;
         extract($data);
+        $_SESSION['RAAS_EVAL_DEBUG'] = 'Snippet::' . $this->urn;
         $result = eval('?' . '>' . $this->description);
         if ($diag = Controller_Frontend::i()->diag) {
             $diag->handle('snippets', $this->id, microtime(true) - $st);

@@ -547,6 +547,7 @@ class Page extends SOME
             foreach ($this->Template->locations as $l => $loc) {
                 $this->location($l);
             }
+            $_SESSION['RAAS_EVAL_DEBUG'] = 'Template::' . $this->Template->urn;
             eval('?' . '>' . $this->Template->description);
         }
         $content = ob_get_contents();
