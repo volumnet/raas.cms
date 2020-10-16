@@ -7,6 +7,7 @@ namespace RAAS\CMS;
 use Mustache_Engine;
 use SOME\SOME;
 use SOME\Text;
+use SOME\Thumbnail;
 use RAAS\Attachment;
 use RAAS\Application;
 use RAAS\Controller_Frontend as RAASControllerFrontend;
@@ -17,6 +18,11 @@ use RAAS\View_Web as RAASViewWeb;
  */
 class FormInterface extends AbstractInterface
 {
+    /**
+     * Максимальный размер (px, по большей стороне) изображений для письма
+     */
+    const MAIL_SIZE = 600;
+
     /**
      * Конструктор класса
      * @param Block_Form|null $block Блок, для которого применяется
@@ -705,7 +711,17 @@ class FormInterface extends AbstractInterface
      *                 'subject' => string Тема письма,
      *                 'message' => string Тело письма,
      *                 'from' => string Поле "от",
-     *                 'fromEmail' => string Обратный адрес
+     *                 'fromEmail' => string Обратный адрес,
+     *                 'attachments' => array<[
+     *                     'tmp_name' => string Путь к реальному файлу,
+     *                     'type' => string MIME-тип файла,
+     *                     'name' => string Имя файла
+     *                 ]> вложения,
+     *                 'embedded' => array<[
+     *                     'tmp_name' => string Путь к реальному файлу,
+     *                     'type' => string MIME-тип файла,
+     *                     'name' => string Имя файла
+     *                 ]> встроенные файлы,
      *             ],
      *             'smsPhones' => array<string URL SMS-шлюза>
      *         >|null Набор отправляемых писем либо URL SMS-шлюза
@@ -748,6 +764,11 @@ class FormInterface extends AbstractInterface
         $fromName = $this->getFromName();
         $fromEmail = $this->getFromEmail();
         $debugMessages = [];
+        $attachments = $this->getAttachments($feedback, $material, $forAdmin);
+
+        $processEmbedded = $this->processEmbedded($message);
+        $message = $processEmbedded['message'];
+        $embedded = (array)$processEmbedded['embedded'];
 
         if ($emails = $addresses['emails']) {
             if ($debug) {
@@ -757,6 +778,8 @@ class FormInterface extends AbstractInterface
                     'message' => $message,
                     'from' => $fromName,
                     'fromEmail' => $fromEmail,
+                    'attachments' => $attachments,
+                    'embedded' => $embedded,
                 ];
             } else {
                 Application::i()->sendmail(
@@ -764,7 +787,10 @@ class FormInterface extends AbstractInterface
                     $subject,
                     $message,
                     $fromName,
-                    $fromEmail
+                    $fromEmail,
+                    true,
+                    $attachments,
+                    $embedded
                 );
             }
         }
@@ -955,5 +981,131 @@ class FormInterface extends AbstractInterface
     {
         $host = $this->server['HTTP_HOST'];
         return 'info@' . $host;
+    }
+
+
+    /**
+     * Получает вложения для письма
+     * @param Feedback $feedback Уведомление формы обратной связи
+     * @param Material $material Созданный материал
+     * @param bool $forAdmin Уведомление для администратора
+     *                       (если нет, то для пользователя)
+     * @return array <pre>array<[
+     *     'tmp_name' => string Путь к реальному файлу,
+     *     'type' => string MIME-тип файла,
+     *     'name' => string Имя файла
+     * ]></pre>
+     */
+    public function getAttachments(
+        Feedback $feedback,
+        Material $material = null,
+        $forAdmin = true
+    ) {
+        return [];
+    }
+
+
+    /**
+     * Преобразует строку и выбирает встроенные файлы
+     * @param string $text Исходный текст письма
+     * @return array <pre>[
+     *     'message' => string Преобразованный текст письма,
+     *     'embedded' => array<[
+     *         'tmp_name' => string Путь к реальному файлу,
+     *         'type' => string MIME-тип файла,
+     *         'name' => string Имя файла
+     *     ]> Встроенные файлы
+     * ]</pre>
+     */
+    public function processEmbedded($text)
+    {
+        $embedded = [];
+        $rxes = ['src="(.*?)"', 'url\\((.*?)\\)'];
+        foreach ($rxes as $rx) {
+            preg_match_all('/' . $rx . '/umis', $text, $regs);
+            foreach ($regs[0] as $i => $oldSrc) {
+                $newSrc = $oldSrc;
+                $attrValue = trim($regs[1][$i], '"\'');
+                if (!preg_match('/^(cid):/umis', $attrValue)) {
+                    $basename = $this->getBasename($attrValue);
+                    if (!isset($embedded[$basename]) &&
+                        ($embeddedEntry = $this->getEmbedded($attrValue))
+                    ) {
+                        $embedded[$basename] = $embeddedEntry;
+                    }
+                    $newAttrValue = 'cid:' . $embedded[$basename]['name'];
+                    $newSrc = str_replace($attrValue, $newAttrValue, $newSrc);
+                    $text = str_replace($oldSrc, $newSrc, $text);
+                }
+            }
+        }
+        return ['message' => $text, 'embedded' => array_values($embedded)];
+    }
+
+
+    /**
+     * Получает имя встроенного файла по оригинальному адресу
+     * @param string $src Оригинальный адрес
+     * @return string
+     */
+    public function getBasename($src)
+    {
+        return dechex(crc32($src)) . '-' . basename(parse_url($src, PHP_URL_PATH));
+    }
+
+
+    /**
+     * Получает встроенный файл по ссылке
+     * @param string $src Ссылка
+     * @return array <pre>[
+     *     'tmp_name' => string Путь к реальному файлу,
+     *     'type' => string MIME-тип файла,
+     *     'name' => string Имя файла
+     * ]</pre>
+     */
+    public function getEmbedded($src)
+    {
+        $name = $this->getBasename($src);
+        $tmpname = tempnam(sys_get_temp_dir(), 'raas');
+        $mime = 'application/octet-stream';
+        $text = '';
+        if (preg_match('/^(http(s)?:)?\\/\\//umis', $src, $regs)) {
+            // Внешний файл
+            if (!$regs[1]) {
+                $src = 'http' . ($_SERVER['HTTPS'] ? 's' : '') . ':' . $src;
+            }
+            $text = @file_get_contents($src);
+        } elseif ($src[0] == '/') {
+            // Файл на данном сайте
+            $text = @file_get_contents(Application::i()->baseDir . $src);
+        } elseif (preg_match('/^data:.*?;base64,(.*?)$/umis', $src, $regs)) {
+            // Data URI
+            $text = base64_decode($regs[1]);
+            $name = basename($tmpname);
+            return $src;
+        }
+        file_put_contents($tmpname, $text);
+
+        if ($type = getimagesize($tmpname)) {
+            $ext = image_type_to_extension($type[2]);
+            $name = pathinfo($name, PATHINFO_FILENAME) . $ext;
+            $mime = image_type_to_mime_type($type[2]);
+            if (($type[0] > static::MAIL_SIZE) || ($type[1] > static::MAIL_SIZE)) {
+                $tmpname2 = tempnam(sys_get_temp_dir(), 'raas')
+                          . image_type_to_extension($type[2]);
+                Thumbnail::make($tmpname, $tmpname2, static::MAIL_SIZE, static::MAIL_SIZE);
+                unlink($tmpname);
+                $tmpname = $tmpname2;
+            }
+        } elseif ($type = mime_content_type($tmpname)) {
+            $mime = $type;
+        }
+
+        $result = [
+            'tmp_name' => $tmpname,
+            'type' => $mime,
+            'name' => $name,
+        ];
+        return $result;
     }
 }

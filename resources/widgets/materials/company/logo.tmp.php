@@ -10,7 +10,7 @@ namespace RAAS\CMS;
 $company = $Set[0];
 
 ?>
-<a<?php echo $Page->pid ? ' href="/"' : ''?> class="{{WIDGET_CSS_CLASSNAME}}">
+<a<?php echo ($Page->pid || $Page->Material->id) ? ' href="/"' : ''?> class="{{WIDGET_CSS_CLASSNAME}}">
   <span class="{{WIDGET_CSS_CLASSNAME}}__image">
     <img src="/<?php echo htmlspecialchars($company->logo->fileURL)?>" alt="<?php echo htmlspecialchars($company->logo->name ?: $company->name)?>" />
   </span>

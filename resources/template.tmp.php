@@ -71,6 +71,7 @@ ob_start(); // Для $separateScripts
     <?php } ?>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
     <?php echo $Page->headData; ?>
     <?php echo Package::i()->asset([
         '/css/application.css',
@@ -82,7 +83,9 @@ ob_start(); // Для $separateScripts
     echo Package::i()->asset([
         '/js/application.js',
     ]);
-    echo Package::i()->getRequestedJS();?>
+    ?>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <?php echo Package::i()->getRequestedJS();?>
     <?php if (is_file('favicon.ico')) { ?>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <?php } ?>
