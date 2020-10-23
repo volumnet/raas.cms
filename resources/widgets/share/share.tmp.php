@@ -8,7 +8,7 @@ namespace RAAS\CMS;
 
 ?>
 <div class="{{WIDGET_CSS_CLASSNAME}}">
-  <div class="ya-share2" data-services="vkontakte,facebook,twitter,gplus,whatsapp"></div>
+  <div class="ya-share2" data-services="vkontakte,facebook,twitter,whatsapp"></div>
 </div>
 <?php Package::i()->requestJS([
     '//yastatic.net/es5-shims/0.0.2/es5-shims.min.js',

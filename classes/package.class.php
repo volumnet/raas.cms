@@ -1167,18 +1167,25 @@ class Package extends RAASPackage
      * @param string|array<string> $fileURL Ссылка или массив ссылок на файл
      * @param string $alt Альтернативное описание у изображений
      * @param string $title Всплывающая подсказка у изображений
+     * @param string $ext Расширение подключаемого файла (если нет в адресе)
+     * @return string
      */
-    public static function asset($fileURL, $alt = '', $title = '')
+    public static function asset($fileURL, $alt = '', $title = '', $ext = '')
     {
         if (is_array($fileURL)) {
-            $result = array_values(array_filter(array_map(function ($x) {
-                return static::asset($x);
-            }, $fileURL), 'trim'));
+            $result = array_values(array_filter(array_map(
+                function ($x) use ($alt, $title, $ext) {
+                    return static::asset($x, $alt, $title, $ext);
+                },
+                $fileURL
+            ), 'trim'));
             return implode("\n", $result);
         }
         $filepath = trim($fileURL, '/');
         if (stristr($fileURL, '//') || ($isFile = is_file($filepath))) {
-            $ext = mb_strtolower(pathinfo($fileURL, PATHINFO_EXTENSION));
+            if (!$ext) {
+                $ext = mb_strtolower(pathinfo($fileURL, PATHINFO_EXTENSION));
+            }
             $version = '';
             if ($isFile) {
                 $version = '?v=' . date('Y-m-d-H-i-s', filemtime($filepath));
@@ -1297,9 +1304,10 @@ class Package extends RAASPackage
      * @param string $var Название переменной с добавленными файлами
      * @param string|null $group Название группы,
      *                           либо null для получения файлов из всех групп
+     * @param string $ext Расширение подключаемого файла (если нет в адресе)
      * @return string
      */
-    protected function getRequestedFiles($var, $group = '')
+    protected function getRequestedFiles($var, $group = '', $ext = '')
     {
         $val = $this->$var;
         if ($group === null) {
@@ -1307,7 +1315,8 @@ class Package extends RAASPackage
         } else {
             $result = isset($val[$group]) ? $val[$group] : [];
         }
-        return static::asset($result);
+
+        return static::asset($result, '', '', $ext);
     }
 
 
@@ -1319,7 +1328,7 @@ class Package extends RAASPackage
      */
     public function getRequestedJS($group = '')
     {
-        return $this->getRequestedFiles('requestedJS', $group);
+        return $this->getRequestedFiles('requestedJS', $group, 'js');
     }
 
 
@@ -1331,7 +1340,7 @@ class Package extends RAASPackage
      */
     public function getRequestedCSS($group = '')
     {
-        return $this->getRequestedFiles('requestedCSS', $group);
+        return $this->getRequestedFiles('requestedCSS', $group, 'css');
     }
 
 
