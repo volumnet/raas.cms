@@ -99,9 +99,15 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
             $aClasses[] = 'menu-mobile__link_has-children';
         }
         $text .= '<li class="' . implode(' ', $liClasses) . '">'
-              .  '  <a class="' . implode(' ', $aClasses) . '" ' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>' . htmlspecialchars($name) . '</a>'
-              .     $ch
-              .  '</li>';
+              .  '  <a class="' . implode(' ', $aClasses) . '" ' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>'
+              .       htmlspecialchars($name)
+              .  '  </a>';
+        if ($ch) {
+            $text .= '<a href="#" class="menu-mobile__children-trigger menu-mobile__children-trigger_' . ($level ? 'inner' : 'main') . ' menu-mobile__children-trigger_level_' . (int)$level . '"></a>'
+                  .  $ch;
+
+        }
+        $text .= '</li>';
     }
     $ulClasses = array(
         'menu-mobile__list',
@@ -112,7 +118,7 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
 };
 ?>
 <a class="menu-trigger"></a>
-<div data-vue-role="menu-mobile" data-inline-template>
+<div data-vue-role="menu-mobile" data-vue-inline-template>
   <nav class="menu-mobile">
     <?php echo $showMenu($menuArr ?: $Item, $Page)?>
   </nav>

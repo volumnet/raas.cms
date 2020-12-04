@@ -36,7 +36,9 @@ class EditFormForm extends RAASForm
         $CONTENT['material_types'] = (array)Material_Type::getSet();
         foreach ([
             '' => '_OFF',
-            'captcha' => 'CAPTCHA',
+            // 'captcha' => 'CAPTCHA',
+            // 2020-11-04, AVS: убрал, т.к. ни разу не воспользовались,
+            // и вообще не ясно, как с этим работать
             'hidden' => 'HIDDEN_FIELD'
         ] as $key => $val) {
             $CONTENT['antispam'][] = [

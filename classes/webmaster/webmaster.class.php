@@ -1134,7 +1134,8 @@ class Webmaster
                 [
                     'name' => View_Web::i()->_('PAGE_404'),
                     'urn' => '404',
-                    'response_code' => 404
+                    'response_code' => 404,
+                    'cache' => 0,
                 ],
                 $this->Site
             );

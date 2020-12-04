@@ -6,14 +6,7 @@
 namespace RAAS\CMS;
 
 use SOME\HTTP;
-// use voku\helper\HtmlMin;
-
-$bgPage = $Page;
-while (!$bgPage->background->id && $bgPage->pid) {
-    $bgPage = $bgPage->parent;
-}
-$bg = $bgPage->background;
-unset($bgPage);
+use zz\Html\HTMLMinify;
 
 /**
  * Минификация HTML
@@ -21,10 +14,7 @@ unset($bgPage);
  * @return string
  */
 $sanitizeOutput = function ($text) {
-    // $htmlMin = new HtmlMin();
-    // $htmlMin->doRemoveSpacesBetweenTags(false);
-    // $htmlMin->doRemoveWhitespaceAroundTags(false);
-    // $text = $htmlMin->minify($text);
+    $text = HTMLMinify::minify($text);
     return $text;
 };
 
@@ -74,16 +64,18 @@ ob_start(); // Для $separateScripts
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
     <?php echo $Page->headData; ?>
     <?php echo Package::i()->asset([
-        '/css/application.css',
-        '/css/style.css'
+        '/css/header.css',
+        '/js/header.js',
+        // '/css/style.css',
     ])?>
-    <link rel="stylesheet" href="/custom.css">
     <?php
+    echo Package::i()->getRequestedCSS();
     echo Package::i()->getRequestedJS('beforeApp');
     echo Package::i()->asset([
-        '/js/application.js',
+        '/css/application.css',
     ]);
     ?>
+    <link rel="stylesheet" href="/custom.css">
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
     <?php echo Package::i()->getRequestedJS();?>
     <?php if (is_file('favicon.ico')) { ?>
@@ -99,7 +91,7 @@ ob_start(); // Для $separateScripts
   </head>
   <body class="body <?php echo !$Page->pid ? ' body_main' : ''?>" data-page-id="<?php echo (int)$Page->id?>"<?php echo $Page->Material->id ? ' data-page-material-id="' . (int)$Page->Material->id . '"' : ''?>>
     <?php echo $Page->location('top_body_counters')?>
-    <div id="top" class="body__background-holder"<?php echo $bg->id ? ' style="background-image: url(\'/' . htmlspecialchars($bg->fileURL) . '\')"' : ''?>>
+    <div id="top" class="body__background-holder">
       <header class="body__header" itemscope itemtype="http://schema.org/WPHeader">
         <div class="body__row body__row_menu-top">
           <div class="body__container body__container_menu-top">
@@ -182,8 +174,7 @@ ob_start(); // Для $separateScripts
             $leftText = $contentLocations[$i]['left'];
             $rightText = $contentLocations[$i]['right'];
             $contentText = $contentLocations[$i]['content'];
-            if (!$i || $leftText || $contentText || $rightText) {
-                ?>
+            if (!$i || $leftText || $contentText || $rightText) { ?>
                 <div class="body__row body__row_content body__row_content_<?php echo ($i + 1)?>">
                   <div class="body__container body__container_content body__container_content_<?php echo ($i + 1)?>">
                     <?php if ($leftText) { ?>
@@ -242,9 +233,11 @@ ob_start(); // Для $separateScripts
           <a href="http://volumnet.ru" target="_blank">Volume&nbsp;Networks</a>
         </div>
       </footer>
+      <?php echo $Page->location('body_bottom')?>
     </div>
     <?php
     echo $Page->location('footer_counters');
+    echo Package::i()->asset('/js/application.js');
     $content = $separateScripts(ob_get_clean());
     echo $content[0] . $content[1] . $content[2];
     ?>

@@ -23,7 +23,7 @@ Disallow: /profile/
 Disallow: /activate/
 Disallow: /login/
 Disallow: /recovery/
-Disallow: /my_orders/
+Disallow: /my-orders/
 Disallow: *print=1
 Clean-param: sort&order&print&price_from&price_to
 
@@ -52,7 +52,7 @@ Disallow: /profile/
 Disallow: /activate/
 Disallow: /login/
 Disallow: /recovery/
-Disallow: /my_orders/
+Disallow: /my-orders/
 Disallow: *print=1
 
 Host: {{HOST}}

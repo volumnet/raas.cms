@@ -128,8 +128,7 @@ class FormInterface extends AbstractInterface
     ) {
         if ($form->signature) {
             if (isset($post['form_signature'])) {
-                $signature = md5('form' . (int)$form->id . (int)$block->id);
-                return $post['form_signature'] == $signature;
+                return $post['form_signature'] == $form->getSignature($block);
             }
         } else {
             return mb_strtolower($requestMethod) == 'post';

@@ -44,43 +44,45 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
         </div>
 
         <div data-role="feedback-form" <?php echo $success[(int)$Block->id] ? 'style="display: none"' : ''?>>
-          <p class="feedback__required-fields">
-            <?php echo ASTERISK_MARKED_FIELDS_ARE_REQUIRED?>
+          <p>
+            <small class="text-muted">
+              <?php echo ASTERISK_MARKED_FIELDS_ARE_REQUIRED?>
+            </small>
           </p>
           <?php if ($Form->signature) { ?>
-              <input type="hidden" name="form_signature" value="<?php echo md5('form' . (int)$Form->id . (int)$Block->id)?>" />
+              <input type="hidden" name="form_signature" value="<?php echo htmlspecialchars($Form->getSignature($Block))?>" />
           <?php } ?>
           <?php if ($Form->antispam == 'hidden' && $Form->antispam_field_name) { ?>
               <textarea autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" style="position: absolute; left: -9999px"><?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?></textarea>
           <?php } ?>
-          <?php foreach ($Form->fields as $row) { ?>
-              <?php if ($row->urn == 'agree') { ?>
+          <?php foreach ($Form->fields as $field) { ?>
+              <?php if ($field->urn == 'agree') { ?>
                   <div class="form-group">
                     <div class="col-sm-9 col-sm-offset-3 col-md-offset-2">
                       <label>
-                        <?php $getField($row, $DATA);?>
+                        <?php $getField($field, $DATA);?>
                         <a href="/privacy/" target="_blank">
-                          <?php echo htmlspecialchars($row->name)?>
+                          <?php echo htmlspecialchars($field->name)?>
                         </a>
                       </label>
                     </div>
                   </div>
-              <?php } elseif ($row->datatype == 'checkbox') { ?>
+              <?php } elseif ($field->datatype == 'checkbox') { ?>
                   <div class="form-group">
                     <div class="col-sm-9 col-sm-offset-3 col-md-offset-2">
                       <label>
-                        <?php $getField($row, $DATA);?>
-                        <?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?>
+                        <?php $getField($field, $DATA);?>
+                        <?php echo htmlspecialchars($field->name . ($field->required ? '*' : ''))?>
                       </label>
                     </div>
                   </div>
               <?php } else { ?>
                   <div class="form-group">
-                    <label<?php echo !$row->multiple ? ' for="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : ''?> class="control-label col-sm-3 col-md-2">
-                      <?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?>
+                    <label<?php echo !$field->multiple ? ' for="' . htmlspecialchars($field->getHTMLId($Block)) . '"' : ''?> class="control-label col-sm-3 col-md-2">
+                      <?php echo htmlspecialchars($field->name . ($field->required ? '*' : ''))?>
                     </label>
                     <div class="col-sm-9 col-md-4">
-                      <?php $getField($row, $DATA);?>
+                      <?php $getField($field, $DATA);?>
                     </div>
                   </div>
               <?php } ?>

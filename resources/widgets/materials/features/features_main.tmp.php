@@ -9,7 +9,7 @@ namespace RAAS\CMS;
 
 if ($Set) { ?>
     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main">
-      <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main__title">
+      <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main__title h2">
         <?php echo htmlspecialchars($Block->name)?>
       </div>
       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main__list">
@@ -27,7 +27,7 @@ if ($Set) { ?>
                       </div>
                   <?php } ?>
                   <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__text">
-                    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__title">
+                    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__title h5">
                       <?php echo htmlspecialchars($item->name)?>
                     </div>
                     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__description">
@@ -40,7 +40,7 @@ if ($Set) { ?>
         </div>
       </div>
     </div>
-    <?php if (is_file('js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.js')) { ?>
-        <script src="/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.js?v=<?php echo date('Y-m-d', strtotime('js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.js'))?>"></script>
-    <?php } ?>
-<?php } ?>
+    <?php
+    Package::i()->requestCSS('/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.css');
+    // Package::i()->requestJS('/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.js');
+} ?>

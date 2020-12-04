@@ -13,7 +13,7 @@ $nat = true;
 
 if ($Set) { ?>
     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main">
-      <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main__title">
+      <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main__title h2">
         <a<?php echo $nat ? ' href="/{{MATERIAL_TYPE_CSS_CLASSNAME}}/"' : ''?>>
           <?php echo htmlspecialchars($Block->name)?>
         </a>
@@ -29,10 +29,11 @@ if ($Set) { ?>
                     <?php } ?>
                   </a>
                   <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__text">
-                    <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__title"<?php echo $nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
+                    <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__title h5"<?php echo $nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
                       <?php echo htmlspecialchars($item->name)?>
                     </a>
-                    <?php if (($time = strtotime($item->date)) > 0) { ?>
+                    <?php
+                    if (($time = strtotime($item->date)) > 0) { ?>
                         <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__date">
                           <?php echo date('d', $time) . ' ' . Text::$months[(int)date('m', $time)] . ' ' . date('Y', $time)?>
                         </div>
@@ -54,7 +55,7 @@ if ($Set) { ?>
         </div>
       </div>
     </div>
-    <?php if (is_file('js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.js')) { ?>
-        <script src="/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.js?v=<?php echo date('Y-m-d', strtotime('js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.js'))?>"></script>
-    <?php } ?>
-<?php } ?>
+    <?php
+    Package::i()->requestCSS('/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.css');
+    // Package::i()->requestJS('/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.js');
+} ?>

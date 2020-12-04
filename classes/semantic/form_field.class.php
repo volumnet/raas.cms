@@ -44,4 +44,23 @@ class Form_Field extends Field
                 break;
         }
     }
+
+
+    /**
+     * Получает HTML-атрибут id поля
+     * @param Block|null $Block Блок, для которого получаем
+     * @param int|null $index Индекс поля в множественном списке
+     * @return string
+     */
+    public function getHTMLId(Block $block = null, $index = null)
+    {
+        $result = $this->urn . $this->id;
+        if ($block->id) {
+            $result .= '_' . $block->id;
+        }
+        if ($index !== null) {
+            $result .= '@' . $index;
+        }
+        return $result;
+    }
 }

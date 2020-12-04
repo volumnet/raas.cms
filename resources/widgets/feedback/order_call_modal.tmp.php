@@ -27,10 +27,10 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
           <div class="modal-content">
             <form data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">
               <div class="modal-header">
-                <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
-                <div class="h4 modal-title">
+                <div class="h5 modal-title">
                   <?php echo ORDER_CALL?>
                 </div>
+                <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
               </div>
               <div class="modal-body">
                 <div class="form-horizontal">
@@ -52,7 +52,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
 
                   <div data-role="feedback-form" <?php echo $success[(int)$Block->id] ? 'style="display: none"' : ''?>>
                     <?php if ($Form->signature) { ?>
-                        <input type="hidden" name="form_signature" value="<?php echo md5('form' . (int)$Form->id . (int)$Block->id)?>" />
+                        <input type="hidden" name="form_signature" value="<?php echo htmlspecialchars($Form->getSignature($Block))?>" />
                     <?php } ?>
                     <?php if ($Form->antispam == 'hidden' && $Form->antispam_field_name) { ?>
                         <textarea autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" style="position: absolute; left: -9999px"><?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?></textarea>

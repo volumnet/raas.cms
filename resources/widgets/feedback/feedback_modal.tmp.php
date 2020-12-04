@@ -25,96 +25,85 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
       <div id="<?php echo htmlspecialchars($Form->urn)?>_modal" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
         <div class="modal-dialog">
           <div class="modal-content">
-            <form data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">
-              <div class="modal-header">
-                <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
-                <div class="h4 modal-title">
-                  <?php echo htmlspecialchars($Block->name)?>
+            <div data-vue-role="ajax-form" data-vue-inline-template>
+              <form action="#feedback" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                  <div class="h5 modal-title">
+                    <?php echo htmlspecialchars($Block->name)?>
+                  </div>
+                  <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
                 </div>
-              </div>
-              <div class="modal-body">
-                <div class="form-horizontal">
+                <div class="modal-body">
                   <?php include Package::i()->resourcesDir . '/form2.inc.php'?>
-                  <div data-role="notifications" <?php echo ($success[(int)$Block->id] || $localError) ? '' : 'style="display: none"'?>>
-                    <div class="alert alert-success" <?php echo ($success[(int)$Block->id]) ? '' : 'style="display: none"'?>>
+                  <div data-v-if="success || error">
+                    <div class="alert alert-success" style="display: none" data-v-bind_style="{ display: 'block' }" data-v-if="success">
                       <?php echo FEEDBACK_SUCCESSFULLY_SENT?>
                     </div>
-                    <div class="alert alert-danger" <?php echo ($localError) ? '' : 'style="display: none"'?>>
+                    <div class="alert alert-danger" data-v-if="localError.length">
                       <ul>
-                        <?php foreach ((array)$localError as $key => $val) { ?>
-                            <li>
-                              <?php echo htmlspecialchars($val)?>
-                            </li>
-                        <?php } ?>
+                        <li data-v-for="error in localError" data-v-html="error"></li>
                       </ul>
                     </div>
                   </div>
 
-                  <div data-role="feedback-form" <?php echo $success[(int)$Block->id] ? 'style="display: none"' : ''?>>
-                    <p class="feedback-modal__required-fields">
-                      <?php echo ASTERISK_MARKED_FIELDS_ARE_REQUIRED?>
+                  <div <?php echo $success[(int)$Block->id] ? 'style="display: none"' : ''?>>
+                    <p>
+                      <small class="text-muted">
+                        <?php echo ASTERISK_MARKED_FIELDS_ARE_REQUIRED?>
+                      </small>
                     </p>
                     <?php if ($Form->signature) { ?>
-                        <input type="hidden" name="form_signature" value="<?php echo md5('form' . (int)$Form->id . (int)$Block->id)?>" />
+                        <input type="hidden" name="form_signature" value="<?php echo htmlspecialchars($Form->getSignature($Block))?>" />
                     <?php }
                     if ($Form->antispam == 'hidden' && $Form->antispam_field_name) { ?>
                         <textarea autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" style="position: absolute; left: -9999px"><?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?></textarea>
                     <?php }
-                    foreach ($Form->fields as $row) {
-                        if ($row->urn == 'agree') { ?>
-                            <div class="form-group">
-                              <div class="col-sm-9 col-sm-offset-3">
-                                <label class="checkbox">
-                                  <?php $getField($row, $DATA);?>
-                                  <a href="/privacy/" target="_blank">
-                                    <?php echo htmlspecialchars($row->name)?>
-                                  </a>
-                                </label>
-                              </div>
-                            </div>
-                        <?php } elseif (($row->datatype == 'checkbox') && !$row->multiple) { ?>
-                            <div class="form-group">
-                              <div class="col-sm-9 col-sm-offset-3">
-                                <label class="checkbox">
-                                  <?php $getField($row, $DATA);?>
-                                  <?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?>
-                                </label>
-                              </div>
-                            </div>
-                        <?php } else { ?>
-                            <div class="form-group">
-                              <label<?php echo !$row->multiple ? ' for="' . htmlspecialchars($row->urn . $row->id . '_' . $Block->id) . '"' : ''?> class="control-label col-sm-3">
-                                <?php echo htmlspecialchars($row->name . ($row->required ? '*' : ''))?>:
-                              </label>
-                              <div class="col-sm-9">
-                                <?php $getField($row, $DATA); ?>
-                              </div>
-                            </div>
-                        <?php } ?>
-                    <?php } ?>
-                    <?php if ($Form->antispam == 'captcha' && $Form->antispam_field_name) { ?>
+                    foreach ($Form->fields as $fieldURN => $field) {
+                        $fieldRenderer = FormFieldRenderer::spawn(
+                            $field,
+                            $Block,
+                            $DATA,
+                            $localError
+                        );
+                        $fieldHTML = $fieldRenderer->render();
+                        $fieldCaption = htmlspecialchars($field->name);
+                        if ($fieldURN == 'agree') {
+                            $fieldCaption = '<a href="/privacy/" target="_blank">' .
+                                               $fieldCaption .
+                                            '</a>';
+                        }
+                        if ($field->required) {
+                            $fieldCaption .= '*';
+                        }
+                        ?>
                         <div class="form-group">
-                          <label for="<?php echo htmlspecialchars($Form->antispam_field_name . '_' . $Block->id)?>" class="control-label col-sm-3">
-                            <?php echo CAPTCHA?>
-                          </label>
-                          <div class="col-sm-9">
-                            <img src="/assets/kcaptcha/?<?php echo session_name() . '=' . session_id()?>" /><br />
-                            <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" id="<?php echo htmlspecialchars($Form->antispam_field_name . '_' . $Block->id)?>" />
-                          </div>
+                          <?php
+                          if (($field->datatype == 'checkbox') &&
+                              !$field->multiple
+                          ) { ?>
+                              <label>
+                                <?php echo $fieldHTML . ' ' . $fieldCaption; ?>
+                              </label>
+                          <?php } else { ?>
+                              <label <?php echo !$field->multiple ? ' for="' . htmlspecialchars($field->getHTMLId($Block)) . '"' : ''?>>
+                                <?php echo $fieldCaption; ?>:
+                              </label>
+                              <?php echo $fieldHTML;
+                          } ?>
                         </div>
                     <?php } ?>
                     <div class="feedback-modal__controls">
-                      <button type="button" class="feedback__cancel btn btn-default" data-dismiss="modal">
+                      <button type="button" class="feedback__cancel btn btn-secondary" data-dismiss="modal">
                         <?php echo CANCEL?>
                       </button>
-                      <button class="feedback__submit btn btn-primary" type="submit">
+                      <button class="feedback__submit btn btn-primary" type="submit" data-v-bind_disabled="loading">
                         <?php echo SEND?>
                       </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       </div>

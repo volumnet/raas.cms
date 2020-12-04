@@ -107,4 +107,15 @@ class Form extends SOME
                         AND NOT vis";
         return self::$SQL->getvalue([$sqlQuery, (int)$this->id]);
     }
+
+
+    /**
+     * Получает подпись формы
+     * @param Block $block Блок, для которого получается подпись
+     * @return string
+     */
+    public function getSignature(Block $block)
+    {
+        return md5('form' . (int)$this->id . (int)$block->id);
+    }
 }
