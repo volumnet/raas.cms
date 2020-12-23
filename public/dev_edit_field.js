@@ -1,7 +1,12 @@
 jQuery(function($) {
     var checkDataTypedRows = function() {
         // Если выбрали select, radio или множественный checkbox, появляется выбор источника, для всех остальных исчезает
-        if (($.inArray($('#datatype').val(), ['select', 'radio']) != -1) || (($('#datatype').val() == 'checkbox') && ($('#multiple').attr('checked')))) {
+        if (($.inArray($('#datatype').val(), ['select', 'radio']) != -1) || 
+            (
+                ($('#datatype').val() == 'checkbox') && 
+                ($('#multiple').prop('checked'))
+            )
+        ) {
             $('#source_type').removeAttr('disabled').attr('required', 'required');
             $('.control-group:has(#source_type)').fadeIn();
         } else {
@@ -9,7 +14,9 @@ jQuery(function($) {
             $('.control-group:has(#source_type)').fadeOut();
         }
         
-        if (($.inArray($('#datatype').val(), ['select', 'radio', 'material']) != -1) || (($('#datatype').val() == 'checkbox') && ($('#multiple').attr('checked')))) {
+        if (($.inArray($('#datatype').val(), ['select', 'radio', 'material']) != -1) || 
+            (($('#datatype').val() == 'checkbox') && ($('#multiple').prop('checked')))
+        ) {
             $('.control-group:has(#source_textarea)').fadeIn();
         } else {
             $('.control-group:has(#source_textarea)').fadeOut();

@@ -430,24 +430,19 @@ class Package extends RAASPackage
                                  OR tD.value LIKE '%" . $likeSearchString . "%'
                             )";
         }
-        $sqlQuery .= " GROUP BY tM.id ";
+        $sqlQuery .= " GROUP BY tM.id
+                       ORDER BY NOT tM.priority ASC, tM.priority ASC";
         $pages = new Pages(
             $pageNum,
             Application::i()->registryGet('rowsPerPage')
         );
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
-            $_sort = $row->urn;
-            $Set = Material::getSQLSet($sqlQuery);
-            if (isset($order) && ($order == 'desc')) {
-                $_order = 'desc';
-                $reverse = true;
-            } else {
-                $_order = 'asc';
-                $reverse = false;
+            $reverse = (isset($order) && ($order == 'desc'));
+            $_order = $reverse ? 'desc' : 'asc';
+            $ids = $this->getCompareSQL($row, $reverse);
+            if ($ids) {
+                $sqlQuery .= ", FIELD(tM.id, " . implode(", ", $ids) . ")";
             }
-            $f = $this->getCompareFunction($_sort, $reverse, true);
-            usort($Set, $f);
-            $Set = SOME::getArraySet($Set, $pages);
         } else {
             switch ($sort) {
                 case 'name':
@@ -469,18 +464,44 @@ class Package extends RAASPackage
             } else {
                 $_order = 'asc';
             }
-
-            $sqlQuery .= " ORDER BY NOT tM.priority ASC,
-                                    tM.priority ASC, "
-                      .             $_sort . " " . strtoupper($_order);
-            $Set = Material::getSQLSet($sqlQuery, $pages);
+            $sqlQuery .= ", " . $_sort . " " . strtoupper($_order);
         }
+        $Set = Material::getSQLSet($sqlQuery, $pages);
         return [
             'Set' => $Set,
             'Pages' => $pages,
             'sort' => $sort,
             'order' => $_order
         ];
+    }
+
+
+    /**
+     * Получает ID# сущностей для сортировки
+     * @param Field $field Поле для сортировки
+     * @param bool $reverse Обратный порядок
+     * @return int[]
+     */
+    public function getCompareSQL(Field $field, $reverse = false)
+    {
+        $sqlQuery = "SELECT pid, value FROM cms_data WHERE fid = ?";
+        $sqlResult = Material::_SQL()->get([$sqlQuery, (int)$field->id]);
+        $result = [];
+        $sourced = (bool)$field->source;
+        foreach ($sqlResult as $sqlRow) {
+            $value = $sqlRow['value'];
+            if ($sourced) {
+                $value = $field->doRich($value);
+            }
+            $result[trim($sqlRow['pid'])] = trim($value);
+        }
+        uasort($result, 'strnatcasecmp');
+        $result = array_keys($result);
+        $result = array_map('intval', $result);
+        if ($reverse) {
+            $result = array_reverse($result);
+        }
+        return $result;
     }
 
 
@@ -554,24 +575,19 @@ class Package extends RAASPackage
         }
         // 2016-12-27, AVS: добавил группировку одинаковых материалов, иначе
         // ссылающиеся несколько раз перечислялись тоже несколько раз
-        $sqlQuery .= " GROUP BY tM.id ";
+        $sqlQuery .= " GROUP BY tM.id
+                       ORDER BY NOT tM.priority ASC, tM.priority ASC";
         $pages = new Pages(
             $pageNum,
             Application::i()->registryGet('rowsPerPage')
         );
         if (isset($sort, $columns[$sort]) && ($row = $columns[$sort])) {
-            $_sort = $row->urn;
-            $Set = Material::getSQLSet($sqlQuery);
-            if (isset($order) && ($order == 'desc')) {
-                $_order = 'desc';
-                $reverse = true;
-            } else {
-                $_order = 'asc';
-                $reverse = false;
+            $reverse = (isset($order) && ($order == 'desc'));
+            $_order = $reverse ? 'desc' : 'asc';
+            $ids = $this->getCompareSQL($row, $reverse);
+            if ($ids) {
+                $sqlQuery .= ", FIELD(tM.id, " . implode(", ", $ids) . ")";
             }
-            $f = $this->getCompareFunction($_sort, $reverse, true);
-            usort($Set, $f);
-            $Set = SOME::getArraySet($Set, $pages);
         } else {
             switch ($sort) {
                 case 'name':
@@ -594,11 +610,9 @@ class Package extends RAASPackage
                 $_order = 'asc';
             }
 
-            $sqlQuery .= " ORDER BY NOT tM.priority,
-                                    tM.priority, "
-                      .             $_sort . " " . strtoupper($_order);
-            $Set = Material::getSQLSet($sqlQuery, $pages);
+            $sqlQuery .= ", " . $_sort . " " . strtoupper($_order);
         }
+        $Set = Material::getSQLSet($sqlQuery, $pages);
         return [
             'Set' => $Set,
             'Pages' => $pages,

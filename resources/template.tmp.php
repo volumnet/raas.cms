@@ -14,7 +14,7 @@ use zz\Html\HTMLMinify;
  * @return string
  */
 $sanitizeOutput = function ($text) {
-    $text = HTMLMinify::minify($text);
+    $text = HTMLMinify::minify($text, ['removeComment' => false]);
     return $text;
 };
 

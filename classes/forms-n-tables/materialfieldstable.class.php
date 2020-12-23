@@ -95,11 +95,11 @@ class MaterialFieldsTable extends FieldsTable
                 ],
                 'priority' => [
                     'caption' => $this->view->_('PRIORITY'),
-                    'callback' => function ($row) use ($params) {
+                    'callback' => function ($row, $i) use ($params) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
-                            return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . ($row->priority ? (int)$row->priority : '') . '" class="span1" min="0" />';
+                            return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . (($i + 1) * 10) . '" class="span1" min="0" />';
                         } elseif ($row->id) {
-                            return $row->priority;
+                            return (($i + 1) * 10);
                         }
                     }
                 ],
