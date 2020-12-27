@@ -68,7 +68,9 @@ class Snippet extends SOME
     public function process(array $data = [])
     {
         $st = microtime(true);
-        $DATA = $data;
+        // 2020-12-25, убрано - в формах вместо POST-данных
+        // (в отсутствие собственно POST-запроса) подставляются все параметры
+        // $DATA = $data;
         extract($data);
         $_SESSION['RAAS_EVAL_DEBUG'] = 'Snippet::' . $this->urn;
         $result = eval('?' . '>' . $this->description);

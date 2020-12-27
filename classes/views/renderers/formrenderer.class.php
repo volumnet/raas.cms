@@ -65,4 +65,50 @@ class FormRenderer extends HTMLRenderer
         $this->data = $data;
         $this->errors = $errors;
     }
+
+
+    /**
+     * Возвращает код поля подписи формы
+     * @param array|callable $additionalData Дополнительные данные,
+     *     либо callback, их возвращающий
+     * @return string
+     */
+    public function renderSignatureField($additionalData = [])
+    {
+        if ($this->form->signature) {
+            $attrs = array_merge([
+                'type' => 'hidden',
+                'name' => 'form_signature',
+                'value' => $this->form->getSignature($this->block),
+            ], $this->getAdditionalAttributes($additionalData));
+            return $this->getElement('input', $attrs);
+        }
+        return '';
+    }
+
+
+    /**
+     * Возвращает код скрытого антиспам-поля формы
+     * @param array|callable $additionalData Дополнительные данные,
+     *     либо callback, их возвращающий
+     * @return string
+     */
+    public function renderHiddenAntispamField($additionalData = [])
+    {
+        if (($this->form->antispam == 'hidden') &&
+            ($fieldURN = $this->form->antispam_field_name)
+        ) {
+            $attrs = array_merge([
+                'autocomplete' => 'off',
+                'name' => $fieldURN,
+                'style' => 'position: absolute; left: -9999px',
+            ], $this->getAdditionalAttributes($additionalData));
+            return $this->getElement(
+                'textarea',
+                $attrs,
+                htmlspecialchars(trim($this->data[$fieldURN]))
+            );
+        }
+        return '';
+    }
 }
