@@ -17,7 +17,7 @@ $_RAASForm_FormTab = function (FormTab $formTab) use (
     &$_RAASForm_Attrs
 ) {
     $DATA = $formTab->Form->DATA;
-    $showGroups = function ($node, $value) use (&$showGroups) {
+    $showGroups = function ($node, $value = null) use (&$showGroups) {
         static $level = 0;
         $text = '';
         foreach ($node->children as $row) {

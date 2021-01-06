@@ -621,7 +621,7 @@ abstract class Block extends SOME
     }
 
 
-    public static function delete(Block $item)
+    public static function delete(SOME $item)
     {
         if ($t2 = static::_tablename2()) {
             $sqlQuery = "DELETE FROM " . $t2 . " WHERE id = ?";

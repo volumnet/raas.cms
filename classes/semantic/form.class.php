@@ -52,7 +52,7 @@ class Form extends SOME
     }
 
 
-    public static function delete(self $object)
+    public static function delete(SOME $object)
     {
         $id = (int)$object->id;
         foreach ($object->fields as $row) {

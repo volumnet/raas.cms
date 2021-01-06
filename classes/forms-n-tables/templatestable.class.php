@@ -61,12 +61,12 @@ class TemplatesTable extends Table
                     ) use (
                         $view,
                         $contextMenuName,
-                        $IN
+                        $params
                     ) {
                         return rowContextMenu($view->getTemplateContextMenu(
                             $row,
                             $i,
-                            count($IN['Set'])
+                            count((array)$params['Set'])
                         ));
                     }
                 ]

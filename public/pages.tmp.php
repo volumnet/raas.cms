@@ -34,7 +34,7 @@ function displayLocation(Location $location, Page $page)
     }
     $text .=  ' <h6>' . htmlspecialchars($location->urn) . '</h6>
                 <input type="hidden" value="' . $location->urn . '" />';
-    if (isset($page->blocksByLocations[$location->urn])) {
+    if ($page->blocksByLocations[$location->urn]) {
         for ($i = 0; $i < count($page->blocksByLocations[$location->urn]); $i++) {
             $row = $page->blocksByLocations[$location->urn][$i];
             $text .= Block_Type::getType($row->block_type)->viewer->renderBlock(

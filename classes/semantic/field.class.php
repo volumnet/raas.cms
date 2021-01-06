@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use SOME\SOME;
 use RAAS\Attachment;
 use RAAS\Application;
 use RAAS\CustomField;
@@ -412,7 +413,7 @@ class Field extends CustomField
     }
 
 
-    public static function delete(self $object)
+    public static function delete(SOME $object)
     {
         $sqlQuery = "DELETE FROM " . static::$dbprefix . static::data_table
                   . " WHERE fid = ?";

@@ -264,7 +264,7 @@ class Menu extends SOME
     }
 
 
-    public static function delete(self $object)
+    public static function delete(SOME $object)
     {
         $id = (int)$object->id;
         parent::delete($object);

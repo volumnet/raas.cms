@@ -102,7 +102,7 @@ class User extends SOME
                         $var = strtolower(substr($var, 3));
                         $vis = true;
                     }
-                    if (isset($this->fields[$var]) &&
+                    if ($this->fields[$var] &&
                         ($this->fields[$var] instanceof User_Field)
                     ) {
                         $temp = $this->fields[$var]->getValues();
@@ -124,10 +124,11 @@ class User extends SOME
                             'first_name',
                             'second_name'
                         ] as $key) {
-                            if (isset($this->fields[$key])) {
+                            if ($this->fields[$key]) {
                                 $temp[] = $this->fields[$key]->doRich();
                             }
                         }
+                        $temp = array_values(array_filter($temp));
                         return implode(' ', $temp);
                     }
                 }
@@ -214,7 +215,7 @@ class User extends SOME
     }
 
 
-    public static function delete(self $object)
+    public static function delete(SOME $object)
     {
         foreach ($object->fields as $row) {
             if (in_array($row->datatype, ['image', 'file'])) {

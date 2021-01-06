@@ -293,7 +293,7 @@ class Page extends SOME
             case 'blocksByLocations':
                 $blocks = [];
                 foreach ($this->blocksOrdered as $row) {
-                    if (isset($this->Template->locations[$row->location])) {
+                    if ($this->Template->locations[$row->location]) {
                         $blocks[$row->location][] = $row;
                     } else {
                         $blocks[''][] = $row;
@@ -353,7 +353,7 @@ class Page extends SOME
                         $var = strtolower(substr($var, 3));
                         $vis = true;
                     }
-                    if (isset($this->fields[$var]) &&
+                    if ($this->fields[$var] &&
                         ($this->fields[$var] instanceof Page_Field)
                     ) {
                         $temp = $this->fields[$var]->getValues();
@@ -362,7 +362,7 @@ class Page extends SOME
                                 array_filter(
                                     $temp,
                                     function ($x) {
-                                        return isset($x->vis) && $x->vis;
+                                        return $x->vis;
                                     }
                                 )
                             );
@@ -665,7 +665,7 @@ class Page extends SOME
     }
 
 
-    public static function delete(self $object)
+    public static function delete(SOME $object)
     {
         foreach ($object->fields as $row) {
             if (in_array($row->datatype, ['image', 'file'])) {

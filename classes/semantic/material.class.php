@@ -327,7 +327,7 @@ class Material extends SOME
     }
 
 
-    public static function delete(self $object)
+    public static function delete(SOME $object)
     {
         $mtype = $object->material_type;
         $material = new Material($object->id);

@@ -97,7 +97,7 @@ class Feedback extends SOME
                                 if (!$field->multiple &&
                                     ($field->datatype == 'checkbox')
                                 ) {
-                                    $arr[$key] = $val ? _YES : _NO;
+                                    $arr[$key] = Package::i()->view->_($val ? '_YES' : '_NO');
                                 } else {
                                     $arr[$key] = $val;
                                 }
@@ -156,7 +156,7 @@ class Feedback extends SOME
     }
 
 
-    public static function delete(self $object)
+    public static function delete(SOME $object)
     {
         foreach ($object->fields as $row) {
             if (in_array($row->datatype, ['image', 'file'])) {

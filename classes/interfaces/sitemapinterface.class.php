@@ -273,7 +273,8 @@ class SitemapInterface extends AbstractInterface
         }
         $sqlQuery = "SELECT *
                        FROM " . Material::_tablename()
-                  . " WHERE cache_url_parent_id IN (" . implode(", ", $pagesIds) . ")";
+                  . " WHERE vis
+                        AND cache_url_parent_id IN (" . implode(", ", $pagesIds) . ")";
         if ($materialTypesIds) {
             $sqlQuery .= " AND pid IN (" . implode(", ", $materialTypesIds) . ") ";
         }

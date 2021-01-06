@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use SOME\SOME;
 use RAAS\User as RAASUser;
 
 /**
@@ -180,7 +181,7 @@ class Block_Material extends Block
     }
 
 
-    public static function delete(self $block)
+    public static function delete(SOME $block)
     {
         $mtype = new Material_Type($block->material_type);
         parent::delete($block);

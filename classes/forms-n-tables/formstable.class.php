@@ -62,12 +62,12 @@ class FormsTable extends Table
                     ) use (
                         $view,
                         $contextMenuName,
-                        $IN
+                        $params
                     ) {
                         return rowContextMenu($view->getFormContextMenu(
                             $form,
                             $i,
-                            count($IN['Set'])
+                            count((array)$params['Set'])
                         ));
                     }
                 ]

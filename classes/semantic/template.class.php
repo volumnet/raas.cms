@@ -149,7 +149,7 @@ class Template extends SOME
     }
 
 
-    public static function delete(self $Item)
+    public static function delete(SOME $Item)
     {
         $Item->deleteBackground();
         parent::delete($Item);

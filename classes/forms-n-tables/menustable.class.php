@@ -111,12 +111,12 @@ class MenusTable extends Table
             }
         ];
         $defaultParams['columns'][' '] = [
-            'callback' => function (Menu $menu, $i) use ($view, $item) {
+            'callback' => function (Menu $menu, $i) use ($view, $item, $params) {
                 if ($menu->realized || !$item->id) {
                     return rowContextMenu($view->getMenuContextMenu(
                         $menu,
                         $i,
-                        count($params['Set'])
+                        count((array)$params['Set'])
                     ));
                 }
             }
