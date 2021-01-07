@@ -79,12 +79,7 @@ class Auth
      */
     public function setCookie()
     {
-        setcookie(
-            self::COOKIE_VAR,
-            $_COOKIE[self::COOKIE_VAR] = $this->user->loginKey,
-            time() + Application::i()->registryGet('cookieLifetime') * 86400,
-            '/'
-        );
+        Application::i()->setcookie(self::COOKIE_VAR, $this->user->loginKey);
     }
 
 
@@ -152,18 +147,8 @@ class Auth
             $_SESSION[self::SESSION_VAR],
             $_SESSION[static::SESSION_CONFIRMED_SOCIAL_VAR]
         );
-        setcookie(
-            self::COOKIE_VAR,
-            $_COOKIE[self::COOKIE_VAR] = '',
-            time() - Application::i()->registryGet('cookieLifetime') * 86400,
-            '/'
-        );
-        setcookie(
-            session_name(),
-            $_COOKIE[session_name()] = '',
-            time() - Application::i()->registryGet('cookieLifetime') * 86400,
-            '/'
-        );
+        Application::i()->setcookie(self::COOKIE_VAR, null);
+        Application::i()->setcookie(session_name(), null);
         session_destroy();
     }
 
@@ -185,5 +170,4 @@ class Auth
         }
         return $this->user;
     }
-
 }

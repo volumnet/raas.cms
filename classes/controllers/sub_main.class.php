@@ -214,13 +214,7 @@ class Sub_Main extends RAASAbstractSubController
             foreach (['sort', 'order'] as $v) {
                 $var = 'm' . $mtype->id . $v;
                 if (isset($_GET[$var])) {
-                    $_COOKIE[$var] = $_GET[$var];
-                    setcookie(
-                        $var,
-                        $_COOKIE[$var],
-                        time() + Application::i()->registryGet('cookieLifetime') * 86400,
-                        '/'
-                    );
+                    Application::i()->setcookie($var, $_GET[$var]);
                 }
             }
 
@@ -418,13 +412,7 @@ class Sub_Main extends RAASAbstractSubController
             foreach (['sort', 'order'] as $v) {
                 $var = 'm' . $mtype->id . $v;
                 if (isset($_GET[$var])) {
-                    $_COOKIE[$var] = $_GET[$var];
-                    setcookie(
-                        $var,
-                        $_COOKIE[$var],
-                        time() + Application::i()->registryGet('cookieLifetime') * 86400,
-                        '/'
-                    );
+                    Application::i()->setcookie($var, $_GET[$var]);
                 }
             }
             $temp = $this->model->getRelatedMaterials(
