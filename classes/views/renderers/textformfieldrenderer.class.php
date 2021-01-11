@@ -9,18 +9,44 @@ namespace RAAS\CMS;
  */
 class TextFormFieldRenderer extends FormFieldRenderer
 {
-    public function getAttributes($index = null)
+    public function getAttributes()
     {
-        $attrs = parent::getAttributes($index);
-        foreach (['min_val', 'max_val'] as $key) {
+        $attrs = $this->mergeAttributes(
+            [
+                'type' => $this->field->datatype,
+                'class' => ['form-control' => true]
+            ],
+            parent::getAttributes()
+        );
+        foreach (['maxlength'] as $key) {
             if ($val = $this->field->$key) {
-                $attrs[$key] = (float)$val;
+                $attrs[$key] = (int)$val;
             }
         }
-        $attrs['type'] = $this->field->datatype;
-        if (($val = $this->getValue($index)) !== null) {
-            $attrs['value'] = $val;
+        foreach (['placeholder', 'pattern'] as $key) {
+            if ($val = $this->field->$key) {
+                $attrs[$key] = trim($val);
+            }
+        }
+        if ($this->field->multiple) {
+            $attrs['value'] = json_encode($this->data);
+        } elseif (is_scalar($this->data)) {
+            $attrs['value'] = trim($this->data);
         }
         return $attrs;
+    }
+
+
+    public function render($additionalData = [])
+    {
+        $attrs = $this->mergeAttributes(
+            $this->getAttributes(),
+            $additionalData
+        );
+        if ($this->field->multiple) {
+            $attrs['data-value'] = $attrs['value'];
+            unset($attrs['value']);
+        }
+        return $this->getElement('input', $attrs);
     }
 }

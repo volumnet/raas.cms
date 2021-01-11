@@ -9,41 +9,25 @@ namespace RAAS\CMS;
  */
 class CheckboxFormFieldRenderer extends FormFieldRenderer
 {
-    public function renderSingle($index = null)
+    public function getAttributes()
     {
-        $attrs = $this->getAttributes($index);
-        $attrs['value'] = $this->field->defval ?: 1;
-        if ($this->data) {
-            $attrs['checked'] = 'checked';
+        $attrs = $this->mergeAttributes(
+            ['type' => $this->field->datatype],
+            parent::getAttributes()
+        );
+
+        if ($this->field->multiple) {
+            unset($attrs['required']);
+        } else {
+            $attrs['value'] = $this->field->defval ?: 1;
         }
-        return $this->getElement('input', $attrs, null);
-    }
 
-
-    public function render()
-    {
-        return $this->renderSingle();
-    }
-
-
-    public function getAttributes($index = null)
-    {
-        $attrs = [
-            'name' => $this->field->urn . ($this->field->multiple ? '[]' : ''),
-            'type' => $this->field->datatype,
-        ];
-        if (!$this->field->multiple) {
-            $attrs['id'] = $this->field->getHTMLId($this->block);
-        }
-        if ($this->field->required) {
-            $attrs['required'] = 'required';
-        }
         return $attrs;
     }
 
 
     /**
-     * Получает набор опций
+     * Получает дерево флажков
      * @param array $source <pre>array<string[] Значение опции => [
      *     'name' => string Текст опции,
      *     'children' => <рекурсивно>
@@ -54,26 +38,42 @@ class CheckboxFormFieldRenderer extends FormFieldRenderer
     public function getOptionsTree(array $source = [], $level = 0)
     {
         $result = '';
-        if (!$level && (!$this->field->required || $this->field->placeholder)) {
-            $attrs = ['value' => ''];
-            if (!$this->data) {
-                $attrs['selected'] = $selected;
-            }
-            $content = ($this->field->placeholder ?: '--');
-            $result .= $this->getElement('option', $attrs, $content);
-        }
         foreach ($source as $key => $val) {
             $attrs = ['value' => $key];
             if (in_array($key, (array)$this->data)) {
-                $attrs['selected'] = $selected;
+                $attrs['checked'] = 'checked';
             }
-            $content = str_repeat('&nbsp;', $level * 5)
-                     . htmlspecialchars($val['name']);
-            $result .= $this->getElement('option', $attrs, $content);
+            $checkboxHtml = $this->getElement('input', $attrs);
+            $labelHtml = $this->getElement(
+                'label',
+                [],
+                $checkboxHtml . ' ' . htmlspecialchars($val['name'])
+            );
+            $result .= $this->getElement('li', [], $labelHtml);
             if (isset($val['children']) && is_array($val['children'])) {
                 $result .= $this->getOptionsTree($val['children'], $level + 1);
             }
         }
+        $ulAttrs = [];
+        if (!$level) {
+            $ulAttrs['class'] = ['checkbox-tree' => true];
+            $ulAttrs['data-role'] = 'checkbox-tree';
+        }
+        $result = $this->getElement('ul', $ulAttrs, $result);
         return $result;
+    }
+
+
+    public function render($additionalData = [])
+    {
+        if ($this->field->multiple) {
+            return $this->getOptionsTree($this->field->stdSource);
+        } else {
+            $attrs = $this->mergeAttributes(
+                $this->getAttributes(),
+                $additionalData
+            );
+            return $this->getElement('input', $attrs);
+        }
     }
 }

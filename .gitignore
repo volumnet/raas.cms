@@ -4,3 +4,4 @@ components
 composer.lock
 config.php
 files
+.phpunit.result.cache

@@ -128,7 +128,7 @@ class Feedback extends SOME
                         $var = strtolower(substr($var, 3));
                         $vis = true;
                     }
-                    if (isset($this->fields[$var]) &&
+                    if ($this->fields[$var] &&
                         ($this->fields[$var] instanceof Form_Field)
                     ) {
                         $temp = $this->fields[$var]->getValues();

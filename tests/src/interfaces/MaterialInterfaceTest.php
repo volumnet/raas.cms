@@ -869,10 +869,9 @@ class MaterialInterfaceTest extends BaseDBTest
     {
         $block = Block::spawn(22);
         $page = new Page(1);
-        $sort = $order = '';
         $interface = new MaterialInterface();
 
-        $result = $interface->getList($block, $page, $sort, $order, [], null);
+        $result = $interface->getList($block, $page, [], null);
 
         $this->assertCount(3, $result);
         $this->assertEquals(7, $result[0]->id);

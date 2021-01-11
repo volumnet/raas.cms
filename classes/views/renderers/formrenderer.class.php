@@ -76,7 +76,7 @@ class FormRenderer extends HTMLRenderer
     public function renderSignatureField($additionalData = [])
     {
         if ($this->form->signature) {
-            $attrs = array_merge([
+            $attrs = $this->mergeAttributes([
                 'type' => 'hidden',
                 'name' => 'form_signature',
                 'value' => $this->form->getSignature($this->block),
@@ -98,7 +98,7 @@ class FormRenderer extends HTMLRenderer
         if (($this->form->antispam == 'hidden') &&
             ($fieldURN = $this->form->antispam_field_name)
         ) {
-            $attrs = array_merge([
+            $attrs = $this->mergeAttributes([
                 'autocomplete' => 'off',
                 'name' => $fieldURN,
                 'style' => 'position: absolute; left: -9999px',

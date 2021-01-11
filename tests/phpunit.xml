@@ -2,12 +2,72 @@
 
 <phpunit colors="true" bootstrap="./bootstrap.php">
   <testsuites>
-    <testsuite>
+    <testsuite name="VisibleRecursiveCache">
+      <file>src/VisibleRecursiveCacheTest.php</file>
+    </testsuite>
+    <testsuite name="MenuRecursiveCache">
+      <file>src/MenuRecursiveCacheTest.php</file>
+    </testsuite>
+    <testsuite name="PageRecursiveCache">
+      <file>src/PageRecursiveCacheTest.php</file>
+    </testsuite>
+
+    <testsuite name="CacheInterface">
+      <file>src/interfaces/CacheInterfaceTest.php</file>
+    </testsuite>
+    <testsuite name="FormInterface">
+      <file>src/interfaces/FormInterfaceTest.php</file>
+    </testsuite>
+    <testsuite name="MaterialInterface">
       <file>src/interfaces/MaterialInterfaceTest.php</file>
+    </testsuite>
+    <testsuite name="MenuInterface">
+      <file>src/interfaces/MenuInterfaceTest.php</file>
+    </testsuite>
+    <testsuite name="SearchInterface">
+      <file>src/interfaces/SearchInterfaceTest.php</file>
+    </testsuite>
+
+    <testsuite name="Menu">
+      <file>src/semantic/MenuTest.php</file>
+    </testsuite>
+
+    <testsuite name="FormRenderer">
+      <file>src/views/renderers/FormRendererTest.php</file>
+    </testsuite>
+    <testsuite name="FormFieldRenderer">
+      <file>src/views/renderers/FormFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="TextFormFieldRenderer">
+      <file>src/views/renderers/TextFormFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="TextAreaFormFieldRenderer">
+      <file>src/views/renderers/TextAreaFormFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="HtmlAreaFormFieldRenderer">
+      <file>src/views/renderers/HtmlAreaFormFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="NumberFormFieldRenderer">
+      <file>src/views/renderers/NumberFormFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="PasswordFormFieldRenderer">
+      <file>src/views/renderers/PasswordFormFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="FileFormFieldRenderer">
+      <file>src/views/renderers/FileFormFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="ImageFormFieldRenderer">
+      <file>src/views/renderers/ImageFormFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="HiddenFormFieldRenderer">
+      <file>src/views/renderers/HiddenFormFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="SelectFormFieldRenderer">
+      <file>src/views/renderers/SelectFormFieldRendererTest.php</file>
     </testsuite>
   </testsuites>
   <filter>
-    <whitelist>
+    <whitelist addUncoveredFilesFromWhitelist="false">
       <directory suffix=".php">../classes</directory>
     </whitelist>
   </filter>
