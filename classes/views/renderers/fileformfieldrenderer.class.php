@@ -9,6 +9,8 @@ namespace RAAS\CMS;
  */
 class FileFormFieldRenderer extends FormFieldRenderer
 {
+    const HTML_VALID_MULTIPLE = true;
+
     public function getAttributes()
     {
         $attrs = parent::getAttributes();

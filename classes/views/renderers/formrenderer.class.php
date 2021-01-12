@@ -80,7 +80,7 @@ class FormRenderer extends HTMLRenderer
                 'type' => 'hidden',
                 'name' => 'form_signature',
                 'value' => $this->form->getSignature($this->block),
-            ], $this->getAdditionalAttributes($additionalData));
+            ], $additionalData);
             return $this->getElement('input', $attrs);
         }
         return '';
@@ -102,7 +102,7 @@ class FormRenderer extends HTMLRenderer
                 'autocomplete' => 'off',
                 'name' => $fieldURN,
                 'style' => 'position: absolute; left: -9999px',
-            ], $this->getAdditionalAttributes($additionalData));
+            ], $additionalData);
             return $this->getElement(
                 'textarea',
                 $attrs,

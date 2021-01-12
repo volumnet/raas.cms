@@ -33,7 +33,7 @@ class FormFieldRendererTest extends BaseTest
             ['month', TextFormFieldRenderer::class],
             ['password', PasswordFormFieldRenderer::class],
             ['checkbox', CheckboxFormFieldRenderer::class],
-            ['radio', CheckboxFormFieldRenderer::class],
+            ['radio', RadioFormFieldRenderer::class],
             ['file', FileFormFieldRenderer::class],
             ['image', ImageFormFieldRenderer::class],
             ['select', SelectFormFieldRenderer::class],

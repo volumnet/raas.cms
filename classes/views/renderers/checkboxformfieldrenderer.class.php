@@ -17,9 +17,16 @@ class CheckboxFormFieldRenderer extends FormFieldRenderer
         );
 
         if ($this->field->multiple) {
-            unset($attrs['required']);
+            unset(
+                $attrs['required'],
+                $attrs['multiple'],
+                $attrs['data-multiple']
+            );
         } else {
             $attrs['value'] = $this->field->defval ?: 1;
+            if ($this->data == $attrs['value']) {
+                $attrs['checked'] = 'checked';
+            }
         }
 
         return $attrs;
@@ -38,8 +45,9 @@ class CheckboxFormFieldRenderer extends FormFieldRenderer
     public function getOptionsTree(array $source = [], $level = 0)
     {
         $result = '';
+        $stdAttrs = $this->getAttributes();
         foreach ($source as $key => $val) {
-            $attrs = ['value' => $key];
+            $attrs = $this->mergeAttributes($stdAttrs, ['value' => $key]);
             if (in_array($key, (array)$this->data)) {
                 $attrs['checked'] = 'checked';
             }
@@ -49,17 +57,14 @@ class CheckboxFormFieldRenderer extends FormFieldRenderer
                 [],
                 $checkboxHtml . ' ' . htmlspecialchars($val['name'])
             );
-            $result .= $this->getElement('li', [], $labelHtml);
             if (isset($val['children']) && is_array($val['children'])) {
-                $result .= $this->getOptionsTree($val['children'], $level + 1);
+                $labelHtml .= $this->getOptionsTree($val['children'], $level + 1);
             }
+            $result .= $this->getElement('li', [], $labelHtml);
         }
-        $ulAttrs = [];
-        if (!$level) {
-            $ulAttrs['class'] = ['checkbox-tree' => true];
-            $ulAttrs['data-role'] = 'checkbox-tree';
+        if ($level) {
+            $result = $this->getElement('ul', [], $result);
         }
-        $result = $this->getElement('ul', $ulAttrs, $result);
         return $result;
     }
 
@@ -67,7 +72,12 @@ class CheckboxFormFieldRenderer extends FormFieldRenderer
     public function render($additionalData = [])
     {
         if ($this->field->multiple) {
-            return $this->getOptionsTree($this->field->stdSource);
+            $optionsTree = $this->getOptionsTree($this->field->stdSource);
+            $attrs = $this->mergeAttributes([
+                'class' => ['checkbox-tree' => true],
+                'data-role' => 'checkbox-tree',
+            ], $additionalData);
+            return $this->getElement('ul', $attrs, $optionsTree);
         } else {
             $attrs = $this->mergeAttributes(
                 $this->getAttributes(),

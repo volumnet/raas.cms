@@ -65,6 +65,12 @@
     <testsuite name="SelectFormFieldRenderer">
       <file>src/views/renderers/SelectFormFieldRendererTest.php</file>
     </testsuite>
+    <testsuite name="CheckboxFormFieldRenderer">
+      <file>src/views/renderers/CheckboxFormFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="RadioFormFieldRenderer">
+      <file>src/views/renderers/RadioFormFieldRendererTest.php</file>
+    </testsuite>
   </testsuites>
   <filter>
     <whitelist addUncoveredFilesFromWhitelist="false">

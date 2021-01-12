@@ -76,8 +76,10 @@ abstract class FormFieldRenderer extends HTMLRenderer
                 $classname = PasswordFormFieldRenderer::class;
                 break;
             case 'checkbox':
-            case 'radio':
                 $classname = CheckboxFormFieldRenderer::class;
+                break;
+            case 'radio':
+                $classname = RadioFormFieldRenderer::class;
                 break;
             case 'file':
                 $classname = FileFormFieldRenderer::class;

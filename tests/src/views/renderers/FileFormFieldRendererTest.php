@@ -23,20 +23,23 @@ class FileFormFieldRendererTest extends BaseTest
             'pattern' => '.*',
             'source' => 'PDF,DOC,JPG',
             'urn' => 'photo',
-        ]), new Block_Form(), 'aaa');
+            'multiple' => true,
+        ]), new Block_Form(), ['aaa', 'bbb']);
 
         $result = $renderer->getAttributes();
 
         $this->assertEquals('file', $result['type']);
-        $this->assertEquals('photo', $result['name']);
+        $this->assertEquals('photo[]', $result['name']);
         $this->assertEquals('required', $result['required']);
         $this->assertEmpty($result['class']);
         $this->assertEmpty($result['placeholder']);
         $this->assertEmpty($result['maxlength']);
         $this->assertEmpty($result['pattern']);
         $this->assertEmpty($result['value']);
+        $this->assertEquals('multiple', $result['multiple']);
+        $this->assertEmpty($result['data-multiple']);
         $this->assertEmpty($result['data-value']);
         $this->assertEquals('.pdf,.doc,.jpg', $result['accept']);
-        $this->assertStringStartsWith('photo', $result['id']);
+        $this->assertEmpty($result['id']);
     }
 }
