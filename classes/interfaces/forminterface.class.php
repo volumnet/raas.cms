@@ -572,9 +572,7 @@ class FormInterface extends AbstractInterface
             'ip' => 'REMOTE_ADDR',
             'user_agent' => 'HTTP_USER_AGENT'
         ] as $key => $val) {
-            if (isset($object->fields[$key]) &&
-                ($field = $object->fields[$key])
-            ) {
+            if ($field = $object->fields[$key]) {
                 $field->deleteValues();
                 $field->addValue(trim($server[$val]));
             }
@@ -598,8 +596,7 @@ class FormInterface extends AbstractInterface
         $debug = false
     ) {
         foreach ($form->fields as $fieldURN => $temp) {
-            if (isset($object->fields[$fieldURN])) {
-                $field = $object->fields[$fieldURN];
+            if ($field = $object->fields[$fieldURN]) {
                 switch ($field->datatype) {
                     case 'file':
                     case 'image':

@@ -1,3 +1,8 @@
+/**
+ * Форматирует цену
+ * @param  {Number} price Цена
+ * @return {String} 
+ */
 export default function (price) {
     var pR = Math.round((parseFloat(price) - parseInt(price)) * 100);
     var pS = parseInt(price).toString();

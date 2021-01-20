@@ -1,3 +1,13 @@
+/**
+ * Возвращает корректное числительное для числа
+ * @param  {Number} number    Число
+ * @param  {Array} wordForms Словоформы числа в виде <pre><code>[
+ *     'много объектов', 
+ *     'один объект', 
+ *     'два или три объекта'
+ * ]</code></pre>
+ * @return {String}
+ */
 export default function (number, wordForms) {
     var num = number.toString();
     if (num.length > 3) {

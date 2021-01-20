@@ -1,8 +1,19 @@
-<script>
+/**
+ * Компонент блока триггеров
+ */
 export default {
     data: function () {
         return {
+            /**
+             * Позиция скролла по вертикали от верхнего края документа в px
+             * @type {Number}
+             */
             scrollTop: 0,
+
+            /**
+             * Фильтр активен
+             * @type {Boolean}
+             */
             filterActive: false,
         };
     },
@@ -15,9 +26,17 @@ export default {
         });
     },
     methods: {
+        /**
+         * Обработчик скролла
+         */
         doScroll: function () {
             this.scrollTop = $(window).scrollTop();
         },
+
+        /**
+         * Команда открытия фильтра
+         * @param  {Object} $event Событие
+         */
         openFilter: function ($event) {
             $(document).trigger('raas.shop.openfilter');
             $event.stopPropagation();
@@ -25,6 +44,10 @@ export default {
         }
     },
     computed: {
+        /**
+         * Маппинг CSS-класса пункта "Наверх"
+         * @return {Object}
+         */
         toTopClass: function () {
             let result = {
                 'triggers-list__item': true,
@@ -33,6 +56,10 @@ export default {
             };
             return result;
         },
+        /**
+         * Маппинг CSS-класса пункта "Фильтр"
+         * @return {Object}
+         */
         filterClass: function () {
             let result = {
                 'triggers-list__item': true,
@@ -43,4 +70,3 @@ export default {
         },
     }
 };
-</script>

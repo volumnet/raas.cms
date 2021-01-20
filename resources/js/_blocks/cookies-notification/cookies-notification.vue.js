@@ -1,16 +1,13 @@
-<template>
-  <div class="cookies-notification" :style="{ display: (active ? 'block' : 'none') }">
-    <a class="cookies-notification__close" @click="close($event)"></a>
-    <div class="cookies-notification__inner">
-      <slot></slot>
-    </div>
-  </div>
-</template>
-
-<script>
+/**
+ * Компонент уведомлений о Cookies
+ */
 export default {
     data: function () {
         return {
+            /**
+             * Уведомление активно
+             * @type {Boolean}
+             */
             active: false,
         };
     },
@@ -20,6 +17,10 @@ export default {
         }
     },
     methods: {
+        /**
+         * Закрытие уведомления
+         * @param  {Object} $event Событие
+         */
         close: function ($event) {
             Cookie.set(
                 'cookies-notification', 
@@ -31,4 +32,3 @@ export default {
         }
     },
 };
-</script>

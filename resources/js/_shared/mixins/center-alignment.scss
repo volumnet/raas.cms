@@ -1,0 +1,10 @@
+@mixin center-alignment($size, $font-size: $size * .75, $padding: 0) {
+    @include size($size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $padding;
+    font-size: $font-size;
+    text-align: center;
+    line-height: 1;
+}

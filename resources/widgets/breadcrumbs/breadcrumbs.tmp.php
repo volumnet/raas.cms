@@ -9,25 +9,23 @@ use RAAS\Controller_Frontend as RAASControllerFrontend;
 
 $controllerFrontend = RAASControllerFrontend::i();
 
-$navItemsCounter = count($page->parents)
-                 + (bool)$page->Material->id
-                 + (bool)$page->Item->id;
 $jsonLd = [
-              '@context' => 'http://schema.org',
-              '@type' => 'BreadcrumbList',
-              'itemListElement' => [],
-          ];
+    '@context' => 'http://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [],
+];
 $host = $controllerFrontend->scheme . '://' . $controllerFrontend->host;
-if ($navItemsCounter > 1) { ?>
+if ($page->parents || $page->Material->id || $page->Item->id) {
+    $j = 0; ?>
     <ol class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
       <?php foreach ($page->parents as $i => $row) {
           $jsonLd['itemListElement'][] = [
               '@type' => 'ListItem',
               'item' => [
-                '@id' => $host . $row->url,
-                'name' => $row->getBreadcrumbsName(),
+                  '@id' => $host . $row->url,
+                  'name' => $row->getBreadcrumbsName(),
               ],
-              'position' => ($i + 1),
+              'position' => ++$j,
           ];
           ?>
           <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
@@ -36,17 +34,17 @@ if ($navItemsCounter > 1) { ?>
                 <?php echo htmlspecialchars($row->getBreadcrumbsName())?>
               </span>
             </a>
-            <meta itemprop="position" content="<?php echo ($i + 1)?>" />
+            <meta itemprop="position" content="<?php echo $j?>" />
           </li>
       <?php }
       if ($page->Material->id || $page->Item->id) {
           $jsonLd['itemListElement'][] = [
               '@type' => 'ListItem',
               'item' => [
-                '@id' => $host . $page->url,
-                'name' => $page->getBreadcrumbsName(),
+                  '@id' => $host . $page->url,
+                  'name' => $page->getBreadcrumbsName(),
               ],
-              'position' => $navItemsCounter,
+              'position' => ++$j,
           ];
           ?>
           <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
@@ -55,7 +53,7 @@ if ($navItemsCounter > 1) { ?>
                 <?php echo htmlspecialchars($page->getBreadcrumbsName())?>
               </span>
             </a>
-            <meta itemprop="position" content="<?php echo $navItemsCounter?>" />
+            <meta itemprop="position" content="<?php echo $j?>" />
           </li>
       <?php } ?>
     </ol>
