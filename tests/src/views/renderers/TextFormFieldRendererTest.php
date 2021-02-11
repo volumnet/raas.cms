@@ -37,6 +37,37 @@ class TextFormFieldRendererTest extends BaseTest
         $this->assertStringStartsWith('name', $result['id']);
     }
 
+
+    /**
+     * Тест получения атрибутов - случай с единичным полем и
+     * множественными данными
+     */
+    public function testGetAttributesWithMultipleData()
+    {
+        $renderer = new TextFormFieldRenderer(new Form_Field([
+            'datatype' => 'text',
+            'required' => true,
+            'placeholder' => 'Your name',
+            'maxlength' => 16,
+            'pattern' => '.*',
+            'urn' => 'name',
+        ]), new Block_Form(), ['aaa', 'bbb', 'ccc']);
+
+        $result = $renderer->getAttributes();
+
+        $this->assertEquals('text', $result['type']);
+        $this->assertEquals('name', $result['name']);
+        $this->assertEquals('required', $result['required']);
+        $this->assertEquals(['form-control' => true], $result['class']);
+        $this->assertEquals('Your name', $result['placeholder']);
+        $this->assertEquals('16', $result['maxlength']);
+        $this->assertEquals('.*', $result['pattern']);
+        $this->assertEquals('aaa', $result['value']);
+        $this->assertStringStartsWith('name', $result['id']);
+    }
+
+
+
     /**
      * Тест получения атрибутов - случай множественного поля
      */
@@ -120,5 +151,29 @@ class TextFormFieldRendererTest extends BaseTest
             $result
         );
         $this->assertStringNotContainsString(' value="', $result);
+    }
+
+
+    /**
+     * Тест рендера - случай множественного поля с пустыми данными
+     */
+    public function testRenderWithMultipleWithoutData()
+    {
+        $renderer = new TextFormFieldRenderer(new Form_Field([
+            'datatype' => 'email',
+            'required' => true,
+            'placeholder' => 'Your name',
+            'maxlength' => 16,
+            'pattern' => '.*',
+            'urn' => 'name',
+            'multiple' => true,
+        ]), new Block_Form());
+
+        $result = $renderer->render();
+
+        $this->assertStringContainsString(
+            ' data-value="' . htmlspecialchars(json_encode([])) . '"',
+            $result
+        );
     }
 }

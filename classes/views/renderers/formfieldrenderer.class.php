@@ -116,6 +116,8 @@ abstract class FormFieldRenderer extends HTMLRenderer
     public function getAttributes()
     {
         $attrs = [
+            'data-raas-field' => '',
+            'data-type' => $this->field->datatype,
             'name' => $this->field->urn . ($this->field->multiple ? '[]' : ''),
         ];
         if ($this->field->multiple) {
@@ -129,6 +131,9 @@ abstract class FormFieldRenderer extends HTMLRenderer
         }
         if ($this->field->required) {
             $attrs['required'] = 'required';
+        }
+        if ($this->field->placeholder) {
+            $attrs['data-placeholder'] = $this->field->placeholder;
         }
         return $attrs;
     }

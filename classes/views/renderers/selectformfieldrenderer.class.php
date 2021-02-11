@@ -31,10 +31,10 @@ class SelectFormFieldRenderer extends FormFieldRenderer
     {
         $result = '';
         if (!$level && (
-            (!$this->multiple && !$this->field->required) ||
+            (!$this->field->multiple && $this->field->required) ||
             $this->field->placeholder
         )) {
-            $attrs = [];
+            $attrs = ['value' => ''];
             if (!$this->data) {
                 $attrs['selected'] = 'selected';
             }

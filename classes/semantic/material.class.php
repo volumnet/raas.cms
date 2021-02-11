@@ -604,7 +604,8 @@ class Material extends SOME
                          ON tF.classname = ?
                         AND tF.pid = tMT.id
                       WHERE tF.datatype = ?
-                        AND source IN (" . implode(", ", $ids) . ")";
+                        AND tF.source IN (" . implode(", ", $ids) . ")
+                   GROUP BY tMT.id";
         $sqlBind = [Material_Type::class, 'material'];
         return Material_Type::getSQLSet([$sqlQuery, $sqlBind]);
     }

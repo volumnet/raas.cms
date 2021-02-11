@@ -21,10 +21,10 @@ namespace RAAS\CMS;
           <a class="triggers-item triggers-item_menu" title="Меню"></a>
         </div>
         <div class="triggers-list__item triggers-list__item_order-call">
-          <a class="triggers-item triggers-item_order-call" data-target="#order_call_modal" data-toggle="modal" href="#" title="Заказать звонок"></a>
+          <a class="triggers-item triggers-item_order-call" data-bs-target="#order_call_modal" data-bs-toggle="modal" href="#" title="Заказать звонок"></a>
         </div>
         <div class="triggers-list__item triggers-list__item_feedback">
-          <a class="triggers-item triggers-item_feedback" data-target="#feedback_modal" data-toggle="modal" href="#" title="Написать письмо"></a>
+          <a class="triggers-item triggers-item_feedback" data-bs-target="#feedback_modal" data-bs-toggle="modal" href="#" title="Написать письмо"></a>
         </div>
       </div>
     </div>

@@ -29,9 +29,14 @@ class TextFormFieldRenderer extends FormFieldRenderer
             }
         }
         if ($this->field->multiple) {
-            $attrs['value'] = json_encode($this->data);
-        } elseif (is_scalar($this->data)) {
-            $attrs['value'] = trim($this->data);
+            $attrs['value'] = json_encode((array)$this->data);
+        } else {
+            if (is_array($this->data)) {
+                $dataArr = (array)$this->data;
+                $attrs['value'] = trim(array_shift($dataArr));
+            } elseif (is_scalar($this->data)) {
+                $attrs['value'] = trim($this->data);
+            }
         }
         return $attrs;
     }

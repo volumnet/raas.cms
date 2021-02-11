@@ -4,6 +4,7 @@
 export default function (horizontal) {
     $(this).wrap('<raas-repo></raas-repo>')
     let $repo = $(this).closest('raas-repo');
+    let $selectedOptions;
     if ($(this).attr('required')) {
         $repo.attr('required', 'required');
     }
@@ -12,8 +13,16 @@ export default function (horizontal) {
     }
     if ($(this).attr('data-value')) {
         $repo.attr(':value', $(this).attr('data-value'));
-    } else if ($(this).val()) {
-        $repo.attr(':value', JSON.stringify([$(this).val()]));
+    } else if (($selectedOptions = $('option:selected', this)).length) {
+        let values = [];
+        $selectedOptions.each(function () {
+            values.push($(this).attr('value') || '');
+        });
+        $repo.attr(':value', JSON.stringify(values));
+    } else if ($(this).attr('value')) {
+        $repo.attr(':value', JSON.stringify([$(this).attr('value')]));
+    } else {
+        $repo.attr(':value', '[]');
     }
     $(this)
         .removeAttr('data-value')

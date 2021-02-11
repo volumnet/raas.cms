@@ -182,7 +182,7 @@ class CheckboxFormFieldRendererTest extends BaseTest
         $result = $renderer->render(['data-test' => 'test']);
 
         $this->assertEquals(
-            '<ul class="checkbox-tree" data-role="checkbox-tree" data-test="test">' .
+            '<ul data-raas-field data-type="checkbox" class="checkbox-tree" data-role="checkbox-tree" data-test="test">' .
               '<li>' .
                 '<label><input type="checkbox" name="name[]" value="aaa" checked="checked" /> AAA</label>' .
               '</li>' .

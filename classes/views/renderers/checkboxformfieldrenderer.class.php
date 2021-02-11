@@ -40,12 +40,12 @@ class CheckboxFormFieldRenderer extends FormFieldRenderer
      *     'children' => <рекурсивно>
      * ]></pre> Источник опций
      * @param int $level Уровень вложенности
-     * @todo
      */
     public function getOptionsTree(array $source = [], $level = 0)
     {
         $result = '';
         $stdAttrs = $this->getAttributes();
+        unset($stdAttrs['data-raas-field'], $stdAttrs['data-type']);
         foreach ($source as $key => $val) {
             $attrs = $this->mergeAttributes($stdAttrs, ['value' => $key]);
             if (in_array($key, (array)$this->data)) {
@@ -74,6 +74,8 @@ class CheckboxFormFieldRenderer extends FormFieldRenderer
         if ($this->field->multiple) {
             $optionsTree = $this->getOptionsTree($this->field->stdSource);
             $attrs = $this->mergeAttributes([
+                'data-raas-field' => '',
+                'data-type' => $this->field->datatype,
                 'class' => ['checkbox-tree' => true],
                 'data-role' => 'checkbox-tree',
             ], $additionalData);

@@ -19,7 +19,8 @@ class RadioFormFieldRenderer extends CheckboxFormFieldRenderer
             $attrs['multiple'],
             $attrs['data-multiple'],
             $attrs['value'],
-            $attrs['id']
+            $attrs['id'],
+            $attrs['checked']
         );
         return $attrs;
     }
@@ -29,6 +30,8 @@ class RadioFormFieldRenderer extends CheckboxFormFieldRenderer
     {
         $optionsTree = $this->getOptionsTree($this->field->stdSource);
         $attrs = $this->mergeAttributes([
+            'data-raas-field' => '',
+            'data-type' => $this->field->datatype,
             'class' => ['checkbox-tree' => true, 'checkbox-tree_radio' => true],
             'data-role' => 'checkbox-tree',
         ], $additionalData);

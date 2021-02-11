@@ -547,8 +547,9 @@ class Page extends SOME
             foreach ($this->Template->locations as $l => $loc) {
                 $this->location($l);
             }
-            $_SESSION['RAAS_EVAL_DEBUG'] = 'Template::' . $this->Template->urn;
+            $_SESSION['EVAL_DEBUG'] = 'Template::' . $this->Template->urn;
             eval('?' . '>' . $this->Template->description);
+            $_SESSION['EVAL_DEBUG'] = '';
         }
         $content = ob_get_contents();
         ob_end_clean();
@@ -667,14 +668,75 @@ class Page extends SOME
 
     public static function delete(SOME $object)
     {
-        foreach ($object->fields as $row) {
-            if (in_array($row->datatype, ['image', 'file'])) {
-                foreach ($row->getValues(true) as $att) {
-                    Attachment::delete($att);
-                }
-            }
-            $row->deleteValues();
+        // Удалим файловые поля с проверкой на совместное использование
+        // Найдем используемые значения файловых полей в данном материале
+        $sqlQuery = "SELECT tD.value
+                       FROM " . static::_dbprefix() . "cms_data AS tD
+                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
+                      WHERE tD.pid = ?
+                        AND tF.classname = ?
+                        AND NOT tF.pid
+                        AND tF.datatype IN ('image', 'file')";
+        $sqlResult = static::_SQL()->getcol([
+            $sqlQuery,
+            (int)$object->id,
+            Material_Type::class
+        ]);
+        $affectedAttachmentsIds = array_map(function ($x) {
+            $json = (array)json_decode($x, true);
+            $attachmentId = (int)$json['attachment'];
+            return $attachmentId;
+        }, $sqlResult);
+        $affectedAttachmentsIds = array_filter($affectedAttachmentsIds);
+        $affectedAttachmentsIds = array_values($affectedAttachmentsIds);
+
+        // Найдем используемые значения файловых полей вне данного материала
+        $sqlQuery = "SELECT tD.value
+                       FROM " . static::_dbprefix() . "cms_data AS tD
+                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
+                      WHERE NOT (
+                                    tD.pid = ?
+                                AND tF.classname = ?
+                                AND NOT tF.pid
+                            )
+                        AND tF.datatype IN ('image', 'file')";
+        $sqlResult = static::_SQL()->getcol([
+            $sqlQuery,
+            (int)$object->id,
+            Material_Type::class
+        ]);
+        $otherAttachmentsIds = array_map(function ($x) {
+            $json = (array)json_decode($x, true);
+            $attachmentId = (int)$json['attachment'];
+            return $attachmentId;
+        }, $sqlResult);
+        $otherAttachmentsIds = array_filter($otherAttachmentsIds);
+        $otherAttachmentsIds = array_values($otherAttachmentsIds);
+
+        $attachmentsToDelete = array_diff(
+            $affectedAttachmentsIds,
+            $otherAttachmentsIds
+        );
+
+        foreach ($attachmentsToDelete as $attachmentToDelete) {
+            $att = new Attachment($attachmentToDelete);
+            Attachment::delete($att);
         }
+
+
+        // Удалим данные из cms_data
+        $sqlQuery = "DELETE tD
+                       FROM " . static::_dbprefix() . "cms_data AS tD
+                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
+                      WHERE tD.pid = ?
+                        AND tF.classname = ?
+                        AND NOT tF.pid";
+        $sqlResult = static::_SQL()->getcol([
+            $sqlQuery,
+            (int)$object->id,
+            Material_Type::class
+        ]);
+
         parent::delete($object);
         static::clearLostBlocks();
         static::clearLostMaterials();

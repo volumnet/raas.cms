@@ -62,32 +62,38 @@ ob_start(); // Для $separateScripts
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-    <?php echo $Page->headData; ?>
-    <?php echo Package::i()->asset([
+    <link rel="stylesheet" href="/custom.css">
+    <?php echo $Page->headData;
+    echo Package::i()->asset([
         '/css/header.css',
         '/js/header.js',
         // '/css/style.css',
-    ])?>
-    <?php
+    ]);
+    // Включаем, если есть HTML-поля
+    // Package::i()->requestJS([
+    //     '/vendor/ckeditor/ckeditor/ckeditor.js',
+    //     '/vendor/ckeditor/ckeditor/adapters/jquery.js',
+    // ]);
     echo Package::i()->getRequestedCSS();
     echo Package::i()->getRequestedJS('beforeApp');
-    echo Package::i()->asset([
-        '/css/application.css',
-    ]);
     ?>
-    <link rel="stylesheet" href="/custom.css">
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-    <?php echo Package::i()->getRequestedJS();?>
-    <?php if (is_file('favicon.ico')) { ?>
+    <?php
+    echo Package::i()->asset([
+        '/css/footer.css',
+    ]);
+    echo Package::i()->getRequestedJS();
+    if (is_file('favicon.ico')) { ?>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    <?php } ?>
-    <?php if (HTTP::queryString()) { ?>
+    <?php }
+    if (HTTP::queryString()) { ?>
         <link rel="canonical" href="http<?php echo (mb_strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))?>">
-    <?php } ?>
-    <?php if ($Page->noindex || $Page->Material->noindex || $Page->catalogFilter->filter) { ?>
+    <?php }
+    if ($Page->noindex || $Page->Material->noindex || $Page->catalogFilter->filter) { ?>
         <meta name="robots" content="noindex,nofollow" />
-    <?php } ?>
-    <?php echo $Page->location('head_counters')?>
+    <?php }
+    echo $Page->location('head_counters');
+    ?>
   </head>
   <body class="body <?php echo !$Page->pid ? ' body_main' : ''?>" data-page-id="<?php echo (int)$Page->id?>"<?php echo $Page->Material->id ? ' data-page-material-id="' . (int)$Page->Material->id . '"' : ''?>>
     <?php echo $Page->location('top_body_counters')?>
@@ -187,9 +193,10 @@ ob_start(); // Для $separateScripts
                           <?php if ($i || !$Page->pid) {
                               echo $contentText;
                           } else {
+                              $catalogMaterialType = Material_Type::importByURN('catalog');
                               Snippet::importByURN('breadcrumbs')->process(['page' => $Page]);
                               /*if (!$Page->Material->id || !in_array(
-                                  5,
+                                  $catalogMaterialType->id,
                                   MaterialTypeRecursiveCache::i()->getSelfAndParentsIds($Page->Material->pid)
                               )) {*/ ?>
                                   <h1 class="h1 body__title">
@@ -233,11 +240,16 @@ ob_start(); // Для $separateScripts
           <a href="http://volumnet.ru" target="_blank">Volume&nbsp;Networks</a>
         </div>
       </footer>
-      <?php echo $Page->location('body_bottom')?>
+      <?php
+      echo '<div data-vue-role="confirm" data-vue-ref="confirm"></div>';
+      if (class_exists(\RAAS\CMS\Shop\Module::class)) {
+          echo '<div data-vue-role="added-modal" data-vue-ref="addedModal"></div>';
+      }
+      echo $Page->location('footer_counters') .
+          Package::i()->asset('/js/footer.js');
+      ?>
     </div>
     <?php
-    echo $Page->location('footer_counters');
-    echo Package::i()->asset('/js/application.js');
     $content = $separateScripts(ob_get_clean());
     echo $content[0] . $content[1] . $content[2];
     ?>

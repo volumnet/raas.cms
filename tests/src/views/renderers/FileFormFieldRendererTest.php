@@ -33,6 +33,7 @@ class FileFormFieldRendererTest extends BaseTest
         $this->assertEquals('required', $result['required']);
         $this->assertEmpty($result['class']);
         $this->assertEmpty($result['placeholder']);
+        $this->assertEquals('Your photo', $result['data-placeholder']);
         $this->assertEmpty($result['maxlength']);
         $this->assertEmpty($result['pattern']);
         $this->assertEmpty($result['value']);

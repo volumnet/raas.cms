@@ -67,4 +67,28 @@ class TextAreaFormFieldRendererTest extends BaseTest
         $this->assertStringNotContainsString(' value="', $result);
         $this->assertStringContainsString('></textarea>', $result);
     }
+
+
+    /**
+     * Тест рендера - случай множественного поля с пустыми данными
+     */
+    public function testRenderWithMultipleWithoutData()
+    {
+        $renderer = new TextFormFieldRenderer(new Form_Field([
+            'datatype' => 'email',
+            'required' => true,
+            'placeholder' => 'Your name',
+            'maxlength' => 16,
+            'pattern' => '.*',
+            'urn' => 'name',
+            'multiple' => true,
+        ]), new Block_Form());
+
+        $result = $renderer->render();
+
+        $this->assertStringContainsString(
+            ' data-value="' . htmlspecialchars(json_encode([])) . '"',
+            $result
+        );
+    }
 }

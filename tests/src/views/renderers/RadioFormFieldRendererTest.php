@@ -36,7 +36,7 @@ class RadioFormFieldRendererTest extends BaseTest
         $this->assertEmpty($result['pattern']);
         $this->assertEmpty($result['multiple']);
         $this->assertEmpty($result['data-multiple']);
-        $this->assertEquals('checked', $result['checked']);
+        $this->assertEmpty($result['checked']);
         $this->assertEmpty($result['value']);
         $this->assertEmpty($result['data-value']);
         $this->assertEmpty($result['id']);
@@ -68,7 +68,7 @@ class RadioFormFieldRendererTest extends BaseTest
         $result = $renderer->render(['data-test' => 'test']);
 
         $this->assertEquals(
-            '<ul class="checkbox-tree checkbox-tree_radio" data-role="checkbox-tree" data-test="test">' .
+            '<ul data-raas-field data-type="radio" class="checkbox-tree checkbox-tree_radio" data-role="checkbox-tree" data-test="test">' .
               '<li>' .
                 '<label><input type="radio" name="name" required="required" value="aaa" checked="checked" /> AAA</label>' .
               '</li>' .

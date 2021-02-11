@@ -12,7 +12,6 @@ class ImageFormFieldRenderer extends FileFormFieldRenderer
     public function getAttributes()
     {
         $attrs = parent::getAttributes();
-        $attrs['data-type'] = 'image';
         $allowedExtensions = preg_split('/\\W+/umis', $this->field->source);
         $allowedExtensions = array_map(function ($x) {
             return mb_strtolower($x);

@@ -72,8 +72,9 @@ class Snippet extends SOME
         // (в отсутствие собственно POST-запроса) подставляются все параметры
         // $DATA = $data;
         extract($data);
-        $_SESSION['RAAS_EVAL_DEBUG'] = 'Snippet::' . $this->urn;
+        $_SESSION['EVAL_DEBUG'] = 'Snippet::' . $this->urn;
         $result = eval('?' . '>' . $this->description);
+        $_SESSION['EVAL_DEBUG'] = '';
         if ($diag = Controller_Frontend::i()->diag) {
             $diag->handle('snippets', $this->id, microtime(true) - $st);
         }

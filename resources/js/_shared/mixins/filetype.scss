@@ -1,0 +1,45 @@
+@mixin filetype() {
+    &:before {
+        @include fa('file-alt');
+    }
+    &_zip, &_rar, &_tar, &_gz, &_7z {
+        &:before {
+            @include fa('file-archive');
+        }
+    }
+    &_mp3, &_wav, &_ogg, &_mid, &_rmi {
+        &:before {
+            @include fa('file-audio');
+        }
+    }
+    &_php, &_html, &_cs, &_class, &_inc, &_js, &_css {
+        &:before {
+            @include fa('file-code');
+        }
+    }
+    &_jpg, &_gif, &_jpeg, &_pjpeg, &_bmp, &_tif, &_tiff, &_png {
+        &:before {
+            @include fa('file-image');
+        }
+    }
+    &_pdf {
+        &:before {
+            @include fa('file-pdf');
+        }
+    }
+    &_ppt, &_pptx {
+        &:before {
+            @include fa('file-powerpoint');
+        }
+    }
+    &_avi, &_mpg, &_flv {
+        &:before {
+            @include fa('file-video');
+        }
+    }
+    &_doc, &_docx, &_rtf {
+        &:before {
+            @include fa('file-word');
+        }
+    }
+}

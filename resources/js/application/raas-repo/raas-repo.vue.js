@@ -18,7 +18,6 @@ export default {
          * @type {Array}
          */
         value: {
-            type: Array,
             required: true,
             default: [],
         },

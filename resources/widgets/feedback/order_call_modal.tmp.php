@@ -30,7 +30,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
                 <div class="h5 modal-title">
                   <?php echo ORDER_CALL?>
                 </div>
-                <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
+                <button type="button" data-bs-dismiss="modal" aria-hidden="true" class="btn-close"></button>
               </div>
               <div class="modal-body">
                 <div class="form-horizontal">

@@ -72,6 +72,7 @@ class FormFieldRendererTest extends BaseTest
 
         $result = $renderer->getAttributes();
 
+        $this->assertEquals('', $result['data-raas-field']);
         $this->assertEquals('name', $result['name']);
         $this->assertStringStartsWith('name', $result['id']);
         $this->assertEquals('required', $result['required']);
@@ -83,7 +84,7 @@ class FormFieldRendererTest extends BaseTest
     public function testGetAttributesWithMultiple()
     {
         $renderer = new TextFormFieldRenderer(new Form_Field([
-            'type' => 'text',
+            'datatype' => 'text',
             'required' => true,
             'urn' => 'name',
             'multiple' => 'true',
@@ -91,6 +92,8 @@ class FormFieldRendererTest extends BaseTest
 
         $result = $renderer->getAttributes();
 
+        $this->assertEquals('', $result['data-raas-field']);
+        $this->assertEquals('text', $result['data-type']);
         $this->assertEquals('name[]', $result['name']);
         $this->assertEmpty($result['id']);
         $this->assertEquals('multiple', $result['data-multiple']);
@@ -106,7 +109,7 @@ class FormFieldRendererTest extends BaseTest
     {
         $renderer = new TextFormFieldRenderer(
             new Form_Field([
-                'type' => 'text',
+                'datatype' => 'text',
                 'required' => true,
                 'urn' => 'name',
                 'multiple' => 'true',
@@ -118,6 +121,8 @@ class FormFieldRendererTest extends BaseTest
         $result = $renderer->render();
 
         $this->assertStringContainsString('<input', $result);
+        $this->assertStringContainsString(' data-raas-field ', $result);
+        $this->assertStringContainsString(' data-type="text"', $result);
         $this->assertStringContainsString('name="name[]"', $result);
         $this->assertStringContainsString('data-multiple="multiple"', $result);
         $this->assertStringContainsString('required="required"', $result);
@@ -131,6 +136,7 @@ class FormFieldRendererTest extends BaseTest
     {
         $renderer = new SelectFormFieldRenderer(
             new Form_Field([
+                'datatype' => 'select',
                 'urn' => 'name',
                 'multiple' => 'true',
             ]),
