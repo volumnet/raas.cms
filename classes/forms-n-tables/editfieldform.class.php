@@ -115,6 +115,12 @@ class EditFieldForm extends RAASForm
                 ],
                 [
                     'type' => 'checkbox',
+                    'name' => 'vis',
+                    'caption' => $this->view->_('VISIBLE'),
+                    'default' => 1
+                ],
+                [
+                    'type' => 'checkbox',
                     'name' => 'required',
                     'caption' => $this->view->_('REQUIRED')
                 ],

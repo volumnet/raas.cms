@@ -1,6 +1,6 @@
 <?php
 /**
- * Виджет блока "{{WIDGET_NAME}}"
+ * Виджет блока "Контакты"
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
  * @param array<Material>|null $Set Список материалов
@@ -27,50 +27,57 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
                      <meta property="business:contact_data:country_name" content="Russian Federation" />
                      <meta property="business:contact_data:website" content="' . htmlspecialchars($host) . '" />';
 ?>
-<div class="{{WIDGET_CSS_CLASSNAME}} vcard" itemscope itemtype="http://schema.org/Organization">
+<div class="contacts vcard" itemscope itemtype="http://schema.org/Organization">
   <span itemprop="name" class="fn org" style="display: none">
     <?php echo htmlspecialchars($company->name)?>
   </span>
-  <?php if ($map = $company->map) { ?>
-      <div class="{{WIDGET_CSS_CLASSNAME}}__map">
-        <?php
-        $map = preg_replace('/width=\\d+("|&)/i', 'width=100%$1', $map);
-        $map = preg_replace('/type=".*?"/i', 'type="application/javascript"', $map);
-        echo $map;
-        ?>
-      </div>
-  <?php }
+  <?php if ($company->map) {
+      if (preg_match('/src="(.*?)"/umis', $company->map, $regs)) {
+          $mapQueryStr = parse_url($regs[1], PHP_URL_QUERY);
+          parse_str($mapQueryStr, $mapQuery);
+          if ($mapQuery['um']) {
+              $mapId = $mapQuery['um'];
+          } elseif ($mapQuery['sid']) {
+              $mapId = 'constructor:' . $mapQuery['sid'];
+          }
+          if ($mapId) { ?>
+              <div class="contacts__map">
+                <iframe src="https://yandex.ru/map-widget/v1/?um=<?php echo urlencode($mapId)?>&amp;source=constructor" frameborder="0"></iframe>
+              </div>
+          <?php }
+      }
+  }
   $addressArr = [];
   if ($postalCode = $company->postal_code) {
       $jsonLd['address']['postalCode'] = $postalCode;
-      $addressArr[] = '<span class="{{WIDGET_CSS_CLASSNAME}}__address-postal-code postal-code" itemprop="postalCode">'
+      $addressArr[] = '<span class="contacts__address-postal-code postal-code" itemprop="postalCode">'
                     .    htmlspecialchars($postalCode)
                     . '</span>';
   }
   if ($city = $company->city) {
       $jsonLd['address']['addressLocality'] = $city;
-      $addressArr[] = '<span class="{{WIDGET_CSS_CLASSNAME}}__address-city locality" itemprop="addressLocality">'
+      $addressArr[] = '<span class="contacts__address-city locality" itemprop="addressLocality">'
                     .    htmlspecialchars($city)
                     . '</span>';
   }
   if ($streetAddress = $company->street_address) {
       $jsonLd['address']['streetAddress'] = $streetAddress;
-      $addressArr[] = '<span class="{{WIDGET_CSS_CLASSNAME}}__address-address street-address" itemprop="streetAddress">'
+      $addressArr[] = '<span class="contacts__address-address street-address" itemprop="streetAddress">'
                     .    htmlspecialchars($streetAddress)
                     . '</span>';
   }
   if ($office = $company->office) {
-      $addressArr[] = '<span class="{{WIDGET_CSS_CLASSNAME}}__address-office">'
+      $addressArr[] = '<span class="contacts__address-office">'
                     .    htmlspecialchars($office)
                     . '</span>';
   }
   if ($addressArr) {
       $jsonLd['address']['@type'] = 'PostalAddress'; ?>
-      <div class="{{WIDGET_CSS_CLASSNAME}}__address">
-        <span class="{{WIDGET_CSS_CLASSNAME}}__address-title">
+      <div class="contacts__address">
+        <span class="contacts__address-title">
           <?php echo View_Web::i()->_('ADDRESS')?>:
         </span>
-        <span class="{{WIDGET_CSS_CLASSNAME}}__address-value adr" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+        <span class="contacts__address-value adr" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
           <?php echo implode(', ', $addressArr)?>
         </span>
       </div>
@@ -78,20 +85,20 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   <?php if ($phones = $company->fields['phone']->getValues(true)) {
       $jsonLd['telephone'] = (count($phones) > 1) ? $phones : $phones[0];
       $phonesText = array_map(function ($phone) {
-          return '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-list__item">' .
-                   '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-item">' .
+          return '<span class="contacts-phones-list__item">' .
+                   '<span class="contacts-phones-item">' .
                      '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '" class="tel" itemprop="telephone">' .
                         htmlspecialchars($phone) .
                      '</a>' .
                    '</span>' .
                  '</span>';
       }, $phones);?>
-      <div class="{{WIDGET_CSS_CLASSNAME}}__phones">
-        <span class="{{WIDGET_CSS_CLASSNAME}}__phones-title">
+      <div class="contacts__phones">
+        <span class="contacts__phones-title">
           <?php echo htmlspecialchars($company->fields['phone']->name)?>:
         </span>
-        <span class="{{WIDGET_CSS_CLASSNAME}}__phones-list">
-          <span class="{{WIDGET_CSS_CLASSNAME}}-phones-list">
+        <span class="contacts__phones-list">
+          <span class="contacts-phones-list">
             <?php echo implode(', ', $phonesText)?>
           </span>
         </span>
@@ -100,44 +107,47 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   <?php if ($emails = $company->fields['email']->getValues(true)) {
       $jsonLd['email'] = (count($emails) > 1) ? $emails : $emails[0];
       $emailsText = array_map(function ($email) {
-          return '<span class="{{WIDGET_CSS_CLASSNAME}}-emails-list__item">' .
-                   '<span class="{{WIDGET_CSS_CLASSNAME}}-emails-item">' .
+          return '<span class="contacts-emails-list__item">' .
+                   '<span class="contacts-emails-item">' .
                      '<a href="mailto:' . htmlspecialchars($email) . '" class="email" itemprop="email">' .
                         htmlspecialchars($email) .
                      '</a>' .
                    '</span>' .
                  '</span>';
       }, $emails);?>
-      <div class="{{WIDGET_CSS_CLASSNAME}}__emails">
-        <span class="{{WIDGET_CSS_CLASSNAME}}__emails-title">
+      <div class="contacts__emails">
+        <span class="contacts__emails-title">
           <?php echo htmlspecialchars($company->fields['email']->name)?>:
         </span>
-        <span class="{{WIDGET_CSS_CLASSNAME}}__emails-list">
-          <span class="{{WIDGET_CSS_CLASSNAME}}-emails-list">
+        <span class="contacts__emails-list">
+          <span class="contacts-emails-list">
             <?php echo implode(', ', $emailsText)?>
           </span>
         </span>
       </div>
   <?php } ?>
   <?php if ($schedule = $company->schedule) { ?>
-      <div class="{{WIDGET_CSS_CLASSNAME}}__schedule">
-        <span class="{{WIDGET_CSS_CLASSNAME}}__schedule-title">
+      <div class="contacts__schedule">
+        <span class="contacts__schedule-title">
           <?php echo View_Web::i()->_('SCHEDULE')?>:
         </span>
-        <span class="{{WIDGET_CSS_CLASSNAME}}__schedule-value">
+        <span class="contacts__schedule-value">
           <?php echo htmlspecialchars($schedule)?>
         </span>
       </div>
   <?php } ?>
   <?php if ($transport = $company->transport) { ?>
-      <div class="{{WIDGET_CSS_CLASSNAME}}__transport">
-        <span class="{{WIDGET_CSS_CLASSNAME}}__transport-title">
+      <div class="contacts__transport">
+        <span class="contacts__transport-title">
           <?php echo View_Web::i()->_('TRANSPORT')?>:
         </span>
-        <span class="{{WIDGET_CSS_CLASSNAME}}__transport-value">
+        <span class="contacts__transport-value">
           <?php echo htmlspecialchars($transport)?>
         </span>
       </div>
   <?php } ?>
 </div>
 <script type="application/ld+json"><?php echo json_encode($jsonLd)?></script>
+<?php
+Package::i()->requestCSS('/css/contacts.css');
+Package::i()->requestJS('/js/contacts.js');

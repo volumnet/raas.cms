@@ -2,12 +2,14 @@
  * Компонент AJAX-формы
  */
 export default {
-    props: [
+    props: {
         /**
          * ID# блока
          */
-        'blockId'
-    ],
+        blockId: {
+            type: Number
+        },
+    },
     data: function () {
         return {
             /**
@@ -29,6 +31,12 @@ export default {
              * @type {Boolean}
              */
             success: false,
+
+            /**
+             * Данные формы
+             * @type {Object}
+             */
+            formData: {}
         };
     },
     mounted: function () {
@@ -50,7 +58,7 @@ export default {
                     self.loading = false;
                 },
                 data: { 
-                    AJAX: (this.blockId || 1) 
+                    AJAX: (self.blockId || 1) 
                 } 
             });
             return false;
@@ -88,7 +96,6 @@ export default {
                 $(this.$el).trigger('raas.ajaxform.error', data.localError);
                 this.$emit('error', data.localError);
             }
-
         },
     },
     computed: {
@@ -98,6 +105,13 @@ export default {
          */
         hasErrors: function () {
             return Object.values(this.errors).length > 0;
+        },
+        /**
+         * Распаковка текущего экземпляра для слота
+         * @return {Object}
+         */
+        self: function () { 
+            return { ...this };
         },
     }
 }

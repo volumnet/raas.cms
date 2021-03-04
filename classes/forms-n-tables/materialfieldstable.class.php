@@ -34,7 +34,7 @@ class MaterialFieldsTable extends FieldsTable
                         $params
                     ) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
-                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' .
+                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
                                       (int)$row->id .
                                    '</a>';
                         } elseif ($row->id) {
@@ -50,7 +50,7 @@ class MaterialFieldsTable extends FieldsTable
                         $params
                     ) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
-                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' .
+                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
                                       htmlspecialchars($row->name) .
                                    '</a>';
                         } else {

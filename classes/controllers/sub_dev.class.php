@@ -40,6 +40,7 @@ class Sub_Dev extends RAASAbstractSubController
             case 'forms':
             case 'material_types':
             case 'move_material_field':
+            case 'move_material_type':
                 $this->{$this->action}();
                 break;
             case 'edit_material_field':
@@ -181,12 +182,21 @@ class Sub_Dev extends RAASAbstractSubController
                     $this->url . '&action=diag'
                 );
                 break;
+            case 'chvis_material_field':
+            case 'vis_material_field':
+            case 'invis_material_field':
             case 'delete_material_field':
             case 'show_in_table_material_field':
             case 'required_material_field':
+            case 'chvis_form_field':
+            case 'vis_form_field':
+            case 'invis_form_field':
             case 'delete_form_field':
             case 'show_in_table_form_field':
             case 'required_form_field':
+            case 'chvis_page_field':
+            case 'vis_page_field':
+            case 'invis_page_field':
             case 'delete_page_field':
             case 'show_in_table_page_field':
             case 'required_page_field':
@@ -775,7 +785,7 @@ class Sub_Dev extends RAASAbstractSubController
             }, $ids);
         }
         $items = array_values($items);
-        $Item = isset($items[0]) ? $items[0] : new Material_Field();
+        $item = isset($items[0]) ? $items[0] : new Material_Field();
 
         if ($items) {
             if (isset($_GET['new_pid'])) {
@@ -786,7 +796,7 @@ class Sub_Dev extends RAASAbstractSubController
                 );
             } else {
                 $this->view->move_material_field([
-                    'Item' => $Item,
+                    'Item' => $item,
                     'items' => $items
                 ]);
                 return;
@@ -795,7 +805,45 @@ class Sub_Dev extends RAASAbstractSubController
         new Redirector(
             isset($_GET['back']) ?
             'history:back' :
-            $this->url . '&action=edit_material_type&id=' . (int)$Item->pid
+            $this->url . '&action=edit_material_type&id=' . (int)$item->pid
+        );
+    }
+
+
+    /**
+     * Перемещение типа материалов
+     */
+    protected function move_material_type()
+    {
+        $items = [];
+        $ids = (array)$_GET['id'];
+
+        $items = array_map(function ($x) {
+            return new Material_Type((int)$x);
+        }, $ids);
+
+        $items = array_values($items);
+        $item = isset($items[0]) ? $items[0] : new Material_Type();
+
+        if ($items) {
+            if (isset($_GET['new_pid'])) {
+                StdSub::move(
+                    $items,
+                    new Material_Type((int)$_GET['new_pid']),
+                    $this->url . '&action=material_types'
+                );
+            } else {
+                $this->view->move_material_type([
+                    'Item' => $item,
+                    'items' => $items
+                ]);
+                return;
+            }
+        }
+        new Redirector(
+            isset($_GET['back']) ?
+            'history:back' :
+            $this->url . '&action=material_types&id=' . (int)$item->pid
         );
     }
 

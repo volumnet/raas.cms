@@ -45,7 +45,7 @@ class CheckboxFormFieldRenderer extends FormFieldRenderer
     {
         $result = '';
         $stdAttrs = $this->getAttributes();
-        unset($stdAttrs['data-raas-field'], $stdAttrs['data-type']);
+        unset($stdAttrs['data-raas-field'], $stdAttrs['data-type'], $stdAttrs['data-placeholder']);
         foreach ($source as $key => $val) {
             $attrs = $this->mergeAttributes($stdAttrs, ['value' => $key]);
             if (in_array($key, (array)$this->data)) {

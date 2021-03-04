@@ -70,10 +70,10 @@ ob_start(); // Для $separateScripts
         // '/css/style.css',
     ]);
     // Включаем, если есть HTML-поля
-    // Package::i()->requestJS([
-    //     '/vendor/ckeditor/ckeditor/ckeditor.js',
-    //     '/vendor/ckeditor/ckeditor/adapters/jquery.js',
-    // ]);
+    Package::i()->requestJS([
+        '/vendor/ckeditor/ckeditor/ckeditor.js',
+        '/vendor/ckeditor/ckeditor/adapters/jquery.js',
+    ]);
     echo Package::i()->getRequestedCSS();
     echo Package::i()->getRequestedJS('beforeApp');
     ?>
@@ -242,7 +242,7 @@ ob_start(); // Для $separateScripts
       </footer>
       <?php
       echo '<div data-vue-role="confirm" data-vue-ref="confirm"></div>';
-      if (class_exists(\RAAS\CMS\Shop\Module::class)) {
+      if (class_exists('\\RAAS\\CMS\\Shop\\Module')) {
           echo '<div data-vue-role="added-modal" data-vue-ref="addedModal"></div>';
       }
       echo $Page->location('footer_counters') .

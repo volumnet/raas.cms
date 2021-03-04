@@ -16,6 +16,7 @@ class FeaturesTemplate extends MaterialTypeTemplate
     {
         $imageField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('IMAGE'),
             'urn' => 'image',
             'datatype' => 'image',
@@ -25,6 +26,7 @@ class FeaturesTemplate extends MaterialTypeTemplate
 
         $iconField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('ICON'),
             'urn' => 'icon',
             'datatype' => 'text',

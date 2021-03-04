@@ -35,6 +35,23 @@ export default {
             required: false,
             default: false,
         },
+
+        /**
+         * Сортируемый репозиторий (вызывается событие по сортировке)
+         */
+        sortable: {
+            type: Boolean,
+            default: true,
+        },
+    },
+    data: function () {
+        return {
+            /**
+             * Счетчик сортировок (для создания уникального ключа элементов списка)
+             * @type {Number}
+             */
+            sortCounter: 0,
+        };
     },
     mounted: function () {
         $(this.$el).sortable(this.sortableParams);
@@ -45,9 +62,21 @@ export default {
          * @type {Object}
          */
         sortableParams: function () {
+            let originalPosition = null;
             let result = {
                 containment: 'parent',
                 revert: true,
+                start: (event, ui) => {
+                    originalPosition = ui.item.parent().children().index(ui.item);
+                },
+                stop: (event, ui) => {
+                    let position = ui.item.parent().children().index(ui.item);
+                    if (position != originalPosition) {
+                        this.$emit('sort', { originalPosition, position });
+                    }
+                    originalPosition = null;
+                    this.sortCounter++;
+                },
             };
             if (!this.horizontal) {
                 result.axis = 'y';

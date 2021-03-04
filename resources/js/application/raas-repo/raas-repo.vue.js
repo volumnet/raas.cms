@@ -5,7 +5,6 @@ export default {
     props: {
         /**
          * Первый элемент обязателен
-         * @type {Boolean}
          */
         required: {
             type: Boolean,
@@ -15,21 +14,29 @@ export default {
 
         /**
          * Данные репозитория
-         * @type {Array}
          */
         value: {
             required: true,
-            default: [],
+            default: function () {
+                return [];
+            },
         },
 
         /**
          * Горизонтальное расположение
-         * @type {Boolean}
          */
         horizontal: {
             type: Boolean,
             required: false,
             default: false,
+        },
+
+        /**
+         * Сортируемый репозиторий (вызывается событие по сортировке)
+         */
+        sortable: {
+            type: Boolean,
+            default: true,
         },
     },
     data: function () {
@@ -40,31 +47,69 @@ export default {
          */
         result.autoIncrement = 0;
         /**
-         * Внутреннее представление данных репозитория
+         * Массив элементов
          * @type {Array} <pre><code>array<{
-         *     id: ID# объекта (авто-инкремент),
-         *     value: Значение
+         *     id: Number ID# элемента,
+         *     value: Значение элемента
          * }></code></pre>
          */
         result.items = [];
-
-        if (this.value instanceof Array) {
-            for (let i = 0; i < this.value.length; i++) {
-                result.items.push({
-                    id: ++result.autoIncrement,
-                    value: this.value[i],
-                });
-            }
-        }
-        if (this.required && !result.items.length) {
-            result.items.push({
-                id: ++result.autoIncrement,
-                value: null,
-            });
-        }
         return result;
     },
+    mounted: function () {
+        this.initItems();
+    },
     methods: {
+        /**
+         * Инициализирует массив items
+         */
+        initItems: function () {
+            this.autoIncrement = 0;
+            this.items = [];
+            if (this.value instanceof Array) {
+                for (let i = 0; i < this.value.length; i++) {
+                    this.items.push({
+                        id: ++this.autoIncrement,
+                        value: this.value[i],
+                    });
+                }
+            }
+            if (this.required && !this.items.length) {
+                this.items.push({
+                    id: ++this.autoIncrement,
+                    value: null,
+                });
+            }
+        },
+        /**
+         * Изменение элемента
+         * @param {Object} <pre><code>{
+         *     target: {
+         *         id: ID# объекта (авто-инкремент),
+         *         value: Значение
+         *     } Объект, к которому применяется изменение,
+         *     value: Новое значение
+         * }</code></pre>
+         */
+        changeItem: function ($event) {
+            $event.target.value = $event.value; 
+            this.$emit('input', this.items.map(x => x.value));
+        },
+        /**
+         * Сортировка
+         * @param {Object} $event <pre><code>{
+         *     originalPosition: Number начальная позиция элемента в списке
+         *     position: Конечная позиция элемента в списке
+         * }</code></pre>
+         */
+        sort: function ($event) {
+            this.items.splice(
+                $event.position, 
+                0, 
+                this.items.splice($event.originalPosition, 1)[0]
+            );
+            this.$emit('input', this.items.map(x => x.value));
+        },
         /**
          * Добавление элемента
          */
@@ -73,13 +118,20 @@ export default {
                 id: ++this.autoIncrement,
                 value: null,
             });
+            this.$emit('input', this.items.map(x => x.value));
         },
         /**
          * Удаление элемента по ID# объекта
          * @param  {Number} id ID# объекта (авто-инкремент)
          */
-        deleteItem: function (id) {
-            this.items = this.items.filter(item => item.id != id);
+        deleteItem: function (item) {
+            this.items = this.items.filter(x => x.id != item.id);
+            this.$emit('input', this.items.map(x => x.value));
         },
-    }
+    },
+    watch: {
+        value: function () {
+            this.initItems();
+        },
+    },
 }

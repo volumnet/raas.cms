@@ -456,11 +456,6 @@ class Webmaster
                 'urn' => 'noindex',
                 'datatype' => 'checkbox'
             ],
-            [
-                'name' => View_Web::i()->_('BACKGROUND'),
-                'urn' => 'background',
-                'datatype' => 'image'
-            ],
         ] as $row) {
             $pf = Page_Field::importByURN($row['urn']);
             if (!$pf->id) {
@@ -1083,6 +1078,12 @@ class Webmaster
                 ],
                 $this->Site
             );
+            $privacyWidget = Snippet::importByURN('privacy');
+            if (!$privacyWidget->id) {
+                $materialType = Material_Type::importByURN('company');
+                $materialTemplate = new CompanyTemplate($materialType, $this);
+                $privacyWidget = $materialTemplate->createPrivacyBlockSnippet();
+            }
             $this->createBlock(
                 new Block_HTML([
                     'name' => View_Web::i()->_('PRIVACY_PAGE_NAME'),
@@ -1094,7 +1095,7 @@ class Webmaster
                 ]),
                 'content',
                 null,
-                null,
+                'privacy',
                 $privacy
             );
         }
@@ -1312,6 +1313,7 @@ class Webmaster
                 'interface_id' => (int)$interfaces['__raas_form_notify']->id,
                 'fields' => [
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('YOUR_NAME'),
                         'urn' => 'full_name',
                         'required' => 1,
@@ -1319,24 +1321,28 @@ class Webmaster
                         'show_in_table' => 1,
                     ],
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('PHONE'),
                         'urn' => 'phone',
-                        'datatype' => 'text',
+                        'datatype' => 'tel',
                         'show_in_table' => 1,
                     ],
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('EMAIL'),
                         'urn' => 'email',
-                        'datatype' => 'text',
+                        'datatype' => 'email',
                         'show_in_table' => 1,
                     ],
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('QUESTION_TEXT'),
                         'urn' => '_description_',
                         'required' => 1,
                         'datatype' => 'textarea',
                     ],
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('AGREE_PRIVACY_POLICY'),
                         'urn' => 'agree',
                         'required' => 1,
@@ -1350,12 +1356,15 @@ class Webmaster
                 'interface_id' => (int)$interfaces['__raas_form_notify']->id,
                 'fields' => [
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('PHONE'),
-                        'urn' => 'phone_call',
-                        'datatype' => 'text',
+                        'urn' => 'phone',
+                        'datatype' => 'tel',
+                        'required' => 1,
                         'show_in_table' => 1,
                     ],
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('AGREE_PRIVACY_POLICY'),
                         'urn' => 'agree',
                         'required' => 1,
@@ -1610,6 +1619,7 @@ class Webmaster
 
             $F = new Material_Field([
                 'pid' => $MT->id,
+                'vis' => 1,
                 'name' => View_Web::i()->_('IMAGE'),
                 'multiple' => 1,
                 'urn' => 'images',
@@ -1788,6 +1798,7 @@ class Webmaster
 
             $F = new Material_Field([
                 'pid' => $MT->id,
+                'vis' => 1,
                 'name' => View_Web::i()->_('DATE'),
                 'urn' => 'date',
                 'datatype' => 'date',
@@ -1796,6 +1807,7 @@ class Webmaster
 
             $F = new Material_Field([
                 'pid' => $MT->id,
+                'vis' => 0,
                 'name' => View_Web::i()->_('PHONE'),
                 'urn' => 'phone',
                 'datatype' => 'text',
@@ -1804,6 +1816,7 @@ class Webmaster
 
             $F = new Material_Field([
                 'pid' => $MT->id,
+                'vis' => 0,
                 'name' => View_Web::i()->_('EMAIL'),
                 'urn' => 'email',
                 'datatype' => 'email',
@@ -1812,6 +1825,7 @@ class Webmaster
 
             $F = new Material_Field([
                 'pid' => $MT->id,
+                'vis' => 1,
                 'name' => View_Web::i()->_('IMAGE'),
                 'urn' => 'image',
                 'datatype' => 'image', 'show_in_table' => 0,
@@ -1820,6 +1834,7 @@ class Webmaster
 
             $F = new Material_Field([
                 'pid' => $MT->id,
+                'vis' => 1,
                 'name' => View_Web::i()->_('ANSWER_DATE'),
                 'urn' => 'answer_date',
                 'datatype' => 'date',
@@ -1828,6 +1843,7 @@ class Webmaster
 
             $F = new Material_Field([
                 'pid' => $MT->id,
+                'vis' => 1,
                 'name' => View_Web::i()->_('ANSWER_NAME'),
                 'urn' => 'answer_name',
                 'datatype' => 'text',
@@ -1836,6 +1852,7 @@ class Webmaster
 
             $F = new Material_Field([
                 'pid' => $MT->id,
+                'vis' => 1,
                 'name' => View_Web::i()->_('ANSWER_GENDER'),
                 'urn' => 'answer_gender',
                 'datatype' => 'select',
@@ -1847,6 +1864,7 @@ class Webmaster
 
             $F = new Material_Field([
                 'pid' => $MT->id,
+                'vis' => 1,
                 'name' => View_Web::i()->_('ANSWER_IMAGE'),
                 'urn' => 'answer_image',
                 'datatype' => 'image', 'show_in_table' => 0,
@@ -1855,6 +1873,7 @@ class Webmaster
 
             $F = new Material_Field([
                 'pid' => $MT->id,
+                'vis' => 1,
                 'name' => View_Web::i()->_('ANSWER'),
                 'urn' => 'answer',
                 'datatype' => 'htmlarea',
@@ -1872,6 +1891,7 @@ class Webmaster
                 'interface_id' => (int)$S->id,
                 'fields' => [
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('YOUR_NAME'),
                         'urn' => 'name',
                         'required' => 1,
@@ -1879,30 +1899,41 @@ class Webmaster
                         'show_in_table' => 1,
                     ],
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('PHONE'),
                         'urn' => 'phone',
                         'datatype' => 'text',
                         'show_in_table' => 1,
                     ],
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('EMAIL'),
                         'urn' => 'email',
                         'datatype' => 'email',
                         'show_in_table' => 0,
                     ],
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('YOUR_PHOTO'),
                         'urn' => 'image',
                         'datatype' => 'image',
                         'show_in_table' => 0,
                     ],
                     [
+                        'vis' => 1,
                         'name' => View_Web::i()->_('QUESTION_TEXT'),
                         'urn' => 'description',
                         'required' => 1,
                         'datatype' => 'textarea',
                         'show_in_table' => 0,
-                    ]
+                    ],
+                    [
+                        'vis' => 1,
+                        'name' => View_Web::i()->_('AGREE_PRIVACY_POLICY'),
+                        'urn' => 'agree',
+                        'required' => 1,
+                        'datatype' => 'checkbox',
+                    ],
                 ]
             ]);
         }

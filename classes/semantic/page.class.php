@@ -4,6 +4,8 @@
  */
 namespace RAAS\CMS;
 
+use Error;
+use Exception;
 use SOME\SOME;
 use SOME\Text;
 use RAAS\Attachment;
@@ -547,9 +549,22 @@ class Page extends SOME
             foreach ($this->Template->locations as $l => $loc) {
                 $this->location($l);
             }
-            $_SESSION['EVAL_DEBUG'] = 'Template::' . $this->Template->urn;
-            eval('?' . '>' . $this->Template->description);
-            $_SESSION['EVAL_DEBUG'] = '';
+            try {
+                $_SESSION['EVAL_DEBUG'] = 'Template::' . $this->Template->urn;
+                eval('?' . '>' . $this->Template->description);
+                $_SESSION['EVAL_DEBUG'] = '';
+            } catch (Error $e) {
+                $newMessage = 'Snippet::' . $this->urn . ':' . $e->getLine()
+                    . ': ' . $e->getMessage();
+                throw new Exception($newMessage, $e->getCode());
+            } catch (Exception $e) {
+                $newMessage = 'Snippet::' . $this->urn . ':' . $e->getLine()
+                    . ': ' . $e->getMessage();
+                throw new Exception($newMessage, $e->getCode());
+            }
+            if ($diag = Controller_Frontend::i()->diag) {
+                $diag->handle('snippets', $this->id, microtime(true) - $st);
+            }
         }
         $content = ob_get_contents();
         ob_end_clean();
@@ -882,13 +897,13 @@ class Page extends SOME
      */
     public function clearCache()
     {
-        $globUrl = $anyProtocolCachesGlob = $this->cacheFile;
+        $anyProtocolCachesGlob = $this->cacheFile;
         $anyProtocolCachesGlob = str_ireplace(urlencode('http:'), '*', $anyProtocolCachesGlob);
         $anyProtocolCachesGlob = str_ireplace(urlencode('https:'), '*', $anyProtocolCachesGlob);
         $globUrl = preg_replace(
             '/\\.php$/umi',
             urlencode('?') . '*.php',
-            $globUrl
+            $anyProtocolCachesGlob
         );
         $glob = glob($anyProtocolCachesGlob);
         foreach ($glob as $file) {

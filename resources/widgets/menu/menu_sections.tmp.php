@@ -41,8 +41,10 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
             $name = $row['name'];
             $page = new Page($row['page_id']);
         }
-        $active = ($url == HTTP::queryString('', true));
-        $semiactive = preg_match('/^' . preg_quote($url, '/') . '/umi', HTTP::queryString('', true)) && ($url != '/') && !$active;
+        // 2021-02-23, AVS: заменил HTTP::queryString('', true) на $current->url,
+        // чтобы была возможность использовать через AJAX
+        $active = ($url == $current->url);
+        $semiactive = preg_match('/^' . preg_quote($url, '/') . '/umi', $current->url) && ($url != '/') && !$active;
         if (preg_match('/class="[\\w\\- ]*?active[\\w\\- ]*?"/umi', $ch)) {
             $semiactive = true;
         }

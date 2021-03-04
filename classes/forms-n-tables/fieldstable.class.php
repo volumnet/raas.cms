@@ -47,7 +47,7 @@ class FieldsTable extends Table
                 'id' => [
                     'caption' => $this->view->_('ID'),
                     'callback' => function ($row) use ($view, $editAction) {
-                        return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' .
+                        return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
                                   (int)$row->id .
                                '</a>';
                     }
@@ -55,7 +55,7 @@ class FieldsTable extends Table
                 'name' => [
                     'caption' => $this->view->_('NAME'),
                     'callback' => function ($row) use ($view, $editAction) {
-                        return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '">' .
+                        return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
                                   htmlspecialchars($row->name) .
                                '</a>';
                     }

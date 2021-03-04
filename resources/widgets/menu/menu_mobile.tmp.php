@@ -14,6 +14,8 @@ namespace RAAS\CMS;
 
 use SOME\HTTP;
 
+$ajax = (bool)stristr($Page->url, '/ajax/');
+
 /**
  * Получает код списка меню
  * @param array<[
@@ -24,7 +26,7 @@ use SOME\HTTP;
  * @param Page $current Текущая страница
  * @return string
  */
-$showMenu = function($node, Page $current) use (&$showMenu) {
+$showMenu = function($node, Page $current) use (&$showMenu, $ajax) {
     static $level = 0;
     if ($node instanceof Menu) {
         $children = $node->visSubMenu;
@@ -70,8 +72,22 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
             $name = $row['name'];
         }
         $urn = array_shift(array_reverse(explode('/', trim($url, '/'))));
-        $active = ($url == HTTP::queryString('', true));
-        $semiactive = preg_match('/^' . preg_quote($url, '/') . '/umi', HTTP::queryString('', true)) && ($url != '/') && !$active;
+        $active = $semiactive = false;
+        if ($url == $current->url) {
+            $active = true;
+        } elseif (preg_match('/^' . preg_quote($url, '/') . '/umi', $current->url) &&
+            ($url != '/')
+        ) {
+            $semiactive = true;
+        }
+        // 2021-02-23, AVS: заменил HTTP::queryString('', true) на $current->url,
+        // чтобы была возможность использовать через AJAX
+        $ch = '';
+        if (1 || $ajax || !stristr($url, '/catalog/')) { // Для подгрузки AJAX'ом
+            $level++;
+            $ch = $showMenu($row, $current);
+            $level--;
+        }
         if (preg_match('/class="[\\w\\- ]*?active[\\w\\- ]*?"/umi', $ch)) {
             $semiactive = true;
         }

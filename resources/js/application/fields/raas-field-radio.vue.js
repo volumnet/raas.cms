@@ -5,4 +5,30 @@ import RAASField from './raas-field.vue.js';
  */
 export default {
     mixins: [RAASField],
+    props: {
+        /**
+         * Значение одиночного переключателя
+         * @type {Object}
+         */
+        defval: {
+            type: String,
+            default: '',
+        },
+        /**
+         * Название поля
+         * @type {Object}
+         */
+        name: {
+            type: String,
+        },
+    },
+    computed: {
+        /**
+         * Установлен ли одиночный флажок
+         * @return {Boolean}
+         */
+        checked: function () {
+            return (this.value == this.defval);
+        },
+    },
 };

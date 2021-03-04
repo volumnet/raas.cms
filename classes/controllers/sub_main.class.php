@@ -35,6 +35,7 @@ class Sub_Main extends RAASAbstractSubController
             case 'edit_material':
             case 'copy_material':
             case 'move_material':
+            case 'chtype_material':
                 $this->{$this->action}();
                 break;
             case 'chvis':
@@ -573,6 +574,70 @@ class Sub_Main extends RAASAbstractSubController
         }
         new Redirector('history:back#_' . $mtype->urn);
     }
+
+
+    /**
+     * Смена типа материала
+     */
+    protected function chtype_material()
+    {
+        $items = [];
+        $ids = (array)$_GET['id'];
+        $pids = (array)$_GET['pid'];
+        $pids = array_filter($pids, 'trim');
+        $mtype = new Material_Type((int)$_GET['mtype']);
+
+        if (in_array('all', $ids, true)) {
+            $mtypes = (array)$mtype->selfAndChildrenIds;
+            $where = ["Material.pid IN (" . implode(", ", $mtypes) . ")"];
+            if (!$mtype->global_type) {
+                if (in_array('all', $pids, true)) {
+                } elseif ($pids) {
+                    $pids = array_map('intval', $pids);
+                    $where[] = "pages___LINK.pid IN (" . implode(", ", $pids) . ")";
+                } else {
+                    $where[] = "pages___LINK.pid IN (0)";
+                }
+            }
+            $items = Material::getSet(['where' => $where, 'orderBy' => "id"]);
+        } else {
+            $items = array_map(
+                function ($x) {
+                    return new Material((int)$x);
+                },
+                $ids
+            );
+        }
+        $items = array_values($items);
+        $item = isset($items[0]) ? $items[0] : new Material();
+        $mtype = $item->material_type;
+        $pid = ($mtype->global_type || $pids)
+             ? array_shift($pids)
+             : (int)$item->pages_ids[0];
+        $oldPage = new Page($pid);
+        if ($items) {
+            if (isset($_GET['new_pid'])) {
+                $mtype = new Material_Type((int)$_GET['new_pid']);
+                foreach ($items as $row) {
+                    $row->pid = $mtype->id;
+                    $row->commit();
+                }
+                new Redirector(
+                    $this->url . '&id=' . (int)$pid . '#_' . $mtype->urn
+                );
+            } else {
+                $this->view->chtype_material([
+                    'Item' => $item,
+                    'items' => $items,
+                    'mtype' => $mtype,
+                    'page' => $oldPage
+                ]);
+                return;
+            }
+        }
+        new Redirector('history:back#_' . $mtype->urn);
+    }
+
 
     /**
      * Очистка кэша страницы

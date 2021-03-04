@@ -243,6 +243,11 @@ class MaterialInterface extends AbstractInterface
             $sqlParts['sort'],
             $sqlParts['order']
         );
+        // if ($block->id == 69) {
+        //     echo $sqlQuery;
+        //     var_dump($sqlParts);
+        //     exit;
+        // }
         $set = Material::getSQLSet([$sqlQuery, $sqlParts['bind']], $pages);
         $set = array_filter($set, function ($x) {
             return $x->currentUserHasAccess();
@@ -701,7 +706,7 @@ class MaterialInterface extends AbstractInterface
                   .  ($sqlWhere ? " WHERE " . implode(" AND ", $sqlWhere) : "")
                   .  " GROUP BY tM.id ";
         if ($sqlSort == "RAND()") {
-            $sqlQuery .= " ORDER BY RAND()";
+            $sqlQuery .= " ORDER BY " . $sqlSort;
         } else {
             $sqlQuery .= " ORDER BY NOT tM.priority,
                                         tM.priority ASC";

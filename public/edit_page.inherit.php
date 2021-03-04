@@ -19,8 +19,9 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
     &$_RAASForm_Control,
     &$_RAASForm_Options
 ) {
-    $Field = $fieldSet->children[0];
-    $inheritField = $fieldSet->children[1];
+    $fields = array_values((array)$fieldSet->children);
+    $Field = $fields[0];
+    $inheritField = $fields[1];
     $dataHint = $Field->{'data-hint'};
     unset($Field->{'data-hint'});
     $err = (bool)array_filter(

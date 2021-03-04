@@ -16,6 +16,7 @@ class CompanyTemplate extends MaterialTypeTemplate
     {
         $logoField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('LOGO'),
             'urn' => 'logo',
             'datatype' => 'image',
@@ -25,6 +26,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $postalCodeField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('POSTAL_CODE'),
             'urn' => 'postal_code',
             'datatype' => 'text',
@@ -33,6 +35,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $cityField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('CITY'),
             'urn' => 'city',
             'datatype' => 'text',
@@ -41,6 +44,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $streetAddressField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('STREET_ADDRESS'),
             'urn' => 'street_address',
             'datatype' => 'text',
@@ -49,6 +53,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $mapCodeField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('MAP_CODE'),
             'urn' => 'map',
             'datatype' => 'textarea',
@@ -57,6 +62,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $officeField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('OFFICE'),
             'urn' => 'office',
             'datatype' => 'text',
@@ -65,6 +71,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $phoneField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('PHONE'),
             'urn' => 'phone',
             'multiple' => 1,
@@ -74,6 +81,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $emailField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('EMAIL'),
             'urn' => 'email',
             'multiple' => 1,
@@ -83,6 +91,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $scheduleField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('SCHEDULE'),
             'urn' => 'schedule',
             'datatype' => 'text',
@@ -91,6 +100,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $transportField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('TRANSPORT'),
             'urn' => 'transport',
             'datatype' => 'textarea',
@@ -99,6 +109,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $socialsField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('SOCIAL_NETWORKS'),
             'urn' => 'socials',
             'multiple' => 1,
@@ -108,6 +119,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $copyrightsField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('COPYRIGHTS'),
             'urn' => 'copyrights',
             'datatype' => 'text',
@@ -116,6 +128,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $legalNameField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('LEGAL_NAME'),
             'urn' => 'legal_name',
             'datatype' => 'text',
@@ -124,6 +137,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $legalAddressField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('LEGAL_ADDRESS'),
             'urn' => 'legal_address',
             'datatype' => 'text',
@@ -132,6 +146,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $legalEmailField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('LEGAL_EMAIL'),
             'urn' => 'legal_email',
             'datatype' => 'email',
@@ -140,6 +155,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $taxIDField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('TAX_ID'),
             'urn' => 'tax_id',
             'datatype' => 'text',
@@ -177,6 +193,29 @@ class CompanyTemplate extends MaterialTypeTemplate
                   . '/widgets/materials/company/logo.tmp.php';
         $urn = 'logo';
         $name = View_Web::i()->_('LOGO');
+
+        $snippet = $this->webmaster->createSnippet(
+            $urn,
+            $name,
+            (int)$this->widgetsFolder->id,
+            $filename,
+            $this->getReplaceData($name, $urn)
+        );
+        return $snippet;
+    }
+
+
+
+    /**
+     * Создает сниппет страницы политики обработки персональных данных
+     * @return Snippet
+     */
+    public function createPrivacyBlockSnippet()
+    {
+        $filename = Package::i()->resourcesDir
+                  . '/widgets/materials/company/privacy.tmp.php';
+        $urn = 'privacy';
+        $name = View_Web::i()->_('PRIVACY_PAGE_NAME');
 
         $snippet = $this->webmaster->createSnippet(
             $urn,

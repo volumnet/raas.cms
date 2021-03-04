@@ -29,35 +29,6 @@ export default {
     },
     methods: {
         /**
-         * Получает список опций в плоском виде
-         * @param {Array} source <pre><code>array<{
-         *     value: String Значение,
-         *     name: String Текст,
-         *     children:? {Array} Рекурсивно
-         * }></code></pre> Источник
-         * @param {Number} level Уровень вложенности
-         * @return {Array} <pre><code>array<{
-         *     value: String Значение,
-         *     name: String Текст,
-         *     level: Number Уровень вложенности
-         * }></code></pre>
-         */
-        getFlatOptions: function (source, level = 0) {
-            let result = [];
-            for (let option of source) {
-                let newOption = {
-                    value: option.value,
-                    name: option.name,
-                    level: level,
-                };
-                result.push(newOption);
-                if (option.children) {
-                    result = result.concat(this.getFlatOptions(option.children, level + 1));
-                }
-            }
-            return result;
-        },
-        /**
          * Проверка/установка multiselect'а
          */
         checkMultiselect: function () {
@@ -66,7 +37,7 @@ export default {
                 $(this.$el).multiselect(this.multiselectConfig)
                     .attr('data-multiselect-applied', 'true')
                     .on('change', function () {
-                        console.log($('option:selected', this))
+                        // console.log($('option:selected', this))
                         self.$emit('input', $(this).val())
                     });
             }
@@ -90,21 +61,6 @@ export default {
         },
     },
     computed: {
-        /**
-         * Опции в плоском виде
-         * @return {Array} <pre><code>array<{
-         *     value: String Значение,
-         *     name: String Текст,
-         *     level: Number Уровень вложенности
-         * }></code></pre>
-         */
-        options: function () {
-            let source = this.source;
-            if (!(source instanceof Array)) {
-                source = [];
-            }
-            return this.getFlatOptions(source);
-        },
         /**
          * Конфигурация multiselect'а
          * @return {Object}

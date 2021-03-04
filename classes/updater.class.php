@@ -16,10 +16,8 @@ class Updater extends RAASUpdater
 {
     public function preInstall()
     {
-        if (version_compare(
-            $this->Context->registryGet('baseVersion'),
-            '4.2.45'
-        ) < 0) {
+        $v = $this->Context->registryGet('baseVersion');
+        if (version_compare($v, '4.2.45') < 0) {
             $this->oldUpdates();
             $this->update20140202();
             $this->update20140202_2();
@@ -43,14 +41,20 @@ class Updater extends RAASUpdater
             $this->update20190607();
             $this->update20200301();
         }
+        if (version_compare($v, '4.2.91') < 0) {
+            $this->update20210301();
+        }
     }
 
 
     public function postInstall()
     {
-        $this->update20141029();
-        $this->update20141103();
-        $this->update20141109();
+        $v = $this->Context->registryGet('baseVersion');
+        if (version_compare($v, '4.2.45') < 0) {
+            $this->update20141029();
+            $this->update20141103();
+            $this->update20141109();
+        }
         $w = new Webmaster();
         $w->checkStdInterfaces();
         $sqlQuery = "SELECT COUNT(*) FROM " . SOME::_dbprefix() . "cms_pages";
@@ -1778,6 +1782,68 @@ class Updater extends RAASUpdater
                     'priority' => 0,
                 ]
             );
+        }
+    }
+
+
+    /**
+     * Добавляет метки времени у редиректов,
+     * метки времени и создателя/редактора у сниппетов и шаблонов,
+     * видимость у полей
+     */
+    public function update20210301()
+    {
+        if (in_array(SOME::_dbprefix() . "cms_snippets", $this->tables) &&
+            !in_array('post_date', $this->columns(SOME::_dbprefix() . "cms_snippets"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_snippets
+                           ADD post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date' AFTER pid,
+                           ADD modify_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Modify date' AFTER post_date,
+                           ADD author_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Author ID#' AFTER modify_date,
+                           ADD editor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Editor ID#' AFTER author_id,
+                           ADD KEY (author_id),
+                           ADD KEY (editor_id)";
+            $this->SQL->query($sqlQuery);
+        }
+        if (in_array(SOME::_dbprefix() . "cms_templates", $this->tables) &&
+            !in_array('post_date', $this->columns(SOME::_dbprefix() . "cms_templates"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_templates
+                           ADD post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date' AFTER id,
+                           ADD modify_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Modify date' AFTER post_date,
+                           ADD author_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Author ID#' AFTER modify_date,
+                           ADD editor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Editor ID#' AFTER author_id,
+                           ADD KEY (author_id),
+                           ADD KEY (editor_id)";
+            $this->SQL->query($sqlQuery);
+        }
+        if (in_array(SOME::_dbprefix() . "cms_redirects", $this->tables) &&
+            !in_array('post_date', $this->columns(SOME::_dbprefix() . "cms_redirects"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_redirects
+                           ADD post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date' AFTER rx,
+                           ADD KEY (post_date)";
+            $this->SQL->query($sqlQuery);
+        }
+        if (!in_array(SOME::_dbprefix() . "cms_materials_votes", $this->tables)) {
+            $sqlQuery = "CREATE TABLE IF NOT EXISTS " . SOME::_dbprefix() . "cms_materials_votes (
+                            material_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
+                            ip VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'IP-address',
+                            post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
+                            vote TINYINT(1) SIGNED NOT NULL DEFAULT 0 COMMENT 'Vote',
+
+                            PRIMARY KEY (material_id, ip),
+                            KEY (material_id),
+                            KEY (ip)
+                        ) COMMENT 'Materials votes log'";
+            $this->SQL->query($sqlQuery);
+        }
+        if (in_array(SOME::_dbprefix() . "cms_fields", $this->tables) &&
+            !in_array('vis', $this->columns(SOME::_dbprefix() . "cms_fields"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_fields
+                           ADD vis TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Visibility' AFTER pid";
+            $this->SQL->query($sqlQuery);
         }
     }
 }

@@ -26,6 +26,55 @@ class RadioFormFieldRenderer extends CheckboxFormFieldRenderer
     }
 
 
+    public function getOptionsTree(array $source = [], $level = 0)
+    {
+        $result = '';
+        $stdAttrs = $this->getAttributes();
+        unset(
+            $stdAttrs['data-raas-field'],
+            $stdAttrs['data-type'],
+            $stdAttrs['data-placeholder'],
+            $stdAttrs['id']
+        );
+        if (!$level && (
+            !$this->field->required ||
+            $this->field->placeholder
+        )) {
+            $attrs = $this->mergeAttributes($stdAttrs, ['value' => '']);
+            if (!$this->data) {
+                $attrs['checked'] = 'checked';
+            }
+            $radioHtml = $this->getElement('input', $attrs);
+            $labelHtml = $this->getElement(
+                'label',
+                [],
+                $radioHtml . ' ' . htmlspecialchars($this->field->placeholder ?: '--')
+            );
+            $result .= $this->getElement('li', [], $labelHtml);
+        }
+        foreach ($source as $key => $val) {
+            $attrs = $this->mergeAttributes($stdAttrs, ['value' => $key]);
+            if ($key == $this->data) {
+                $attrs['checked'] = 'checked';
+            }
+            $radioHtml = $this->getElement('input', $attrs);
+            $labelHtml = $this->getElement(
+                'label',
+                [],
+                $radioHtml . ' ' . htmlspecialchars($val['name'])
+            );
+            if (isset($val['children']) && is_array($val['children'])) {
+                $labelHtml .= $this->getOptionsTree($val['children'], $level + 1);
+            }
+            $result .= $this->getElement('li', [], $labelHtml);
+        }
+        if ($level) {
+            $result = $this->getElement('ul', [], $result);
+        }
+        return $result;
+    }
+
+
     public function render($additionalData = [])
     {
         $optionsTree = $this->getOptionsTree($this->field->stdSource);

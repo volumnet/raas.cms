@@ -93,34 +93,57 @@ class EditMaterialForm extends \RAAS\Form
 
 
     /**
+     * Получает поле смены типа материалов
+     * @param Material $item Материал для редактирования
+     * @param Material_Type $type Тип материалов для редактирования
+     */
+    protected function getChangeTypeField(Material $item, Material_Type $type)
+    {
+        $allowChangeMaterialType = Package::i()->registryGet('allowChangeMaterialType');
+        if ($allowChangeMaterialType) {
+            $tempMType = new Material_Type();
+            $children = $tempMType->children;
+        } else {
+            $children = [$type];
+        }
+        $field = new RAASField([
+            'type' => 'select',
+            'name' => 'pid',
+            'caption' => $this->view->_('MATERIAL_TYPE'),
+            'children' => [
+                'Set' => $children,
+            ]
+        ]);
+        if ($item->id) {
+            $field->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_EXISTING_CONFIRM')) . '\')) { '
+                                                  .    ' this.form.submit(); '
+                                                  . '}';
+        } else {
+            $field->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_NEW_CONFIRM')) . '\')) { '
+                                                  .    ' var url = document.location.href; '
+                                                  .    ' url = url.replace(/(&|\\?)mtype=\\d+/, \'\'); '
+                                                  .    ' url += (/\\?/.test(url) ? \'&\' : \'?\') + \'mtype=\' + this.value; '
+                                                  .    ' document.location.href = url; '
+                                                  . '}';
+        }
+        return $field;
+    }
+
+
+    /**
      * Получает вкладку "Общие"
+     * @param Material $item Материал для редактирования
+     * @param Material_Type $type Тип материалов для редактирования
      * @return FormTab
      */
-    protected function getCommonTab($Item, $Type)
+    protected function getCommonTab(Material $item, Material_Type $type)
     {
         $commonTab = new FormTab([
             'name' => 'common',
             'caption' => $this->view->_('GENERAL')
         ]);
-        if ($Type->children) {
-            $commonTab->children['pid'] = new RAASField([
-                'type' => 'select',
-                'name' => 'pid',
-                'caption' => $this->view->_('MATERIAL_TYPE'),
-                'children' => ['Set' => [$Type]]
-            ]);
-            if ($Item->id) {
-                $commonTab->children['pid']->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_EXISTING_CONFIRM')) . '\')) { '
-                                                      .    ' this.form.submit(); '
-                                                      . '}';
-            } else {
-                $commonTab->children['pid']->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_NEW_CONFIRM')) . '\')) { '
-                                                      .    ' var url = document.location.href; '
-                                                      .    ' url = url.replace(/(&|\\?)mtype=\\d+/, \'\'); '
-                                                      .    ' url += (/\\?/.test(url) ? \'&\' : \'?\') + \'mtype=\' + this.value; '
-                                                      .    ' document.location.href = url; '
-                                                      . '}';
-            }
+        if ($type->children || Package::i()->registryGet('allowChangeMaterialType')) {
+            $commonTab->children['pid'] = $this->getChangeTypeField($item, $type);
         }
         $commonTab->children['name'] = new RAASField([
             'name' => 'name',
@@ -133,7 +156,7 @@ class EditMaterialForm extends \RAAS\Form
             'name' => 'description',
             'caption' => $this->view->_('DESCRIPTION')
         ]);
-        foreach ($Item->fields as $row) {
+        foreach ($item->fields as $row) {
             $commonTab->children[] = $row->Field;
         }
         return $commonTab;

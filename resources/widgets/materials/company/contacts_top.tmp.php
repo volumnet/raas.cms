@@ -1,6 +1,6 @@
 <?php
 /**
- * Виджет блока "{{WIDGET_NAME}}"
+ * Виджет блока "Контакты в шапке"
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
  * @param array<Material>|null $Set Список материалов
@@ -12,20 +12,20 @@ use SOME\Text;
 $company = $Set[0];
 
 ?>
-<div class="{{WIDGET_CSS_CLASSNAME}}">
+<div class="contacts-top">
   <?php if ($phones = $company->fields['phone']->getValues(true)) {
       $phonesText = array_map(function ($phone) {
-          return '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-list__item">' .
-                   '<span class="{{WIDGET_CSS_CLASSNAME}}-phones-item">' .
+          return '<span class="contacts-top-phones-list__item">' .
+                   '<span class="contacts-top-phones-item">' .
                      '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '">' .
                         htmlspecialchars($phone) .
                      '</a>' .
                    '</span>' .
                  '</span>';
       }, $phones);?>
-      <div class="{{WIDGET_CSS_CLASSNAME}}__phones">
-        <span class="{{WIDGET_CSS_CLASSNAME}}__phones-list">
-          <span class="{{WIDGET_CSS_CLASSNAME}}-phones-list">
+      <div class="contacts-top__phones">
+        <span class="contacts-top__phones-list">
+          <span class="contacts-top-phones-list">
             <?php echo implode(', ', $phonesText)?>
           </span>
         </span>
@@ -38,13 +38,13 @@ $company = $Set[0];
       'office' => 'office'
   ] as $suffix => $fieldURN) {
       if ($fieldVal = $company->$fieldURN) {
-          $addressArr[] = '<span class="{{WIDGET_CSS_CLASSNAME}}__address-' . $suffix . '">'
+          $addressArr[] = '<span class="contacts-top__address-' . $suffix . '">'
                         .    htmlspecialchars($fieldVal)
                         . '</span>';
       }
   }
   if ($addressArr) { ?>
-      <div class="{{WIDGET_CSS_CLASSNAME}}__address">
+      <div class="contacts-top__address">
         <?php echo implode(', ', $addressArr)?>
       </div>
   <?php } ?>

@@ -8,8 +8,8 @@
  */
 namespace RAAS\CMS;
 
-if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
-    $result = array();
+if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
+    $result = [];
     if ($success[(int)$Block->id]) {
         $result['success'] = 1;
     }
@@ -21,78 +21,83 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     exit;
 } else { ?>
     <!--noindex-->
-    <div class="order-call-modal">
-      <div id="<?php echo htmlspecialchars($Widget->urn)?>" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <form data-role="raas-ajaxform" action="#feedback" method="post" enctype="multipart/form-data">
-              <div class="modal-header">
-                <div class="h5 modal-title">
-                  <?php echo ORDER_CALL?>
-                </div>
-                <button type="button" data-bs-dismiss="modal" aria-hidden="true" class="btn-close"></button>
+    <div id="<?php echo htmlspecialchars($Widget->urn)?>" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade feedback order-call-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form action="" method="post" enctype="multipart/form-data" data-vue-role="ajax-form" data-v-bind_block-id="<?php echo (int)$Block->id?>" data-v-slot="vm">
+            <div class="modal-header">
+              <div class="h5 modal-title">
+                <?php echo htmlspecialchars($Block->name)?>
               </div>
-              <div class="modal-body">
-                <div class="form-horizontal">
-                  <?php include Package::i()->resourcesDir . '/form2.inc.php'?>
-                  <div data-role="notifications" <?php echo ($success[(int)$Block->id] || $localError) ? '' : 'style="display: none"'?>>
-                    <div class="alert alert-success" <?php echo ($success[(int)$Block->id]) ? '' : 'style="display: none"'?>>
-                      <?php echo FEEDBACK_SUCCESSFULLY_SENT?>
-                    </div>
-                    <div class="alert alert-danger" <?php echo ($localError) ? '' : 'style="display: none"'?>>
-                      <ul>
-                        <?php foreach ((array)$localError as $key => $val) { ?>
-                            <li>
-                              <?php echo htmlspecialchars($val)?>
-                            </li>
-                        <?php } ?>
-                      </ul>
-                    </div>
-                  </div>
+              <button type="button" data-bs-dismiss="modal" aria-hidden="true" class="btn-close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="feedback__notifications" data-v-bind_class="{ 'feedback__notifications_active': true }" data-v-if="vm.success">
+                <div class="alert alert-success">
+                  <?php echo FEEDBACK_SUCCESSFULLY_SENT?>
+                </div>
+              </div>
 
-                  <div data-role="feedback-form" <?php echo $success[(int)$Block->id] ? 'style="display: none"' : ''?>>
-                    <?php if ($Form->signature) { ?>
-                        <input type="hidden" name="form_signature" value="<?php echo htmlspecialchars($Form->getSignature($Block))?>" />
-                    <?php } ?>
-                    <?php if ($Form->antispam == 'hidden' && $Form->antispam_field_name) { ?>
-                        <textarea autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" style="position: absolute; left: -9999px"><?php echo htmlspecialchars($DATA[$Form->antispam_field_name])?></textarea>
-                    <?php } ?>
-                    <?php $row = $Form->fields['phone_call']; $row->placeholder = $row->name; ?>
-                    <div class="form-group">
-                      <div class="col-xs-12 order-call__phone">
-                        <?php $getField($row, $DATA)?>
-                        <button class="btn btn-primary" type="submit">
-                          <span class="fa fa-phone"></span>
-                        </button>
-                      </div>
-                    </div>
-                    <?php $row = $Form->fields['agree'] ?>
-                    <div class="form-group">
-                      <div class="col-xs-12">
-                        <label class="checkbox">
-                          <?php $getField($row, $DATA);?>
-                          <a href="/privacy/" target="_blank">
-                            <?php echo htmlspecialchars($row->name)?>
-                          </a>
-                        </label>
-                      </div>
-                    </div>
-                    <?php if ($Form->antispam == 'captcha' && $Form->antispam_field_name) { ?>
-                        <div class="form-group">
-                          <label for="<?php echo htmlspecialchars($Form->antispam_field_name)?>" class="control-label col-sm-3">
-                            <?php echo CAPTCHA?>
-                          </label>
-                          <div class="col-sm-9">
-                            <img src="/assets/kcaptcha/?<?php echo session_name() . '=' . session_id()?>" /><br />
-                            <input type="text" autocomplete="off" name="<?php echo htmlspecialchars($Form->antispam_field_name)?>" />
-                          </div>
-                        </div>
-                    <?php } ?>
+              <div data-v-if="!vm.success">
+                <div class="feedback__notifications" data-v-bind_class="{ 'feedback__notifications_active': true }" data-v-if="vm.hasErrors">
+                  <div class="alert alert-danger">
+                    <ul>
+                      <li data-v-for="error in vm.errors" data-v-html="error"></li>
+                    </ul>
                   </div>
                 </div>
+                <?php
+                $formRenderer = new FormRenderer(
+                    $Form,
+                    $Block,
+                    $DATA,
+                    $localError
+                );
+                echo $formRenderer->renderSignatureField();
+                echo $formRenderer->renderHiddenAntispamField();
+                $fieldURN = 'phone';
+                $field = $Form->fields[$fieldURN];
+                $field->placeholder = $field->name . ($field->required ? '*' : '');
+                $fieldRenderer = FormFieldRenderer::spawn(
+                    $field,
+                    $Block,
+                    $DATA[$fieldURN],
+                    $localError
+                );
+                $fieldHTML = $fieldRenderer->render([
+                    'data-v-bind_class' => "{ 'is-invalid': !!vm.errors." . $fieldURN . " }",
+                    'data-v-bind_title' => "vm.errors." . $fieldURN . " || ''"
+                ]);
+                ?>
+                <div class="form-group input-group order-call-modal__phone" data-v-bind_class="{ 'text-danger': !!vm.errors.<?php echo htmlspecialchars($fieldURN)?> }">
+                  <?php echo $fieldHTML; ?>
+                  <button class="btn btn-primary order-call-modal__submit" type="submit" data-v-bind_disabled="vm.loading" data-v-bind_class="{ 'order-call-modal__submit_loading': vm.loading }"></button>
+                </div>
+                <?php
+                $fieldURN = 'agree';
+                $field = $Form->fields[$fieldURN];
+                $fieldRenderer = FormFieldRenderer::spawn(
+                    $field,
+                    $Block,
+                    $DATA[$fieldURN],
+                    $localError
+                );
+                $fieldHTML = $fieldRenderer->render([
+                      'data-v-bind_class' => "{ 'is-invalid': !!vm.errors." . $fieldURN . " }",
+                      'data-v-bind_title' => "vm.errors." . $fieldURN . " || ''"
+                  ]);
+                $fieldCaption = '<a href="/privacy/" target="_blank">' .
+                                   htmlspecialchars($field->name) .
+                                '</a>';
+                ?>
+                <div class="form-group" data-v-bind_class="{ 'text-danger': !!vm.errors.<?php echo htmlspecialchars($fieldURN)?> }">
+                  <label>
+                    <?php echo $fieldHTML . ' ' . $fieldCaption; ?>
+                  </label>
+                </div>
               </div>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>

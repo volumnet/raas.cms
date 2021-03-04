@@ -224,6 +224,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   classname varchar(255) NOT NULL DEFAULT '' COMMENT 'Parent class name',
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
+  vis tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Visibility',
   datatype varchar(255) NOT NULL DEFAULT '' COMMENT 'Data type',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
@@ -336,6 +337,17 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_affected_pages_
     KEY (page_id)
 ) COMMENT 'Materials affected pages';
 
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_votes (
+    material_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
+    ip VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'IP-address',
+    post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
+    vote TINYINT(1) SIGNED NOT NULL DEFAULT 0 COMMENT 'Vote',
+
+    PRIMARY KEY (material_id, ip),
+    KEY (material_id),
+    KEY (ip)
+) COMMENT 'Materials votes log';
+
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent type ID#',
@@ -439,22 +451,30 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_redirects (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   rx tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'RegExp',
+  post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date', 
   url_from varchar(255) NOT NULL DEFAULT '' COMMENT 'URL from',
   url_to varchar(255) NOT NULL DEFAULT '' COMMENT 'URL to',
   priority int unsigned NOT NULL DEFAULT 0 COMMENT 'Priority',
   PRIMARY KEY (id),
+  KEY post_date (post_date),
   KEY url_from (url_from)
 ) COMMENT='Redirects';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippets (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
+  post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
+  modify_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Modify date',
+  author_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Author ID#',
+  editor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Editor ID#',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   description text COMMENT 'Code',
   locked tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Locked',
   PRIMARY KEY (id),
-  KEY pid (pid)
+  KEY pid (pid),
+  KEY author_id (author_id),
+  KEY editor_id (editor_id)
 ) COMMENT='Snippets';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippet_folders (
@@ -469,6 +489,10 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippet_folders (
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+  post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
+  modify_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Modify date',
+  author_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Author ID#',
+  editor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Editor ID#',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   description text COMMENT 'Code',
@@ -478,6 +502,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   background int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Background attachment ID#',
   locations_info text COMMENT 'Locations info',
   PRIMARY KEY (id),
+  KEY author_id (author_id),
+  KEY editor_id (editor_id),
   KEY background (background),
   INDEX (urn)
 ) COMMENT='Templates';

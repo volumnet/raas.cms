@@ -698,6 +698,52 @@ class ViewSub_Dev extends RAASAbstractSubView
 
 
     /**
+     * Перемещение типа материалов
+     * @param [
+     *            'Item' =>? Material_Type Текущее поле,
+     *            'items' =>? array<Material_Type> Список текущих полей
+     *        ] $in Входные данные
+     */
+    public function move_material_type(array $in = [])
+    {
+        $ids = array_map(function ($x) {
+            return (int)$x->id;
+        }, $in['items']);
+        $ids = array_unique($ids);
+        $ids = array_values($ids);
+        $in['ids'] = $ids;
+
+        $this->assignVars($in);
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'href' => $this->url . '&action=material_types',
+            'name' => $this->_('MATERIAL_TYPES')
+        ];
+        if ($in['Item']->parent->id) {
+            $this->path[] = [
+                'href' => $this->url . '&action=edit_material_type&id='
+                       .  (int)$in['Item']->parent->id,
+                'name' => $in['Item']->parent->name
+            ];
+        }
+        $this->path[] = [
+            'href' => $this->url . '&action=edit_material_field&id='
+                   .  (int)$in['Item']->id,
+            'name' => $in['Item']->name
+        ];
+        if (count($in['items']) == 1) {
+            $this->contextmenu = $this->getMaterialTypeContextMenu($in['Item']);
+        }
+        $this->title = $this->_('MOVING_NOTE');
+        $this->template = 'dev_move_material_type';
+        $this->subtitle = $this->getMaterialTypeSubtitle($in['Item']);
+    }
+
+
+    /**
      * Список форм
      * @param [
      *            'Set' => array<Form> Список форм
@@ -1507,6 +1553,14 @@ class ViewSub_Dev extends RAASAbstractSubView
                     'icon' => 'plus'
                 ];
             }
+            if (Package::i()->registryGet('allowChangeMaterialType')) {
+                $arr[] = [
+                    'href' => $this->url . '&action=move_material_type&id='
+                           .  (int)$materialType->id,
+                    'name' => $this->_('MOVE'),
+                    'icon' => 'share-alt'
+                ];
+            }
             $arr[] = [
                 'href' => $this->url . '&action=edit_material_type&pid='
                        .  (int)$materialType->id,
@@ -1572,6 +1626,15 @@ class ViewSub_Dev extends RAASAbstractSubView
         $arr = [];
         if ($field->id) {
             $arr[] = [
+                'name' => $field->vis
+                       ?  $this->_('VISIBLE')
+                       :  '<span class="muted">' . $this->_('INVISIBLE') . '</span>',
+                'href' => $this->url . '&action=chvis_material_field&id='
+                       .  (int)$field->id . '&back=1',
+                'icon' => $field->vis ? 'ok' : '',
+                'title' => $this->_($field->vis ? 'HIDE' : 'SHOW')
+            ];
+            $arr[] = [
                 'name' => $this->_('SHOW_IN_TABLE'),
                 'href' => $this->url
                        .  '&action=show_in_table_material_field&id='
@@ -1620,6 +1683,18 @@ class ViewSub_Dev extends RAASAbstractSubView
     {
         $arr = [];
         $arr[] = [
+            'name' => $this->_('SHOW'),
+            'href' => $this->url . '&action=vis_material_field&back=1',
+            'icon' => 'eye-open',
+            'title' => $this->_('SHOW')
+        ];
+        $arr[] = [
+            'name' => $this->_('HIDE'),
+            'href' => $this->url . '&action=invis_material_field&back=1',
+            'icon' => 'eye-close',
+            'title' => $this->_('HIDE')
+        ];
+        $arr[] = [
             'name' => $this->_('SHOW_IN_TABLE'),
             'href' => $this->url
                    .  '&action=show_in_table_material_field&back=1',
@@ -1665,6 +1740,15 @@ class ViewSub_Dev extends RAASAbstractSubView
         $arr = [];
         if ($field->id) {
             $arr[] = [
+                'name' => $field->vis
+                       ?  $this->_('VISIBLE')
+                       :  '<span class="muted">' . $this->_('INVISIBLE') . '</span>',
+                'href' => $this->url . '&action=chvis_page_field&id='
+                       .  (int)$field->id . '&back=1',
+                'icon' => $field->vis ? 'ok' : '',
+                'title' => $this->_($field->vis ? 'HIDE' : 'SHOW')
+            ];
+            $arr[] = [
                 'name' => $this->_('SHOW_IN_TABLE'),
                 'href' => $this->url . '&action=show_in_table_page_field&id='
                        .  (int)$field->id . '&back=1',
@@ -1705,6 +1789,18 @@ class ViewSub_Dev extends RAASAbstractSubView
     public function getAllPageFieldsContextMenu()
     {
         $arr = [];
+        $arr[] = [
+            'name' => $this->_('SHOW'),
+            'href' => $this->url . '&action=vis_page_field&back=1',
+            'icon' => 'eye-open',
+            'title' => $this->_('SHOW')
+        ];
+        $arr[] = [
+            'name' => $this->_('HIDE'),
+            'href' => $this->url . '&action=invis_page_field&back=1',
+            'icon' => 'eye-close',
+            'title' => $this->_('HIDE')
+        ];
         $arr[] = [
             'name' => $this->_('SHOW_IN_TABLE'),
             'href' => $this->url . '&action=show_in_table_page_field&back=1',
@@ -1806,27 +1902,36 @@ class ViewSub_Dev extends RAASAbstractSubView
      *             'onclick' ?=> string JavaScript-команда при клике,
      *         ]>
      */
-    public function getFormFieldContextMenu(Form_Field $Item, $i = 0, $c = 0)
+    public function getFormFieldContextMenu(Form_Field $field, $i = 0, $c = 0)
     {
         $arr = [];
-        if ($Item->id) {
+        if ($field->id) {
+            $arr[] = [
+                'name' => $field->vis
+                       ?  $this->_('VISIBLE')
+                       :  '<span class="muted">' . $this->_('INVISIBLE') . '</span>',
+                'href' => $this->url . '&action=chvis_form_field&id='
+                       .  (int)$field->id . '&back=1',
+                'icon' => $field->vis ? 'ok' : '',
+                'title' => $this->_($field->vis ? 'HIDE' : 'SHOW')
+            ];
             $arr[] = [
                 'name' => $this->_('SHOW_IN_TABLE'),
                 'href' => $this->url . '&action=show_in_table_form_field&id='
-                       .  (int)$Item->id . '&back=1',
-                'icon' => $Item->show_in_table ? 'ok' : '',
+                       .  (int)$field->id . '&back=1',
+                'icon' => $field->show_in_table ? 'ok' : '',
             ];
             $arr[] = [
                 'name' => $this->_('REQUIRED'),
                 'href' => $this->url . '&action=required_form_field&id='
-                       .  (int)$Item->id . '&back=1',
-                'icon' => $Item->required ? 'ok' : '',
+                       .  (int)$field->id . '&back=1',
+                'icon' => $field->required ? 'ok' : '',
             ];
         }
         $arr = array_merge(
             $arr,
             $this->stdView->stdContextMenu(
-                $Item,
+                $field,
                 $i,
                 $c,
                 'edit_form_field',
@@ -1852,6 +1957,17 @@ class ViewSub_Dev extends RAASAbstractSubView
     {
         $arr = [];
         $arr[] = [
+            'name' => $this->_('SHOW'),
+            'href' => $this->url . '&action=vis_form_field&back=1',
+            'icon' => 'eye-open',
+            'title' => $this->_('SHOW')
+        ];
+        $arr[] = [
+            'name' => $this->_('HIDE'),
+            'href' => $this->url . '&action=invis_form_field&back=1',
+            'icon' => 'eye-close',
+            'title' => $this->_('HIDE')
+        ];$arr[] = [
             'name' => $this->_('SHOW_IN_TABLE'),
             'href' => $this->url . '&action=show_in_table_form_field&back=1',
             'icon' => 'align-justify',

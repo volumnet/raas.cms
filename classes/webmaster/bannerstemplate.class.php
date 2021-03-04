@@ -16,6 +16,7 @@ class BannersTemplate extends MaterialTypeTemplate
     {
         $urlField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('URL'),
             'urn' => 'url',
             'datatype' => 'text',
@@ -25,6 +26,7 @@ class BannersTemplate extends MaterialTypeTemplate
 
         $imageField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('IMAGE'),
             'urn' => 'image',
             'datatype' => 'image',
@@ -39,7 +41,7 @@ class BannersTemplate extends MaterialTypeTemplate
     }
 
 
-    public function createBlockSnippet()
+    public function createBlockSnippet($nat = false)
     {
         $filename = Package::i()->resourcesDir
                   . '/widgets/materials/banners/banners.tmp.php';

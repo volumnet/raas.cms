@@ -30,9 +30,14 @@ export default {
             required: true
         },
     },
-    mounted: function () {
-        $('*', this.$refs.inputContainer).on('input', ($event) => {
-            this.$emit('input', $event.target.value);
-        });
-    }
+    methods: {
+        /**
+         * Обертка для метода $emit для использования в слоте
+         * @param {String} eventName Наименование события
+         * @param {mixed} data Данные, передаваемые в событие
+         */
+        slotEmit: function (eventName, data) {
+            this.$emit(eventName, data);
+        },
+    },
 }

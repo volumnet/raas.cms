@@ -325,12 +325,58 @@ class ViewSub_Main extends RAASAbstractSubView
         if (count($IN['items']) == 1) {
             $this->contextmenu = $this->getMaterialContextMenu($IN['Item']);
             $this->submenu = $this->pagesMenu(new Page(), $IN['page']);
+            $this->subtitle = $this->getMaterialSubtitle($IN['Item']);
         } else {
             $this->submenu = $this->pagesMenu(new Page(), null);
         }
         $this->title = $this->_('MOVING_MATERIAL');
         $this->template = 'move_material';
-        $this->subtitle = $this->getMaterialSubtitle($IN['Item']);
+    }
+
+
+    /**
+     * Смена типа материала
+     * @param [
+     *            'items' => array<Material> Список материалов для перемещения,
+     *            'page' => Page Страница, куда перемещаем
+     *        ] $IN Входные данные
+     */
+    public function chtype_material(array $IN = [])
+    {
+        $ids = array_map(
+            function ($x) {
+                return (int)$x->id;
+            },
+            $IN['items']
+        );
+        $ids = [$IN['page']->id];
+        $IN['ids'] = $ids;
+
+        $this->assignVars($IN);
+        $this->path[] = ['href' => $this->url, 'name' => $this->_('PAGES')];
+        if ($IN['page']->parents) {
+            foreach ($IN['page']->parents as $row) {
+                $this->path[] = [
+                    'href' => $this->url . '&id=' . (int)$row->id
+                           .  '#subsections',
+                    'name' => $row->name
+                ];
+            }
+        }
+        $this->path[] = [
+            'href' => $this->url . '&id=' . (int)$IN['page']->id
+                   .  '#_' . $IN['mtype']->id,
+            'name' => $IN['page']->name
+        ];
+        if (count($IN['items']) == 1) {
+            $this->contextmenu = $this->getMaterialContextMenu($IN['Item']);
+            $this->submenu = $this->pagesMenu(new Page(), $IN['page']);
+            $this->subtitle = $this->getMaterialSubtitle($IN['Item']);
+        } else {
+            $this->submenu = $this->pagesMenu(new Page(), null);
+        }
+        $this->title = $this->_('CHANGE_MATERIAL_TYPE');
+        $this->template = 'chtype_material';
     }
 
 
@@ -546,6 +592,17 @@ class ViewSub_Main extends RAASAbstractSubView
                 'name' => $this->_('COPY'),
                 'icon' => 'tags'
             ];
+            if (Package::i()->registryGet('allowChangeMaterialType') &&
+                ($this->action != 'chtype_material')
+            ) {
+                $arr[] = [
+                    'href' => $this->url . '&action=chtype_material&id='
+                           .  (int)$item->id
+                           . $pidText,
+                    'name' => $this->_('CHANGE_MATERIAL_TYPE'),
+                    'icon' => 'random'
+                ];
+            }
             if (!$edit &&
                 ($this->action != 'move_material') &&
                 !$item->material_type->global_type
@@ -626,6 +683,13 @@ class ViewSub_Main extends RAASAbstractSubView
             'icon' => 'eye-close',
             'title' => $this->_('HIDE')
         ];
+        if (Package::i()->registryGet('allowChangeMaterialType')) {
+            $arr[] = [
+                'href' => $this->url . '&action=chtype_material',
+                'name' => $this->_('CHANGE_MATERIAL_TYPE'),
+                'icon' => 'random'
+            ];
+        }
         if (!$materialType->global_type) {
             $arr[] = [
                 'href' => $this->url . '&action=move_material&pid=' . $this->id,

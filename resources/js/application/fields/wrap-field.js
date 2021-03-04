@@ -16,14 +16,13 @@ export default function () {
         source = getSourceFromSelect($(this));
     } else if ($(this).attr('data-role') == 'checkbox-tree') {
         source = getSourceFromTree($(this));
-        $(this).removeAttr('data-role').removeClass('checkbox-tree');
         if ($(this).attr('data-type') == 'checkbox') {
             $(this).attr('multiple', 'multiple');
         } else if ($(this).attr('data-type') == 'radio') {
             $(this).removeAttr('multiple');
         }
         $(this).removeAttr('data-multiple');
-        $(this).attr('name', $('input[name]:eq(0)', this));
+        $(this).attr('name', $('input[name]:eq(0)', this).attr('name'));
     } else if (($(this).attr('data-type') == 'checkbox')) {
         $(this).attr('defval', $(this).attr('value'));
     }
@@ -60,6 +59,9 @@ export default function () {
     if ($(this).attr('data-type')) {
         $(this).attr('type', $(this).attr('data-type'))
         $(this).removeAttr('data-type');
+    }
+    if ($(this).attr('data-role') == 'checkbox-tree') {
+        $(this).removeAttr('data-role').removeClass('checkbox-tree');
     }
     $(this).html('');
     let html = $(this)[0].outerHTML;

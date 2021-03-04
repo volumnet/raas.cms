@@ -14,15 +14,67 @@ export default {
             type: String,
             default: '1',
         },
+        /**
+         * Название поля
+         * @type {Object}
+         */
+        name: {
+            type: String,
+        },
+        /**
+         * Маскировка значения в случае неактивного флажка
+         * @type {Object}
+         */
+        mask: {
+            type: String,
+            default: null,
+        },
+        /**
+         * Множественное поле
+         * @type {Object}
+         */
+        multiple: {
+            type: Boolean,
+            default: false,
+        }
     },
     methods: {
         /**
          * Переключение одиночного флажка
          */
         toggleCheckbox: function () {
-            let val = (this.value ? '' : this.defval);
+            let val;
+            if (this.checked) {
+                val = this.mask || '';
+            } else {
+                val = this.defval;
+            }
             this.$emit('input', val);
-        }
+        },
+        /**
+         * Переключение опции
+         * @param {Object} $event <pre><code>{
+         *     value: Значение,
+         *     checked: Boolean Установлено ли значение
+         * }</code></pre>
+         */
+        toggleOption: function ($event) {
+            let newValue = [];
+            for (let option of this.flatSource) {
+                let checked;
+                if ($event.value == option.value) {
+                    checked = $event.checked;
+                } else {
+                    checked = (this.value.indexOf(option.value) != -1)
+                }
+                if (checked) {
+                    if (newValue.indexOf(option.value) == -1) {
+                        newValue.push(option.value);
+                    }
+                }
+            }
+            this.$emit('input', newValue);
+        },
     },
     computed: {
         /**
@@ -30,7 +82,7 @@ export default {
          * @return {Boolean}
          */
         checked: function () {
-            return !!this.value;
+            return !!this.value && (this.value != this.mask);
         },
     },
 };

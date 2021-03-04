@@ -333,7 +333,7 @@ class EditPageForm extends RAASForm
      * @param Page $parent Родительская страница
      * @return FormTab
      */
-    private function getServiceTab(Page $item, Page $parent)
+    protected function getServiceTab(Page $item, Page $parent)
     {
         $CONTENT = [];
         $CONTENT['templates'] = [
@@ -353,7 +353,7 @@ class EditPageForm extends RAASForm
             'name' => 'service',
             'caption' => $this->view->_('SERVICE'),
             'children' => [
-                [
+                'vis' => [
                     'type' => 'checkbox',
                     'name' => 'vis',
                     'caption' => $this->view->_(
@@ -363,7 +363,7 @@ class EditPageForm extends RAASForm
                     ),
                     'default' => 1
                 ],
-                [
+                'response_code' => [
                     'name' => 'response_code',
                     'class' => 'span1',
                     'maxlength' => 3,
@@ -375,26 +375,26 @@ class EditPageForm extends RAASForm
                                '';
                     }
                 ],
-                [
+                'mime' => [
                     'name' => 'mime',
                     'caption' => $this->view->_('PAGE_MIME'),
                     'data-types' => json_encode(Page::$mimeTypes),
                 ],
-                [
+                'nat' => [
                     'type' => 'checkbox',
                     'name' => 'nat',
                     'caption' => $this->view->_('TRANSLATE_ADDRESS')
                 ],
-                new FieldSet([
+                'cacheFieldSet' => new FieldSet([
                     'template' => 'edit_page.inherit.php',
                     'children' => [
-                        [
+                        'cache' => [
                             'type' => 'checkbox',
                             'name' => 'cache',
                             'caption' => $this->view->_('CACHE_PAGE'),
                             'default' => ($parent->id ? $parent->cache : 0)
                         ],
-                        [
+                        'inherit_cache' => [
                             'type' => 'checkbox',
                             'name' => 'inherit_cache',
                             'caption' => $this->view->_('INHERIT'),
@@ -406,17 +406,17 @@ class EditPageForm extends RAASForm
                         ]
                     ]
                 ]),
-                new FieldSet([
+                'templateFieldSet' => new FieldSet([
                     'template' => 'edit_page.inherit.php',
                     'children' => [
-                        [
+                        'template' => [
                             'type' => 'select',
                             'name' => 'template',
                             'caption' => $this->view->_('TEMPLATE'),
                             'children' => $CONTENT['templates'],
                             'default' => ($parent->id ? $parent->template : 0)
                         ],
-                        [
+                        'inherit_template' => [
                             'type' => 'checkbox',
                             'name' => 'inherit_template',
                             'caption' => $this->view->_('INHERIT'),
@@ -428,10 +428,10 @@ class EditPageForm extends RAASForm
                         ]
                     ]
                 ]),
-                new FieldSet([
+                'languageFieldSet' => new FieldSet([
                     'template' => 'edit_page.inherit.php',
                     'children' => [
-                        [
+                        'lang' => [
                             'type' => 'select',
                             'name' => 'lang',
                             'caption' => $this->view->_('LANGUAGE'),
@@ -442,7 +442,7 @@ class EditPageForm extends RAASForm
                                 $this->view->language
                             )
                         ],
-                        [
+                        'inherit_lang' => [
                             'type' => 'checkbox',
                             'name' => 'inherit_lang',
                             'caption' => $this->view->_('INHERIT'),
@@ -458,21 +458,21 @@ class EditPageForm extends RAASForm
         ]);
 
         if ($item->id) {
-            $serviceTab->children[] = [
+            $serviceTab->children['post_date'] = [
                 'name' => 'post_date',
                 'caption' => $this->view->_('CREATED_BY'),
                 'export' => 'is_null',
                 'import' => 'is_null',
                 'template' => 'stat.inc.php'
             ];
-            $serviceTab->children[] = [
+            $serviceTab->children['modify_date'] = [
                 'name' => 'modify_date',
                 'caption' => $this->view->_('EDITED_BY'),
                 'export' => 'is_null',
                 'import' => 'is_null',
                 'template' => 'stat.inc.php'
             ];
-            $serviceTab->children[] = [
+            $serviceTab->children['last_modified'] = [
                 'name' => 'last_modified',
                 'caption' => $this->view->_('LAST_AFFECTED_MODIFICATION'),
                 'export' => 'is_null',

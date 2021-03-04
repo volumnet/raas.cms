@@ -4,6 +4,8 @@
  */
 namespace RAAS\CMS;
 
+use Error;
+use Exception;
 use SOME\SOME;
 
 /**
@@ -72,9 +74,22 @@ class Snippet extends SOME
         // (в отсутствие собственно POST-запроса) подставляются все параметры
         // $DATA = $data;
         extract($data);
-        $_SESSION['EVAL_DEBUG'] = 'Snippet::' . $this->urn;
-        $result = eval('?' . '>' . $this->description);
-        $_SESSION['EVAL_DEBUG'] = '';
+        try {
+            $_SESSION['EVAL_DEBUG'] = 'Snippet::' . $this->urn;
+            $result = eval('?' . '>' . $this->description);
+            $_SESSION['EVAL_DEBUG'] = '';
+        } catch (Error $e) {
+            $newMessage = 'Snippet::' . $this->urn . ':' . $e->getLine() . ': '
+                . $e->getMessage();
+            $e = new Exception($newMessage, $e->getCode(), $e);
+            throw $e;
+        } catch (Exception $e) {
+            $eTrace = $e->getTrace();
+            $newMessage = 'Snippet::' . $this->urn . ':' . $e->getLine() . ': '
+                . $e->getMessage();
+            $e = new Exception($newMessage, $e->getCode(), $e);
+            throw $e;
+        }
         if ($diag = Controller_Frontend::i()->diag) {
             $diag->handle('snippets', $this->id, microtime(true) - $st);
         }

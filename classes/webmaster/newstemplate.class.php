@@ -16,6 +16,7 @@ class NewsTemplate extends MaterialTypeTemplate
     {
         $dateField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('DATE'),
             'urn' => 'date',
             'datatype' => 'date',
@@ -25,6 +26,7 @@ class NewsTemplate extends MaterialTypeTemplate
 
         $imagesField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('IMAGE'),
             'multiple' => 1,
             'urn' => 'images',
@@ -35,6 +37,7 @@ class NewsTemplate extends MaterialTypeTemplate
 
         $briefField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 1,
             'name' => View_Web::i()->_('BRIEF_TEXT'),
             'multiple' => 0,
             'urn' => 'brief',
@@ -44,6 +47,7 @@ class NewsTemplate extends MaterialTypeTemplate
 
         $noindexField = new Material_Field([
             'pid' => $this->materialType->id,
+            'vis' => 0,
             'name' => View_Web::i()->_('NO_INDEX'),
             'urn' => 'noindex',
             'datatype' => 'checkbox'

@@ -33,7 +33,53 @@ export default {
         this.inputMask();  
         this.applyInputMaskListeners();
     },
+    methods: {
+        /**
+         * Получает список опций источника в плоском виде
+         * @param {Array} source <pre><code>array<{
+         *     value: String Значение,
+         *     name: String Текст,
+         *     children:? {Array} Рекурсивно
+         * }></code></pre> Источник
+         * @param {Number} level Уровень вложенности
+         * @return {Array} <pre><code>array<{
+         *     value: String Значение,
+         *     name: String Текст,
+         *     level: Number Уровень вложенности
+         * }></code></pre>
+         */
+        getFlatSource: function (source, level = 0) {
+            let result = [];
+            for (let option of source) {
+                let newOption = {
+                    value: option.value,
+                    name: option.name,
+                    level: level,
+                };
+                result.push(newOption);
+                if (option.children) {
+                    result = result.concat(this.getFlatSource(option.children, level + 1));
+                }
+            }
+            return result;
+        },
+    },
     computed: {
+        /**
+         * Опции в плоском виде
+         * @return {Array} <pre><code>array<{
+         *     value: String Значение,
+         *     name: String Текст,
+         *     level: Number Уровень вложенности
+         * }></code></pre>
+         */
+        flatSource: function () {
+            let source = this.source;
+            if (!(source instanceof Array)) {
+                source = [];
+            }
+            return this.getFlatSource(source);
+        },
         /**
          * Тег текущего компонента
          * @return {String}
@@ -52,5 +98,12 @@ export default {
                 },
             });
         },
-    }
+        /**
+         * Многоуровневый источник
+         * @return {Boolean}
+         */
+        multilevel: function () {
+            return this.flatSource.filter(x => (x.level > 0)).length > 0;
+        },
+    },
 }

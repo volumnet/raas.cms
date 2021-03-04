@@ -44,13 +44,122 @@ class RadioFormFieldRendererTest extends BaseTest
 
 
     /**
+     * Тестирует получение дерева опций
+     */
+    public function testGetOptionsTree()
+    {
+        $renderer = new RadioFormFieldRenderer(new Form_Field([
+            'datatype' => 'radio',
+            'placeholder' => 'Your name',
+            'maxlength' => 16,
+            'pattern' => '.*',
+            'urn' => 'name',
+        ]), new Block_Form(), 'bbb');
+
+        $result = $renderer->getOptionsTree([
+            'aaa' => ['name' => 'AAA'],
+            'bbb' => [
+                'name' => 'BBB',
+                'children' => [
+                    'bbb1' => ['name' => 'BBB1'],
+                    'bbb2' => ['name' => 'BBB2'],
+                    'bbb3' => ['name' => 'BBB3'],
+                ]
+            ],
+            'ccc' => ['name' => 'CCC'],
+        ]);
+
+        $this->assertEquals(
+            '<li>' .
+              '<label><input type="radio" name="name" value /> Your name</label>' .
+            '</li>' .
+            '<li>' .
+              '<label><input type="radio" name="name" value="aaa" /> AAA</label>' .
+            '</li>' .
+            '<li>' .
+              '<label><input type="radio" name="name" value="bbb" checked="checked" /> BBB</label>' .
+              '<ul>' .
+                '<li>' .
+                  '<label><input type="radio" name="name" value="bbb1" /> BBB1</label>' .
+                '</li>' .
+                '<li>' .
+                  '<label><input type="radio" name="name" value="bbb2" /> BBB2</label>' .
+                '</li>' .
+                '<li>' .
+                  '<label><input type="radio" name="name" value="bbb3" /> BBB3</label>' .
+                '</li>' .
+              '</ul>' .
+            '</li>' .
+            '<li>' .
+              '<label><input type="radio" name="name" value="ccc" /> CCC</label>' .
+            '</li>',
+            $result
+        );
+    }
+
+
+    /**
+     * Тестирует получение дерева опций - случай с выбранным placeholder'ом
+     */
+    public function testGetOptionsTreeWithPlaceholderSelected()
+    {
+        $renderer = new RadioFormFieldRenderer(new Form_Field([
+            'datatype' => 'radio',
+            'placeholder' => 'Your name',
+            'maxlength' => 16,
+            'pattern' => '.*',
+            'urn' => 'name',
+        ]), new Block_Form(), '');
+
+        $result = $renderer->getOptionsTree([
+            'aaa' => ['name' => 'AAA'],
+            'bbb' => [
+                'name' => 'BBB',
+                'children' => [
+                    'bbb1' => ['name' => 'BBB1'],
+                    'bbb2' => ['name' => 'BBB2'],
+                    'bbb3' => ['name' => 'BBB3'],
+                ]
+            ],
+            'ccc' => ['name' => 'CCC'],
+        ]);
+
+        $this->assertEquals(
+            '<li>' .
+              '<label><input type="radio" name="name" value checked="checked" /> Your name</label>' .
+            '</li>' .
+            '<li>' .
+              '<label><input type="radio" name="name" value="aaa" /> AAA</label>' .
+            '</li>' .
+            '<li>' .
+              '<label><input type="radio" name="name" value="bbb" /> BBB</label>' .
+              '<ul>' .
+                '<li>' .
+                  '<label><input type="radio" name="name" value="bbb1" /> BBB1</label>' .
+                '</li>' .
+                '<li>' .
+                  '<label><input type="radio" name="name" value="bbb2" /> BBB2</label>' .
+                '</li>' .
+                '<li>' .
+                  '<label><input type="radio" name="name" value="bbb3" /> BBB3</label>' .
+                '</li>' .
+              '</ul>' .
+            '</li>' .
+            '<li>' .
+              '<label><input type="radio" name="name" value="ccc" /> CCC</label>' .
+            '</li>',
+            $result
+        );
+    }
+
+
+    /**
      * Тест рендера
      */
     public function testRender()
     {
         $renderer = new RadioFormFieldRenderer(new Form_Field([
             'datatype' => 'radio',
-            'required' => true,
             'placeholder' => 'Your name',
             'maxlength' => 16,
             'pattern' => '.*',
@@ -63,31 +172,34 @@ class RadioFormFieldRendererTest extends BaseTest
                       . ";BBB2;bbb2\n"
                       . ";BBB3;bbb3\n"
                       . "CCC;ccc\n"
-        ]), new Block_Form(), ['aaa', 'bbb']);
+        ]), new Block_Form(), 'bbb');
 
         $result = $renderer->render(['data-test' => 'test']);
 
         $this->assertEquals(
             '<ul data-raas-field data-type="radio" class="checkbox-tree checkbox-tree_radio" data-role="checkbox-tree" data-test="test">' .
               '<li>' .
-                '<label><input type="radio" name="name" required="required" value="aaa" checked="checked" /> AAA</label>' .
+                '<label><input type="radio" name="name" value /> Your name</label>' .
               '</li>' .
               '<li>' .
-                '<label><input type="radio" name="name" required="required" value="bbb" checked="checked" /> BBB</label>' .
+                '<label><input type="radio" name="name" value="aaa" /> AAA</label>' .
+              '</li>' .
+              '<li>' .
+                '<label><input type="radio" name="name" value="bbb" checked="checked" /> BBB</label>' .
                 '<ul>' .
                   '<li>' .
-                    '<label><input type="radio" name="name" required="required" value="bbb1" /> BBB1</label>' .
+                    '<label><input type="radio" name="name" value="bbb1" /> BBB1</label>' .
                   '</li>' .
                   '<li>' .
-                    '<label><input type="radio" name="name" required="required" value="bbb2" /> BBB2</label>' .
+                    '<label><input type="radio" name="name" value="bbb2" /> BBB2</label>' .
                   '</li>' .
                   '<li>' .
-                    '<label><input type="radio" name="name" required="required" value="bbb3" /> BBB3</label>' .
+                    '<label><input type="radio" name="name" value="bbb3" /> BBB3</label>' .
                   '</li>' .
                 '</ul>' .
               '</li>' .
               '<li>' .
-                '<label><input type="radio" name="name" required="required" value="ccc" /> CCC</label>' .
+                '<label><input type="radio" name="name" value="ccc" /> CCC</label>' .
               '</li>' .
             '</ul>',
             $result
