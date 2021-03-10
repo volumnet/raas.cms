@@ -12,6 +12,14 @@ use RAAS\Attachment;
  */
 class BannersTemplate extends MaterialTypeTemplate
 {
+    public $createMainSnippet = false;
+
+    public $createMainBlock = false;
+
+    public $createPage = false;
+
+    public static $global = true;
+
     public function createFields()
     {
         $urlField = new Material_Field([
@@ -41,7 +49,7 @@ class BannersTemplate extends MaterialTypeTemplate
     }
 
 
-    public function createBlockSnippet($nat = false)
+    public function createBlockSnippet()
     {
         $filename = Package::i()->resourcesDir
                   . '/widgets/materials/banners/banners.tmp.php';

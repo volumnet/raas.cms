@@ -12,6 +12,14 @@ use RAAS\Attachment;
  */
 class FeaturesTemplate extends MaterialTypeTemplate
 {
+    public $createMainSnippet = true;
+
+    public $createMainBlock = true;
+
+    public $createPage = false;
+
+    public static $global = true;
+
     public function createFields()
     {
         $imageField = new Material_Field([
@@ -98,5 +106,27 @@ class FeaturesTemplate extends MaterialTypeTemplate
             $result[] = $item;
         }
         return $result;
+    }
+
+
+    public function create()
+    {
+        $mainWidget = Snippet::importByURN($this->materialType->urn . '_main');
+        if (!$mainWidget->id) {
+            $mainWidget = $this->createMainPageSnippet();
+        }
+        if ($this->createMainBlock) {
+            $blockMain = $this->createBlock(
+                $this->webmaster->Site,
+                $mainWidget,
+                [
+                    'nat' => 0,
+                    'pages_var_name' => '',
+                    'rows_per_page' => 0,
+                ]
+            );
+        }
+
+        $this->createMaterials();
     }
 }

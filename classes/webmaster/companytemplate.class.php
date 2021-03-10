@@ -12,6 +12,14 @@ use RAAS\Attachment;
  */
 class CompanyTemplate extends MaterialTypeTemplate
 {
+    public $createMainSnippet = false;
+
+    public $createMainBlock = false;
+
+    public $createPage = false;
+
+    public static $global = true;
+
     public function createFields()
     {
         $logoField = new Material_Field([
@@ -537,7 +545,7 @@ class CompanyTemplate extends MaterialTypeTemplate
         ]);
         $item->commit();
         $att = Attachment::createFromFile(
-            Package::i()->resourcesDir . '/logo.png',
+            Package::i()->resourcesDir . '/fish/logo.png',
             $this->materialType->fields['logo']
         );
         $item->fields['logo']->addValue(json_encode([
@@ -571,5 +579,155 @@ class CompanyTemplate extends MaterialTypeTemplate
         $item->fields['tax_id']->addValue(View_Web::i()->_('0000000000'));
         $result[] = $item;
         return $result;
+    }
+
+
+    public function create()
+    {
+        $logoWidget = Snippet::importByURN('logo');
+        if (!$logoWidget->id) {
+            $logoWidget = $this->createLogoBlockSnippet();
+            $logoBlock = $this->createLogoBlock(
+                $this->webmaster->Site,
+                $logoWidget,
+                ['nat' => 0]
+            );
+        }
+
+        $contactsTopWidget = Snippet::importByURN('contacts_top');
+        if (!$widget->id) {
+            $contactsTopWidget = $this->createContactsTopBlockSnippet();
+            $contactsTopBlock = $this->createContactsTopBlock(
+                $this->webmaster->Site,
+                $contactsTopWidget,
+                ['nat' => 0]
+            );
+        }
+
+        $contactsBottomWidget = Snippet::importByURN('contacts_bottom');
+        if (!$contactsBottomWidget->id) {
+            $contactsBottomWidget = $this->createContactsBottomBlockSnippet();
+            $contactsBottomBlock = $this->createContactsBottomBlock(
+                $this->webmaster->Site,
+                $contactsBottomWidget,
+                ['nat' => 0]
+            );
+        }
+
+        $socialsTopWidget = Snippet::importByURN('socials_top');
+        if (!$socialsTopWidget->id) {
+            $socialsTopWidget = $this->createSocialsTopBlockSnippet();
+            $socialsTopBlock = $this->createSocialsTopBlock(
+                $this->webmaster->Site,
+                $socialsTopWidget,
+                ['nat' => 0]
+            );
+        }
+
+        $socialsBottomWidget = Snippet::importByURN('socials_bottom');
+        if (!$socialsBottomWidget->id) {
+            $socialsBottomWidget = $this->createSocialsBottomBlockSnippet();
+            $socialsBottomBlock = $this->createSocialsBottomBlock(
+                $this->webmaster->Site,
+                $socialsBottomWidget,
+                ['nat' => 0]
+            );
+        }
+
+        $copyrightsWidget = Snippet::importByURN('copyrights');
+        if (!$copyrightsWidget->id) {
+            $copyrightsWidget = $this->createCopyrightsBlockSnippet();
+            $copyrightsBlock = $this->createCopyrightsBlock(
+                $this->webmaster->Site,
+                $copyrightsWidget,
+                ['nat' => 0]
+            );
+        }
+        $this->createMaterials();
+
+        $temp = Page::getSet([
+            'where' => ["pid = " . (int)$this->webmaster->Site->id, "urn = 'privacy'"]
+        ]);
+        if ($temp) {
+            $privacy = $temp[0];
+        } else {
+            $privacyPageData = [
+                'name' => View_Web::i()->_('PRIVACY_PAGE_NAME'),
+                'urn' => 'privacy',
+                'response_code' => 200,
+            ];
+            $privacy = $this->webmaster->createPage($privacyPageData, $this->webmaster->Site);
+            $privacyWidget = Snippet::importByURN('privacy');
+            if (!$privacyWidget->id) {
+                $materialType = Material_Type::importByURN('company');
+                $privacyWidget = $this->createPrivacyBlockSnippet();
+            }
+            $privacyBlock = new Block_HTML([
+                'name' => View_Web::i()->_('PRIVACY_PAGE_NAME'),
+                'description' => file_get_contents(
+                    Package::i()->resourcesDir .
+                    '/html/privacy/privacy_page.html'
+                ),
+                'wysiwyg' => 1,
+            ]);
+            $this->webmaster->createBlock(
+                $privacyBlock,
+                'content',
+                null,
+                'privacy',
+                $privacy
+            );
+        }
+
+        $this->webmaster->createBlock(
+            new Block_HTML([
+                'name' => View_Web::i()->_('PRIVACY_BLOCK_NAME'),
+                'description' => file_get_contents(
+                    Package::i()->resourcesDir . '/html/privacy/privacy_block.html'
+                ),
+                'wysiwyg' => 1,
+            ]),
+            'copyrights',
+            null,
+            null,
+            $this->webmaster->Site,
+            true
+        );
+
+        $temp = Page::getSet([
+            'where' => [
+                "pid = " . (int)$this->webmaster->Site->id,
+                "urn = 'contacts'"
+            ]
+        ]);
+        $feedbackForm = Form::importByURN('feedback');
+        if ($temp) {
+            $contacts = $temp[0];
+        } else {
+            $contacts = $this->webmaster->createPage(
+                ['name' => View_Web::i()->_('CONTACTS'), 'urn' => 'contacts'],
+                $this->webmaster->Site
+            );
+            $contactsWidget = Snippet::importByURN('contacts');
+            if (!$contactsWidget->id) {
+                $materialType = Material_Type::importByURN('company');
+                $contactsWidget = $this->createContactsBlockSnippet();
+                $contactsBlock = $this->createContactsBlock(
+                    $contacts,
+                    $contactsWidget,
+                    ['nat' => 0]
+                );
+            }
+
+            $this->webmaster->createBlock(
+                new Block_Form([
+                    'form' => (int)$feedbackForm->id
+                ]),
+                'content',
+                '__raas_form_interface',
+                'feedback',
+                $contacts
+            );
+        }
     }
 }

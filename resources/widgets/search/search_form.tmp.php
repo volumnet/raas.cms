@@ -1,6 +1,6 @@
 <?php
 /**
- * Виджет блока "{{WIDGET_NAME}}"
+ * Виджет блока "Форма поиска"
  * @param Block_PHP $Block Текущий блок
  * @param Page $Page Текущая страница
  */
@@ -20,15 +20,15 @@ $jsonLd = [
     ]
 ];
 ?>
-<a href="#" class="{{WIDGET_CSS_CLASSNAME}}-trigger"></a>
+<a href="#" class="search-form-trigger"></a>
 <div itemscope itemtype="http://schema.org/WebSite">
   <link itemprop="url" href="http<?php echo $_SERVER['HTTPS'] ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/" />
-  <form action="/search/" class="{{WIDGET_CSS_CLASSNAME}}" itemprop="potentialAction" itemscope itemtype="http://schema.org/SearchAction">
+  <form action="/search/" class="search-form" itemprop="potentialAction" itemscope itemtype="http://schema.org/SearchAction">
     <meta itemprop="target" content="http<?php echo $_SERVER['HTTPS'] ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/search/?search_string={search_string}" />
-    <div class="{{WIDGET_CSS_CLASSNAME}}__inner">
-      <input itemprop="query-input" name="search_string" autocomplete="off" class="{{WIDGET_CSS_CLASSNAME}}__input" type="text" value="<?php echo htmlspecialchars($_GET['search_string'])?>" placeholder="<?php echo SITE_SEARCH?>..." required="required" />
+    <div class="search-form__inner">
+      <input itemprop="query-input" name="search_string" autocomplete="off" class="search-form__input" type="text" value="<?php echo htmlspecialchars($_GET['search_string'])?>" placeholder="<?php echo SITE_SEARCH?>..." required="required" />
     </div>
-    <button class="{{WIDGET_CSS_CLASSNAME}}__button"></button>
+    <button class="search-form__button"></button>
   </form>
 </div>
 <script type="application/ld+json"><?php echo json_encode($jsonLd)?></script>

@@ -9,9 +9,31 @@ use RAAS\Application;
 /**
  * Класс абстрактного шаблона типа материалов
  * @property-read Snippet_Folder $widgetsFolder Папка виджетов типа
+ * @property-read Webmaster $webmaster Вебмастер
  */
 class MaterialTypeTemplate
 {
+    /**
+     * Создавать сниппет для главной страницы
+     */
+    public $createMainSnippet = true;
+
+    /**
+     * Создавать блок для главной страницы
+     * @var bool
+     */
+    public $createMainBlock = false;
+
+    /**
+     * Создавать отдельную страницу
+     */
+    public $createPage = true;
+
+    /**
+     * Глобальный тип материалов
+     */
+    public static $global = true;
+
     /**
      * Тип материалов
      * @var Material_Type
@@ -31,6 +53,7 @@ class MaterialTypeTemplate
                 return $this->webmaster->widgetsFolder;
                 break;
             case 'webmaster':
+            case 'materialType':
                 return $this->$var;
                 break;
         }
@@ -42,8 +65,10 @@ class MaterialTypeTemplate
      * @param Material_Type $materialType Тип материалов
      * @param Webmaster $webmaster Вебмастер
      */
-    public function __construct(Material_Type $materialType, Webmaster $webmaster)
-    {
+    public function __construct(
+        Material_Type $materialType,
+        Webmaster $webmaster
+    ) {
         $this->materialType = $materialType;
         $this->webmaster = $webmaster;
     }
@@ -73,7 +98,9 @@ class MaterialTypeTemplate
 
     /**
      * Создает поля типа
-     * @return array<string[] URN поля => Material_Field>
+     * @return array <pre><code>array<
+     *     string[] URN поля => Material_Field
+     * ></code></pre>
      */
     public function createFields()
     {
@@ -82,10 +109,9 @@ class MaterialTypeTemplate
 
     /**
      * Создает основной сниппет для типа
-     * @param bool $nat Существуют ли статьи материалов для данного типа
      * @return Snippet
      */
-    public function createBlockSnippet($nat = false)
+    public function createBlockSnippet()
     {
         $filename = Package::i()->resourcesDir
                   . '/widgets/materials/material/material.tmp.php';
@@ -145,24 +171,11 @@ class MaterialTypeTemplate
      */
     public function createPage(Page $rootPage)
     {
-        $uid = Application::i()->user->id;
-        $inheritPageData = $rootPage->getArrayCopy();
-        unset($inheritPageData['id'], $inheritPageData['pid']);
-        $pageData = array_merge($inheritPageData, [
-            'pid' => (int)$rootPage->id,
-            'vis' => 1,
-            'author_id' => $uid,
-            'editor_id' => $uid,
+        $pageData = [
             'name' => $this->materialType->name,
             'urn' => $this->materialType->urn,
-            'cache' => 1,
-            'inherit_cache' => 1,
-            'inherit_template' => 0,
-            'lang' => 'ru',
-            'inherit_lang' => 1,
-        ]);
-        $page = new Page($pageData);
-        $page->commit();
+        ];
+        $page = $this->webmaster->createPage($pageData, $rootPage);
         return $page;
     }
 
@@ -196,6 +209,91 @@ class MaterialTypeTemplate
             $block = new Block_Material($blockData);
             $block->commit();
             return $block;
+        }
+    }
+
+
+    /**
+     * Создает или находит тип материалов, соответствующий URN, и создает к нему
+     * шаблон
+     * @param Webmaster $webmaster Объект вебмастера
+     * @param string $name Наименование
+     * @param string $urn URN
+     * @return self
+     */
+    public static function spawn($name, $urn, Webmaster $webmaster)
+    {
+        $newMaterialType = false;
+        $materialType = Material_Type::importByURN($urn);
+        if (!$materialType->id) {
+            $materialType = new Material_Type([
+                'name' => $name,
+                'urn' => $urn,
+                'global_type' => (int)static::$global,
+            ]);
+            $materialType->commit();
+            $newMaterialType = true;
+        }
+        $materialTemplate = new static($materialType, $webmaster);
+        if ($newMaterialType) {
+            $fields = $materialTemplate->createFields();
+        }
+        return $materialTemplate;
+    }
+
+
+    /**
+     * Создает инфраструктуру для типа материалов
+     * @return Page|null Созданная или существующая страница, либо null,
+     *     если страница не создавалась
+     */
+    public function create()
+    {
+        $widget = Snippet::importByURN($this->materialType->urn);
+        if (!$widget->id) {
+            $widget = $this->createBlockSnippet();
+        }
+
+        if ($this->createMainSnippet) {
+            $mainWidget = Snippet::importByURN($this->materialType->urn . '_main');
+            if (!$mainWidget->id) {
+                $mainWidget = $this->createMainPageSnippet();
+            }
+            if ($this->createMainBlock) {
+                $blockMain = $this->createBlock(
+                    $this->webmaster->Site,
+                    $mainWidget,
+                    [
+                        'nat' => 0,
+                        'pages_var_name' => '',
+                        'rows_per_page' => 3,
+                    ]
+                );
+            }
+        }
+
+        if ($this->createPage) {
+            $temp = Page::getSet(['where' => [
+                "pid = " . (int)$this->webmaster->Site->id,
+                "urn = '" . $this->materialType->urn . "'"
+            ]]);
+            if ($temp) {
+                $page = $temp[0];
+            } else {
+                $page = $this->createPage($this->webmaster->Site);
+                $block = $this->createBlock($page, $widget);
+            }
+        } else {
+            $block = $this->createBlock(
+                $this->webmaster->Site,
+                $widget,
+                ['nat' => 0]
+            );
+        }
+        $this->createMaterials();
+
+        if ($this->createPage) {
+            return $page;
         }
     }
 }

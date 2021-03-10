@@ -9,106 +9,10 @@ use RAAS\Crontab;
 /**
  * Класс вебмастера
  * @property-read Page $Site Первая корневая страница
- * @property-read string $nextImage URL следующей картинки
- * @property-read [
- *                    'name' => string Заголовок статьи,
- *                    'text' => string Текст статьи в формате HTML,
- *                    'brief' => string Краткий текст статьи в формате
- *                                      plain text,
- *                ] $nextText Следующий текст
- * @property-read [
- *                    'name' => [
- *                        'first' => string Имя,
- *                        'last' => string Фамилия,
- *                        'middle' => string Отчество
- *                    ],
- *                    'location' => [
- *                        'building' => int Дом,
- *                        'street' => string Улица,
- *                        'city' => string Город,
- *                        'state' => string Область,
- *                        'zip' => int Индекс,
- *                    ],
- *                    'username' => string Логин,
- *                    'email' => string E-mail,
- *                    'password' => string Пароль,
- *                    'salt' => string Соль для пароля,
- *                    'md5' => string MD5 пароля,
- *                    'sha1' => string SHA1 пароля,
- *                    'sha256' => string SHA256 пароля,
- *                    'phone' => string Телефон,
- *                    'cell' => string Мобильный телефон,
- *                    'picture' => [
- *                        'large' => string URL большой картинки,
- *                        'medium' => string URL средней картинки,
- *                        'thumbnail' => string URL эскиза
- *                    ],
- *                    'pic' => [
- *                        'name' => string Имя оригинального файла,
- *                        'filepath' => string Местоположение файла во временной
- *                                             папке
- *                    ],
- *                ] $nextUser Следующий пользователь
  */
 class Webmaster
 {
-    /**
-     * Количество получаемых изображений
-     */
-    const IMAGES_TO_RETRIEVE = 10;
-
-    /**
-     * Количество получаемых текстов
-     */
-    const TEXTS_TO_RETRIEVE = 10;
-
-    /**
-     * Количество получаемых людей
-     */
-    const USERS_TO_RETRIEVE = 10;
-
     protected static $instance;
-
-    /**
-     * Полученные изображения
-     * @var array<
-     *          [
-     *              'url' : string =>  URL изображения,
-     *              'filename' : string => путь к файлу локальной сохраненной
-     *                                     копии
-     *          ]
-     *      >
-     */
-    protected static $imagesRetrieved = [];
-
-    /**
-     * Полученные тексты
-     * @var array<
-     *          [
-     *              'name' : string => заголовок текста,
-     *              'text' : string => HTML-текст,
-     *              'brief' : string => краткое описание
-     *          ]
-     *      >
-     */
-    protected static $textsRetrieved = [];
-
-    /**
-     * Полученные люди
-     * @var array<
-     *          [
-     *              'name' : string => имя,
-     *              'phone' : string => телефон,
-     *              'email' : string => e-mail,
-     *              'pic' => [
-     *                  'filepath': string => путь к файлу локальной сохраненной
-     *                                        копии,
-     *                  'name': string => имя файла
-     *              ]
-     *          ]
-     *      >
-     */
-    protected static $usersRetrieved = [];
 
     /**
      * Корневая страница
@@ -128,51 +32,9 @@ class Webmaster
      */
     protected $_widgetsFolder;
 
-    /**
-     * Карта сайта
-     * @var Page
-     */
-    protected static $map;
-
     public function __get($var)
     {
         switch ($var) {
-            case 'nextImage':
-                if (!self::$imagesRetrieved) {
-                    $fpr = new FishPhotosRetriever();
-                    self::$imagesRetrieved = $fpr->retrieve(
-                        self::IMAGES_TO_RETRIEVE
-                    );
-                }
-                $images = self::$imagesRetrieved;
-                shuffle($images);
-                $image = array_shift($images);
-                return $image;
-                break;
-            case 'nextText':
-                if (!self::$textsRetrieved) {
-                    $fpr = new FishYandexReferatsRetriever();
-                    for ($i = 0; $i < self::TEXTS_TO_RETRIEVE; $i++) {
-                        self::$textsRetrieved[] = $fpr->retrieve();
-                    }
-                }
-                $texts = self::$textsRetrieved;
-                shuffle($texts);
-                $temp = array_shift($texts);
-                return $temp;
-                break;
-            case 'nextUser':
-                if (!self::$usersRetrieved) {
-                    $fpr = new FishRandomUserRetriever();
-                    for ($i = 0; $i < self::USERS_TO_RETRIEVE; $i++) {
-                        self::$usersRetrieved[] = $fpr->retrieve();
-                    }
-                }
-                $users = self::$usersRetrieved;
-                shuffle($users);
-                $temp = array_shift($users);
-                return $temp;
-                break;
             case 'Site':
                 if (!$this->site) {
                     $sites = Page::getSet([
@@ -434,11 +296,13 @@ class Webmaster
 
     /**
      * Добавим поля страниц
-     * @return array[Page_Field] массив созданных или существующих полей
+     * @return Page_Field[] <pre><code>array<
+     *     string[] URN поля => Page_Field созданное или существующее поле
+     * ></code></pre>
      */
     public function createPageFields()
     {
-        $fields = [];
+        $result = [];
         foreach ([
             [
                 'name' => View_Web::i()->_('DESCRIPTION'),
@@ -457,14 +321,14 @@ class Webmaster
                 'datatype' => 'checkbox'
             ],
         ] as $row) {
-            $pf = Page_Field::importByURN($row['urn']);
-            if (!$pf->id) {
-                $pf = new Page_Field($row);
-                $pf->commit();
+            $field = Page_Field::importByURN($row['urn']);
+            if (!$field->id) {
+                $field = new Page_Field($row);
+                $field->commit();
             }
-            $fields[$row['urn']] = $pf;
+            $result[$row['urn']] = $field;
         }
-        return $fields;
+        return $result;
     }
 
 
@@ -505,7 +369,6 @@ class Webmaster
             }
             $widgets[$urn] = $widget;
         }
-
         return $widgets;
     }
 
@@ -718,152 +581,6 @@ class Webmaster
 
 
     /**
-     * Создает компанию и связанные блоки
-     */
-    public function createCompany()
-    {
-        $materialType = Material_Type::importByURN('company');
-        if (!$materialType->id) {
-            $materialType = new Material_Type([
-                'name' => View_Web::i()->_('COMPANY'),
-                'urn' => 'company',
-                'global_type' => 1
-            ]);
-            $materialType->commit();
-            $newMaterialType = true;
-        }
-        $materialTemplate = new CompanyTemplate($materialType, $this);
-        if ($newMaterialType) {
-            $fields = $materialTemplate->createFields();
-            $materialTemplate->createMaterials();
-        }
-        $logoWidget = Snippet::importByURN('logo');
-        if (!$logoWidget->id) {
-            $logoWidget = $materialTemplate->createLogoBlockSnippet();
-            $logoBlock = $materialTemplate->createLogoBlock(
-                $this->Site,
-                $logoWidget,
-                ['nat' => 0]
-            );
-        }
-
-        $contactsTopWidget = Snippet::importByURN('contacts_top');
-        if (!$widget->id) {
-            $contactsTopWidget = $materialTemplate->createContactsTopBlockSnippet();
-            $contactsTopBlock = $materialTemplate->createContactsTopBlock(
-                $this->Site,
-                $contactsTopWidget,
-                ['nat' => 0]
-            );
-        }
-
-        $contactsBottomWidget = Snippet::importByURN('contacts_bottom');
-        if (!$contactsBottomWidget->id) {
-            $contactsBottomWidget = $materialTemplate->createContactsBottomBlockSnippet();
-            $contactsBottomBlock = $materialTemplate->createContactsBottomBlock(
-                $this->Site,
-                $contactsBottomWidget,
-                ['nat' => 0]
-            );
-        }
-
-        $socialsTopWidget = Snippet::importByURN('socials_top');
-        if (!$socialsTopWidget->id) {
-            $socialsTopWidget = $materialTemplate->createSocialsTopBlockSnippet();
-            $socialsTopBlock = $materialTemplate->createSocialsTopBlock(
-                $this->Site,
-                $socialsTopWidget,
-                ['nat' => 0]
-            );
-        }
-
-        $socialsBottomWidget = Snippet::importByURN('socials_bottom');
-        if (!$socialsBottomWidget->id) {
-            $socialsBottomWidget = $materialTemplate->createSocialsBottomBlockSnippet();
-            $socialsBottomBlock = $materialTemplate->createSocialsBottomBlock(
-                $this->Site,
-                $socialsBottomWidget,
-                ['nat' => 0]
-            );
-        }
-
-        $copyrightsWidget = Snippet::importByURN('copyrights');
-        if (!$copyrightsWidget->id) {
-            $copyrightsWidget = $materialTemplate->createCopyrightsBlockSnippet();
-            $copyrightsBlock = $materialTemplate->createCopyrightsBlock(
-                $this->Site,
-                $copyrightsWidget,
-                ['nat' => 0]
-            );
-        }
-    }
-
-
-    /**
-     * Создает баннеры
-     */
-    public function createBanners()
-    {
-        $materialType = Material_Type::importByURN('banners');
-        if (!$materialType->id) {
-            $materialType = new Material_Type([
-                'name' => View_Web::i()->_('BANNERS'),
-                'urn' => 'banners',
-                'global_type' => 1
-            ]);
-            $materialType->commit();
-            $newMaterialType = true;
-        }
-        $materialTemplate = new BannersTemplate($materialType, $this);
-        if ($newMaterialType) {
-            $fields = $materialTemplate->createFields();
-        }
-        $widget = Snippet::importByURN('banners');
-        if (!$widget->id) {
-            $widget = $materialTemplate->createBlockSnippet();
-            $block = $materialTemplate->createBlock(
-                $this->Site,
-                $widget,
-                ['nat' => 0]
-            );
-            $materialTemplate->createMaterials();
-        }
-    }
-
-
-    /**
-     * Создает особенности
-     */
-    public function createFeatures()
-    {
-        $materialType = Material_Type::importByURN('features');
-        if (!$materialType->id) {
-            $materialType = new Material_Type([
-                'name' => View_Web::i()->_('FEATURES'),
-                'urn' => 'features',
-                'global_type' => 1
-            ]);
-            $materialType->commit();
-            $newMaterialType = true;
-        }
-        $materialTemplate = new FeaturesTemplate($materialType, $this);
-        if ($newMaterialType) {
-            $fields = $materialTemplate->createFields();
-        }
-        $widget = Snippet::importByURN('features_main');
-        if (!$widget->id) {
-            $widget = $materialTemplate->createMainPageSnippet();
-            $block = $materialTemplate->createBlock(
-                $this->Site,
-                $widget,
-                ['nat' => 0]
-            );
-            $materialTemplate->createMaterials();
-        }
-    }
-
-
-    /**
      * Создаем главную страницу
      * @param Template $template Шаблон
      * @param array[Form] $forms массив форм
@@ -972,7 +689,11 @@ class Webmaster
                 $this->site
             );
 
-            $this->createFeatures();
+            FeaturesTemplate::spawn(
+                View_Web::i()->_('FEATURES'),
+                'features',
+                $this
+            )->create();
 
             $this->createCron();
         }
@@ -992,130 +713,20 @@ class Webmaster
         if ($temp) {
             $services = $temp[0];
         } else {
-            $services = $this->createPage(
-                [
-                    'name' => View_Web::i()->_('OUR_SERVICES'),
-                    'urn' => 'services'
-                ],
-                $this->Site,
-                true
-            );
+            $servicesPageData = [
+                'name' => View_Web::i()->_('OUR_SERVICES'),
+                'urn' => 'services'
+            ];
+            $services = $this->createPage($servicesPageData, $this->Site, true);
             for ($i = 1; $i <= 3; $i++) {
-                $service = $this->createPage(
-                    [
-                        'name' => View_Web::i()->_('OUR_SERVICE') . ' ' . $i,
-                        'urn' => 'service' . $i
-                    ],
-                    $services,
-                    true
-                );
+                $servicePageData = [
+                    'name' => View_Web::i()->_('OUR_SERVICE') . ' ' . $i,
+                    'urn' => 'service' . $i
+                ];
+                $service = $this->createPage($servicePageData, $services, true);
             }
         }
         return $services;
-    }
-
-
-    /**
-     * Создаем раздел "контакты"
-     * @param Form $feedbackForm Форма обратной связи
-     * @return Page Страница контактов
-     */
-    public function createContacts(Form $feedbackForm)
-    {
-        $temp = Page::getSet([
-            'where' => ["pid = " . (int)$this->Site->id, "urn = 'contacts'"]
-        ]);
-        if ($temp) {
-            $contacts = $temp[0];
-        } else {
-            $contacts = $this->createPage(
-                ['name' => View_Web::i()->_('CONTACTS'), 'urn' => 'contacts'],
-                $this->Site
-            );
-            $contactsWidget = Snippet::importByURN('contacts');
-            if (!$contactsWidget->id) {
-                $materialType = Material_Type::importByURN('company');
-                $materialTemplate = new CompanyTemplate($materialType, $this);
-                $contactsWidget = $materialTemplate->createContactsBlockSnippet();
-                $contactsBlock = $materialTemplate->createContactsBlock(
-                    $contacts,
-                    $contactsWidget,
-                    ['nat' => 0]
-                );
-            }
-
-            $this->createBlock(
-                new Block_Form([
-                    'form' => (int)$feedbackForm->id
-                ]),
-                'content',
-                '__raas_form_interface',
-                'feedback',
-                $contacts
-            );
-        }
-        return $contacts;
-    }
-
-
-    /**
-     * Создаем страницу "Обработка персональных данных"
-     * @return Page Созданная или существующая страница
-     */
-    public function createPrivacy()
-    {
-        $temp = Page::getSet([
-            'where' => ["pid = " . (int)$this->Site->id, "urn = 'privacy'"]
-        ]);
-        if ($temp) {
-            $privacy = $temp[0];
-        } else {
-            $privacy = $this->createPage(
-                [
-                    'name' => View_Web::i()->_('PRIVACY_PAGE_NAME'),
-                    'urn' => 'privacy',
-                    'response_code' => 200,
-                ],
-                $this->Site
-            );
-            $privacyWidget = Snippet::importByURN('privacy');
-            if (!$privacyWidget->id) {
-                $materialType = Material_Type::importByURN('company');
-                $materialTemplate = new CompanyTemplate($materialType, $this);
-                $privacyWidget = $materialTemplate->createPrivacyBlockSnippet();
-            }
-            $this->createBlock(
-                new Block_HTML([
-                    'name' => View_Web::i()->_('PRIVACY_PAGE_NAME'),
-                    'description' => file_get_contents(
-                        Package::i()->resourcesDir .
-                        '/html/privacy/privacy_page.html'
-                    ),
-                    'wysiwyg' => 1,
-                ]),
-                'content',
-                null,
-                'privacy',
-                $privacy
-            );
-        }
-
-        $this->createBlock(
-            new Block_HTML([
-                'name' => View_Web::i()->_('PRIVACY_BLOCK_NAME'),
-                'description' => file_get_contents(
-                    Package::i()->resourcesDir . '/html/privacy/privacy_block.html'
-                ),
-                'wysiwyg' => 1,
-            ]),
-            'copyrights',
-            null,
-            null,
-            $this->site,
-            true
-        );
-
-        return $privacy;
     }
 
 
@@ -1140,17 +751,12 @@ class Webmaster
                 ],
                 $this->Site
             );
-            $this->createBlock(
-                new Block_HTML([
-                    'name' => View_Web::i()->_('PAGE_404'),
-                    'description' => View_Web::i()->_('PAGE_404_TEXT'),
-                    'wysiwyg' => 1,
-                ]),
-                'content',
-                null,
-                null,
-                $p404
-            );
+            $block404 = new Block_HTML([
+                'name' => View_Web::i()->_('PAGE_404'),
+                'description' => View_Web::i()->_('PAGE_404_TEXT'),
+                'wysiwyg' => 1,
+            ]);
+            $this->createBlock($block404, 'content', null, null, $p404);
         }
         return $p404;
     }
@@ -1168,14 +774,12 @@ class Webmaster
         if ($temp) {
             $map = $temp[0];
         } else {
-            $map = $this->createPage(
-                [
-                    'name' => View_Web::i()->_('SITEMAP'),
-                    'urn' => 'map',
-                    'response_code' => 200
-                ],
-                $this->Site
-            );
+            $mapPageData = [
+                'name' => View_Web::i()->_('SITEMAP'),
+                'urn' => 'map',
+                'response_code' => 200
+            ];
+            $map = $this->createPage($mapPageData, $this->Site);
         }
         return $map;
     }
@@ -1193,17 +797,15 @@ class Webmaster
         if ($temp) {
             $sitemaps = $temp[0];
         } else {
-            $sitemaps = $this->createPage(
-                [
-                    'name' => $this->view->_('SITEMAP_XML'),
-                    'urn' => 'sitemaps',
-                    'template' => 0,
-                    'mime' => 'application/xml',
-                    'cache' => 1,
-                    'response_code' => 200
-                ],
-                $this->Site
-            );
+            $sitemapsPageData = [
+                'name' => $this->view->_('SITEMAP_XML'),
+                'urn' => 'sitemaps',
+                'template' => 0,
+                'mime' => 'application/xml',
+                'cache' => 1,
+                'response_code' => 200
+            ];
+            $sitemaps = $this->createPage($sitemapsPageData, $this->Site);
             $B = new Block_PHP(['name' => $this->view->_('SITEMAP_XML')]);
             $this->createBlock($B, '', null, 'sitemap_xml', $sitemaps);
         }
@@ -1223,17 +825,15 @@ class Webmaster
         if ($temp) {
             $robots = $temp[0];
         } else {
-            $robots = $this->createPage(
-                [
-                    'name' => View_Web::i()->_('ROBOTS_TXT'),
-                    'urn' => 'robots',
-                    'template' => 0,
-                    'cache' => 1,
-                    'response_code' => 200,
-                    'mime' => 'text/plain',
-                ],
-                $this->Site
-            );
+            $robotsPageData = [
+                'name' => View_Web::i()->_('ROBOTS_TXT'),
+                'urn' => 'robots',
+                'template' => 0,
+                'cache' => 1,
+                'response_code' => 200,
+                'mime' => 'text/plain',
+            ];
+            $robots = $this->createPage($robotsPageData, $this->Site);
             $robotsTXT = file_get_contents(
                 Package::i()->resourcesDir . '/html/robots/robots.txt'
             );
@@ -1241,17 +841,12 @@ class Webmaster
                 $robotsTXT,
                 ['{{HOST}}' => $_SERVER['HTTP_HOST']]
             );
-            $this->createBlock(
-                new Block_HTML([
-                    'name' => View_Web::i()->_('ROBOTS_TXT'),
-                    'description' => $robotsTXT,
-                    'wysiwyg' => 0
-                ]),
-                '',
-                null,
-                null,
-                $robots
-            );
+            $robotsBlock = new Block_HTML([
+                'name' => View_Web::i()->_('ROBOTS_TXT'),
+                'description' => $robotsTXT,
+                'wysiwyg' => 0
+            ]);
+            $this->createBlock($robotsBlock, '', null, null, $robots);
         }
         return $robots;
     }
@@ -1269,28 +864,21 @@ class Webmaster
         if ($temp) {
             $customCss = $temp[0];
         } else {
-            $customCss = $this->createPage(
-                [
-                    'name' => View_Web::i()->_('CUSTOM_CSS'),
-                    'urn' => 'custom_css',
-                    'template' => 0,
-                    'cache' => 1,
-                    'response_code' => 200,
-                    'mime' => 'text/css',
-                ],
-                $this->Site
-            );
-            $this->createBlock(
-                new Block_HTML([
-                    'name' => View_Web::i()->_('CUSTOM_CSS'),
-                    'description' => '',
-                    'wysiwyg' => 0
-                ]),
-                '',
-                null,
-                null,
-                $customCss
-            );
+            $customCssPageData = [
+                'name' => View_Web::i()->_('CUSTOM_CSS'),
+                'urn' => 'custom_css',
+                'template' => 0,
+                'cache' => 1,
+                'response_code' => 200,
+                'mime' => 'text/css',
+            ];
+            $customCss = $this->createPage($customCssPageData, $this->Site);
+            $customCSSBlock = new Block_HTML([
+                'name' => View_Web::i()->_('CUSTOM_CSS'),
+                'description' => '',
+                'wysiwyg' => 0
+            ]);
+            $this->createBlock($customCSSBlock, '', null, null, $customCss);
         }
         return $customCss;
     }
@@ -1374,9 +962,10 @@ class Webmaster
             ]
         ]);
         $this->site = $this->createMainPage($template, $forms);
-        $this->createBanners();
-        $this->createCompany();
-        $this->createPrivacy();
+        BannersTemplate::spawn(View_Web::i()->_('BANNERS'), 'banners', $this)
+            ->create();
+        CompanyTemplate::spawn(View_Web::i()->_('COMPANY'), 'company', $this)
+            ->create();
 
         $temp = Page::getSet([
             'where' => ["pid = " . (int)$this->Site->id, "urn = 'about'"]
@@ -1384,21 +973,16 @@ class Webmaster
         if ($temp) {
             $about = $temp[0];
         } else {
-            $about = $this->createPage(
-                ['name' => View_Web::i()->_('ABOUT_US'), 'urn' => 'about'],
-                $this->Site,
-                true
-            );
+            $aboutPageData = [
+                'name' => View_Web::i()->_('ABOUT_US'),
+                'urn' => 'about'
+            ];
+            $about = $this->createPage($aboutPageData, $this->Site, true);
         }
 
         $this->createServices();
 
-        $news = $this->createNews(
-            View_Web::i()->_('NEWS'),
-            'news',
-            View_Web::i()->_('NEWS_MAIN')
-        );
-        $contacts = $this->createContacts($forms['feedback']);
+        NewsTemplate::spawn(View_Web::i()->_('NEWS'), 'news', $this)->create();
         $p404 = $this->create404();
         $this->map = $this->createMap();
         $sitemaps = $this->createSitemapsXml();
@@ -1459,16 +1043,14 @@ class Webmaster
         if ($temp) {
             $ajax = $temp[0];
         } else {
-            $ajax = $this->createPage(
-                [
-                    'name' => View_Web::i()->_('AJAX'),
-                    'urn' => 'ajax',
-                    'template' => 0,
-                    'cache' => 0,
-                    'response_code' => 200
-                ],
-                $this->Site
-            );
+            $ajaxPageData = [
+                'name' => View_Web::i()->_('AJAX'),
+                'urn' => 'ajax',
+                'template' => 0,
+                'cache' => 0,
+                'response_code' => 200
+            ];
+            $ajax = $this->createPage($ajaxPageData, $this->Site);
         }
 
         $this->createBlock(
@@ -1479,6 +1061,8 @@ class Webmaster
             $this->Site,
             true
         );
+
+        $this->createSearch();
     }
 
 
@@ -1491,7 +1075,7 @@ class Webmaster
      *                                   "страница в стадии наполнения"
      * @return Page
      */
-    protected function createPage(
+    public function createPage(
         array $params,
         Page $parent = null,
         $addUnderConstruction = false
@@ -1540,162 +1124,17 @@ class Webmaster
 
 
     /**
-     * Добавление новостей по URN
+     * Создает раздел "Фотогалерея"
      * @param string $name Наименование
      * @param string $urn URN
-     * @param string $nameMain Наименование блока на главной
+     * @param bool $createMainBlock Создать блок на главной
+     * @return Page Созданная или существующая страница
      */
-    public function createNews($name, $urn, $nameMain = '')
+    public function createPhotos($name, $urn, $createMainBlock = false)
     {
-        $newMaterialType = false;
-        $materialType = Material_Type::importByURN($urn);
-        if (!$materialType->id) {
-            $materialType = new Material_Type([
-                'name' => $name,
-                'urn' => $urn,
-                'global_type' => 1
-            ]);
-            $materialType->commit();
-            $newMaterialType = true;
-        }
-        $materialTemplate = new NewsTemplate($materialType, $this);
-        if ($newMaterialType) {
-            $fields = $materialTemplate->createFields();
-        }
-
-        $widget = Snippet::importByURN($urn);
-        if (!$widget->id) {
-            $widget = $materialTemplate->createBlockSnippet();
-        }
-
-        if ($nameMain) {
-            $mainWidget = Snippet::importByURN($urn . '_main');
-            if (!$mainWidget->id) {
-                $mainWidget = $materialTemplate->createMainPageSnippet();
-            }
-        }
-
-        $temp = Page::getSet([
-            'where' => ["pid = " . (int)$this->Site->id, "urn = '" . $urn . "'"]
-        ]);
-        if ($temp) {
-            $page = $temp[0];
-        } else {
-            $page = $materialTemplate->createPage($this->Site);
-            $block = $materialTemplate->createBlock($page, $widget);
-            if ($nameMain) {
-                $blockMain = $materialTemplate->createBlock(
-                    $this->Site,
-                    $mainWidget,
-                    [
-                        'nat' => 0,
-                        'pages_var_name' => '',
-                        'rows_per_page' => 0,
-                    ]
-                );
-            }
-            // Создадим материалы
-            $materialTemplate->createMaterials();
-        }
+        $page = PhotosTemplate::spawn(View_Web::i()->_($name), $urn, $this)
+            ->create();
         return $page;
-    }
-
-
-    /**
-     * Создает раздел "Фотогалерея"
-     * @param string $name Наименование модуля
-     * @param string $urn URN модуля
-     */
-    public function createPhotos($name, $urn)
-    {
-        $temp = Material_Type::importByURN($urn);
-        if (!$temp->id) {
-            $MT = new Material_Type([
-                'name' => $name,
-                'urn' => $urn,
-                'global_type' => 1,
-            ]);
-            $MT->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'vis' => 1,
-                'name' => View_Web::i()->_('IMAGE'),
-                'multiple' => 1,
-                'urn' => 'images',
-                'datatype' => 'image',
-                'show_in_table' => 1,
-            ]);
-            $F->commit();
-        }
-
-        $temp = Snippet::importByURN($urn);
-        if (!$temp->id) {
-            $f = Package::i()->resourcesDir . '/photos.tmp.php';
-            $text = file_get_contents($f);
-            $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
-            $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
-            $S = new Snippet([
-                'name' => $name,
-                'urn' => $urn,
-                'pid' => $this->widgetsFolder->id,
-                'description' => $text
-            ]);
-            $S->commit();
-        }
-
-        $temp = Page::getSet([
-            'where' => ["pid = " . (int)$this->Site->id, "urn = 'photos'"]
-        ]);
-        if ($temp) {
-            $page = $temp[0];
-        } else {
-            $page = $this->createPage(
-                ['name' => $name, 'urn' => $urn],
-                $this->Site
-            );
-            $blockMaterial = new Block_Material([
-                'material_type' => (int)$MT->id,
-                'nat' => 1,
-                'pages_var_name' => 'page',
-                'rows_per_page' => 20,
-                'sort_field_default' => 'post_date',
-                'sort_order_default' => 'asc!',
-            ]);
-            $this->createBlock(
-                $blockMaterial,
-                'content',
-                '__raas_material_interface',
-                $urn,
-                $page
-            );
-
-            // Создадим материалы
-            for ($i = 0; $i < 3; $i++) {
-                $temp = $this->nextText;
-                $item = new Material([
-                    'pid' => (int)$MT->id,
-                    'vis' => 1,
-                    'name' => $temp['name'],
-                    'description' => $temp['text'],
-                    'priority' => ($i + 1) * 10,
-                    'sitemaps_priority' => 0.5
-                ]);
-                $item->commit();
-                for ($j = 0; $j < 10; $j++) {
-                    $att = Attachment::createFromFile(
-                        $this->nextImage,
-                        $MT->fields['images']
-                    );
-                    $item->fields['images']->addValue(json_encode([
-                        'vis' => 1,
-                        'name' => '',
-                        'description' => '',
-                        'attachment' => (int)$att->id
-                    ]));
-                }
-            }
-        }
     }
 
 
@@ -1754,17 +1193,20 @@ class Webmaster
         if ($temp) {
             $page = $temp[0];
         } else {
-            $page = $this->createPage(
-                ['name' => $name, 'urn' => 'search', 'response_code' => 200],
-                $this->Site
-            );
+            $searchPageData = [
+                'name' => $name,
+                'urn' => 'search',
+                'response_code' => 200
+            ];
+            $page = $this->createPage($searchPageData, $this->Site);
+            $searchBlock = new Block_Search([
+                'search_var_name' => 'search_string',
+                'min_length' => 3,
+                'pages_var_name' => 'page',
+                'rows_per_page' => 20,
+            ]);
             $this->createBlock(
-                new Block_Search([
-                    'search_var_name' => 'search_string',
-                    'min_length' => 3,
-                    'pages_var_name' => 'page',
-                    'rows_per_page' => 20,
-                ]),
+                $searchBlock,
                 'content',
                 '__raas_search_interface',
                 'search',
@@ -1779,305 +1221,15 @@ class Webmaster
      * Создаем "вопрос-ответ"-образную страницу
      * @param string $name Наименование
      * @param string $urn URN
-     * @param string $mainName Название блока на главной
+     * @param bool $createMainBlock Создать блок на главной
      * @return Page Созданная или существующая страница
      */
-    public function createFAQ($name, $urn, $mainName = null)
+    public function createFAQ($name, $urn, $createMainBlock = false)
     {
-        if (!$mainName) {
-            $mainName = $name;
-        }
-        $MT = Material_Type::importByURN($urn);
-        if (!$MT->id) {
-            $MT = new Material_Type([
-                'name' => $name,
-                'urn' => $urn,
-                'global_type' => 1,
-            ]);
-            $MT->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'vis' => 1,
-                'name' => View_Web::i()->_('DATE'),
-                'urn' => 'date',
-                'datatype' => 'date',
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'vis' => 0,
-                'name' => View_Web::i()->_('PHONE'),
-                'urn' => 'phone',
-                'datatype' => 'text',
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'vis' => 0,
-                'name' => View_Web::i()->_('EMAIL'),
-                'urn' => 'email',
-                'datatype' => 'email',
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'vis' => 1,
-                'name' => View_Web::i()->_('IMAGE'),
-                'urn' => 'image',
-                'datatype' => 'image', 'show_in_table' => 0,
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'vis' => 1,
-                'name' => View_Web::i()->_('ANSWER_DATE'),
-                'urn' => 'answer_date',
-                'datatype' => 'date',
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'vis' => 1,
-                'name' => View_Web::i()->_('ANSWER_NAME'),
-                'urn' => 'answer_name',
-                'datatype' => 'text',
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'vis' => 1,
-                'name' => View_Web::i()->_('ANSWER_GENDER'),
-                'urn' => 'answer_gender',
-                'datatype' => 'select',
-                'source_type' => 'ini',
-                'source' => '0 = "' . View_Web::i()->_('FEMALE') . '"' . "\n"
-                         .  '1 = "' . View_Web::i()->_('MALE') . '"'
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'vis' => 1,
-                'name' => View_Web::i()->_('ANSWER_IMAGE'),
-                'urn' => 'answer_image',
-                'datatype' => 'image', 'show_in_table' => 0,
-            ]);
-            $F->commit();
-
-            $F = new Material_Field([
-                'pid' => $MT->id,
-                'vis' => 1,
-                'name' => View_Web::i()->_('ANSWER'),
-                'urn' => 'answer',
-                'datatype' => 'htmlarea',
-            ]);
-            $F->commit();
-        }
-
-        $S = Snippet::importByURN('__raas_form_notify');
-        $FRM = Form::importByURN($urn);
-        if (!$FRM->id) {
-            $FRM = $this->createForm([
-                'name' => $name,
-                'urn' => $urn,
-                'material_type' => (int)$MT->id,
-                'interface_id' => (int)$S->id,
-                'fields' => [
-                    [
-                        'vis' => 1,
-                        'name' => View_Web::i()->_('YOUR_NAME'),
-                        'urn' => 'name',
-                        'required' => 1,
-                        'datatype' => 'text',
-                        'show_in_table' => 1,
-                    ],
-                    [
-                        'vis' => 1,
-                        'name' => View_Web::i()->_('PHONE'),
-                        'urn' => 'phone',
-                        'datatype' => 'text',
-                        'show_in_table' => 1,
-                    ],
-                    [
-                        'vis' => 1,
-                        'name' => View_Web::i()->_('EMAIL'),
-                        'urn' => 'email',
-                        'datatype' => 'email',
-                        'show_in_table' => 0,
-                    ],
-                    [
-                        'vis' => 1,
-                        'name' => View_Web::i()->_('YOUR_PHOTO'),
-                        'urn' => 'image',
-                        'datatype' => 'image',
-                        'show_in_table' => 0,
-                    ],
-                    [
-                        'vis' => 1,
-                        'name' => View_Web::i()->_('QUESTION_TEXT'),
-                        'urn' => 'description',
-                        'required' => 1,
-                        'datatype' => 'textarea',
-                        'show_in_table' => 0,
-                    ],
-                    [
-                        'vis' => 1,
-                        'name' => View_Web::i()->_('AGREE_PRIVACY_POLICY'),
-                        'urn' => 'agree',
-                        'required' => 1,
-                        'datatype' => 'checkbox',
-                    ],
-                ]
-            ]);
-        }
-
-        $temp = Snippet::importByURN($urn);
-        if (!$temp->id) {
-            $f = Package::i()->resourcesDir . '/faq.tmp.php';
-            $text = file_get_contents($f);
-            $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
-            $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
-            $S = new Snippet([
-                'name' => $name,
-                'urn' => $urn,
-                'pid' => $this->widgetsFolder->id,
-                'description' => $text
-            ]);
-            $S->commit();
-        }
-
-        $temp = Snippet::importByURN($urn . '_main');
-        if (!$temp->id) {
-            $f = Package::i()->resourcesDir . '/faq_main.tmp.php';
-            $text = file_get_contents($f);
-            $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
-            $text = str_ireplace('{FAQ_NAME}', $name, $text);
-            $S = new Snippet([
-                'name' => $mainName,
-                'urn' => $urn . '_main',
-                'pid' => $this->widgetsFolder->id,
-                'description' => $text
-            ]);
-            $S->commit();
-        }
-
-        $temp = Page::getSet([
-            'where' => ["pid = " . (int)$this->Site->id, "urn = '" . $urn . "'"]
-        ]);
-        if ($temp) {
-            $faqPage = $temp[0];
-        } else {
-            $faqPage = $this->createPage(
-                ['name' => $name, 'urn' => $urn],
-                $this->Site
-            );
-            $B = new Block_Material([
-                'material_type' => (int)$MT->id,
-                'nat' => 1,
-                'pages_var_name' => 'page',
-                'rows_per_page' => 20,
-                'sort_field_default' => 'post_date',
-                'sort_order_default' => 'desc!',
-            ]);
-            $this->createBlock(
-                $B,
-                'content',
-                '__raas_material_interface',
-                $urn,
-                $faqPage
-            );
-
-            $B = new Block_HTML(['description' => '<p>' .  View_Web::i()->_(
-                $urn == 'reviews' ?
-                'YOU_CAN_LEAVE_YOUR_RESPONSE' :
-                'YOU_CAN_ASK_YOUR_QUESTION'
-            ) .  '</p>']);
-            $this->createBlock($B, 'content', null, null, $faqPage);
-
-            $B = new Block_Form(['form' => $FRM->id,]);
-            $this->createBlock(
-                $B,
-                'content',
-                '__raas_form_interface',
-                'feedback',
-                $faqPage
-            );
-
-            $B = new Block_Material([
-                'material_type' => (int)$MT->id,
-                'nat' => 0,
-                'pages_var_name' => '',
-                'rows_per_page' => 3,
-                'sort_field_default' => 'post_date',
-                'sort_order_default' => 'desc!',
-            ]);
-            $this->createBlock(
-                $B,
-                'left',
-                '__raas_material_interface',
-                $urn . '_main',
-                $this->Site,
-                true,
-                [$faqPage->id]
-            );
-
-            // Создадим материалы
-            for ($i = 0; $i < 3; $i++) {
-                $user = $this->nextUser;
-                $answer = $this->nextUser;
-                $temp = $this->nextText;
-                $item = new Material([
-                    'pid' => (int)$MT->id,
-                    'vis' => 1,
-                    'name' => $user['name']['first'] . ' '
-                           .  $user['name']['last'],
-                    'description' => $temp['name'],
-                    'priority' => ($i + 1) * 10,
-                    'sitemaps_priority' => 0.5
-                ]);
-                $item->commit();
-                $t = time() - 86400 * rand(1, 7);
-                $t1 = $t + rand(0, 86400);
-                $item->fields['date']->addValue(date('Y-m-d', $t));
-                $item->fields['phone']->addValue($user['phone']);
-                $item->fields['email']->addValue($user['email']);
-                $item->fields['answer_date']->addValue(date('Y-m-d', $t1));
-                $item->fields['answer_name']->addValue(
-                    $answer['name']['first'] . ' ' . $answer['name']['last']
-                );
-                $item->fields['answer_gender']->addValue(
-                    (int)($answer['gender'] == 'male')
-                );
-                $item->fields['answer']->addValue($temp['text']);
-                $att = Attachment::createFromFile(
-                    $user['pic']['filepath'],
-                    $MT->fields['image']
-                );
-                $item->fields['image']->addValue(json_encode([
-                    'vis' => 1,
-                    'name' => '',
-                    'description' => '',
-                    'attachment' => (int)$att->id
-                ]));
-                $att = Attachment::createFromFile(
-                    $answer['pic']['filepath'],
-                    $MT->fields['answer_image']
-                );
-                $item->fields['answer_image']->addValue(json_encode([
-                    'vis' => 1,
-                    'name' => '',
-                    'description' => '',
-                    'attachment' => (int)$att->id
-                ]));
-            }
-        }
+        $materialTemplate = FAQTemplate::spawn($name, $urn, $this)->create();
+        $materialTemplate->createMainBlock = $createMainBlock;
+        $page = $materialTemplate->create();
+        return $page;
     }
 
 
@@ -2117,12 +1269,9 @@ class Webmaster
         } else {
             $cats = [$startPage];
         }
-        $catsIds = array_map(
-            function ($x) {
-                return (int)$x->id;
-            },
-            $cats
-        );
+        $catsIds = array_map(function ($x) {
+            return (int)$x->id;
+        }, $cats);
         $catsIds = array_diff($catsIds, $excludeFromInheritance);
         $block->cats = $catsIds;
         $block->interface_id = 0;
