@@ -7,10 +7,14 @@ namespace RAAS\CMS;
 use Error;
 use Exception;
 use SOME\SOME;
+use RAAS\Application;
+use RAAS\User as RAASUser;
 
 /**
  * Класс сниппета
  * @property-read Snippet_Folder $parent Папка, содержащая сниппет
+ * @property-read RAASUser $author Автор страницы
+ * @property-read RAASUser $editor Редактор страницы
  * @property-read Snippet[] $usingSnippets Сниппеты, использующие этот сниппет
  * @property-read Block[] $usingBlocks Блоки, использующие этот сниппет
  *                                     (как виджет, интерфейс или
@@ -22,10 +26,12 @@ use SOME\SOME;
  *                                             использующие этот сниппет
  * @property-read \RAAS\CMS\Shop\ImageLoader[] $usingImageloaders Загрузчики изображений,
  *                                             использующие этот сниппет
+ * @property-read string $filename Имя файла кэша для сохранения
  */
 class Snippet extends SOME
 {
     use ImportByURNTrait;
+    use CodeTrait;
 
     protected static $tablename = 'cms_snippets';
 
@@ -46,6 +52,16 @@ class Snippet extends SOME
             'classname' => Snippet_Folder::class,
             'cascade' => true
         ],
+        'author' => [
+            'FK' => 'author_id',
+            'classname' => RAASUser::class,
+            'cascade' => false
+        ],
+        'editor' => [
+            'FK' => 'editor_id',
+            'classname' => RAASUser::class,
+            'cascade' => false
+        ],
     ];
 
     /**
@@ -53,13 +69,46 @@ class Snippet extends SOME
      */
     protected static $snippetsSet = [];
 
+    public function __get($var)
+    {
+        switch ($var) {
+            case 'filename':
+                // Здесь именно ...properties... , поскольку при сохранении
+                // нужно удалять старый файл
+                // Обращение к новому файлу идёт только в случае
+                // реального commit'а
+                // Шунтирование ...updates... идёт на случай, когда сниппет
+                // генерируется динамически
+                $filename = Package::i()->cacheDir . '/system/snippets/'
+                    . ($this->properties['urn'] ?: $this->updates['urn'])
+                    . '.tmp.php';
+                return $filename;
+                break;
+            default:
+                return parent::__get($var);
+                break;
+        }
+    }
+
     public function commit()
     {
         if (!$this->urn && $this->name) {
             $this->urn = $this->name;
         }
         Package::i()->getUniqueURN($this);
+        $datetime = date('Y-m-d H:i:s');
+        $uid = (int)Application::i()->user->id;
+        if (!$this->id) {
+            $this->post_date = $datetime;
+            $this->author_id = $uid;
+        }
+        $this->modify_date = $datetime;
+        $this->editor_id = $uid;
+        if ($this->id && ($this->updates['urn'] != $this->properties['urn'])) {
+            $this->deleteFile();
+        }
         parent::commit();
+        $this->saveFile();
     }
 
 
@@ -69,29 +118,17 @@ class Snippet extends SOME
      */
     public function process(array $data = [])
     {
-        $st = microtime(true);
+        if (!is_file($this->filename)) {
+            $this->saveFile();
+        }
+        $snippetST = microtime(true);
         // 2020-12-25, убрано - в формах вместо POST-данных
         // (в отсутствие собственно POST-запроса) подставляются все параметры
         // $DATA = $data;
         extract($data);
-        try {
-            $_SESSION['EVAL_DEBUG'] = 'Snippet::' . $this->urn;
-            $result = eval('?' . '>' . $this->description);
-            $_SESSION['EVAL_DEBUG'] = '';
-        } catch (Error $e) {
-            $newMessage = 'Snippet::' . $this->urn . ':' . $e->getLine() . ': '
-                . $e->getMessage();
-            $e = new Exception($newMessage, $e->getCode(), $e);
-            throw $e;
-        } catch (Exception $e) {
-            $eTrace = $e->getTrace();
-            $newMessage = 'Snippet::' . $this->urn . ':' . $e->getLine() . ': '
-                . $e->getMessage();
-            $e = new Exception($newMessage, $e->getCode(), $e);
-            throw $e;
-        }
+        $result = @include $this->filename;
         if ($diag = Controller_Frontend::i()->diag) {
-            $diag->handle('snippets', $this->id, microtime(true) - $st);
+            $diag->handle('snippets', $this->id, microtime(true) - $snippetST);
         }
         return $result;
     }
@@ -206,5 +243,12 @@ class Snippet extends SOME
             ]);
         }
         return $result;
+    }
+
+
+    public static function delete(SOME $item)
+    {
+        $item->deleteFile();
+        parent::delete($item);
     }
 }

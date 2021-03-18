@@ -53,9 +53,14 @@ class SitemapInterface extends AbstractInterface
         $this->prepareMetaData();
         $domainId = array_shift($pageCache->getParentsIds($this->page->id));
         $domainPageData = $pageCache->cache[$domainId];
-        $domainPage = new Page($domainPageData);
-        $domainPageData['url'] = $domainPage->domain
-                               . $domainPageData['cache_url'];
+        if ($this->server['HTTP_HOST']) {
+            $domainURL = 'http' . ($this->server['HTTPS'] ? 's' : '') . '://'
+                . $this->server['HTTP_HOST'];
+        } else {
+            $domainPage = new Page($domainPageData);
+            $domainURL = $domainPage->domain;
+        }
+        $domainPageData['url'] = $domainURL . '/';
 
         $pages = array_merge(
             [trim($domainId) => $domainPageData],
@@ -116,8 +121,14 @@ class SitemapInterface extends AbstractInterface
         foreach ($sqlResult as $sqlRow) {
             $domainId = array_shift($pageCache->getParentsIds($sqlRow['id']));
             if (!isset($domainsURLs[$domainId])) {
-                $domainPage = new Page($domainId);
-                $domainsURLs[trim($domainId)] = $domainPage->domain;
+                if ($this->server['HTTP_HOST']) {
+                    $domainURL = 'http' . ($this->server['HTTPS'] ? 's' : '') . '://'
+                        . $this->server['HTTP_HOST'];
+                } else {
+                    $domainPage = new Page($domainId);
+                    $domainURL = $domainPage->domain;
+                }
+                $domainsURLs[trim($domainId)] = $domainURL;
             }
             $sqlRow['url'] = $domainsURLs[$domainId] . $sqlRow['cache_url'];
             $sqlRow['entry_type'] = 'page';
@@ -291,8 +302,14 @@ class SitemapInterface extends AbstractInterface
                 )
             );
             if (!isset($domainsURLs[$domainId])) {
-                $domainPage = new Page($domainId);
-                $domainsURLs[trim($domainId)] = $domainPage->domain;
+                if ($this->server['HTTP_HOST']) {
+                    $domainURL = 'http' . ($this->server['HTTPS'] ? 's' : '') . '://'
+                        . $this->server['HTTP_HOST'];
+                } else {
+                    $domainPage = new Page($domainId);
+                    $domainURL = $domainPage->domain;
+                }
+                $domainsURLs[trim($domainId)] = $domainURL;
             }
             EventProcessor::emit(
                 'startmaterial',

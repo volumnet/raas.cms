@@ -5,7 +5,9 @@
 namespace RAAS\CMS;
 
 use SOME\SOME;
+use RAAS\Application;
 use RAAS\Attachment as Attachment;
+use RAAS\User as RAASUser;
 
 /**
  * Класс шаблона
@@ -13,13 +15,17 @@ use RAAS\Attachment as Attachment;
  *                    string[] URN размещения => Location
  *                > $locations Размещения
  * @property-read Attachment $Background Фоновое изображение
+ * @property-read RAASUser $author Автор страницы
+ * @property-read RAASUser $editor Редактор страницы
  * @property-read array<
  *                    string[] CSS-свойство => string значение свойства
  *                > $style Набор CSS-стилей шаблона
+ * @property-read string $filename Имя файла кэша для сохранения
  */
 class Template extends SOME
 {
     use ImportByURNTrait;
+    use CodeTrait;
 
     protected static $tablename = 'cms_templates';
 
@@ -31,6 +37,16 @@ class Template extends SOME
         'Background' => [
             'FK' => 'background',
             'classname' => Attachment::class,
+            'cascade' => false
+        ],
+        'author' => [
+            'FK' => 'author_id',
+            'classname' => RAASUser::class,
+            'cascade' => false
+        ],
+        'editor' => [
+            'FK' => 'editor_id',
+            'classname' => RAASUser::class,
             'cascade' => false
         ],
     ];
@@ -52,6 +68,17 @@ class Template extends SOME
                 }
                 return implode(' ', $style);
                 break;
+            case 'filename':
+                // Здесь именно ...properties... , поскольку при сохранении
+                // нужно удалять старый файл
+                // Обращение к новому файлу идёт только в случае реального commit'а
+                // Шунтирование ...updates... идёт на случай, когда сниппет
+                // генерируется динамически
+                $filename = Package::i()->cacheDir . '/system/templates/'
+                    . ($this->properties['urn'] ?: $this->updates['urn'])
+                    . '.tmp.php';
+                return $filename;
+                break;
             default:
                 return parent::__get($var);
                 break;
@@ -65,12 +92,24 @@ class Template extends SOME
             $this->urn = $this->name;
         }
         Package::i()->getUniqueURN($this);
+        $datetime = date('Y-m-d H:i:s');
+        $uid = (int)Application::i()->user->id;
+        if (!$this->id) {
+            $this->post_date = $datetime;
+            $this->author_id = $uid;
+        }
+        $this->modify_date = $datetime;
+        $this->editor_id = $uid;
         $this->width = min($this->width, 680);
         if ($this->locs) {
             $this->locations_info = json_encode((array)$this->locs);
             unset($this->locs);
         }
+        if ($this->id && ($this->updates['urn'] != $this->properties['urn'])) {
+            $this->deleteFile();
+        }
         parent::commit();
+        $this->saveFile();
     }
 
 
@@ -84,6 +123,22 @@ class Template extends SOME
         }
         $this->background = 0;
         $this->commit();
+    }
+
+
+    /**
+     * Отрабатывает шаблон
+     * @param array $data Данные, передаваемые в шаблон
+     */
+    public function process(array $data = [])
+    {
+        if (!is_file($this->filename)) {
+            $this->saveFile();
+        }
+        $st = microtime(true);
+        extract($data);
+        $result = @include $this->filename;
+        return $result;
     }
 
 
@@ -149,9 +204,10 @@ class Template extends SOME
     }
 
 
-    public static function delete(SOME $Item)
+    public static function delete(SOME $item)
     {
-        $Item->deleteBackground();
-        parent::delete($Item);
+        $item->deleteBackground();
+        $item->deleteFile();
+        parent::delete($item);
     }
 }

@@ -1075,10 +1075,15 @@ class Package extends RAASPackage
         $mode = null
     ) {
         $temp = pathinfo($filename);
-        $outputFile = ltrim($temp['dirname'] ? $temp['dirname'] . '/' : '')
-                    . $temp['filename'] . '.'
-                    . ($width ?: 'auto') . 'x' . ($height ?: 'auto')
-                    . ($mode ? '_' . $mode : '') . '.' . $temp['extension'];
+        if ($temp['extension'] == 'svg') {
+            $outputFile = ltrim($temp['dirname'] ? $temp['dirname'] . '/' : '')
+                        . $temp['filename'] . '.' . $temp['extension'];
+        } else {
+            $outputFile = ltrim($temp['dirname'] ? $temp['dirname'] . '/' : '')
+                        . $temp['filename'] . '.'
+                        . ($width ?: 'auto') . 'x' . ($height ?: 'auto')
+                        . ($mode ? '_' . $mode : '') . '.' . $temp['extension'];
+        }
         return $outputFile;
     }
 
@@ -1213,6 +1218,7 @@ class Package extends RAASPackage
                 case 'jpeg':
                 case 'png':
                 case 'gif':
+                case 'webp':
                 case 'svg':
                     return '<img src="' . htmlspecialchars($link) . '" alt="' . htmlspecialchars($alt) . '" title="' . htmlspecialchars($title ?: $alt) . '" />';
                     break;

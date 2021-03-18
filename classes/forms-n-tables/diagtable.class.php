@@ -52,6 +52,12 @@ class DiagTable extends Table
                                      .    htmlspecialchars($snippet->name)
                                      . '</a>';
                                 break;
+                            case 'templates':
+                                $template = new Template($row['key']);
+                                return '<a href="' . $view->parent->url . '&sub=dev&action=edit_template&id=' . (int)$template->id . '">'
+                                     .    htmlspecialchars($template->name)
+                                     . '</a>';
+                                break;
                             default:
                                 return htmlspecialchars($row['key']);
                                 break;

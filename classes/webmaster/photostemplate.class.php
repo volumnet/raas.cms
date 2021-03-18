@@ -18,7 +18,7 @@ class PhotosTemplate extends MaterialTypeTemplate
 
     public $createPage = true;
 
-    public static $global = true;
+    public static $global = false;
 
     public function createFields()
     {

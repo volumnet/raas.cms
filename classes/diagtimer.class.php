@@ -50,7 +50,14 @@ class DiagTimer extends Timer
         if ($name) {
             $this->name = $name;
         } else {
-            $this->name = $debugBacktrace[1]['function'];
+            $nameArr = [];
+            if ($debugBacktrace[1]['class']) {
+                $nameArr[] = $debugBacktrace[1]['class'];
+            }
+            if ($debugBacktrace[1]['function']) {
+                $nameArr[] = $debugBacktrace[1]['function'];
+            }
+            $this->name = implode('::', $nameArr);
         }
         if ($filename) {
             $this->filename = $filename;

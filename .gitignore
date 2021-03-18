@@ -5,3 +5,6 @@ composer.lock
 config.php
 files
 .phpunit.result.cache
+/nbproject/private/
+/cache
+/nbproject

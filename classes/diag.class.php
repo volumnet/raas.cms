@@ -18,6 +18,8 @@ use RAAS\Application;
  * @property-read float $blocksTime Общее время блоков
  * @property-read int $snippetsCounter Счетчик сниппетов
  * @property-read float $snippetsTime Общее время сниппетов
+ * @property-read int $templatesCounter Счетчик шаблонов
+ * @property-read float $templatesTime Общее время шаблонов
  * @property-read int $pagesCounter Счетчик страниц
  * @property-read float $pagesTime Общее время страниц
  * @property-read array<string[] Тип данных => [
@@ -65,8 +67,9 @@ class Diag
         'queries' => [],
         'timers' => [],
         'blocks' => [],
-        'pages' => [],
         'snippets' => [],
+        'templates' => [],
+        'pages' => [],
     ];
 
     /**
@@ -78,7 +81,8 @@ class Diag
         'timers' => 0,
         'blocks' => 0.1,
         'snippets' => 0.1,
-        'pages' => 1
+        'templates' => 0.1,
+        'pages' => 1,
     ];
 
     public function __get($var)
@@ -104,6 +108,8 @@ class Diag
             case 'timersTime':
             case 'snippetsCounter':
             case 'snippetsTime':
+            case 'templatesCounter':
+            case 'templatesTime':
             case 'blocksCounter':
             case 'blocksTime':
             case 'pagesCounter':

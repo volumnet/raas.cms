@@ -38,6 +38,7 @@ class EditSnippetForm extends RAASForm
             ]
         ];
         if ($item->id) {
+            $defaultParams['children']['service'] = $this->getServiceTab();
             if ($usingBlocks = $item->usingBlocks) {
                 $defaultParams['children']['blocks'] = $this->getSnippetUsersTab(
                     $this->view->_('BLOCKS'),
@@ -125,6 +126,37 @@ class EditSnippetForm extends RAASForm
                 ],
             ]
         ]);
+        return $tab;
+    }
+
+
+    /**
+     * Получает вкладку "Служебные"
+     * @return FormTab
+     */
+    protected function getServiceTab()
+    {
+        $arr = [
+            'name' => 'service',
+            'caption' => $this->view->_('SERVICE'),
+            'children' => [
+                'post_date' => [
+                    'name' => 'post_date',
+                    'caption' => $this->view->_('CREATED_BY'),
+                    'export' => 'is_null',
+                    'import' => 'is_null',
+                    'template' => 'stat.inc.php'
+                ],
+                'modify_date' => [
+                    'name' => 'modify_date',
+                    'caption' => $this->view->_('EDITED_BY'),
+                    'export' => 'is_null',
+                    'import' => 'is_null',
+                    'template' => 'stat.inc.php'
+                ],
+            ],
+        ];
+        $tab = new FormTab($arr);
         return $tab;
     }
 

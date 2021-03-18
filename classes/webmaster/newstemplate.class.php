@@ -105,7 +105,7 @@ class NewsTemplate extends MaterialTypeTemplate
             ]);
             $item->commit();
             $item->fields['date']->addValue(
-                date('Y-m-d H:i', time() - rand(0, 86400 * 7))
+                date('Y-m-d', time() - rand(0, 86400 * 7))
             );
             $item->fields['brief']->addValue($text['brief']);
             for ($j = 0; $j < 5; $j++) {

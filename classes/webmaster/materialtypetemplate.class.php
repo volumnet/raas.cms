@@ -204,7 +204,8 @@ class MaterialTypeTemplate
                 'interface_id' => (int)Snippet::importByURN('__raas_material_interface')->id,
                 'widget_id' => (int)$widget->id,
                 'location' => 'content',
-                'cats' => [(int)$page->id]
+                'inherit' => (int)$inherit,
+                'cats' => $additionalData['inherit'] ? $page->selfAndChildrenIds : [(int)$page->id]
             ], $additionalData);
             $block = new Block_Material($blockData);
             $block->commit();

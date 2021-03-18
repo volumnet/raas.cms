@@ -549,21 +549,13 @@ class Page extends SOME
             foreach ($this->Template->locations as $l => $loc) {
                 $this->location($l);
             }
-            try {
-                $_SESSION['EVAL_DEBUG'] = 'Template::' . $this->Template->urn;
-                eval('?' . '>' . $this->Template->description);
-                $_SESSION['EVAL_DEBUG'] = '';
-            } catch (Error $e) {
-                $newMessage = 'Snippet::' . $this->urn . ':' . $e->getLine()
-                    . ': ' . $e->getMessage();
-                throw new Exception($newMessage, $e->getCode());
-            } catch (Exception $e) {
-                $newMessage = 'Snippet::' . $this->urn . ':' . $e->getLine()
-                    . ': ' . $e->getMessage();
-                throw new Exception($newMessage, $e->getCode());
-            }
-            if ($diag = Controller_Frontend::i()->diag) {
-                $diag->handle('snippets', $this->id, microtime(true) - $st);
+            $st = microtime(true);
+            $this->Template->process([
+                'SITE' => $this->Domain,
+                'Page' => $this,
+            ]);
+            if ($this->template && ($diag = Controller_Frontend::i()->diag)) {
+                $diag->handle('templates', $this->template, microtime(true) - $st);
             }
         }
         $content = ob_get_contents();

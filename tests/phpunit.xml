@@ -36,40 +36,77 @@
       <file>src/views/renderers/FormRendererTest.php</file>
     </testsuite>
     <testsuite name="FormFieldRenderer">
-      <file>src/views/renderers/FormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/FormFieldRendererTest.php</file>
     </testsuite>
     <testsuite name="TextFormFieldRenderer">
-      <file>src/views/renderers/TextFormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/TextFormFieldRendererTest.php</file>
     </testsuite>
     <testsuite name="TextAreaFormFieldRenderer">
-      <file>src/views/renderers/TextAreaFormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/TextAreaFormFieldRendererTest.php</file>
     </testsuite>
     <testsuite name="HtmlAreaFormFieldRenderer">
-      <file>src/views/renderers/HtmlAreaFormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/HtmlAreaFormFieldRendererTest.php</file>
     </testsuite>
     <testsuite name="NumberFormFieldRenderer">
-      <file>src/views/renderers/NumberFormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/NumberFormFieldRendererTest.php</file>
     </testsuite>
     <testsuite name="PasswordFormFieldRenderer">
-      <file>src/views/renderers/PasswordFormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/PasswordFormFieldRendererTest.php</file>
     </testsuite>
     <testsuite name="FileFormFieldRenderer">
-      <file>src/views/renderers/FileFormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/FileFormFieldRendererTest.php</file>
     </testsuite>
     <testsuite name="ImageFormFieldRenderer">
-      <file>src/views/renderers/ImageFormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/ImageFormFieldRendererTest.php</file>
     </testsuite>
     <testsuite name="HiddenFormFieldRenderer">
-      <file>src/views/renderers/HiddenFormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/HiddenFormFieldRendererTest.php</file>
     </testsuite>
     <testsuite name="SelectFormFieldRenderer">
-      <file>src/views/renderers/SelectFormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/SelectFormFieldRendererTest.php</file>
     </testsuite>
     <testsuite name="CheckboxFormFieldRenderer">
-      <file>src/views/renderers/CheckboxFormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/CheckboxFormFieldRendererTest.php</file>
     </testsuite>
     <testsuite name="RadioFormFieldRenderer">
-      <file>src/views/renderers/RadioFormFieldRendererTest.php</file>
+      <file>src/views/renderers/formfield/RadioFormFieldRendererTest.php</file>
+    </testsuite>
+
+    <testsuite name="NotificationFieldRenderer">
+      <file>src/views/renderers/notification/NotificationFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="CheckboxNotificationFieldRenderer">
+      <file>src/views/renderers/notification/CheckboxNotificationFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="ColorNotificationFieldRenderer">
+      <file>src/views/renderers/notification/ColorNotificationFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="DateNotificationFieldRenderer">
+      <file>src/views/renderers/notification/DateNotificationFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="DateTimeNotificationFieldRenderer">
+      <file>src/views/renderers/notification/DateTimeNotificationFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="EmailNotificationFieldRenderer">
+      <file>src/views/renderers/notification/EmailNotificationFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="FileNotificationFieldRenderer">
+      <file>src/views/renderers/notification/FileNotificationFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="HtmlAreaNotificationFieldRenderer">
+      <file>src/views/renderers/notification/HtmlAreaNotificationFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="ImageNotificationFieldRenderer">
+      <file>src/views/renderers/notification/ImageNotificationFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="MaterialNotificationFieldRenderer">
+      <file>src/views/renderers/notification/MaterialNotificationFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="TelNotificationFieldRenderer">
+      <file>src/views/renderers/notification/TelNotificationFieldRendererTest.php</file>
+    </testsuite>
+    <testsuite name="URLNotificationFieldRenderer">
+      <file>src/views/renderers/notification/URLNotificationFieldRendererTest.php</file>
     </testsuite>
   </testsuites>
   <filter>

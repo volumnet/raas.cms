@@ -31,6 +31,15 @@ class FAQTemplate extends MaterialTypeTemplate
         ]);
         $dateField->commit();
 
+        $nameField = new Material_Field([
+            'pid' => $this->materialType->id,
+            'vis' => 1,
+            'name' => View_Web::i()->_('FULL_NAME'),
+            'urn' => 'full_name',
+            'datatype' => 'text',
+        ]);
+        $nameField->commit();
+
         $phoneField = new Material_Field([
             'pid' => $this->materialType->id,
             'vis' => 0,
@@ -108,6 +117,7 @@ class FAQTemplate extends MaterialTypeTemplate
 
         return [
             $dateField->urn => $dateField,
+            $nameField->urn => $nameField,
             $phoneField->urn => $phoneField,
             $emailField->urn => $emailField,
             $imageField->urn => $imageField,
@@ -136,7 +146,7 @@ class FAQTemplate extends MaterialTypeTemplate
                 [
                     'vis' => 1,
                     'name' => View_Web::i()->_('YOUR_NAME'),
-                    'urn' => 'name',
+                    'urn' => 'full_name',
                     'required' => 1,
                     'datatype' => 'text',
                     'show_in_table' => 1,
@@ -156,7 +166,7 @@ class FAQTemplate extends MaterialTypeTemplate
                     'show_in_table' => 0,
                 ],
                 [
-                    'vis' => 1,
+                    'vis' => 0,
                     'name' => View_Web::i()->_('YOUR_PHOTO'),
                     'urn' => 'image',
                     'datatype' => 'image',
@@ -165,7 +175,7 @@ class FAQTemplate extends MaterialTypeTemplate
                 [
                     'vis' => 1,
                     'name' => View_Web::i()->_('QUESTION_TEXT'),
-                    'urn' => 'description',
+                    'urn' => '_name_',
                     'required' => 1,
                     'datatype' => 'textarea',
                     'show_in_table' => 0,
@@ -278,7 +288,7 @@ class FAQTemplate extends MaterialTypeTemplate
             $blockData = array_merge([
                 'vis' => 1,
                 'form' => (int)$form->id,
-                'interface_id' => (int)Snippet::importByURN('__raas_material_interface')->id,
+                'interface_id' => (int)Snippet::importByURN('__raas_form_interface')->id,
                 'widget_id' => (int)$widget->id,
                 'location' => 'content',
                 'cats' => [(int)$page->id],

@@ -49,6 +49,17 @@ class PageRecursiveCache extends VisibleRecursiveCache
         }
     }
 
+    protected function init()
+    {
+        if ($this->updateNeeded()) {
+            $this->refresh();
+            $this->save();
+        } else {
+            $st = microtime(1);
+            $this->load();
+        }
+    }
+
 
     protected function setVisibleIds()
     {
@@ -94,5 +105,117 @@ class PageRecursiveCache extends VisibleRecursiveCache
                 $this->systemIds[(string)$id] = (int)$id;
             }
         }
+    }
+
+
+    /**
+     * Определяет, требуется ли обновление
+     * @return bool
+     */
+    public function updateNeeded()
+    {
+        $filename = $this->getFilename();
+        if (!is_file($filename)) {
+            return true;
+        }
+        $ft = filemtime($filename);
+        $sqlQuery = "SELECT MAX(UNIX_TIMESTAMP(modify_date))
+                       FROM " . Page::_tablename()
+                  . " WHERE 1";
+        $lastModified = Material::_SQL()->getvalue($sqlQuery);
+
+        return $lastModified > $ft;
+    }
+
+
+    /**
+     * Получает имя файла основного кэша
+     * @return string
+     */
+    public function getFilename()
+    {
+        return Package::i()->cacheDir . '/system/pagerecursivecache.php';
+    }
+
+
+    /**
+     * Получает имя файла временного кэша
+     * @return string
+     */
+    public function getTmpFilename()
+    {
+        $filename = $this->getFilename();
+        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        $tmpFilename = preg_replace(
+            '/\\.' . preg_quote($ext, '/') . '$/umi',
+            '.tmp$0',
+            $filename
+        );
+        return $tmpFilename;
+    }
+
+
+    /**
+     * Записывает данные в файл
+     * @return bool Удалось ли записать данные
+     */
+    public function save()
+    {
+        $data = [];
+        foreach ([
+            'cache',
+            'parentId',
+            'parentsIds',
+            'selfAndParentsIds',
+            'childrenIds',
+            'allChildrenIds',
+            'selfAndChildrenIds',
+            'allowedIds',
+            'systemIds',
+        ] as $key) {
+            $data[$key] = $this->$key;
+        }
+
+        $cacheId = 'RAASCACHE' . date('YmdHis') . md5(rand());
+        $text = '<' . '?php return unserialize(<<' . "<'" . $cacheId . "'\n"
+              . serialize($data) . "\n" . $cacheId . "\n);\n";
+
+        $ok = (bool)file_put_contents($this->getTmpFilename(), $text);
+        $filename = $this->getFilename();
+        $tmpname = $this->getTmpFilename();
+        if (file_exists($tmpname)) {
+            if (file_exists($filename)) {
+                $ok &= unlink($filename);
+            }
+            $ok &= rename($tmpname, $filename);
+        }
+        return $ok;
+    }
+
+
+    /**
+     * Загружает данные из файла
+     * @return bool Удалось ли загрузить данные
+     */
+    public function load()
+    {
+        if (is_file($this->getFilename())) {
+            $data = include $this->getFilename();
+            foreach ([
+                'cache',
+                'parentId',
+                'parentsIds',
+                'selfAndParentsIds',
+                'childrenIds',
+                'allChildrenIds',
+                'selfAndChildrenIds',
+                'allowedIds',
+                'systemIds',
+            ] as $key) {
+                $this->$key = $data[$key];
+            }
+            return true;
+        }
+        return false;
     }
 }

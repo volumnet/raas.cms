@@ -30,7 +30,8 @@ $_RAASForm_Control = function (
     } elseif ($field->name == 'last_modified') {
         $dateN = 'last_modified';
     }
-    if ($t = strtotime($Item->$dateN)) {
+    $t = strtotime($Item->$dateN);
+    if ($t > 0) {
         echo date(DATETIMEFORMAT, $t) . ($userN ? ', ' : '');
     }
     if ($Item->$userN->id) {

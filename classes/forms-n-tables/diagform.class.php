@@ -42,7 +42,14 @@ class DiagForm extends \RAAS\Form
             'commit' => 'is_null',
             'template' => 'dev_diag.tmp.php'
         ];
-        foreach (['queries', 'timers', 'snippets', 'blocks', 'pages'] as $key) {
+        foreach ([
+            'queries',
+            'timers',
+            'snippets',
+            'blocks',
+            'templates',
+            'pages'
+        ] as $key) {
             $row = new FormTab([
                 'name' => $key,
                 'caption' => $this->view->_('DIAGNOSTICS_TAB_' . strtoupper($key)),

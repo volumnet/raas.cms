@@ -345,6 +345,7 @@ class Webmaster
             'pagination/pagination' => View_Web::i()->_('PAGINATION'),
             'breadcrumbs/breadcrumbs' => View_Web::i()->_('BREADCRUMBS'),
             'sitemap/sitemap_xml' => View_Web::i()->_('SITEMAP_XML'),
+            'robots/robots_txt' => View_Web::i()->_('ROBOTS_TXT'),
             'cookies_notification/cookies_notification' => View_Web::i()->_('COOKIES_NOTIFICATION'),
             'feedback/feedback' => View_Web::i()->_('FEEDBACK'),
             'feedback/feedback_modal' => View_Web::i()->_('FEEDBACK_MODAL'),
@@ -482,7 +483,8 @@ class Webmaster
             $menus[$menuData['urn']] = $menu;
 
             // Создадим виджет под меню
-            $menuWidget = Snippet::importByURN('menu_' . $menuData['urn']);
+            $menuWidgetURN = $menuData['widget_urn'] ?: 'menu_' . $menuData['urn'];
+            $menuWidget = Snippet::importByURN($menuWidgetURN);
             if (!$menuWidget->id) {
                 $menuWidgetFilename = Package::i()->resourcesDir
                                     . '/widgets/menu/menu_' . $menuData['urn']
@@ -846,7 +848,7 @@ class Webmaster
                 'description' => $robotsTXT,
                 'wysiwyg' => 0
             ]);
-            $this->createBlock($robotsBlock, '', null, null, $robots);
+            $this->createBlock($robotsBlock, '', null, 'robots_txt', $robots);
         }
         return $robots;
     }
@@ -1226,7 +1228,7 @@ class Webmaster
      */
     public function createFAQ($name, $urn, $createMainBlock = false)
     {
-        $materialTemplate = FAQTemplate::spawn($name, $urn, $this)->create();
+        $materialTemplate = FAQTemplate::spawn($name, $urn, $this);
         $materialTemplate->createMainBlock = $createMainBlock;
         $page = $materialTemplate->create();
         return $page;

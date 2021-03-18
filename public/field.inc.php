@@ -169,7 +169,7 @@ $_RAASForm_Control = function (
         case 'file':
             $attrs = ['type' => 'file'];
             if ($field->type == 'image') {
-                $attrs['accept'] = 'image/jpeg,image/png,image/gif';
+                $attrs['accept'] = 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml';
             }
             if (!$field->multiple) {
                 $row = $field->Form->DATA[$field->name];
@@ -206,7 +206,7 @@ $_RAASForm_Control = function (
                   </label>
                   <div class="cms-filecard__fields<?php echo (($field->type == 'image' && $row->id) ? ' cms-filecard__fields_image' : '')?>">
                     <input type="text" name="<?php echo htmlspecialchars($field->name . '@name')?>" value="<?php echo htmlspecialchars($DATA['name'])?>" placeholder="<?php echo $field->type == 'image' ? \CMS\IMG_NAME_ALT_TITLE : NAME?>" />
-                    <textarea name="<?php echo htmlspecialchars($field->name . '@description')?>" placeholder="<?php echo DESCRIPTION?>"><?php echo htmlspecialchars($DATA['description'])?></textarea>
+                    <textarea v-pre name="<?php echo htmlspecialchars($field->name . '@description')?>" placeholder="<?php echo DESCRIPTION?>"><?php echo htmlspecialchars($DATA['description'])?></textarea>
                   </div>
                 </div>
             <?php } else { ?>
@@ -263,7 +263,7 @@ $_RAASForm_Control = function (
                               <input type="checkbox" style="display: none" name="<?php echo htmlspecialchars($field->name . '@vis[]')?>" value="0" data-role="checkbox-shadow" />
                               <div class="cms-filecard__fields<?php echo ($field->type == 'image' ? ' cms-filecard__fields_image' : '')?>">
                                 <input type="text" name="<?php echo htmlspecialchars($field->name . '@name[]')?>" value="<?php echo htmlspecialchars($DATA['name'])?>" placeholder="<?php echo $field->type == 'image' ? \CMS\IMG_NAME_ALT_TITLE : NAME?>" />
-                                <textarea name="<?php echo htmlspecialchars($field->name . '@description[]')?>" placeholder="<?php echo DESCRIPTION?>"><?php echo htmlspecialchars($DATA['description'])?></textarea>
+                                <textarea v-pre name="<?php echo htmlspecialchars($field->name . '@description[]')?>" placeholder="<?php echo DESCRIPTION?>"><?php echo htmlspecialchars($DATA['description'])?></textarea>
                               </div>
                             </div>
                         <?php }
@@ -285,7 +285,7 @@ $_RAASForm_Control = function (
                     <input type="checkbox" style="display: none" name="<?php echo htmlspecialchars($field->name . '@vis[]')?>" disabled value="0" data-role="checkbox-shadow" />
                     <div class="cms-filecard__fields">
                       <input type="text" name="<?php echo htmlspecialchars($field->name . '@name[]')?>" placeholder="<?php echo $field->type == 'image' ? \CMS\IMG_NAME_ALT_TITLE : NAME?>" disabled="disabled" />
-                      <textarea name="<?php echo htmlspecialchars($field->name . '@description[]')?>" placeholder="<?php echo DESCRIPTION?>"></textarea>
+                      <textarea v-pre name="<?php echo htmlspecialchars($field->name . '@description[]')?>" placeholder="<?php echo DESCRIPTION?>"></textarea>
                     </div>
                   </div>
                 </div>
@@ -352,6 +352,7 @@ $_RAASForm_Control = function (
             } elseif ($field->type == 'codearea') {
                 $attrs['class'] = 'code codearea fullscreen';
             }
+            $attrs['v-pre'] = 'v-pre';
             if ($field->multiple) { ?>
                 <div data-role="raas-repo-block">
                   <div data-role="raas-repo-container">
@@ -390,6 +391,7 @@ $_RAASForm_Control = function (
             if (!$field->type) {
                 $attrs['type'] = 'text';
             }
+            $attrs['v-pre'] = 'v-pre';
             if ($field->multiple) { ?>
                 <div data-role="raas-repo-block">
                   <div data-role="raas-repo-container">
