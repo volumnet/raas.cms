@@ -34,7 +34,7 @@ trait CodeTrait
         if (!$this->id) {
             return;
         }
-        unlink($this->filename);
+        @unlink($this->filename);
     }
 
 
