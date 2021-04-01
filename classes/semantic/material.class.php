@@ -632,11 +632,19 @@ class Material extends SOME
      */
     public function clearCache()
     {
-        $globUrl = Package::i()->cacheDir . '/' . Package::i()->cachePrefix
-                 . '.*' . urlencode('/') . $this->urn . urlencode('/') . '*.php';
-        $glob = glob($globUrl);
-        foreach ($glob as $file) {
-            @unlink($file);
+        $globPrefix = Package::i()->cacheDir . '/' . Package::i()->cachePrefix;
+        if ($this->cache_url) {
+            $globUrl1 = $globPrefix . '*' . urlencode($this->cache_url) . '.php';
+            $globUrl2 = $globPrefix . '*' . urlencode($this->cache_url . '?')
+                      . '*.php';
+            $glob1 = glob($globUrl1);
+            $glob2 = glob($globUrl2);
+            foreach ($glob1 as $file) {
+                @unlink($file);
+            }
+            foreach ($glob2 as $file) {
+                @unlink($file);
+            }
         }
     }
 }

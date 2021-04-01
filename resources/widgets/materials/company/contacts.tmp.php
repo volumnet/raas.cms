@@ -3,7 +3,7 @@
  * Виджет блока "Контакты"
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
- * @param array<Material>|null $Set Список материалов
+ * @param Material[]|null $Set Список материалов
  */
 namespace RAAS\CMS;
 

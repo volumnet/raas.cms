@@ -20,9 +20,9 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     echo json_encode($result);
     exit;
 } else { ?>
-    <div class="feedback feedback_standalone">
+    <div class="feedback feedback_standalone faq-form">
       <?php if ($Block->name[0] != '.') { ?>
-          <div class="h3 feedback__title">
+          <div class="faq-form__title">
             <?php echo htmlspecialchars($Block->name)?>
           </div>
       <?php } ?>
@@ -108,3 +108,5 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
 <?php }
 Package::i()->requestCSS('/css/feedback.css');
 Package::i()->requestJS('/js/feedback.js');
+Package::i()->requestCSS('/css/faq-form.css');
+Package::i()->requestJS('/js/faq-form.js');

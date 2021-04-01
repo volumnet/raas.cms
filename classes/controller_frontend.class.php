@@ -8,6 +8,7 @@ use SOME\Graphics;
 use SOME\Namespaces;
 use SOME\Thumbnail;
 use RAAS\Application;
+use RAAS\IContext;
 use RAAS\View_Web as RAASViewWeb;
 use RAAS\CMS\Page;
 use RAAS\CMS\Material;
@@ -26,9 +27,12 @@ use RAAS\CMS\Redirect;
  * @property-read string $scheme Протокол подключения (http или https)
  * @property-read string $host Имя сервера (Punycode)
  * @property-read string $idnHost Имя сервера с учетом IDN
+ * @property-read string $schemeHost Имя сервера со схемой
+ * @property-read string $idnSchemeHost Имя сервера с учетом IDN со схемой
  * @property-read string $requestMethod Метод запроса (строчными буквами)
  * @property-read string $requestUri Запрос к серверу (относительный URL запроса)
  * @property-read string $url Абсолютный URL запроса
+ * @property-read string $idnUrl Абсолютный URL запроса с учетом IDN
  * @property-read string $path Путь запроса
  * @property-read string $query Параметры запроса
  */
@@ -69,6 +73,12 @@ class Controller_Frontend extends Abstract_Controller
             case 'idnHost':
                 return idn_to_utf8($this->host);
                 break;
+            case 'schemeHost':
+                return $this->scheme . '://' . $this->host;
+                break;
+            case 'idnSchemeHost':
+                return $this->scheme . '://' . $this->idnHost;
+                break;
             case 'requestMethod':
                 return mb_strtolower($_SERVER['REQUEST_METHOD']);
                 break;
@@ -76,7 +86,10 @@ class Controller_Frontend extends Abstract_Controller
                 return $_SERVER['REQUEST_URI'];
                 break;
             case 'url':
-                return $this->scheme . '://' . $this->host . $this->requestUri;
+                return $this->schemeHost . $this->requestUri;
+                break;
+            case 'idnUrl':
+                return $this->idnSchemeHost . $this->requestUri;
                 break;
             case 'path':
                 return parse_url($this->url, PHP_URL_PATH);

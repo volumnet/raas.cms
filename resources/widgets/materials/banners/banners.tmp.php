@@ -3,7 +3,7 @@
  * Виджет модуля "Баннеры"
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
- * @param array<Material>|null $Set Список материалов
+ * @param Material[]|null $Set Список материалов
  */
 namespace RAAS\CMS;
 
@@ -17,16 +17,6 @@ if ($Set) { ?>
                   <a class="banners-item__image" <?php echo $item->url ? 'href="' . htmlspecialchars($item->url) . '"' : ''?>>
                     <img src="/<?php echo Package::tn($item->image->fileURL, 1920, 654)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" />
                   </a>
-                  <?php if ($item->name[0] != '.') { ?>
-                      <div class="banners-item__text">
-                        <div class="banners-item__title">
-                          <?php echo htmlspecialchars($item->name)?>
-                        </div>
-                        <div class="banners-item__description">
-                          <?php echo $item->description?>
-                        </div>
-                      </div>
-                  <?php } ?>
                 </div>
               </div>
           <?php } ?>

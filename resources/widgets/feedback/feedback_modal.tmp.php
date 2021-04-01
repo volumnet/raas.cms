@@ -114,4 +114,9 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
       </div>
     </div>
     <!--/noindex-->
-<?php } ?>
+    <?php
+    Package::i()->requestCSS('/css/feedback.css');
+    Package::i()->requestJS('/js/feedback.js');
+    Package::i()->requestCSS('/css/feedback-modal.css');
+    Package::i()->requestJS('/js/feedback-modal.js');
+} ?>

@@ -125,6 +125,66 @@ class NotificationFieldRendererTest extends CustomFormFieldRendererTest
 
 
     /**
+     * Тест получения массива HTML-значений (случай с кастомным владельцем)
+     */
+    public function testGetValuesHTMLArrayWithCustomOwner()
+    {
+        $field = new FormFieldMock([
+            'urn' => 'testfield',
+            'datatype' => 'text',
+            'name' => 'Название',
+        ]);
+        $owner = new OwnerMock();
+        $renderer = new NotificationFieldRenderer($field, $owner);
+
+        $result = $renderer->getValuesHTMLArray();
+
+        $this->assertEquals(['aaa', 'bbb', '&quot;ccc'], $result);
+    }
+
+
+    /**
+     * Тест получения массива HTML-значений
+     * (случай с кастомным владельцем - если у владельца нет такого поля)
+     */
+    public function testGetValuesHTMLArrayWithCustomOwnerWithNoOwnerField()
+    {
+        $field = new FormFieldMock([
+            'urn' => 'login',
+            'datatype' => 'text',
+            'name' => 'Название',
+        ]);
+        $owner = new OwnerMock();
+        $renderer = new NotificationFieldRenderer($field, $owner);
+
+        $result = $renderer->getValuesHTMLArray();
+
+        $this->assertEquals(['testuser'], $result);
+    }
+
+
+    /**
+     * Тест получения массива HTML-значений
+     * (случай с кастомным владельцем - по POST-данным)
+     */
+    public function testGetValuesHTMLArrayWithCustomOwnerWithPostData()
+    {
+        $field = new FormFieldMock([
+            'urn' => 'password',
+            'datatype' => 'text',
+            'name' => 'Название',
+        ]);
+        $owner = new OwnerMock();
+        $_POST['password'] = 'pass';
+        $renderer = new NotificationFieldRenderer($field, $owner);
+
+        $result = $renderer->getValuesHTMLArray();
+
+        $this->assertEquals(['pass'], $result);
+    }
+
+
+    /**
      * Тест рендера
      */
     public function testRender()

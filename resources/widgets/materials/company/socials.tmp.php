@@ -3,7 +3,7 @@
  * Виджет блока "{{WIDGET_NAME}}"
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
- * @param array<Material>|null $Set Список материалов
+ * @param Material[]|null $Set Список материалов
  */
 namespace RAAS\CMS;
 
@@ -23,8 +23,7 @@ $socialsData = [
     SocialProfile::SN_IN => ['urn' => 'instagram', 'name' => 'INSTAGRAM'],
     SocialProfile::SN_WA => ['urn' => 'whatsapp', 'name' => 'WHATSAPP'],
 ];
-if ($socials = $company->fields['socials']->getValues(true)) {
-    ?>
+if ($socials = $company->fields['socials']->getValues(true)) { ?>
     <div class="{{WIDGET_CSS_CLASSNAME}}">
       <div class="{{WIDGET_CSS_CLASSNAME}}__list">
         <div class="{{WIDGET_CSS_CLASSNAME}}-list">
@@ -40,4 +39,6 @@ if ($socials = $company->fields['socials']->getValues(true)) {
         </div>
       </div>
     </div>
-<?php } ?>
+<?php }
+Package::i()->requestCSS('/css/{{WIDGET_CSS_CLASSNAME}}.css');
+Package::i()->requestJS('/js/{{WIDGET_CSS_CLASSNAME}}.js');

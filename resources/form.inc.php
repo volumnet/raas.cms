@@ -1,9 +1,9 @@
 <?php
+/**
+ * @deprecated Используются рендереры FormRenderer и FormFieldRenderer
+ */
 namespace RAAS\CMS;
 
-/**
- * @deprecated
- */
 $getSelect = function (Field $Item, array $DATA, $current = 0, $placeholder = '') use (&$getSelect) {
     static $level = 0;
     $text = '';

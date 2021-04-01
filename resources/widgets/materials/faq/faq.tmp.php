@@ -1,10 +1,10 @@
 <?php
 /**
- * Виджет модуля "{{MATERIAL_TYPE_NAME}}"
+ * Виджет модуля "Вопрос-ответ"
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
  * @param Pages $Pages Постраничная разбивка
- * @param array<Material>|null $Set Список материалов
+ * @param Material[]|null $Set Список материалов
  * @param Material|null $Item Активный материал
  */
 namespace RAAS\CMS;
@@ -13,41 +13,43 @@ use SOME\Text;
 use SOME\HTTP;
 
 if ($Item) { ?>
-    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}">
-      <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__article">
-        <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article">
-          <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__text {{MATERIAL_TYPE_CSS_CLASSNAME}}-article__text_question">
+    <div class="faq">
+      <div class="faq__article">
+        <div class="faq-article">
+          <div class="faq-article__text faq-article__text_question">
             <?php if ($Item->image->id) { ?>
-                <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__image">
+                <div class="faq-article__image">
                   <img src="/<?php echo $Item->image->tnURL?>" alt="<?php echo htmlspecialchars($Item->image->name ?: $Item->name)?>" />
                 </div>
             <?php } ?>
-            <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__title">
+            <div class="faq-article__title">
+              <span class="faq-article__name">
+                <?php echo htmlspecialchars($Item->full_name)?>
+              </span>
               <?php
               $time = strtotime($Item->date);
               if ($time <= 0) {
                   $time = strtotime($Item->post_date);
               }
-              if ($time > 0) {
-                  ?>
-                  <span class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__date">
+              if ($time > 0) { ?>
+                  <span class="faq-article__date">
                     <?php echo date('d', $time) . ' ' . Text::$months[(int)date('m', $time)] . ' ' . date('Y', $time)?>
                   </span>
               <?php } ?>
             </div>
-            <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__description">
-              <?php echo $Item->description?>
+            <div class="faq-article__description">
+              <?php echo htmlspecialchars($Item->name)?>
             </div>
           </div>
           <?php if ($Item->answer) { ?>
-              <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__text {{MATERIAL_TYPE_CSS_CLASSNAME}}-article__text_answer">
+              <div class="faq-article__text faq-article__text_answer">
                 <?php if ($Item->answer_image->id) { ?>
-                    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__image">
+                    <div class="faq-article__image">
                       <img src="/<?php echo $Item->answer_image->tnURL?>" alt="<?php echo htmlspecialchars($Item->answer_image->name ?: $Item->answer_name)?>" />
                     </div>
                 <?php } ?>
-                <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__title">
-                  <span class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__name">
+                <div class="faq-article__title">
+                  <span class="faq-article__name">
                     <?php if ($Item->answer_name) { ?>
                         <?php echo (((string)$Item->answer_gender === '') ? ANSWERED_UNDEFINED : ($Item->answer_gender ? ANSWERED_MALE : ANSWERED_FEMALE)) . ' ' . htmlspecialchars($Item->answer_name)?>
                     <?php } else { ?>
@@ -59,14 +61,13 @@ if ($Item) { ?>
                   if ($time <= 0) {
                       $time = strtotime($Item->modify_date);
                   }
-                  if ($time > 0) {
-                      ?>
-                      <span class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__date">
+                  if ($time > 0) { ?>
+                      <span class="faq-article__date">
                         <?php echo date('d', $time) . ' ' . Text::$months[(int)date('m', $time)] . ' ' . date('Y', $time)?>
                       </span>
                   <?php } ?>
                 </div>
-                <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__description">
+                <div class="faq-article__description">
                   <?php echo $Item->answer?>
                 </div>
               </div>
@@ -74,47 +75,49 @@ if ($Item) { ?>
         </div>
       </div>
     </div>
-<?php } elseif ($Set) { ?>
-    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}">
-      <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__list">
-        <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-list">
+    <?php
+    Package::i()->requestCSS('/css/faq-article.css');
+    Package::i()->requestJS('/js/faq-article.js');
+} elseif ($Set) { ?>
+    <div class="faq">
+      <div class="faq__list">
+        <div class="faq-list">
           <?php foreach ($Set as $item) { ?>
-              <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-list__item">
-                <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item">
-                  <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__text {{MATERIAL_TYPE_CSS_CLASSNAME}}-item__text_question">
+              <div class="faq-list__item">
+                <div class="faq-item">
+                  <div class="faq-item__text faq-item__text_question">
                     <?php if ($item->image->id) { ?>
-                        <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image"<?php echo $Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
+                        <a class="faq-item__image"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
                           <img src="/<?php echo htmlspecialchars($item->image->tnURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" /></a>
                     <?php } ?>
-                    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__title">
-                      <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__name"<?php echo $Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
-                        <?php echo htmlspecialchars($item->name)?></a>
+                    <div class="faq-item__title">
+                      <a class="faq-item__name"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
+                        <?php echo htmlspecialchars($item->full_name)?></a>
                       <?php
                       $time = strtotime($item->date);
                       if ($time <= 0) {
                           $time = strtotime($item->post_date);
                       }
-                      if ($time > 0) {
-                          ?>
-                          <span class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__date">
+                      if ($time > 0) { ?>
+                          <span class="faq-item__date">
                             <?php echo date('d', $time) . ' ' . Text::$months[(int)date('m', $time)] . ' ' . date('Y', $time)?>
                           </span>
                       <?php } ?>
                     </div>
-                    <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__description">
-                      <?php echo $item->description?>
+                    <div class="faq-item__description">
+                      <?php echo htmlspecialchars($item->name)?>
                     </div>
                   </div>
                   <?php if ($item->answer) { ?>
-                      <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__text {{MATERIAL_TYPE_CSS_CLASSNAME}}-item__text_answer<?php echo !$Block->nat ? ' {{MATERIAL_TYPE_CSS_CLASSNAME}}-item__text_slider' : ''?>">
+                      <div class="faq-item__text faq-item__text_answer<?php echo !$item->url ? ' faq-item__text_slider' : ''?>">
                         <?php if ($item->answer_image->id) { ?>
-                            <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image">
-                              <a<?php echo $Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
+                            <div class="faq-item__image">
+                              <a<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
                                 <img src="/<?php echo htmlspecialchars($item->answer_image->tnURL)?>" alt="<?php echo htmlspecialchars($item->answer_image->name ?: $item->answer_name)?>" /></a>
                             </div>
                         <?php } ?>
-                        <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__title">
-                          <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__name"<?php echo $Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
+                        <div class="faq-item__title">
+                          <a class="faq-item__name"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
                             <?php if ($item->answer_name) { ?>
                                 <?php echo (((string)$item->answer_gender === '') ? ANSWERED_UNDEFINED : ($item->answer_gender ? ANSWERED_MALE : ANSWERED_FEMALE)) . ' ' . htmlspecialchars($item->answer_name)?>
                             <?php } else { ?>
@@ -128,22 +131,24 @@ if ($Item) { ?>
                           }
                           if ($time > 0) {
                               ?>
-                              <span class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__date">
+                              <span class="faq-item__date">
                                 <?php echo date('d', $time) . ' ' . Text::$months[(int)date('m', $time)] . ' ' . date('Y', $time)?>
                               </span>
                           <?php } ?>
                         </div>
-                        <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__description">
-                          <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__brief-description">
+                        <div class="faq-item__description">
+                          <div class="faq-item__brief-description">
                             <?php echo Text::cuttext(html_entity_decode(strip_tags($item->answer), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...')?>
                           </div>
-                          <?php if (!$Block->nat) { ?>
-                              <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__full-description"><?php echo $item->answer?></div>
+                          <?php if (!$item->url) { ?>
+                              <div class="faq-item__full-description">
+                                <?php echo $item->answer?>
+                              </div>
                           <?php } ?>
                         </div>
-                        <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__more">
-                          <?php if ($Block->nat && (mb_strlen(html_entity_decode(strip_tags($item->answer), ENT_COMPAT | ENT_HTML5, 'UTF-8')) > 256)) { ?>
-                              <a<?php echo $Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : ' class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__more-trigger" data-show="' . READ_ANSWER . '" data-hide="' . HIDE . '"'?>>
+                        <div class="faq-item__more">
+                          <?php if ($item->url && (mb_strlen(html_entity_decode(strip_tags($item->answer), ENT_COMPAT | ENT_HTML5, 'UTF-8')) > 256)) { ?>
+                              <a<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ' class="faq-item__more-trigger" data-show="' . READ_ANSWER . '" data-hide="' . HIDE . '"'?>>
                                 <?php echo READ_ANSWER?>
                               </a>
                           <?php } ?>
@@ -155,11 +160,13 @@ if ($Item) { ?>
           <?php } ?>
         </div>
       </div>
-      <script src="/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}.js"></script>
       <?php if ($Pages->pages > 1) { ?>
-          <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__pagination">
+          <div class="faq__pagination">
             <?php Snippet::importByURN('pagination')->process(['pages' => $Pages]); ?>
           </div>
       <?php } ?>
     </div>
-<?php } ?>
+    <?php
+    Package::i()->requestCSS('/css/faq.css');
+    Package::i()->requestJS('/js/faq.js');
+} ?>

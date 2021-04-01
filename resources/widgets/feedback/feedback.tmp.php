@@ -105,6 +105,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
         </div>
       </form>
     </div>
-<?php }
-Package::i()->requestCSS('/css/feedback.css');
-Package::i()->requestJS('/js/feedback.js');
+    <?php
+    Package::i()->requestCSS('/css/feedback.css');
+    Package::i()->requestJS('/js/feedback.js');
+}

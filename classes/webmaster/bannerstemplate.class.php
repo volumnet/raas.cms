@@ -96,7 +96,6 @@ class BannersTemplate extends MaterialTypeTemplate
                 'pid' => (int)$this->materialType->id,
                 'vis' => 1,
                 'name' => $text['name'],
-                'description' => $text['brief'],
                 'priority' => ($i + 1) * 10,
                 'sitemaps_priority' => 0.5
             ]);

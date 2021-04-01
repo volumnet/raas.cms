@@ -614,20 +614,23 @@ class Page extends SOME
         if (!isset($this->locationBlocksText[$location])) {
             $Location = new Location($this->Template, $location);
             $Set = (array)$this->blocksByLocations[$Location->urn];
-            $texts = [];
+            // $texts = [];
             foreach ($Set as $row) {
-                if ($row->vis) {
+                // 2021-03-31, AVS: перенесли условие совместимости
+                // с активным материалом сюда, чтобы блок не глючил, если он
+                // предполагается к использованию только с активным материалом
+                if ($row->vis && $row->tuneWithMaterial($this)) {
                     ob_start();
                     $row->process($this);
-                    $texts[$row->id] = ob_get_contents();
-                    ob_end_clean();
+                    // $texts[$row->id] = ob_get_clean();
+                    $this->locationBlocksText[$location][] = ob_get_clean();
                 }
             }
-            foreach ($Set as $row) {
-                if ($row->tuneWithMaterial($this)) {
-                    $this->locationBlocksText[$location][] = $texts[$row->id];
-                }
-            }
+            // foreach ($Set as $row) {
+            //     if ($row->tuneWithMaterial($this)) {
+            //         $this->locationBlocksText[$location][] = $texts[$row->id];
+            //     }
+            // }
         }
         return implode('', (array)$this->locationBlocksText[$location]);
     }
@@ -751,6 +754,9 @@ class Page extends SOME
         // 2019-04-25, AVS: обновим связанные страницы типов материалов
         Material_Type::updateAffectedPagesForMaterials();
         Material_Type::updateAffectedPagesForSelf();
+
+        PageRecursiveCache::i()->refresh();
+        PageRecursiveCache::i()->save();
     }
 
 
@@ -889,20 +895,16 @@ class Page extends SOME
      */
     public function clearCache()
     {
-        $anyProtocolCachesGlob = $this->cacheFile;
-        $anyProtocolCachesGlob = str_ireplace(urlencode('http:'), '*', $anyProtocolCachesGlob);
-        $anyProtocolCachesGlob = str_ireplace(urlencode('https:'), '*', $anyProtocolCachesGlob);
-        $globUrl = preg_replace(
-            '/\\.php$/umi',
-            urlencode('?') . '*.php',
-            $anyProtocolCachesGlob
-        );
-        $glob = glob($anyProtocolCachesGlob);
-        foreach ($glob as $file) {
+        $globPrefix = Package::i()->cacheDir . '/' . Package::i()->cachePrefix;
+        $globUrl1 = $globPrefix . '*' . urlencode($this->cache_url) . '.php';
+        $globUrl2 = $globPrefix . '*' . urlencode($this->cache_url . '?')
+                  . '*.php';
+        $glob1 = glob($globUrl1);
+        $glob2 = glob($globUrl2);
+        foreach ($glob1 as $file) {
             @unlink($file);
         }
-        $glob = glob($globUrl);
-        foreach ($glob as $file) {
+        foreach ($glob2 as $file) {
             @unlink($file);
         }
     }

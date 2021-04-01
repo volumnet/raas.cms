@@ -3,7 +3,7 @@
  * Виджет блока "Копирайты"
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
- * @param array<Material>|null $Set Список материалов
+ * @param Material[]|null $Set Список материалов
  */
 namespace RAAS\CMS;
 
@@ -21,3 +21,6 @@ $company = $Set[0];
   echo htmlspecialchars($copyrights)
   ?>
 </div>
+<?php
+Package::i()->requestCSS('/css/copyrights.css');
+Package::i()->requestJS('/js/copyrights.js');

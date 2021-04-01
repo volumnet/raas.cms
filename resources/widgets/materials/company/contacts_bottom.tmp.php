@@ -3,7 +3,7 @@
  * Виджет блока "Контакты в подвале"
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
- * @param array<Material>|null $Set Список материалов
+ * @param Material[]|null $Set Список материалов
  */
 namespace RAAS\CMS;
 
@@ -99,3 +99,6 @@ $company = $Set[0];
       </div>
   <?php } ?>
 </div>
+<?php
+Package::i()->requestCSS('/css/contacts-bottom.css');
+Package::i()->requestJS('/js/contacts-bottom.js');

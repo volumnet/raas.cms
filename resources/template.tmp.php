@@ -31,7 +31,7 @@ $separateScripts = function ($text) {
     $result = $text;
     if (preg_match_all($rx, $text, $regs)) {
         foreach ($regs[0] as $i => $script) {
-            if (!preg_match('/(maps.*?yandex.*constructor)|(type="text\\/html")/umis', $script)) {
+            if (!preg_match('/(maps.*?yandex.*constructor)|(type="text\\/html")|(data-no-optimize)/umis', $script)) {
                 $scripts .= $script . "\n";
                 $result = str_replace($script, '', $result);
             }
@@ -61,31 +61,26 @@ ob_start(); // Для $separateScripts
     <?php } ?>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/custom.css">
     <?php echo $Page->headData;
     echo Package::i()->asset([
+        'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap',
+        '/custom.css',
         '/css/header.css',
         '/js/header.js',
-        // '/css/style.css',
+        '//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js',
     ]);
     // Включаем, если есть HTML-поля
-    Package::i()->requestJS([
-        '/vendor/ckeditor/ckeditor/ckeditor.js',
-        '/vendor/ckeditor/ckeditor/adapters/jquery.js',
-    ]);
+    // Package::i()->requestJS([
+    //     '/vendor/ckeditor/ckeditor/ckeditor.js',
+    //     '/vendor/ckeditor/ckeditor/adapters/jquery.js',
+    // ]);
     echo Package::i()->getRequestedCSS();
     echo Package::i()->getRequestedJS('beforeApp');
-    ?>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-    <?php
     echo Package::i()->asset([
         '/css/footer.css',
+        '/favicon.ico',
     ]);
     echo Package::i()->getRequestedJS();
-    if (is_file('favicon.ico')) { ?>
-        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    <?php }
     if (HTTP::queryString()) { ?>
         <link rel="canonical" href="http<?php echo (mb_strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))?>">
     <?php }

@@ -4,200 +4,102 @@
  * @param bool $SMS Уведомление отправляется по SMS
  * @param Feedback $Item Уведомление формы обратной связи
  * @param Material $Material Созданный материал
+ * @param bool $forUser Отправка сообщения для пользователя
+ *     (если false то для администратора)
  */
 namespace RAAS\CMS;
 
-/**
- * Получает представление поля для отправки по SMS
- * @param Form_Field $field Поле для получения представления
- * @return string
- */
-$smsField = function (Form_Field $field) use ($forUser) {
-    $values = $field->getValues(true);
-    if (!array_filter($values, function ($x) {
-        if (is_scalar($x)) {
-            return trim($x);
-        } elseif ($x instanceof SOME) {
-            return (bool)$x->id;
-        } else {
-            return (bool)$x;
-        }
-    })) {
-        return '';
-    }
-    $arr = [];
-    foreach ($values as $key => $val) {
-        $val = $field->doRich($val);
-        switch ($field->datatype) {
-            case 'date':
-                $arr[$key] = date(DATEFORMAT, strtotime($val));
-                break;
-            case 'datetime-local':
-                $arr[$key] = date(DATETIMEFORMAT, strtotime($val));
-                break;
-            case 'file':
-            case 'image':
-                $arr[$key] .= $val->filename;
-                break;
-            case 'htmlarea':
-                $arr[$key] = strip_tags($val);
-                break;
-            case 'material':
-                $arr[$key] = $val->name;
-                break;
-            default:
-                if (!$field->multiple && ($field->datatype == 'checkbox')) {
-                    $arr[$key] = $val ? _YES : _NO;
-                } else {
-                    $arr[$key] = $val;
-                }
-                break;
-        }
-    }
-    return $field->name . ': ' . implode(', ', $arr) . "\n";
-};
+use RAAS\Controller_Frontend as ControllerFrontend;
 
-/**
- * Получает представление поля для отправки по электронной почте
- * @param Form_Field $field Поле для получения представления
- * @return string
- */
-$emailField = function (Form_Field $field) use ($forUser) {
-    $values = $field->getValues(true);
-    if (!array_filter($values, function ($x) {
-        if (is_scalar($x)) {
-            return trim($x);
-        } elseif ($x instanceof SOME) {
-            return (bool)$x->id;
-        } else {
-            return (bool)$x;
-        }
-    })) {
-        return '';
-    }
-    $arr = [];
-    foreach ($values as $key => $val) {
-        $val = $field->doRich($val);
-        switch ($field->datatype) {
-            case 'date':
-                $arr[$key] = date(DATEFORMAT, strtotime($val));
-                break;
-            case 'datetime-local':
-                $arr[$key] = date(DATETIMEFORMAT, strtotime($val));
-                break;
-            case 'color':
-                $arr[$key] = '<span style="display: inline-block; height: 16px; width: 16px; background-color: ' . htmlspecialchars($val) . '"></span>';
-                break;
-            case 'email':
-                $arr[$key] .= '<a href="mailto:' . htmlspecialchars($val) . '">' . htmlspecialchars($val) . '</a>';
-                break;
-            case 'url':
-                $arr[$key] .= '<a href="' . (!preg_match('/^http(s)?:\\/\\//umi', trim($val)) ? 'http://' : '') . htmlspecialchars($val) . '">' . htmlspecialchars($val) . '</a>';
-                break;
-            case 'file':
-                $arr[$key] .= '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $val->fileURL . '">' . htmlspecialchars($val->filename) . '</a>';
-                break;
-            case 'image':
-                $arr[$key] .= '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $val->fileURL . '">
-                                 <img src="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $val->tnURL. '" alt="' . htmlspecialchars($val->filename) . '" title="' . htmlspecialchars($val->filename) . '" />
-                               </a>';
-                break;
-            case 'htmlarea':
-                $arr[$key] = '<div>' . $val . '</div>';
-                break;
-            case 'material':
-                if (!$forUser) {
-                    $arr[$key] = '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . htmlspecialchars($_SERVER['HTTP_HOST'] . '/admin/?p=cms&m=shop&sub=orders&action=view&id=' . $Item->id) . '">
-                                    ' . htmlspecialchars($val->name) . '
-                                  </a>';
-                } elseif ($val->url) {
-                    $arr[$key] = '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . htmlspecialchars($val->url) . '">
-                                    ' . htmlspecialchars($val->name) . '
-                                  </a>';
-                } else {
-                    $arr[$key] = htmlspecialchars($val->name);
-                }
-                break;
-            default:
-                if (!$field->multiple && ($field->datatype == 'checkbox')) {
-                    $arr[$key] = $val ? _YES : _NO;
-                } else {
-                    $arr[$key] = nl2br(htmlspecialchars($val));
-                }
-                break;
-        }
-    }
-    return '<div>' . htmlspecialchars($field->name) . ': ' . implode(', ', $arr) . '</div>';
-};
-?>
-<?php if ($SMS) {
-    echo date(DATETIMEFORMAT) . ' ' . sprintf(FEEDBACK_STANDARD_HEADER, $Item->parent->name, $Item->page->name, $Item->domain) . "\n";
-    echo FEEDBACK_ID . ': ' . (int)$Item->id . "\n";
+$cf = ControllerFrontend::i();
+$adminUrl = $cf->schemeHost . '/admin/?p=cms';
+
+$form = $Item->parent;
+$page = $Item->page;
+$material = $Item->material;
+
+if ($SMS) {
+    echo date(DATETIMEFORMAT) . ' ' .
+        sprintf(
+            FEEDBACK_STANDARD_HEADER,
+            $form->name,
+            $page->name,
+            $cf->idnHost
+        ) . "\n" .
+        FEEDBACK_ID . ': ' . (int)$Item->id . "\n";
     foreach ($Item->fields as $field) {
-        echo $smsField($field);
+        $renderer = NotificationFieldRenderer::spawn($field);
+        echo $renderer->render(['admin' => !$forUser, 'sms' => true]);
     }
 } else { ?>
     <div>
-      <div>
-        <?php echo FEEDBACK_ID . ': ' . (int)$Item->id?>
-      </div>
-      <?php
-      foreach ($Item->fields as $field) {
-          echo $emailField($field);
-      }
-      ?>
+      <?php echo FEEDBACK_ID . ': ' . (int)$Item->id?>
     </div>
-    <?php if ($Material && $Material->id) {
-        $url = 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://';
-        $url .= htmlspecialchars(
-            $_SERVER['HTTP_HOST'] .
-            '/admin/?p=cms&sub=main&action=edit_material&id=' .
-            (int)$Material->id .
-            '&pid='
-        );
-        if (in_array(
-            $Item->page->id,
-            array_map(
-                function ($x) {
-                    return $x->id;
-                },
-                (array)$Item->parent->Material_Type->affectedPages
-            )
-        )) {
-            $url .= $Item->page->id;
-        } else {
-            $url .= $Item->parent->Material_Type->affectedPages[0]->id;
+    <div>
+      <?php foreach ($Item->fields as $field) {
+          $renderer = NotificationFieldRenderer::spawn($field);
+          echo $renderer->render(['admin' => !$forUser, 'sms' => false]);
+      } ?>
+    </div>
+    <?php if (!$forUser) {
+        $url = '';
+        if ($Material && $Material->id) {
+            $url = $cf->schemeHost .
+                '/admin/?p=cms&sub=main&action=edit_material&id=' .
+                (int)$Material->id . '&pid=';
+            $affectedPagesIds = array_map(function ($x) {
+                return $x->id;
+            }, (array)$form->Material_Type->affectedPages);
+            if (in_array($page->id, $affectedPagesIds)) {
+                $url .= $page->id;
+            } else {
+                $url .= $affectedPagesIds[0];
+            }
+        } elseif ($form->create_feedback) {
+            $url = $cf->schemeHost
+                . '/admin/?p=cms&sub=feedback&action=view&id=' . $Item->id;
         }
-        ?>
+        if ($url) { ?>
+            <p>
+              <a href="<?php echo htmlspecialchars($url)?>">
+                <?php echo VIEW?>
+              </a>
+            </p>
+        <?php } ?>
         <p>
-          <a href="<?php echo $url?>">
-            <?php echo VIEW?>
-          </a>
-        </p>
-    <?php } elseif ($Item->parent->create_feedback) { ?>
-        <p><a href="http<?php echo ($_SERVER['HTTPS'] == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . '/admin/?p=cms&sub=feedback&action=view&id=' . $Item->id)?>"><?php echo VIEW?></a></p>
-    <?php } ?>
-    <p>
-      <small>
-        <?php echo IP_ADDRESS?>: <?php echo htmlspecialchars($Item->ip)?><br />
-        <?php echo USER_AGENT?>: <?php echo htmlspecialchars($Item->user_agent)?><br />
-        <?php echo PAGE?>:
-        <?php if ($Item->page->parents) { ?>
-            <?php foreach ($Item->page->parents as $row) { ?>
-                <a href="<?php echo htmlspecialchars($Item->domain . $row->url)?>"><?php echo htmlspecialchars($row->name)?></a> /
+          <small>
+            <?php
+            echo IP_ADDRESS . ': ' .
+                htmlspecialchars($Item->ip) . '<br />' .
+                USER_AGENT . ': ' .
+                htmlspecialchars($Item->user_agent) . '<br />' .
+                PAGE . ': ';
+            if ($page->parents) {
+                foreach ($page->parents as $row) { ?>
+                    <a href="<?php echo htmlspecialchars($adminUrl . '&id=' . (int)$row->id)?>">
+                      <?php echo htmlspecialchars($row->name)?>
+                    </a> /
+                <?php }
+            } ?>
+            <a href="<?php echo htmlspecialchars($adminUrl . '&id=' . (int)$page->id)?>">
+              <?php echo htmlspecialchars($page->name)?>
+            </a>
+            <?php if ($material->id) { ?>
+                /
+                <a href="<?php echo htmlspecialchars($adminUrl . '&action=edit_material&id=' . (int)$material->id)?>">
+                  <?php echo htmlspecialchars($material->name)?>
+                </a>
             <?php } ?>
-        <?php } ?>
-        <a href="<?php echo htmlspecialchars($Item->domain . $Item->page->url)?>"><?php echo htmlspecialchars($Item->page->name)?></a>
-        <?php if ($Item->material->id) { ?>
-            / <a href="<?php echo htmlspecialchars($Item->domain . $Item->material->url)?>"><?php echo htmlspecialchars($Item->material->name)?></a>
-        <?php } ?>
-        <br />
-        <?php echo FORM?>:
-        <?php if ($Item->parent->create_feedback) { ?>
-            <a href="<?php echo htmlspecialchars($Item->domain . '/admin/?p=cms&sub=feedback&id=' . $Item->parent->id)?>"><?php echo htmlspecialchars($Item->parent->name)?></a>
-        <?php } else { ?>
-            <?php echo htmlspecialchars($Item->parent->name)?>
-        <?php } ?>
-      </small>
-    </p>
-<?php } ?>
+            <br />
+            <?php echo FORM . ': ';
+            if ($form->create_feedback) { ?>
+                <a href="<?php echo htmlspecialchars($adminUrl . '&sub=feedback&id=' . (int)$form->id)?>">
+                  <?php echo htmlspecialchars($form->name)?>
+                </a>
+            <?php } else {
+                echo htmlspecialchars($form->name);
+            } ?>
+          </small>
+        </p>
+    <?php }
+}

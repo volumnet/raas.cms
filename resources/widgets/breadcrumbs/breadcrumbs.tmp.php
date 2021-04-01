@@ -17,7 +17,7 @@ $jsonLd = [
 $host = $controllerFrontend->scheme . '://' . $controllerFrontend->host;
 if ($page->parents || $page->Material->id || $page->Item->id) {
     $j = 0; ?>
-    <ol class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
+    <ul class="breadcrumbs" itemscope itemtype="http://schema.org/BreadcrumbList">
       <?php foreach ($page->parents as $i => $row) {
           $jsonLd['itemListElement'][] = [
               '@type' => 'ListItem',
@@ -56,6 +56,6 @@ if ($page->parents || $page->Material->id || $page->Item->id) {
             <meta itemprop="position" content="<?php echo $j?>" />
           </li>
       <?php } ?>
-    </ol>
+    </ul>
     <script type="application/ld+json"><?php echo json_encode($jsonLd)?></script>
-<?php } ?>
+<?php }

@@ -30,3 +30,6 @@ $twig = new Twig_Environment(new Twig_Loader_String());
 $text = $twig->render($Block->description, $templateData);
 
 echo $text;
+
+Package::i()->requestCSS('/css/privacy.css');
+Package::i()->requestJS('/js/privacy.js');

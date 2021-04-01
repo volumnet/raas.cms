@@ -16,20 +16,31 @@ class NotificationFieldRenderer extends HTMLRenderer
     public $field;
 
     /**
+     * Владелец поля (используется для переопределения владельца по URN поля,
+     * например в случае пользователя, когда ID# поля пользователя не совпадает
+     * с ID# поля формы)
+     * @var SOME|null
+     */
+    public $owner = null;
+
+    /**
      * Конструктор класса
      * @param Form_Field $field Поле для отображения (с Owner'ом)
+     * @param SOME|null $owner Переопределенный владелец поля
      */
-    public function __construct(Form_Field $field)
+    public function __construct(Form_Field $field, SOME $owner = null)
     {
         $this->field = $field;
+        $this->owner = $owner;
     }
 
 
     /**
      * Получение конкретного рендерера для поля
      * @param Form_Field $field Поле для отображения
+     * @param SOME|null $owner Переопределенный владелец поля
      */
-    public static function spawn(Form_Field $field)
+    public static function spawn(Form_Field $field, SOME $owner = null)
     {
         switch ($field->datatype) {
             case 'date':
@@ -69,7 +80,7 @@ class NotificationFieldRenderer extends HTMLRenderer
                 $classname = static::class;
                 break;
         }
-        return new $classname($field);
+        return new $classname($field, $owner);
     }
 
 
@@ -115,7 +126,17 @@ class NotificationFieldRenderer extends HTMLRenderer
      */
     public function getValuesHTMLArray($admin = false, $sms = false)
     {
-        $values = $this->field->getValues(true);
+        if ($this->owner) {
+            if ($ownerField = $this->owner->fields[$this->field->urn]) {
+                $values = $ownerField->getValues(true);
+            } elseif (($value = $this->owner->{$this->field->urn}) !== null) {
+                $values = [$value];
+            } elseif (isset($_POST[$this->field->urn])) {
+                $values = (array)$_POST[$this->field->urn];
+            }
+        } else {
+            $values = $this->field->getValues(true);
+        }
         $valuesHTML = array_map(function ($x) use ($admin, $sms) {
             return $this->getValueHTML($x, $admin, $sms);
         }, $values);
@@ -139,6 +160,7 @@ class NotificationFieldRenderer extends HTMLRenderer
             (bool)$additionalData['admin'],
             (bool)$additionalData['sms']
         );
+        $values = array_filter($values);
         if (!$values) {
             return '';
         }

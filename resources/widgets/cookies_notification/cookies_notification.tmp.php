@@ -12,3 +12,6 @@ namespace RAAS\CMS;
   <?php echo $Block->description?>
 </div>
 <!--/noindex-->
+<?php
+Package::i()->requestCSS('/css/cookies-notification.css');
+Package::i()->requestJS('/js/cookies-notification.js');
