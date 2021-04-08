@@ -115,6 +115,7 @@ class Redirect extends SOME
     {
         $url = trim($url);
         $url = str_replace('\\', '/', $url);
+        $url = preg_replace('/([^\\:])(\\/){2,}/umis', '$1/', $url);
         $temp = parse_url($url);
         if (preg_match('/[^\\/]$/i', $temp['path']) &&
             !stristr(basename($temp['path']), '.')

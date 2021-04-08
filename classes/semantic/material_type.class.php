@@ -61,7 +61,9 @@ class Material_Type extends SOME
 
     protected static $cognizableVars = [
         'fields',
+        'visFields',
         'selfFields',
+        'visSelfFields',
         'selfAndChildren',
         'selfAndChildrenIds',
         'selfAndParents',
@@ -179,6 +181,18 @@ class Material_Type extends SOME
 
 
     /**
+     * Собственные видимые поля (без учета родительских)
+     * @return Material_Field[]
+     */
+    protected function _visSelfFields()
+    {
+        return array_filter(function ($x) {
+            return $x->vis;
+        }, $this->selfFields);
+    }
+
+
+    /**
      * Список полей (включая родительские)
      * @return array<Material_Field>
      */
@@ -191,6 +205,18 @@ class Material_Type extends SOME
         $arr2 = (array)$this->selfFields;
         $arr = array_merge($arr1, $arr2);
         return $arr;
+    }
+
+
+    /**
+     * Список видимых полей (включая родительские)
+     * @return Material_Field[]
+     */
+    protected function _visFields()
+    {
+        return array_filter($this->fields, function ($x) {
+            return $x->vis;
+        });
     }
 
 

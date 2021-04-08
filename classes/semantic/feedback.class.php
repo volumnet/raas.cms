@@ -31,7 +31,7 @@ class Feedback extends SOME
 
     protected static $objectCascadeDelete = true;
 
-    protected static $cognizableVars = ['fields'];
+    protected static $cognizableVars = ['fields', 'visFields'];
 
     protected static $references = [
         'user' => [
@@ -172,7 +172,7 @@ class Feedback extends SOME
 
     /**
      * Получает поля сообщения (поля формы с установленным свойством $Owner)
-     * @return array<Form_Field>
+     * @return Form_Field[]
      */
     protected function _fields()
     {
@@ -183,6 +183,18 @@ class Feedback extends SOME
             $arr[$row->urn] = $row;
         }
         return $arr;
+    }
+
+
+    /**
+     * Список видимых полей (включая родительские)
+     * @return Form_Field[]
+     */
+    protected function _visFields()
+    {
+        return array_filter($this->fields, function ($x) {
+            return $x->vis;
+        });
     }
 
     /**

@@ -24,6 +24,17 @@ class FormInterface extends AbstractInterface
     const MAIL_SIZE = 600;
 
     /**
+     * Условно обязательные поля
+     * @var array <pre><code>array<
+     *     string[] URN поля => function (
+     *         Form_Field $field Поле,
+     *         array $post POST- или FILES- (для файловых полей) данные
+     *     ): bool Требуется ли поле
+     * ></code></pre>
+     */
+    public $conditionalRequiredFields = [];
+
+    /**
      * Конструктор класса
      * @param Block_Form|null $block Блок, для которого применяется
      *                               интерфейс
@@ -192,7 +203,12 @@ class FormInterface extends AbstractInterface
             $val = array_shift($val);
         }
         if (!isset($val) || !$field->isFilled($val)) {
-            if ($field->required) {
+            if ($conditionalRequiredCallback = $this->conditionalRequiredFields[$fieldURN]) {
+                $required = $conditionalRequiredCallback($field, $post);
+            } else {
+                $required = $field->required;
+            }
+            if ($required) {
                 return sprintf(
                     View_Web::i()->_('ERR_CUSTOM_FIELD_REQUIRED'),
                     $field->name
@@ -240,7 +256,12 @@ class FormInterface extends AbstractInterface
             $val = array_shift($val);
         }
         if (!isset($val) || !$field->isFilled($val)) {
-            if ($field->required && !$field->countValues()) {
+            if ($conditionalRequiredCallback = $this->conditionalRequiredFields[$fieldURN]) {
+                $required = $conditionalRequiredCallback($field, $files);
+            } else {
+                $required = $field->required;
+            }
+            if ($required && !$field->countValues()) {
                 return sprintf(
                     View_Web::i()->_('ERR_CUSTOM_FIELD_REQUIRED'),
                     $field->name

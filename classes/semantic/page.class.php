@@ -75,6 +75,7 @@ class Page extends SOME
     protected static $cognizableVars = [
         'blocksOrdered',
         'fields',
+        'visFields',
         'affectedMaterialTypesWithChildren',
         'Domain',
         'selfAndChildren',
@@ -783,7 +784,7 @@ class Page extends SOME
 
     /**
      * Поля страницы с установленным свойством $Owner
-     * @return array<Page_Field>
+     * @return Page_Field[]
      */
     protected function _fields()
     {
@@ -794,6 +795,18 @@ class Page extends SOME
             $arr[$row->urn] = $row;
         }
         return $arr;
+    }
+
+
+    /**
+     * Список видимых полей
+     * @return Page_Field[]
+     */
+    protected function _visFields()
+    {
+        return array_filter($this->fields, function ($x) {
+            return $x->vis;
+        });
     }
 
 

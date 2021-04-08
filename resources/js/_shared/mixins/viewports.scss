@@ -1,0 +1,86 @@
+// Примеси для более удобной работы с media-запросами 
+// (не по breakpoint'ам, а по конкретным типам экранов)
+
+// Между двумя
+@mixin viewport($from, $to: $from) {
+    @if ($from == 'xxl') {
+        @include media-breakpoint-up($from) {
+            @content;
+        }
+    } @else {
+        $next: breakpoint-next($to);
+        @include media-breakpoint-between($from, $next) {
+            @content;
+        }
+    }
+}
+
+// Кроме интервала
+@mixin viewport-not($from, $to: $from) {
+    @if ($from != 'xs') {
+        @include media-breakpoint-down($from) {
+            @content;
+        }
+    }
+    @if ($to != 'xxl') {
+        $next: breakpoint-next($to); 
+        @include media-breakpoint-up($to) {
+            @content;
+        }
+    }
+}
+
+// Текущий и выше
+@mixin viewport-up($name) {
+    @include viewport($name, 'xxl') {
+        @content;
+    }
+}
+
+// Текущий и ниже
+@mixin viewport-down($name) {
+    @include viewport('xs', $name) {
+        @content;
+    }
+}
+
+// Печать + между двумя
+@mixin print-or($from, $to) {
+    @media print {
+        @content;
+    }
+    @include viewport($from, $to) {
+        @content;
+    }
+}
+
+// Печать + кроме одного
+@mixin print-or-not($name) {
+    @media print {
+        @content;
+    }
+    @include viewport-not($name) {
+        @content;
+    }
+}
+
+// Печать + текущий и выше
+@mixin print-or-up($name) {
+    @media print {
+        @content;
+    }
+    @include viewport-up($name) {
+        @content;
+    }
+}
+
+// Печать + текущий и ниже
+@mixin print-or-down($name) {
+    @media print {
+        @content;
+    }
+    @include viewport-down($name) {
+        @content;
+    }
+}
+

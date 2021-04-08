@@ -26,6 +26,7 @@ class Form extends SOME
 
     protected static $cognizableVars = [
         'fields',
+        'visFields',
         'unreadFeedbacks'
     ];
 
@@ -76,7 +77,7 @@ class Form extends SOME
 
     /**
      * Поля формы с установленным свойством $Owner
-     * @return array<Form_Field>
+     * @return Form_Field[]
      */
     protected function _fields()
     {
@@ -92,6 +93,18 @@ class Form extends SOME
             $arr[$row->urn] = $row;
         }
         return $arr;
+    }
+
+
+    /**
+     * Список видимых полей
+     * @return Form_Field[]
+     */
+    protected function _visFields()
+    {
+        return array_filter($this->fields, function ($x) {
+            return $x->vis;
+        });
     }
 
 

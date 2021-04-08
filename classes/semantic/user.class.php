@@ -32,7 +32,7 @@ class User extends SOME
 
     protected static $objectCascadeDelete = true;
 
-    protected static $cognizableVars = ['fields'];
+    protected static $cognizableVars = ['fields', 'visFields'];
 
     protected static $links = [
         'social' => [
@@ -267,7 +267,7 @@ class User extends SOME
 
     /**
      * Получает поля пользователя, с установленным свойством $Owner
-     * @return array<User_Field>
+     * @return User_Field[]
      */
     protected function _fields()
     {
@@ -278,6 +278,18 @@ class User extends SOME
             $arr[$row->urn] = $row;
         }
         return $arr;
+    }
+
+
+    /**
+     * Список видимых полей
+     * @return User_Field[]
+     */
+    protected function _visFields()
+    {
+        return array_filter($this->fields, function ($x) {
+            return $x->vis;
+        });
     }
 
 

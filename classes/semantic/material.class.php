@@ -44,6 +44,7 @@ class Material extends SOME
 
     protected static $cognizableVars = [
         'fields',
+        'visFields',
         'affectedPages',
         'relatedMaterialTypes'
     ];
@@ -431,6 +432,18 @@ class Material extends SOME
             $arr[$row->urn] = $row;
         }
         return $arr;
+    }
+
+
+    /**
+     * Список видимых полей
+     * @return Material_Field[]
+     */
+    protected function _visFields()
+    {
+        return array_filter($this->fields, function ($x) {
+            return $x->vis;
+        });
     }
 
 
