@@ -614,15 +614,15 @@ class CompanyTemplate extends MaterialTypeTemplate
             );
         }
 
-        $socialsTopWidget = Snippet::importByURN('socials_top');
-        if (!$socialsTopWidget->id) {
-            $socialsTopWidget = $this->createSocialsTopBlockSnippet();
-            $socialsTopBlock = $this->createSocialsTopBlock(
-                $this->webmaster->Site,
-                $socialsTopWidget,
-                ['nat' => 0]
-            );
-        }
+        // $socialsTopWidget = Snippet::importByURN('socials_top');
+        // if (!$socialsTopWidget->id) {
+        //     $socialsTopWidget = $this->createSocialsTopBlockSnippet();
+        //     $socialsTopBlock = $this->createSocialsTopBlock(
+        //         $this->webmaster->Site,
+        //         $socialsTopWidget,
+        //         ['nat' => 0]
+        //     );
+        // }
 
         $socialsBottomWidget = Snippet::importByURN('socials_bottom');
         if (!$socialsBottomWidget->id) {

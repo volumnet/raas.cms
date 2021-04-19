@@ -20,15 +20,15 @@ $jsonLd = [
     ]
 ];
 ?>
-<a href="#" class="search-form-trigger"></a>
 <div itemscope itemtype="http://schema.org/WebSite">
   <link itemprop="url" href="http<?php echo $_SERVER['HTTPS'] ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/" />
-  <form action="/search/" class="search-form" itemprop="potentialAction" itemscope itemtype="http://schema.org/SearchAction">
+  <form action="/search/" data-vue-role="search-form" class="search-form" itemprop="potentialAction" itemscope itemtype="http://schema.org/SearchAction" data-v-slot="vm">
+    <a href="#" class="search-form__trigger" data-v-on_click.prevent.stop="vm.toggle()"></a>
     <meta itemprop="target" content="http<?php echo $_SERVER['HTTPS'] ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/search/?search_string={search_string}" />
     <div class="search-form__inner">
-      <input itemprop="query-input" name="search_string" autocomplete="off" class="search-form__input" type="text" value="<?php echo htmlspecialchars($_GET['search_string'])?>" placeholder="<?php echo SITE_SEARCH?>..." required="required" />
+      <input itemprop="query-input" name="search_string" autocomplete="off" class="form-control search-form__input" type="text" value="<?php echo htmlspecialchars($_GET['search_string'])?>" placeholder="<?php echo SITE_SEARCH?>..." required="required" />
+      <button class="btn btn-primary search-form__button"></button>
     </div>
-    <button class="search-form__button"></button>
   </form>
 </div>
 <script type="application/ld+json"><?php echo json_encode($jsonLd)?></script>

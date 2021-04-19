@@ -148,6 +148,7 @@ class Controller_Frontend extends Abstract_Controller
 
     public function run()
     {
+        $this->processUTM();
         if (!$this->getCache()) {
             $p = pathinfo($this->requestUri);
             if (preg_match(
@@ -187,6 +188,19 @@ class Controller_Frontend extends Abstract_Controller
                     }
                     $this->diag->save();
                 }
+            }
+        }
+    }
+
+
+    /**
+     * Сохраняет UTM-метки в сессию
+     */
+    public function processUTM()
+    {
+        foreach ($_GET as $key => $val) {
+            if (stristr($key, 'utm_')) {
+                $_SESSION[$key] = $val;
             }
         }
     }

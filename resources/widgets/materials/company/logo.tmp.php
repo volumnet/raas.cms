@@ -16,11 +16,9 @@ $company = $Set[0];
   </span>
   <?php if ($company->logo->name || $company->logo->description) { ?>
       <span class="logo__text">
-        <?php if (trim($company->logo->name)) { ?>
-            <span class="logo__title">
-              <?php echo htmlspecialchars($company->logo->name)?>
-            </span>
-        <?php } ?>
+        <span class="logo__title">
+          <?php echo htmlspecialchars($company->logo->name ?: $company->name)?>
+        </span>
         <?php if (trim($company->logo->description)) { ?>
             <span class="logo__description">
               <?php echo htmlspecialchars($company->logo->description)?>

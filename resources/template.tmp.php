@@ -94,40 +94,42 @@ ob_start(); // Для $separateScripts
     <?php echo $Page->location('top_body_counters')?>
     <div id="top" class="body__background-holder">
       <header class="body__header" itemscope itemtype="http://schema.org/WPHeader">
-        <div class="body__row body__row_menu-top">
-          <div class="body__container body__container_menu-top">
+        <div class="body__row body__row_header body__row_header_1">
+          <div class="body__container body__container_header body__container_header_1">
             <div class="body__menu-top">
               <?php echo $Page->location('menu_top')?>
-            </div>
-            <div class="body__socials-top">
-              <?php echo $Page->location('socials_top')?>
             </div>
             <div class="body__menu-user">
               <?php echo $Page->location('menu_user')?>
             </div>
           </div>
         </div>
-        <div class="body__row body__row_header-inner">
-          <div class="body__container body__container_header-inner">
+        <div class="body__row body__row_header body__row_header_2">
+          <div class="body__container body__container_header body__container_header_2">
             <div class="body__logo">
               <?php echo $Page->location('logo')?>
+            </div>
+            <div class="body__search-form">
+              <?php echo $Page->location('search_form')?>
             </div>
             <div class="body__contacts-top">
               <?php echo $Page->location('contacts_top')?>
             </div>
-            <div class="body__cart">
-              <?php echo $Page->location('cart')?>
-            </div>
-            <div class="body__menu-mobile"></div>
           </div>
         </div>
-        <div class="body__row body__row_menu-main">
-          <div class="body__container body__container_menu-main">
+        <div class="body__row body__row_header body__row_header_3">
+          <div class="body__container body__container_header body__container_header_3">
+            <div class="body__menu-catalog">
+              <?php echo $Page->location('menu_catalog')?>
+            </div>
             <div class="body__menu-main">
               <?php echo $Page->location('menu_main')?>
             </div>
-            <div class="body__search-form">
-              <?php echo $Page->location('search_form')?>
+            <div class="body__cart">
+              <?php echo $Page->location('cart')?>
+            </div>
+            <div class="body__menu-mobile">
+              <?php echo $Page->location('menu_mobile')?>
             </div>
           </div>
         </div>

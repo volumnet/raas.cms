@@ -160,6 +160,7 @@ export default {
             });
         },
 
+
         /**
          * Фиксация HTML (хелпер для модификации верстки)
          * (абстрактный, для переопределения)
@@ -167,6 +168,7 @@ export default {
         fixHtml: function () {
             // ...
         },
+
 
         /**
          * Обработчик отображения окна подтверждения
@@ -177,6 +179,29 @@ export default {
          */
         confirm: function (text, okText, cancelText) {
             return this.$refs.confirm.confirm(text, okText, cancelText);
+        },
+
+        /**
+         * Форматирование цены
+         * @param  {Number} x Цена
+         * @return {String}
+         */
+        formatPrice: function (price) {
+            return window.formatPrice(price);
+        },
+
+        /**
+         * Форматирование числительных
+         * @param  {Number} x Число
+         * @param  {Array} forms <pre><code>[
+         *     'товаров', 
+         *     'товар', 
+         *     'товара'
+         * ]</code></pre> Словоформы
+         * @return {String}
+         */
+        numTxt: function (x, forms) {
+            window.numTxt(x, forms);
         },
     },
 }

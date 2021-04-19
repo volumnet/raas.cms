@@ -57,7 +57,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
           );
           echo $formRenderer->renderSignatureField();
           echo $formRenderer->renderHiddenAntispamField();
-          foreach ($Form->fields as $fieldURN => $field) {
+          foreach ($Form->visFields as $fieldURN => $field) {
               $fieldRenderer = FormFieldRenderer::spawn(
                   $field,
                   $Block,

@@ -527,8 +527,11 @@ class FormInterface extends AbstractInterface
         $this->processObjectFields($object, $form, $post, $files);
 
         // Заполняем данные пользователя в полях материала
-        if ($new && ($object instanceof Material)) {
-            $this->processObjectUserData($object, $server);
+        if ($new) {
+            if ($object instanceof Material) {
+                $this->processObjectUserData($object, $server);
+            }
+            $this->processUTM($object, (array)$post, (array)$this->session);
         }
     }
 
@@ -596,6 +599,29 @@ class FormInterface extends AbstractInterface
             if ($field = $object->fields[$key]) {
                 $field->deleteValues();
                 $field->addValue(trim($server[$val]));
+            }
+        }
+    }
+
+
+    /**
+     * Подставляет UTM-метки в объект
+     * @param SOME $object Объект для заполнения
+     * @param array $post Данные $_POST-полей
+     * @param array $session Данные $_SESSION-полей
+     */
+    public function processUTM(
+        SOME $object,
+        array $post = [],
+        array $session = []
+    ) {
+        foreach ($object->fields as $fieldURN => $field) {
+            if (stristr($fieldURN, 'utm_') &&
+                !$post[$fieldURN] &&
+                trim($session[$fieldURN])
+            ) {
+                $field->deleteValues();
+                $field->addValue(trim($session[$fieldURN]));
             }
         }
     }

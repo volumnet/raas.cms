@@ -13,6 +13,9 @@
 namespace RAAS\CMS;
 
 use SOME\HTTP;
+use SOME\Text;
+
+$useAjax = true;
 
 $ajax = (bool)stristr($Page->url, '/ajax/');
 
@@ -26,7 +29,7 @@ $ajax = (bool)stristr($Page->url, '/ajax/');
  * @param Page $current Текущая страница
  * @return string
  */
-$showMenu = function($node, Page $current) use (&$showMenu, $ajax) {
+$showMenu = function($node, Page $current) use (&$showMenu, $ajax, $phone) {
     static $level = 0;
     if ($node instanceof Menu) {
         $children = $node->visSubMenu;
@@ -40,7 +43,7 @@ $showMenu = function($node, Page $current) use (&$showMenu, $ajax) {
     if (!$level || $children) {
         $text = '   <li class="menu-mobile__header">';
         if (!$level) {
-            $text .= '<div class="menu-mobile__logo"></div>';
+            $text .= '<div class="menu-mobile__logo">' . $current->location('logo') . '</div>';
         } else {
             $text .= ' <div class="menu-mobile__back">
                          <a class="menu-mobile__back-link"></a>
@@ -56,7 +59,13 @@ $showMenu = function($node, Page $current) use (&$showMenu, $ajax) {
                        </div>
                      </li>';
         if (!$level) {
-            $text .= '<li class="menu-mobile__item menu-mobile__item_main menu-mobile__item_level_0 menu-mobile__item_phone"></li>';
+            $text .= '<li class="menu-mobile__item menu-mobile__item_main menu-mobile__item_level_0 menu-mobile__item_phone">';
+            if ($phone) {
+                $text .= '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '">'
+                      .     htmlspecialchars($phone)
+                      .  '</a>';
+            }
+            $text .= '</li>';
         }
     }
     for ($i = 0; $i < count($children); $i++) {
@@ -83,7 +92,7 @@ $showMenu = function($node, Page $current) use (&$showMenu, $ajax) {
         // 2021-02-23, AVS: заменил HTTP::queryString('', true) на $current->url,
         // чтобы была возможность использовать через AJAX
         $ch = '';
-        if (1 || $ajax || !stristr($url, '/catalog/')) { // Для подгрузки AJAX'ом
+        if (!$useAjax || $ajax || !stristr($url, '/catalog/')) { // Для подгрузки AJAX'ом
             $level++;
             $ch = $showMenu($row, $current);
             $level--;
@@ -114,7 +123,7 @@ $showMenu = function($node, Page $current) use (&$showMenu, $ajax) {
             $liClasses[] = 'menu-mobile__item_has-children';
             $aClasses[] = 'menu-mobile__link_has-children';
         }
-        $text .= '<li class="' . implode(' ', $liClasses) . '">'
+        $text .= '<li class="' . implode(' ', $liClasses) . '"' . ($useAjax && ($urn == 'catalog') ? ' data-v-html="vm.ajaxMenu"' : '') . '>'
               .  '  <a class="' . implode(' ', $aClasses) . '" ' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>'
               .       htmlspecialchars($name)
               .  '  </a>';
@@ -132,10 +141,17 @@ $showMenu = function($node, Page $current) use (&$showMenu, $ajax) {
     );
     return $text ? '<ul class="' . implode(' ', $ulClasses) . '">' . $text . '</ul>' : $text;
 };
+
+$companyMaterialType = Material_Type::importByURN('company');
+$company = Material::getSet([
+    'where' => "pid = " . (int)$companyMaterialType->id,
+    'orderBy' => "NOT priority, priority",
+    'limit' => 1,
+])[0];
+$phone = (array)$company->phone;
+$phone = $phone[0];
 ?>
-<a class="menu-trigger"></a>
-<div data-vue-role="menu-mobile" data-vue-inline-template>
-  <nav class="menu-mobile">
-    <?php echo $showMenu($menuArr ?: $Item, $Page)?>
-  </nav>
-</div>
+<nav class="menu-mobile" data-vue-role="menu-mobile" data-v-bind_page-id="<?php echo (int)$Page->id?>" data-v-slot="vm">
+  <a class="menu-mobile__trigger" data-v-bind_click.prevent.stop="vm.toggle()"></a>
+  <?php echo $showMenu($menuArr ?: $Item, $Page)?>
+</nav>

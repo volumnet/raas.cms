@@ -112,7 +112,8 @@ class EditMaterialForm extends \RAAS\Form
             'caption' => $this->view->_('MATERIAL_TYPE'),
             'children' => [
                 'Set' => $children,
-            ]
+            ],
+            'default' => $type->id,
         ]);
         if ($item->id) {
             $field->onchange = 'if (confirm(\'' . addslashes($this->view->_('CHANGE_MATERIAL_TYPE_EXISTING_CONFIRM')) . '\')) { '

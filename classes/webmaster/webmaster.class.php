@@ -228,9 +228,9 @@ class Webmaster
         }
 
         $locations = [
-            [1, ['menu_top', 4], ['socials_top', 4], ['menu_user', 4]],
-            [2, ['logo', 4], ['contacts_top', 4], ['cart', 4]],
-            [1, ['menu_main', 9], ['search_form', 3]],
+            [1, ['menu_top', 6], ['menu_user', 6]],
+            [2, ['logo', 4], ['contacts_top', 4], ['search_form', 4]],
+            [2, ['menu_catalog', 3], ['menu_main', 3], ['cart', 3], ['menu_mobile', 3]],
             [1, ['banners', 12]],
             [4, ['left', 3], ['content', 6], ['right', 3]],
             [1, ['', 3], ['share', 6]],
@@ -462,8 +462,6 @@ class Webmaster
      */
     public function createMenus(array $menusData = [])
     {
-        $menuWidgetFilename = Package::i()->resourcesDir
-                            . '/widgets/menu/menu.tmp.php';
         $cacheInterfaceId = Snippet::importByURN('__raas_cache_interface')->id;
         $menuInterface =  Snippet::importByURN('__raas_menu_interface');
         $menus = [];
@@ -486,7 +484,7 @@ class Webmaster
             $menuWidgetURN = $menuData['widget_urn'] ?: 'menu_' . $menuData['urn'];
             $menuWidget = Snippet::importByURN($menuWidgetURN);
             if (!$menuWidget->id) {
-                $menuWidgetFilename = Package::i()->resourcesDir
+                $menuWidgetFilename = $this->context->resourcesDir
                                     . '/widgets/menu/menu_' . $menuData['urn']
                                     . '.tmp.php';
                 if (!is_file($menuWidgetFilename)) {
@@ -1033,7 +1031,7 @@ class Webmaster
                 'urn' => 'mobile',
                 'inherit' => 10,
                 'name' => View_Web::i()->_('MOBILE_MENU'),
-                'blockLocation' => 'footer_counters',
+                'blockLocation' => 'menu_mobile',
                 'fullMenu' => true,
                 'inheritBlock' => true,
             ],
