@@ -19,7 +19,7 @@ if ($Item) { ?>
           <div class="faq-article__text faq-article__text_question">
             <?php if ($Item->image->id) { ?>
                 <div class="faq-article__image">
-                  <img src="/<?php echo $Item->image->tnURL?>" alt="<?php echo htmlspecialchars($Item->image->name ?: $Item->name)?>" />
+                  <img loading="lazy" src="/<?php echo $Item->image->tnURL?>" alt="<?php echo htmlspecialchars($Item->image->name ?: $Item->name)?>" />
                 </div>
             <?php } ?>
             <div class="faq-article__title">
@@ -45,7 +45,7 @@ if ($Item) { ?>
               <div class="faq-article__text faq-article__text_answer">
                 <?php if ($Item->answer_image->id) { ?>
                     <div class="faq-article__image">
-                      <img src="/<?php echo $Item->answer_image->tnURL?>" alt="<?php echo htmlspecialchars($Item->answer_image->name ?: $Item->answer_name)?>" />
+                      <img loading="lazy" src="/<?php echo $Item->answer_image->tnURL?>" alt="<?php echo htmlspecialchars($Item->answer_image->name ?: $Item->answer_name)?>" />
                     </div>
                 <?php } ?>
                 <div class="faq-article__title">
@@ -88,7 +88,7 @@ if ($Item) { ?>
                   <div class="faq-item__text faq-item__text_question">
                     <?php if ($item->image->id) { ?>
                         <a class="faq-item__image"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
-                          <img src="/<?php echo htmlspecialchars($item->image->tnURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" /></a>
+                          <img loading="lazy" src="/<?php echo htmlspecialchars($item->image->tnURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" /></a>
                     <?php } ?>
                     <div class="faq-item__title">
                       <a class="faq-item__name"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
@@ -113,7 +113,7 @@ if ($Item) { ?>
                         <?php if ($item->answer_image->id) { ?>
                             <div class="faq-item__image">
                               <a<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
-                                <img src="/<?php echo htmlspecialchars($item->answer_image->tnURL)?>" alt="<?php echo htmlspecialchars($item->answer_image->name ?: $item->answer_name)?>" /></a>
+                                <img loading="lazy" src="/<?php echo htmlspecialchars($item->answer_image->tnURL)?>" alt="<?php echo htmlspecialchars($item->answer_image->name ?: $item->answer_name)?>" /></a>
                             </div>
                         <?php } ?>
                         <div class="faq-item__title">

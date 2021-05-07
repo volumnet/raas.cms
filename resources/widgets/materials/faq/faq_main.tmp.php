@@ -26,7 +26,7 @@ if ($Set) { ?>
                   <div class="faq-main-item__text faq-main-item__text_question">
                     <?php if ($item->image->id) { ?>
                         <a class="faq-main-item__image"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
-                          <img src="/<?php echo htmlspecialchars($item->image->tnURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" /></a>
+                          <img loading="lazy" src="/<?php echo htmlspecialchars($item->image->tnURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" /></a>
                     <?php } ?>
                     <div class="faq-main-item__title">
                       <a class="faq-main-item__name"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
@@ -51,7 +51,7 @@ if ($Set) { ?>
                         <?php if ($item->answer_image->id) { ?>
                             <div class="faq-main-item__image">
                               <a<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
-                                <img src="/<?php echo htmlspecialchars($item->answer_image->tnURL)?>" alt="<?php echo htmlspecialchars($item->answer_image->name ?: $item->answer_name)?>" /></a>
+                                <img loading="lazy" src="/<?php echo htmlspecialchars($item->answer_image->tnURL)?>" alt="<?php echo htmlspecialchars($item->answer_image->name ?: $item->answer_name)?>" /></a>
                             </div>
                         <?php } ?>
                         <div class="faq-main-item__title">

@@ -19,6 +19,10 @@ use RAAS\User as RAASUser;
  * @property-read RAASUser $author Автор материала
  * @property-read RAASUser $editor Редактор материала
  * @property-read Page $urlParent Родитель по URL
+ * @property-read string $url URL материала
+ * @property-read string $fullURL полный URL материала (с указанием домена)
+ * @property-read string $conditionalDomainURL URL материала с указанием домена,
+ *     если текущий домен отличается от набора стандартных
  * @property-read array<CMSAccess> $access Доступы
  * @property-read array<Page> $pages Страницы, на которых размещен материал
  * @property-read array<User> $allowedUsers Пользователи, которым разрешен
@@ -29,6 +33,7 @@ use RAAS\User as RAASUser;
  *                                        материал, либо, при отсутствии,
  *                                        связанных страниц
  * @property-read Page $parent Первый из массива $parents
+ * @property-read string $cacheFile Путь к файлу кэша
  */
 class Material extends SOME
 {
@@ -123,6 +128,39 @@ class Material extends SOME
                     }
                 }
                 return new Page();
+                break;
+            case 'fullURL':
+                $urlParent = $this->urlParent;
+                if (!$urlParent->id || !$this->url) {
+                    return '';
+                }
+                if (in_array($_SERVER['HTTP_HOST'], $urlParent->domains)) {
+                    $result = '//' . $_SERVER['HTTP_HOST'];
+                } else {
+                    $result = $urlParent->domain;
+                }
+                $result .= $this->url;
+                return $result;
+                break;
+            case 'conditionalDomainURL':
+                $urlParent = $this->urlParent;
+                if (!$urlParent->id || !$this->url) {
+                    return '';
+                }
+                $result = '';
+                if (!in_array($_SERVER['HTTP_HOST'], $urlParent->domains)) {
+                    $result .= $urlParent->domain;
+                }
+                $result .= $this->url;
+                return $result;
+                break;
+            case 'cacheFile':
+                $url = 'http'
+                     . (mb_strtolower($_SERVER['HTTPS'] == 'on') ? 's' : '')
+                     . ':' . $this->fullURL;
+                $file = Package::i()->cacheDir . '/' . Package::i()->cachePrefix
+                    . '.' . urlencode($url) . '.php';
+                return $file;
                 break;
             default:
                 $val = parent::__get($var);
@@ -647,17 +685,34 @@ class Material extends SOME
     {
         $globPrefix = Package::i()->cacheDir . '/' . Package::i()->cachePrefix;
         if ($this->cache_url) {
-            $globUrl1 = $globPrefix . '*' . urlencode($this->cache_url) . '.php';
-            $globUrl2 = $globPrefix . '*' . urlencode($this->cache_url . '?')
-                      . '*.php';
-            $glob1 = glob($globUrl1);
-            $glob2 = glob($globUrl2);
-            foreach ($glob1 as $file) {
-                @unlink($file);
+            $globs = [];
+            foreach ($this->urlParent->domains as $domain) {
+                $globs[] = $globPrefix . '*'
+                    . urlencode('//' . $domain . $this->cache_url) . '.php';
+                $globs[] = $globPrefix
+                    . '*' . urlencode('//' . $domain . $this->cache_url . '?')
+                    . '*.php';
             }
-            foreach ($glob2 as $file) {
+            $files = [];
+            foreach ($globs as $glob) {
+                $files = array_merge($files, glob($glob));
+            }
+            foreach ($files as $file) {
                 @unlink($file);
             }
         }
+    }
+
+
+    /**
+     * Перестроить кэш материала
+     */
+    public function rebuildCache()
+    {
+        if (!$this->url) {
+            return;
+        }
+        $this->clearCache();
+        @file_get_contents($this->fullURL);
     }
 }

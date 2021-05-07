@@ -11,7 +11,7 @@ $queryString = $queryString ? '?' . $queryString : '';
 <a class="category" href="<?php echo $page->url . $queryString ?>">
   <div class="category__image<?php echo !$page->image->id ? ' category__image_nophoto' : ''?>">
     <?php if ($page->image->id) { ?>
-        <img src="/<?php echo htmlspecialchars($page->image->smallURL)?>" alt="<?php echo htmlspecialchars($page->image->name ?: $page->name)?>" />
+        <img loading="lazy" src="/<?php echo htmlspecialchars($page->image->smallURL)?>" alt="<?php echo htmlspecialchars($page->image->name ?: $page->name)?>" />
     <?php } ?>
   </div>
   <div class="category__text">

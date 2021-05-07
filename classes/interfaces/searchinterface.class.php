@@ -638,7 +638,8 @@ class SearchInterface extends AbstractInterface
             if ($searchMaterialTypesIds) {
                 $sqlQuery .= " AND pid IN (" . implode(", ", array_map('intval', (array)$searchMaterialTypesIds)) . ")";
             }
-            $sqlQuery .= " LIMIT ?";
+            $sqlQuery .= " ORDER BY (name LIKE ?) DESC LIMIT ?";
+            $sqlBind[] = '%' . $searchWord . '%';
             $sqlBind[] = (int)$searchLimit;
             $sqlResult = Material::_SQL()->get([$sqlQuery, $sqlBind]);
 

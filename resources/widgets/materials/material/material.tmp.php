@@ -24,7 +24,7 @@ if ($Item) { ?>
           <?php if ($Item->visImages) { ?>
               <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__image">
                 <a href="/<?php echo $Item->visImages[0]->fileURL?>" data-lightbox-gallery="g">
-                  <img src="/<?php echo Package::i()->tn($Item->visImages[0]->fileURL, 1140, 570)?>" alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $row->name)?>" /></a>
+                  <img loading="lazy" src="/<?php echo Package::i()->tn($Item->visImages[0]->fileURL, 1140, 570)?>" alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $row->name)?>" /></a>
               </div>
           <?php } ?>
           <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__text">
@@ -42,7 +42,7 @@ if ($Item) { ?>
                     <?php foreach ($Item->visImages as $image) { ?>
                         <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-list__item">
                           <a href="/<?php echo htmlspecialchars($image->fileURL)?>" class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-item" data-lightbox-gallery="g">
-                            <img src="/<?php echo htmlspecialchars($image->tnURL)?>" alt="<?php echo htmlspecialchars($image->name)?>" /></a>
+                            <img loading="lazy" src="/<?php echo htmlspecialchars($image->tnURL)?>" alt="<?php echo htmlspecialchars($image->name)?>" /></a>
                         </div>
                     <?php } ?>
                   </div>
@@ -61,7 +61,7 @@ if ($Item) { ?>
                 <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item">
                   <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image<?php echo !$item->visImages ? ' {{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image_no-image' : ''?>"<?php echo ($Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : '')?>>
                     <?php if ($item->visImages) { ?>
-                        <img src="/<?php echo Package::i()->tn($item->visImages[0]->fileURL, 600, 400)?>" alt="<?php echo htmlspecialchars($item->visImages[0]->name ?: $item->name)?>" />
+                        <img loading="lazy" src="/<?php echo Package::i()->tn($item->visImages[0]->fileURL, 600, 400)?>" alt="<?php echo htmlspecialchars($item->visImages[0]->name ?: $item->name)?>" />
                     <?php } ?>
                   </a>
                   <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__text">

@@ -74,23 +74,34 @@ class GetPageCacheCommand extends LockCommand
             if ($args[1] && is_numeric($args[1])) {
                 $minFreeSpace = (float)$args[1];
             }
-            $sqlQuery = "( SELECT id,
-                                  'p' AS datatype,
-                                  visit_counter,
-                                  last_modified
-                             FROM " . Page::_tablename()
-                      . " ) UNION ALL (
-                           SELECT id,
-                                  'm' AS datatype,
-                                  visit_counter,
-                                  last_modified
-                             FROM " . Material::_tablename()
-                      . "   WHERE cache_url != ''
-                          )
-                          ORDER BY (datatype = 'p') DESC, visit_counter DESC";
-            $sqlResult = Page::_SQL()->get($sqlQuery);
+            $pages = array_map(function ($x) {
+                return array_merge($x, [
+                    'url' => $x['cache_url'],
+                    'datatype' => 'p',
+                    'parentsCounter' => count(
+                        PageRecursiveCache::i()->getParentsIds((int)$x['id'])
+                    ),
+                ]);
+            }, PageRecursiveCache::i()->cache);
+            usort($pages, function ($a, $b) {
+                if ($a['parentsCounter'] != $b['parentsCounter']) {
+                    return $a['parentsCounter'] - $b['parentsCounter'];
+                }
+                return (int)$a['priority'] - (int)$b['priority'];
+            });
+            $pagesIds = array_map(function ($x) {
+                return (int)$x['id'];
+            }, $pages);
+            $sqlQuery = "SELECT *,
+                                cache_url AS url,
+                                'm' AS datatype
+                           FROM " . Material::_tablename() . "
+                          WHERE cache_url != ''
+                       ORDER BY FIELD(cache_url_parent_id, " . implode(", ", $pagesIds) . "), NOT priority, priority";
+            $materials = Material::_SQL()->get($sqlQuery);
+            $set = array_merge($pages, $materials);
             $i = 0;
-            foreach ($sqlResult as $sqlRow) {
+            foreach ($set as $sqlRow) {
                 if (!$this->checkFreeSpace($minFreeSpace, true)) {
                     break;
                 }
@@ -99,10 +110,10 @@ class GetPageCacheCommand extends LockCommand
                 }
                 $result = false;
                 if ($sqlRow['datatype'] == 'p') {
-                    $page = new Page($sqlRow['id']);
+                    $page = new Page($sqlRow);
                     $result = $this->updatePage($page, $forceUpdate);
                 } else {
-                    $material = new Material($sqlRow['id']);
+                    $material = new Material($sqlRow);
                     $result = $this->updateMaterial($material, $forceUpdate);
                 }
                 if ($result) {
@@ -131,7 +142,6 @@ class GetPageCacheCommand extends LockCommand
         }
         $cachefile = $page->cacheFile;
         $mt = strtotime($page->last_modified);
-
         if (is_file($cachefile)) {
             $ft = filemtime($cachefile);
             if (($ft >= $mt) && !$forceUpdate) {
@@ -140,22 +150,13 @@ class GetPageCacheCommand extends LockCommand
                 );
                 return false;
             }
-        } else {
-            $diskFreeSpace = disk_free_space(Application::i()->baseDir);
-            $availableCacheSpace = $diskFreeSpace - $this->cacheLeaveFreeSpace;
-            if ($availableCacheSpace <= 0) {
-                $this->controller->doLog(
-                    'Page #' . (int)$page->id . ' "' . $page->url . '": cache quota is full, skipped'
-                );
-                return false;
-            }
         }
         $page->rebuildCache();
         $this->controller->doLog(
-            'Page #' . (int)$page->id . ' "' . $page->url . '": (' .
-            ($ft > 0 ? date('Y-m-d H:i:s ', $ft) : '') .
+            'Page #' . (int)$page->id . ' "' . $page->fullURL . '": (' .
+            ($ft > 0 ? date('Y-m-d H:i:s ', $ft) : 'none') .
             '->' .
-            ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : '') .
+            ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : 'none') .
             ') updated'
         );
         return true;
@@ -185,8 +186,7 @@ class GetPageCacheCommand extends LockCommand
             );
             return false;
         }
-        $page->Material = $material;
-        $cachefile = $page->cacheFile;
+        $cachefile = $material->cacheFile;
         $mt = strtotime($material->last_modified);
         if (is_file($cachefile)) {
             $ft = filemtime($cachefile);
@@ -198,12 +198,12 @@ class GetPageCacheCommand extends LockCommand
                 return false;
             }
         }
-        $page->rebuildCache();
+        $material->rebuildCache();
         $this->controller->doLog(
-            'Material #' . (int)$material->id . ' "' . $material->url . '": (' .
-            ($ft > 0 ? date('Y-m-d H:i:s ', $ft) : '') .
+            'Material #' . (int)$material->id . ' "' . $material->fullURL . '": (' .
+            ($ft > 0 ? date('Y-m-d H:i:s ', $ft) : 'none') .
             '->' .
-            ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : '') .
+            ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : 'none') .
             ') updated'
         );
         return true;
@@ -255,7 +255,7 @@ class GetPageCacheCommand extends LockCommand
             return true;
         }
         $minFreeSpace = (float)$minFreeSpace;
-        $diskFreeSpace = @disk_free_space('/');
+        $diskFreeSpace = @disk_free_space(Application::i()->baseDir);
         $diskFreeSpace = (float)$diskFreeSpace / 1024 / 1024;
         $isEnough = ($diskFreeSpace > $minFreeSpace);
         if ($doLog && !$isEnough) {

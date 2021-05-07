@@ -103,8 +103,21 @@ class EditPageForm extends RAASForm
             $commonTab->children[] = [
                 'name' => 'urn',
                 'class' => 'span5',
+                'multiple' => true,
                 'caption' => $this->view->_('DOMAIN_NAMES'),
-                'required' => 'required'
+                'required' => true,
+                'import' => function () use ($item) {
+                    $domains = explode(' ', $item->urn);
+                    $domains = array_map('trim', $domains);
+                    $domains = array_filter($domains);
+                    return $domains;
+                },
+                'export' => function ($field) {
+                    $domains = array_map('trim', $_POST['urn']);
+                    $domains = array_filter($domains);
+                    $domains = implode(' ', $domains);
+                    $field->Form->Item->urn = $domains;
+                },
             ];
         }
         foreach ($item->fields as $row) {

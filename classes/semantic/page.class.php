@@ -48,6 +48,9 @@ use RAAS\User as RAASUser;
  *                                                   на странице
  * @property-read array<string> $URLArray Массив URN из URL
  * @property-read string $url URL страницы
+ * @property-read string $fullURL полный URL страницы (с указанием домена)
+ * @property-read string $conditionalDomainURL URL страницы с указанием домена,
+ *     если текущий домен отличается от набора стандартных
  * @property-read string $additionalURL Дополнительная часть ("хвост") URL
  * @property-read array<string> $additionalURLArray Массив URN из дополнительной
  *                                                  части ("хвоста") URL
@@ -169,69 +172,6 @@ class Page extends SOME
     ];
 
     /**
-     * Расшифровки HTTP-статусов
-     * @var array<int[] Код статуса => string Расшифровка>
-     */
-    public static $httpStatuses = [
-        100 => '100 Continue',
-        101 => '101 Switching Protocols',
-        102 => '102 Processing',
-        200 => '200 OK',
-        201 => '201 Created',
-        202 => '202 Accepted',
-        203 => '203 Non-Authoritative Information',
-        204 => '204 No Content',
-        205 => '205 Reset Content',
-        206 => '206 Partial Content',
-        207 => '207 Multi-Status',
-        226 => '226 IM Used',
-        300 => '300 Multiple Choices',
-        301 => '301 Moved Permanently',
-        302 => '302 Moved Temporarily',
-        302 => '302 Found',
-        303 => '303 See Other',
-        304 => '304 Not Modified',
-        305 => '305 Use Proxy',
-        307 => '307 Temporary Redirect',
-        400 => '400 Bad Request',
-        401 => '401 Unauthorized',
-        402 => '402 Payment Required',
-        403 => '403 Forbidden',
-        404 => '404 Not Found',
-        405 => '405 Method Not Allowed',
-        406 => '406 Not Acceptable',
-        407 => '407 Proxy Authentication Required',
-        408 => '408 Request Timeout',
-        409 => '409 Conflict',
-        410 => '410 Gone',
-        411 => '411 Length Required',
-        412 => '412 Precondition Failed',
-        413 => '413 Request Entity Too Large',
-        414 => '414 Request-URI Too Large',
-        415 => '415 Unsupported Media Type',
-        416 => '416 Requested Range Not Satisfiable',
-        417 => '417 Expectation Failed',
-        422 => '422 Unprocessable Entity',
-        423 => '423 Locked',
-        424 => '424 Failed Dependency',
-        425 => '425 Unordered Collection',
-        426 => '426 Upgrade Required',
-        449 => '449 Retry With',
-        456 => '456 Unrecoverable Error',
-        500 => '500 Internal Server Error',
-        501 => '501 Not Implemented',
-        502 => '502 Bad Gateway',
-        503 => '503 Service Unavailable',
-        504 => '504 Gateway Timeout',
-        505 => '505 HTTP Version Not Supported',
-        506 => '506 Variant Also Negotiates',
-        507 => '507 Insufficient Storage',
-        508 => '508 Loop Detected',
-        509 => '509 Bandwidth Limit Exceeded',
-        510 => '510 Not Extended',
-    ];
-
-    /**
      * MIME-типы
      * @var array<string>
      */
@@ -276,6 +216,24 @@ class Page extends SOME
             case 'url':
                 return $this->cache_url;
                 break;
+            case 'fullURL':
+                $domains = $this->domains;
+                if (in_array($_SERVER['HTTP_HOST'], $domains)) {
+                    $result = '//' . $_SERVER['HTTP_HOST'];
+                } else {
+                    $result = $this->domain;
+                }
+                $result .= $this->url;
+                return $result;
+                break;
+            case 'conditionalDomainURL':
+                $result = '';
+                if (!in_array($_SERVER['HTTP_HOST'], $this->domains)) {
+                    $result .= $this->domain;
+                }
+                $result .= $this->url;
+                return $result;
+                break;
             case 'additionalURL':
                 $url = preg_replace(
                     '/^' . preg_quote($this->url, '/') . '/umi',
@@ -304,10 +262,18 @@ class Page extends SOME
                 }
                 return $blocks;
                 break;
+            case 'domains':
+                $result = explode(' ', $this->Domain->urn);
+                $result = array_map(function ($x) {
+                    $x = trim($x);
+                    $x = preg_replace('/^http(s)?:\\/\\//umi', '', $x);
+                    return $x;
+                }, $result);
+                $result = array_values(array_filter($result));
+                return $result;
+                break;
             case 'domain':
-                $temp = explode(' ', $this->Domain->urn);
-                return 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' .
-                       preg_replace('/^http(s)?:\\/\\//umi', '', $temp[0]);
+                return '//' . $this->domains[0];
                 break;
             case 'visChildren':
                 return array_values(
@@ -323,29 +289,15 @@ class Page extends SOME
                 return $this->locationBlocksText;
                 break;
             case 'cacheFile':
+                if ($this->Material->id) {
+                    return $this->Material->cacheFile;
+                }
                 $url = 'http'
                      . (mb_strtolower($_SERVER['HTTPS'] == 'on') ? 's' : '')
-                     . '://';
-                if (preg_match(
-                    '/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i',
-                    $this->Domain->urn
-                )) {
-                    $url .= $_SERVER['HTTP_HOST'];
-                } else {
-                    $url .= preg_replace(
-                        '/^http(s)?:\\/\\//umi',
-                        '',
-                        $this->domain
-                    );
-                }
-                if ($this->Material->id) {
-                    $url .= $this->Material->url;
-                } else {
-                    $url .= $this->url;
-                }
-                $url = Package::i()->cacheDir . '/' . Package::i()->cachePrefix
-                     . '.' . urlencode($url) . '.php';
-                return $url;
+                     . ':' . $this->fullURL;
+                $file = Package::i()->cacheDir . '/' . Package::i()->cachePrefix
+                    . '.' . urlencode($url) . '.php';
+                return $file;
                 break;
             default:
                 $val = parent::__get($var);
@@ -596,8 +548,7 @@ class Page extends SOME
             header('Last-Modified: '. gmdate('D, d M Y H:i:s \G\M\T'));
         }
         if ($this->response_code && ($this->response_code != 200)) {
-            header('HTTP/1.0 ' . Page::$httpStatuses[(int)$this->response_code]);
-            header('Status: ' . Page::$httpStatuses[(int)$this->response_code]);
+            http_response_code((int)$this->response_code);
         }
         if ($this->mime) {
             header('Content-Type: ' . $this->mime . '; charset=UTF-8');
@@ -840,8 +791,12 @@ class Page extends SOME
      */
     protected function _Domain()
     {
-        $id = $this->pid ? $this->parents[0]->id : $this->id;
-        return new static((int)$id);
+        $selfAndParentsIds = PageRecursiveCache::i()->getSelfAndParentsIds($this->id);
+        if (!$selfAndParentsIds) {
+            return new static();
+        }
+        $domainData = PageRecursiveCache::i()->cache[$selfAndParentsIds[0]];
+        return new static($domainData);
     }
 
 
@@ -909,15 +864,19 @@ class Page extends SOME
     public function clearCache()
     {
         $globPrefix = Package::i()->cacheDir . '/' . Package::i()->cachePrefix;
-        $globUrl1 = $globPrefix . '*' . urlencode($this->cache_url) . '.php';
-        $globUrl2 = $globPrefix . '*' . urlencode($this->cache_url . '?')
-                  . '*.php';
-        $glob1 = glob($globUrl1);
-        $glob2 = glob($globUrl2);
-        foreach ($glob1 as $file) {
-            @unlink($file);
+        $globs = [];
+        foreach ($this->domains as $domain) {
+            $globs[] = $globPrefix . '*'
+                . urlencode('//' . $domain . $this->cache_url) . '.php';
+            $globs[] = $globPrefix
+                . '*' . urlencode('//' . $domain . $this->cache_url . '?')
+                . '*.php';
         }
-        foreach ($glob2 as $file) {
+        $files = [];
+        foreach ($globs as $glob) {
+            $files = array_merge($files, glob($glob));
+        }
+        foreach ($files as $file) {
             @unlink($file);
         }
     }
@@ -928,22 +887,11 @@ class Page extends SOME
      */
     public function rebuildCache()
     {
-        $this->clearCache();
-        $url = 'http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://'
-             . (
-                    preg_match(
-                        '/(^| )' . preg_quote($_SERVER['HTTP_HOST']) . '( |$)/i',
-                        $this->Domain->urn
-                    ) ?
-                    $_SERVER['HTTP_HOST'] :
-                    preg_replace('/^http(s)?:\\/\\//umi', '', $this->domain)
-                );
         if ($this->Material->id) {
-            $url .= $this->Material->url;
-        } else {
-            $url .= $this->url;
+            return $this->Material->rebuildCache();
         }
-        @file_get_contents($url);
+        $this->clearCache();
+        @file_get_contents($this->fullURL);
     }
 
 

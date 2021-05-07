@@ -58,12 +58,12 @@ export default {
              * Предыдущий кадр доступен
              * @type {Boolean}
              */
-            prevAvailable: this.wrap,
+            prevAvailable: false,
             /**
              * Следующий кадр доступен
              * @type {Boolean}
              */
-            nextAvailable: true,
+            nextAvailable: false,
             /**
              * ID# window.setInterval автоскроллинга при fade-типе
              * @type {Number}
@@ -72,7 +72,12 @@ export default {
         };
     },
     mounted: function () {
+        this.counter = $('[data-role="slider-item"]', this.$el).length;
         if (this.type == 'fade') {
+            if (this.wrap) {
+                this.prevAvailable = (this.counter > 1);
+            }
+            this.nextAvailable = (this.counter > 1);
             this.refreshFadeInterval();
             $(this.$el).on('mouseover', () => {
                 this.clearFadeInterval();
@@ -82,7 +87,6 @@ export default {
         } else {
             this.initJCarousel();
         }
-        this.counter = $('[data-role="slider-item"]', this.$el).length;
         $('[data-role="slider-list"]', this.$el).on('movestart', (e) => { 
             // console.log(e)
             let dim = (this.type == 'vertical') ? e.distY : e.distX;
@@ -174,19 +178,17 @@ export default {
                     interval: this.interval,
                 });
             }
-            if (!this.wrap) {
-                let $first = $items.eq(0);
-                let $last = $items.eq(-1);
+            let $first = $items.eq(0);
+            let $last = $items.eq(-1);
+            this.nextAvailable = !$last.filter($self.jcarousel('fullyvisible')).length;
+            if (this.wrap) {
+                this.prevAvailable = !$last.filter($self.jcarousel('fullyvisible')).length;
+            } else {
                 $first.on('jcarousel:fullyvisiblein', () => {
                     this.prevAvailable = false;
                 }).on('jcarousel:fullyvisibleout', () => {
                     this.prevAvailable = true;
                 });
-                if ($last.filter($self.jcarousel('fullyvisible')).length) {
-                    this.nextAvailable = false;
-                } else {
-                    this.nextAvailable = true;
-                }
                 $last.on('jcarousel:fullyvisiblein', () => {
                     this.nextAvailable = false;
                 }).on('jcarousel:fullyvisibleout', () => {

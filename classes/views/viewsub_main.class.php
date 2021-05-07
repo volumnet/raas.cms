@@ -396,21 +396,10 @@ class ViewSub_Main extends RAASAbstractSubView
     {
         $arr = [];
         if ($page->id) {
-            $pageCache = PageRecursiveCache::i();
-            $domainsIds = $pageCache->getChildrenIds(0);
-            $domainUrl = '';
-            if (count($domainsIds) > 1) {
-                $domainId = (int)$page->Domain->id;
-                $domainData = $pageCache->cache[$domainId];
-                if (!stristr($domainData['urn'], $_SERVER['HTTP_HOST'])) {
-                    $domainUrl = $page->domain;
-                }
-            }
-
             $edit = ($this->action == 'edit');
             $arr[] = [
                 'name' => $this->_('BROWSE'),
-                'href' => $domainUrl . $page->url,
+                'href' => $page->conditionalDomainURL,
                 'icon' => 'globe',
                 'target' => '_blank',
                 'active' => false,
@@ -533,19 +522,9 @@ class ViewSub_Main extends RAASAbstractSubView
         if ($item->id) {
             $urlParent = $item->urlParent;
             if ($urlParent->id) {
-                $pageCache = PageRecursiveCache::i();
-                $domainsIds = $pageCache->getChildrenIds(0);
-                $domainUrl = '';
-                if (count($domainsIds) > 1) {
-                    $domainId = (int)$urlParent->Domain->id;
-                    $domainData = $pageCache->cache[$domainId];
-                    if (!stristr($domainData['urn'], $_SERVER['HTTP_HOST'])) {
-                        $domainUrl = $urlParent->domain;
-                    }
-                }
                 $arr[] = [
                     'name' => $this->_('BROWSE'),
-                    'href' => $domainUrl . $item->url,
+                    'href' => $item->conditionalDomainURL,
                     'icon' => 'globe',
                     'target' => '_blank',
                     'active' => false,
@@ -907,8 +886,8 @@ class ViewSub_Main extends RAASAbstractSubView
         if ($page->id) {
             $subtitleArr[] = $this->_('ID') . ': ' . (int)$page->id;
             $subtitleArr[] = $this->_('URL') . ': '
-                           . '<a href="' . htmlspecialchars($page->url) . '" target="_blank">'
-                           .    htmlspecialchars($page->url)
+                           . '<a href="' . htmlspecialchars($page->conditionalDomainURL) . '" target="_blank">'
+                           .    htmlspecialchars($page->conditionalDomainURL)
                            . '</a>';
             return implode('; ', $subtitleArr);
         }
@@ -932,8 +911,8 @@ class ViewSub_Main extends RAASAbstractSubView
                            . '</a>';
             if ($item->url) {
                 $subtitleArr[] = $this->_('URL') . ': '
-                               . '<a href="' . htmlspecialchars($item->url) . '" target="_blank">'
-                               .    htmlspecialchars($item->url)
+                               . '<a href="' . htmlspecialchars($item->conditionalDomainURL) . '" target="_blank">'
+                               .    htmlspecialchars($item->conditionalDomainURL)
                                . '</a>';
             }
             return implode('; ', $subtitleArr);

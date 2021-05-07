@@ -266,17 +266,18 @@ class EditBlockForm extends RAASForm
      */
     protected function getServiceTab()
     {
+        $item = $this->Item;
         $tab = new FormTab([
             'name' => 'service',
             'caption' => $this->view->_('SERVICE'),
             'children' => [
-                [
+                'vis' => [
                     'type' => 'checkbox',
                     'name' => 'vis',
                     'caption' => $this->view->_('VISIBLE'),
                     'default' => 1
                 ],
-                [
+                'vis_material' => [
                     'type' => 'select',
                     'name' => 'vis_material',
                     'caption' => $this->view->_('VISIBILITY_WITH_ACTIVE_MATERIAL'),
@@ -295,10 +296,42 @@ class EditBlockForm extends RAASForm
                         ],
                     ],
                 ],
-                [
+                'params' => new FieldSet([
                     'name' => 'params',
-                    'caption' => $this->view->_('ADDITIONAL_PARAMS')
-                ],
+                    'caption' => $this->view->_('ADDITIONAL_PARAMS'),
+                    'children' => [
+                        'params_name' => [
+                            'name' => 'params_name',
+                            'multiple' => true,
+                        ],
+                        'params_value' => [
+                            'name' => 'params_name',
+                            'multiple' => true,
+                        ],
+                    ],
+                    'template' => 'edit_block.params.php',
+                    'import' => function () use ($item) {
+                        $params = explode('&', $item['params']);
+                        $result = [];
+                        foreach ($params as $row) {
+                            if (trim($row)) {
+                                $row = explode('=', trim($row));
+                                $result['params_name'][] = $row[0];
+                                $result['params_value'][] = $row[1];
+                            }
+                        }
+                        return $result;
+                    },
+                    'export' => function () use ($item) {
+                        $result = [];
+                        foreach ($_POST['params_name'] as $i => $val) {
+                            $result[] = $_POST['params_name'][$i] . '='
+                                      . $_POST['params_value'][$i];
+                        }
+                        $result = implode('&', $result);
+                        $item->params = $result;
+                    },
+                ]),
             ]
         ]);
         return $tab;

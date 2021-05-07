@@ -33,7 +33,7 @@ if ($Item) {
                 <div class="photos-item">
                   <div class="photos-item__image">
                     <a href="<?php echo htmlspecialchars($Block->nat ? $row->url : '/' . $row2->fileURL)?>">
-                      <img src="/<?php echo htmlspecialchars($row->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($row->visImages[0]->name ?: $row->name)?>" /></a>
+                      <img loading="lazy" src="/<?php echo htmlspecialchars($row->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($row->visImages[0]->name ?: $row->name)?>" /></a>
                   </div>
                   <div class="photos-item__text">
                     <div class="photos-item__title">

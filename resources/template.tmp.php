@@ -93,47 +93,49 @@ ob_start(); // Для $separateScripts
   <body class="body <?php echo !$Page->pid ? ' body_main' : ''?>" data-page-id="<?php echo (int)$Page->id?>"<?php echo $Page->Material->id ? ' data-page-material-id="' . (int)$Page->Material->id . '"' : ''?>>
     <?php echo $Page->location('top_body_counters')?>
     <div id="top" class="body__background-holder">
-      <header class="body__header" itemscope itemtype="http://schema.org/WPHeader">
-        <div class="body__row body__row_header body__row_header_1">
-          <div class="body__container body__container_header body__container_header_1">
-            <div class="body__menu-top">
-              <?php echo $Page->location('menu_top')?>
-            </div>
-            <div class="body__menu-user">
-              <?php echo $Page->location('menu_user')?>
-            </div>
-          </div>
-        </div>
-        <div class="body__row body__row_header body__row_header_2">
-          <div class="body__container body__container_header body__container_header_2">
-            <div class="body__logo">
-              <?php echo $Page->location('logo')?>
-            </div>
-            <div class="body__search-form">
-              <?php echo $Page->location('search_form')?>
-            </div>
-            <div class="body__contacts-top">
-              <?php echo $Page->location('contacts_top')?>
+      <div class="body__header-outer"> <?php // Обертка, чтобы при фиксации шапки контент не скакал?>
+        <header class="body__header" itemscope itemtype="http://schema.org/WPHeader" data-v-bind_class="{ 'body__header_fixed': fixedHeader, 'body__header_active': fixedHeaderActive }">
+          <div class="body__row body__row_header body__row_header_1">
+            <div class="body__container body__container_header body__container_header_1">
+              <div class="body__menu-top">
+                <?php echo $Page->location('menu_top')?>
+              </div>
+              <div class="body__menu-user">
+                <?php echo $Page->location('menu_user')?>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="body__row body__row_header body__row_header_3">
-          <div class="body__container body__container_header body__container_header_3">
-            <div class="body__menu-catalog">
-              <?php echo $Page->location('menu_catalog')?>
-            </div>
-            <div class="body__menu-main">
-              <?php echo $Page->location('menu_main')?>
-            </div>
-            <div class="body__cart">
-              <?php echo $Page->location('cart')?>
-            </div>
-            <div class="body__menu-mobile">
-              <?php echo $Page->location('menu_mobile')?>
+          <div class="body__row body__row_header body__row_header_2">
+            <div class="body__container body__container_header body__container_header_2">
+              <div class="body__logo">
+                <?php echo $Page->location('logo')?>
+              </div>
+              <div class="body__search-form">
+                <?php echo $Page->location('search_form')?>
+              </div>
+              <div class="body__contacts-top">
+                <?php echo $Page->location('contacts_top')?>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+          <div class="body__row body__row_header body__row_header_3">
+            <div class="body__container body__container_header body__container_header_3">
+              <div class="body__menu-catalog">
+                <?php echo $Page->location('menu_catalog')?>
+              </div>
+              <div class="body__menu-main">
+                <?php echo $Page->location('menu_main')?>
+              </div>
+              <div class="body__cart">
+                <?php echo $Page->location('cart')?>
+              </div>
+              <div class="body__menu-mobile">
+                <?php echo $Page->location('menu_mobile')?>
+              </div>
+            </div>
+          </div>
+        </header>
+      </div>
       <?php if ($bannersText = $Page->location('banners')) { ?>
           <div class="body__row body__row_banners">
             <div class="body__container body__container_banners">

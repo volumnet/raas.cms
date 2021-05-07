@@ -20,7 +20,7 @@ if ($Set) { ?>
                   <?php if ($item->image->id || $item->icon) { ?>
                       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main-item__image">
                         <?php if ($item->image->id) { ?>
-                            <img src="/<?php echo htmlspecialchars($item->image->fileURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" />
+                            <img loading="lazy" src="/<?php echo htmlspecialchars($item->image->fileURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" />
                         <?php } elseif ($item->icon) { ?>
                             <span class="fa fa-<?php echo htmlspecialchars($item->icon)?>"></span>
                         <?php } ?>

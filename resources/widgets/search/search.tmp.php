@@ -28,7 +28,7 @@ use SOME\HTTP;
                         <div class="search-item__image">
                           <a href="<?php echo htmlspecialchars($row->url)?>"<?php echo (!$row->image->id ? ' class="no-image"' : '')?>>
                             <?php if ($row->image->id) { ?>
-                                <img src="/<?php echo htmlspecialchars($row->image->tnURL)?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" />
+                                <img loading="lazy" src="/<?php echo htmlspecialchars($row->image->tnURL)?>" alt="<?php echo htmlspecialchars($row->image->name ?: $row->name)?>" />
                             <?php } ?>
                           </a>
                         </div>
@@ -53,7 +53,7 @@ use SOME\HTTP;
                         <div class="search-item__image">
                           <a href="<?php echo htmlspecialchars($row->url)?>"<?php echo (!$row->visImages ? ' class="no-image"' : '')?>>
                             <?php if ($row->visImages) { ?>
-                                <img src="/<?php echo htmlspecialchars($row->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($row->visImages[0]->name ?: $row->name)?>" />
+                                <img loading="lazy" src="/<?php echo htmlspecialchars($row->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($row->visImages[0]->name ?: $row->name)?>" />
                             <?php } ?>
                           </a>
                         </div>

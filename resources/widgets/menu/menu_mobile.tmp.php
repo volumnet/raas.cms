@@ -29,7 +29,12 @@ $ajax = (bool)stristr($Page->url, '/ajax/');
  * @param Page $current Текущая страница
  * @return string
  */
-$showMenu = function($node, Page $current) use (&$showMenu, $ajax, $phone) {
+$showMenu = function($node, Page $current) use (
+    &$showMenu,
+    $useAjax,
+    $ajax,
+    &$phone
+) {
     static $level = 0;
     if ($node instanceof Menu) {
         $children = $node->visSubMenu;
@@ -61,7 +66,7 @@ $showMenu = function($node, Page $current) use (&$showMenu, $ajax, $phone) {
         if (!$level) {
             $text .= '<li class="menu-mobile__item menu-mobile__item_main menu-mobile__item_level_0 menu-mobile__item_phone">';
             if ($phone) {
-                $text .= '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '">'
+                $text .= '<a class="menu-mobile__link menu-mobile__link_main menu-mobile__link_level_0 menu-mobile__link_phone" href="tel:%2B7' . Text::beautifyPhone($phone) . '">'
                       .     htmlspecialchars($phone)
                       .  '</a>';
             }
@@ -70,9 +75,9 @@ $showMenu = function($node, Page $current) use (&$showMenu, $ajax, $phone) {
     }
     for ($i = 0; $i < count($children); $i++) {
         $row = $children[$i];
-        $level++;
-        $ch = $showMenu($row, $current);
-        $level--;
+        // $level++;
+        // $ch = $showMenu($row, $current);
+        // $level--;
         if ($node instanceof Menu) {
             $url = $row->url;
             $name = $row->name;
@@ -123,7 +128,7 @@ $showMenu = function($node, Page $current) use (&$showMenu, $ajax, $phone) {
             $liClasses[] = 'menu-mobile__item_has-children';
             $aClasses[] = 'menu-mobile__link_has-children';
         }
-        $text .= '<li class="' . implode(' ', $liClasses) . '"' . ($useAjax && ($urn == 'catalog') ? ' data-v-html="vm.ajaxMenu"' : '') . '>'
+        $text .= '<li class="' . implode(' ', $liClasses) . '">'
               .  '  <a class="' . implode(' ', $aClasses) . '" ' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>'
               .       htmlspecialchars($name)
               .  '  </a>';
@@ -139,7 +144,9 @@ $showMenu = function($node, Page $current) use (&$showMenu, $ajax, $phone) {
         'menu-mobile__list_' . (!$level ? 'main' : 'inner'),
         'menu-mobile__list_level_' . $level
     );
-    return $text ? '<ul class="' . implode(' ', $ulClasses) . '">' . $text . '</ul>' : $text;
+    if ($text) {
+        return '<ul class="' . implode(' ', $ulClasses) . '">' . $text . '</ul>';
+    }
 };
 
 $companyMaterialType = Material_Type::importByURN('company');
@@ -152,6 +159,6 @@ $phone = (array)$company->phone;
 $phone = $phone[0];
 ?>
 <nav class="menu-mobile" data-vue-role="menu-mobile" data-v-bind_page-id="<?php echo (int)$Page->id?>" data-v-slot="vm">
-  <a class="menu-mobile__trigger" data-v-bind_click.prevent.stop="vm.toggle()"></a>
+  <a class="menu-mobile__trigger"></a>
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>

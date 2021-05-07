@@ -686,8 +686,8 @@ class Sub_Main extends RAASAbstractSubController
      */
     public function clearBlockCache()
     {
-        $material = Block::spawn((int)$this->id);
-        $material->clearCache();
+        $block = Block::spawn((int)$this->id);
+        $block->clearCache();
         new Redirector('history:back');
     }
 }

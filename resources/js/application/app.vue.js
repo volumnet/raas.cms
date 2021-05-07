@@ -48,7 +48,6 @@ export default {
 
         this.fixHtml();
         this.windowWidth = $(window).outerWidth();
-        this.scrollTop = $(window).scrollTop();
         $(window).on('resize', self.fixHtml);
         $(window).on('resize', () => {
             this.windowWidth = $(window).outerWidth();
