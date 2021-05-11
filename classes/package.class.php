@@ -30,6 +30,7 @@ use RAAS\Package as RAASPackage;
  *                                       на Windows Phone
  * @property-read string $isPhone Использует ли пользователь телефон
  * @property-read string $isTablet Использует ли пользователь планшет
+ * @property-read string $isMobile Использует ли пользователь телефон или планшет
  */
 class Package extends RAASPackage
 {
@@ -98,6 +99,9 @@ class Package extends RAASPackage
                 break;
             case 'isTablet':
                 return $this->isAndroidTablet || $this->isIPad;
+                break;
+            case 'isMobile':
+                return $this->isTablet || $this->isPhone;
                 break;
             case 'requestedCSS':
             case 'requestedJS':

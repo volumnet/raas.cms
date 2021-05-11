@@ -149,6 +149,9 @@ class Controller_Frontend extends Abstract_Controller
     public function run()
     {
         $this->processUTM();
+        ob_start(function ($text) {
+            return $this->checkMedia($text);
+        });
         if (!$this->getCache()) {
             $p = pathinfo($this->requestUri);
             if (preg_match(
@@ -190,6 +193,137 @@ class Controller_Frontend extends Abstract_Controller
                 }
             }
         }
+        ob_end_flush();
+    }
+
+
+    /**
+     * Проверяет медиа-запросы, сопоставляя их с комментариями вида
+     * <!--nomobile-->...<!--/nomobile-->
+     * <!--nophone-->...<!--/nophone-->
+     * <!--notablet-->...<!--/notablet-->
+     * <!--nodesktop-->...<!--/nodesktop-->
+     * При необходимости исключает блоки
+     * @param string $text Входной текст
+     * @return string
+     */
+    public function checkMedia($text)
+    {
+        $tagsToExclude = [];
+        if (CMSPackage::i()->isMobile) {
+            $tagsToExclude[] = 'nomobile';
+            if (CMSPackage::i()->isPhone) {
+                $tagsToExclude[] = 'nophone';
+            }
+            if (CMSPackage::i()->isTablet) {
+                $tagsToExclude[] = 'notablet';
+            }
+        } else {
+            $tagsToExclude[] = 'nodesktop';
+        }
+
+        $tags = [];
+        foreach ($tagsToExclude as $tagToExclude) {
+            $tagData = [];
+            foreach (['open', 'close'] as $openCloseIndex => $openCloseTag) {
+                $i = 0;
+                $realTag = '<!--'
+                    . ($openCloseIndex ? '/' : '')
+                    . $tagToExclude
+                    . '-->';
+                $realTagLength = mb_strlen($realTag);
+                while (($i = mb_strpos(
+                    $text,
+                    $realTag,
+                    $i + $realTagLength
+                )) !== false) {
+                    $tagData[] = [
+                        'pos' => $i + ($openCloseIndex ? $realTagLength : 0),
+                        'type' => $openCloseTag,
+                        'tag' => $tagToExclude
+                    ];
+                }
+            }
+
+            // Отсортируем теги по вхождению
+            usort($tagData, function ($a, $b) {
+                return $a['pos'] - $b['pos'];
+            });
+
+            // Снабдим теги уровнем вложенности
+            $level = 0;
+            for ($i = 0; $i < count($tagData); $i++) {
+                if ($tagData[$i]['type'] == 'close') {
+                    $level--;
+                }
+                $tagData[$i]['level'] = $level;
+                if ($tagData[$i]['type'] == 'open') {
+                    $level++;
+                }
+            }
+
+            // Уберем вложенные теги
+            $tagData = array_values(array_filter(
+                $tagData,
+                function ($x) {
+                    return !$x['level'];
+                }
+            ));
+
+            // Совместим теги
+            $combinedTag = [];
+            for ($i = 0; $i < count($tagData); $i++) {
+                if ($tagData[$i]['type'] == 'open') {
+                    $combinedTag = $tagData[$i];
+                    $combinedTag['open'] = $combinedTag['pos'];
+                    unset(
+                        $combinedTag['type'],
+                        $combinedTag['pos'],
+                        $combinedTag['level']
+                    );
+                } elseif ($tagData[$i]['type'] == 'close') {
+                    $combinedTag['close'] = $tagData[$i]['pos'];
+                    $tags[] = $combinedTag;
+                    unset($combinedTag);
+                }
+            }
+        }
+
+        // Комбинируем теги
+        usort($tags, function ($a, $b) {
+            return $a['pos'] - $b['pos'];
+        });
+
+        $newTags = [];
+        for ($i = 0; $i < count($tags); $i++) {
+            if (!$i) {
+                $tag = $tags[$i];
+            } else {
+                if ($tags[$i]['open'] < $tag['close']) {
+                    if ($tags[$i]['close'] > $tag['close']) {
+                        $tag['close'] = $tags[$i]['close'];
+                    }
+                } else {
+                    $newTags[] = $tag;
+                    $tag = $tags[$i];
+                }
+            }
+        }
+        $newTags[] = $tag;
+        $tags = $newTags;
+
+        $result = '';
+        for ($i = 0; $i < count($tags); $i++) {
+            $result .= mb_substr(
+                $text,
+                $i ? $tags[$i - 1]['close'] : 0,
+                $tags[$i]['open'] - ($i ? $tags[$i - 1]['close'] : 0)
+            );
+        }
+        if (count($tags)) {
+            $result .= mb_substr($text, $tags[count($tags) - 1]['close']);
+        }
+        return $result;
     }
 
 
