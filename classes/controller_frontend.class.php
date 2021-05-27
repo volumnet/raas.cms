@@ -291,7 +291,7 @@ class Controller_Frontend extends Abstract_Controller
 
         // Комбинируем теги
         usort($tags, function ($a, $b) {
-            return $a['pos'] - $b['pos'];
+            return $a['open'] - $b['open'];
         });
 
         $newTags = [];

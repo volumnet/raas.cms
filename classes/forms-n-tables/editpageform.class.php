@@ -79,7 +79,7 @@ class EditPageForm extends RAASForm
      * @param Page $parent Родительская страница
      * @return FormTab
      */
-    private function getCommonTab(Page $item, Page $parent)
+    protected function getCommonTab(Page $item, Page $parent)
     {
         $commonTab = new FormTab([
             'name' => 'common',
@@ -157,7 +157,7 @@ class EditPageForm extends RAASForm
      * @param Page $item Текущая страница
      * @return FormTab
      */
-    private function getSeoTab(Page $parent, Page $item = null)
+    protected function getSeoTab(Page $parent, Page $item = null)
     {
         $seoTab = new FormTab(
             [

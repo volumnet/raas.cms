@@ -158,7 +158,7 @@ class EditMaterialForm extends \RAAS\Form
             'caption' => $this->view->_('DESCRIPTION')
         ]);
         foreach ($item->fields as $row) {
-            $commonTab->children[] = $row->Field;
+            $commonTab->children[$row->urn] = $row->Field;
         }
         return $commonTab;
     }
