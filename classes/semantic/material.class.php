@@ -706,6 +706,7 @@ class Material extends SOME
 
     /**
      * Перестроить кэш материала
+     * @return string|null Текст страницы
      */
     public function rebuildCache()
     {
@@ -713,6 +714,16 @@ class Material extends SOME
             return;
         }
         $this->clearCache();
-        @file_get_contents($this->fullURL);
+        $url = $this->fullURL;
+        $url = preg_replace('/^(http(s)?:)?\/\//umis', '', $url);
+        $url = 'http' . (($_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $url;
+        $text = @file_get_contents($url, false, stream_context_create([
+            'ssl' => [
+                'allow_self_signed' => true,
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+            ],
+        ]));
+        return $text;
     }
 }

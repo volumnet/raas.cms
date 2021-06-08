@@ -74,6 +74,14 @@ class GetPageCacheCommand extends LockCommand
             if ($args[1] && is_numeric($args[1])) {
                 $minFreeSpace = (float)$args[1];
             }
+            $pagesCache = PageRecursiveCache::i()->getParentsIds((int)$x['id']);
+            $pagesCache = array_values(array_filter(
+                PageRecursiveCache::i()->cache,
+                function ($x) {
+                    return $x['vis'];
+                }
+            ));
+            // 2021-06-08, AVS: добавил проверку на видимость (невидимые нет смысла кэшировать)
             $pages = array_map(function ($x) {
                 return array_merge($x, [
                     'url' => $x['cache_url'],
@@ -82,7 +90,7 @@ class GetPageCacheCommand extends LockCommand
                         PageRecursiveCache::i()->getParentsIds((int)$x['id'])
                     ),
                 ]);
-            }, PageRecursiveCache::i()->cache);
+            }, $pagesCache);
             usort($pages, function ($a, $b) {
                 if ($a['parentsCounter'] != $b['parentsCounter']) {
                     return $a['parentsCounter'] - $b['parentsCounter'];
@@ -92,11 +100,13 @@ class GetPageCacheCommand extends LockCommand
             $pagesIds = array_map(function ($x) {
                 return (int)$x['id'];
             }, $pages);
+            // 2021-06-08, AVS: добавил проверку на видимость (невидимые нет смысла кэшировать)
             $sqlQuery = "SELECT *,
                                 cache_url AS url,
                                 'm' AS datatype
                            FROM " . Material::_tablename() . "
                           WHERE cache_url != ''
+                            AND vis
                        ORDER BY FIELD(cache_url_parent_id, " . implode(", ", $pagesIds) . "), NOT priority, priority";
             $materials = Material::_SQL()->get($sqlQuery);
             $set = array_merge($pages, $materials);
@@ -136,7 +146,7 @@ class GetPageCacheCommand extends LockCommand
     {
         if (!$page->cache) {
             $this->controller->doLog(
-                'Page #' . (int)$page->id . ' "' . $page->url . '": is not cached'
+                'Page #' . (int)$page->id . ' "' . $page->fullURL . '": is not cached'
             );
             return false;
         }
@@ -146,7 +156,7 @@ class GetPageCacheCommand extends LockCommand
             $ft = filemtime($cachefile);
             if (($ft >= $mt) && !$forceUpdate) {
                 $this->controller->doLog(
-                    'Page #' . (int)$page->id . ' "' . $page->url . '": data is actual'
+                    'Page #' . (int)$page->id . ' "' . $page->fullURL . '": data is actual'
                 );
                 return false;
             }
@@ -154,9 +164,9 @@ class GetPageCacheCommand extends LockCommand
         $page->rebuildCache();
         $this->controller->doLog(
             'Page #' . (int)$page->id . ' "' . $page->fullURL . '": (' .
-            ($ft > 0 ? date('Y-m-d H:i:s ', $ft) : 'none') .
+            ($ft > 0 ? date('Y-m-d H:i:s', $ft) : 'none ') .
             '->' .
-            ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : 'none') .
+            ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : ' none') .
             ') updated'
         );
         return true;
@@ -174,7 +184,7 @@ class GetPageCacheCommand extends LockCommand
     {
         if (!$material->cache_url) {
             $this->controller->doLog(
-                'Material #' . (int)$material->id . ' "' . $page->url .
+                'Material #' . (int)$material->id . ' "' . $page->fullURL .
                 '": has no actual URL'
             );
             return false;
@@ -182,7 +192,7 @@ class GetPageCacheCommand extends LockCommand
         $page = $material->urlParent;
         if (!$page->cache) {
             $this->controller->doLog(
-                'Page #' . (int)$page->id . ' "' . $page->url . '": is not cached'
+                'Page #' . (int)$page->id . ' "' . $page->fullURL . '": is not cached'
             );
             return false;
         }
@@ -192,7 +202,7 @@ class GetPageCacheCommand extends LockCommand
             $ft = filemtime($cachefile);
             if (($ft >= $mt) && !$forceUpdate) {
                 $this->controller->doLog(
-                    'Material #' . (int)$material->id . ' "' . $material->url .
+                    'Material #' . (int)$material->id . ' "' . $material->fullURL .
                     '": data is actual'
                 );
                 return false;
@@ -201,9 +211,9 @@ class GetPageCacheCommand extends LockCommand
         $material->rebuildCache();
         $this->controller->doLog(
             'Material #' . (int)$material->id . ' "' . $material->fullURL . '": (' .
-            ($ft > 0 ? date('Y-m-d H:i:s ', $ft) : 'none') .
+            ($ft > 0 ? date('Y-m-d H:i:s ', $ft) : 'none ') .
             '->' .
-            ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : 'none') .
+            ($mt > 0 ? date(' Y-m-d H:i:s', $mt) : ' none') .
             ') updated'
         );
         return true;

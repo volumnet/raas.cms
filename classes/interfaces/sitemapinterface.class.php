@@ -373,6 +373,9 @@ class SitemapInterface extends AbstractInterface
      */
     public function getTextBlocksImagesData()
     {
+        $pageCache = PageRecursiveCache::i();
+        $domainId = array_shift($pageCache->getParentsIds($this->page->id));
+        $pagesIds = $pageCache->getSelfAndChildrenIds($domainId);
         $sqlQuery = "SELECT tB.name,
                             tBH.description,
                             GROUP_CONCAT(tBPA.page_id SEPARATOR ',') AS pages_ids
@@ -389,6 +392,7 @@ class SitemapInterface extends AbstractInterface
                       WHERE tB.vis
                         AND tP.response_code = ''
                         AND tBH.description LIKE ?
+                        AND tBPA.page_id IN (" . implode(", ", $pagesIds) . ")
                    GROUP BY tB.id";
         $sqlResult = Block::_SQL()->get([$sqlQuery, '%<img%']);
         $images = [];
@@ -559,13 +563,35 @@ class SitemapInterface extends AbstractInterface
      */
     public function getMaterialsAttachmentsData(array $fieldsIds = [])
     {
+        $pageCache = PageRecursiveCache::i();
+        $domainId = array_shift($pageCache->getParentsIds($this->page->id));
+        $pagesIds = $pageCache->getSelfAndChildrenIds($domainId);
+
         $materialsAttachmentsData = [];
         $affectedAttachmentsIds = [];
         $affectedMaterialsIds = [];
         if ($fieldsIds) {
-            $sqlQuery = "SELECT pid, fid, value
-                           FROM cms_data
-                          WHERE fid IN (" . implode(", ", $fieldsIds) . ")";
+            $sqlQuery = "SELECT tD.pid, tD.fid, tD.value
+                           FROM cms_data AS tD
+                           JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
+                          WHERE tD.fid IN (" . implode(", ", $fieldsIds) . ")
+                            AND IF (
+                                    tF.pid,
+                                    (
+                                        SELECT COUNT(tM.id)
+                                          FROM " . Material::_tablename() . " AS tM
+                                          JOIN " . Material_Type::_tablename() . " AS tMT ON tMT.id = tM.pid
+                                     LEFT JOIN cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id
+                                         WHERE tM.id = tD.pid
+                                           AND (
+                                                   tMT.global_type
+                                                OR tMPA.pid IN (" . implode(", ", $pagesIds) . ")
+                                            )
+                                    ) > 0, -- Материальное поле
+                                    (
+                                        tF.pid IN (" . implode(", ", $pagesIds) . ")
+                                    ) -- Страничное поле
+                              )";
             $sqlResult = Field::_SQL()->get($sqlQuery);
             foreach ($sqlResult as $sqlRow) {
                 $json = json_decode($sqlRow['value'], true);
