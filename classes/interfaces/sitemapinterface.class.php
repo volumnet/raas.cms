@@ -199,9 +199,12 @@ class SitemapInterface extends AbstractInterface
      */
     public function getUrl(array $itemData)
     {
+        $url = $itemData['url'];
+        $url = preg_replace('/^(http(s)?:)?\/\//umis', '', $url);
+        $url = 'http' . (($_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $url;
         $text = '<url>'
               // .   '<!-- ' . (isset($itemData['page_id']) ? Material::class : Page::class) . ' #' . (int)$itemData['id'] . ' -->'
-              .   '<loc>' . htmlspecialchars($itemData['url']) . '</loc>';
+              .   '<loc>' . htmlspecialchars($url) . '</loc>';
         if (strtotime($itemData['last_modified']) > 0) {
             $text .= '<lastmod>'
                   .     date(DATE_W3C, strtotime($itemData['last_modified']))
@@ -222,9 +225,12 @@ class SitemapInterface extends AbstractInterface
                 if (!$this->affectedImages[$imgId]) {
                     $imageData = $this->imagesData['images'][$imgId];
                     if ($imageData) {
+                        $imageURL = $imageData['url'];
+                        $imageURL = preg_replace('/^(http(s)?:)?\/\//umis', '', $imageURL);
+                        $imageURL = 'http' . (($_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $imageURL;
                         $text .= '<image:image>'
                               .    '<image:loc>'
-                              .       htmlspecialchars($imageData['url'])
+                              .       htmlspecialchars(imageURL)
                               .    '</image:loc>';
                         if ($imageData['name']) {
                             $text .= '<image:title>'
