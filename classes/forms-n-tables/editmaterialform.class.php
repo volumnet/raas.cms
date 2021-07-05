@@ -148,7 +148,7 @@ class EditMaterialForm extends \RAAS\Form
         }
         $commonTab->children['name'] = new RAASField([
             'name' => 'name',
-            'class' => 'span5',
+            'class' => 'span8',
             'caption' => $this->view->_('NAME'),
             'required' => 'required'
         ]);

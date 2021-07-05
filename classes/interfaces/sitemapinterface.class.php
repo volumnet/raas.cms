@@ -230,7 +230,7 @@ class SitemapInterface extends AbstractInterface
                         $imageURL = 'http' . (($_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $imageURL;
                         $text .= '<image:image>'
                               .    '<image:loc>'
-                              .       htmlspecialchars(imageURL)
+                              .       htmlspecialchars($imageURL)
                               .    '</image:loc>';
                         if ($imageData['name']) {
                             $text .= '<image:title>'

@@ -15,7 +15,7 @@ $jsonLd = [
     'itemListElement' => [],
 ];
 $host = $controllerFrontend->scheme . '://' . $controllerFrontend->host;
-if ($page->parents || $page->Material->id || $page->Item->id) {
+if (count((array)$page->parents) + (int)($page->Material->id || $page->Item->id) > 1) {
     $j = 0; ?>
     <ul class="breadcrumbs" itemscope itemtype="http://schema.org/BreadcrumbList">
       <?php foreach ($page->parents as $i => $row) {
@@ -28,8 +28,8 @@ if ($page->parents || $page->Material->id || $page->Item->id) {
               'position' => ++$j,
           ];
           ?>
-          <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-            <a itemprop="item" href="<?php echo htmlspecialchars($row->url)?>">
+          <li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a class="breadcrumbs__link" itemprop="item" href="<?php echo htmlspecialchars($row->url)?>">
               <span itemprop="name">
                 <?php echo htmlspecialchars($row->getBreadcrumbsName())?>
               </span>
@@ -47,8 +47,8 @@ if ($page->parents || $page->Material->id || $page->Item->id) {
               'position' => ++$j,
           ];
           ?>
-          <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-            <a itemprop="item" href="<?php echo htmlspecialchars($page->url)?>">
+          <li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a class="breadcrumbs__link" itemprop="item" href="<?php echo htmlspecialchars($page->url)?>">
               <span itemprop="name">
                 <?php echo htmlspecialchars($page->getBreadcrumbsName())?>
               </span>

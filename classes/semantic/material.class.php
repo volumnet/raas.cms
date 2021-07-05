@@ -298,9 +298,12 @@ class Material extends SOME
         // 2020-03-24, AVS: обновим дату связанного изменения
         $this->modify();
 
-        // 2019-04-25, AVS: обновим связанные страницы
-        static::updateAffectedPages(null, $this);
-        Material_Type::updateAffectedPagesForSelf($this->material_type);
+        // 2021-07-06, AVS: добавили условие для скоростного обновления
+        if (!$this->meta['dontUpdateAffectedPages']) {
+            // 2019-04-25, AVS: обновим связанные страницы
+            static::updateAffectedPages(null, $this);
+            Material_Type::updateAffectedPagesForSelf($this->material_type);
+        }
 
         return true;
     }
@@ -327,9 +330,12 @@ class Material extends SOME
         // 2020-03-24, AVS: обновим дату связанного изменения
         $this->modify();
 
-        // 2019-04-25, AVS: обновим связанные страницы
-        static::updateAffectedPages(null, $this);
-        Material_Type::updateAffectedPagesForSelf($this->material_type);
+        // 2021-07-06, AVS: добавили условие для скоростного обновления
+        if (!$this->meta['dontUpdateAffectedPages']) {
+            // 2019-04-25, AVS: обновим связанные страницы
+            static::updateAffectedPages(null, $this);
+            Material_Type::updateAffectedPagesForSelf($this->material_type);
+        }
 
         return true;
     }
@@ -369,7 +375,8 @@ class Material extends SOME
     public static function delete(SOME $object)
     {
         $mtype = $object->material_type;
-        $material = new Material($object->id);
+        $dontUpdateAffectedPages = (bool)$object->meta['dontUpdateAffectedPages'];
+        $material = $object->deepClone();
 
         // Удалим файловые поля с проверкой на совместное использование
         // Найдем используемые значения файловых полей в данном материале
@@ -451,9 +458,12 @@ class Material extends SOME
                         AND tM.id IS NULL";
         $result = static::$SQL->query([$sqlQuery, ['material']]);
 
-        // 2019-04-25, AVS: обновим связанные страницы
-        static::updateAffectedPages(null, $material);
-        Material_Type::updateAffectedPagesForSelf($mtype);
+        // 2021-07-06, AVS: добавили условие для скоростного обновления
+        if (!$dontUpdateAffectedPages) {
+            // 2019-04-25, AVS: обновим связанные страницы
+            static::updateAffectedPages(null, $material);
+            Material_Type::updateAffectedPagesForSelf($mtype);
+        }
     }
 
 
@@ -528,7 +538,7 @@ class Material extends SOME
                     LEFT JOIN " . static::_tablename() . " AS tM ON tM.id = tMAP.material_id ";
         }
         $sqlQuery .= " WHERE 1 ";
-        if ($materialId = $material->id) {
+        if ($materialId) {
             $sqlQuery .= " AND material_id = " . (int)$materialId;
         } elseif ($materialTypeId) {
             $sqlQuery .= " AND (

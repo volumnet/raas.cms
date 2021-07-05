@@ -9,7 +9,7 @@ use SOME\HTTP;
 use SOME\Pages;
 
 if ($pages->pages > 1) { ?>
-    <ul class="pagination pull-right">
+    <ul class="pagination">
       <?php
       $links = [];
       $trace = 2;
@@ -73,20 +73,24 @@ if ($pages->pages > 1) { ?>
       }
       foreach ($links as $link) {
           if ($link['ellipsis']) { ?>
-              <li class="disabled"><a>...</a></li>
+              <li class="pagination__item pagination__item_disabled">
+                <a class="pagination__link pagination__link_disabled">...</a>
+              </li>
           <?php } elseif ($link['active']) { ?>
-              <li class="active">
-                <span>
+              <li class="pagination__item pagination__item_active">
+                <span class="pagination__link pagination__link_active">
                   <?php echo htmlspecialchars($link['text'])?>
                 </span>
               </li>
           <?php } else { ?>
-              <li>
-                <a href="<?php echo htmlspecialchars($link['href'])?>">
+              <li class="pagination__item">
+                <a class="pagination__link" href="<?php echo htmlspecialchars($link['href'])?>">
                   <?php echo htmlspecialchars($link['text'])?>
                 </a>
               </li>
           <?php }
       } ?>
     </ul>
-<?php } ?>
+    <?php
+    Package::i()->requestCSS('/css/pagination.css');
+}

@@ -9,6 +9,14 @@ export default {
         pageId: {
             type: Number,
         },
+        /**
+         * Использовать AJAX-загрузку
+         * @type {Boolean}
+         */
+        useAjax: {
+            type: Boolean,
+            default: false,
+        },
     },
     data: function () {
         return {
@@ -20,23 +28,28 @@ export default {
         };
     },
     mounted: function () {
-        $(window).one('load', () => {
-            window.setTimeout(() => {
-                this.getAJAXMenu();
-                this.ajaxLoaded = true;
-            }, 50);
-        });
+        if (this.useAjax) {
+            $(window).one('load', () => {
+                window.setTimeout(() => {
+                    this.getAJAXMenu();
+                    this.ajaxLoaded = true;
+                }, 50);
+            });
+        }
         // $('.logo2:eq(0)').clone().appendTo('.menu-mobile__logo');
         // $('.contacts-top-phones-list__item:eq(0) a')
         //     .clone()
         //     .addClass('menu-mobile__link menu-mobile__link_main menu-mobile__link_phone')
         //     .appendTo('.menu-mobile__item_phone');
                 
-        $('.triggers-item_menu, .menu-mobile__trigger, [data-role="mobile-menu-trigger"]')
-            .on('click', function () {
-                $('.menu-mobile__list_main').toggleClass('menu-mobile__list_active');
-                return false;
-            });
+        $(document).on('raas.openmobilemenu', () => {
+            $('.menu-mobile__list_main').toggleClass('menu-mobile__list_active');
+        })
+        // $('.triggers-item_menu, .menu-mobile__trigger, [data-role="mobile-menu-trigger"]')
+        //     .on('click', function () {
+        //         $('.menu-mobile__list_main').toggleClass('menu-mobile__list_active');
+        //         return false;
+        //     });
         $(this.$el).on(
             'click', 
             '.menu-mobile__item:has(> .menu-mobile__list) > .menu-mobile__link', 

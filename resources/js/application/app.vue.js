@@ -43,7 +43,6 @@ export default {
     },
     mounted: function () {
         let self = this;
-
         this.lightBoxInit();
 
         this.fixHtml();
@@ -201,6 +200,17 @@ export default {
          */
         numTxt: function (x, forms) {
             window.numTxt(x, forms);
+        },
+
+        /**
+         * Генерирует jQuery-событие уровня документа
+         * @param {String} eventName Наименование события
+         * @param {mixed} data Данные для передачи
+         */
+        jqEmit: function (eventName, data = null, originalEvent = null) {
+            window.setTimeout(function () {
+                let result = $(document).trigger(eventName, data);
+            }, 10);
         },
     },
 }

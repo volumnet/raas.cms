@@ -80,9 +80,7 @@ function displayLocation(Location $location, Page $page)
                     <?php } ?>
                   </div>
               <?php }
-              if (isset($Item->blocksByLocations['']) ||
-                  !$Item->Template->locations
-              ) { ?>
+              if ($Item->blocksByLocations[''] || !$Item->Template->locations) { ?>
                   <div class="cms-location" style="position: relative; width: <?php echo $Item->Template->width?>px" id="location-">
                     <?php echo displayLocation(new Location(), $Item)?>
                   </div>

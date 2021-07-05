@@ -43,15 +43,17 @@ $showMenu = function($node, Page $current) use (&$showMenu, $ajax) {
             $name = $row['name'];
         }
         $active = $semiactive = false;
-        if ($url == $current->url) {
+        // 2021-02-23, AVS: заменил HTTP::queryString('', true) на $current->url,
+        // чтобы была возможность использовать через AJAX
+        // 2021-06-16, AVS: Заменил ($url == $current->url) на (!$ajax && ($url == $_SERVER['REQUEST_URI'])),
+        // чтобы при активном материале ссылка не была активной
+        if (!$ajax && ($url == $_SERVER['REQUEST_URI'])) {
             $active = true;
         } elseif (preg_match('/^' . preg_quote($url, '/') . '/umi', $current->url) &&
             ($url != '/')
         ) {
             $semiactive = true;
         }
-        // 2021-02-23, AVS: заменил HTTP::queryString('', true) на $current->url,
-        // чтобы была возможность использовать через AJAX
         $ch = '';
         if (1 || $active || $semiactive || $ajax || !stristr($url, '/catalog/')) { // Для подгрузки AJAX'ом
             $level++;

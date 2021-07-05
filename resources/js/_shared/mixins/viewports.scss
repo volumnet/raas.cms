@@ -45,7 +45,7 @@
 }
 
 // Печать + между двумя
-@mixin print-or($from, $to) {
+@mixin print-or($from, $to: $from) {
     @media print {
         @content;
     }

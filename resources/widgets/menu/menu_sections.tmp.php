@@ -1,6 +1,6 @@
 <?php
 /**
- * {{MENU_NAME}}
+ * Меню подразделов
  * @param Page $Page Текущая страница
  * @param Block_Menu $Block Текущий блок
  * @param array<[
@@ -24,7 +24,7 @@ use SOME\HTTP;
  * @param Page $current Текущая страница
  * @return string
  */
-$showMenu = function($node, Page $current) use (&$showMenu) {
+$showMenu = function ($node, Page $current) use (&$showMenu) {
     if ($node instanceof Menu) {
         $children = $node->visSubMenu;
     } else {
@@ -43,33 +43,34 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
         }
         // 2021-02-23, AVS: заменил HTTP::queryString('', true) на $current->url,
         // чтобы была возможность использовать через AJAX
-        $active = ($url == $current->url);
+        // 2021-06-16, AVS: Заменили так, чтобы при активном материале ссылка не была активной
+        $active = (!$ajax && ($url == $_SERVER['REQUEST_URI']));
         $semiactive = preg_match('/^' . preg_quote($url, '/') . '/umi', $current->url) && ($url != '/') && !$active;
         if (preg_match('/class="[\\w\\- ]*?active[\\w\\- ]*?"/umi', $ch)) {
             $semiactive = true;
         }
         $liClasses = array(
-            '{{MENU_CSS_CLASSNAME}}__item',
-            '{{MENU_CSS_CLASSNAME}}__item_' . (!$level ? 'main' : 'inner'),
-            '{{MENU_CSS_CLASSNAME}}__item_level_' . $level
+            'menu-sections__item',
+            'menu-sections__item_' . (!$level ? 'main' : 'inner'),
+            'menu-sections__item_level_' . $level
         );
         $aClasses = array(
-            '{{MENU_CSS_CLASSNAME}}__link',
-            '{{MENU_CSS_CLASSNAME}}__link_' . (!$level ? 'main' : 'inner'),
-            '{{MENU_CSS_CLASSNAME}}__link_level_' . $level
+            'menu-sections__link',
+            'menu-sections__link_' . (!$level ? 'main' : 'inner'),
+            'menu-sections__link_level_' . $level
         );
         if ($active) {
-            $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_active';
-            $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_focused';
-            $aClasses[] = '{{MENU_CSS_CLASSNAME}}__link_active';
+            $liClasses[] = 'menu-sections__item_active';
+            $liClasses[] = 'menu-sections__item_focused';
+            $aClasses[] = 'menu-sections__link_active';
         } elseif ($semiactive) {
-            $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_semiactive';
-            $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_focused';
-            $aClasses[] = '{{MENU_CSS_CLASSNAME}}__link_semiactive';
+            $liClasses[] = 'menu-sections__item_semiactive';
+            $liClasses[] = 'menu-sections__item_focused';
+            $aClasses[] = 'menu-sections__link_semiactive';
         }
         if ($ch) {
-            $liClasses[] = '{{MENU_CSS_CLASSNAME}}__item_has-children';
-            $aClasses[] = '{{MENU_CSS_CLASSNAME}}__link_has-children';
+            $liClasses[] = 'menu-sections__item_has-children';
+            $aClasses[] = 'menu-sections__link_has-children';
         }
         $text .= '<li class="' . implode(' ', $liClasses) . '">';
         ob_start();
@@ -78,15 +79,15 @@ $showMenu = function($node, Page $current) use (&$showMenu) {
               .  '</li>';
     }
     $ulClasses = array(
-        '{{MENU_CSS_CLASSNAME}}__list',
-        '{{MENU_CSS_CLASSNAME}}__list_' . (!$level ? 'main' : 'inner'),
-        '{{MENU_CSS_CLASSNAME}}__list_level_' . $level
+        'menu-sections__list',
+        'menu-sections__list_' . (!$level ? 'main' : 'inner'),
+        'menu-sections__list_level_' . $level
     );
     return $text ? '<ul class="' . implode(' ', $ulClasses) . '">' . $text . '</ul>' : $text;
 };
 ?>
 
-<nav class="{{MENU_CSS_CLASSNAME}}">
+<nav class="menu-sections">
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>
-<?php echo Package::i()->asset('/js/{{MENU_CSS_CLASSNAME}}.js')?>
+<?php echo Package::i()->asset('/js/menu-sections.js')?>

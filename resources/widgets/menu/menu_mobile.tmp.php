@@ -60,17 +60,15 @@ $showMenu = function($node, Page $current) use (
                        </div>';
         }
         $text .= '     <div class="menu-mobile__close">
-                         <a class="menu-mobile__close-link"></a>
+                         <a class="menu-mobile__close-link btn-close"></a>
                        </div>
                      </li>';
-        if (!$level) {
-            $text .= '<li class="menu-mobile__item menu-mobile__item_main menu-mobile__item_level_0 menu-mobile__item_phone">';
-            if ($phone) {
-                $text .= '<a class="menu-mobile__link menu-mobile__link_main menu-mobile__link_level_0 menu-mobile__link_phone" href="tel:%2B7' . Text::beautifyPhone($phone) . '">'
-                      .     htmlspecialchars($phone)
-                      .  '</a>';
-            }
-            $text .= '</li>';
+        if (!$level && $phone) {
+            $text .= '<li class="menu-mobile__item menu-mobile__item_main menu-mobile__item_level_0 menu-mobile__item_phone">
+                        <a class="menu-mobile__link menu-mobile__link_main menu-mobile__link_level_0 menu-mobile__link_phone" href="tel:%2B7' . Text::beautifyPhone($phone) . '">'
+                  .       htmlspecialchars($phone)
+                  .    '</a>
+                      </li>';
         }
     }
     for ($i = 0; $i < count($children); $i++) {
@@ -87,15 +85,17 @@ $showMenu = function($node, Page $current) use (
         }
         $urn = array_shift(array_reverse(explode('/', trim($url, '/'))));
         $active = $semiactive = false;
-        if ($url == $current->url) {
+        // 2021-02-23, AVS: заменил HTTP::queryString('', true) на $current->url,
+        // чтобы была возможность использовать через AJAX
+        // 2021-06-16, AVS: Заменил ($url == $current->url) на (!$ajax && ($url == $_SERVER['REQUEST_URI'])),
+        // чтобы при активном материале ссылка не была активной
+        if (!$ajax && ($url == $_SERVER['REQUEST_URI'])) {
             $active = true;
         } elseif (preg_match('/^' . preg_quote($url, '/') . '/umi', $current->url) &&
             ($url != '/')
         ) {
             $semiactive = true;
         }
-        // 2021-02-23, AVS: заменил HTTP::queryString('', true) на $current->url,
-        // чтобы была возможность использовать через AJAX
         $ch = '';
         if (!$useAjax || $ajax || !stristr($url, '/catalog/')) { // Для подгрузки AJAX'ом
             $level++;
@@ -158,7 +158,7 @@ $company = Material::getSet([
 $phone = (array)$company->phone;
 $phone = $phone[0];
 ?>
-<nav class="menu-mobile" data-vue-role="menu-mobile" data-v-bind_page-id="<?php echo (int)$Page->id?>" data-v-slot="vm">
-  <a class="menu-mobile__trigger"></a>
+<nav class="menu-mobile" data-vue-role="menu-mobile" data-v-bind_page-id="<?php echo (int)$Page->id?>" data-v-bind_use-ajax="<?php echo htmlspecialchars(json_encode($useAjax))?>" data-v-slot="vm">
+  <a class="menu-mobile__trigger" data-v-on_click.stop="jqEmit('raas.openmobilemenu')"></a>
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>

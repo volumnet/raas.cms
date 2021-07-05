@@ -69,6 +69,10 @@ ob_start(); // Для $separateScripts
         '/js/header.js',
         '//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js',
     ]);
+    if (!$Page->pid) {
+        Package::i()->requestCSS(['/css/main.css']);
+        Package::i()->requestJS(['/js/main.js']);
+    }
     // Включаем, если есть HTML-поля
     // Package::i()->requestJS([
     //     '/vendor/ckeditor/ckeditor/ckeditor.js',
@@ -194,15 +198,14 @@ ob_start(); // Для $separateScripts
                           } else {
                               $catalogMaterialType = Material_Type::importByURN('catalog');
                               Snippet::importByURN('breadcrumbs')->process(['page' => $Page]);
-                              /*if (!$Page->Material->id || !in_array(
+                              if (!$Page->Material->id || !in_array(
                                   $catalogMaterialType->id,
                                   MaterialTypeRecursiveCache::i()->getSelfAndParentsIds($Page->Material->pid)
-                              )) {*/ ?>
+                              )) { ?>
                                   <h1 class="h1 body__title">
                                     <?php echo htmlspecialchars($Page->getH1())?>
                                   </h1>
-                                  <?php
-                              /* } */
+                              <?php }
                               echo $contentText . $Page->location('share');
                           } ?>
                         </div>
