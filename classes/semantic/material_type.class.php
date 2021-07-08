@@ -276,6 +276,10 @@ class Material_Type extends SOME
             static::$dbprefix . 'cms_material_types_affected_pages_for_materials_cache',
             $sqlArr
         );
+
+        // 2021-07-07, AVS: очистим память
+        unset($sqlArr);
+
         Material::updateAffectedPages($materialType);
     }
 

@@ -24,7 +24,7 @@ if ($Item) { ?>
           <?php if ($Item->visImages) { ?>
               <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__image">
                 <a href="/<?php echo $Item->visImages[0]->fileURL?>" data-lightbox-gallery="g">
-                  <img loading="lazy" src="/<?php echo Package::i()->tn($Item->visImages[0]->fileURL, 1140, 570)?>" alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $row->name)?>" /></a>
+                  <img loading="lazy" src="/<?php echo htmlspecialchars($Item->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $row->name)?>" /></a>
               </div>
           <?php } ?>
           <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__text">
@@ -34,7 +34,7 @@ if ($Item) { ?>
           </div>
           <?php if (count($Item->visImages) > 1) { ?>
               <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__images">
-                <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__images-title">
+                <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__images-title h3">
                   <?php echo PHOTOS ?>
                 </div>
                 <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__images-list">
@@ -52,7 +52,10 @@ if ($Item) { ?>
         </div>
       </div>
     </div>
-<?php } elseif ($Set) { ?>
+    <?php
+    Package::i()->requestCSS(['/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-article.css']);
+    Package::i()->requestJS(['/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-article.js']);
+} elseif ($Set) { ?>
     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}">
       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__list">
         <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-list">
@@ -95,5 +98,7 @@ if ($Item) { ?>
           </div>
       <?php } ?>
     </div>
-<?php } ?>
-<?php echo Package::i()->asset('/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}.js')?>
+    <?php
+    Package::i()->requestCSS(['/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-list.css']);
+    Package::i()->requestJS(['/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-list.js']);
+}

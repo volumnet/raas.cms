@@ -598,6 +598,13 @@ class Material extends SOME
             }
         }
 
+        // 2021-07-07, AVS: очистим память
+        unset(
+            $materialTypesToPagesAssoc,
+            $materialsToPagesAssoc,
+            $materialsToMaterialTypesAssoc
+        );
+
         // Сформируем массив для записи в базу
         $sqlArr = [];
         foreach ($realMaterialsToPagesAssoc as $mId => $mPagesIds) {
@@ -608,12 +615,23 @@ class Material extends SOME
                 ];
             }
         }
+
+        // 2021-07-07, AVS: очистим память
+        unset($realMaterialsToPagesAssoc);
+
         if ($sqlArr) {
-            static::_SQL()->add(
-                static::$dbprefix . "cms_materials_affected_pages_cache",
-                $sqlArr
-            );
+            // 2021-07-07, AVS: разделим по 1000 записей, чтобы база не падала
+            for ($i = 0; $i < ceil(count($sqlArr) / 1000); $i++) {
+                $sqlChunk = array_slice($sqlArr, $i * 1000, 1000);
+                static::_SQL()->add(
+                    static::$dbprefix . "cms_materials_affected_pages_cache",
+                    $sqlChunk
+                );
+            }
         }
+
+        // 2021-07-07, AVS: очистим память
+        unset($sqlArr);
 
         // Определим родителей по URL
         $sqlQuery = "UPDATE " . static::_tablename() . " AS tM
