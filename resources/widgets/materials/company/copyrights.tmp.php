@@ -14,7 +14,7 @@ $company = $Set[0];
   <?php
   if (!($copyrights = $company->copyrights)) {
       $copyrights = '© '
-                  . htmlspecialchars($company->legal_name ?: $company->name)
+                  . ($company->legal_name ?: $company->name)
                   . ', ' . date('Y') . '. '
                   . View_Web::i()->_('ALL_RIGHTS_RESERVED') . '.';
   }
