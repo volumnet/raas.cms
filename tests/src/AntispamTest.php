@@ -231,7 +231,7 @@ class AntispamTest extends BaseTest
                 ]
             ]),
             'ru',
-            'xn----123-twefc7ajzghiad4a8a4n.xn--p1ai'
+            'www.xn----123-twefc7ajzghiad4a8a4n.xn--p1ai'
         );
 
         $result = $antispam->checkForeignLinks($flatData);

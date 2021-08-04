@@ -37,7 +37,9 @@ class Antispam
     {
         $this->form = $form;
         $this->lang = $lang;
-        $this->host = idn_to_ascii($host ?: $_SERVER['HTTP_HOST']);
+        $host = idn_to_ascii($host ?: $_SERVER['HTTP_HOST']);
+        $host = str_replace('www.', '', $host);
+        $this->host = $host;
     }
 
 
@@ -145,7 +147,7 @@ class Antispam
         if ($urls) {
             foreach ($urls as $url) {
                 $url = idn_to_ascii($url);
-                if ($url != $this->host) {
+                if (!stristr($url, $this->host) && !stristr($this->host, $url)) {
                     return false;
                 }
             }
