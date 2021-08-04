@@ -13,7 +13,7 @@ jQuery(function($) {
     }
 
     $('#antispam').change(function() {
-        if ($(this).val() != '') {
+        if (['captcha', 'hidden'].indexOf($(this).val()) != -1) {
             $('#antispam_field_name').removeAttr('disabled');
             if ($('#antispam').val() == 'captcha') {
                 $('#antispam_field_name').val('captcha');

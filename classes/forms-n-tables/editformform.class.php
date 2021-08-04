@@ -39,7 +39,8 @@ class EditFormForm extends RAASForm
             // 'captcha' => 'CAPTCHA',
             // 2020-11-04, AVS: убрал, т.к. ни разу не воспользовались,
             // и вообще не ясно, как с этим работать
-            'hidden' => 'HIDDEN_FIELD'
+            'hidden' => 'HIDDEN_FIELD',
+            'smart' => 'SMART_ANTISPAM',
         ] as $key => $val) {
             $CONTENT['antispam'][] = [
                 'value' => $key,

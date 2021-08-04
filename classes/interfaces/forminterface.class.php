@@ -342,7 +342,12 @@ class FormInterface extends AbstractInterface
     ) {
         $antispamType = $form->antispam;
         $fieldURN = $form->antispam_field_name;
-        if ($antispamType && $fieldURN) {
+        if ($antispamType == 'smart') {
+            $antispam = new Antispam($form, $this->page->lang);
+            if (!$antispam->check($post)) {
+                return View_Web::i()->_('ERR_CAPTCHA_FIELD_INVALID');
+            }
+        } elseif ($antispamType && $fieldURN) {
             switch ($antispamType) {
                 case 'captcha':
                     if (!isset($post[$fieldURN]) ||
@@ -859,7 +864,7 @@ class FormInterface extends AbstractInterface
             }
         }
 
-        if ($smsPhones = $addresses['smsPhones']) {
+        if (Application::i()->prod && ($smsPhones = $addresses['smsPhones'])) {
             if ($urlTemplate = Package::i()->registryGet('sms_gate')) {
                 $m = new Mustache_Engine();
                 foreach ($smsPhones as $phone) {
