@@ -418,6 +418,14 @@ class AntispamTest extends BaseTest
                 ],
                 true,
             ],
+            [
+                [
+                    'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
+                    'phone_call' => '+7 (999) 000-00-00',
+                    'agree' => '1'
+                ],
+                true,
+            ],
         ];
     }
 
@@ -751,7 +759,31 @@ class AntispamTest extends BaseTest
      */
     public function testCheckRussian($flatData, $expected)
     {
-        $antispam = new Antispam(new Form(), 'ru');
+        $antispam = new Antispam(new Form([
+            'fields' => [
+                'full_name' => new Field([
+                    'urn' => 'full_name',
+                    'datatype' => 'text',
+                    'name' => 'Ваше имя',
+                ]),
+                'cell' => new Field([
+                    'urn' => 'cell',
+                    'datatype' => 'tel',
+                    'name' => 'Телефон',
+                ]),
+                'email' => new Field([
+                    'urn' => 'email',
+                    'datatype' => 'email',
+                    'name' => 'Телефон',
+                ]),
+                '_description_' => new Field([ // Чтобы не распознавалось по имени
+                    'urn' => '_description_',
+                    'datatype' => 'textarea',
+                    'name' => 'Текст вопроса',
+                ]),
+
+            ]
+        ]), 'ru');
 
         $result = $antispam->checkRussian($flatData);
 
@@ -873,6 +905,15 @@ class AntispamTest extends BaseTest
                 [
                     'full_name' => 'Test User',
                     '_description_' => 'Проверка связи'
+                ],
+                'ru',
+                true,
+            ],
+            [
+                [
+                    'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
+                    'phone_call' => '+7 (999) 000-00-00',
+                    'agree' => '1'
                 ],
                 'ru',
                 true,

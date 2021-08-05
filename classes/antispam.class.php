@@ -234,7 +234,7 @@ class Antispam
                 continue;
             }
             $field = $this->form->fields[$fieldURN];
-            if ($field && ($field->datatype == 'email')) {
+            if (!$field || ($field->datatype == 'email')) {
                 continue;
             }
             if (!$hasLatinLetters && preg_match('/[A-Za-z]/umis', $val)) {
