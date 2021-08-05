@@ -91,12 +91,12 @@ class Antispam
     {
         foreach ($flatData as $key => $val) {
             $fieldURN = $this->getFieldURN($key);
-            if (preg_match('/url|social|site|web|link|www|internet/umis', $fieldURN)) {
+            if (preg_match('/url|social|site|web|link|www|internet|email/umis', $fieldURN)) {
                 continue; // Если поле предназначено для ссылки или соц. сети,
                           // то его не учитываем
             }
             $field = $this->form->fields[$fieldURN];
-            if ($field && ($field->datatype == 'url')) {
+            if ($field && (in_array($field->datatype, ['url', 'email']))) {
                 continue; // Если поле типа "Адрес сайта", то его не учитываем
             }
             if (!$this->checkTextForeignLinks($val)) {
