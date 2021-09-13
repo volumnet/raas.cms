@@ -1034,6 +1034,7 @@ class Webmaster
                 'blockLocation' => 'menu_mobile',
                 'fullMenu' => true,
                 'inheritBlock' => true,
+                'widget_urn' => 'menu_mobile',
             ],
         ]);
 
@@ -1163,30 +1164,6 @@ class Webmaster
             );
         }
 
-        $temp = Snippet::importByURN('search_form');
-        if (!$temp->id) {
-            $f = Package::i()->resourcesDir . '/search_form.tmp.php';
-            $this->createSnippet(
-                'search_form',
-                View_Web::i()->_('SEARCH_FORM'),
-                $this->widgetsFolder->id,
-                Package::i()->resourcesDir . '/widgets/search/search_form.tmp.php',
-                [
-                    'WIDGET_NAME' => View_Web::i()->_('SEARCH_FORM'),
-                    'WIDGET_URN' => 'search_form',
-                    'WIDGET_CSS_CLASSNAME' => 'search-form'
-                ]
-            );
-            $this->createBlock(
-                new Block_PHP(),
-                'search_form',
-                '',
-                'search_form',
-                $this->Site,
-                true
-            );
-        }
-
         $temp = Page::getSet([
             'where' => ["pid = " . (int)$this->Site->id, "urn = 'search'"]
         ]);
@@ -1205,12 +1182,39 @@ class Webmaster
                 'pages_var_name' => 'page',
                 'rows_per_page' => 20,
             ]);
-            $this->createBlock(
+            $searchBlock = $this->createBlock(
                 $searchBlock,
                 'content',
                 '__raas_search_interface',
                 'search',
                 $page
+            );
+        }
+
+
+        $temp = Snippet::importByURN('search_form');
+        if (!$temp->id) {
+            $f = Package::i()->resourcesDir . '/search_form.tmp.php';
+            $this->createSnippet(
+                'search_form',
+                View_Web::i()->_('SEARCH_FORM'),
+                $this->widgetsFolder->id,
+                Package::i()->resourcesDir . '/widgets/search/search_form.tmp.php',
+                [
+                    'WIDGET_NAME' => View_Web::i()->_('SEARCH_FORM'),
+                    'WIDGET_URN' => 'search_form',
+                    'WIDGET_CSS_CLASSNAME' => 'search-form'
+                ]
+            );
+            $this->createBlock(
+                new Block_PHP([
+                    'params' => 'searchBlockId=' . (int)$searchBlock->id
+                ]),
+                'search_form',
+                '',
+                'search_form',
+                $this->Site,
+                true
             );
         }
         return $page;

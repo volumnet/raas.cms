@@ -26,7 +26,7 @@ $ajax = (bool)stristr($Page->url, '/ajax/');
  * @param Page $current Текущая страница
  * @return string
  */
-$showMenu = function($node, Page $current) use (&$showMenu, $ajax) {
+$showMenu = function ($node, Page $current) use (&$showMenu, $ajax) {
     static $level = 0;
     if ($node instanceof Menu) {
         $children = $node->visSubMenu;
@@ -106,4 +106,4 @@ $showMenu = function($node, Page $current) use (&$showMenu, $ajax) {
 <nav class="{{MENU_CSS_CLASSNAME}}">
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>
-<?php echo Package::i()->asset('/js/{{MENU_CSS_CLASSNAME}}.js')?>
+<?php Package::i()->requestJS('/js/{{MENU_CSS_CLASSNAME}}.js');

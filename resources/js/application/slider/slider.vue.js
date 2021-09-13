@@ -120,7 +120,13 @@ export default {
                 this.activeFrame = newActiveFrame;
                 this.refreshFadeInterval();
             } else {
-                $('[data-role="slider-list"]', this.$el).jcarousel('scroll', index);
+                // 2021-08-22, AVS: сделал явные атрибуты индекса, 
+                // т.к. при перестановке слайдов с wrap'ом индексация слетает
+                let $list = $('[data-role="slider-list"]', this.$el);
+                let slideToScroll = $list
+                    .jcarousel('items')
+                    .filter('[data-slider-index="' + index + '"]')[0];
+                $list.jcarousel('scroll', slideToScroll);
             }
         },
         /**
@@ -166,8 +172,13 @@ export default {
             let $self = $('[data-role="slider-list"]', this.$el).jcarousel(options);
                 
             let $items = $self.jcarousel('items');
-            $items.on('jcarousel:firstin', function () {
-                let i = $items.index(this);
+            // 2021-08-22, AVS: сделал явные атрибуты индекса, 
+            // т.к. при перестановке слайдов с wrap'ом индексация слетает
+            $items.each((index, el) => {
+                $(el).attr('data-slider-index', index);
+            }).on('jcarousel:firstin', function () {
+                // let i = $items.index(this);
+                let i = $(this).attr('data-slider-index');
                 self.activeFrame = i;
             });
             

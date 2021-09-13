@@ -89,7 +89,7 @@ export default {
          * @type {Boolean}
          */
         draggable: function () {
-            return this.value.length > 1;
+            return this.sortable && (this.value.length > 1);
         },
         /**
          * Можно ли удалять элементы

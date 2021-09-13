@@ -8,6 +8,9 @@ export default {
     mounted: function () {
         this.$el.classList.remove('form-control');
     },
+    updated: function () {
+        this.$el.classList.remove('form-control');
+    },
     methods: {
         clear: function () {
             this.$emit('input', '')

@@ -27,6 +27,9 @@ export default {
     mounted: function () {
         this.$el.classList.remove('form-control');
     },
+    updated: function () {
+        this.$el.classList.remove('form-control');
+    },
     computed: {
         /**
          * Слушатели событий полей (с учетом v-model)

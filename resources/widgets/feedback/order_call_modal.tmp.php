@@ -16,7 +16,9 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
     if ($localError) {
         $result['localError'] = $localError;
     }
-    ob_clean();
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
     echo json_encode($result);
     exit;
 } else { ?>

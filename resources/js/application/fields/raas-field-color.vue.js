@@ -10,6 +10,7 @@ export default {
         this.checkColorPicker()
     },
     updated: function () {
+        this.$el.classList.remove('form-control');
         this.checkColorPicker();
     },
     methods: {

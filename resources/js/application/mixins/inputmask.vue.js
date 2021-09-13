@@ -31,6 +31,8 @@ export default {
                     self.$emit('input', e.target.value);
                 }).on('change', function (e) {
                     self.$emit('change', e.target.value);
+                }).on('keydown', function (e) {
+                    self.$emit('input', e.target.value);
                 })
                 .attr('data-inputmask-events', 'true');
         },

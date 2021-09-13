@@ -5,10 +5,21 @@ export default {
     props: {
         /**
          * ID# блока
+         * @type {Number}
          */
         blockId: {
             type: Number
         },
+        /**
+         * Начальные POST-данные
+         * @type {Object}
+         */
+        initialFormData: {
+            type: Object,
+            default: function () {
+                return {};
+            },
+        }
     },
     data: function () {
         return {
@@ -36,7 +47,9 @@ export default {
              * Данные формы
              * @type {Object}
              */
-            formData: {}
+            formData: (typeof this.initialFormData == 'object') 
+                ? this.initialFormData 
+                : {}
         };
     },
     mounted: function () {

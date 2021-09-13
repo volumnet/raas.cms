@@ -61,12 +61,15 @@ ob_start(); // Для $separateScripts
     <?php } ?>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <?php echo $Page->headData;
-    echo Package::i()->asset([
+    Package::i()->requestCSS([
         'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap',
         '/custom.css',
         '/css/header.css',
-        '/js/header.js',
+    ]);
+    Package::i()->requestJS('/js/header.js', 'beforeApp');
+    Package::i()->requestJS([
         '//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js',
     ]);
     if (!$Page->pid) {
@@ -82,7 +85,6 @@ ob_start(); // Для $separateScripts
     echo Package::i()->getRequestedJS('beforeApp');
     echo Package::i()->asset([
         '/css/footer.css',
-        '/favicon.ico',
     ]);
     echo Package::i()->getRequestedJS();
     if (HTTP::queryString()) { ?>

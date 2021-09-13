@@ -68,6 +68,7 @@ export default {
         this.checkDatePicker();
     },
     updated: function () {
+        this.$el.classList.remove('form-control');
         this.checkDatePicker();
     },
     methods: {
@@ -89,7 +90,7 @@ export default {
                 .on('blur', function (e) {
                     if (e.target.value) {
                         let value = window
-                            .moment(e.target.value, self.momentFormat)
+                            .moment(e.target.value, self.momentFormat, true)
                             .format(self.canonicalMomentFormat);
                         if (!/invalid/gi.test(value)) {
                             self.$emit('input', value);
@@ -97,6 +98,19 @@ export default {
                         } else {
                             self.$emit('input', self.value);
                             self.$forceUpdate();
+                        }
+                    } else {
+                        self.$emit('input', '');
+                    }
+                })
+                .on('input', function (e) {
+                    if (e.target.value) {
+                        let value = window
+                            .moment(e.target.value, self.momentFormat, true)
+                            .format(self.canonicalMomentFormat);
+                        if (!/invalid/gi.test(value)) {
+                            self.$emit('input', value);
+                            self.$emit('change', value);
                         }
                     } else {
                         self.$emit('input', '');
@@ -111,7 +125,7 @@ export default {
             if (this.pickerIsShown) {
                 $(this.$refs.field).datepicker('hide');
                 this.pickerIsShown = false;
-            } else {
+            } else if (!this.$attrs.disabled) {
                 $(this.$refs.field).datepicker('show');
                 this.pickerIsShown = true;
             }

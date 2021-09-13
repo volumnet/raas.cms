@@ -17,7 +17,7 @@ export default {
          * @type {Number}
          */
         max: {
-            required: true,
+            default: Infinity,
         },
         /**
          * Шаг значения

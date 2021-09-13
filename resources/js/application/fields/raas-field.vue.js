@@ -94,7 +94,7 @@ export default {
         inputListeners: function () {
             return Object.assign({}, this.$listeners, {
                 input: (event) => {
-                    this.$emit('input', event.target.value)
+                    this.$emit('input', $(event.target).val())
                 },
             });
         },
@@ -104,6 +104,11 @@ export default {
          */
         multilevel: function () {
             return this.flatSource.filter(x => (x.level > 0)).length > 0;
+        },
+    },
+    watch: {
+        value: function () {
+            this.pValue = this.value;
         },
     },
 }

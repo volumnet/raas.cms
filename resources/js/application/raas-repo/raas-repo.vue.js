@@ -16,10 +16,16 @@ export default {
          * Данные репозитория
          */
         value: {
-            required: true,
             default: function () {
                 return [];
             },
+        },
+
+        /**
+         * Значение нового элемента по умолчанию
+         */
+        defval: {
+            default: null,
         },
 
         /**
@@ -116,7 +122,7 @@ export default {
         addItem: function () {
             this.items.push({
                 id: ++this.autoIncrement,
-                value: null,
+                value: this.defval,
             });
             this.$emit('input', this.items.map(x => x.value));
         },

@@ -37,7 +37,7 @@ export default {
             if (this.pickerIsShown) {
                 $(this.$refs.field).datepicker('hide');
                 this.pickerIsShown = false;
-            } else {
+            } else if (!this.$attrs.disabled) {
                 this.pickerIsShown = true;
                 let m = window.moment(this.value, this.canonicalMomentFormat);
                 let year = m.year();

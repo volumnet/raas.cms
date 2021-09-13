@@ -164,7 +164,7 @@ class Antispam
     public function extractURLs($text)
     {
         $result = [];
-        $rx = '/(^| )(((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.(([a-zA-Z0-9\\-]+)|рф|ком)/umis';
+        $rx = '/(^|\\s)(((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.(([a-zA-Z0-9\\-]+)|рф|ком)/umis';
         if (preg_match_all($rx, $text, $regs)) {
             foreach ($regs[0] as $url) {
                 $url = preg_replace('/((http(s)?)|(ftp)):\\/\\//umis', '', trim($url));
@@ -229,6 +229,8 @@ class Antispam
     {
         $hasLatinLetters = $hasCyrillicLetters = false;
         foreach ($flatData as $key => $val) {
+            $fieldHasLatinLetters = preg_match('/[A-Za-z]/umis', $val);
+            $fieldHasCyrillicLetters = preg_match('/[А-Яа-я]/umis', $val);
             $fieldURN = $this->getFieldURN($key);
             if (preg_match('/email/umis', $fieldURN)) {
                 continue;
@@ -237,10 +239,16 @@ class Antispam
             if (!$field || ($field->datatype == 'email')) {
                 continue;
             }
-            if (!$hasLatinLetters && preg_match('/[A-Za-z]/umis', $val)) {
+            if (in_array(
+                $fieldURN,
+                ['full_name', 'first_name', 'second_name', 'last_name', 'city']
+            ) && $fieldHasLatinLetters && !$fieldHasCyrillicLetters) {
+                return false;
+            }
+            if (!$hasLatinLetters && $fieldHasLatinLetters) {
                 $hasLatinLetters = true;
             }
-            if (!$hasCyrillicLetters && preg_match('/[А-Яа-я]/umis', $val)) {
+            if (!$hasCyrillicLetters && $fieldHasCyrillicLetters) {
                 $hasCyrillicLetters = true;
             }
         }
@@ -323,7 +331,7 @@ class Antispam
      */
     public function checkRussianTextStopWords($text)
     {
-        return !preg_match('/(наша компания)|((^| )предлагаем( |$))/umis', $text);
+        return !preg_match('/((^|\\s)((наша компания)|((мои|наши) услуги)|(стоимость услуг)|предлагаем)(\\s|\\.|,|$))|((^|\\s)(накрут|раскрут))/umis', $text);
     }
 
 

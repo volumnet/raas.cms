@@ -25,6 +25,7 @@ export default function () {
         $(this).attr('name', $('input[name]:eq(0)', this).attr('name'));
     } else if (($(this).attr('data-type') == 'checkbox')) {
         $(this).attr('defval', $(this).attr('value'));
+        $(this).attr('value', '');
     }
     if ($(this).attr('data-multiple')) {
         $(this).attr('multiple', 'multiple');

@@ -109,6 +109,7 @@ class EditMaterialForm extends \RAAS\Form
         $field = new RAASField([
             'type' => 'select',
             'name' => 'pid',
+            'required' => true,
             'caption' => $this->view->_('MATERIAL_TYPE'),
             'children' => [
                 'Set' => $children,

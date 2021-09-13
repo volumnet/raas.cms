@@ -32,14 +32,14 @@ if ($Item) { ?>
               <?php echo $Item->description; ?>
             </div>
           </div>
-          <?php if (count($Item->visImages) > 1) { ?>
+          <?php if (count($visImages = $Item->visImages) > 1) { ?>
               <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__images">
                 <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__images-title h3">
                   <?php echo PHOTOS ?>
                 </div>
                 <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__images-list">
                   <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-list">
-                    <?php foreach ($Item->visImages as $image) { ?>
+                    <?php for ($i = 1; $i < count($visImages); $i++) { $image = $visImages[$i]; ?>
                         <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-list__item">
                           <a href="/<?php echo htmlspecialchars($image->fileURL)?>" class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-item" data-lightbox-gallery="g">
                             <img loading="lazy" src="/<?php echo htmlspecialchars($image->tnURL)?>" alt="<?php echo htmlspecialchars($image->name)?>" /></a>
@@ -63,9 +63,7 @@ if ($Item) { ?>
               <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-list__item">
                 <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item">
                   <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image<?php echo !$item->visImages ? ' {{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image_no-image' : ''?>"<?php echo ($Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : '')?>>
-                    <?php if ($item->visImages) { ?>
-                        <img loading="lazy" src="/<?php echo Package::i()->tn($item->visImages[0]->fileURL, 600, 400)?>" alt="<?php echo htmlspecialchars($item->visImages[0]->name ?: $item->name)?>" />
-                    <?php } ?>
+                    <img loading="lazy" src="/<?php echo htmlspecialchars($item->visImages ? $item->visImages[0]->tnURL : '/files/cms/common/image/design/nophoto.jpg')?>" alt="<?php echo htmlspecialchars($item->visImages[0]->name ?: $item->name)?>" />
                   </a>
                   <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__text">
                     <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__title"<?php echo $Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>

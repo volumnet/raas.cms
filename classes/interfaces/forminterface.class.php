@@ -347,7 +347,8 @@ class FormInterface extends AbstractInterface
             if (!$antispam->check($post)) {
                 return View_Web::i()->_('ERR_CAPTCHA_FIELD_INVALID');
             }
-        } elseif ($antispamType && $fieldURN) {
+        }
+        if ($antispamType && $fieldURN) {
             switch ($antispamType) {
                 case 'captcha':
                     if (!isset($post[$fieldURN]) ||
@@ -358,6 +359,7 @@ class FormInterface extends AbstractInterface
                     }
                     break;
                 case 'hidden':
+                case 'smart':
                     if (isset($post[$fieldURN]) && $post[$fieldURN]) {
                         return View_Web::i()->_('ERR_CAPTCHA_FIELD_INVALID');
                     }

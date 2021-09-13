@@ -95,7 +95,7 @@ class FormRenderer extends HTMLRenderer
      */
     public function renderHiddenAntispamField($additionalData = [])
     {
-        if (($this->form->antispam == 'hidden') &&
+        if ((in_array($this->form->antispam, ['hidden', 'smart'])) &&
             ($fieldURN = $this->form->antispam_field_name)
         ) {
             $attrs = $this->mergeAttributes([

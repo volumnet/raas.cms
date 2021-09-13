@@ -29,7 +29,7 @@ $ajax = (bool)stristr($Page->url, '/ajax/');
  * @param Page $current Текущая страница
  * @return string
  */
-$showMenu = function($node, Page $current) use (
+$showMenu = function ($node, Page $current) use (
     &$showMenu,
     $useAjax,
     $ajax,

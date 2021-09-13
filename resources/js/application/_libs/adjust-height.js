@@ -1,14 +1,15 @@
 /**
  * Однократное выравнивание элементов по высоте
+ * @param {jQuery} $obj Объект jQuery для выравнивания
  */
-let adjustOnce = function () {
+let adjustOnce = function ($obj) {
     let h = 0;
-    $(this).css('height', '');
-    if ($(this).length) {
-        $(this).each(function () {
-            h = Math.max(h, $(this).outerHeight());
+    $obj.css('height', '');
+    if ($obj.length) {
+        $obj.each(function () {
+            h = Math.max(h, $obj.outerHeight());
         });
-        $(this).css('height', h + 'px');
+        $obj.css('height', h + 'px');
     }
 };
 
@@ -17,7 +18,7 @@ let adjustOnce = function () {
  * @param {Boolean} watch Следить за высотой при ресайзе
  */
 export default function (watch = false) {
-    $(this).adjustOnce();
+    adjustOnce($(this));
     if (watch) {
         $(window).on('resize', () => {
             $(this).adjustOnce();

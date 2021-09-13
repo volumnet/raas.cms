@@ -13,7 +13,7 @@ export default function ($obj) {
     let flatEntries = [result];
     let currentLevel = -1;
     let current = result;
-    $('option', this).each(function () {
+    $('option', $obj).each(function () {
         let value = $(this).attr('value') || '';
         let html = $(this).html();
         let name = $.trim($(this).text());

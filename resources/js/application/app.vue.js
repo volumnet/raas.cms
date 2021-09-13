@@ -45,8 +45,8 @@ export default {
         let self = this;
         this.lightBoxInit();
 
-        this.fixHtml();
         this.windowWidth = $(window).outerWidth();
+        this.fixHtml();
         $(window).on('resize', self.fixHtml);
         $(window).on('resize', () => {
             this.windowWidth = $(window).outerWidth();
@@ -55,7 +55,7 @@ export default {
             this.scrollTop = $(window).scrollTop();
         });
         
-        $(this.$el).find(this.scrollToSelector).click(function () {
+        $(this.$el).on('click', this.scrollToSelector, function () {
             let currentUrl = window.location.pathname + window.location.search;
             let url = $(this).attr('href').split('#')[0];
             if (url) {
@@ -65,6 +65,9 @@ export default {
                 self.processHashLink(this.hash.replace(/#/gi, ''));
                 return false;
             }
+        });
+        $(this.$el).on('show.bs.tab', 'a', function () {
+            window.history.pushState({}, document.title, $(this).attr('href'));
         });
         if (window.location.hash) {
             this.processHashLink(window.location.hash);
