@@ -239,10 +239,14 @@ class Antispam
             if (!$field || ($field->datatype == 'email')) {
                 continue;
             }
-            if (in_array(
-                $fieldURN,
-                ['full_name', 'first_name', 'second_name', 'last_name', 'city']
-            ) && $fieldHasLatinLetters && !$fieldHasCyrillicLetters) {
+            if (in_array($fieldURN, [
+                '_name_',
+                'full_name',
+                'first_name',
+                'second_name',
+                'last_name',
+                'city'
+            ]) && $fieldHasLatinLetters && !$fieldHasCyrillicLetters) {
                 return false;
             }
             if (!$hasLatinLetters && $fieldHasLatinLetters) {
