@@ -26,6 +26,7 @@ export default {
     },
     updated: function () {
         this.checkMultiselect();
+
     },
     methods: {
         /**
@@ -40,6 +41,8 @@ export default {
                         // console.log($('option:selected', this))
                         self.$emit('input', $(this).val())
                     });
+            } else {
+                $(this.$el).multiselect('rebuild');
             }
         },
         /**

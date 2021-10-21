@@ -202,7 +202,7 @@ export default {
          * @return {String}
          */
         numTxt: function (x, forms) {
-            window.numTxt(x, forms);
+            return window.numTxt(x, forms);
         },
 
         /**

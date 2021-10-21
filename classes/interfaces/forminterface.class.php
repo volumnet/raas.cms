@@ -802,7 +802,7 @@ class FormInterface extends AbstractInterface
             'forUser' => !$forAdmin,
         ];
 
-        $subject = $this->getEmailSubject($feedback, $forUser);
+        $subject = $this->getEmailSubject($feedback, $forAdmin);
         $message = $this->getMessageBody(
             $template,
             array_merge($notificationData, ['SMS' => false])

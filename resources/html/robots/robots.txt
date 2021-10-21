@@ -4,6 +4,7 @@ Disallow: /admin/
 Disallow: /ajax/
 Disallow: /compare/
 Disallow: /cart/
+Disallow: /favorites/
 Disallow: /cache/
 Disallow: /cron/
 Disallow: /files/*_tn
@@ -12,11 +13,8 @@ Disallow: /files/*_inline
 Disallow: /fonts/
 Disallow: /images/
 Disallow: /inc/
-Disallow: /modules/
-Disallow: /price/
 Disallow: /search/
 Disallow: /sitemaps/
-Disallow: /system/
 Disallow: /yml/
 Disallow: /register/
 Disallow: /profile/
@@ -24,7 +22,6 @@ Disallow: /activate/
 Disallow: /login/
 Disallow: /recovery/
 Disallow: /my-orders/
-Disallow: *print=1
 Clean-param: sort&order&print&price_from&price_to
 
 User-agent: Yandex
@@ -33,6 +30,7 @@ Disallow: /admin/
 Disallow: /ajax/
 Disallow: /compare/
 Disallow: /cart/
+Disallow: /favorites/
 Disallow: /cache/
 Disallow: /cron/
 Disallow: /files/*_tn
@@ -41,11 +39,8 @@ Disallow: /files/*_inline
 Disallow: /fonts/
 Disallow: /images/
 Disallow: /inc/
-Disallow: /modules/
-Disallow: /price/
 Disallow: /search/
 Disallow: /sitemaps/
-Disallow: /system/
 Disallow: /yml/
 Disallow: /register/
 Disallow: /profile/
@@ -53,7 +48,6 @@ Disallow: /activate/
 Disallow: /login/
 Disallow: /recovery/
 Disallow: /my-orders/
-Disallow: *print=1
 
 Host: {{HOST}}
-Sitemap: http://{{HOST}}/sitemap.xml
+Sitemap: https://{{HOST}}/sitemap.xml

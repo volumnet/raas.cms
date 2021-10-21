@@ -19,6 +19,8 @@ export default {
             if (!$(this.$refs.field).attr('data-datepicker-applied')) {
                 $(this.$refs.field).timepicker(this.timePickerParams)
                     .attr('data-datepicker-applied', 'true');
+            } else {
+                $(this.$refs.field).datepicker('refresh');
             }
         },
     },

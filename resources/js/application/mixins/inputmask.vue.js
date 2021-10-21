@@ -8,19 +8,21 @@ export default {
             $objects.filter('[pattern]:not([data-inputmask-pattern])')
                 .each(function () {
                     var pattern = $(this).attr('pattern');
-                    var el = this;
                     $(this)
                         .attr('data-inputmask-pattern', pattern)
-                        .inputmask({regex: pattern}, { showMaskOnHover: false });
+                        // @todo Пока отключаем placeholder, т.к. глючит с InputMask
+                        .inputmask({regex: pattern, showMaskOnFocus: false, showMaskOnHover: false, placeholder: '' }/*, { showMaskOnHover: false }*/);
                 });
             $objects
                 .filter('[type="tel"]:not([pattern]):not([data-inputmask-pattern])')
                 .attr('data-inputmask-pattern', '+9 (999) 999-99-99')
-                .inputmask('+9 (999) 999-99-99', { showMaskOnHover: false });
+                // @todo Пока отключаем placeholder, т.к. глючит с InputMask
+                .inputmask('+9 (999) 999-99-99', { showMaskOnFocus: false, showMaskOnHover: false, placeholder: '' });
             $objects
                 .filter('[data-type="email"]:not([pattern]):not([data-inputmask-pattern])')
                 .attr('data-inputmask-pattern', '*{+}@*{+}.*{+}')
-                .inputmask('*{+}@*{+}.*{+}', { showMaskOnHover: false });
+                // @todo Пока отключаем placeholder, т.к. глючит с InputMask
+                .inputmask('*{+}@*{+}.*{+}', { showMaskOnFocus: false, showMaskOnHover: false, placeholder: '' });
         },
         applyInputMaskListeners: function () {
             let self = this;

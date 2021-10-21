@@ -360,22 +360,22 @@ class FAQTemplate extends MaterialTypeTemplate
 
     public function create()
     {
-        $form = Form::importByURN($urn);
+        $form = Form::importByURN($this->materialType->urn);
         if (!$form->id) {
             $form = $this->createForm();
         }
 
-        $widget = Snippet::importByURN($urn);
+        $widget = Snippet::importByURN($this->materialType->urn);
         if (!$widget->id) {
             $widget = $this->createBlockSnippet();
         }
 
-        $formWidget = Snippet::importByURN($urn . '_form');
+        $formWidget = Snippet::importByURN($this->materialType->urn . '_form');
         if (!$formWidget->id) {
             $formWidget = $this->createFormSnippet();
         }
 
-        $mainWidget = Snippet::importByURN($urn . '_main');
+        $mainWidget = Snippet::importByURN($this->materialType->urn . '_main');
         if (!$mainWidget->id) {
             $mainWidget = $this->createMainPageSnippet();
         }
@@ -383,7 +383,7 @@ class FAQTemplate extends MaterialTypeTemplate
         $temp = Page::getSet([
             'where' => [
                 "pid = " . (int)$this->webmaster->Site->id,
-                "urn = '" . $urn . "'"
+                "urn = '" . $this->materialType->urn . "'"
             ]
         ]);
         if ($temp) {

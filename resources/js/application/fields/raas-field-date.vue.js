@@ -80,6 +80,8 @@ export default {
             if (!$(this.$refs.field).attr('data-datepicker-applied')) {
                 $(this.$refs.field).datepicker(this.datePickerParams)
                     .attr('data-datepicker-applied', 'true');
+            } else {
+                $(this.$refs.field).datepicker('refresh');
             }
         },
         applyInputMaskListeners: function () {

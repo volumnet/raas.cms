@@ -31,6 +31,8 @@ export default {
             if (!$(this.$refs.field).attr('data-datepicker-applied')) {
                 $(this.$refs.field).datepicker(this.monthPickerParams)
                     .attr('data-datepicker-applied', 'true');
+            } else {
+                $(this.$refs.field).datepicker('refresh');
             }
         },
         togglePicker: function () {

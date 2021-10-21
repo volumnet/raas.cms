@@ -30,8 +30,6 @@ if ($Set) { ?>
               <?php } ?>
             </div>
           </div>
-      <?php } ?>
-      <?php if (count($Set) > 1) { ?>
           <a data-v-on_click="vm.prev()" class="banners__arrow banners__arrow_prev slider__arrow slider__arrow_prev" data-v-bind_class="{ 'banners__arrow_active': vm.prevAvailable, 'slider__arrow_active': vm.prevAvailable }"></a>
           <a data-v-on_click="vm.next()" class="banners__arrow banners__arrow_next slider__arrow slider__arrow_next" data-v-bind_class="{ 'banners__arrow_active': vm.nextAvailable, 'slider__arrow_active': vm.nextAvailable }"></a>
       <?php } ?>

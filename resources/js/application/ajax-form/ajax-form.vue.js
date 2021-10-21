@@ -49,7 +49,13 @@ export default {
              */
             formData: (typeof this.initialFormData == 'object') 
                 ? this.initialFormData 
-                : {}
+                : {},
+
+            /**
+             * Старые данные формы
+             * @type {Object}
+             */
+            oldFormData: {},
         };
     },
     mounted: function () {
@@ -126,5 +132,33 @@ export default {
         self: function () { 
             return { ...this };
         },
+    },
+    watch: {
+        formData: {
+            handler: function () {
+                for (let key in this.errors) {
+                    if (this.formData[key] instanceof Array) {
+                        for (let i = 0; i < this.formData[key].length; i++) {
+                            // console.log(key, i, this.formData[key][i], this.oldFormData[key][i])
+                            if (this.formData[key][i] != this.oldFormData[key][i]) {
+                                if (this.errors[key] && this.errors[key][i]) {
+                                    delete this.errors[key][i];
+                                }
+                            }
+                        }
+                    } else {
+                        // console.log(key, this.formData[key], this.oldFormData[key])
+                        if (this.formData[key] != this.oldFormData[key]) {
+                            delete this.errors[key];
+                        }
+                    }
+                }
+                this.errors = Object.assign({}, this.errors);
+                // console.log(this.formData);
+                this.oldFormData = JSON.parse(JSON.stringify(this.formData));
+                this.$emit('input', this.formData);
+            },
+            deep: true,
+        }
     }
 }

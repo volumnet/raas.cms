@@ -24,10 +24,11 @@ export default {
     },
     methods: {
         checkDatePicker: function () {
-            var self = this;
             if (!$(this.$refs.field).attr('data-datepicker-applied')) {
                 $(this.$refs.field).datetimepicker(this.timePickerParams)
                     .attr('data-datepicker-applied', 'true');
+            } else {
+                $(this.$refs.field).datepicker('refresh');
             }
         },
     },

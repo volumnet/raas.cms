@@ -4,20 +4,24 @@ import InputMask from '../mixins/inputmask.vue.js';
  * Поле RAAS
  */
 export default {
-    props: [
+    props: {
         /**
-         * Тип поля
+         * Тип либо объект поля
+         * @param {String|Object}
          */
-        'type',
+        type: {
+            required: true,
+            type: [String, Object]
+        },
         /**
          * Значение
          */
-        'value',
+        value: {},
         /**
          * Источник
          */
-        'source',
-    ],
+        source: {},
+    },
     mixins: [InputMask],
     inheritAttrs: false,
     data: function () {
@@ -65,6 +69,61 @@ export default {
         },
     },
     computed: {
+        resolvedAttrs: function () {
+            let result = Object.assign(this.$attrs, {
+                is: 'raas-field-' + this.type.datatype
+            });
+            if (typeof this.type == 'object') {
+                if (this.type.datatype) {
+                    result.type = this.type.datatype;
+                }
+                if (this.type.urn) {
+                    result.name = this.type.urn;
+                }
+                if (this.type.htmlId) {
+                    result.id = this.type.htmlId;
+                }
+                if (this.type.stdSource) {
+                    result.source = this.type.stdSource;
+                }
+                if (['number', 'range'].indexOf(this.type.datatype) != -1) {
+                    if (this.type.min_val) {
+                        result.min = this.type.min_val;
+                    }
+                    if (this.type.max_val) {
+                        result.max = this.type.max_val;
+                    }
+                    if (this.type.step) {
+                        result.step = this.type.step;
+                    }
+                }
+                if (this.type.defval) {
+                    if (['checkbox', 'radio'].indexOf(this.type.datatype) != -1) {
+                        result.defval = this.type.defval;
+                    }
+                }
+                if (this.type.required) {
+                    result.required = true;
+                }
+
+                if (this.type.multiple) {
+                    if (['radio'].indexOf(this.type.datatype) == -1) {
+                        result.multiple = true;
+                    }
+                }
+                if (this.type.placeholder) {
+                    result.placeholder = this.type.placeholder;
+                }
+                if (this.type.maxlength) {
+                    result.maxlength = this.type.maxlength;
+                }
+            }
+            if (!result.type) {
+                result.type = 'text';
+            }
+            // console.log(result)
+            return result;
+        },
         /**
          * Опции в плоском виде
          * @return {Array} <pre><code>array<{

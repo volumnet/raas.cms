@@ -28,7 +28,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
             <?php echo htmlspecialchars($Block->name)?>
           </div>
       <?php } ?>
-      <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" data-vue-role="ajax-form" data-v-bind_block-id="<?php echo (int)$Block->id?>" data-v-slot="vm">
+      <form action="" method="post" enctype="multipart/form-data" data-vue-role="ajax-form" data-v-bind_block-id="<?php echo (int)$Block->id?>" data-v-slot="vm">
         <div class="feedback__notifications" data-v-bind_class="{ 'feedback__notifications_active': true }" data-v-if="vm.success">
           <div class="alert alert-success">
             <?php echo FEEDBACK_SUCCESSFULLY_SENT?>
