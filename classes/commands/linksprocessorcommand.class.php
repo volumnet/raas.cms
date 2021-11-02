@@ -146,7 +146,7 @@ class LinksProcessorCommand extends Command
                             $debugEntry = 'Menu#' . $entry['id'];
                             break;
                         default:
-                            continue;
+                            continue 2;
                             break;
                     }
 
@@ -211,7 +211,7 @@ class LinksProcessorCommand extends Command
                                           . ";";
                                 break;
                             default:
-                                continue;
+                                continue 2;
                                 break;
                         }
                         $debugEntry .= ': ' . $href . ' -> ' . $entry['href'];

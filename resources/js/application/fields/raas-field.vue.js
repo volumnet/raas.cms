@@ -121,7 +121,6 @@ export default {
             if (!result.type) {
                 result.type = 'text';
             }
-            // console.log(result)
             return result;
         },
         /**

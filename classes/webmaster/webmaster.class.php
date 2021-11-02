@@ -350,6 +350,8 @@ class Webmaster
             'feedback/feedback' => View_Web::i()->_('FEEDBACK'),
             'feedback/feedback_modal' => View_Web::i()->_('FEEDBACK_MODAL'),
             'feedback/order_call_modal' => View_Web::i()->_('ORDER_CALL_MODAL'),
+            'menu/menu_mobile' => View_Web::i()->_('MOBILE_MENU'),
+            'menu/menu_sections' => View_Web::i()->_('SECTIONS_MENU'),
         ];
         foreach ($widgetsData as $url => $name) {
             $urn = explode('/', $url);
@@ -890,6 +892,7 @@ class Webmaster
      */
     public function createSite()
     {
+        ini_set('max_execution_time', 3600);
         $template = $this->createTemplate();
         $this->createPageFields();
         $interfaces = $this->checkStdInterfaces();
@@ -1248,6 +1251,7 @@ class Webmaster
      * @param boolean $inherit Наследовать ли блок
      * @param array<int> $excludeFromInheritanceIds ID# страниц, которые нужно
      *                                              исключить из наследования
+     * @return Block
      */
     public function createBlock(
         Block $block,

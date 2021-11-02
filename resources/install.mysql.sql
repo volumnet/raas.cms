@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   inherit tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Inherit',
   nat tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Translate address',
-  params varchar(255) NOT NULL DEFAULT '' COMMENT 'Additional params',
+  params TEXT NULL DEFAULT NULL COMMENT 'Additional params',
   interface_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Interface ID#',
   widget_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Widget ID#',
   cache_type tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Cache type',

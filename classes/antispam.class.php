@@ -164,7 +164,7 @@ class Antispam
     public function extractURLs($text)
     {
         $result = [];
-        $rx = '/(^|\\s)(((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.(([a-zA-Z0-9\\-]+)|рф|ком)/umis';
+        $rx = '/(^|\\s)(((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.(([a-zA-Z\\-]+)|рф|ком)/umis';
         if (preg_match_all($rx, $text, $regs)) {
             foreach ($regs[0] as $url) {
                 $url = preg_replace('/((http(s)?)|(ftp)):\\/\\//umis', '', trim($url));

@@ -44,6 +44,9 @@ class Updater extends RAASUpdater
         if (version_compare($v, '4.2.91') < 0) {
             $this->update20210301();
         }
+        if (version_compare($v, '4.3.14') < 0) {
+            $this->update20211029();
+        }
     }
 
 
@@ -1843,6 +1846,19 @@ class Updater extends RAASUpdater
         ) {
             $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_fields
                            ADD vis TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Visibility' AFTER pid";
+            $this->SQL->query($sqlQuery);
+        }
+    }
+
+
+    /**
+     * Расширяет поле доп. параметров для блоков
+     */
+    public function update20211029()
+    {
+        if (in_array(SOME::_dbprefix() . "cms_blocks", $this->tables)) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_blocks
+                            CHANGE `params` `params` TEXT NULL DEFAULT NULL COMMENT 'Additional params';";
             $this->SQL->query($sqlQuery);
         }
     }

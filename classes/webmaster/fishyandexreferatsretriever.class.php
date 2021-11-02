@@ -29,7 +29,10 @@ class FishYandexReferatsRetriever
     public function retrieve()
     {
         $text = file_get_contents(self::$url);
-        $pq = phpQuery::newDocument($text);
+        // Комментируем ошибки, чтобы не выдавало
+        // Array and string offset access syntax with curly braces is deprecated
+        // из-за старой версии phpQuery
+        $pq = @phpQuery::newDocument($text);
         $pq = pq('.referats__text', $pq);
         $headerEl = pq('strong', $pq);
         $divEl = pq('div', $pq);

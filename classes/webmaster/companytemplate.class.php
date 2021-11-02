@@ -59,14 +59,23 @@ class CompanyTemplate extends MaterialTypeTemplate
         ]);
         $streetAddressField->commit();
 
-        $mapCodeField = new Material_Field([
+        $latField = new Material_Field([
             'pid' => $this->materialType->id,
             'vis' => 1,
-            'name' => View_Web::i()->_('MAP_CODE'),
-            'urn' => 'map',
-            'datatype' => 'textarea',
+            'name' => View_Web::i()->_('LATITUDE'),
+            'urn' => 'lat',
+            'datatype' => 'text',
         ]);
-        $mapCodeField->commit();
+        $latField->commit();
+
+        $lonField = new Material_Field([
+            'pid' => $this->materialType->id,
+            'vis' => 1,
+            'name' => View_Web::i()->_('LONGIITUDE'),
+            'urn' => 'lon',
+            'datatype' => 'text',
+        ]);
+        $lonField->commit();
 
         $officeField = new Material_Field([
             'pid' => $this->materialType->id,
@@ -175,7 +184,8 @@ class CompanyTemplate extends MaterialTypeTemplate
             $postalCodeField->urn => $postalCodeField,
             $cityField->urn => $cityField,
             $streetAddressField->urn => $streetAddressField,
-            $mapCodeField->urn => $mapCodeField,
+            $latField->urn => $latField,
+            $lonField->urn => $lonField,
             $officeField->urn => $officeField,
             $phoneField->urn => $phoneField,
             $emailField->urn => $emailField,
@@ -554,10 +564,11 @@ class CompanyTemplate extends MaterialTypeTemplate
             'description' => View_Web::i()->_('TEST_COMPANY_SLOGAN'),
             'attachment' => (int)$att->id
         ]));
-        $item->fields['postal_code']->addValue('000000');
-        $item->fields['city']->addValue(View_Web::i()->_('CITY'));
-        $item->fields['street_address']->addValue(View_Web::i()->_('TEST_COMPANY_STREET_ADDRESS'));
-        $item->fields['map']->addValue('<script type="text/javascript" charset="utf-8" src="//api-maps.yandex.ru/services/constructor/1.0/js/?sid=ac2qYbmG3G-Jl487_Mu2VedJiQSpaZLo&amp;width=100%25&amp;height=300&amp;lang=ru_RU&amp;sourceType=constructor&amp;scroll=false"></script>');
+        $item->fields['postal_code']->addValue('620000');
+        $item->fields['city']->addValue('Екатеринбург');
+        $item->fields['street_address']->addValue('Ленина, 39');
+        $item->fields['lat']->addValue('56.839224');
+        $item->fields['lon']->addValue('60.608478');
         $item->fields['office']->addValue(View_Web::i()->_('TEST_COMPANY_OFFICE'));
         $item->fields['phone']->addValue('+7 999 000-00-00');
         $item->fields['email']->addValue('test@test.org');

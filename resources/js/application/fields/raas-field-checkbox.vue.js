@@ -8,22 +8,20 @@ export default {
     props: {
         /**
          * Значение по умолчанию для одиночного флажка
-         * @type {Object}
          */
         defval: {
-            type: String,
             default: '1',
         },
         /**
          * Название поля
-         * @type {Object}
+         * @type {String}
          */
         name: {
             type: String,
         },
         /**
          * Маскировка значения в случае неактивного флажка
-         * @type {Object}
+         * @type {String}
          */
         mask: {
             type: String,
@@ -31,7 +29,7 @@ export default {
         },
         /**
          * Множественное поле
-         * @type {Object}
+         * @type {Boolean}
          */
         multiple: {
             type: Boolean,

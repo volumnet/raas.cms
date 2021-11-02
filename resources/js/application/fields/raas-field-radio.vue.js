@@ -11,7 +11,6 @@ export default {
          * @type {Object}
          */
         defval: {
-            type: String,
             default: '',
         },
         /**

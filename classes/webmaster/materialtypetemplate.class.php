@@ -192,7 +192,7 @@ class MaterialTypeTemplate
         Snippet $widget = null,
         array $additionalData = []
     ) {
-        if ($widget->id && $page->id) {
+        if ($page->id) {
             $blockData = array_merge([
                 'vis' => 1,
                 'material_type' => (int)$this->materialType->id,
