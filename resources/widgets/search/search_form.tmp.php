@@ -25,7 +25,7 @@ if ($searchBlockId = $Block->additionalParams['searchBlockId']) {
 ?>
 <div itemscope itemtype="http://schema.org/WebSite">
   <link itemprop="url" href="http<?php echo $_SERVER['HTTPS'] ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/" />
-  <form action="/search/" data-vue-role="search-form"<?php echo $searchBlock->id ? ' data-v-bind_block-id="' . (int)$searchBlock->id . '" data-v-bind_min-length="' . (int)$searchBlock->min_length . '"' : ''?> class="search-form" itemprop="potentialAction" itemscope itemtype="http://schema.org/SearchAction" data-v-slot="vm">
+  <form action="/search/" data-vue-role="search-form"<?php echo $searchBlock->id ? ' data-v-bind_block-id="' . (int)$searchBlock->id . '" data-v-bind_min-length="' . (int)$searchBlock->min_length . '"' : ''?> data-v-bind_foldable="false" class="search-form" itemprop="potentialAction" itemscope itemtype="http://schema.org/SearchAction" data-v-slot="vm">
     <a href="#" class="search-form__trigger" data-v-on_click.prevent.stop="vm.toggle()"></a>
     <meta itemprop="target" content="http<?php echo $_SERVER['HTTPS'] ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/search/?search_string={search_string}" />
     <div class="search-form__inner">

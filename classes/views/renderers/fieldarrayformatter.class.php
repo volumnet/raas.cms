@@ -71,6 +71,15 @@ class FieldArrayFormatter
         if (is_numeric($result['source'])) {
             $result['source'] = (int)$result['source'];
         }
+        if (in_array($result['datatype'], ['file', 'image']) && $result['source']) {
+            $allowedExtensions = preg_split('/\\W+/umis', $this->field->source);
+            $allowedExtensions = array_map(function ($x) {
+                return '.' . mb_strtolower($x);
+            }, $allowedExtensions);
+            if ($allowedExtensions) {
+                $result['accept'] = implode(',', $allowedExtensions);
+            }
+        }
         if (!$this->getAdminFields) {
             unset(
                 $result['classname'],

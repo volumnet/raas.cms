@@ -13,6 +13,13 @@ export default {
         placeholder: {
             type: String,
         },
+        /**
+         * Ограничение по типам файлов
+         * @type {Object}
+         */
+        accept: {
+            type: String,
+        }
     },
     data: function () {
         return {
@@ -36,6 +43,19 @@ export default {
             // FileReader support
             if (files && files.length) {
                 this.fileName = files[0].name;
+                let fileChunks = this.fileName.split('.');
+                let ext = (fileChunks.length > 1) ? fileChunks[fileChunks.length - 1] : '';
+                let mime = files[0].type;
+                if (!this.allowedTypes || 
+                    (this.allowedTypes.indexOf(ext) != -1) ||
+                    (this.allowedTypes.indexOf(mime) != -1)
+                ) {
+                    this.$emit('input', this.fileName)
+                } else {
+                    this.fileName = '';
+                    this.$refs.input.value = '';
+                    this.$emit('input', '')
+                }
             } else {
                 this.fileName = '';
                 this.$refs.input.value = '';
@@ -57,6 +77,18 @@ export default {
         },
     },
     computed: {
+        /**
+         * Допустимые типы (по атрибуту accept - mime-типы или расширения без точки)
+         * @return {String[]|Null} null, если не задано
+         */
+        allowedTypes: function () {
+            if (!this.accept) {
+                return null;
+            }
+            let allowedTypes = this.accept.split(',');
+            allowedTypes = allowedTypes.filter(x => !!x).map(x => x.replace('.', ''));
+            return allowedTypes;
+        },
         /**
          * CSS-класс иконки
          * @return {Object}

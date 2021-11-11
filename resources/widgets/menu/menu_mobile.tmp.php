@@ -68,6 +68,36 @@ $showMenu = function ($node, Page $current) use (
                         <a class="menu-mobile__link menu-mobile__link_main menu-mobile__link_level_0 menu-mobile__link_phone" href="tel:%2B7' . Text::beautifyPhone($phone) . '">'
                   .       htmlspecialchars($phone)
                   .    '</a>
+                      </li>
+                      <li data-v-if="user.id" class="menu-mobile__item menu-mobile__item_level_0 menu-mobile__item_main menu-mobile__item_user menu-mobile__item_has-children">
+                        <a href="/profile/" class="menu-mobile__link menu-mobile__link_level_0 menu-mobile__link_main menu-mobile__link_has-children menu-mobile__link_user">
+                          ' . htmlspecialchars($user->full_name) . '
+                        </a>
+                        <a href="#" class="menu-mobile__children-trigger menu-mobile__children-trigger_main menu-mobile__children-trigger_level_0"></a>
+                        <ul class="menu-mobile__list menu-mobile__list_level_1 menu-mobile__list_inner">
+                          <li class="menu-mobile__item menu-mobile__item_level_1 menu-mobile__item_inner">
+                            <a href="/profile/" class="menu-mobile__link menu-mobile__link_level_1 menu-mobile__link_inner">
+                              ' . EDIT_PROFILE . '
+                            </a>
+                          </li>';
+            if (class_exists('RAAS\CMS\Shop\Module')) {
+                $text .= '<li class="menu-mobile__item menu-mobile__item_level_1 menu-mobile__item_inner">
+                            <a href="/my-orders/" class="menu-mobile__link menu-mobile__link_level_1 menu-mobile__link_inner">
+                              ' . MY_ORDERS . '
+                            </a>
+                          </li>';
+            }
+            $text .= '    <li class="menu-mobile__item menu-mobile__item_level_1 menu-mobile__item_inner">
+                            <a href="/login/?logout=1" class="menu-mobile__link menu-mobile__link_level_1">
+                              ' . LOG_OUT . '
+                            </a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li data-v-else class="menu-mobile__item menu-mobile__item_level_0 menu-mobile__item_main menu-mobile__item_user">
+                        <a href="/login/" class="menu-mobile__link menu-mobile__link_level_0 menu-mobile__link_main menu-mobile__link_user">
+                          ' . LOG_IN . '
+                        </a>
                       </li>';
         }
     }

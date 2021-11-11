@@ -26,7 +26,15 @@ export default {
         showInterval: {
             type: Number,
             default: 1000,
-        }
+        },
+        /**
+         * Форма сворачивается на десктопе
+         * @type {Boolean}
+         */
+        foldable: {
+            type: Boolean,
+            default: false,
+        },
     },
     data: function () {
         let result = {
@@ -77,7 +85,17 @@ export default {
             });
             $(this.$el).on('click', e => e.stopPropagation());
         }
-
+        if (this.foldable) {
+            $('.body').on('click', (e) => {
+                if (window.app.windowWidth >= window.app.mediaTypes.lg) {
+                    this.active = false;
+                }
+            });
+            $(this.$el).on('click', (e) => {
+                this.active = true;
+                e.stopPropagation();
+            });
+        }
     },
     methods: {
         /**
@@ -104,7 +122,19 @@ export default {
          */
         toggle: function () {
             this.active = !this.active;
-        }
+        },
+        /**
+         * Активирует форму
+         */
+        activate: function () {
+            this.active = true;
+        },
+        /**
+         * Деактивирует форму
+         */
+        deactivate: function () {
+            this.active = false;
+        },
     },
     computed: {
         /**

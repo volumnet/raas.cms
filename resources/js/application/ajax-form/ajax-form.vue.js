@@ -48,14 +48,16 @@ export default {
              * @type {Object}
              */
             formData: (typeof this.initialFormData == 'object') 
-                ? this.initialFormData 
+                ? Object.assign({}, this.initialFormData)
                 : {},
 
             /**
              * Старые данные формы
              * @type {Object}
              */
-            oldFormData: {},
+            oldFormData: (typeof this.initialFormData == 'object') 
+                ? Object.assign({}, this.initialFormData)
+                : {},
         };
     },
     mounted: function () {
@@ -136,13 +138,21 @@ export default {
     watch: {
         formData: {
             handler: function () {
+                // console.log(this.formData, this.oldFormData);
                 for (let key in this.errors) {
+                    // console.log(key, this.formData[key], this.oldFormData[key])
                     if (this.formData[key] instanceof Array) {
                         for (let i = 0; i < this.formData[key].length; i++) {
                             // console.log(key, i, this.formData[key][i], this.oldFormData[key][i])
                             if (this.formData[key][i] != this.oldFormData[key][i]) {
-                                if (this.errors[key] && this.errors[key][i]) {
-                                    delete this.errors[key][i];
+                                if (this.errors[key]) {
+                                    if (this.errors[key] instanceof Array) {
+                                        if (this.errors[key][i]) {
+                                            delete this.errors[key][i];
+                                        }
+                                    } else {
+                                        delete this.errors[key];
+                                    }
                                 }
                             }
                         }

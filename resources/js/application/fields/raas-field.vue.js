@@ -86,6 +86,9 @@ export default {
                 if (this.type.stdSource) {
                     result.source = this.type.stdSource;
                 }
+                if (this.type.accept) {
+                    result.accept = this.type.accept;
+                }
                 if (['number', 'range'].indexOf(this.type.datatype) != -1) {
                     if (this.type.min_val) {
                         result.min = this.type.min_val;

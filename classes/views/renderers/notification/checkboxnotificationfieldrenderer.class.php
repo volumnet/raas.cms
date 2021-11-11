@@ -15,10 +15,13 @@ class CheckboxNotificationFieldRenderer extends NotificationFieldRenderer
     {
         if (!$this->field->multiple) {
             return RAASViewWeb::i()->_($value ? '_YES' : '_NO');
-        } elseif ($sms) {
-            return $value;
         } else {
-            return nl2br(htmlspecialchars($value));
+            $richValue = $this->field->doRich($value);
+            if ($sms) {
+                return $richValue;
+            } else {
+                return nl2br(htmlspecialchars($richValue));
+            }
         }
     }
 }
