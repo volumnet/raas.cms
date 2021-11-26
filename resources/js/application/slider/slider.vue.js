@@ -100,6 +100,7 @@ export default {
             e.preventDefault()
             return false;
         });
+        $(window).on('resize', this.refresh.bind(this, false));
     },
     methods: {
         /**
@@ -118,6 +119,7 @@ export default {
                     this.nextAvailable = (newActiveFrame < (this.counter - 1));
                 }
                 this.activeFrame = newActiveFrame;
+                this.$emit('slid', index);
                 this.refreshFadeInterval();
             } else {
                 // 2021-08-22, AVS: сделал явные атрибуты индекса, 
@@ -180,6 +182,7 @@ export default {
                 // let i = $items.index(this);
                 let i = $(this).attr('data-slider-index');
                 self.activeFrame = i;
+                self.$emit('slid', i);
             });
             
             if (this.autoscroll) {
@@ -225,6 +228,34 @@ export default {
                 this.autoscrollInterval = window.setInterval(() => {
                     this.next();
                 }, this.interval + this.duration);
+            }
+        },
+        /**
+         * Обновляет данные слайдера
+         * @param  {Boolean} slideToFirst Переместиться к первому слайду
+         */
+        refresh: function (slideToFirst = false) {
+            if (this.type == 'fade') {
+                if (slideToFirst) {
+                    this.slideTo(0);
+                }
+            } else {
+                window.setTimeout(() => {
+                    let $self = $('[data-role="slider-list"]', this.$el);
+                
+                    let $items = $self.jcarousel('items');
+
+                    $self.jcarousel('reload');
+                    if (slideToFirst) {
+                        this.slideTo(0);
+                    }
+                    let $first = $items.eq(0);
+                    let $last = $items.eq(-1);
+                    this.nextAvailable = !$last.filter($self.jcarousel('fullyvisible')).length;
+                    if (this.wrap) {
+                        this.prevAvailable = !$last.filter($self.jcarousel('fullyvisible')).length;
+                    }
+                }, 0);
             }
         },
     },

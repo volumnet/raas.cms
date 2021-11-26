@@ -11,7 +11,7 @@ namespace RAAS\CMS;
 if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
     $result = [];
     if ($success[(int)$Block->id]) {
-        $result['success'] = 1;
+        $result['success'] = true;
     }
     if ($localError) {
         $result['localError'] = $localError;

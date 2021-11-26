@@ -69,9 +69,11 @@ export default {
         $(this.$el).on('show.bs.tab', 'a', function () {
             window.history.pushState({}, document.title, $(this).attr('href'));
         });
-        if (window.location.hash) {
-            this.processHashLink(window.location.hash);
-        }
+        $(window).on('load', () => {
+            if (window.location.hash) {
+                this.processHashLink(window.location.hash);
+            }
+        });
 
         // $('.menu-trigger').appendTo('.body__menu-mobile');
 

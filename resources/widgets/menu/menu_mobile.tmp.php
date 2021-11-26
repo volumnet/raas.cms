@@ -20,6 +20,46 @@ $useAjax = true;
 $ajax = (bool)stristr($Page->url, '/ajax/');
 
 /**
+ * Возвращает код закрытия меню
+ */
+$showCloseButton = function () {
+    $result = ' <div class="menu-mobile__close">
+                  <a class="menu-mobile__close-link btn-close"></a>
+                </div>';
+    return $result;
+};
+
+/**
+ * Возвращает внутренний заголовок
+ * @param string $url Ссылка
+ * @param string $text Заголовок
+ * @param bool $vueText Текст отображается через Vue.JS
+ * @param bool $vueText Текст отображается через Vue.JS
+ * @return string
+ */
+$showInnerHeader = function (
+    $url,
+    $text,
+    $vueText = false,
+    $vueLink = false
+) use (
+    &$showCloseButton
+) {
+    $result = ' <div class="menu-mobile__back">
+                  <a class="menu-mobile__back-link"></a>
+                </div>
+                <div class="menu-mobile__title">
+                  <a ' . ($vueLink ? 'data-v-bind_' : '') . 'href="' . htmlspecialchars($url) . '"' . ($vueText ? ' data-v-html="' . htmlspecialchars($text) . '"' : '') . '>';
+    if (!$vueText) {
+        $result .= htmlspecialchars($text);
+    }
+    $result .=   '</a>
+                </div>';
+    $result .= $showCloseButton();
+    return $result;
+};
+
+/**
  * Получает код списка меню
  * @param array<[
  *            'name' => string Наименование пункта,
@@ -33,7 +73,9 @@ $showMenu = function ($node, Page $current) use (
     &$showMenu,
     $useAjax,
     $ajax,
-    &$phone
+    &$phone,
+    &$showInnerHeader,
+    &$showCloseButton
 ) {
     static $level = 0;
     if ($node instanceof Menu) {
@@ -48,21 +90,14 @@ $showMenu = function ($node, Page $current) use (
     if (!$level || $children) {
         $text = '   <li class="menu-mobile__header">';
         if (!$level) {
-            $text .= '<div class="menu-mobile__logo">' . $current->location('logo') . '</div>';
+            $text .= '<div class="menu-mobile__logo">'
+                  .     $current->location('logo')
+                  .  '</div>'
+                  .   $showCloseButton();
         } else {
-            $text .= ' <div class="menu-mobile__back">
-                         <a class="menu-mobile__back-link"></a>
-                       </div>
-                       <div class="menu-mobile__title">
-                         <a href="' . htmlspecialchars($nodeUrl) . '">
-                           ' . htmlspecialchars($nodeName) . '
-                         </a>
-                       </div>';
+            $text .= $showInnerHeader($nodeUrl, $nodeName);
         }
-        $text .= '     <div class="menu-mobile__close">
-                         <a class="menu-mobile__close-link btn-close"></a>
-                       </div>
-                     </li>';
+        $text .= '   </li>';
         if (!$level && $phone) {
             $text .= '<li class="menu-mobile__item menu-mobile__item_main menu-mobile__item_level_0 menu-mobile__item_phone">
                         <a class="menu-mobile__link menu-mobile__link_main menu-mobile__link_level_0 menu-mobile__link_phone" href="tel:%2B7' . Text::beautifyPhone($phone) . '">'
@@ -70,11 +105,12 @@ $showMenu = function ($node, Page $current) use (
                   .    '</a>
                       </li>
                       <li data-v-if="user.id" class="menu-mobile__item menu-mobile__item_level_0 menu-mobile__item_main menu-mobile__item_user menu-mobile__item_has-children">
-                        <a href="/profile/" class="menu-mobile__link menu-mobile__link_level_0 menu-mobile__link_main menu-mobile__link_has-children menu-mobile__link_user">
-                          ' . htmlspecialchars($user->full_name) . '
-                        </a>
+                        <a href="/profile/" class="menu-mobile__link menu-mobile__link_level_0 menu-mobile__link_main menu-mobile__link_has-children menu-mobile__link_user" data-v-html="user.first_name || user.full_name"></a>
                         <a href="#" class="menu-mobile__children-trigger menu-mobile__children-trigger_main menu-mobile__children-trigger_level_0"></a>
                         <ul class="menu-mobile__list menu-mobile__list_level_1 menu-mobile__list_inner">
+                          <li class="menu-mobile__header">
+                            ' . $showInnerHeader('/profile/', 'user.first_name || user.full_name', true) . '
+                          </li>
                           <li class="menu-mobile__item menu-mobile__item_level_1 menu-mobile__item_inner">
                             <a href="/profile/" class="menu-mobile__link menu-mobile__link_level_1 menu-mobile__link_inner">
                               ' . EDIT_PROFILE . '

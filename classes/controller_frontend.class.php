@@ -396,12 +396,15 @@ class Controller_Frontend extends Abstract_Controller
         $Page = $originalPage = Page::importByURL(
             $this->scheme . '://' . $this->host . $url
         );
-        $doCache = (bool)(int)$Page->cache;
+        // 2021-11-18, AVS: оставляем кэширование 404-х их собственными настройками
+        // $doCache = (bool)(int)$Page->cache;
         $Page->initialURL = $url;
 
-        $cprPage = $this->checkPageRights($Page, $doCache);
+        // 2021-11-18, AVS: оставляем кэширование 404-х их собственными настройками
+        $cprPage = $this->checkPageRights($Page/*, $doCache*/);
         $Page = $cprPage;
-        $cmPage = $this->checkMaterial($Page, $doCache);
+        // 2021-11-18, AVS: оставляем кэширование 404-х их собственными настройками
+        $cmPage = $this->checkMaterial($Page/*, $doCache*/);
         if ($cmPage->Material) {
             $originalPage->Material = $cmPage->Material;
         }
@@ -420,7 +423,8 @@ class Controller_Frontend extends Abstract_Controller
         if ($Page->Material && !$Page->Material->proceed) {
             // Материал заявлен, но не обработан
             $Page = $Page->getCodePage(404);
-            $Page->cache = (bool)(int)$Page->cache || $doCache;
+            // 2021-11-18, AVS: оставляем кэширование 404-х их собственными настройками
+            // $Page->cache = (bool)(int)$Page->cache || $doCache;
             $content = $Page->process();
         }
 

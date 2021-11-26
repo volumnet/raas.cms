@@ -71,7 +71,7 @@ class FormArrayFormatter
                 $result['material_type'],
                 $result['create_feedback'],
                 $result['email'],
-                $result['interface_id'],
+                $result['interface_id']
             );
         }
         $result['fields'] = array_map(function ($field) use ($fieldWith) {

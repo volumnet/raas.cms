@@ -317,7 +317,7 @@ class EditBlockForm extends RAASForm
                             if (trim($row)) {
                                 $row = explode('=', trim($row));
                                 $result['params_name'][] = $row[0];
-                                $result['params_value'][] = $row[1];
+                                $result['params_value'][] = urldecode($row[1]);
                             }
                         }
                         return $result;
@@ -326,7 +326,7 @@ class EditBlockForm extends RAASForm
                         $result = [];
                         foreach ($_POST['params_name'] as $i => $val) {
                             $result[] = $_POST['params_name'][$i] . '='
-                                      . $_POST['params_value'][$i];
+                                      . urlencode($_POST['params_value'][$i]);
                         }
                         $result = implode('&', $result);
                         $item->params = $result;

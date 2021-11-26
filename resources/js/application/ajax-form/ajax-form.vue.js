@@ -19,7 +19,27 @@ export default {
             default: function () {
                 return {};
             },
-        }
+        },
+        /**
+         * Начальные ошибки формы
+         * @type {Object} <pre><code>object<
+         *     string[] URN ошибки => string Текст ошибки
+         * ></code></pre>
+         */
+        initialErrors: {
+            type: Object,
+            default: function () {
+                return {};
+            }
+        },
+        /**
+         * Скроллить к предупреждениям в случае ошибки
+         * @type {Object}
+         */
+        scrollToErrors: {
+            type: Boolean,
+            default: false,
+        },
     },
     data: function () {
         return {
@@ -35,7 +55,9 @@ export default {
              *     string[] URN ошибки => string Текст ошибки
              * ></code></pre>
              */
-            errors: {},
+            errors: (typeof this.initialErrors == 'object') 
+                ? this.initialErrors
+                : {},
 
             /**
              * Маркер успешной отправки формы
@@ -48,7 +70,7 @@ export default {
              * @type {Object}
              */
             formData: (typeof this.initialFormData == 'object') 
-                ? Object.assign({}, this.initialFormData)
+                ? this.initialFormData
                 : {},
 
             /**
@@ -56,7 +78,7 @@ export default {
              * @type {Object}
              */
             oldFormData: (typeof this.initialFormData == 'object') 
-                ? Object.assign({}, this.initialFormData)
+                ? JSON.parse(JSON.stringify(this.initialFormData))
                 : {},
         };
     },
@@ -116,6 +138,11 @@ export default {
                 $(this.$el).trigger('RAAS.AJAXForm.error', data.localError);
                 $(this.$el).trigger('raas.ajaxform.error', data.localError);
                 this.$emit('error', data.localError);
+                if (this.scrollToErrors) {
+                    window.setTimeout(() => {
+                        $.scrollTo(this.$refs.errors || window.app.$el, 500);
+                    }, 10);
+                }
             }
         },
     },

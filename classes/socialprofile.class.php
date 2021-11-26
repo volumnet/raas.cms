@@ -121,7 +121,13 @@ abstract class SocialProfile
     public function __get($var)
     {
         switch ($var) {
-            // case 'token': case 'profile': case 'last_name': case 'first_name':
+            // case 'token':
+            // case 'profile':
+            // 2021-11-26, AVS: восстановили, т.к. возможно понадобится получать все данные
+            case 'last_name':
+            case 'first_name':
+                return trim($this->$var);
+                break;
             case 'full_name':
                 return trim($this->last_name . ' ' . $this->first_name);
                 break;

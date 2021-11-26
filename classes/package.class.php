@@ -744,6 +744,8 @@ class Package extends RAASPackage
             unlink($file);
         }
         if ($emitEvent) {
+            PageRecursiveCache::i()->refresh();
+            PageRecursiveCache::i()->save();
             EventProcessor::emit('clearCache', $this);
         }
     }
@@ -1054,7 +1056,9 @@ class Package extends RAASPackage
                 $this->registrySet('maxsize', 1920);
             }
             parent::install();
-            Attachment::clearLostFiles($this->filesDir);
+            // 2021-11-24, AVS: закомментировал, чтобы не пропадали результаты optipic.io
+            // и не тормозило при обновлении
+            // Attachment::clearLostFiles($this->filesDir);
             CMSAccess::refreshPagesAccessCache();
             CMSAccess::refreshMaterialsAccessCache();
             CMSAccess::refreshBlocksAccessCache();

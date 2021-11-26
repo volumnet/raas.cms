@@ -87,7 +87,7 @@ class FieldArrayFormatter
                 $result['postprocessor_id'],
                 $result['show_in_table'],
                 $result['source'],
-                $result['source_type'],
+                $result['source_type']
             );
         }
         if ($stdSource = $this->field->stdSource) {

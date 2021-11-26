@@ -4,25 +4,32 @@
 export default {
     methods: {
         inputMask: function (options = {}) {
+            let config = Object.assign({
+                showMaskOnFocus: false, 
+                showMaskOnHover: true,
+            }, options);
             let $objects = $(this.$el).add($('input', this.$el));
             $objects.filter('[pattern]:not([data-inputmask-pattern])')
                 .each(function () {
                     var pattern = $(this).attr('pattern');
                     $(this)
                         .attr('data-inputmask-pattern', pattern)
+                        .attr('autocomplete', 'off')
                         // @todo Пока отключаем placeholder, т.к. глючит с InputMask
-                        .inputmask({regex: pattern, showMaskOnFocus: false, showMaskOnHover: true/*, placeholder: ''*/ }/*, { showMaskOnHover: true }*/);
+                        .inputmask(Object.assign({regex: pattern}, config));
                 });
             $objects
                 .filter('[type="tel"]:not([pattern]):not([data-inputmask-pattern])')
                 .attr('data-inputmask-pattern', '+9 (999) 999-99-99')
+                .attr('autocomplete', 'off')
                 // @todo Пока отключаем placeholder, т.к. глючит с InputMask
-                .inputmask('+9 (999) 999-99-99', { showMaskOnFocus: false, showMaskOnHover: true/*, placeholder: ''*/ });
+                .inputmask('+9 (999) 999-99-99', config);
             $objects
                 .filter('[data-type="email"]:not([pattern]):not([data-inputmask-pattern])')
                 .attr('data-inputmask-pattern', '*{+}@*{+}.*{+}')
+                .attr('autocomplete', 'off')
                 // @todo Пока отключаем placeholder, т.к. глючит с InputMask
-                .inputmask('*{+}@*{+}.*{+}', { showMaskOnFocus: false, showMaskOnHover: true/*, placeholder: ''*/ });
+                .inputmask('*{+}@*{+}.*{+}', config);
         },
         applyInputMaskListeners: function () {
             let self = this;

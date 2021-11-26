@@ -89,6 +89,9 @@ export default {
                 if (this.type.accept) {
                     result.accept = this.type.accept;
                 }
+                if (this.type.pattern) {
+                    result.pattern = this.type.pattern;
+                }
                 if (['number', 'range'].indexOf(this.type.datatype) != -1) {
                     if (this.type.min_val) {
                         result.min = this.type.min_val;

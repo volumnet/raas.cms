@@ -41,13 +41,16 @@ export default {
          * Переключение одиночного флажка
          */
         toggleCheckbox: function () {
-            let val;
-            if (this.checked) {
-                val = this.mask || '';
-            } else {
-                val = this.defval;
-            }
-            this.$emit('input', val);
+            window.setTimeout(() => {
+                let val;
+
+                if (this.checked) {
+                    val = this.mask || '';
+                } else {
+                    val = this.defval;
+                }
+                this.$emit('input', val);
+            }, 0)
         },
         /**
          * Переключение опции

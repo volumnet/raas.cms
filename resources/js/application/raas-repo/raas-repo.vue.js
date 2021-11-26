@@ -44,6 +44,14 @@ export default {
             type: Boolean,
             default: true,
         },
+        /**
+         * Возможность вставки
+         * @type {Object}
+         */
+        insertable: {
+            type: Boolean,
+            default: true,
+        }
     },
     data: function () {
         let result = {};

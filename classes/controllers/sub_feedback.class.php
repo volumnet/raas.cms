@@ -97,7 +97,7 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
             case 'xls':
             case 'xlsx':
                 $filename .= '.' . $type;
-                $x = new PHPExcel();
+                $x =@ new PHPExcel();
                 $x->setActiveSheetIndex(0)->setTitle($table->caption);
                 $maxcol = 0;
                 for ($i = 0; $i < count($data); $i++) {

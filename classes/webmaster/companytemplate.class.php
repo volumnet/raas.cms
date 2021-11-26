@@ -71,7 +71,7 @@ class CompanyTemplate extends MaterialTypeTemplate
         $lonField = new Material_Field([
             'pid' => $this->materialType->id,
             'vis' => 1,
-            'name' => View_Web::i()->_('LONGIITUDE'),
+            'name' => View_Web::i()->_('LONGITUDE'),
             'urn' => 'lon',
             'datatype' => 'text',
         ]);
