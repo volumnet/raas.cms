@@ -31,46 +31,42 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   <span itemprop="name" class="fn org" style="display: none">
     <?php echo htmlspecialchars($company->name)?>
   </span>
-  <?php if ($company->map) {
-      if (preg_match('/src="(.*?)"/umis', $company->map, $regs)) {
-          $mapQueryStr = parse_url($regs[1], PHP_URL_QUERY);
-          parse_str($mapQueryStr, $mapQuery);
-          if ($mapQuery['um']) {
-              $mapId = $mapQuery['um'];
-          } elseif ($mapQuery['sid']) {
-              $mapId = 'constructor:' . $mapQuery['sid'];
-          }
-          if ($mapId) { ?>
-              <div class="contacts__map">
-                <iframe src="https://yandex.ru/map-widget/v1/?um=<?php echo urlencode($mapId)?>&amp;source=constructor" frameborder="0"></iframe>
-              </div>
-          <?php }
-      }
-  }
-  $addressArr = [];
+  <?php
+  $addressArr = $mapAddressArr = [];
   if ($postalCode = $company->postal_code) {
       $jsonLd['address']['postalCode'] = $postalCode;
       $addressArr[] = '<span class="contacts__address-postal-code postal-code" itemprop="postalCode">'
                     .    htmlspecialchars($postalCode)
                     . '</span>';
+      $mapAddressArr[] = $postalCode;
   }
   if ($city = $company->city) {
       $jsonLd['address']['addressLocality'] = $city;
       $addressArr[] = '<span class="contacts__address-city locality" itemprop="addressLocality">'
                     .    htmlspecialchars($city)
                     . '</span>';
+      $mapAddressArr[] = 'г. ' . $city;
   }
   if ($streetAddress = $company->street_address) {
       $jsonLd['address']['streetAddress'] = $streetAddress;
       $addressArr[] = '<span class="contacts__address-address street-address" itemprop="streetAddress">'
                     .    htmlspecialchars($streetAddress)
                     . '</span>';
+      $mapAddressArr[] = $streetAddress;
   }
   if ($office = $company->office) {
       $addressArr[] = '<span class="contacts__address-office">'
                     .    htmlspecialchars($office)
                     . '</span>';
+      $mapAddressArr[] = $office;
   }
+  if (($lat = $company->lat) && ($lon = $company->lon)) { ?>
+      <div class="contacts__map">
+        <div data-vue-role="yandex-map" data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]" data-v-bind_zoom="15">
+          <div data-vue-role="ymap-marker" data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]" data-vue-marker-id="company" data-vue-hint-content="<?php echo htmlspecialchars(implode(', ', $mapAddressArr))?>"></div>
+        </div>
+      </div>
+  <?php }
   if ($addressArr) {
       $jsonLd['address']['@type'] = 'PostalAddress'; ?>
       <div class="contacts__address">

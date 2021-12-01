@@ -90,4 +90,6 @@ $showMenu = function ($node, Page $current) use (&$showMenu) {
 <nav class="menu-sections">
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>
-<?php Package::i()->requestCSS('/css/menu-sections.css');
+<?php
+Package::i()->requestCSS('/css/menu-sections.css');
+Package::i()->requestJS('/js/menu-sections.js');

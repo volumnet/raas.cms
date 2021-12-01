@@ -3,20 +3,19 @@
  * Виджет категории для отображения в списке
  * @param Page $page Категория для отоображения
  */
-namespace RAAS\CMS\Shop;
+namespace RAAS\CMS;
 
-$queryString = http_build_query(array_intersect_key($_GET, array_flip(['brand'])));
-$queryString = $queryString ? '?' . $queryString : '';
 ?>
-<a class="category" href="<?php echo $page->url . $queryString ?>">
-  <div class="category__image<?php echo !$page->image->id ? ' category__image_nophoto' : ''?>">
-    <?php if ($page->image->id) { ?>
-        <img loading="lazy" src="/<?php echo htmlspecialchars($page->image->smallURL)?>" alt="<?php echo htmlspecialchars($page->image->name ?: $page->name)?>" />
-    <?php } ?>
+<a class="category" href="<?php echo $page->url?>">
+  <div class="category__image">
+    <img loading="lazy" src="/<?php echo htmlspecialchars($page->image->id ? $page->image->tnURL : 'files/cms/common/image/design/nophoto.jpg')?>" alt="<?php echo htmlspecialchars($page->image->name ?: $page->name)?>" />
   </div>
   <div class="category__text">
     <div class="category__title">
-      <?php echo htmlspecialchars($page->name . ((int)$page->counter ? ' (' . (int)$page->counter . ')' : ''))?>
+      <?php echo htmlspecialchars($page->name)?>
     </div>
   </div>
 </a>
+<?php
+Package::i()->requestCSS('/css/category.css');
+Package::i()->requestJS('/js/category.js');
