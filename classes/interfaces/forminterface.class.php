@@ -5,6 +5,7 @@
 namespace RAAS\CMS;
 
 use Mustache_Engine;
+use Pelago\Emogrifier\CssInliner;
 use SOME\SOME;
 use SOME\Text;
 use SOME\Thumbnail;
@@ -678,7 +679,7 @@ class FormInterface extends AbstractInterface
         if (isset($post[$fieldURN])) {
             foreach ((array)$post[$fieldURN] as $val) {
                 // 2019-01-22, AVS: закрываем XSS-уязвимость
-                $field->addValue(strip_tags($val));
+                $field->addValue(trim(strip_tags($val)));
             }
         }
     }
@@ -819,6 +820,8 @@ class FormInterface extends AbstractInterface
         $processEmbedded = $this->processEmbedded($message);
         $message = $processEmbedded['message'];
         $embedded = (array)$processEmbedded['embedded'];
+
+        $message = CssInliner::fromHtml($message)->inlineCss()->render();
 
         if ($emails = $addresses['emails']) {
             if ($debug) {
