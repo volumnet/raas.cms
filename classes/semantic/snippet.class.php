@@ -128,7 +128,21 @@ class Snippet extends SOME
         extract($data);
         $result = @include $this->filename;
         if ($diag = Controller_Frontend::i()->diag) {
-            $diag->handle('snippets', $this->id, microtime(true) - $snippetST);
+            $diagId = $this->id;
+            if ($data['Block'] &&
+                ($data['Block'] instanceof Block_Material) &&
+                $data['Block']->nat &&
+                $data['Page'] &&
+                ($data['Page'] instanceof Page) &&
+                ($data['Page']->Material->id || $data['Page']->Item->id)
+            ) {
+                $diagId .= '@m';
+            }
+            $diag->handle(
+                'snippets',
+                $diagId,
+                microtime(true) - $snippetST
+            );
         }
         return $result;
     }

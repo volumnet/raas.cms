@@ -432,7 +432,14 @@ abstract class Block extends SOME
             $content = Package::processInternalLinks($content, $page);
             echo $content;
             if ($diag = Controller_Frontend::i()->diag) {
-                $diag->handle('blocks', $this->id, microtime(true) - $bst);
+                $diagId = $this->id;
+                if (($this instanceof Block_Material) &&
+                    $this->nat &&
+                    ($page->Material->id || $page->Item->id)
+                ) {
+                    $diagId .= '@m';
+                }
+                $diag->handle('blocks', $diagId, microtime(true) - $bst);
             }
             if ($data) {
                 return $data;
@@ -489,9 +496,16 @@ abstract class Block extends SOME
                 'config' => $config,
             ]);
             if ($diag = Controller_Frontend::i()->diag) {
+                $diagId = $this->id;
+                if (($this instanceof Block_Material) &&
+                    $this->nat &&
+                    ($page->Material->id || $page->Item->id)
+                ) {
+                    $diagId .= '@m';
+                }
                 $diag->handle(
                     'blocks',
-                    $this->id,
+                    $diagId,
                     microtime(true) - $st,
                     null,
                     'interfaceTime'
@@ -522,9 +536,16 @@ abstract class Block extends SOME
                 'Widget' => $this->Widget,
             ]));
             if ($diag = Controller_Frontend::i()->diag) {
+                $diagId = $this->id;
+                if (($this instanceof Block_Material) &&
+                    $this->nat &&
+                    ($page->Material->id || $page->Item->id)
+                ) {
+                    $diagId .= '@m';
+                }
                 $diag->handle(
                     'blocks',
-                    $this->id,
+                    $diagId,
                     microtime(true) - $st,
                     null,
                     'widgetTime'
