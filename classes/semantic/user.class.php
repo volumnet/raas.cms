@@ -458,6 +458,10 @@ class User extends SOME
      */
     public static function importBySocialNetwork($profile)
     {
+        // 2021-12-28, AVS: из Яндекса идет пустой профиль - ищется кто попало
+        if (!trim($profile)) {
+            return null;
+        }
         $sqlQuery = "SELECT tU.*
                         FROM " . static::_tablename()
                   . "     AS tU
