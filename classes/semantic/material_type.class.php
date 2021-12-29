@@ -70,6 +70,46 @@ class Material_Type extends SOME
         'selfAndParentsIds',
     ];
 
+    /**
+     * Кэш собственных полей
+     * Сделано для ускорения отображения списков одинаковых материалов,
+     * когда отдельно получается тип и отдельно поля к нему
+     * @var array <pre><code>array<
+     *     string[] ID# типа материалов => array<string[] URN поля => self>
+     * ></code></pre>
+     */
+    public static $selfFieldsCache = [];
+
+    /**
+     * Кэш собственных видимых полей
+     * Сделано для ускорения отображения списков одинаковых материалов,
+     * когда отдельно получается тип и отдельно поля к нему
+     * @var array <pre><code>array<
+     *     string[] ID# типа материалов => array<string[] URN поля => self>
+     * ></code></pre>
+     */
+    public static $visSelfFieldsCache = [];
+
+    /**
+     * Кэш полей
+     * Сделано для ускорения отображения списков одинаковых материалов,
+     * когда отдельно получается тип и отдельно поля к нему
+     * @var array <pre><code>array<
+     *     string[] ID# типа материалов => array<string[] URN поля => self>
+     * ></code></pre>
+     */
+    public static $fieldsCache = [];
+
+    /**
+     * Кэш видимых полей
+     * Сделано для ускорения отображения списков одинаковых материалов,
+     * когда отдельно получается тип и отдельно поля к нему
+     * @var array <pre><code>array<
+     *     string[] ID# типа материалов => array<string[] URN поля => self>
+     * ></code></pre>
+     */
+    public static $visFieldsCache = [];
+
     public function commit()
     {
         $new = !$this->id;
@@ -165,18 +205,21 @@ class Material_Type extends SOME
      */
     protected function _selfFields()
     {
-        $sqlQuery = "SELECT *
-                       FROM " . Material_Field::_tablename()
-                  . " WHERE classname = ?
-                        AND pid = ?
-                   ORDER BY priority";
-        $sqlBind = [get_class($this), (int)$this->id];
-        $temp = Material_Field::getSQLSet([$sqlQuery, $sqlBind]);
-        $arr = [];
-        foreach ($temp as $row) {
-            $arr[$row->urn] = $row;
+        if (!static::$selfFieldsCache[$this->id]) {
+            $sqlQuery = "SELECT *
+                           FROM " . Material_Field::_tablename()
+                      . " WHERE classname = ?
+                            AND pid = ?
+                       ORDER BY priority";
+            $sqlBind = [get_class($this), (int)$this->id];
+            $temp = Material_Field::getSQLSet([$sqlQuery, $sqlBind]);
+            $arr = [];
+            foreach ($temp as $row) {
+                $arr[$row->urn] = $row;
+            }
+            static::$selfFieldsCache[trim($this->id)] = $arr;
         }
-        return $arr;
+        return static::$selfFieldsCache[$this->id];
     }
 
 
@@ -186,9 +229,15 @@ class Material_Type extends SOME
      */
     protected function _visSelfFields()
     {
-        return array_filter(function ($x) {
-            return $x->vis;
-        }, $this->selfFields);
+        if (!static::$visSelfFieldsCache[$this->id]) {
+            static::$visSelfFieldsCache[trim($this->id)] = array_filter(
+                function ($x) {
+                    return $x->vis;
+                },
+                $this->selfFields
+            );
+        }
+        return static::$visSelfFieldsCache[$this->id];
     }
 
 
@@ -198,13 +247,16 @@ class Material_Type extends SOME
      */
     protected function _fields()
     {
-        $arr1 = [];
-        if ($this->parent->id) {
-            $arr1 = (array)$this->parent->fields;
+        if (!static::$fieldsCache[$this->id]) {
+            $arr1 = [];
+            if ($this->parent->id) {
+                $arr1 = (array)$this->parent->fields;
+            }
+            $arr2 = (array)$this->selfFields;
+            $arr = array_merge($arr1, $arr2);
+            static::$fieldsCache[trim($this->id)] = $arr;
         }
-        $arr2 = (array)$this->selfFields;
-        $arr = array_merge($arr1, $arr2);
-        return $arr;
+        return static::$fieldsCache[$this->id];
     }
 
 
@@ -214,9 +266,12 @@ class Material_Type extends SOME
      */
     protected function _visFields()
     {
-        return array_filter($this->fields, function ($x) {
-            return $x->vis;
-        });
+        if (!static::$visFieldsCache[$this->id]) {
+            static::$visFieldsCache[trim($this->id)] = array_filter($this->fields, function ($x) {
+                return $x->vis;
+            });
+        }
+        return static::$visFieldsCache[$this->id];
     }
 
 

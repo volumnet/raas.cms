@@ -163,8 +163,9 @@ class Material extends SOME
                 return $file;
                 break;
             default:
+                $origVar = $var;
                 $val = parent::__get($var);
-                    // echo $var . ' = ' . $val; exit;
+                // echo $var . ' = ' . $val; exit;
                 if ($val !== null) {
                     return $val;
                 }
@@ -176,9 +177,10 @@ class Material extends SOME
                 // на $this->fields[$var]->id, т.к. на TimeWeb'е на PHP5.6
                 // isset($this->fields[$var]) выдает false, хотя на локальном
                 // PHP5.6 выдает true - хз почему
-                if ($this->fields[$var]->id &&
-                    ($this->fields[$var] instanceof Material_Field)
-                ) {
+                $st = microtime(1);
+                $fields = $this->fields;
+                $field = $fields[$var];
+                if ($field->id && ($field instanceof Material_Field)) {
                     $temp = $this->fields[$var]->getValues();
                     if ($vis) {
                         $temp = array_values(
@@ -473,7 +475,9 @@ class Material extends SOME
      */
     protected function _fields()
     {
-        $temp = $this->material_type->fields;
+        if (!($temp = Material_Type::$fieldsCache[$this->pid])) {
+            $temp = $this->material_type->fields;
+        }
         $arr = [];
         foreach ((array)$temp as $row) {
             $row->Owner = $this;
@@ -489,9 +493,15 @@ class Material extends SOME
      */
     protected function _visFields()
     {
-        return array_filter($this->fields, function ($x) {
-            return $x->vis;
-        });
+        if (!($temp = Material_Type::$visFieldsCache[$this->pid])) {
+            $temp = $this->material_type->visFields;
+        }
+        $arr = [];
+        foreach ((array)$temp as $row) {
+            $row->Owner = $this;
+            $arr[$row->urn] = $row;
+        }
+        return $arr;
     }
 
 

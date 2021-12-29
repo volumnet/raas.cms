@@ -44,4 +44,18 @@ class Material_Field extends Field
                 break;
         }
     }
+
+
+    public function commit()
+    {
+        if ($pid = $this->pid) {
+            unset(
+                Material_Type::$selfFieldsCache[$pid],
+                Material_Type::$visSelfFieldsCache[$pid],
+                Material_Type::$fieldsCache[$pid],
+                Material_Type::$visFieldsCache[$pid]
+            );
+        }
+        parent::commit();
+    }
 }

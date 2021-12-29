@@ -324,12 +324,18 @@ class Field extends CustomField
         switch ($this->datatype) {
             case 'image':
             case 'file':
-                $sqlQuery = "SELECT value
-                               FROM " . static::$dbprefix . static::data_table
-                          . " WHERE pid = ?
-                                AND fid = ?
-                           ORDER BY fii ASC";
-                $sqlBind = [(int)$this->Owner->id, (int)$this->id];
+                if (isset(static::$cache[$this->Owner->id][$this->id])) {
+                    $values = static::$cache[$this->Owner->id][$this->id];
+                } else {
+                    $sqlQuery = "SELECT value
+                                   FROM " . static::$dbprefix . static::data_table
+                              . " WHERE pid = ?
+                                    AND fid = ?
+                               ORDER BY fii ASC";
+                    $sqlBind = [(int)$this->Owner->id, (int)$this->id];
+                    $values = static::$SQL->getcol([$sqlQuery, $sqlBind]);
+                    static::$cache[trim($this->Owner->id)][trim($this->id)] = $values;
+                }
                 $values = array_map(function ($x) {
                     $y = (array)json_decode($x, true);
                     $att = new Attachment(
@@ -339,7 +345,7 @@ class Field extends CustomField
                         $att->$key = $val;
                     }
                     return $att;
-                }, static::$SQL->getcol([$sqlQuery, $sqlBind]));
+                }, $values);
                 return $values;
                 break;
             case 'number':
