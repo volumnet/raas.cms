@@ -479,9 +479,10 @@ class Material extends SOME
             $temp = $this->material_type->fields;
         }
         $arr = [];
-        foreach ((array)$temp as $row) {
-            $row->Owner = $this;
-            $arr[$row->urn] = $row;
+        foreach ((array)$temp as $fieldURN => $field) {
+            $field = $field->deepClone();
+            $field->Owner = $this;
+            $arr[$fieldURN] = $field;
         }
         return $arr;
     }
@@ -497,9 +498,10 @@ class Material extends SOME
             $temp = $this->material_type->visFields;
         }
         $arr = [];
-        foreach ((array)$temp as $row) {
-            $row->Owner = $this;
-            $arr[$row->urn] = $row;
+        foreach ((array)$temp as $fieldURN => $field) {
+            $field = $field->deepClone();
+            $field->Owner = $this;
+            $arr[$fieldURN] = $field;
         }
         return $arr;
     }
