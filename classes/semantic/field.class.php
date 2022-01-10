@@ -276,16 +276,9 @@ class Field extends CustomField
         switch ($this->datatype) {
             case 'image':
             case 'file':
-                $sqlQuery = "SELECT value
-                               FROM " . static::$dbprefix . static::data_table
-                          . " WHERE pid = ?
-                                AND fid = ?
-                                AND fii = ?";
-                $sqlBind = [(int)$this->Owner->id, (int)$this->id, (int)$index];
-                $y = (array)json_decode(
-                    static::$SQL->getvalue([$sqlQuery, $sqlBind]),
-                    true
-                );
+                $this->prefetchIfNotExists();
+                $value = static::$cache[$this->Owner->id][$this->id][$index];
+                $y = (array)json_decode($value, true);
                 $att = new Attachment(
                     (int)(isset($y['attachment']) ? $y['attachment'] : 0)
                 );
@@ -324,18 +317,8 @@ class Field extends CustomField
         switch ($this->datatype) {
             case 'image':
             case 'file':
-                if (isset(static::$cache[$this->Owner->id][$this->id])) {
-                    $values = static::$cache[$this->Owner->id][$this->id];
-                } else {
-                    $sqlQuery = "SELECT value
-                                   FROM " . static::$dbprefix . static::data_table
-                              . " WHERE pid = ?
-                                    AND fid = ?
-                               ORDER BY fii ASC";
-                    $sqlBind = [(int)$this->Owner->id, (int)$this->id];
-                    $values = static::$SQL->getcol([$sqlQuery, $sqlBind]);
-                    static::$cache[trim($this->Owner->id)][trim($this->id)] = $values;
-                }
+                $this->prefetchIfNotExists();
+                $values = static::$cache[$this->Owner->id][$this->id];
                 $values = array_map(function ($x) {
                     $y = (array)json_decode($x, true);
                     $att = new Attachment(

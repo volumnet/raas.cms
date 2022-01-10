@@ -181,7 +181,7 @@ class Material extends SOME
                 $fields = $this->fields;
                 $field = $fields[$var];
                 if ($field->id && ($field instanceof Material_Field)) {
-                    $temp = $this->fields[$var]->getValues();
+                    $temp = $field->getValues();
                     if ($vis) {
                         $temp = array_values(
                             array_filter(
