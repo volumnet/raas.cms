@@ -318,7 +318,7 @@ class Field extends CustomField
             case 'image':
             case 'file':
                 $this->prefetchIfNotExists();
-                $values = static::$cache[$this->Owner->id][$this->id];
+                $values = (array)static::$cache[$this->Owner->id][$this->id];
                 $values = array_map(function ($x) {
                     $y = (array)json_decode($x, true);
                     $att = new Attachment(
@@ -334,12 +334,12 @@ class Field extends CustomField
             case 'number':
                 return array_map(function ($x) {
                     return str_replace(',', '.', $x);
-                }, parent::getValues($forceArray));
+                }, (array)parent::getValues($forceArray));
                 break;
             case 'material':
                 return array_map(function ($x) {
                     return new Material($x);
-                }, parent::getValues($forceArray));
+                }, (array)parent::getValues($forceArray));
                 break;
             default:
                 return parent::getValues($forceArray);
