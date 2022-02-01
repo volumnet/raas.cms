@@ -42,9 +42,9 @@ jQuery(document).ready(function($) {
 
         var checkAccurate = function(e) {
             if ($(this).is(':checked')) {
-                $(this).removeAttr('checked');
+                $(this).prop('checked', false);
             } else {
-                $(this).attr('checked', 'checked');
+                $(this).prop('checked', true);
             }
             e.stopPropagation();
             e.preventDefault();
@@ -54,9 +54,9 @@ jQuery(document).ready(function($) {
 
         $all.on('click', function() {
             if ($(this).is(':checked')) {
-                $checkbox.attr('checked', 'checked');
+                $checkbox.prop('checked', true);
             } else {
-                $checkbox.removeAttr('checked');
+                $checkbox.prop('checked', false);
             }
             check();
         });

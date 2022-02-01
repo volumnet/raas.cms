@@ -9,6 +9,13 @@ export default {
              * @type {Number}
              */
             windowWidth: 0,
+
+            /**
+             * Высота экрана
+             * @type {Number}
+             */
+            windowHeight: 0,
+
             /**
              * Смещение по вертикали
              * @type {Number}
@@ -46,10 +53,12 @@ export default {
         this.lightBoxInit();
 
         this.windowWidth = $(window).outerWidth();
+        this.windowHeight = $(window).outerHeight();
         this.fixHtml();
         $(window).on('resize', self.fixHtml);
         $(window).on('resize', () => {
             this.windowWidth = $(window).outerWidth();
+            this.windowHeight = $(window).outerHeight();
         });
         $(window).on('scroll', () => {
             this.scrollTop = $(window).scrollTop();
