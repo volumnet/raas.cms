@@ -47,6 +47,9 @@ class Updater extends RAASUpdater
         if (version_compare($v, '4.3.14') < 0) {
             $this->update20211029();
         }
+        if (version_compare($v, '4.3.29') < 0) {
+            $this->update20220302();
+        }
     }
 
 
@@ -1860,6 +1863,47 @@ class Updater extends RAASUpdater
             $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_blocks
                             CHANGE `params` `params` TEXT NULL DEFAULT NULL COMMENT 'Additional params';";
             $this->SQL->query($sqlQuery);
+        }
+    }
+
+
+    /**
+     * Добавляет видимость полей по формам, заполняет ее
+     */
+    public function update20220302()
+    {
+        if (!in_array(SOME::_dbprefix() . "cms_fields_form_vis", $this->tables)) {
+            // Создадим форму
+            $sqlQuery = "CREATE TABLE IF NOT EXISTS " . SOME::_dbprefix() . "cms_fields_form_vis (
+                            fid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Field ID#',
+                            pid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Section ID#',
+                            vis TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Visibility',
+
+                            PRIMARY KEY (fid, pid),
+                            INDEX (fid),
+                            INDEX (pid)
+                        ) COMMENT 'Fields form'";
+            $this->SQL->query($sqlQuery);
+
+            // Выберем все поля, относящиеся к типам материалов
+            $sqlQuery = "SELECT id, pid
+                           FROM " . SOME::_dbprefix() . "cms_fields
+                          WHERE classname = 'RAAS\\\\CMS\\\\Material_Type'
+                            AND pid";
+            $sqlResult = $this->SQL->query($sqlQuery);
+
+            MaterialTypeRecursiveCache::i()->refresh();
+            $sqlArr = [];
+            foreach ($sqlResult as $sqlRow) {
+                $selfAndChildrenMaterialTypesIds = MaterialTypeRecursiveCache::i()->getSelfAndChildrenIds($sqlRow['pid']);
+                foreach ($selfAndChildrenMaterialTypesIds as $materialTypeId) {
+                    $sqlArr[] = [
+                        'fid' => (int)$sqlRow['id'],
+                        'pid' => (int)$materialTypeId,
+                    ];
+                }
+            }
+            $this->SQL->add(SOME::_dbprefix() . "cms_fields_form_vis", $sqlArr);
         }
     }
 }

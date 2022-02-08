@@ -158,7 +158,9 @@ class EditMaterialForm extends \RAAS\Form
             'name' => 'description',
             'caption' => $this->view->_('DESCRIPTION')
         ]);
-        foreach ($item->fields as $row) {
+        foreach ($type->formFields as $row) {
+            $row = $row->deepClone();
+            $row->Owner = $item;
             $commonTab->children[$row->urn] = $row->Field;
         }
         return $commonTab;

@@ -610,6 +610,7 @@ class Sub_Dev extends RAASAbstractSubController
      */
     protected function edit_material_type()
     {
+        $Item = new Material_Type((int)$this->id);
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (isset($_POST['priority']) && is_array($_POST['priority'])) {
                 $this->model->setEntitiesPriority(
@@ -617,8 +618,21 @@ class Sub_Dev extends RAASAbstractSubController
                     (array)$_POST['priority']
                 );
             }
+            if (isset($_POST['show_in_form']) && is_array($_POST['show_in_form'])) {
+                $fields = $Item->fields;
+                $fieldsIds = array_map(function ($field) {
+                    return (int)$field->id;
+                }, $fields);
+                $formVisArr = [];
+                foreach ($fieldsIds as $fieldId) {
+                    $formVisArr[trim($fieldId)] = [
+                        'vis' => isset($_POST['show_in_form'][$fieldId]),
+                        'inherit' => isset($_POST['inherit_show_in_form'][$fieldId])
+                    ];
+                }
+                $Item->setFormFieldsIds($formVisArr);
+            }
         }
-        $Item = new Material_Type((int)$this->id);
         if ($Item->pid) {
             $Parent = $Item->parent;
         } else {

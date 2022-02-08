@@ -93,6 +93,16 @@ class MaterialFieldsTable extends FieldsTable
                                '';
                     }
                 ],
+                'show_in_form' => [
+                    'caption' => $this->view->_('SHOW_IN_FORM') . ' / '
+                        . $this->view->_('INHERIT'),
+                    'callback' => function ($row, $i) use ($params) {
+                        if ($row->id) {
+                            return '<input type="checkbox" style="margin-top: 0; " name="show_in_form[' . (int)$row->id . ']" value="1"' . (in_array($row->id, $params['Item']->formFields_ids) ? ' checked="checked"' : '') . ' /> /
+                                    <input type="checkbox" style="margin-top: 0; " name="inherit_show_in_form[' . (int)$row->id . ']" value="1" />';
+                        }
+                    }
+                ],
                 'priority' => [
                     'caption' => $this->view->_('PRIORITY'),
                     'callback' => function ($row, $i) use ($params) {

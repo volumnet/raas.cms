@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_data (
   KEY pid (pid),
   KEY fid (fid),
   KEY fii (fii)
-) COMMENT='Pages fields';
+) COMMENT='Fields data';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_dictionaries (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -251,7 +251,16 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   KEY preprocessor_id (preprocessor_id),
   KEY postprocessor_id (postprocessor_id),
   INDEX priority (priority)
-) COMMENT='Material fields';
+) COMMENT='Fields';
+
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields_form_vis (
+    fid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Field ID#',
+    pid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Section ID#',
+
+    PRIMARY KEY (fid, pid),
+    INDEX (fid),
+    INDEX (pid)
+) COMMENT 'Fields form';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',

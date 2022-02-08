@@ -48,6 +48,23 @@ class Material_Field extends Field
 
     public function commit()
     {
+        $new = !$this->id;
+
+        // Определим старого и нового родителя в случае переноса поля
+        $oldParentType = $newParentType = null;
+        if (!$new &&
+            $this->updates['pid'] &&
+            ($this->updates['pid'] != $this->properties['pid'])
+        ) {
+            $oldParentType = new Material_Type($this->properties['pid']);
+            $newParentType = new Material_Type($this->updates['pid']);
+            $oldParentFormFields = $oldParentType->formFields;
+            $oldParentFormFieldsIds = array_map(function ($x) {
+                return (int)$x->id;
+            }, $oldParentFormFields);
+            $isFormField = in_array($this->id, $oldParentFormFieldsIds); // Была ли видимой в форме
+        }
+
         if ($pid = $this->pid) {
             unset(
                 Material_Type::$selfFieldsCache[$pid],
@@ -57,5 +74,28 @@ class Material_Field extends Field
             );
         }
         parent::commit();
+        if ($new) {
+            $parentType = new Material_Type($this->pid);
+            $formFieldsToSet = [];
+            $formFieldsToSet[trim($this->id)] = [
+                'vis' => true,
+                'inherit' => true,
+            ];
+            $parentType->setFormFieldsIds($formFieldsToSet);
+        } elseif ($oldParentType && $newParentType) {
+            $oldFormFieldsToSet = $newFormFieldsToSet = [];
+            $oldFormFieldsToSet[trim($this->id)] = [
+                'vis' => false,
+                'inherit' => true,
+            ];
+            $oldParentType->setFormFieldsIds($oldFormFieldsToSet);
+            if ($isFormField) {
+                $newFormFieldsToSet[trim($this->id)] = [
+                    'vis' => true,
+                    'inherit' => true,
+                ];
+                $newParentType->setFormFieldsIds($newFormFieldsToSet);
+            }
+        }
     }
 }

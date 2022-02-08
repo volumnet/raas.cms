@@ -9,16 +9,16 @@ use SOME\SOME;
 /**
  * Класс типа материалов
  * @property-read Material_Type $parent Родительский тип
- * @property-read array<Material_Type> $parents Список родительских типов
- * @property-read array<Material_Type> $children Список дочерних типов
- * @property-read array<Page> $affectedPages Список связанных страниц
- * @property-read array<Material_Field> $fields Список полей
- * @property-read array<Material_Fiel> $selfFields Список собственных полей
+ * @property-read Material_Type[] $parents Список родительских типов
+ * @property-read Material_Type[] $children Список дочерних типов
+ * @property-read Page[] $affectedPages Список связанных страниц
+ * @property-read Material_Field[] $fields Список полей
+ * @property-read Material_Field[] $selfFields Список собственных полей
  *                                                 (без учета родительских)
- * @property-read array<Material_Type> $selfAndChildren Тип и все родительские
- * @property-read array<int> $selfAndChildrenIds ID# типа и всех родительских
- * @property-read array<Material_Type> $selfAndParents Тип и все дочерние
- * @property-read array<int> $selfAndParentsIds ID# типа и всех дочерних
+ * @property-read Material_Type[] $selfAndChildren Тип и все родительские
+ * @property-read int[] $selfAndChildrenIds ID# типа и всех родительских
+ * @property-read Material_Type[] $selfAndParents Тип и все дочерние
+ * @property-read int[] $selfAndParentsIds ID# типа и всех дочерних
  */
 class Material_Type extends SOME
 {
@@ -64,6 +64,8 @@ class Material_Type extends SOME
         'visFields',
         'selfFields',
         'visSelfFields',
+        'formFields',
+        'formFields_ids',
         'selfAndChildren',
         'selfAndChildrenIds',
         'selfAndParents',
@@ -113,6 +115,49 @@ class Material_Type extends SOME
     public function commit()
     {
         $new = !$this->id;
+
+        // Подготовим старые и новые поля для формы в случае смены родителя
+        $formFieldsToSet = [];
+        if (!$new &&
+            $this->updates['pid'] &&
+            ($this->updates['pid'] != $this->properties['pid'])
+        ) {
+            $oldParentType = new Material_Type($this->properties['pid']);
+            $newParentType = new Material_Type($this->updates['pid']);
+            $oldParentFields = $oldParentType->fields;
+            $newParentFields = $newParentType->fields;
+            $newParentFormFields = $newParentType->formFields;
+            $oldParentFieldsIds = array_map(function ($x) {
+                return (int)$x->id;
+            }, $oldParentFields);
+            $newParentFieldsIds = array_map(function ($x) {
+                return (int)$x->id;
+            }, $newParentFields);
+            $newParentFormFieldsIds = array_map(function ($x) {
+                return (int)$x->id;
+            }, $newParentFormFields);
+            $formFieldsIdsToDelete = array_diff(
+                $oldParentFieldsIds,
+                $newParentFieldsIds
+            );
+            $formFieldsIdsToAdd = array_intersect(
+                array_diff($newParentFieldsIds, $oldParentFieldsIds),
+                $newParentFormFieldsIds
+            );
+            foreach ($formFieldsIdsToDelete as $formFieldIdToDelete) {
+                $formFieldsToSet[trim($formFieldIdToDelete)] = [
+                    'vis' => false,
+                    'inherit' => true,
+                ];
+            }
+            foreach ($formFieldsIdsToAdd as $formFieldIdToAdd) {
+                $formFieldsToSet[trim($formFieldIdToAdd)] = [
+                    'vis' => true,
+                    'inherit' => true,
+                ];
+            }
+        }
+
         if (!$this->urn && $this->name) {
             $this->urn = $this->name;
         }
@@ -130,6 +175,9 @@ class Material_Type extends SOME
             }
         }
         parent::commit();
+        if ($formFieldsToSet) {
+            $this->setFormFieldsIds($formFieldsToSet);
+        }
         if ($globDirection) {
             $sqlQuery = "SELECT id
                             FROM " . Material::_tablename()
@@ -167,8 +215,76 @@ class Material_Type extends SOME
             }
         }
         if ($new) {
+            if ($this->pid) { // Не корневая
+                // Добавим видимости формы по полям
+                $sqlQuery = "INSERT INTO " . self::_dbprefix() . "cms_fields_form_vis (pid, fid)
+                             SELECT ? AS pid,
+                                    fid
+                               FROM " . self::_dbprefix() . "cms_fields_form_vis
+                              WHERE pid = ?";
+                $sqlBind = [$this->id, $this->pid];
+                static::_SQL()->query([$sqlQuery, $sqlBind]);
+            }
             static::updateAffectedPagesForMaterials($this);
             static::updateAffectedPagesForSelf($this);
+        }
+    }
+
+
+    /**
+     * Устанавливает видимость в форме для полей
+     * @param array $formVisibility <pre><code>array<
+     *     string[] ID# поля => [
+     *         'vis' => bool Видимость в форме,
+     *         'inherit' => bool Наследовать на дочерние типы,
+     *     ]
+     * ></code></pre>
+     */
+    public function setFormFieldsIds(array $formVisibility = [])
+    {
+        $thisId = (int)$this->id;
+        $allChildrenIds = array_map('intval', $this->all_children_ids);
+
+        $sqlDeleteArr = [];
+        $sqlArr = [];
+        foreach ($formVisibility as $fieldId => $fieldData) {
+            $mTypesIdsToUpdate = [$thisId];
+            if ($fieldData['inherit']) {
+                $mTypesIdsToUpdate = array_merge(
+                    $mTypesIdsToUpdate,
+                    $allChildrenIds
+                );
+            }
+            foreach ($mTypesIdsToUpdate as $mTypeId) {
+                $sqlRow = [
+                    'pid' => $mTypeId,
+                    'fid' => $fieldId,
+                ];
+                if ($fieldData['vis']) {
+                    $sqlArr[] = $sqlRow;
+                } else {
+                    $sqlDeleteArr[] = $sqlRow;
+                }
+            }
+        }
+
+        $sqlDeleteArr = array_map(function ($sqlRow) {
+            return "(
+                            pid = " . (int)$sqlRow['pid'] . "
+                        AND fid = " . (int)$sqlRow['fid'] . "
+                    )";
+        }, $sqlDeleteArr);
+
+        if ($sqlDeleteArr) {
+            $sqlQuery = "DELETE FROM " . self::_dbprefix() . "cms_fields_form_vis
+                          WHERE " . implode(" OR ", $sqlDeleteArr);
+            static::_SQL()->query($sqlQuery);
+        }
+        if ($sqlArr) {
+            static::_SQL()->add(
+                self::_dbprefix() . "cms_fields_form_vis",
+                $sqlArr
+            );
         }
     }
 
@@ -195,7 +311,6 @@ class Material_Type extends SOME
             $block = new Block_Material($blockId);
             Block_Material::delete($block);
         }
-
     }
 
 
@@ -238,6 +353,36 @@ class Material_Type extends SOME
             );
         }
         return static::$visSelfFieldsCache[$this->id];
+    }
+
+
+    /**
+     * Поля, отображаемые в форме
+     * @return Material_Field[]
+     */
+    protected function _formFields()
+    {
+        $sqlQuery = "SELECT fid
+                       FROM " . self::_dbprefix() . "cms_fields_form_vis
+                      WHERE pid = ?";
+        $formFieldsIds = self::_SQL()->getcol([$sqlQuery, [$this->id]]);
+        $result = array_filter($this->fields, function ($x) use ($formFieldsIds) {
+            return in_array($x->id, $formFieldsIds);
+        });
+        return $result;
+    }
+
+
+    /**
+     * ID# полей, отображаемых в форме
+     * @return int[]
+     */
+    protected function _formFields_ids()
+    {
+        $result = array_map(function ($x) {
+            return (int)$x->id;
+        }, $this->formFields);
+        return $result;
     }
 
 
