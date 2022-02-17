@@ -34,29 +34,37 @@ class EditMaterialForm extends \RAAS\Form
     public function __construct(array $params = [])
     {
         $view = $this->view;
-        $Item = isset($params['Item']) ? $params['Item'] : null;
-        $Type = isset($params['Type']) ? $params['Type'] : null;
+        $item = isset($params['Item']) ? $params['Item'] : null;
+        $type = isset($params['Type']) ? $params['Type'] : null;
         $related = isset($params['related']) ? $params['related'] : [];
-        $Parent = isset($params['Parent']) ? $params['Parent'] : null;
+        $parent = isset($params['Parent']) ? $params['Parent'] : null;
 
         $title = $this->view->_(
-            ($Item->id ? 'EDITING' : 'CREATING') . '_' .
-            ($Parent->id ? 'PAGE' : 'SITE')
+            ($item->id ? 'EDITING' : 'CREATING') . '_' .
+            ($parent->id ? 'PAGE' : 'SITE')
         );
 
         $tabs = [];
-        $tabs['common'] = $this->getCommonTab($Item, $Type);
-        $tabs['seo'] = $this->getSeoTab($Item);
+        foreach ($type->fieldGroups as $fieldGroupURN => $fieldGroup) {
+            if ($fieldGroupURN == '') {
+                $tabs['common'] = $this->getCommonTab($item, $type);
+            } else {
+                if ($tab = $this->getGroupTab($fieldGroup, $item, $type)) {
+                    $tabs[$tab->name] = $tab;
+                }
+            }
+        }
+        $tabs['seo'] = $this->getSeoTab($item);
         if (isset(Application::i()->packages['cms']->modules['users'])) {
             $tabs['access'] = new CMSAccessFormTab($params);
         }
-        $tabs['service'] = $this->getServiceTab($Item, $Parent);
-        $tabs['pages'] = $this->getPagesTab($Item, $Parent, $Type);
-        if ($Item->id) {
-            foreach ($Item->relatedMaterialTypes as $mtype) {
+        $tabs['service'] = $this->getServiceTab($item, $parent);
+        $tabs['pages'] = $this->getPagesTab($item, $parent, $type);
+        if ($item->id) {
+            foreach ($item->relatedMaterialTypes as $mtype) {
                 if ($params['MSet'][$mtype->urn]) {
                     $tabs['_' . $mtype->urn] = $this->getMTab(
-                        $Item,
+                        $item,
                         $mtype,
                         $params
                     );
@@ -65,15 +73,15 @@ class EditMaterialForm extends \RAAS\Form
         }
 
         $defaultParams = [
-            'Item' => $Item,
+            'Item' => $item,
             'action' => '#',
-            'parentUrl' => $this->view->url . '&id=' . $Parent->id
-                        .  '#_' . $Type->urn,
-            'caption' => $Item->id
-                      ?  $Item->name
+            'parentUrl' => $this->view->url . '&id=' . $parent->id
+                        .  '#_' . $type->urn,
+            'caption' => $item->id
+                      ?  $item->name
                       :  $this->view->_('CREATING_MATERIAL'),
             'children' => $tabs,
-            'export' => function ($Form) use ($Parent) {
+            'export' => function ($Form) use ($parent) {
                 $Form->exportDefault();
                 $Form->Item->editor_id = Application::i()->user->id;
                 if (!$Form->Item->id) {
@@ -140,30 +148,55 @@ class EditMaterialForm extends \RAAS\Form
      */
     protected function getCommonTab(Material $item, Material_Type $type)
     {
-        $commonTab = new FormTab([
+        $groupTab = $this->getGroupTab($type->fieldGroups[''], $item, $type);
+        $tab = new FormTab([
             'name' => 'common',
-            'caption' => $this->view->_('GENERAL')
+            'caption' => $this->view->_('GENERAL'),
         ]);
         if ($type->children || Package::i()->registryGet('allowChangeMaterialType')) {
-            $commonTab->children['pid'] = $this->getChangeTypeField($item, $type);
+            $tab->children['pid'] = $this->getChangeTypeField($item, $type);
         }
-        $commonTab->children['name'] = new RAASField([
+        $tab->children['name'] = new RAASField([
             'name' => 'name',
             'class' => 'span8',
             'caption' => $this->view->_('NAME'),
             'required' => 'required'
         ]);
-        $commonTab->children['description'] = new RAASField([
+        $tab->children['description'] = new RAASField([
             'type' => 'htmlarea',
             'name' => 'description',
             'caption' => $this->view->_('DESCRIPTION')
         ]);
-        foreach ($type->formFields as $row) {
-            $row = $row->deepClone();
-            $row->Owner = $item;
-            $commonTab->children[$row->urn] = $row->Field;
+        foreach ($groupTab->children as $fieldURN => $field) {
+            $tab->children[$fieldURN] = $field;
         }
-        return $commonTab;
+        return $tab;
+    }
+
+
+    /**
+     * Получает вкладку по группе полей
+     * @param MaterialFieldGroup $fieldGroup Группа полей
+     * @param Material $item Материал для редактирования
+     * @param Material_Type $type Тип материалов
+     * @return FormTab|null null, если нет полей и группа не общая
+     */
+    protected function getGroupTab(FieldGroup $fieldGroup, Material $item, Material_Type $type)
+    {
+        $tab = new FormTab([
+            'name' => 'group_' . $fieldGroup->urn,
+            'caption' => $fieldGroup->name
+        ]);
+        $formFields = $fieldGroup->getFormFields($type);
+        if (!$formFields && $fieldGroup->id) {
+            return null;
+        }
+        foreach ($formFields as $field) {
+            $field = $field->deepClone();
+            $field->Owner = $item;
+            $tab->children[$field->urn] = $field->Field;
+        }
+        return $tab;
     }
 
 

@@ -48,7 +48,8 @@ class Updater extends RAASUpdater
             $this->update20211029();
         }
         if (version_compare($v, '4.3.29') < 0) {
-            $this->update20220302();
+            $this->update20220203();
+            $this->update20220217();
         }
     }
 
@@ -1870,7 +1871,7 @@ class Updater extends RAASUpdater
     /**
      * Добавляет видимость полей по формам, заполняет ее
      */
-    public function update20220302()
+    public function update20220203()
     {
         if (!in_array(SOME::_dbprefix() . "cms_fields_form_vis", $this->tables)) {
             // Создадим форму
@@ -1904,6 +1905,40 @@ class Updater extends RAASUpdater
                 }
             }
             $this->SQL->add(SOME::_dbprefix() . "cms_fields_form_vis", $sqlArr);
+        }
+    }
+
+
+    /**
+     * Добавляет группы полей
+     */
+    public function update20220217()
+    {
+        if (!in_array(SOME::_dbprefix() . "cms_fieldgroups", $this->tables)) {
+            $sqlQuery = "CREATE TABLE IF NOT EXISTS " . SOME::_dbprefix() . "cms_fieldgroups (
+                            id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+                            classname varchar(255) NOT NULL DEFAULT '' COMMENT 'Parent class name',
+                            pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
+                            gid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent group ID#',
+                            urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
+                            `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
+                            priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
+                            PRIMARY KEY (id),
+                            KEY pid (pid),
+                            KEY gid (gid),
+                            KEY classname (classname),
+                            KEY classname_2 (classname,pid),
+                            INDEX priority (priority)
+                        ) COMMENT='Field groups'";
+            $this->SQL->query($sqlQuery);
+        }
+        if (in_array(SOME::_dbprefix() . "cms_fields", $this->tables) &&
+            !in_array('gid', $this->columns(SOME::_dbprefix() . "cms_fields"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_fields
+                           ADD gid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Group ID#' AFTER pid,
+                           ADD KEY (gid)";
+            $this->SQL->query($sqlQuery);
         }
     }
 }

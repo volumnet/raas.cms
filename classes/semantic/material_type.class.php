@@ -70,6 +70,8 @@ class Material_Type extends SOME
         'selfAndChildrenIds',
         'selfAndParents',
         'selfAndParentsIds',
+        'fieldGroups',
+        'selfFieldGroups',
     ];
 
     /**
@@ -77,7 +79,7 @@ class Material_Type extends SOME
      * Сделано для ускорения отображения списков одинаковых материалов,
      * когда отдельно получается тип и отдельно поля к нему
      * @var array <pre><code>array<
-     *     string[] ID# типа материалов => array<string[] URN поля => self>
+     *     string[] ID# типа материалов => array<string[] URN поля => Material_Field>
      * ></code></pre>
      */
     public static $selfFieldsCache = [];
@@ -87,7 +89,7 @@ class Material_Type extends SOME
      * Сделано для ускорения отображения списков одинаковых материалов,
      * когда отдельно получается тип и отдельно поля к нему
      * @var array <pre><code>array<
-     *     string[] ID# типа материалов => array<string[] URN поля => self>
+     *     string[] ID# типа материалов => array<string[] URN поля => Material_Field>
      * ></code></pre>
      */
     public static $visSelfFieldsCache = [];
@@ -97,7 +99,7 @@ class Material_Type extends SOME
      * Сделано для ускорения отображения списков одинаковых материалов,
      * когда отдельно получается тип и отдельно поля к нему
      * @var array <pre><code>array<
-     *     string[] ID# типа материалов => array<string[] URN поля => self>
+     *     string[] ID# типа материалов => array<string[] URN поля => Material_Field>
      * ></code></pre>
      */
     public static $fieldsCache = [];
@@ -107,10 +109,30 @@ class Material_Type extends SOME
      * Сделано для ускорения отображения списков одинаковых материалов,
      * когда отдельно получается тип и отдельно поля к нему
      * @var array <pre><code>array<
-     *     string[] ID# типа материалов => array<string[] URN поля => self>
+     *     string[] ID# типа материалов => array<string[] URN поля => Material_Field>
      * ></code></pre>
      */
     public static $visFieldsCache = [];
+
+    /**
+     * Кэш собственных групп полей
+     * Сделано для ускорения отображения списков одинаковых материалов,
+     * когда отдельно получается тип и отдельно поля к нему
+     * @var array <pre><code>array<
+     *     string[] ID# типа материалов => array<string[] URN поля => MaterialFieldGroup>
+     * ></code></pre>
+     */
+    public static $selfFieldGroupsCache = [];
+
+    /**
+     * Кэш групп полей
+     * Сделано для ускорения отображения списков одинаковых материалов,
+     * когда отдельно получается тип и отдельно поля к нему
+     * @var array <pre><code>array<
+     *     string[] ID# типа материалов => array<string[] URN поля => MaterialFieldGroup>
+     * ></code></pre>
+     */
+    public static $fieldGroupsCache = [];
 
     public function commit()
     {
@@ -296,6 +318,11 @@ class Material_Type extends SOME
         foreach ($object->selfFields as $row) {
             Material_Field::delete($row);
         }
+        $sqlQuery = "DELETE FROM " . self::_dbprefix() . "cms_fields_form_vis
+                      WHERE pid = ?";
+        $sqlBind = [(int)$object->id];
+        static::_SQL()->query([$sqlQuery, $sqlBind]);
+
         parent::delete($object);
         static::updateAffectedPagesForMaterials();
         static::updateAffectedPagesForSelf();
@@ -316,7 +343,7 @@ class Material_Type extends SOME
 
     /**
      * Собственные поля (без учета родительских)
-     * @return array<Material_Field>
+     * @return Material_Field[]
      */
     protected function _selfFields()
     {
@@ -387,21 +414,65 @@ class Material_Type extends SOME
 
 
     /**
-     * Список полей (включая родительские)
-     * @return array<Material_Field>
+     * Собственные группы полей (без учета родительских)
+     * @return MaterialFieldGroup[]
      */
-    protected function _fields()
+    protected function _selfFieldGroups()
     {
-        if (!static::$fieldsCache[$this->id]) {
+        if (!static::$selfFieldGroupsCache[$this->id]) {
+            $sqlQuery = "SELECT *
+                           FROM " . MaterialFieldGroup::_tablename()
+                      . " WHERE classname = ?
+                            AND pid = ?
+                       ORDER BY priority";
+            $sqlBind = [static::class, (int)$this->id];
+            $temp = MaterialFieldGroup::getSQLSet([$sqlQuery, $sqlBind]);
+            $arr = [];
+            foreach ($temp as $row) {
+                $arr[$row->urn] = $row;
+            }
+            $result = static::$selfFieldGroupsCache[trim($this->id)] = $arr;
+        }
+
+        $result = array_merge(
+            [
+                '' => new MaterialFieldGroup([
+                    'classname' => static::class,
+                    'pid' => (int)$this->id
+                ])
+            ],
+            $result
+        );
+        return $result;
+    }
+
+
+    /**
+     * Список полей (включая родительские)
+     * @return MaterialFieldGroup[]
+     */
+    protected function _fieldGroups()
+    {
+        if (!static::$fieldGroupsCache[$this->id]) {
             $arr1 = [];
             if ($this->parent->id) {
-                $arr1 = (array)$this->parent->fields;
+                $arr1 = (array)$this->parent->fieldGroups;
             }
-            $arr2 = (array)$this->selfFields;
+            $arr2 = (array)$this->selfFieldGroups;
             $arr = array_merge($arr1, $arr2);
-            static::$fieldsCache[trim($this->id)] = $arr;
+            $result = static::$fieldGroupsCache[trim($this->id)] = $arr;
         }
-        return static::$fieldsCache[$this->id];
+        unset($result['']);
+        $result = array_merge(
+            [
+                '' => new MaterialFieldGroup([
+                    'classname' => static::class,
+                    'pid' => (int)$this->id
+                ])
+            ],
+            static::$fieldGroupsCache[$this->id]
+        );
+        return $result;
     }
 
 
@@ -417,6 +488,25 @@ class Material_Type extends SOME
             });
         }
         return static::$visFieldsCache[$this->id];
+    }
+
+
+    /**
+     * Список групп полей (включая родительские)
+     * @return Material_Field[]
+     */
+    protected function _fields()
+    {
+        if (!static::$fieldsCache[$this->id]) {
+            $arr1 = [];
+            if ($this->parent->id) {
+                $arr1 = (array)$this->parent->fields;
+            }
+            $arr2 = (array)$this->selfFields;
+            $arr = array_merge($arr1, $arr2);
+            static::$fieldsCache[trim($this->id)] = $arr;
+        }
+        return static::$fieldsCache[$this->id];
     }
 
 

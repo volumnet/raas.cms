@@ -43,6 +43,9 @@ class Sub_Dev extends RAASAbstractSubController
             case 'move_material_type':
                 $this->{$this->action}();
                 break;
+            case 'move_material_field_to_group':
+                $this->moveMaterialFieldToGroup();
+                break;
             case 'edit_material_field':
             case 'edit_form_field':
             case 'edit_page_field':
@@ -50,6 +53,9 @@ class Sub_Dev extends RAASAbstractSubController
                 $f = str_replace('_page', '', $f);
                 $f = str_replace('_material', '', $f);
                 $this->$f();
+                break;
+            case 'edit_material_fieldgroup':
+                $this->editMaterialFieldGroup();
                 break;
             case 'templates':
                 $this->view->templates(['Set' => $this->model->dev_templates()]);
@@ -251,6 +257,15 @@ class Sub_Dev extends RAASAbstractSubController
                 }, $ids);
                 $items = array_values($items);
                 StdSub::delete($items, $this->url . '&action=material_types');
+                break;
+            case 'delete_material_fieldgroup':
+                $ids = (array)$_GET['id'];
+                $items = array_map(function ($x) {
+                    return new MaterialFieldGroup((int)$x);
+                }, $ids);
+                $items = array_values($items);
+                StdSub::delete($items, $this->url . '&action=material_types');
+                break;
                 break;
             case 'webmaster_faq':
                 $w = new Webmaster();
@@ -618,6 +633,12 @@ class Sub_Dev extends RAASAbstractSubController
                     (array)$_POST['priority']
                 );
             }
+            if (isset($_POST['fieldgrouppriority']) && is_array($_POST['fieldgrouppriority'])) {
+                $this->model->setEntitiesPriority(
+                    FieldGroup::class,
+                    (array)$_POST['fieldgrouppriority']
+                );
+            }
             if (isset($_POST['show_in_form']) && is_array($_POST['show_in_form'])) {
                 $fields = $Item->fields;
                 $fieldsIds = array_map(function ($field) {
@@ -724,55 +745,93 @@ class Sub_Dev extends RAASAbstractSubController
     protected function edit_field()
     {
         if ($this->sub == 'dev' && $this->action == 'edit_form_field') {
-            $Item = new Form_Field((int)$this->id);
-            if ($Item->pid) {
-                $Parent =$Item->parent;
+            $item = new Form_Field((int)$this->id);
+            if ($item->pid) {
+                $parent =$item->parent;
             } else {
-                $Parent = new Form(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
+                $parent = new Form(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
             }
             $parentUrl = $this->url . '&action=edit_form';
-            if (!$Parent->id) {
+            if (!$parent->id) {
                 new Redirector($parentUrl);
             }
-            $parentUrl .= '&id=' . (int)$Parent->id;
+            $parentUrl .= '&id=' . (int)$parent->id;
         } elseif (strstr($this->action, 'material')) {
-            $Item = new Material_Field((int)$this->id);
-            if ($Item->pid) {
-                $Parent = $Item->parent;
+            $item = new Material_Field((int)$this->id);
+            if ($item->pid) {
+                $parent = $item->parent;
             } else {
-                $Parent = new Material_Type(
+                $parent = new Material_Type(
                     isset($_GET['pid']) ?
                     (int)$_GET['pid'] :
                     0
                 );
             }
             $parentUrl = $this->url . '&action=edit_material_type';
-            if (!$Parent->id) {
+            if (!$parent->id) {
                 new Redirector($parentUrl);
             }
-            $parentUrl .= '&id=' . (int)$Parent->id;
+            $parentUrl .= '&id=' . (int)$parent->id;
         } else {
-            $Item = new Page_Field((int)$this->id);
-            $Parent = null;
+            $item = new Page_Field((int)$this->id);
+            $parent = null;
             $parentUrl = $this->url . '&action=pages_fields';
         }
-        $Form = new EditFieldForm([
-            'Item' => $Item,
+        if ($item instanceof Material_Field) {
+            $formClassname = EditMaterialFieldForm::class;
+        } else {
+            $formClassname = EditFieldForm::class;
+        }
+        $form = new $formClassname([
+            'Item' => $item,
             'meta' => [
-                'Parent' => $Parent,
+                'Parent' => $parent,
                 'parentUrl' => $parentUrl
             ]
         ]);
-        $OUT = $Form->process();
-        if ($Item instanceof Material_Field) {
-            $OUT['Parent'] = $Parent;
-            $this->view->edit_material_field($OUT);
-        } elseif ($Item instanceof Form_Field) {
-            $OUT['Parent'] = $Parent;
-            $this->view->edit_form_field($OUT);
+        $out = $form->process();
+        if ($item instanceof Material_Field) {
+            $out['Parent'] = $parent;
+            $this->view->edit_material_field($out);
+        } elseif ($item instanceof Form_Field) {
+            $out['Parent'] = $parent;
+            $this->view->edit_form_field($out);
         } else {
-            $this->view->edit_page_field($OUT);
+            $this->view->edit_page_field($out);
         }
+    }
+
+
+    /**
+     * Редактирование группы полей типа материалов
+     */
+    protected function editMaterialFieldGroup()
+    {
+        $item = new MaterialFieldGroup((int)$this->id);
+        if ($item->pid) {
+            $parent = $item->parent;
+        } else {
+            $parent = new Material_Type(
+                isset($_GET['pid']) ?
+                (int)$_GET['pid'] :
+                0
+            );
+        }
+        if (!$parent->id) {
+            new Redirector($parentUrl);
+        }
+        $parentUrl = $this->url . '&action=edit_material_type&id='
+            . (int)$parent->id;
+        $form = new EditFieldGroupForm([
+            'Item' => $item,
+            'meta' => [
+                'Parent' => $parent,
+                'parentUrl' => $parentUrl
+            ]
+        ]);
+        $out = $form->process();
+        $out['Parent'] = $parent;
+        $this->view->editMaterialFieldGroup($out);
     }
 
 
@@ -821,6 +880,49 @@ class Sub_Dev extends RAASAbstractSubController
             'history:back' :
             $this->url . '&action=edit_material_type&id=' . (int)$item->pid
         );
+    }
+
+
+    /**
+     * Размещение полей материалов в группе
+     */
+    protected function moveMaterialFieldToGroup()
+    {
+        $items = [];
+        $ids = (array)$_GET['id'];
+        if (in_array('all', $ids, true)) {
+            $items = Material_Field::getSet([
+                'where' => "classname = 'RAAS\\\\CMS\\\\Material_Type' AND pid = " . (int)$_GET['pid']
+            ]);
+        } else {
+            $items = array_map(function ($x) {
+                return new Material_Field((int)$x);
+            }, $ids);
+        }
+        $items = array_values($items);
+        $parent = new Material_Type($_GET['pid']);
+        $item = isset($items[0]) ? $items[0] : new Material_Field();
+
+        if ($items) {
+            if (isset($_GET['gid'])) {
+                foreach ($items as $row) {
+                    $row->gid = $_GET['gid'];
+                    $row->commit();
+                }
+                new Redirector(
+                    $_GET['back'] ?
+                    'history:back' :
+                    $this->url . '&action=edit_material_type&id=' . (int)$item->pid
+                );
+            } else {
+                $this->view->moveMaterialFieldToGroup([
+                    'Item' => $item,
+                    'items' => $items,
+                    'Parent' => $parent,
+                ]);
+                return;
+            }
+        }
     }
 
 

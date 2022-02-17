@@ -23,7 +23,7 @@ $_RAASTable_Row = function (
     ?>
     <tr<?php echo $_RAASTable_Attrs($row)?>>
       <td>
-        <?php if ($row->source->id) { ?>
+        <?php if ($row->source->id && !$row->disableMulti) { ?>
             <input type="checkbox" data-role="checkbox-row" value="<?php echo (int)$row->source->id?>">
         <?php } ?>
       </td>

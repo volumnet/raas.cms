@@ -547,25 +547,50 @@ class ViewSub_Dev extends RAASAbstractSubView
     {
         $view = $this;
         $Set = [];
-        $Set[] = new Material_Field([
-            'name' => $this->_('NAME'),
-            'urn' => 'name',
-            'datatype' => 'text'
-        ]);
-        $Set[] = new Material_Field([
-            'name' => $this->_('DESCRIPTION'),
-            'urn' => 'description',
-            'datatype' => 'htmlarea'
-        ]);
-        foreach ($in['Item']->fields as $row) {
-            $Set[] = $row;
+        $fieldGroups = $in['Item']->fieldGroups;
+        $systemFields = [
+            new Material_Field([
+                'name' => $this->_('NAME'),
+                'urn' => 'name',
+                'datatype' => 'text'
+            ]),
+            new Material_Field([
+                'name' => $this->_('DESCRIPTION'),
+                'urn' => 'description',
+                'datatype' => 'htmlarea'
+            ])
+        ];
+        $grouped = (count($fieldGroups) > 1);
+        if ($grouped) {
+            foreach ($fieldGroups as $fieldGroup) {
+                $groupFields = $fieldGroup->getFields($in['Item']);
+                if (!$fieldGroup->id) {
+                    $fieldGroup->name = $this->_('GENERAL');
+                }
+                $Set[] = $fieldGroup;
+                if (!$fieldGroup->id) {
+                    $Set = array_merge($Set, $systemFields);
+                }
+                foreach ($groupFields as $row) {
+                    $Set[] = $row;
+                }
+            }
+        } else {
+            $Set = array_merge($Set, $systemFields);
+            foreach ($in['Item']->fields as $row) {
+                $Set[] = $row;
+            }
         }
-        $in['Table'] = new MaterialFieldsTable(
-            array_merge($in, ['Set' => $Set])
+        $in['Table'] = new MaterialFieldsTable(array_merge($in, [
+            'Set' => $Set,
+            'grouped' => $grouped
+        ]));
+        $in['childrenTable'] = new MaterialTypesTable(
+            ['Item' => $in['Item']]
         );
         $this->assignVars($in);
         $this->title = $in['Form']->caption;
-        $this->template = 'form_table';
+        $this->template = 'edit_material_type';
         $this->path[] = [
             'name' => $this->_('DEVELOPMENT'),
             'href' => $this->url
@@ -639,6 +664,50 @@ class ViewSub_Dev extends RAASAbstractSubView
 
 
     /**
+     * Редактирование группы полей материалов
+     * @param [
+     *            'Item' => Material_Field Поле для редактирования,
+     *            'Parent' =>? Material_Type Родительский тип материала
+     *            'meta' => [
+     *                'Parent' =>? Material_Type Родительский тип материала,
+     *                'parentUrl' => string URL родительской страницы
+     *            ],
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditFieldForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function editMaterialFieldGroup(array $in = [])
+    {
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('MATERIAL_TYPES'),
+            'href' => $this->url . '&action=material_types'
+        ];
+        foreach ((array)$in['Parent']->parents as $row) {
+            $this->path[] = [
+                'href' => $this->url . '&action=edit_material_type&id='
+                       .  (int)$row->id,
+                'name' => $row->name
+            ];
+        }
+        $this->path[] = [
+            'name' => $in['Parent']->name,
+            'href' => $this->url . '&action=edit_material_type&id='
+                   .  (int)$in['Parent']->id
+        ];
+        $this->stdView->stdEdit($in, 'getMaterialFieldGroupContextMenu');
+        $this->subtitle = $this->getFieldGroupSubtitle($in['Item']);
+    }
+
+
+    /**
      * Перемещение поля материалов
      * @param [
      *            'Item' =>? Material_Field Текущее поле,
@@ -690,10 +759,64 @@ class ViewSub_Dev extends RAASAbstractSubView
         ];
         if (count($in['items']) == 1) {
             $this->contextmenu = $this->getMaterialFieldContextMenu($in['Item']);
+            $this->subtitle = $this->getFieldSubtitle($in['Item']);
         }
         $this->title = $this->_('MOVING_NOTE');
         $this->template = 'dev_move_material_field';
-        $this->subtitle = $this->getFieldSubtitle($in['Item']);
+    }
+
+
+    /**
+     * Перемещение поля материалов
+     * @param [
+     *            'Item' =>? Material_Field Текущее поле,
+     *            'items' =>? array<Material_Field> Список текущих полей
+     *        ] $in Входные данные
+     */
+    public function moveMaterialFieldToGroup(array $in = [])
+    {
+        $ids = array_map(function ($x) {
+            return (int)$x->id;
+        }, $in['items']);
+        $ids = array_unique($ids);
+        $ids = array_values($ids);
+        $pids = array_map(function ($x) {
+            return (int)$x->pid;
+        }, $in['items']);
+        $pids = array_unique($pids);
+        $pids = array_values($pids);
+        $actives = [];
+        foreach ($in['items'] as $row) {
+            $actives[] = (int)$row->pid;
+        }
+        $actives = array_unique($actives);
+        $actives = array_values($actives);
+        $in['ids'] = $ids;
+        $in['pids'] = $pids;
+        $in['actives'] = $actives;
+
+        $this->assignVars($in);
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'href' => $this->url . '&action=material_types',
+            'name' => $this->_('MATERIAL_TYPES')
+        ];
+        if ($in['Item']->parent->id) {
+            $this->path[] = [
+                'href' => $this->url . '&action=edit_material_type&id='
+                       .  (int)$in['Item']->parent->id,
+                'name' => $in['Item']->parent->name
+            ];
+        }
+        if (count($in['items']) == 1) {
+            $this->contextmenu = $this->getMaterialFieldContextMenu($in['Item']);
+            $this->subtitle = $this->getFieldSubtitle($in['Item']);
+        }
+        $this->title = $this->_('MOVING_FIELDS_TO_GROUP');
+        $this->template = 'dev_move_material_field_to_group';
     }
 
 
@@ -1552,6 +1675,12 @@ class ViewSub_Dev extends RAASAbstractSubView
                     'name' => $this->_('CREATE_FIELD'),
                     'icon' => 'plus'
                 ];
+                $arr[] = [
+                    'href' => $this->url . '&action=edit_material_fieldgroup&pid='
+                           .  (int)$materialType->id,
+                    'name' => $this->_('CREATE_FIELDGROUP'),
+                    'icon' => 'plus'
+                ];
             }
             if (Package::i()->registryGet('allowChangeMaterialType')) {
                 $arr[] = [
@@ -1661,8 +1790,42 @@ class ViewSub_Dev extends RAASAbstractSubView
                 $i,
                 $c,
                 'edit_material_field',
-                'material_types',
+                'edit_material_type',
                 'delete_material_field'
+            )
+        );
+        return $arr;
+    }
+
+
+    /**
+     * Возвращает контекстное меню для группы полей материалов
+     * @param MaterialFieldGroup $fieldGroup Группа полей для получения контекстного меню
+     * @param int $i Порядок поля в списке
+     * @param int $c Количество полей в списке
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getMaterialFieldGroupContextMenu(
+        MaterialFieldGroup $fieldGroup,
+        $i = 0,
+        $c = 0
+    ) {
+        $arr = [];
+        $arr = array_merge(
+            $arr,
+            $this->stdView->stdContextMenu(
+                $fieldGroup,
+                $i,
+                $c,
+                'edit_material_fieldgroup',
+                'edit_material_type',
+                'delete_material_fieldgroup'
             )
         );
         return $arr;
@@ -1708,6 +1871,12 @@ class ViewSub_Dev extends RAASAbstractSubView
         $arr[] = [
             'name' => $this->_('MOVE'),
             'href' => $this->url . '&action=move_material_field',
+            'icon' => 'share-alt'
+        ];
+        $arr[] = [
+            'name' => $this->_('MOVE_TO_FIELDGROUP'),
+            'href' => $this->url . '&action=move_material_field_to_group&pid='
+                . $_GET['id'],
             'icon' => 'share-alt'
         ];
         $arr[] = [
@@ -2205,6 +2374,22 @@ class ViewSub_Dev extends RAASAbstractSubView
         $subtitleArr = [];
         if ($field->id) {
             $subtitleArr[] = $this->_('ID') . ': ' . (int)$field->id;
+            return implode('; ', $subtitleArr);
+        }
+        return '';
+    }
+
+
+    /**
+     * Получает подзаголовок группы полей
+     * @param FieldПкщгз $fieldGroup Группа полей для получения
+     * @return string HTML-код подзаголовка
+     */
+    public function getFieldGroupSubtitle(FieldGroup $fieldGroup)
+    {
+        $subtitleArr = [];
+        if ($fieldGroup->id) {
+            $subtitleArr[] = $this->_('ID') . ': ' . (int)$fieldGroup->id;
             return implode('; ', $subtitleArr);
         }
         return '';

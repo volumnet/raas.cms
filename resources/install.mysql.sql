@@ -224,6 +224,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   classname varchar(255) NOT NULL DEFAULT '' COMMENT 'Parent class name',
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
+  gid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Group ID#',
   vis tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Visibility',
   datatype varchar(255) NOT NULL DEFAULT '' COMMENT 'Data type',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
@@ -245,6 +246,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
   PRIMARY KEY (id),
   KEY pid (pid),
+  KEY gid (gid),
   KEY datatype (datatype),
   KEY classname (classname),
   KEY classname_2 (classname,pid),
@@ -252,6 +254,22 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   KEY postprocessor_id (postprocessor_id),
   INDEX priority (priority)
 ) COMMENT='Fields';
+
+CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fieldgroups (
+  id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
+  classname varchar(255) NOT NULL DEFAULT '' COMMENT 'Parent class name',
+  pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Material type ID#',
+  gid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent group ID#',
+  urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
+  priority int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Priority',
+  PRIMARY KEY (id),
+  KEY pid (pid),
+  KEY gid (gid),
+  KEY classname (classname),
+  KEY classname_2 (classname,pid),
+  INDEX priority (priority)
+) COMMENT='Field groups';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields_form_vis (
     fid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Field ID#',

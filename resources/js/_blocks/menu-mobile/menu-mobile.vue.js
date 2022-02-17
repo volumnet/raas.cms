@@ -43,7 +43,13 @@ export default {
         //     .appendTo('.menu-mobile__item_phone');
                 
         $(document).on('raas.openmobilemenu', () => {
-            $('.menu-mobile__list_main').toggleClass('menu-mobile__list_active');
+            if ($('.menu-mobile__list_main').is('.menu-mobile__list_active')) {
+                $('.menu-mobile__list').removeClass('menu-mobile__list_active');
+                this.active = false;
+            } else {
+                $('.menu-mobile__list_main').addClass('menu-mobile__list_active');
+                this.active = true;
+            }
         })
         // $('.triggers-item_menu, .menu-mobile__trigger, [data-role="mobile-menu-trigger"]')
         //     .on('click', function () {
@@ -67,8 +73,9 @@ export default {
                 .addClass('menu-mobile__list_active');
             return false;
         })
-        $(this.$el).on('click', '.menu-mobile__close-link', function() { 
+        $(this.$el).on('click', '.menu-mobile__close-link', () => { 
             $('.menu-mobile__list').removeClass('menu-mobile__list_active');
+            this.active = false;
             return false;
         });
         $(this.$el).on('click', '.menu-mobile__back-link', function() { 
@@ -77,16 +84,21 @@ export default {
                 .removeClass('menu-mobile__list_active');
             return false;
         });
-        $('.body').on('click', function(e) { 
+        $('.body').on('click', () => { 
             $('.menu-mobile__list').removeClass('menu-mobile__list_active');
+            this.active = false;
         });
         $('.menu-mobile').on('click', function(e) { 
             e.stopPropagation();
         });
         if ($(window).outerWidth() < 992) {
+            let self = this;
             $('.menu-mobile__list').on('movestart', function(e) { 
                 if (e.distX <= -6) {
                     $(this).removeClass('menu-mobile__list_active');
+                    if ($(this).is('.menu-mobile__list_main')) {
+                        self.active = false;
+                    }
                     return false;
                 }
                 e.preventDefault()

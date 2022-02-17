@@ -4,6 +4,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\Row;
+
 /**
  * Класс таблицы полей типа материалов
  */
@@ -34,9 +36,15 @@ class MaterialFieldsTable extends FieldsTable
                         $params
                     ) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
-                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
-                                      (int)$row->id .
-                                   '</a>';
+                            if ($row instanceof FieldGroup) {
+                                return '<a href="' . $view->url . '&action=edit_material_fieldgroup&id=' . (int)$row->id . '">' .
+                                          (int)$row->id .
+                                       '</a>';
+                            } else {
+                                return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
+                                          (int)$row->id .
+                                       '</a>';
+                            }
                         } elseif ($row->id) {
                             return (int)$row->id;
                         }
@@ -50,9 +58,15 @@ class MaterialFieldsTable extends FieldsTable
                         $params
                     ) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
-                            return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
-                                      htmlspecialchars($row->name) .
-                                   '</a>';
+                            if ($row instanceof FieldGroup) {
+                                return '<a href="' . $view->url . '&action=edit_material_fieldgroup&id=' . (int)$row->id . '">' .
+                                          htmlspecialchars($row->name) .
+                                       '</a>';
+                            } else {
+                                return '<a href="' . $view->url . '&action=' . $editAction . '&id=' . (int)$row->id . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
+                                          htmlspecialchars($row->name) .
+                                       '</a>';
+                            }
                         } else {
                             return htmlspecialchars($row->name);
                         }
@@ -62,15 +76,17 @@ class MaterialFieldsTable extends FieldsTable
                     'caption' => $this->view->_('URN'),
                     'callback' => function ($row) use ($view) {
                         $text = htmlspecialchars($row->urn);
-                        if ($row->multiple) {
-                            $text .= '<strong title="' . $view->_('MULTIPLE') . '">'
-                                  .    '[]'
-                                  .  '</strong>';
-                        }
-                        if ($row->required) {
-                            $text .= ' <span class="text-error" title="' . $view->_('REQUIRED') . '">'
-                                  .      '*'
-                                  .   '</span>';
+                        if ($row instanceof Field) {
+                            if ($row->multiple) {
+                                $text .= '<strong title="' . $view->_('MULTIPLE') . '">'
+                                      .    '[]'
+                                      .  '</strong>';
+                            }
+                            if ($row->required) {
+                                $text .= ' <span class="text-error" title="' . $view->_('REQUIRED') . '">'
+                                      .      '*'
+                                      .   '</span>';
+                            }
                         }
                         return $text;
                     }
@@ -78,26 +94,30 @@ class MaterialFieldsTable extends FieldsTable
                 'datatype' => [
                     'caption' => $this->view->_('DATATYPE'),
                     'callback' => function ($row) use ($view) {
-                        return htmlspecialchars($view->_(
-                            'DATATYPE_' .
-                            str_replace('-', '_', strtoupper($row->datatype))
-                        ));
+                        if ($row instanceof Field) {
+                            return htmlspecialchars($view->_(
+                                'DATATYPE_' .
+                                str_replace('-', '_', strtoupper($row->datatype))
+                            ));
+                        }
                     }
                 ],
                 'show_in_table' => [
                     'caption' => $this->view->_('SHOW_IN_TABLE'),
                     'title' => $this->view->_('SHOW_IN_TABLE'),
                     'callback' => function ($row) {
-                        return $row->show_in_table ?
-                               '<i class="icon-ok"></i>' :
-                               '';
+                        if ($row instanceof Field) {
+                            return $row->show_in_table ?
+                                   '<i class="icon-ok"></i>' :
+                                   '';
+                        }
                     }
                 ],
                 'show_in_form' => [
                     'caption' => $this->view->_('SHOW_IN_FORM') . ' / '
                         . $this->view->_('INHERIT'),
                     'callback' => function ($row, $i) use ($params) {
-                        if ($row->id) {
+                        if (($row instanceof Field) && ($row->id)) {
                             return '<input type="checkbox" style="margin-top: 0; " name="show_in_form[' . (int)$row->id . ']" value="1"' . (in_array($row->id, $params['Item']->formFields_ids) ? ' checked="checked"' : '') . ' /> /
                                     <input type="checkbox" style="margin-top: 0; " name="inherit_show_in_form[' . (int)$row->id . ']" value="1" />';
                         }
@@ -107,7 +127,11 @@ class MaterialFieldsTable extends FieldsTable
                     'caption' => $this->view->_('PRIORITY'),
                     'callback' => function ($row, $i) use ($params) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
-                            return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . (($i + 1) * 10) . '" class="span1" min="0" />';
+                            if ($row instanceof FieldGroup) {
+                                return '<input type="number" name="fieldgrouppriority[' . (int)$row->id . ']" value="' . (($i + 1) * 10) . '" class="span1" min="0" />';
+                            } else {
+                                return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . (($i + 1) * 10) . '" class="span1" min="0" />';
+                            }
                         } elseif ($row->id) {
                             return (($i + 1) * 10);
                         }
@@ -124,15 +148,31 @@ class MaterialFieldsTable extends FieldsTable
                         $shift
                     ) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
-                            return rowContextMenu($view->$ctxMenu(
-                                $row,
-                                $i - $shift,
-                                count($params['Set']) - $shift
-                            ));
+                            if ($row instanceof FieldGroup) {
+                                return rowContextMenu(
+                                    $view->getMaterialFieldGroupContextMenu(
+                                        $row,
+                                        $i - $shift,
+                                        count($params['Set']) - $shift
+                                    )
+                                );
+                            } else {
+                                return rowContextMenu($view->$ctxMenu(
+                                    $row,
+                                    $i - $shift,
+                                    count($params['Set']) - $shift
+                                ));
+                            }
                         }
                     }
                 ]
             ],
+            'callback' => function (Row $tableRow) {
+                if ($tableRow->source instanceof FieldGroup) {
+                    $tableRow->class = 'info';
+                    $tableRow->disableMulti = true;
+                }
+            },
             'Set' => $params['Set'],
             'Pages' => $params['Pages'],
         ];
