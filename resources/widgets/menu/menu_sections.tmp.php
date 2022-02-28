@@ -13,6 +13,7 @@
 namespace RAAS\CMS;
 
 use SOME\HTTP;
+use RAAS\AssetManager;
 
 /**
  * Получает код списка меню
@@ -91,5 +92,5 @@ $showMenu = function ($node, Page $current) use (&$showMenu) {
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>
 <?php
-Package::i()->requestCSS('/css/menu-sections.css');
-Package::i()->requestJS('/js/menu-sections.js');
+AssetManager::requestCSS('/css/menu-sections.css');
+AssetManager::requestJS('/js/menu-sections.js');

@@ -4,8 +4,8 @@ jQuery(document).ready(function($) {
         var $thisObj = $(this);
         var $all = $('[data-role="checkbox-all"]', thisObj);
         var $checkbox = $('[data-role="checkbox-row"]', thisObj);
-        var $menu = $('tfoot .btn-group');
-        var $menuItems = $('.dropdown-menu li a', $menu);
+        var $menu = $('tfoot .btn-group, tfoot .all-context-menu');
+        var $menuItems = $('.dropdown-menu li a, .menu-dropdown__link', $menu);
 
         var check = function () {
             if ($all.is(':checked')) {

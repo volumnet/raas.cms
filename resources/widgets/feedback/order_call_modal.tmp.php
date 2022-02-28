@@ -8,6 +8,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\AssetManager;
+
 if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
     $result = [];
     if ($success[(int)$Block->id]) {
@@ -105,8 +107,8 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
     </div>
     <!--/noindex-->
     <?php
-    Package::i()->requestCSS('/css/feedback.css');
-    Package::i()->requestJS('/js/feedback.js');
-    Package::i()->requestCSS('/css/order-call-modal.css');
-    Package::i()->requestJS('/js/order-call-modal.js');
+    AssetManager::requestCSS('/css/feedback.css');
+    AssetManager::requestJS('/js/feedback.js');
+    AssetManager::requestCSS('/css/order-call-modal.css');
+    AssetManager::requestJS('/js/order-call-modal.js');
 } ?>

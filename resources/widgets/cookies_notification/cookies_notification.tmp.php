@@ -6,6 +6,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\AssetManager;
+
 ?>
 <!--noindex-->
 <div class="cookies-notification" data-vue-role="cookies-notification">
@@ -13,5 +15,5 @@ namespace RAAS\CMS;
 </div>
 <!--/noindex-->
 <?php
-Package::i()->requestCSS('/css/cookies-notification.css');
-Package::i()->requestJS('/js/cookies-notification.js');
+AssetManager::requestCSS('/css/cookies-notification.css');
+AssetManager::requestJS('/js/cookies-notification.js');

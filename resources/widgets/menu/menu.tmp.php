@@ -13,6 +13,7 @@
 namespace RAAS\CMS;
 
 use SOME\HTTP;
+use RAAS\AssetManager;
 
 $ajax = (bool)stristr($Page->url, '/ajax/');
 
@@ -106,4 +107,4 @@ $showMenu = function ($node, Page $current) use (&$showMenu, $ajax) {
 <nav class="{{MENU_CSS_CLASSNAME}}">
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>
-<?php Package::i()->requestJS('/js/{{MENU_CSS_CLASSNAME}}.js');
+<?php AssetManager::requestJS('/js/{{MENU_CSS_CLASSNAME}}.js');

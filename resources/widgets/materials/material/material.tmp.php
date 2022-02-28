@@ -11,6 +11,7 @@ namespace RAAS\CMS;
 
 use SOME\Pages;
 use SOME\Text;
+use RAAS\AssetManager;
 
 if ($Item) { ?>
     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}">
@@ -53,8 +54,8 @@ if ($Item) { ?>
       </div>
     </div>
     <?php
-    Package::i()->requestCSS(['/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-article.css']);
-    Package::i()->requestJS(['/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-article.js']);
+    AssetManager::requestCSS(['/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-article.css']);
+    AssetManager::requestJS(['/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-article.js']);
 } elseif ($Set) { ?>
     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}">
       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__list">
@@ -97,6 +98,6 @@ if ($Item) { ?>
       <?php } ?>
     </div>
     <?php
-    Package::i()->requestCSS(['/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-list.css']);
-    Package::i()->requestJS(['/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-list.js']);
+    AssetManager::requestCSS(['/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-list.css']);
+    AssetManager::requestJS(['/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-list.js']);
 }

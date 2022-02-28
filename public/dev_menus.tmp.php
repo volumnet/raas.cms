@@ -57,12 +57,7 @@ if ((array)$Table->Set || ($Table->emptyHeader && $Table->header)) { ?>
               <tr>
                 <?php if ($Item->id) { ?>
                     <td colspan="2">
-                      <?php echo rowContextMenu(
-                          $Table->meta['allContextMenu'],
-                          Application::i()->view->context->_('WITH_SELECTED'),
-                          '',
-                          'btn-mini'
-                      )?>
+                      <all-context-menu :menu="<?php echo htmlspecialchars(json_encode(getMenu($Table->meta['allContextMenu'])))?>"></all-context-menu>
                     </td>
                 <?php } ?>
                 <td colspan="<?php echo 1 + 2 * (int)(!$Item->id)?>">&nbsp;</td>

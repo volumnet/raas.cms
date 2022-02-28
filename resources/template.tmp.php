@@ -5,8 +5,9 @@
  */
 namespace RAAS\CMS;
 
-use SOME\HTTP;
 use zz\Html\HTMLMinify;
+use SOME\HTTP;
+use RAAS\AssetManager;
 
 /**
  * Минификация HTML
@@ -65,30 +66,30 @@ ob_start(); // Для $separateScripts
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <?php echo $Page->headData;
-    Package::i()->requestCSS([
+    AssetManager::requestCSS([
         'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap',
         '/custom.css',
         '/css/header.css',
     ]);
-    Package::i()->requestJS('/js/header.js', 'beforeApp');
-    Package::i()->requestJS([
+    AssetManager::requestJS('/js/header.js', 'beforeApp');
+    AssetManager::requestJS([
         '//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js',
     ]);
     if (!$Page->pid) {
-        Package::i()->requestCSS(['/css/main.css']);
-        Package::i()->requestJS(['/js/main.js']);
+        AssetManager::requestCSS(['/css/main.css']);
+        AssetManager::requestJS(['/js/main.js']);
     }
     // Включаем, если есть HTML-поля
-    // Package::i()->requestJS([
+    // AssetManager::requestJS([
     //     '/vendor/ckeditor/ckeditor/ckeditor.js',
     //     '/vendor/ckeditor/ckeditor/adapters/jquery.js',
     // ]);
-    echo Package::i()->getRequestedCSS();
-    echo Package::i()->getRequestedJS('beforeApp');
-    echo Package::i()->asset([
+    echo AssetManager::getRequestedCSS();
+    echo AssetManager::getRequestedJS('beforeApp');
+    echo AssetManager::asset([
         '/css/footer.css',
     ]);
-    echo Package::i()->getRequestedJS();
+    echo AssetManager::getRequestedJS();
     if (HTTP::queryString()) { ?>
         <link rel="canonical" href="http<?php echo (mb_strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))?>">
     <?php }
@@ -252,7 +253,7 @@ ob_start(); // Для $separateScripts
           echo '<div data-vue-role="added-modal" data-vue-ref="addedModal"></div>';
       }
       echo $Page->location('footer_counters') .
-          Package::i()->asset('/js/footer.js');
+          AssetManager::asset('/js/footer.js');
       ?>
     </div>
     <?php

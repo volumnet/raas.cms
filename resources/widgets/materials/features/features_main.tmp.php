@@ -7,6 +7,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\AssetManager;
+
 if ($Set) { ?>
     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main">
       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-main__title h2">
@@ -41,6 +43,6 @@ if ($Set) { ?>
       </div>
     </div>
     <?php
-    Package::i()->requestCSS('/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.css');
-    // Package::i()->requestJS('/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.js');
+    AssetManager::requestCSS('/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.css');
+    // AssetManager::requestJS('/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.js');
 } ?>

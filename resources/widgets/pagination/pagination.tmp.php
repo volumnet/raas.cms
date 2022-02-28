@@ -7,6 +7,7 @@ namespace RAAS\CMS;
 
 use SOME\HTTP;
 use SOME\Pages;
+use RAAS\AssetManager;
 
 if ($pages->pages > 1) { ?>
     <ul class="pagination">
@@ -92,5 +93,5 @@ if ($pages->pages > 1) { ?>
       } ?>
     </ul>
     <?php
-    Package::i()->requestCSS('/css/pagination.css');
+    AssetManager::requestCSS('/css/pagination.css');
 }

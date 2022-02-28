@@ -8,6 +8,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\AssetManager;
+
 if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
     $result = array();
     if ($success[(int)$Block->id]) {
@@ -108,7 +110,7 @@ if ($_POST['AJAX'] && ($Item instanceof Feedback)) {
       </form>
     </div>
 <?php }
-Package::i()->requestCSS('/css/feedback.css');
-Package::i()->requestJS('/js/feedback.js');
-Package::i()->requestCSS('/css/faq-form.css');
-Package::i()->requestJS('/js/faq-form.js');
+AssetManager::requestCSS('/css/feedback.css');
+AssetManager::requestJS('/js/feedback.js');
+AssetManager::requestCSS('/css/faq-form.css');
+AssetManager::requestJS('/js/faq-form.js');

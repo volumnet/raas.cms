@@ -8,6 +8,7 @@
 namespace RAAS\CMS;
 
 use SOME\Text;
+use RAAS\AssetManager;
 
 $company = $Set[0];
 $jsonLd = [
@@ -145,5 +146,5 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
 </div>
 <script type="application/ld+json"><?php echo json_encode($jsonLd)?></script>
 <?php
-Package::i()->requestCSS('/css/contacts.css');
-Package::i()->requestJS('/js/contacts.js');
+AssetManager::requestCSS('/css/contacts.css');
+AssetManager::requestJS('/js/contacts.js');

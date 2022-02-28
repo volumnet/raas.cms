@@ -1,3 +1,5 @@
+$fa-major-version: '5' !default;
+
 @mixin fa($icon, $isBrand: false) {
     $bold: true;
     @for $i from 1 through length($fa-shims-brands) {
@@ -14,9 +16,9 @@
         }
     }
     @if ($isBrand) {
-        font-family: 'Font Awesome 5 Brands'; 
+        font-family: 'Font Awesome #{$fa-major-version} Brands'; 
     } @else {
-        font-family: 'Font Awesome 5 Free'; 
+        font-family: 'Font Awesome #{$fa-major-version} Free'; 
     }
     @if ($bold) {
         font-weight: bold;
@@ -31,7 +33,7 @@ $fa-icons: (
     "500px": $fa-var-500px,
     "accessible-icon": $fa-var-accessible-icon,
     "accusoft": $fa-var-accusoft,
-    "acquisitions-incorporated": $fa-var-acquisitions-incorporated,
+    // "acquisitions-incorporated": $fa-var-acquisitions-incorporated,
     "ad": $fa-var-ad,
     "address-book": $fa-var-address-book,
     "address-card": $fa-var-address-card,
@@ -469,6 +471,8 @@ $fa-icons: (
     "external-link-alt": $fa-var-external-link-alt,
     "external-link-square-alt": $fa-var-external-link-square-alt,
     "eye": $fa-var-eye,
+    "eye-open": $fa-var-eye,
+    "eye-close": $fa-var-eye-slash,
     "eye-dropper": $fa-var-eye-dropper,
     "eye-slash": $fa-var-eye-slash,
     "facebook": $fa-var-facebook,
@@ -916,6 +920,7 @@ $fa-icons: (
     "odnoklassniki": $fa-var-odnoklassniki,
     "odnoklassniki-square": $fa-var-odnoklassniki-square,
     "oil-can": $fa-var-oil-can,
+    "ok": $fa-var-check,
     "old-republic": $fa-var-old-republic,
     "om": $fa-var-om,
     "opencart": $fa-var-opencart,
@@ -955,7 +960,7 @@ $fa-icons: (
     "pen-square": $fa-var-pen-square,
     "pencil-alt": $fa-var-pencil-alt,
     "pencil-ruler": $fa-var-pencil-ruler,
-    "penny-arcade": $fa-var-penny-arcade,
+    // "penny-arcade": $fa-var-penny-arcade,
     "people-arrows": $fa-var-people-arrows,
     "people-carry": $fa-var-people-carry,
     "pepper-hot": $fa-var-pepper-hot,

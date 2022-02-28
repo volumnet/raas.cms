@@ -44,12 +44,7 @@ if ((array)$Table->Set || ($Table->emptyHeader && $Table->header)) { ?>
         <tfoot>
           <tr>
             <td colspan="2">
-              <?php echo rowContextMenu(
-                  $Table->meta['allContextMenu'],
-                  Application::i()->view->context->_('WITH_SELECTED'),
-                  '',
-                  'btn-mini'
-              )?>
+              <all-context-menu :menu="<?php echo htmlspecialchars(json_encode(getMenu($Table->meta['allContextMenu'])))?>"></all-context-menu>
             </td>
             <td colspan="<?php echo (count($Table->columns) - 3)?>">&nbsp;</td>
             <td>

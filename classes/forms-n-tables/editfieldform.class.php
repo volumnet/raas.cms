@@ -65,7 +65,7 @@ class EditFieldForm extends RAASForm
      * @param SOME $parent Родительский объект
      * @return FormTab
      */
-    public function getCommonTab(SOME $parent)
+    public function getCommonTab(SOME $parent = null)
     {
         $content = [];
         foreach (Field::$fieldTypes as $key) {

@@ -7,6 +7,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\AssetManager;
+
 $company = $Set[0];
 
 $socialsData = [
@@ -40,5 +42,5 @@ if ($socials = $company->fields['socials']->getValues(true)) { ?>
       </div>
     </div>
 <?php }
-Package::i()->requestCSS('/css/{{WIDGET_CSS_CLASSNAME}}.css');
-Package::i()->requestJS('/js/{{WIDGET_CSS_CLASSNAME}}.js');
+AssetManager::requestCSS('/css/{{WIDGET_CSS_CLASSNAME}}.css');
+AssetManager::requestJS('/js/{{WIDGET_CSS_CLASSNAME}}.js');

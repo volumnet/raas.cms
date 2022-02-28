@@ -27,7 +27,7 @@ jQuery(function($) {
         );
     })
 
-    $('#wysiwyg').click(function() {
+    $('#wysiwyg').on('click', function() {
         var $originalDescription = $('#description');
         var mime = $('#description').attr('data-mime');
         var text = $originalDescription.val();

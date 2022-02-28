@@ -8,6 +8,7 @@
 namespace RAAS\CMS;
 
 use SOME\Text;
+use RAAS\AssetManager;
 
 $nat = true;
 
@@ -50,5 +51,5 @@ if ($Set) { ?>
       </div>
     </div>
     <?php
-    Package::i()->requestCSS('/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.css');
+    AssetManager::requestCSS('/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.css');
 }

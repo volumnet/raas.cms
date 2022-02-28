@@ -11,6 +11,7 @@ namespace RAAS\CMS;
 
 use SOME\Text;
 use SOME\HTTP;
+use RAAS\AssetManager;
 
 if ($Item) { ?>
     <div class="faq">
@@ -76,8 +77,8 @@ if ($Item) { ?>
       </div>
     </div>
     <?php
-    Package::i()->requestCSS('/css/faq-article.css');
-    Package::i()->requestJS('/js/faq-article.js');
+    AssetManager::requestCSS('/css/faq-article.css');
+    AssetManager::requestJS('/js/faq-article.js');
 } elseif ($Set) { ?>
     <div class="faq">
       <div class="faq__list">
@@ -167,6 +168,6 @@ if ($Item) { ?>
       <?php } ?>
     </div>
     <?php
-    Package::i()->requestCSS('/css/faq.css');
-    Package::i()->requestJS('/js/faq.js');
+    AssetManager::requestCSS('/css/faq.css');
+    AssetManager::requestJS('/js/faq.js');
 } ?>

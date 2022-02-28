@@ -7,6 +7,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\AssetManager;
+
 $company = $Set[0];
 
 ?>
@@ -22,5 +24,5 @@ $company = $Set[0];
   ?>
 </div>
 <?php
-Package::i()->requestCSS('/css/copyrights.css');
-Package::i()->requestJS('/js/copyrights.js');
+AssetManager::requestCSS('/css/copyrights.css');
+AssetManager::requestJS('/js/copyrights.js');

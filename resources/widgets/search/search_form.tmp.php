@@ -6,6 +6,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\AssetManager;
+
 $jsonLd = [
     '@context' => 'http://schema.org',
     '@type' => 'WebSite',
@@ -40,4 +42,4 @@ if ($searchBlockId = $Block->additionalParams['searchBlockId']) {
   </form>
 </div>
 <script type="application/ld+json"><?php echo json_encode($jsonLd)?></script>
-<?php Package::i()->requestJS(['/js/search-form.js']);
+<?php AssetManager::requestJS(['/js/search-form.js']);

@@ -7,6 +7,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\AssetManager;
+
 if ($Set) { ?>
     <div class="banners slider" data-vue-role="raas-slider" data-vue-type="fade" data-v-bind_autoscroll="true" data-v-slot="vm">
       <div class="banners__list banners-list" data-role="slider-list">
@@ -35,6 +37,6 @@ if ($Set) { ?>
       <?php } ?>
     </div>
     <?php
-    Package::i()->requestCSS('/css/banners.css');
-    Package::i()->requestJS('/js/banners.js');
+    AssetManager::requestCSS('/css/banners.css');
+    AssetManager::requestJS('/js/banners.js');
 } ?>

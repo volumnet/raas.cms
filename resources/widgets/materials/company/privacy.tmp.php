@@ -8,6 +8,7 @@ namespace RAAS\CMS;
 
 use Twig_Environment;
 use Twig_Loader_String;
+use RAAS\AssetManager;
 
 $companyMaterialType = Material_Type::importByURN('company');
 $companies = Material::getSet([
@@ -31,5 +32,5 @@ $text = $twig->render($Block->description, $templateData);
 
 echo $text;
 
-Package::i()->requestCSS('/css/privacy.css');
-Package::i()->requestJS('/js/privacy.js');
+AssetManager::requestCSS('/css/privacy.css');
+AssetManager::requestJS('/js/privacy.js');

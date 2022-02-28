@@ -482,7 +482,7 @@ class Material extends SOME
         foreach ((array)$temp as $fieldURN => $field) {
             $field = $field->deepClone();
             $field->Owner = $this;
-            $arr[$fieldURN] = $field;
+            $arr[trim($fieldURN)] = $field;
         }
         return $arr;
     }

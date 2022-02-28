@@ -7,6 +7,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\AssetManager;
+
 $company = $Set[0];
 
 ?>
@@ -28,4 +30,4 @@ $company = $Set[0];
   <?php } ?>
 </a>
 <?php
-Package::i()->requestCSS('/css/logo.css');
+AssetManager::requestCSS('/css/logo.css');

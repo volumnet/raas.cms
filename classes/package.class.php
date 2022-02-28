@@ -11,6 +11,7 @@ use SOME\SOME;
 use SOME\Text;
 use RAAS\Attachment;
 use RAAS\Application;
+use RAAS\AssetManager;
 use RAAS\Package as RAASPackage;
 
 /**
@@ -35,26 +36,6 @@ use RAAS\Package as RAASPackage;
 class Package extends RAASPackage
 {
     protected static $instance;
-
-    /**
-     * URL подключенных JS-файлов
-     * @var array <pre>array<
-     *     string[] группа файлов => array<
-     *         string[] URL файла => string URL файла
-     *     >
-     * ></pre>
-     */
-    protected $requestedJS = [];
-
-    /**
-     * URL подключенных CSS-файлов
-     * @var array <pre>array<
-     *     string[] группа файлов => array<
-     *         string[] URL файла => string URL файла
-     *     >
-     * ></pre>
-     */
-    protected $requestedCSS = [];
 
     public function __get($var)
     {
@@ -102,10 +83,6 @@ class Package extends RAASPackage
                 break;
             case 'isMobile':
                 return $this->isTablet || $this->isPhone;
-                break;
-            case 'requestedCSS':
-            case 'requestedJS':
-                return $this->$var;
                 break;
             default:
                 return parent::__get($var);
@@ -1196,48 +1173,11 @@ class Package extends RAASPackage
      * @param string $title Всплывающая подсказка у изображений
      * @param string $ext Расширение подключаемого файла (если нет в адресе)
      * @return string
+     * @deprecated Рекомендуется использовать AssetManager::asset();
      */
     public static function asset($fileURL, $alt = '', $title = '', $ext = '')
     {
-        if (is_array($fileURL)) {
-            $result = array_values(array_filter(array_map(
-                function ($x) use ($alt, $title, $ext) {
-                    return static::asset($x, $alt, $title, $ext);
-                },
-                $fileURL
-            ), 'trim'));
-            return implode("\n", $result);
-        }
-        $filepath = trim($fileURL, '/');
-        if (stristr($fileURL, '//') || ($isFile = is_file($filepath))) {
-            if (!$ext) {
-                $ext = mb_strtolower(pathinfo($fileURL, PATHINFO_EXTENSION));
-            }
-            $version = '';
-            if ($isFile) {
-                $version = '?v=' . date('Y-m-d-H-i-s', filemtime($filepath));
-            }
-            $link = $fileURL . $version;
-            switch ($ext) {
-                case 'js':
-                    return '<script src="' . htmlspecialchars($link) . '"></script>';
-                    break;
-                case 'jpg':
-                case 'jpeg':
-                case 'png':
-                case 'gif':
-                case 'webp':
-                case 'svg':
-                    return '<img src="' . htmlspecialchars($link) . '" alt="' . htmlspecialchars($alt) . '" title="' . htmlspecialchars($title ?: $alt) . '" />';
-                    break;
-                case 'ico':
-                    return '<link rel="shortcut icon" type="image/x-icon" href="' . htmlspecialchars($link) . '" />';
-                    break;
-                case 'css':
-                    return '<link rel="stylesheet" href="' . htmlspecialchars($link) . '">';
-                    break;
-            }
-        }
+        return AssetManager::asset($fileURL, $alt, $title, $ext);
     }
 
 
@@ -1285,34 +1225,14 @@ class Package extends RAASPackage
 
 
     /**
-     * Запросить подключение файла(ов)
-     * @param string|string[] $file Файл(ы) для подключения
-     * @param string $var Название переменной для добавления
-     * @param string $group Название группы для подключения
-     */
-    protected function requestFile($file, $var, $group = '')
-    {
-        if (is_array($file)) {
-            foreach ($file as $f) {
-                $this->requestFile($f, $var, $group);
-            }
-        } elseif (is_string($file) &&
-            (stristr($file, '//') || is_file(Application::i()->baseDir . $file))
-        ) {
-            $val = &$this->$var;
-            $val[$group][$file] = $file;
-        }
-    }
-
-
-    /**
      * Запросить подключение JS-файла(ов)
      * @param string|string[] $file Файл(ы) для подключения
      * @param string $group Название группы для подключения
+     * @deprecated Рекомендуется использовать AssetManager::requestJS();
      */
     public function requestJS($file, $group = '')
     {
-        $this->requestFile($file, 'requestedJS', $group);
+        return AssetManager::requestJS($file, $group);
     }
 
 
@@ -1320,31 +1240,11 @@ class Package extends RAASPackage
      * Запросить подключение CSS-файла(ов)
      * @param string|string[] $file Файл(ы) для подключения
      * @param string $group Название группы для подключения
+     * @deprecated Рекомендуется использовать AssetManager::requestCSS();
      */
     public function requestCSS($file, $group = '')
     {
-        $this->requestFile($file, 'requestedCSS', $group);
-    }
-
-
-    /**
-     * Получает HTML-код для вставки запрошенных файлов
-     * @param string $var Название переменной с добавленными файлами
-     * @param string|null $group Название группы,
-     *                           либо null для получения файлов из всех групп
-     * @param string $ext Расширение подключаемого файла (если нет в адресе)
-     * @return string
-     */
-    protected function getRequestedFiles($var, $group = '', $ext = '')
-    {
-        $val = $this->$var;
-        if ($group === null) {
-            $result = array_reduce($val, 'array_merge', []);
-        } else {
-            $result = isset($val[$group]) ? $val[$group] : [];
-        }
-
-        return static::asset($result, '', '', $ext);
+        return AssetManager::requestCSS($file, $group);
     }
 
 
@@ -1353,10 +1253,11 @@ class Package extends RAASPackage
      * @param string|null $group Название группы,
      *                           либо null для получения файлов из всех групп
      * @return string
+     * @deprecated Рекомендуется использовать AssetManager::getRequestedJS();
      */
     public function getRequestedJS($group = '')
     {
-        return $this->getRequestedFiles('requestedJS', $group, 'js');
+        return AssetManager::getRequestedJS($group);
     }
 
 
@@ -1365,27 +1266,11 @@ class Package extends RAASPackage
      * @param string|null $group Название группы,
      *                           либо null для получения файлов из всех групп
      * @return string
+     * @deprecated Рекомендуется использовать AssetManager::getRequestedCSS();
      */
     public function getRequestedCSS($group = '')
     {
-        return $this->getRequestedFiles('requestedCSS', $group, 'css');
-    }
-
-
-    /**
-     * Очищает запрошенные файлы
-     * @param string $var Название переменной с добавленными файлами
-     * @param string|null $group Название группы,
-     *                           либо null для очистки всех групп
-     * @return string
-     */
-    protected function clearRequestedFiles($var, $group = '')
-    {
-        if ($group === null) {
-            $this->$var = [];
-        } else {
-            $this->$var[$group] = [];
-        }
+        return AssetManager::getRequestedCSS($group);
     }
 
 
@@ -1394,21 +1279,23 @@ class Package extends RAASPackage
      * @param string|null $group Название группы,
      *                           либо null для очистки всех групп
      * @return string
+     * @deprecated Рекомендуется использовать AssetManager::clearRequestedJS();
      */
     public function clearRequestedJS($group = '')
     {
-        return $this->clearRequestedFiles('requestedJS', $group);
+        return AssetManager::clearRequestedJS($group);
     }
 
 
     /**
-     * Очищает запрошенны CSS-файлы
+     * Очищает запрошенные CSS-файлы
      * @param string|null $group Название группы,
      *                           либо null для очистки всех групп
      * @return string
+     * @deprecated Рекомендуется использовать AssetManager::clearRequestedCSS();
      */
     public function clearRequestedCSS($group = '')
     {
-        return $this->clearRequestedFiles('requestedCSS', $group);
+        return AssetManager::clearRequestedCSS($group);
     }
 }

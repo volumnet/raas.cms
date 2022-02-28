@@ -11,6 +11,7 @@ namespace RAAS\CMS;
 
 use SOME\Text;
 use SOME\HTTP;
+use RAAS\AssetManager;
 
 $materialsSet = array_values(array_filter($Set, function ($x) {
     return $x instanceof Material;
@@ -202,4 +203,4 @@ if ($_GET['AJAX'] == $Block->id) {
   </div>
 </div>
 <?php
-Package::i()->requestCSS(['/css/search.css']);
+AssetManager::requestCSS(['/css/search.css']);

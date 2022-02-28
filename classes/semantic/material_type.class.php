@@ -357,7 +357,7 @@ class Material_Type extends SOME
             $temp = Material_Field::getSQLSet([$sqlQuery, $sqlBind]);
             $arr = [];
             foreach ($temp as $row) {
-                $arr[$row->urn] = $row;
+                $arr[trim($row->urn)] = $row;
             }
             static::$selfFieldsCache[trim($this->id)] = $arr;
         }

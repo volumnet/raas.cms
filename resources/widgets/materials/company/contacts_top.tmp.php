@@ -8,6 +8,7 @@
 namespace RAAS\CMS;
 
 use SOME\Text;
+use RAAS\AssetManager;
 
 $company = $Set[0];
 
@@ -50,5 +51,5 @@ $company = $Set[0];
   <?php } ?>
 </div>
 <?php
-Package::i()->requestCSS('/css/contacts-top.css');
-Package::i()->requestJS('/js/contacts-top.js');
+AssetManager::requestCSS('/css/contacts-top.css');
+AssetManager::requestJS('/js/contacts-top.js');

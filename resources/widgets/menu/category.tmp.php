@@ -5,6 +5,8 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\AssetManager;
+
 ?>
 <a class="category" href="<?php echo $page->url?>">
   <div class="category__image">
@@ -17,5 +19,5 @@ namespace RAAS\CMS;
   </div>
 </a>
 <?php
-Package::i()->requestCSS('/css/category.css');
-Package::i()->requestJS('/js/category.js');
+AssetManager::requestCSS('/css/category.css');
+AssetManager::requestJS('/js/category.js');
