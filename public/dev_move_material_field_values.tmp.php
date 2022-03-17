@@ -15,7 +15,7 @@ use RAAS\Application;
   <?php foreach ($Set as $field) { ?>
       <li>
         <a href="<?php echo HTTP::queryString('pid=' . (int)$field->id)?>">
-          <?php echo htmlspecialchars($field->name)?>
+          <?php echo htmlspecialchars('#' . $field->id . ' — ' . $field->name)?>
         </a>
       </li>
   <?php } ?>
