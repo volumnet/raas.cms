@@ -95,9 +95,11 @@ export default {
                             .moment(e.target.value, self.momentFormat, true)
                             .format(self.canonicalMomentFormat);
                         if (!/invalid/gi.test(value)) {
+                            self.pValue = value;
                             self.$emit('input', value);
                             self.$emit('change', value);
                         } else {
+                            self.pValue = self.value;
                             self.$emit('input', self.value);
                             self.$forceUpdate();
                         }
@@ -111,10 +113,12 @@ export default {
                             .moment(e.target.value, self.momentFormat, true)
                             .format(self.canonicalMomentFormat);
                         if (!/invalid/gi.test(value)) {
+                            self.pValue = value;
                             self.$emit('input', value);
                             self.$emit('change', value);
                         }
                     } else {
+                        self.pValue = '';
                         self.$emit('input', '');
                     }
                 })
@@ -140,7 +144,7 @@ export default {
          * @return {String}
          */
         localValue: function () {
-            return window.moment(this.value, this.canonicalMomentFormat)
+            return window.moment(this.pValue, this.canonicalMomentFormat)
                 .format(this.momentFormat);
         },
         /**
@@ -166,9 +170,11 @@ export default {
                             let value = window.moment(targetValue, this.momentFormat)
                                 .format(this.canonicalMomentFormat);
                             if (!/invalid/gi.test(value)) {
+                                this.pValue = value;
                                 this.$emit('input', value);
                                 this.$emit('change', value);
                             } else {
+                                this.pValue = this.value;
                                 this.$emit('input', this.value);
                                 this.$forceUpdate();
                             }

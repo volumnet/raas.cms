@@ -41,13 +41,8 @@ export default {
                 this.pickerIsShown = false;
             } else if (!this.$attrs.disabled) {
                 this.pickerIsShown = true;
-                let m = window.moment(this.value, this.canonicalMomentFormat);
-                let year = m.year();
-                let month = m.month();
                 $(".ui-datepicker").addClass('raas-field-month__datepicker');
-                $(this.$refs.field)
-                    .datepicker('show')
-                    .datepicker('setDate', new Date(year, month, 1));
+                $(this.$refs.field).datepicker('show');
             }
         },
     },
@@ -58,11 +53,23 @@ export default {
                 this.pickerIsShown = false;
                 window.setTimeout(() => {
                     $(".ui-datepicker").removeClass('raas-field-month__datepicker'); 
-                }, 250);
+                }, 100);
+            };
+            result.beforeShow = (el, inst) => {
+                let m = window.moment(this.pValue, this.canonicalMomentFormat);
+                let year = m.year();
+                let month = m.month();
+                console.log(inst, year, month)
+                $(".ui-datepicker").addClass('raas-field-month__datepicker'); 
+                window.setTimeout(() => {
+                    $(el).datepicker('setDate', new Date(year, month, 1));
+                    $(".ui-datepicker").addClass('raas-field-month__datepicker'); 
+                }, 100);
             };
             result.onChangeMonthYear = (year, month) => {
                 let m = window.moment([year, month - 1, 1]);
                 let value = m.format(this.canonicalMomentFormat);
+                this.pValue = value;
                 this.$emit('input', value)
             }
             return result;

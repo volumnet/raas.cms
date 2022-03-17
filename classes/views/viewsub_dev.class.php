@@ -746,6 +746,13 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('MATERIAL_TYPES')
         ];
         if ($in['Item']->parent->id) {
+            foreach ((array)$in['Item']->parent->parents as $row) {
+                $this->path[] = [
+                    'href' => $this->url . '&action=edit_material_type&id='
+                           .  (int)$row->id,
+                    'name' => $row->name
+                ];
+            }
             $this->path[] = [
                 'href' => $this->url . '&action=edit_material_type&id='
                        .  (int)$in['Item']->parent->id,
@@ -767,7 +774,7 @@ class ViewSub_Dev extends RAASAbstractSubView
 
 
     /**
-     * Перемещение поля материалов
+     * Перемещение поля материалов в группу
      * @param [
      *            'Item' =>? Material_Field Текущее поле,
      *            'items' =>? array<Material_Field> Список текущих полей
@@ -805,6 +812,13 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('MATERIAL_TYPES')
         ];
         if ($in['Item']->parent->id) {
+            foreach ((array)$in['Item']->parent->parents as $row) {
+                $this->path[] = [
+                    'href' => $this->url . '&action=edit_material_type&id='
+                           .  (int)$row->id,
+                    'name' => $row->name
+                ];
+            }
             $this->path[] = [
                 'href' => $this->url . '&action=edit_material_type&id='
                        .  (int)$in['Item']->parent->id,
@@ -817,6 +831,44 @@ class ViewSub_Dev extends RAASAbstractSubView
         }
         $this->title = $this->_('MOVING_FIELDS_TO_GROUP');
         $this->template = 'dev_move_material_field_to_group';
+    }
+
+    /**
+     * Перемещение значений поля материалов
+     * @param [
+     *            'Item' =>? Material_Field Текущее поле,
+     *            'Set' =>? array<Material_Field> Список полей-акцепторов
+     *        ] $in Входные данные
+     */
+    public function moveMaterialFieldValues(array $in = [])
+    {
+        $this->assignVars($in);
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'href' => $this->url . '&action=material_types',
+            'name' => $this->_('MATERIAL_TYPES')
+        ];
+        if ($in['Item']->parent->id) {
+            foreach ((array)$in['Item']->parent->parents as $row) {
+                $this->path[] = [
+                    'href' => $this->url . '&action=edit_material_type&id='
+                           .  (int)$row->id,
+                    'name' => $row->name
+                ];
+            }
+            $this->path[] = [
+                'href' => $this->url . '&action=edit_material_type&id='
+                       .  (int)$in['Item']->parent->id,
+                'name' => $in['Item']->parent->name
+            ];
+        }
+        $this->contextmenu = $this->getMaterialFieldContextMenu($in['Item']);
+        $this->subtitle = $this->getFieldSubtitle($in['Item']);
+        $this->title = $this->_('MOVING_FIELD_VALUES');
+        $this->template = 'dev_move_material_field_values';
     }
 
 
@@ -1781,6 +1833,12 @@ class ViewSub_Dev extends RAASAbstractSubView
                 'href' => $this->url . '&action=move_material_field&id='
                        .  (int)$field->id,
                 'icon' => 'share-alt'
+            ];
+            $arr[] = [
+                'name' => $this->_('MOVE_VALUES'),
+                'href' => $this->url . '&action=move_material_field_values&id='
+                       .  (int)$field->id,
+                'icon' => 'code-merge'
             ];
         }
         $arr = array_merge(

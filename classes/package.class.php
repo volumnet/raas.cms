@@ -405,7 +405,8 @@ class Package extends RAASPackage
             $likeSearchString = $this->SQL->real_escape_string($searchString);
             $sqlQuery .= " AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid
                             AND (
-                                    tM.name LIKE '%" . $likeSearchString . "%'
+                                    tM.id = '" . $likeSearchString . "'
+                                 OR tM.name LIKE '%" . $likeSearchString . "%'
                                  OR tM.description LIKE '%" . $likeSearchString . "%'
                                  OR tM.urn LIKE '%" . $likeSearchString . "%'
                                  OR tD.value LIKE '%" . $likeSearchString . "%'
@@ -549,7 +550,8 @@ class Package extends RAASPackage
             $sqlQuery .= " AND tF2.classname = 'RAAS\\\\CMS\\\\Material_Type'
                            AND tF2.pid
                            AND (
-                                    tM.name LIKE '%" . $likeSearchString . "%'
+                                    tM.id = '" . $likeSearchString . "'
+                                 OR tM.name LIKE '%" . $likeSearchString . "%'
                                  OR tM.urn LIKE '%" . $likeSearchString . "%'
                                  OR tD2.value LIKE '%" . $likeSearchString . "%'
                             )";
@@ -999,7 +1001,8 @@ class Package extends RAASPackage
                             AND tF.id = tD.fid";
         }
         $sqlQuery .= " WHERE (
-                               tM.name LIKE '%" . $likeSearchString . "%' ";
+                               tM.id = '" . $likeSearchString . "'
+                            OR tM.name LIKE '%" . $likeSearchString . "%' ";
         if (!$onlyByName) {
             $sqlQuery .= "  OR tM.urn LIKE '%" . $likeSearchString . "%'
                             OR tM.description LIKE '%" . $likeSearchString . "%'
@@ -1012,7 +1015,9 @@ class Package extends RAASPackage
         }
         // 2020-02-17, AVS: сделал сортировку сначала по совпадению названия
         $sqlQuery .= " GROUP BY tM.id
-                       ORDER BY (tM.name LIKE '%" . $likeSearchString . "%') DESC,
+                       ORDER BY (tM.id = '" . $likeSearchString . "') DESC,
+                                (tM.name = '" . $likeSearchString . "') DESC,
+                                (tM.name LIKE '%" . $likeSearchString . "%') DESC,
                                 tM.name
                           LIMIT " . ((int)$limit ?: 50);
         $Set = Material::getSQLSet($sqlQuery);

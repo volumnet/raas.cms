@@ -10,7 +10,7 @@ export default {
          */
         pattern: {
             type: String,
-            default: '^[\\w\\-\\.]+@[A-Za-z\\-]+\\.([A-Za-z\\.]+)$',
+            default: '^[\\w\\-\\.]+@[A-Za-z0-9\\-]+\\.([A-Za-z\\.]+)$',
         },
     },
     mixins: [RAASField],

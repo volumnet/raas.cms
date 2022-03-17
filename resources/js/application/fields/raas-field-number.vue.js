@@ -55,13 +55,14 @@ export default {
         inputListeners: function () {
             return Object.assign({}, this.$listeners, {
                 input: (event) => {
-                    let val = this.checkValue(event.target.value);
-                    if (val != event.target.value) {
-                        // Иначе, поскольку максимальное значение emit 
-                        // не меняется, в поле можно дальше писать вручную 
-                        // всё что угодно
-                        event.target.value = val; 
-                    }
+                    let val = event.target.value;
+                    // val = this.checkValue(event.target.value);
+                    // if (val != event.target.value) {
+                    //     // Иначе, поскольку максимальное значение emit 
+                    //     // не меняется, в поле можно дальше писать вручную 
+                    //     // всё что угодно
+                    //     event.target.value = val; 
+                    // }
                     this.$emit('input', val)
                 },
             });

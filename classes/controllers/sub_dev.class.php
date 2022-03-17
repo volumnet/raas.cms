@@ -57,6 +57,9 @@ class Sub_Dev extends RAASAbstractSubController
             case 'edit_material_fieldgroup':
                 $this->editMaterialFieldGroup();
                 break;
+            case 'move_material_field_values':
+                $this->moveMaterialFieldValues();
+                break;
             case 'templates':
                 $this->view->templates(['Set' => $this->model->dev_templates()]);
                 break;
@@ -922,6 +925,60 @@ class Sub_Dev extends RAASAbstractSubController
                 ]);
                 return;
             }
+        }
+    }
+
+
+    /**
+     * Переносит значения одной характеристики в другую
+     */
+    public function moveMaterialFieldValues()
+    {
+        $field = new Material_Field($_GET['id']);
+        if (!$field->pid || ($field->classname != Material_Type::class)) {
+            new Redirector($this->url . '&action=material_types');
+        }
+        $newField = new Material_Field($_GET['pid']);
+        if (($newField->classname == Material_Type::class) &&
+            (in_array($newField->pid, $field->parent->selfAndParentsIds))
+        ) {
+            // Определим, у каких материалов заполнено значение старого поля
+            $sqlQuery = "SELECT DISTINCT pid
+                           FROM cms_data
+                          WHERE fid = ?
+                            AND value != ''";
+            $sqlBind = [(int)$field->id];
+            $sqlResult = Material_Field::_SQL()->getcol([$sqlQuery, $sqlBind]);
+            // Очистим соответствующие значения нового поля
+            if ($sqlResult) {
+                $sqlQuery = "DELETE FROM cms_data
+                              WHERE fid = ?
+                                AND pid IN (" . implode(", ", $sqlResult) . ")";
+                $sqlBind = [(int)$newField->id];
+                Material_Field::_SQL()->query([$sqlQuery, $sqlBind]);
+            }
+            $sqlQuery = "INSERT IGNORE INTO cms_data (pid, fid, fii, value)
+                         SELECT pid,
+                                :new_fid AS fid,
+                                fii,
+                                value
+                           FROM cms_data
+                          WHERE fid = :old_fid";
+            $sqlBind = ['new_fid' => (int)$newField->id, 'old_fid' => (int)$field->id];
+            Material_Field::_SQL()->query([$sqlQuery, $sqlBind]);
+            new Redirector(
+                $_GET['back'] ?
+                'history:back' :
+                $this->url . '&action=edit_material_type&id=' . (int)$field->pid
+            );
+        } else {
+            $fields = $field->parent->fields;
+            $fields = array_filter($fields, function ($x) use ($field) {
+                return (int)$x->id != (int)$field->id;
+            });
+            $out['Item'] = $field;
+            $out['Set'] = $fields;
+            $this->view->moveMaterialFieldValues($out);
         }
     }
 

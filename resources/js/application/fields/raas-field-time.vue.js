@@ -20,7 +20,7 @@ export default {
                 $(this.$refs.field).timepicker(this.timePickerParams)
                     .attr('data-datepicker-applied', 'true');
             } else {
-                $(this.$refs.field).datepicker('refresh');
+                $(this.$refs.field).timepicker('refresh');
             }
         },
     },

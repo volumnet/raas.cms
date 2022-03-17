@@ -90,10 +90,9 @@ ob_start(); // Для $separateScripts
         '/css/footer.css',
     ]);
     echo AssetManager::getRequestedJS();
-    if (HTTP::queryString()) { ?>
-        <link rel="canonical" href="http<?php echo (mb_strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))?>">
-    <?php }
-    if ($Page->noindex || $Page->Material->noindex || $Page->catalogFilter->filter) { ?>
+    ?>
+    <link rel="canonical" href="http<?php echo (mb_strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))?>">
+    <?php if ($Page->noindex || $Page->Material->noindex || $Page->catalogFilter->filter) { ?>
         <meta name="robots" content="noindex,nofollow" />
     <?php }
     echo $Page->location('head_counters');

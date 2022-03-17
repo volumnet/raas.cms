@@ -70,10 +70,9 @@ export default {
     },
     computed: {
         resolvedAttrs: function () {
-            let result = Object.assign(this.$attrs, {
-                is: 'raas-field-' + this.type.datatype
-            });
+            let result = this.$attrs;
             if (typeof this.type == 'object') {
+                result.is = 'raas-field-' + this.type.datatype;
                 if (this.type.datatype) {
                     result.type = this.type.datatype;
                 }
@@ -149,7 +148,7 @@ export default {
          * @return {String}
          */
         currentComponent: function () {
-            return 'raas-field-' + this.type;
+            return 'raas-field-' + (this.type || 'text');
         },
         /**
          * Слушатели событий полей (с учетом v-model)

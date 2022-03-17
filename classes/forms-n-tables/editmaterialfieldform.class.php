@@ -51,7 +51,7 @@ class EditMaterialFieldForm extends EditFieldForm
                     'name' => 'formvis',
                     'caption' => $this->view->_('SHOW_IN_FORM_BY_TYPES'),
                     'multiple' => 'multiple',
-                    'default' => 1,
+                    'default' => $materialType->selfAndChildrenIds,
                     'children' => $this->getMetaCats($materialType->id, true),
                     'import' => function ($field) {
                         $item = $field->Form->Item;
