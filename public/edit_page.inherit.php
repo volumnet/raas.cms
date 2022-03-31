@@ -30,6 +30,11 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
             return $x['value'] == $Field->name;
         }
     );
+    include Application::i()->view->tmp('form.inc.php');
+    include Application::i()->context->view->tmp('field.inc.php');
+    if ($Field->template) {
+        include Application::i()->view->context->tmp($Field->template);
+    }
     if (in_array($Field->type, ['htmlarea', 'codearea'])) { ?>
         <div class="control-group<?php echo $err ? ' error' : ''?>">
           <?php if ($Field->caption) { ?>
@@ -48,8 +53,8 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
                 <?php } ?>
               </div>
           <?php } ?>
-          <div class="clearfix"><?php echo $_RAASForm_Control($Field)?></div>
         </div>
+        <div class="control-group control-group_full"><?php echo $_RAASForm_Control($Field)?></div>
     <?php } elseif (($Field->type == 'password') && $Field->confirm) {
         $err2 = (bool)array_filter(
             (array)$Field->Form->localError,
@@ -62,8 +67,8 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
           <label class="control-label" for="<?php echo htmlspecialchars($Field->name)?>">
             <?php echo htmlspecialchars($Field->caption)?>:
           </label>
-          <div class="row">
-            <div class="span5" style="margin-left: 20px">
+          <div class="">
+            <div class="span5" style="margin-left: 0px">
               <?php echo $_RAASForm_Control($Field, false)?>
             </div>
             <div class="span2">
@@ -85,8 +90,8 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
     <?php } elseif ($Field->type == 'checkbox' && !$Field->multiple) { ?>
         <div class="control-group<?php echo $err ? ' error' : ''?>">
           <div class="controls">
-            <div class="row">
-              <div class="span5">
+            <div class="">
+              <div class="span5" style="margin-left: 0px">
                 <label class="checkbox"<?php echo $Field->{'data-hint'} ? ' style="width: 174px;"' : ''?>>
                   <?php echo $_RAASForm_Control($Field, false)?>
                   <?php echo htmlspecialchars($Field->caption)?>
@@ -116,8 +121,8 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
             )?>
           </label>
           <div class="controls">
-            <div class="row">
-              <div class="span5" style="margin-left: 20px">
+            <div class="">
+              <div class="span5" style="margin-left: 0px">
                 <?php echo $_RAASForm_Control($Field, false)?>
               </div>
               <div class="span2">

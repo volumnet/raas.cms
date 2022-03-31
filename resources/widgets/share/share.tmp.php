@@ -10,7 +10,7 @@ use RAAS\AssetManager;
 
 ?>
 <div class="share">
-  <div class="ya-share2" data-services="vkontakte,facebook,twitter,whatsapp,telegram"></div>
+  <div class="ya-share2" data-services="vkontakte,twitter,whatsapp,telegram"></div>
 </div>
 <?php AssetManager::requestJS([
     '//yastatic.net/es5-shims/0.0.2/es5-shims.min.js',

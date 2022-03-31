@@ -40,6 +40,11 @@ export default {
                 this.$emit('input', '')
             }
         },
+        clearFile: function () {
+            this.fileName = '';
+            this.file = '';
+            this.$emit('input', '')
+        },
     },
 
 };

@@ -76,6 +76,11 @@ abstract class SocialProfile
     const SN_WA = 12;
 
     /**
+     * Telegram
+     */
+    const SN_TG = 13;
+
+    /**
      * Токен входа
      * @var string
      */
@@ -116,6 +121,7 @@ abstract class SocialProfile
         'youtube\\.(com|ru)' => self::SN_YT,
         'instagram\\.(com|ru)' => self::SN_IN,
         '(whatsapp|wa)\\.(com|ru|me)' => self::SN_WA,
+        '((t)\\.(com|ru|me))|telegram' => self::SN_TG,
     ];
 
     public function __get($var)

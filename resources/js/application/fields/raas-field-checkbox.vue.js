@@ -66,7 +66,7 @@ export default {
                 if ($event.value == option.value) {
                     checked = $event.checked;
                 } else {
-                    checked = (this.value.indexOf(option.value) != -1)
+                    checked = this.value && (this.value.indexOf(option.value) != -1)
                 }
                 if (checked) {
                     if (newValue.indexOf(option.value) == -1) {

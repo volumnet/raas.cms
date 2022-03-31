@@ -5,12 +5,24 @@ import RAASField from './raas-field.vue.js';
  */
 export default {
     mixins: [RAASField],
-    props: [
+    props: {
         /**
          * Множественное поле
+         * @type {Boolean}
          */
-        'multiple',
-    ],
+        multiple: {
+            type: Boolean,
+            default: false,
+        },
+        /**
+         * Подсказка
+         * @type {String|null}
+         */
+        placeholder: {
+            type: String,
+            required: false,
+        },
+    },
     data: function () {
         return {
             /**
@@ -26,7 +38,6 @@ export default {
     },
     updated: function () {
         this.checkMultiselect();
-
     },
     methods: {
         /**
@@ -69,10 +80,11 @@ export default {
          * @return {Object}
          */
         multiselectConfig: function () {
+            const self = this;
             return {
                 buttonText: function (options, select) {
                     if (options.length == 0) {
-                        return '--';
+                        return self.placeholder || '--';
                     }
                     else {
                       var selected = '';

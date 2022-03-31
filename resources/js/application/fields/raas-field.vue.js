@@ -57,7 +57,7 @@ export default {
             for (let option of source) {
                 let newOption = {
                     value: option.value,
-                    name: option.name,
+                    name: option.name || option.caption,
                     level: level,
                 };
                 result.push(newOption);
@@ -72,7 +72,7 @@ export default {
         resolvedAttrs: function () {
             let result = this.$attrs;
             if (typeof this.type == 'object') {
-                result.is = 'raas-field-' + this.type.datatype;
+                result.is = 'raas-field-' + (this.type.datatype || 'text');
                 if (this.type.datatype) {
                     result.type = this.type.datatype;
                 }
@@ -90,6 +90,12 @@ export default {
                 }
                 if (this.type.pattern) {
                     result.pattern = this.type.pattern;
+                }
+                if (this.type['class']) {
+                    result['class'] = Object.assign({}, result['class'] || {}, this.type['class']);
+                }
+                if (this.type.className) {
+                    result['class'] = Object.assign({}, result['class'] || {}, this.type.className);
                 }
                 if (['number', 'range'].indexOf(this.type.datatype) != -1) {
                     if (this.type.min_val) {
@@ -157,6 +163,8 @@ export default {
         inputListeners: function () {
             return Object.assign({}, this.$listeners, {
                 input: (event) => {
+                    // console.log('aaa')
+                    this.pValue = $(event.target).val();
                     this.$emit('input', $(event.target).val())
                 },
             });

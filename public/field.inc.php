@@ -342,73 +342,39 @@ $_RAASForm_Control = function (
                 </select>
             <?php }
             break;
-        case 'textarea':
-        case 'htmlarea':
-        case 'codearea':
-            $attrs['type'] = false;
-            if ($field->type == 'htmlarea') {
-                $attrs['class'] = 'htmlarea';
-                $attrs['required'] = false;
-            } elseif ($field->type == 'codearea') {
-                $attrs['class'] = 'code codearea fullscreen';
-            }
-            $attrs['v-pre'] = 'v-pre';
-            if ($field->multiple) { ?>
-                <div data-role="raas-repo-block">
-                  <div data-role="raas-repo-container">
-                    <?php foreach ((array)$field->Form->DATA[$field->name] as $key => $val) { ?>
-                        <div data-role="raas-repo-element">
-                          <textarea<?php echo $_RAASForm_Attrs($field, $attrs)?>><?php
-                            echo htmlspecialchars($val);
-                          ?></textarea>
-                        </div>
-                    <?php } ?>
-                  </div>
-                  <div data-role="raas-repo">
-                    <textarea<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['disabled' => 'disabled']))?>></textarea>
-                  </div>
-                </div>
-            <?php } else { ?>
-                <textarea<?php echo $_RAASForm_Attrs($field, $attrs)?>><?php
-                  echo htmlspecialchars($field->Form->DATA[$field->name]);
-                ?></textarea>
-            <?php }
-            break;
-        case 'password':
-            $attrs = [];
-            if ($confirm) {
-                $attrs['name'] = $field->name . '@confirm';
-            }
-            if ($field->confirm) {
-                $attrs['autocomplete'] = 'new-password';
-            }
-            ?>
-            <input<?php echo $_RAASForm_Attrs($field, $attrs)?> />
-            <?php
-            break;
         default:
+            // @todo TEST!!!
             $attrs = [];
+            $fieldType = $field->type ?: 'text';
+
             if (!$field->type) {
                 $attrs['type'] = 'text';
             }
-            $attrs['v-pre'] = 'v-pre';
-            if ($field->multiple) { ?>
+            if (($field->type == 'password') && $confirm) {
+                $attrs['name'] = $field->name . '@confirm';
+            }
+            // $attrs['v-pre'] = 'v-pre';
+            // echo 'TEST!!!';
+            if ($field->multiple && !in_array($field->type, ['password'])) {
+                ?>
                 <div data-role="raas-repo-block">
                   <div data-role="raas-repo-container">
                     <?php foreach ((array)$field->Form->DATA[$field->name] as $key => $val) { ?>
                         <div data-role="raas-repo-element">
-                          <input<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['value' => $val]))?> />
+                          <raas-field-<?php echo htmlspecialchars($fieldType)?> <?php echo $_RAASForm_Attrs($field, array_merge($attrs, [':value' => json_encode($val)]))?>></raas-field-<?php echo htmlspecialchars($fieldType)?>>
                         </div>
                     <?php } ?>
                   </div>
                   <div data-role="raas-repo">
-                    <input<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['disabled' => 'disabled']))?> />
+                    <raas-field-<?php echo htmlspecialchars($fieldType)?> <?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['disabled' => 'disabled']))?>></raas-field-<?php echo htmlspecialchars($fieldType)?>>
                   </div>
                 </div>
                 <?php
-            } else { ?>
-                <input<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['value' => $field->Form->DATA[$field->name]]))?> />
-            <?php }
+            } else {
+                ?>
+                <raas-field-<?php echo htmlspecialchars($fieldType)?> <?php echo $_RAASForm_Attrs($field, array_merge($attrs, [':value' => json_encode($field->Form->DATA[$field->name])]))?>></raas-field-<?php echo htmlspecialchars($fieldType)?>>
+                <?php
+            }
             break;
     }
 };

@@ -41,7 +41,6 @@ jQuery(function($) {
         }
         
 
-
         // Если выбрали number или range, появляются минимальное и максимальное значения, для всех остальных исчезают
         if ($.inArray($('#datatype').val(), ['number', 'range']) != -1) {
             $('#min_val, #max_val, #step').removeAttr('disabled').closest('.control-group').fadeIn();

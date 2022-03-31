@@ -24,6 +24,7 @@ $socialsData = [
     SocialProfile::SN_YT => ['urn' => 'youtube', 'name' => 'YOUTUBE'],
     SocialProfile::SN_IN => ['urn' => 'instagram', 'name' => 'INSTAGRAM'],
     SocialProfile::SN_WA => ['urn' => 'whatsapp', 'name' => 'WHATSAPP'],
+    SocialProfile::SN_TG => ['urn' => 'telegram', 'name' => 'TELEGRAM'],
 ];
 if ($socials = $company->fields['socials']->getValues(true)) { ?>
     <div class="{{WIDGET_CSS_CLASSNAME}}">

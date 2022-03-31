@@ -27,11 +27,19 @@ export default {
                     preferredFormat: 'hex',
                     replacerClassName: 'btn btn-outline-secondary raas-field-color__picker',
                 }).on('change', function () {
-                    self.$emit('input', $(this).val());
+                    self.pValue = $(this).val();
+                    self.$emit('input', self.pValue);
                 }).attr('data-colorpicker-applied', 'true');
             } else {
-                $(this.$refs.picker).spectrum('set', self.value);
+                $(this.$refs.picker).spectrum('set', self.pValue);
             }
         },
     },
+    watch: {
+        pValue: function () {
+            window.setTimeout(() => {
+                $(this.$refs.picker).spectrum('set', this.pValue);
+            }, 0)
+        },
+    }
 };

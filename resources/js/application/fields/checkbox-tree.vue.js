@@ -27,7 +27,7 @@ export default {
         arrayValue: function () {
             let value = this.value;
             if (!(value instanceof Array)) {
-                value = (value !== null) ? [value] : [];
+                value = ((value !== null) && (value !== undefined)) ? [value] : [];
             }
             return value;
         },
