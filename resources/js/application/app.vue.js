@@ -23,9 +23,10 @@ export default {
             scrollTop: 0,
             /**
              * Продолжительность скролла по scrollTo
+             * 2022-04-07, AVS: Уменьшил до 0, т.к. конфликтует с Vue и скроллом браузера
              * @type {Number}
              */
-            scrollToDuration: 500,
+            scrollToDuration: 0,
             /**
              * Селектор ссылок для scrollTo
              */
@@ -67,9 +68,9 @@ export default {
         $(this.$el).on('click', this.scrollToSelector, function () {
             let currentUrl = window.location.pathname + window.location.search;
             let url = $(this).attr('href').split('#')[0];
-            if (url) {
-                url = '#' + url;
-            }
+            // if (url) {
+            //     url = '#' + url;
+            // }
             if (!url || (url == currentUrl)) {
                 self.processHashLink(this.hash.replace(/#/gi, ''));
                 return false;

@@ -62,5 +62,14 @@ export default {
                 allowedContent: 'p; br; img[src, alt]; strong; em; b; i; u; s',
             };
         },
+    },
+    watch: {
+        value() {
+            for (let instance of Object.values(CKEDITOR.instances)) {
+                if ((instance.element.$ == this.$el) && (this.value != instance.getData())) {
+                    instance.setData(this.value);
+                }
+            }
+        }
     }
 };
