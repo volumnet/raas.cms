@@ -420,7 +420,7 @@ class ViewSub_Main extends RAASAbstractSubView
                 'name' => $this->_('COPY'),
                 'icon' => 'tags'
             ];
-            if ($page->pid && ($this->action != 'move')) {
+            if ($this->action != 'move') {
                 $arr[] = [
                     'href' => $this->url . '&action=move&id=' . (int)$page->id,
                     'name' => $this->_('MOVE'),

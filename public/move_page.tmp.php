@@ -39,19 +39,26 @@ function showMoveMenu(Page $node, array $ids, array $pids, array $actives)
     }
 
     if ($text) {
-        if ($level) {
+        // if ($level) {
             $text = '<ul>' . $text . '</ul>';
-        } else {
-            $text = '<ul class="tree" data-role="move-menu" style="margin-bottom: 20px">'
-                  .    $text
-                  . '</ul>';
-        }
+        // } else {
+        //     $text = '<ul class="tree" data-role="move-menu" style="margin-bottom: 20px">'
+        //           .    $text
+        //           . '</ul>';
+        // }
     }
     return $text;
 }
 ?>
 <p><?php echo \CMS\CHOOSE_NEW_PARENT?>:</p>
-<?php echo showMoveMenu(new Page(), $ids, $pids, $actives)?>
+<ul class="tree" data-role="move-menu" style="margin-bottom: 20px">
+  <li class="active">
+    <a href="<?php echo HTTP::queryString('new_pid=0')?>">
+      <?php echo \CMS\ROOT_SECTION?>
+    </a>
+  </li>
+  <?php echo showMoveMenu(new Page(), $ids, $pids, $actives)?>
+</ul>
 <script>
 jQuery(document).ready(function($) {
     $('[data-role="move-menu"]').RAAS_menuTree();
