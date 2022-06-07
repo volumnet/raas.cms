@@ -645,40 +645,113 @@ class Material extends SOME
         // 2021-07-07, AVS: очистим память
         unset($sqlArr);
 
-        // Определим родителей по URL
-        $sqlQuery = "UPDATE " . static::_tablename() . " AS tM
-                        SET tM.cache_url_parent_id = IFNULL((
-                            SELECT tP.id
-                              FROM " . static::$dbprefix . "cms_materials_affected_pages_cache AS tMAP
-                              JOIN " . Page::_tablename() . " AS tP ON tP.id = tMAP.page_id
-                             WHERE tMAP.material_id = tM.id
-                          ORDER BY (tMAP.page_id = tM.page_id) DESC,
-                                   (tMAP.page_id = tM.cache_url_parent_id) DESC,
-                                   tP.priority ASC
-                             LIMIT 1
-                        ), 0)";
+        // Соберем информацию о материалах
+        $sqlQuery = "SELECT id, urn, page_id, cache_url_parent_id, cache_url
+                       FROM " . static::_tablename();
         if ($materialId) {
-            $sqlQuery .= " WHERE tM.id = " . (int)$materialId;
+            $sqlQuery .= " WHERE id = " . (int)$materialId;
         } elseif ($materialTypeId) {
-            $sqlQuery .= " WHERE tM.pid IN (" . implode(", ", $materialTypesIds) . ")";
+            $sqlQuery .= " WHERE pid IN (" . implode(", ", $materialTypesIds) . ")";
         }
-        static::_SQL()->query($sqlQuery);
+        $st = microtime(1);
+        $sqlResult = static::_SQL()->get($sqlQuery);
+        $materialsData = [];
+        $pagesData = [];
+        foreach ($sqlResult as $sqlRow) {
+            $materialsData[trim($sqlRow['id'])] = [
+                'id' => (int)$sqlRow['id'],
+                'urn' => trim($sqlRow['urn']),
+                'page_id' => (int)$sqlRow['page_id'],
+                'cache_url_parent_id' => (int)$sqlRow['cache_url_parent_id'],
+                'cache_url' => trim($sqlRow['cache_url']),
+            ];
+            $pagesData[trim($sqlRow['page_id'])] = [
+                'id' => (int)$sqlRow['page_id'],
+            ];
+            $pagesData[trim($sqlRow['cache_url_parent_id'])] = [
+                'id' => (int)$sqlRow['cache_url_parent_id'],
+            ];
+        }
 
-        // Определим URL
-        $sqlQuery = "UPDATE " . static::_tablename() . " AS tM
-                  LEFT JOIN " . Page::_tablename() . " AS tP
-                         ON tP.id = tM.cache_url_parent_id
-                        SET tM.cache_url = IF(
-                                tP.id IS NOT NULL,
-                                CONCAT(tP.cache_url, tM.urn, '/'),
-                                ''
-                            )";
-        if ($materialId) {
-            $sqlQuery .= " WHERE tM.id = " . (int)$materialId;
-        } elseif ($materialTypeId) {
-            $sqlQuery .= " WHERE tM.pid IN (" . implode(", ", $materialTypesIds) . ")";
+        if ($materialsData) {
+            $sqlQuery = "SELECT material_id, page_id
+                           FROM " . static::$dbprefix . "cms_materials_affected_pages_cache
+                          WHERE material_id IN (" . implode(", ", array_keys($materialsData)) . ")";
+            $sqlResult = static::_SQL()->get($sqlQuery);
+            foreach ($sqlResult as $sqlRow) {
+                $materialsData[trim($sqlRow['material_id'])]['affectedPages'][trim($sqlRow['page_id'])] = [
+                    'id' => (int)$sqlRow['page_id'],
+                ];
+                $pagesData[trim($sqlRow['page_id'])] = [
+                    'id' => (int)$sqlRow['page_id'],
+                ];
+            }
         }
-        static::_SQL()->query($sqlQuery);
+        if ($pagesData) {
+            $sqlQuery = "SELECT id, cache_url, priority
+                           FROM " . Page::_tablename()
+                      . " WHERE id IN (" . implode(", ", array_keys($pagesData)) . ")";
+            $sqlResult = static::_SQL()->get($sqlQuery);
+            foreach ($sqlResult as $sqlRow) {
+                $pagesData[trim($sqlRow['id'])] = [
+                    'id' => (int)$sqlRow['id'],
+                    'cache_url' => trim($sqlRow['cache_url']),
+                    'priority' => (int)$sqlRow['priority'],
+                ];
+            }
+        }
+        foreach ($materialsData as $materialId => $materialData) {
+            if ($materialData['page_id'] &&
+                $materialData['affectedPages'][$materialData['page_id']]
+            ) {
+                $materialsData[$materialId]['new_cache_url_parent_id'] = $materialData['page_id'];
+            } elseif ($materialData['cache_url_parent_id'] &&
+                $materialData['affectedPages'][$materialData['cache_url_parent_id']]
+            ) {
+                $materialsData[$materialId]['new_cache_url_parent_id'] = $materialData['cache_url_parent_id'];
+            } elseif ($affectedPages = $materialData['affectedPages']) {
+                usort($affectedPages, function ($a, $b) use ($pagesData) {
+                    $aPriority = $pagesData[$a['id']]['priority'];
+                    $bPriority = $pagesData[$b['id']]['priority'];
+                    return $aPriority - $bPriority;
+                });
+                $materialsData[$materialId]['new_cache_url_parent_id'] = $affectedPages[0]['id'];
+            } else {
+                $materialsData[$materialId]['new_cache_url_parent_id'] = 0;
+            }
+
+            if ($materialsData[$materialId]['new_cache_url_parent_id'] &&
+                $pagesData[$materialsData[$materialId]['new_cache_url_parent_id']]
+            ) {
+                $materialsData[$materialId]['new_cache_url'] = $pagesData[$materialsData[$materialId]['new_cache_url_parent_id']]['cache_url']
+                    . $materialsData[$materialId]['urn'] . '/';
+            } else {
+                $materialsData[$materialId]['new_cache_url'] = '';
+            }
+        }
+        $sqlArr = [];
+        foreach ($materialsData as $materialId => $materialData) {
+            if (/*true ||*/ // Для теста, убрать
+                ($materialData['new_cache_url_parent_id'] != $materialData['cache_url_parent_id']) ||
+                ($materialData['new_cache_url'] != $materialData['cache_url'])
+            ) {
+                $sqlArr[] = [
+                    'id' => $materialId,
+                    'cache_url_parent_id' => $materialData['new_cache_url_parent_id'],
+                    'cache_url' => $materialData['new_cache_url'],
+                ];
+            }
+        }
+        if ($sqlArr) {
+            // 2022-06-06, AVS: разделим по 1000 записей, чтобы база не падала
+            for ($i = 0; $i < ceil(count($sqlArr) / 1000); $i++) {
+                $sqlChunk = array_slice($sqlArr, $i * 1000, 1000);
+                static::_SQL()->add(static::_tablename(), $sqlChunk, [
+                    'cache_url_parent_id' => (object)'VALUES(cache_url_parent_id)',
+                    'cache_url' => (object)'VALUES(cache_url)',
+                ]);
+            }
+        }
     }
 
 
