@@ -9,6 +9,7 @@ use SOME\Namespaces;
 use SOME\Thumbnail;
 use RAAS\Application;
 use RAAS\IContext;
+use RAAS\Process;
 use RAAS\View_Web as RAASViewWeb;
 use RAAS\CMS\Page;
 use RAAS\CMS\Material;
@@ -164,6 +165,7 @@ class Controller_Frontend extends Abstract_Controller
             if ($this->checkCompatibility()) {
                 if ($this->checkDB()) {
                     if ($this->checkSOME()) {
+                        Process::checkIn();
                         $this->checkStdRedirects();
                         if ((int)$this->model->registryGet('clear_cache_by_time')) {
                             $this->model->clearCache(false);
