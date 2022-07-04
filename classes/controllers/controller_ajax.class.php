@@ -285,7 +285,7 @@ class Controller_Ajax extends Abstract_Controller
     public function debugPage()
     {
         header('Content-Type: text/javascript');
-        if (!$_SERVER['HTTP_REFERER']) {
+        if (!isset($_SERVER['HTTP_REFERER']) || !$_SERVER['HTTP_REFERER']) {
             exit;
         }
         $url = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH);
@@ -294,13 +294,14 @@ class Controller_Ajax extends Abstract_Controller
                 Controller_Frontend::i()->host;
         $page = Page::importByURL($host . $url);
         $page->initialURL = $url;
-        $material = Material::importByURN($page->additionalURLArray[0]);
+        $additionalURLArray = $page->additionalURLArray;
+        $material = Material::importByURN(isset($additionalURLArray[0]) ? $additionalURLArray[0] : null);
         if ($page->id) {
             echo "console.log('Страница ID# " . (int)$page->id . " " . $page->name . "');";
             echo "console.log('" . $host . addslashes($page->url) . "');";
             echo "console.log('" . $host . "/admin/?p=cms&id=" . (int)$page->id . "');";
         }
-        if ($material->id) {
+        if ($material && $material->id) {
             echo "console.log('Материал ID# " . (int)$material->id . " " . $material->name . "');";
             echo "console.log('" . $host . addslashes($material->url) . "');";
             echo "console.log('" . $host . "/admin/?p=cms&action=edit_material&id=" . (int)$material->id . "');";

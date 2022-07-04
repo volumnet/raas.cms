@@ -179,8 +179,8 @@ class Material extends SOME
                 // PHP5.6 выдает true - хз почему
                 $st = microtime(1);
                 $fields = $this->fields;
-                $field = $fields[$var];
-                if ($field->id && ($field instanceof Material_Field)) {
+                $field = isset($fields[$var]) ? $fields[$var] : null;
+                if (isset($field) && $field->id && ($field instanceof Material_Field)) {
                     $temp = $field->getValues();
                     if ($vis) {
                         $temp = array_values(
@@ -318,10 +318,12 @@ class Material extends SOME
      */
     public function deassoc(Page $page)
     {
-        if ($this->material_type->global_type) {
+        $materialType = $this->material_type;
+        $pagesIds = (array)$this->pages_ids;
+        if ($materialType->global_type) {
             return false;
         }
-        if (!in_array($page->id, (array)$this->pages_ids)) {
+        if ((count($pagesIds) < 2) || !in_array($page->id, $pagesIds)) {
             return false;
         }
         $sqlQuery = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename']
@@ -336,7 +338,7 @@ class Material extends SOME
         if (!$this->meta['dontUpdateAffectedPages']) {
             // 2019-04-25, AVS: обновим связанные страницы
             static::updateAffectedPages(null, $this);
-            Material_Type::updateAffectedPagesForSelf($this->material_type);
+            Material_Type::updateAffectedPagesForSelf($materialType);
         }
 
         return true;
@@ -475,7 +477,9 @@ class Material extends SOME
      */
     protected function _fields()
     {
-        if (!($temp = Material_Type::$fieldsCache[$this->pid])) {
+        if (!isset(Material_Type::$fieldsCache[$this->pid]) ||
+            !($temp = Material_Type::$fieldsCache[$this->pid])
+        ) {
             $temp = $this->material_type->fields;
         }
         $arr = [];

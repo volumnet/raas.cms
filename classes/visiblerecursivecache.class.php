@@ -186,7 +186,7 @@ abstract class VisibleRecursiveCache extends AbstractRecursiveCache
             foreach ($ch as $chId) {
                 if ($this->childrenIds[$chId]) {
                     $allGrandChildrenIdsByIds = array_map(function ($x) {
-                        return (array)$this->visAllChildrenIds[$x];
+                        return (array)(isset($this->visAllChildrenIds[$x]) ? $this->visAllChildrenIds[$x] : []);
                     }, $this->visChildrenIds[$chId]);
                     $allGrandChildrenIds = array_reduce(
                         $allGrandChildrenIdsByIds,
@@ -202,7 +202,7 @@ abstract class VisibleRecursiveCache extends AbstractRecursiveCache
                 }
             }
             $ch = array_map(function ($x) {
-                return $this->parentId[$x];
+                return isset($this->parentId[$x]) ? $this->parentId[$x] : null;
             }, $ch);
             $ch = array_filter($ch, function ($x) {
                 return $x !== null;

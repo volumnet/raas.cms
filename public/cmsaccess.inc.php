@@ -36,7 +36,7 @@ $_RAASForm_FormTab = function (FormTab $formTab) use (
     <div data-role="raas-cms-access">
       <table class="table table-striped table-condensed" data-role="raas-repo-block">
         <tbody data-role="raas-repo-container">
-          <?php foreach ((array)$DATA['access_id'] as $i => $temp) { ?>
+          <?php foreach ((array)(isset($DATA['access_id']) ? $DATA['access_id'] : []) as $i => $temp) { ?>
               <tr data-role="raas-repo-element">
                 <td>
                   <input type="hidden" name="access_id[]" value="<?php echo (int)$DATA['access_id'][$i]?>" />

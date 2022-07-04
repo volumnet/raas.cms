@@ -14,9 +14,9 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (&$_RAASForm_Control)
 {
     $DATA = $fieldSet->Form->DATA;
     $err = (bool)array_filter(
-        (array)$field->Form->localError,
-        function ($x) use ($field) {
-            return $x['value'] == $field->name;
+        (array)(isset($field->Form->localError) ? $field->Form->localError : []),
+        function ($x) use ($fieldSet) {
+            return $x['value'] == $fieldSet->name;
         }
     );
     ?>
@@ -31,7 +31,7 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (&$_RAASForm_Control)
       <div class="controls">
         <table data-role="raas-repo-block">
           <tbody data-role="raas-repo-container">
-            <?php foreach ((array)$DATA['params_name'] as $i => $temp) { ?>
+            <?php foreach ((array)(isset($DATA['params_name']) ? $DATA['params_name'] : []) as $i => $temp) { ?>
                 <tr data-role="raas-repo-element">
                   <td>
                     <input type="text" name="params_name[]" value="<?php echo htmlspecialchars($DATA['params_name'][$i])?>" class="span2" />

@@ -74,9 +74,16 @@ class MaterialsTable extends Table
             'caption' => $this->view->_('NAME'),
             'sortable' => Column::SORTABLE_REVERSABLE,
             'callback' => function ($row) use ($view, $params, $pidText) {
-                return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>'
-                     .    htmlspecialchars($row->name)
-                     . '</a>';
+                $text = '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>'
+                      .    htmlspecialchars($row->name)
+                      . '</a>';
+                if (!$params['mtype']->global_type) {
+                    $pagesCounter = (int)$row->pages_counter;
+                    if ($pagesCounter != 1) {
+                        $text .= '<sup title="' . $this->view->_('ASSOCIATED_WITH_PAGES_COUNTER') . '">(' . $pagesCounter . ')</sup>';
+                    }
+                }
+                return $text;
             }
         ];
         $columns['post_date'] = [
@@ -171,7 +178,7 @@ class MaterialsTable extends Table
                         $params['mtype']
                     ),
                     'allValue' => 'all&mtype='
-                               .  (int)$params['mtype']->id
+                               .  (isset($params['mtype']) ? (int)$params['mtype']->id : 0)
                                .  $pidText,
                 ],
                 'data-role' => 'multitable',

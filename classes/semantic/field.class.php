@@ -277,7 +277,11 @@ class Field extends CustomField
             case 'image':
             case 'file':
                 $this->prefetchIfNotExists();
-                $value = static::$cache[$this->Owner->id][$this->id][$index];
+                if (isset(static::$cache[$this->Owner->id][$this->id][$index])) {
+                    $value = static::$cache[$this->Owner->id][$this->id][$index];
+                } else {
+                    $value = null;
+                }
                 $y = (array)json_decode($value, true);
                 $att = new Attachment(
                     (int)(isset($y['attachment']) ? $y['attachment'] : 0)
@@ -318,7 +322,10 @@ class Field extends CustomField
             case 'image':
             case 'file':
                 $this->prefetchIfNotExists();
-                $values = (array)static::$cache[$this->Owner->id][$this->id];
+                $values = [];
+                if (isset(static::$cache[$this->Owner->id][$this->id])) {
+                    $values = (array)static::$cache[$this->Owner->id][$this->id];
+                }
                 $values = array_map(function ($x) {
                     $y = (array)json_decode($x, true);
                     $att = new Attachment(

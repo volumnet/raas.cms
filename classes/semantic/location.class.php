@@ -121,7 +121,10 @@ class Location
     ) {
         $this->parent = $template;
         $this->urn = $urn;
-        $temp = (array)json_decode($this->parent->locations_info, true);
+        $temp = [];
+        if ($this->parent) {
+            $temp = (array)json_decode($this->parent->locations_info, true);
+        }
         $locs = [];
         foreach ($temp as $row) {
             $locs[$row['urn']] = $row;
@@ -140,7 +143,12 @@ class Location
         }
         $this->width = max($this->width, self::min_width);
         $this->height = max($this->height, self::min_height);
-        $this->x = max(0, min($this->parent->width - $this->width, $this->x));
-        $this->y = max(0, min($this->parent->height - $this->height, $this->y));
+        $parentWidth = $parentHeight = 0;
+        if ($parent = $this->parent) {
+            $parentWidth = $parent->width;
+            $parentHeight = $parent->height;
+        }
+        $this->x = max(0, min($parentWidth - $this->width, $this->x));
+        $this->y = max(0, min($parentHeight - $this->height, $this->y));
     }
 }

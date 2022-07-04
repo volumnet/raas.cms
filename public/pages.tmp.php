@@ -34,7 +34,8 @@ function displayLocation(Location $location, Page $page)
     }
     $text .=  ' <h6>' . htmlspecialchars($location->urn) . '</h6>
                 <input type="hidden" value="' . $location->urn . '" />';
-    if ($page->blocksByLocations[$location->urn]) {
+    $blocksByLocations = $page->blocksByLocations;
+    if (isset($blocksByLocations[$location->urn]) && $blocksByLocations[$location->urn]) {
         for ($i = 0; $i < count($page->blocksByLocations[$location->urn]); $i++) {
             $row = $page->blocksByLocations[$location->urn][$i];
             $text .= Block_Type::getType($row->block_type)->viewer->renderBlock(
@@ -80,7 +81,8 @@ function displayLocation(Location $location, Page $page)
                     <?php } ?>
                   </div>
               <?php }
-              if ($Item->blocksByLocations[''] || !$Item->Template->locations) { ?>
+              $blocksByLocations = $Item->blocksByLocations;
+              if ((isset($blocksByLocations['']) && $blocksByLocations['']) || !$Item->Template->locations) { ?>
                   <div class="cms-location" style="position: relative; width: <?php echo $Item->Template->width?>px" id="location-">
                     <?php echo displayLocation(new Location(), $Item)?>
                   </div>

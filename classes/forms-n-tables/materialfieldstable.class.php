@@ -174,7 +174,7 @@ class MaterialFieldsTable extends FieldsTable
                 }
             },
             'Set' => $params['Set'],
-            'Pages' => $params['Pages'],
+            'Pages' => isset($params['Pages']) ? $params['Pages'] : null,
         ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);

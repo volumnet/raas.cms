@@ -80,11 +80,9 @@ class SubsectionsTable extends \RAAS\Table
             $columns['urn'] = [
                 'caption' => $this->view->_('URN'),
                 'callback' => function ($row) use ($view) {
-                    $name = preg_replace(
-                        '/^http(s)?:\\/\\//umi',
-                        '',
-                        array_shift(explode(' ', $row->urn))
-                    );
+                    $urnArr = explode(' ', $row->urn);
+                    $firstURN = array_shift($urnArr);
+                    $name = preg_replace('/^http(s)?:\\/\\//umi', '', $firstURN);
                     return '<a href="' . $view->url . '&id=' . (int)$row->id . '" class="' . (!$row->vis ? 'muted' : ($row->response_code ? ' text-error' : '')) . ($row->pvis ? '' : ' cms-inpvis') . '">'
                          .    htmlspecialchars($name)
                          . '</a>';
@@ -167,12 +165,10 @@ class SubsectionsTable extends \RAAS\Table
                 'caption' => $this->view->_('DOMAIN'),
                 'sortable' => Column::SORTABLE_REVERSABLE,
                 'callback' => function ($row) use ($view) {
-                    $name = preg_replace(
-                        '/^http(s)?:\\/\\//umi',
-                        '',
-                        array_shift(explode(' ', $row->urn))
-                    );
-                    return '<a href="http' . ($_SERVER['HTTPS'] == 'on' ? 's' : '') . '://' . htmlspecialchars(preg_replace('/^http(s)?:\\/\\//umi', '', array_shift(explode(' ', $row->urn)))) . '"' . (!$row->vis ? ' class="muted"' : '') . '>'
+                    $domains = explode(' ', $row->urn);
+                    $firstDomain = array_shift($domains);
+                    $name = preg_replace('/^http(s)?:\\/\\//umi', '', $firstDomain);
+                    return '<a href="http' . (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . htmlspecialchars(preg_replace('/^http(s)?:\\/\\//umi', '', $firstDomain)) . '"' . (!$row->vis ? ' class="muted"' : '') . '>'
                          .    htmlspecialchars($name)
                          . '</a>';
                 }

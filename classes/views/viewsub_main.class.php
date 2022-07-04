@@ -520,6 +520,8 @@ class ViewSub_Main extends RAASAbstractSubView
     {
         $arr = [];
         if ($item->id) {
+            $mType = $item->material_type;
+            $globalType = (bool)$mType->global_type;
             $urlParent = $item->urlParent;
             if ($urlParent->id) {
                 $arr[] = [
@@ -582,14 +584,11 @@ class ViewSub_Main extends RAASAbstractSubView
                     'icon' => 'random'
                 ];
             }
-            if (!$edit &&
-                ($this->action != 'move_material') &&
-                !$item->material_type->global_type
-            ) {
+            if (!$edit && ($this->action != 'move_material') && !$globalType) {
                 $arr[] = [
                     'href' => $this->url . '&action=move_material&id='
                            .  (int)$item->id
-                           . '&mtype=' . (int)$item->material_type->id
+                           . '&mtype=' . (int)$mType->id
                            . $pidText,
                     'name' => $this->_('PLACE_ON_PAGE'),
                     'icon' => 'share-alt'
@@ -597,18 +596,28 @@ class ViewSub_Main extends RAASAbstractSubView
                 $arr[] = [
                     'href' => $this->url . '&action=move_material&id='
                            .  (int)$item->id
-                           . '&mtype=' . (int)$item->material_type->id
+                           . '&mtype=' . (int)$mType->id
                            . $pidText . '&move=1',
                     'name' => $this->_('MOVE_TO_PAGE'),
                     'icon' => 'share-alt'
                 ];
+                $pagesCounter = (int)$item->pages_counter ?: count($item->pages);
+                if ($pagesCounter > 1) {
+                    $arr[] = [
+                        'href' => $this->url . '&action=deassoc_material&id='
+                               .  (int)$item->id
+                               . '&mtype=' . (int)$mType->id . $pidText,
+                        'name' => $this->_('DEASSOCIATE_MATERIAL'),
+                        'icon' => 'times-circle',
+                        'onclick' => 'return confirm(\'' .  $this->_('DEASSOCIATE_MATERIAL_TEXT') . '\')'
+                    ];
+                }
             }
             if ($urlParent->cache &&
                 Package::i()->registryGet('clear_cache_manually')
             ) {
                 $arr[] = [
-                    'href' => $this->url . '&action=clear_material_cache&id=' . (int)$item->id
-                           .  ($showlist ? '&back=1' : ''),
+                    'href' => $this->url . '&action=clear_material_cache&id=' . (int)$item->id,
                     'name' => $this->_('CLEAR_CACHE'),
                     'icon' => 'refresh',
                 ];
@@ -681,6 +690,13 @@ class ViewSub_Main extends RAASAbstractSubView
                 'name' => $this->_('MOVE_TO_PAGE'),
                 'icon' => 'share-alt'
             ];
+            $arr[] = [
+                'href' => $this->url . '&action=deassoc_material&pid=' . $this->id
+                    . '&mtype=' . (int)$materialType->id,
+                'name' => $this->_('DEASSOCIATE_MATERIALS'),
+                'icon' => 'times-circle',
+                'onclick' => 'return confirm(\'' .  $this->_('DEASSOCIATE_MATERIALS_TEXT') . '\')'
+            ];
         }
 
         $arr[] = [
@@ -743,8 +759,7 @@ class ViewSub_Main extends RAASAbstractSubView
             $edit = ($this->action == 'edit_block');
             if ($block->cache_type) {
                 $cacheItem = [
-                    'href' => $this->url . '&action=clear_block_cache&id=' . (int)$block->id
-                           .  ($showlist ? '&back=1' : ''),
+                    'href' => $this->url . '&action=clear_block_cache&id=' . (int)$block->id,
                     'name' => $this->_('CLEAR_CACHE'),
                     'icon' => 'refresh',
                 ];

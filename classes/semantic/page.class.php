@@ -319,8 +319,9 @@ class Page extends SOME
                 return $urlArray;
             case 'blocksByLocations':
                 $blocks = [];
+                $locations = $this->Template->locations;
                 foreach ($this->blocksOrdered as $row) {
-                    if ($this->Template->locations[$row->location]) {
+                    if (isset($locations[$row->location])) {
                         $blocks[$row->location][] = $row;
                     } else {
                         $blocks[''][] = $row;
@@ -359,7 +360,7 @@ class Page extends SOME
                     return $this->Material->cacheFile;
                 }
                 $url = 'http'
-                     . (mb_strtolower($_SERVER['HTTPS'] == 'on') ? 's' : '')
+                     . ((isset($_SERVER['HTTPS']) && mb_strtolower($_SERVER['HTTPS'] == 'on')) ? 's' : '')
                      . ':' . $this->fullURL;
                 $file = Package::i()->cacheDir . '/' . Package::i()->cachePrefix
                     . '.' . urlencode($url) . '.php';
@@ -374,24 +375,27 @@ class Page extends SOME
                         $var = strtolower(substr($var, 3));
                         $vis = true;
                     }
-                    if ($this->fields[$var] &&
-                        ($this->fields[$var] instanceof Page_Field)
-                    ) {
-                        $temp = $this->fields[$var]->getValues();
-                        if ($vis) {
-                            $temp = array_values(
-                                array_filter(
-                                    $temp,
-                                    function ($x) {
-                                        return $x->vis;
-                                    }
-                                )
-                            );
+                    $fields = $this->fields;
+                    if (isset($fields[$var])) {
+                        if ($fields[$var] &&
+                            ($fields[$var] instanceof Page_Field)
+                        ) {
+                            $temp = $fields[$var]->getValues();
+                            if ($vis) {
+                                $temp = array_values(
+                                    array_filter(
+                                        $temp,
+                                        function ($x) {
+                                            return $x->vis;
+                                        }
+                                    )
+                                );
+                            }
+                            return $temp;
                         }
-                        return $temp;
                     } else {
                         // 2015-03-02 AVS: из-за утечки памяти при ненулевом ->pid
-                        unset($this->fields);
+                        unset($fields);
                     }
                 }
                 break;
@@ -901,7 +905,8 @@ class Page extends SOME
         if (!$domainData) {
             return new static();
         }
-        $domainId = array_shift(array_keys($domainData));
+        $domainArr = array_keys($domainData);
+        $domainId = array_shift($domainArr);
         $domainPagesIds = array_merge(
             [$domainId],
             $pageCache->getAllChildrenIds($domainId)

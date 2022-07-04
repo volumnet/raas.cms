@@ -182,7 +182,7 @@ class EditTemplateForm extends RAASForm
                 'attachmentVar' => 'Background',
                 'deleteAttachmentPath' => $this->view->url
                                        .  '&action=delete_template_image&id='
-                                       . (int)$item->id
+                                       . (int)($this->Item ? $this->Item->id : null)
             ]
         ]);
         return $field;

@@ -821,7 +821,9 @@ class FormInterface extends AbstractInterface
         $message = $processEmbedded['message'];
         $embedded = (array)$processEmbedded['embedded'];
 
-        $message = CssInliner::fromHtml($message)->inlineCss()->render();
+        if (class_exists('Pelago\Emogrifier\CssInliner')) {
+            $message = CssInliner::fromHtml($message)->inlineCss()->render();
+        }
 
         if ($emails = $addresses['emails']) {
             if ($debug) {

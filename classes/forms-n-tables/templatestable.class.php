@@ -48,8 +48,8 @@ class TemplatesTable extends Table
                 ],
                 'urn' => [
                     'caption' => $this->view->_('URN'),
-                    'callback' => function ($row) use ($view, $Item) {
-                        return '<a href="' . $view->url . '&action=edit_template&id=' . (int)$row->id . '">' .
+                    'callback' => function ($row) {
+                        return '<a href="' . $this->view->url . '&action=edit_template&id=' . (int)$row->id . '">' .
                                   htmlspecialchars($row->urn) .
                                '</a>';
                     }
@@ -60,7 +60,6 @@ class TemplatesTable extends Table
                         $i
                     ) use (
                         $view,
-                        $contextMenuName,
                         $params
                     ) {
                         return rowContextMenu($view->getTemplateContextMenu(

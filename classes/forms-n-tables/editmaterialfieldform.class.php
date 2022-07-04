@@ -109,9 +109,9 @@ class EditMaterialFieldForm extends EditFieldForm
         foreach ($materialTypesIds as $materialTypeId) {
             $materialTypeData = $materialTypeCache->cache[$materialTypeId];
             $materialTypesData[] = [
-                'value' => (int)$materialTypeData['id'],
-                'caption' => $materialTypeData['name'],
-                'data-group' => $materialTypeData['template'],
+                'value' => isset($materialTypeData['id']) ? (int)$materialTypeData['id'] : 0,
+                'caption' => isset($materialTypeData['name']) ? $materialTypeData['name'] : null,
+                'data-group' => isset($materialTypeData['template']) ? $materialTypeData['template'] : null,
             ];
         }
         foreach ($materialTypesData as $materialTypeData) {

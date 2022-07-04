@@ -56,7 +56,7 @@ class EditBlockForm extends RAASForm
                          '.',
                          str_replace('RAAS\\CMS\\', '', $Item->block_type)
                      ) . '&loc=' . $loc,
-            'export' => function ($Form) use ($t) {
+            'export' => function ($Form) {
                 $Form->exportDefault();
                 $Form->Item->editor_id = Application::i()->user->id;
                 if (!$Form->Item->id) {
@@ -344,11 +344,12 @@ class EditBlockForm extends RAASForm
      */
     protected function getPagesTab()
     {
+        $item = $this->Form->Item;
         $tab = new FormTab([
             'name' => 'pages',
             'caption' => $this->view->_('PAGES')
         ]);
-        $loc = $Item->location ?: (isset($_GET['loc']) ? $_GET['loc'] : '');
+        $loc = $item->location ?: (isset($_GET['loc']) ? $_GET['loc'] : '');
         $tab->children[] = new RAASField([
             'type' => 'checkbox',
             'name' => 'inherit',
@@ -360,14 +361,14 @@ class EditBlockForm extends RAASForm
             'caption' => $this->view->_('LOCATION'),
             'default' => $loc,
             'placeholder' => '--',
-            'children' => $this->meta['CONTENT']['locations']
+            'children' => isset($this->meta['CONTENT']['locations']) ? $this->meta['CONTENT']['locations'] : []
         ]);
         $tab->children[] = new RAASField([
             'type' => 'checkbox',
             'name' => 'cats',
             'caption' => $this->view->_('PAGES'),
             'multiple' => 'multiple',
-            'children' => $this->meta['CONTENT']['cats'],
+            'children' => isset($this->meta['CONTENT']['cats']) ? $this->meta['CONTENT']['cats'] : [],
             'check' => function ($Field) {
                 if (!isset($_POST['cats']) || !$_POST['cats']) {
                     return [

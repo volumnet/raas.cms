@@ -1606,6 +1606,7 @@ class ViewSub_Dev extends RAASAbstractSubView
      */
     public function getSnippetFolderContextMenu(Snippet_Folder $snippetFolder)
     {
+        $arr = [];
         if (!$snippetFolder->locked) {
             $arr = $this->stdView->stdContextMenu(
                 $snippetFolder,

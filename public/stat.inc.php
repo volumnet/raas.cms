@@ -21,6 +21,7 @@ $_RAASForm_Control = function (
     &$_RAASForm_Checkbox
 ) {
     $Item = $field->Form->Item;
+    $dateN = $userN = '';
     if ($field->name == 'post_date') {
         $dateN = 'post_date';
         $userN = 'author';
@@ -34,7 +35,7 @@ $_RAASForm_Control = function (
     if ($t > 0) {
         echo date(DATETIMEFORMAT, $t) . ($userN ? ', ' : '');
     }
-    if ($Item->$userN->id) {
+    if ($Item->$userN && $Item->$userN->id) {
         $fullName = $Item->$userN->full_name ?: $Item->$userN->login;
         if ($Item->$userN->email) { ?>
             <a href="mailto:<?php echo htmlspecialchars($Item->$userN->email)?>">

@@ -355,12 +355,12 @@ class Package extends RAASPackage
      * @param string $sort Поле для сортировки
      * @param 'asc'|'desc' $order Порядок сортировки
      * @param int $pageNum Номер страницы в постраничной разбивке
-     * @return [
-     *             'Set' => array<Material> набор материалов,
-     *             'Pages' => Pages Постраничная разбивка,
-     *             'sort' => string Поля для сортировки,
-     *             'order' => 'asc'|'desc' Порядок сортировки,
-     *         ]
+     * @return array <pre><code>[
+     *     'Set' => Material[] набор материалов,
+     *     'Pages' => Pages Постраничная разбивка,
+     *     'sort' => string Поля для сортировки,
+     *     'order' => 'asc'|'desc' Порядок сортировки,
+     * ]</code></pre>
      */
     public function getPageMaterials(
         Page $page,
@@ -377,8 +377,16 @@ class Package extends RAASPackage
             }
         );
 
-        $sqlQuery = "SELECT SQL_CALC_FOUND_ROWS tM.*
-                        FROM " . Material::_tablename() . " AS tM ";
+        $sqlQuery = "SELECT SQL_CALC_FOUND_ROWS tM.* ";
+        if (!$mType->global_type) {
+            $sqlQuery .= ", (
+                                SELECT COUNT(tMPA2.pid)
+                                  FROM " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA2
+                                 WHERE id = tM.id
+                            ) AS pages_counter";
+        }
+
+        $sqlQuery .= " FROM " . Material::_tablename() . " AS tM ";
         // 2016-01-14, AVS: добавил поиск по данным
         if ($searchString) {
             $sqlQuery .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::data_table

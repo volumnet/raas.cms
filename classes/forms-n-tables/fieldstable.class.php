@@ -28,8 +28,8 @@ class FieldsTable extends Table
     public function __construct(array $params = [])
     {
         $view = $this->view;
-        $editAction = $params['editAction'];
-        $ctxMenu = $params['ctxMenu'];
+        $editAction = isset($params['editAction']) ? $params['editAction'] : null;
+        $ctxMenu = isset($params['ctxMenu']) ? $params['ctxMenu'] : null;
         $allCtxMenu = str_replace('get', 'getAll', $ctxMenu);
         $allCtxMenu = str_replace('ContextMenu', 'sContextMenu', $allCtxMenu);
         $shift = isset($params['shift']) ? (int)$params['shift'] : 0;

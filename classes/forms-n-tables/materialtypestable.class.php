@@ -72,7 +72,7 @@ class MaterialTypesTable extends Table
         ];
         $defaultParams = [
             'emptyString' => $this->view->_('NO_MATERIAL_TYPES_FOUND'),
-            'Set' => $f($params['Item'] ?: new Material_Type()),
+            'Set' => $f(isset($params['Item']) && $params['Item'] ? $params['Item'] : new Material_Type()),
         ];
         $arr = array_merge($defaultParams, $params);
         $arr['columns'] = $columns;

@@ -347,7 +347,7 @@ class Material_Type extends SOME
      */
     protected function _selfFields()
     {
-        if (!static::$selfFieldsCache[$this->id]) {
+        if (!isset(static::$selfFieldsCache[$this->id]) || !static::$selfFieldsCache[$this->id]) {
             $sqlQuery = "SELECT *
                            FROM " . Material_Field::_tablename()
                       . " WHERE classname = ?
@@ -419,7 +419,9 @@ class Material_Type extends SOME
      */
     protected function _selfFieldGroups()
     {
-        if (!static::$selfFieldGroupsCache[$this->id]) {
+        if (!isset(static::$selfFieldGroupsCache[$this->id]) ||
+            !static::$selfFieldGroupsCache[$this->id]
+        ) {
             $sqlQuery = "SELECT *
                            FROM " . MaterialFieldGroup::_tablename()
                       . " WHERE classname = ?
@@ -453,7 +455,9 @@ class Material_Type extends SOME
      */
     protected function _fieldGroups()
     {
-        if (!static::$fieldGroupsCache[$this->id]) {
+        if (!isset(static::$fieldGroupsCache[$this->id]) ||
+            !static::$fieldGroupsCache[$this->id]
+        ) {
             $arr1 = [];
             if ($this->parent->id) {
                 $arr1 = (array)$this->parent->fieldGroups;
@@ -497,7 +501,9 @@ class Material_Type extends SOME
      */
     protected function _fields()
     {
-        if (!static::$fieldsCache[$this->id]) {
+        if (!isset(static::$fieldsCache[$this->id]) ||
+            !static::$fieldsCache[$this->id]
+          ) {
             $arr1 = [];
             if ($this->parent->id) {
                 $arr1 = (array)$this->parent->fields;

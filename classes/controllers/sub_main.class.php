@@ -38,6 +38,9 @@ class Sub_Main extends RAASAbstractSubController
             case 'chtype_material':
                 $this->{$this->action}();
                 break;
+            case 'deassoc_material':
+                $this->deassocMaterial();
+                break;
             case 'chvis':
             case 'delete':
             case 'vis':
@@ -554,11 +557,14 @@ class Sub_Main extends RAASAbstractSubController
             if (isset($_GET['new_pid'])) {
                 $Parent = new Page((int)$_GET['new_pid']);
                 foreach ($items as $row) {
+                    $row->dontUpdateAffectedPages = true;
                     if ($_GET['move']) {
                         $row->deassoc($oldPage);
                     }
                     $row->assoc($Parent);
                 }
+                Material::updateAffectedPages();
+                Material_Type::updateAffectedPagesForSelf($mtype);
                 new Redirector(
                     $this->url . '&id=' . (int)$Parent->id . '#_' . $mtype->urn
                 );
@@ -573,6 +579,70 @@ class Sub_Main extends RAASAbstractSubController
             }
         }
         new Redirector('history:back#_' . $mtype->urn);
+    }
+
+
+    /**
+     * Удаление материала из раздела
+     */
+    protected function deassocMaterial()
+    {
+        $st = microtime(1);
+        $items = [];
+        $ids = (array)$_GET['id'];
+        $pids = (array)$_GET['pid'];
+        $pids = array_filter($pids, 'trim');
+        $mtype = new Material_Type((int)$_GET['mtype']);
+        if ($mtype->global_type) {
+            new Redirector('history:back#_' . $mtype->urn);
+        }
+
+        if (in_array('all', $ids, true)) {
+            $mtypes = (array)$mtype->selfAndChildrenIds;
+            $where = ["Material.pid IN (" . implode(", ", $mtypes) . ")"];
+            if (in_array('all', $pids, true)) {
+            } elseif ($pids) {
+                $pids = array_map('intval', $pids);
+                $where[] = "pages___LINK.pid IN (" . implode(", ", $pids) . ")";
+            } else {
+                $where[] = "pages___LINK.pid IN (0)";
+            }
+            $where[] = "(
+                            SELECT COUNT(tMPA2.pid)
+                              FROM " . Material::_dbprefix() . "cms_materials_pages_assoc AS tMPA2
+                             WHERE id = Material.id
+                        ) > 1";
+            $items = Material::getSet(['where' => $where, 'orderBy' => "id"]);
+        } else {
+            $items = array_map(function ($x) {
+                return new Material((int)$x);
+            }, $ids);
+        }
+        $items = array_values($items);
+        $Item = isset($items[0]) ? $items[0] : new Material();
+        $mtype = $Item->material_type;
+        $Parent = new Page((int)$_GET['pid']);
+        if ($items) {
+            if (count($items) > 1) {
+                $itemsIds = array_map(function ($x) {
+                    return $x->id;
+                }, $items);
+                $sqlQuery = "DELETE FROM " . Material::_dbprefix() . "cms_materials_pages_assoc
+                              WHERE id IN (" . implode(", ", $itemsIds) . ")
+                                AND pid = " . (int)$Parent->id;
+                Material::_SQL()->query($sqlQuery);
+            } else {
+                foreach ($items as $row) {
+                    $row->dontUpdateAffectedPages = true;
+                    $row->deassoc($Parent);
+                }
+            }
+            Material::updateAffectedPages();
+            Material_Type::updateAffectedPagesForSelf($mtype);
+        }
+        new Redirector(
+            $this->url . '&id=' . (int)$Parent->id . '#_' . $mtype->urn
+        );
     }
 
 

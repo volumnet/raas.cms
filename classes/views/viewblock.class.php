@@ -51,7 +51,7 @@ abstract class ViewBlock
     ) {
         // Заменил $this->view на Package::i()->view, т.к. блоки создаются
         // из основного пакета
-        $text .= '<div class="well well-small cms-block ' . static::blockListItemClass . '" id="block-' . (int)$block->id . '" title="' . ($block->title) . '">
+        $text = ' <div class="well well-small cms-block ' . static::blockListItemClass . '" id="block-' . (int)$block->id . '" title="' . ($block->title) . '">
                     <a class="cms-block-name" href="' . Package::i()->view->url . '&action=edit_block&id=' . (int)$block->id . '&pid=' . (int)$page->id . '">
                       <span' . (!$block->vis ? ' class="muted"' : '') . '>'
               .         $block->title
@@ -68,7 +68,7 @@ abstract class ViewBlock
                     'text' => '<i class="icon-' . $x['icon'] . '"></i>&nbsp;'
                            .  $x['name'],
                     'href' => $x['href'],
-                    'onclick' => $x['onclick']
+                    'onclick' => isset($x['onclick']) ? $x['onclick'] : null,
                 ];
             };
             $temp = array_map($f, $temp);

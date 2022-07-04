@@ -70,7 +70,7 @@ class Auth
      */
     public function getSession()
     {
-        $this->user = new User((int)$_SESSION[self::SESSION_VAR]);
+        $this->user = new User(isset($_SESSION[self::SESSION_VAR]) ? (int)$_SESSION[self::SESSION_VAR] : null);
     }
 
 
@@ -88,7 +88,7 @@ class Auth
      */
     public function getCookie()
     {
-        $user = User::importByLoginKey($_COOKIE[self::COOKIE_VAR]);
+        $user = User::importByLoginKey(isset($_COOKIE[self::COOKIE_VAR]) ? $_COOKIE[self::COOKIE_VAR] : null);
         if ($user) {
             $this->user = $user;
         }

@@ -102,10 +102,11 @@ class User extends SOME
                         $var = strtolower(substr($var, 3));
                         $vis = true;
                     }
-                    if ($this->fields[$var] &&
-                        ($this->fields[$var] instanceof User_Field)
+                    $fields = $this->fields;
+                    if (isset($fields[$var]) &&
+                        ($fields[$var] instanceof User_Field)
                     ) {
-                        $temp = $this->fields[$var]->getValues();
+                        $temp = $fields[$var]->getValues();
                         if ($vis) {
                             $temp = array_values(
                                 array_filter(
@@ -124,8 +125,8 @@ class User extends SOME
                             'first_name',
                             'second_name'
                         ] as $key) {
-                            if ($this->fields[$key]) {
-                                $temp[] = $this->fields[$key]->doRich();
+                            if (isset($fields[$key])) {
+                                $temp[] = $fields[$key]->doRich();
                             }
                         }
                         $temp = array_values(array_filter($temp));
