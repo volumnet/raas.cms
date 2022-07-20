@@ -563,15 +563,25 @@ class Material_Type extends SOME
             }
         }
 
+        $sqlQuery = "START TRANSACTION";
+        static::_SQL()->query($sqlQuery);
+
         $sqlQuery = "DELETE FROM " . static::$dbprefix . "cms_material_types_affected_pages_for_materials_cache";
         if ($materialTypeId) {
             $sqlQuery .= " WHERE material_type_id IN (" . implode(", ", $materialTypesIds) . ")";
         }
         static::_SQL()->query($sqlQuery);
-        static::_SQL()->add(
-            static::$dbprefix . 'cms_material_types_affected_pages_for_materials_cache',
-            $sqlArr
-        );
+        // 2022-07-04, AVS: разделим по 1000 записей, чтобы база не падала
+        for ($i = 0; $i < ceil(count($sqlArr) / 1000); $i++) {
+            $sqlChunk = array_slice($sqlArr, $i * 1000, 1000);
+            static::_SQL()->add(
+                static::$dbprefix . 'cms_material_types_affected_pages_for_materials_cache',
+                $sqlChunk
+            );
+        }
+
+        $sqlQuery = "COMMIT";
+        static::_SQL()->query($sqlQuery);
 
         // 2021-07-07, AVS: очистим память
         unset($sqlArr);

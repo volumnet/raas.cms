@@ -592,7 +592,8 @@ abstract class Block extends SOME
         if ($this->cache_type != static::CACHE_NONE) {
             $filename = $this->getCacheFile($url);
             if (is_file($filename)) {
-                $out = include $filename;
+                // 2022-07-08, AVS: добавил @, чтобы при вызове ошибочного файла не выводил ошибку
+                $out = @include $filename;
             }
         }
         return $out;

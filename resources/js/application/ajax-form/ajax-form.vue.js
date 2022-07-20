@@ -128,7 +128,10 @@ export default {
             $(this.$el).trigger('raas.ajaxform.response', data);
             $(this.$el).trigger('RAAS.AJAXForm.response', data);
             this.$emit('response', data);
-            if (data.success) {
+            let redirectUrl = (data.redirectUrl || data.redirectURL);
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+            } else if (data.success) {
                 this.success = true;
                 $(this.$el).trigger('RAAS.AJAXForm.success', data);
                 $(this.$el).trigger('raas.ajaxform.success', data);

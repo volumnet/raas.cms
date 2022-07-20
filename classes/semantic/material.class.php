@@ -544,25 +544,6 @@ class Material extends SOME
         if ($materialTypeId = $materialType->id) {
             $materialTypesIds = $materialType->selfAndChildrenIds;
         }
-        $sqlQuery = "DELETE ";
-        if (!$materialId && $materialTypeId) {
-            $sqlQuery .= " tMAP ";
-        }
-        $sqlQuery .= " FROM " . static::$dbprefix . "cms_materials_affected_pages_cache ";
-        if (!$materialId && $materialTypeId) {
-            $sqlQuery .= " AS tMAP
-                    LEFT JOIN " . static::_tablename() . " AS tM ON tM.id = tMAP.material_id ";
-        }
-        $sqlQuery .= " WHERE 1 ";
-        if ($materialId) {
-            $sqlQuery .= " AND material_id = " . (int)$materialId;
-        } elseif ($materialTypeId) {
-            $sqlQuery .= " AND (
-                                (tM.pid IN (" . implode(", ", $materialTypesIds) . "))
-                             OR (tM.pid IS NULL)
-                           )";
-        }
-        static::_SQL()->query($sqlQuery);
 
         // Выберем привязку типов материалов к страницам (фильтрация по NAT)
         $materialTypesToPagesAssoc = [];
@@ -635,6 +616,30 @@ class Material extends SOME
         // 2021-07-07, AVS: очистим память
         unset($realMaterialsToPagesAssoc);
 
+        $sqlQuery = "START TRANSACTION";
+        static::_SQL()->query($sqlQuery);
+
+        // 2022-07-05, AVS: Очистим предыдущие данные - перенесли сюда чтобы упаковать в транзакцию
+        $sqlQuery = "DELETE ";
+        if (!$materialId && $materialTypeId) {
+            $sqlQuery .= " tMAP ";
+        }
+        $sqlQuery .= " FROM " . static::$dbprefix . "cms_materials_affected_pages_cache ";
+        if (!$materialId && $materialTypeId) {
+            $sqlQuery .= " AS tMAP
+                    LEFT JOIN " . static::_tablename() . " AS tM ON tM.id = tMAP.material_id ";
+        }
+        $sqlQuery .= " WHERE 1 ";
+        if ($materialId) {
+            $sqlQuery .= " AND material_id = " . (int)$materialId;
+        } elseif ($materialTypeId) {
+            $sqlQuery .= " AND (
+                                (tM.pid IN (" . implode(", ", $materialTypesIds) . "))
+                             OR (tM.pid IS NULL)
+                           )";
+        }
+        static::_SQL()->query($sqlQuery);
+
         if ($sqlArr) {
             // 2021-07-07, AVS: разделим по 1000 записей, чтобы база не падала
             for ($i = 0; $i < ceil(count($sqlArr) / 1000); $i++) {
@@ -645,6 +650,9 @@ class Material extends SOME
                 );
             }
         }
+
+        $sqlQuery = "COMMIT";
+        static::_SQL()->query($sqlQuery);
 
         // 2021-07-07, AVS: очистим память
         unset($sqlArr);

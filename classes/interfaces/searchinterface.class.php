@@ -6,6 +6,7 @@ namespace RAAS\CMS;
 
 use SOME\Pages;
 use SOME\SOME;
+use RAAS\Controller_Frontend as RAASControllerFrontend;
 
 /**
  * Класс интерфейса поиска
@@ -373,24 +374,74 @@ class SearchInterface extends AbstractInterface
         Pages $pages = null,
         $searchLimit = 100
     ) {
+        $user = RAASControllerFrontend::i()->user;
         $resultIds = array_slice(array_keys($ratios), 0, $searchLimit);
+        $materialsIds = array_map(
+            function ($x) {
+                return mb_substr($x, 1);
+            },
+            array_filter($resultIds, function ($x) {
+                return $x[0] == 'm';
+            })
+        );
+        $pagesIds = array_map(
+            function ($x) {
+                return mb_substr($x, 1);
+            },
+            array_filter($resultIds, function ($x) {
+                return $x[0] == 'p';
+            })
+        );
+        $materialsAccess = $pagesAccess = [];
+        if ($materialsIds) {
+            $sqlQuery = "SELECT material_id, allow
+                           FROM " . Material::_dbprefix() . "cms_access_materials_cache
+                          WHERE uid = ?
+                            AND material_id IN (" . implode(", ", $materialsIds) . ")";
+            $sqlBind = [(int)$user->id];
+            $sqlResult = Material::_SQL()->get([$sqlQuery, $sqlRow]);
+            foreach ($sqlResult as $sqlRow) {
+                $materialsAccess[trim($sqlRow['material_id'])] = (int)$sqlRow['allow'];
+            }
+        }
+        if ($pagesIds) {
+            $sqlQuery = "SELECT page_id, allow
+                           FROM " . Page::_dbprefix() . "cms_access_pages_cache
+                          WHERE uid = ?
+                            AND page_id IN (" . implode(", ", $pagesIds) . ")";
+            $sqlBind = [(int)$user->id];
+            $sqlResult = Material::_SQL()->get([$sqlQuery, $sqlRow]);
+            foreach ($sqlResult as $sqlRow) {
+                $pagesAccess[trim($sqlRow['page_id'])] = (int)$sqlRow['allow'];
+            }
+        }
+        $newResultIds = [];
+        foreach ($resultIds as $resultId) {
+            $entityId = mb_substr($resultId, 1);
+            if ($resultId[0] == 'm') {
+                if (!isset($materialsAccess[$entityId]) ||
+                    $materialsAccess[$entityId]
+                ) {
+                    $newResultIds[] = $resultId;
+                }
+            } else {
+                if (!isset($pagesAccess[$entityId]) ||
+                    $pagesAccess[$entityId]
+                ) {
+                    $newResultIds[] = $resultId;
+                }
+            }
+        }
+        $resultIds = SOME::getArraySet($resultIds, $pages);
         $set = array_values(array_filter(array_map(function ($x) {
             if ($x[0] == 'm') {
                 $row = new Material(substr($x, 1));
-                if ($row->currentUserHasAccess() &&
-                    $row->parent->currentUserHasAccess()
-                ) {
-                    return $row;
-                }
             } else {
                 $row = new Page(PageRecursiveCache::i()->cache[substr($x, 1)]);
-                if ($row->currentUserHasAccess()) {
-                    return $row;
-                }
             }
             $row->rollback();
+            return $row;
         }, $resultIds)));
-        $set = SOME::getArraySet($set, $pages);
         return $set;
     }
 
@@ -638,8 +689,7 @@ class SearchInterface extends AbstractInterface
             if ($searchMaterialTypesIds) {
                 $sqlQuery .= " AND pid IN (" . implode(", ", array_map('intval', (array)$searchMaterialTypesIds)) . ")";
             }
-            $sqlQuery .= " ORDER BY (name LIKE ?) DESC LIMIT ?";
-            $sqlBind[] = '%' . $searchWord . '%';
+            $sqlQuery .= " LIMIT ?";
             $sqlBind[] = (int)$searchLimit;
             $sqlResult = Material::_SQL()->get([$sqlQuery, $sqlBind]);
 
