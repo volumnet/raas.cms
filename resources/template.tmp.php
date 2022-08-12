@@ -105,9 +105,11 @@ ob_start(); // Для $separateScripts
         <header class="body__header" itemscope itemtype="http://schema.org/WPHeader" data-v-bind_class="{ 'body__header_fixed': fixedHeader, 'body__header_active': fixedHeaderActive }">
           <div class="body__row body__row_header body__row_header_1">
             <div class="body__container body__container_header body__container_header_1">
+              <!--nomobile-->
               <div class="body__menu-top">
                 <?php echo $Page->location('menu_top')?>
               </div>
+              <!--/nomobile-->
               <div class="body__menu-user">
                 <?php echo $Page->location('menu_user')?>
               </div>
@@ -121,25 +123,31 @@ ob_start(); // Для $separateScripts
               <div class="body__search-form">
                 <?php echo $Page->location('search_form')?>
               </div>
+              <!--nomobile-->
               <div class="body__contacts-top">
                 <?php echo $Page->location('contacts_top')?>
               </div>
+              <!--/nomobile-->
             </div>
           </div>
           <div class="body__row body__row_header body__row_header_3">
             <div class="body__container body__container_header body__container_header_3">
+              <!--nomobile-->
               <div class="body__menu-catalog">
                 <?php echo $Page->location('menu_catalog')?>
               </div>
               <div class="body__menu-main">
                 <?php echo $Page->location('menu_main')?>
               </div>
+              <!--/nomobile-->
               <div class="body__cart">
                 <?php echo $Page->location('cart')?>
               </div>
+              <!--nodesktop-->
               <div class="body__menu-mobile">
                 <?php echo $Page->location('menu_mobile')?>
               </div>
+              <!--/nodesktop-->
             </div>
           </div>
         </header>
@@ -233,9 +241,11 @@ ob_start(); // Для $separateScripts
             <div class="body__contacts-bottom">
               <?php echo $Page->location('contacts_bottom')?>
             </div>
+            <!--nomobile-->
             <div class="body__menu-bottom">
               <?php echo $Page->location('menu_bottom')?>
             </div>
+            <!--/nomobile-->
             <div class="body__socials-bottom">
               <?php echo $Page->location('socials_bottom')?>
             </div>

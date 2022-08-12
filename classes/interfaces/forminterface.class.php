@@ -1105,7 +1105,11 @@ class FormInterface extends AbstractInterface
      */
     public function getBasename($src)
     {
-        return dechex(crc32($src)) . '-' . basename(parse_url($src, PHP_URL_PATH));
+        $result = dechex(crc32($src));
+        if (!stristr($src, 'data:')) {
+            $result .= '-' . basename(parse_url($src, PHP_URL_PATH));
+        }
+        return $result;
     }
 
 
@@ -1137,7 +1141,8 @@ class FormInterface extends AbstractInterface
             // Data URI
             $text = base64_decode($regs[1]);
             $name = basename($tmpname);
-            return $src;
+            // 2022-07-27, AVS: убрал - непонятно зачем сделано, но глючит с добавлением
+            // return $src;
         }
         file_put_contents($tmpname, $text);
 

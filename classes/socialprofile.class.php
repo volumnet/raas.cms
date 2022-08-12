@@ -120,7 +120,7 @@ abstract class SocialProfile
         'webmoney\\.(com|ru)' => self::SN_WM,
         'youtube\\.(com|ru)' => self::SN_YT,
         'instagram\\.(com|ru)' => self::SN_IN,
-        '(whatsapp|wa)\\.(com|ru|me)' => self::SN_WA,
+        '(whatsapp|wa)\\.(com|ru|me|php)' => self::SN_WA,
         '((t)\\.(com|ru|me))|telegram' => self::SN_TG,
     ];
 
