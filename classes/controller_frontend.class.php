@@ -156,7 +156,9 @@ class Controller_Frontend extends Abstract_Controller
     {
         $this->processUTM();
         ob_start(function ($text) {
-            return $this->checkMedia($text);
+            $result = $this->checkMedia($text);
+            $result = $this->checkTeleport($text);
+            return $result;
         });
         if (!$this->getCache()) {
             $p = pathinfo($this->requestUri);
@@ -196,7 +198,7 @@ class Controller_Frontend extends Abstract_Controller
                         }
                         $this->diag->handle(
                             'pages',
-                             $diagId,
+                            $diagId,
                             microtime(true) - $pst
                         );
                     }
@@ -204,7 +206,7 @@ class Controller_Frontend extends Abstract_Controller
                 }
             }
         }
-        ob_end_flush();
+        $text = ob_end_flush();
     }
 
 
@@ -335,6 +337,89 @@ class Controller_Frontend extends Abstract_Controller
             $result .= mb_substr($text, $tags[count($tags) - 1]['close']);
         }
         return $result;
+    }
+
+
+    /**
+     * Проверяет телепорт-запросы вида
+     * <!--raas-teleport-from#[ID]-->...<!--/raas-teleport-from#[ID]-->
+     * <!--raas-teleport-to#[ID]-->
+     * При необходимости исключает блоки
+     * @param string $text Входной текст
+     * @return string
+     */
+    public function checkTeleport($text)
+    {
+        $st = microtime(1);
+        $startTagPrefix = '<!--raas-teleport-from#';
+        $endTagPrefix = '<!--/raas-teleport-from#';
+        $toTagPrefix = '<!--raas-teleport-to#';
+        $tagSuffix = '-->';
+        do {
+            $changed = false;
+            $startTagPos = strpos($text, $startTagPrefix);
+            if ($startTagPos !== false) {
+                $startTagPos2 = strpos($text, $tagSuffix, $startTagPos);
+                if ($startTagPos2 !== false) {
+                    $startTagLength = $startTagPos2 + strlen($tagSuffix) - $startTagPos;
+                    $idPos = $startTagPos + strlen($startTagPrefix);
+                    $idLength = $startTagPos2 - $idPos;
+                    $id = substr($text, $idPos, $idLength);
+                    $endTag = $endTagPrefix . $id . $tagSuffix;
+                    $endTagPos = strpos($text, $endTag);
+                    if ($endTagPos !== false) {
+                        $endTagLength = strlen($endTag);
+                        $outerText = substr($text, $startTagPos, $endTagPos + $endTagLength - $startTagPos);
+                        $outerTextLength = strlen($outerText);
+                        $innerText = substr($text, $startTagPos + $startTagLength, $endTagPos - $startTagPos - $startTagLength);
+                        $toTag = $toTagPrefix . $id . $tagSuffix;
+                        $toTagPos = strpos($text, $toTag);
+                        if ($toTagPos !== false) {
+                            $toTagLength = strlen($toTag);
+                            if ($toTagPos > $startTagPos + $outerTextLength) { // Текст телепортируется дальше
+                                $text = substr($text, 0, $startTagPos)
+                                    . substr($text, $startTagPos + $outerTextLength, $toTagPos - $startTagPos - $outerTextLength)
+                                    . $innerText
+                                    . substr($text, $toTagPos + $toTagLength);
+                                $changed = true;
+                            } elseif ($toTagPos < $startTagPos) { // Текст телепортируется ближе
+                                $text = substr($text, 0, $toTagPos)
+                                    . $innerText
+                                    . substr($text, $toTagPos + $toTagLength, $startTagPos - $toTagPos - $toTagLength)
+                                    . substr($text, $startTagPos + $outerTextLength);
+                                $changed = true;
+                            } else {
+                                $text = substr($text, 0, $startTagPos)
+                                    . $innerText
+                                    . substr($text, $endTagPos + $endTagLength);
+                                $changed = true;
+                            }
+                        } else {
+                            $text = substr($text, 0, $startTagPos)
+                                    . $innerText
+                                    . substr($text, $endTagPos + $endTagLength);
+                            $changed = true;
+                        }
+                    }
+                }
+            }
+        } while ($changed);
+        // Почистим висящие теги
+        do {
+            $changed = false;
+            $toTagPos = strpos($text, $toTagPrefix);
+            if ($toTagPos !== false) {
+                $toTagPos2 = strpos($text, $tagSuffix, $toTagPos);
+                if ($toTagPos2 !== false) {
+                    $toTagLength = $toTagPos2 + strlen($tagSuffix) - $toTagPos;
+                    $text = substr($text, 0, $toTagPos)
+                        . substr($text, $toTagPos + $toTagLength);
+                    $changed = true;
+                }
+            }
+        } while ($changed);
+        // $text .= '<!--teleport: ' . (microtime(1) - $st) . '-->';
+        return $text;
     }
 
 
