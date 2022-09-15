@@ -156,8 +156,9 @@ class Controller_Frontend extends Abstract_Controller
     {
         $this->processUTM();
         ob_start(function ($text) {
-            $result = $this->checkMedia($text);
-            $result = $this->checkTeleport($text);
+            $result = $text;
+            $result = $this->checkMedia($result);
+            $result = $this->checkTeleport($result);
             return $result;
         });
         if (!$this->getCache()) {

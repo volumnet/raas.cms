@@ -14,7 +14,7 @@ export default {
          * @return {Boolean}
          */
         fixedHeader: function () {
-            return (this.scrollTop > $('.body__header').outerHeight());
+            return (this.scrollTop > Math.max($('.body__header-outer').outerHeight(), $('.body__header').outerHeight()));
         }
     },
     watch: {

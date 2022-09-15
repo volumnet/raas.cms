@@ -72,7 +72,7 @@ export default {
                 .find('> .menu-mobile__list')
                 .addClass('menu-mobile__list_active');
             return false;
-        })
+        });
         $(this.$el).on('click', '.menu-mobile__close-link', () => { 
             $('.menu-mobile__list').removeClass('menu-mobile__list_active');
             this.active = false;
