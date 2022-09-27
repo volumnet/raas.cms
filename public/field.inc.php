@@ -308,12 +308,12 @@ $_RAASForm_Control = function (
             break;
         case 'select':
             $attrs['type'] = false;
-            if ($field->placeholder) {
+            if ($field->placeholder || !$field->required) {
                 for ($i = count($field->children) - 1; $i >= 0; $i--) {
                     $field->children[$i + 1] = $field->children[$i];
                 }
                 $field->children[0] = new Option([
-                    'caption' => $field->placeholder,
+                    'caption' => $field->placeholder ?: '--',
                     'value' => ''
                 ]);
             }
