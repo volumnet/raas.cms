@@ -37,7 +37,7 @@ class TextFindReplaceCommand extends Command
                 call_user_func_array([$this, 'find'], $args);
                 break;
             case 'replace':
-                if (!$args[0] || !$args[1]) {
+                if (!$args[0] || ($args[1] === null)) {
                     $this->showUsage();
                     return;
                 }
