@@ -13,9 +13,7 @@ $company = $Set[0];
 
 ?>
 <a<?php echo ($Page->pid || $Page->Material->id) ? ' href="/"' : ''?> class="logo">
-  <span class="logo__image">
-    <img loading="lazy" src="/<?php echo htmlspecialchars($company->logo->fileURL)?>" alt="<?php echo htmlspecialchars($company->logo->name ?: $company->name)?>" />
-  </span>
+  <img loading="lazy" class="logo__image" src="/<?php echo htmlspecialchars($company->logo->fileURL)?>" alt="<?php echo htmlspecialchars($company->logo->name ?: $company->name)?>" />
   <?php if ($company->logo->name || $company->logo->description) { ?>
       <span class="logo__text">
         <span class="logo__title">

@@ -16,20 +16,12 @@ $company = $Set[0];
 <div class="contacts-top">
   <?php if ($phones = $company->fields['phone']->getValues(true)) {
       $phonesText = array_map(function ($phone) {
-          return '<span class="contacts-top-phones-list__item">' .
-                   '<span class="contacts-top-phones-item">' .
-                     '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '">' .
-                        htmlspecialchars($phone) .
-                     '</a>' .
-                   '</span>' .
-                 '</span>';
+          return '<a class="contacts-top-phones-list__item contacts-top-phones-item" href="tel:%2B7' . Text::beautifyPhone($phone) . '">' .
+                    htmlspecialchars($phone) .
+                 '</a>';
       }, $phones);?>
-      <div class="contacts-top__phones">
-        <span class="contacts-top__phones-list">
-          <span class="contacts-top-phones-list">
-            <?php echo implode(', ', $phonesText)?>
-          </span>
-        </span>
+      <div class="contacts-top__phones contacts-top__phones-list contacts-top-phones-list">
+        <?php echo implode(', ', $phonesText)?>
       </div>
   <?php }
   $addressArr = [];

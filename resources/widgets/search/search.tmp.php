@@ -134,49 +134,41 @@ if ($_GET['AJAX'] == $Block->id) {
   </div>
   <div class="search__inner">
     <?php if ($productsSet) { ?>
-        <div class="search__list">
-          <div class="catalog-list">
-            <?php foreach ($productsSet as $item) { ?>
-                <div class="catalog-list__item">
-                  <?php Snippet::importByURN('catalog_item')->process([
-                      'item' => $item,
-                  ])?>
-                </div>
-            <?php } ?>
-          </div>
+        <div class="search__list catalog-list">
+          <?php foreach ($productsSet as $item) { ?>
+              <div class="catalog-list__item">
+                <?php Snippet::importByURN('catalog_item')->process([
+                    'item' => $item,
+                ])?>
+              </div>
+          <?php } ?>
         </div>
     <?php } if ($nonCatalogSet) { ?>
-        <div class="search__list">
-          <div class="search-list">
-            <?php foreach ($nonCatalogSet as $item) {
-                $itemData = $searchFormatter($item);
-                ?>
-                <div class="search-list__item">
-                  <div class="search-item">
-                    <div class="search-item__image">
-                      <a href="<?php echo htmlspecialchars($itemData['url'])?>">
-                        <img loading="lazy" src="<?php echo htmlspecialchars($itemData['image']['url'] ?: '/files/cms/common/image/design/nophoto.jpg')?>" alt="<?php echo htmlspecialchars($itemData['image']['name'] ?: $itemData['name'])?>" />
-                      </a>
-                    </div>
-                    <div class="search-item__text">
-                      <div class="search-item__title">
-                        <a href="<?php echo htmlspecialchars($itemData['url'])?>">
-                          <?php echo htmlspecialchars($itemData['name'])?>
-                        </a>
-                      </div>
-                      <?php if ($itemData['date']) { ?>
-                          <div class="search-item__date">
-                            <?php echo htmlspecialchars($itemData['date'])?>
-                          </div>
-                      <?php } ?>
-                      <div class="search-item__description">
-                        <?php echo htmlspecialchars($itemData['description'])?>
-                      </div>
+        <div class="search__list search-list">
+          <?php foreach ($nonCatalogSet as $item) {
+              $itemData = $searchFormatter($item);
+              ?>
+              <div class="search-list__item">
+                <div class="search-item">
+                  <a class="search-item__image" href="<?php echo htmlspecialchars($itemData['url'])?>">
+                    <img loading="lazy" src="<?php echo htmlspecialchars($itemData['image']['url'] ?: '/files/cms/common/image/design/nophoto.jpg')?>" alt="<?php echo htmlspecialchars($itemData['image']['name'] ?: $itemData['name'])?>" />
+                  </a>
+                  <div class="search-item__text">
+                    <a class="search-item__title" href="<?php echo htmlspecialchars($itemData['url'])?>">
+                      <?php echo htmlspecialchars($itemData['name'])?>
+                    </a>
+                    <?php if ($itemData['date']) { ?>
+                        <div class="search-item__date">
+                          <?php echo htmlspecialchars($itemData['date'])?>
+                        </div>
+                    <?php } ?>
+                    <div class="search-item__description">
+                      <?php echo htmlspecialchars($itemData['description'])?>
                     </div>
                   </div>
                 </div>
-            <?php } ?>
-          </div>
+              </div>
+          <?php } ?>
         </div>
         <?php if ($Pages->pages > 1) { ?>
             <div class="search__pagination">

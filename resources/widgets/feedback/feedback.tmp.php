@@ -31,10 +31,8 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
           </div>
       <?php } ?>
       <form action="" method="post" enctype="multipart/form-data" data-vue-role="ajax-form" data-v-bind_block-id="<?php echo (int)$Block->id?>" data-v-slot="vm">
-        <div class="feedback__notifications" data-v-bind_class="{ 'feedback__notifications_active': true }" data-v-if="vm.success">
-          <div class="alert alert-success">
-            <?php echo FEEDBACK_SUCCESSFULLY_SENT?>
-          </div>
+        <div class="feedback__notifications alert alert-success" data-v-bind_class="{ 'feedback__notifications_active': true }" data-v-if="vm.success">
+          <?php echo FEEDBACK_SUCCESSFULLY_SENT?>
         </div>
 
         <div data-v-if="!vm.success">
@@ -45,12 +43,10 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
                 ASTERISK_MARKED_FIELDS_ARE_REQUIRED
             )?>
           </div>
-          <div class="feedback__notifications" data-v-bind_class="{ 'feedback__notifications_active': true }" data-v-if="vm.hasErrors">
-            <div class="alert alert-danger">
-              <ul>
-                <li data-v-for="error in vm.errors" data-v-html="error"></li>
-              </ul>
-            </div>
+          <div class="feedback__notifications alert alert-danger" data-v-bind_class="{ 'feedback__notifications_active': true }" data-v-if="vm.hasErrors">
+            <ul>
+              <li data-v-for="error in vm.errors" data-v-html="error"></li>
+            </ul>
           </div>
           <?php
           $formRenderer = new FormRenderer(

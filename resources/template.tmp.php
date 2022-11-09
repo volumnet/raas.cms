@@ -26,21 +26,21 @@ $sanitizeOutput = function ($text) {
  * @return [string общий HTML, string скрипты, string стили]
  */
 $separateScripts = function ($text) {
-    $rx = '/\\<script.*?\\>.*?\\<\\/script\\>/umis';
-    $rxStyle = '/\\<link[^\\>]*?stylesheet[^\\>]*?\\>/umis';
+    $rx = '/\\<script.*?\\>.*?\\<\\/script\\>\\s*/umis';
+    $rxStyle = '/\\<link[^\\>]*?stylesheet[^\\>]*?\\>\\s*/umis';
     $scripts = $styles = '';
     $result = $text;
     if (preg_match_all($rx, $text, $regs)) {
         foreach ($regs[0] as $i => $script) {
             if (!preg_match('/(maps.*?yandex.*constructor)|(type="text\\/html")|(data-no-optimize)/umis', $script)) {
-                $scripts .= $script . "\n";
+                $scripts .= $script;
                 $result = str_replace($script, '', $result);
             }
         }
     }
     // if (preg_match_all($rxStyle, $text, $regs)) {
     //     foreach ($regs[0] as $i => $style) {
-    //         $styles .= $style . "\n";
+    //         $styles .= $style;
     //         $result = str_replace($style, '', $result);
     //     }
     // }
@@ -103,61 +103,53 @@ ob_start(); // Для $separateScripts
     <div id="top" class="body__background-holder">
       <div class="body__header-outer"> <?php // Обертка, чтобы при фиксации шапки контент не скакал?>
         <header class="body__header" itemscope itemtype="http://schema.org/WPHeader" data-v-bind_class="{ 'body__header_fixed': fixedHeader, 'body__header_active': fixedHeaderActive }">
-          <div class="body__row body__row_header body__row_header_1">
-            <div class="body__container body__container_header body__container_header_1">
-              <!--nomobile-->
-              <div class="body__menu-top">
-                <?php echo $Page->location('menu_top')?>
-              </div>
-              <!--/nomobile-->
-              <div class="body__menu-user">
-                <?php echo $Page->location('menu_user')?>
-              </div>
+          <div class="body__row body__row_header body__row_header_1 body__container">
+            <!--nomobile-->
+            <div class="body__menu-top">
+              <?php echo $Page->location('menu_top')?>
+            </div>
+            <!--/nomobile-->
+            <div class="body__menu-user">
+              <?php echo $Page->location('menu_user')?>
             </div>
           </div>
-          <div class="body__row body__row_header body__row_header_2">
-            <div class="body__container body__container_header body__container_header_2">
-              <div class="body__logo">
-                <?php echo $Page->location('logo')?>
-              </div>
-              <div class="body__search-form">
-                <?php echo $Page->location('search_form')?>
-              </div>
-              <!--nomobile-->
-              <div class="body__contacts-top">
-                <?php echo $Page->location('contacts_top')?>
-              </div>
-              <!--/nomobile-->
+          <div class="body__row body__row_header body__row_header_2 body__container">
+            <div class="body__logo">
+              <?php echo $Page->location('logo')?>
             </div>
+            <div class="body__search-form">
+              <?php echo $Page->location('search_form')?>
+            </div>
+            <!--nomobile-->
+            <div class="body__contacts-top">
+              <?php echo $Page->location('contacts_top')?>
+            </div>
+            <!--/nomobile-->
           </div>
-          <div class="body__row body__row_header body__row_header_3">
-            <div class="body__container body__container_header body__container_header_3">
-              <!--nomobile-->
-              <div class="body__menu-catalog">
-                <?php echo $Page->location('menu_catalog')?>
-              </div>
-              <div class="body__menu-main">
-                <?php echo $Page->location('menu_main')?>
-              </div>
-              <!--/nomobile-->
-              <div class="body__cart">
-                <?php echo $Page->location('cart')?>
-              </div>
-              <!--nodesktop-->
-              <div class="body__menu-mobile">
-                <?php echo $Page->location('menu_mobile')?>
-              </div>
-              <!--/nodesktop-->
+          <div class="body__row body__row_header body__row_header_3 body__container">
+            <!--nomobile-->
+            <div class="body__menu-catalog">
+              <?php echo $Page->location('menu_catalog')?>
             </div>
+            <div class="body__menu-main">
+              <?php echo $Page->location('menu_main')?>
+            </div>
+            <!--/nomobile-->
+            <div class="body__cart">
+              <?php echo $Page->location('cart')?>
+            </div>
+            <!--nodesktop-->
+            <div class="body__menu-mobile">
+              <?php echo $Page->location('menu_mobile')?>
+            </div>
+            <!--/nodesktop-->
           </div>
         </header>
       </div>
       <?php if ($bannersText = $Page->location('banners')) { ?>
-          <div class="body__row body__row_banners">
-            <div class="body__container body__container_banners">
-              <div class="body__banners">
-                <?php echo $bannersText?>
-              </div>
+          <div class="body__row body__row_banners body__container">
+            <div class="body__banners">
+              <?php echo $bannersText?>
             </div>
           </div>
       <?php } ?>
@@ -196,59 +188,55 @@ ob_start(); // Для $separateScripts
             $rightText = $contentLocations[$i]['right'];
             $contentText = $contentLocations[$i]['content'];
             if (!$i || $leftText || $contentText || $rightText) { ?>
-                <div class="body__row body__row_content body__row_content_<?php echo ($i + 1)?>">
-                  <div class="body__container body__container_content body__container_content_<?php echo ($i + 1)?>">
-                    <?php if ($leftText) { ?>
-                        <aside class="body__left body__left_<?php echo ($i + 1)?>" itemscope itemtype="http://schema.org/WPSideBar">
-                          <?php echo $leftText?>
-                        </aside>
-                    <?php }
-                    if (!$i || $contentText) { ?>
-                        <div class="body__content body__content_<?php echo ($i + 1)?>">
-                          <?php if ($i || !$Page->pid) {
-                              echo $contentText;
-                          } else {
-                              $catalogMaterialType = Material_Type::importByURN('catalog');
-                              Snippet::importByURN('breadcrumbs')->process(['page' => $Page]);
-                              if (!$Page->Material->id || !in_array(
-                                  $catalogMaterialType->id,
-                                  MaterialTypeRecursiveCache::i()->getSelfAndParentsIds($Page->Material->pid)
-                              )) { ?>
-                                  <h1 class="h1 body__title">
-                                    <?php echo htmlspecialchars($Page->getH1())?>
-                                  </h1>
-                              <?php }
-                              echo $contentText . $Page->location('share');
-                          } ?>
-                        </div>
-                    <?php }
-                    if ($rightText) { ?>
-                        <aside class="body__right body__right_<?php echo ($i + 1)?>"  itemscope itemtype="http://schema.org/WPSideBar">
-                          <?php echo $rightText?>
-                        </aside>
-                    <?php } ?>
-                  </div>
+                <div class="body__row body__row_content body__row_content_<?php echo ($i + 1)?> body__container">
+                  <?php if ($leftText) { ?>
+                      <aside class="body__left body__left_<?php echo ($i + 1)?>" itemscope itemtype="http://schema.org/WPSideBar">
+                        <?php echo $leftText?>
+                      </aside>
+                  <?php }
+                  if (!$i || $contentText) { ?>
+                      <div class="body__content body__content_<?php echo ($i + 1)?>">
+                        <?php if ($i || !$Page->pid) {
+                            echo $contentText;
+                        } else {
+                            $catalogMaterialType = Material_Type::importByURN('catalog');
+                            Snippet::importByURN('breadcrumbs')->process(['page' => $Page]);
+                            if (!$Page->Material->id || !in_array(
+                                $catalogMaterialType->id,
+                                MaterialTypeRecursiveCache::i()->getSelfAndParentsIds($Page->Material->pid)
+                            )) { ?>
+                                <h1 class="h1 body__title">
+                                  <?php echo htmlspecialchars($Page->getH1())?>
+                                </h1>
+                            <?php }
+                            echo $contentText . $Page->location('share');
+                        } ?>
+                      </div>
+                  <?php }
+                  if ($rightText) { ?>
+                      <aside class="body__right body__right_<?php echo ($i + 1)?>"  itemscope itemtype="http://schema.org/WPSideBar">
+                        <?php echo $rightText?>
+                      </aside>
+                  <?php } ?>
                 </div>
             <?php }
         } ?>
       </main>
       <footer class="body__footer" itemscope itemtype="http://schema.org/WPFooter">
-        <div class="body__row body__row_footer">
-          <div class="body__container body__container_footer">
-            <div class="body__copyrights">
-              <?php echo $Page->location('copyrights')?>
-            </div>
-            <div class="body__contacts-bottom">
-              <?php echo $Page->location('contacts_bottom')?>
-            </div>
-            <!--nomobile-->
-            <div class="body__menu-bottom">
-              <?php echo $Page->location('menu_bottom')?>
-            </div>
-            <!--/nomobile-->
-            <div class="body__socials-bottom">
-              <?php echo $Page->location('socials_bottom')?>
-            </div>
+        <div class="body__row body__row_footer body__container">
+          <div class="body__copyrights">
+            <?php echo $Page->location('copyrights')?>
+          </div>
+          <div class="body__contacts-bottom">
+            <?php echo $Page->location('contacts_bottom')?>
+          </div>
+          <!--nomobile-->
+          <div class="body__menu-bottom">
+            <?php echo $Page->location('menu_bottom')?>
+          </div>
+          <!--/nomobile-->
+          <div class="body__socials-bottom">
+            <?php echo $Page->location('socials_bottom')?>
           </div>
         </div>
         <div class="body__developer">

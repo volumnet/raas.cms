@@ -82,44 +82,32 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   <?php if ($phones = $company->fields['phone']->getValues(true)) {
       $jsonLd['telephone'] = (count($phones) > 1) ? $phones : $phones[0];
       $phonesText = array_map(function ($phone) {
-          return '<span class="contacts-phones-list__item">' .
-                   '<span class="contacts-phones-item">' .
-                     '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '" class="tel" itemprop="telephone">' .
-                        htmlspecialchars($phone) .
-                     '</a>' .
-                   '</span>' .
-                 '</span>';
+          return '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '" class="tel contacts-phones-list__item contacts-phones-item" itemprop="telephone">' .
+                    htmlspecialchars($phone) .
+                 '</a>';
       }, $phones);?>
       <div class="contacts__phones">
         <span class="contacts__phones-title">
           <?php echo htmlspecialchars($company->fields['phone']->name)?>:
         </span>
-        <span class="contacts__phones-list">
-          <span class="contacts-phones-list">
-            <?php echo implode(', ', $phonesText)?>
-          </span>
+        <span class="contacts__phones-list contacts-phones-list">
+          <?php echo implode(', ', $phonesText)?>
         </span>
       </div>
   <?php } ?>
   <?php if ($emails = $company->fields['email']->getValues(true)) {
       $jsonLd['email'] = (count($emails) > 1) ? $emails : $emails[0];
       $emailsText = array_map(function ($email) {
-          return '<span class="contacts-emails-list__item">' .
-                   '<span class="contacts-emails-item">' .
-                     '<a href="mailto:' . htmlspecialchars($email) . '" class="email" itemprop="email">' .
-                        htmlspecialchars($email) .
-                     '</a>' .
-                   '</span>' .
-                 '</span>';
+          return '<a href="mailto:' . htmlspecialchars($email) . '" class="email contacts-emails-list__item contacts-emails-item" itemprop="email">' .
+                    htmlspecialchars($email) .
+                 '</a';
       }, $emails);?>
       <div class="contacts__emails">
         <span class="contacts__emails-title">
           <?php echo htmlspecialchars($company->fields['email']->name)?>:
         </span>
-        <span class="contacts__emails-list">
-          <span class="contacts-emails-list">
-            <?php echo implode(', ', $emailsText)?>
-          </span>
+        <span class="contacts__emails-list contacts-emails-list">
+          <?php echo implode(', ', $emailsText)?>
         </span>
       </div>
   <?php } ?>

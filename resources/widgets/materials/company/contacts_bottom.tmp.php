@@ -39,43 +39,31 @@ $company = $Set[0];
   <?php } ?>
   <?php if ($phones = $company->fields['phone']->getValues(true)) {
       $phonesText = array_map(function ($phone) {
-          return '<span class="contacts-bottom-phones-list__item">' .
-                   '<span class="contacts-bottom-phones-item">' .
-                     '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '">' .
-                        htmlspecialchars($phone) .
-                     '</a>' .
-                   '</span>' .
-                 '</span>';
+          return '<a class="contacts-bottom-phones-list__item contacts-bottom-phones-item" href="tel:%2B7' . Text::beautifyPhone($phone) . '">' .
+                    htmlspecialchars($phone) .
+                 '</a>';
       }, $phones);?>
       <div class="contacts-bottom__phones">
         <span class="contacts-bottom__phones-title">
           <?php echo htmlspecialchars($company->fields['phone']->name)?>:
         </span>
-        <span class="contacts-bottom__phones-list">
-          <span class="contacts-bottom-phones-list">
-            <?php echo implode(', ', $phonesText)?>
-          </span>
+        <span class="contacts-bottom__phones-list contacts-bottom-phones-list">
+          <?php echo implode(', ', $phonesText)?>
         </span>
       </div>
   <?php } ?>
   <?php if ($emails = $company->fields['email']->getValues(true)) {
       $emailsText = array_map(function ($email) {
-          return '<span class="contacts-bottom-emails-list__item">' .
-                   '<span class="contacts-bottom-emails-item">' .
-                     '<a href="mailto:' . htmlspecialchars($email) . '">' .
-                        htmlspecialchars($email) .
-                     '</a>' .
-                   '</span>' .
-                 '</span>';
+          return '<a class="contacts-bottom-emails-list__item contacts-bottom-emails-item" href="mailto:' . htmlspecialchars($email) . '">' .
+                    htmlspecialchars($email) .
+                 '</a>';
       }, $emails);?>
       <div class="contacts-bottom__emails">
         <span class="contacts-bottom__emails-title">
           <?php echo htmlspecialchars($company->fields['email']->name)?>:
         </span>
-        <span class="contacts-bottom__emails-list">
-          <span class="contacts-bottom-emails-list">
-            <?php echo implode(', ', $emailsText)?>
-          </span>
+        <span class="contacts-bottom__emails-list contacts-bottom-emails-list">
+          <?php echo implode(', ', $emailsText)?>
         </span>
       </div>
   <?php } ?>

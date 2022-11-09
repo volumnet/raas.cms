@@ -33,9 +33,7 @@ if ($searchBlockId = $Block->additionalParams['searchBlockId']) {
     <div class="search-form__inner">
       <div class="search-form__field">
         <input itemprop="query-input" name="search_string" autocomplete="off" class="form-control search-form__input" type="text" value="<?php echo htmlspecialchars($_GET['search_string'])?>" placeholder="<?php echo SITE_SEARCH?>..." required="required" data-role="search-string" />
-        <div class="search-form__autocomplete" data-v-if="vm.autocomplete">
-          <div data-vue-role="search-form-autocomplete" data-v-bind_autocomplete="vm.autocomplete"></div>
-        </div>
+        <div class="search-form__autocomplete" data-v-if="vm.autocomplete" data-vue-role="search-form-autocomplete" data-v-bind_autocomplete="vm.autocomplete"></div>
       </div>
       <button class="btn btn-primary search-form__button"></button>
     </div>

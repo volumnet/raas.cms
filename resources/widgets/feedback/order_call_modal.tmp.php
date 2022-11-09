@@ -36,19 +36,15 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
               <button type="button" data-bs-dismiss="modal" aria-hidden="true" class="btn-close"></button>
             </div>
             <div class="modal-body">
-              <div class="feedback__notifications" data-v-bind_class="{ 'feedback__notifications_active': true }" data-v-if="vm.success">
-                <div class="alert alert-success">
-                  <?php echo FEEDBACK_SUCCESSFULLY_SENT?>
-                </div>
+              <div class="feedback__notifications alert alert-success" data-v-bind_class="{ 'feedback__notifications_active': true }" data-v-if="vm.success">
+                <?php echo FEEDBACK_SUCCESSFULLY_SENT?>
               </div>
 
               <div data-v-if="!vm.success">
-                <div class="feedback__notifications" data-v-bind_class="{ 'feedback__notifications_active': true }" data-v-if="vm.hasErrors">
-                  <div class="alert alert-danger">
-                    <ul>
-                      <li data-v-for="error in vm.errors" data-v-html="error"></li>
-                    </ul>
-                  </div>
+                <div class="feedback__notifications alert alert-danger" data-v-bind_class="{ 'feedback__notifications_active': true }" data-v-if="vm.hasErrors">
+                  <ul>
+                    <li data-v-for="error in vm.errors" data-v-html="error"></li>
+                  </ul>
                 </div>
                 <?php
                 $formRenderer = new FormRenderer(
@@ -94,11 +90,9 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
                                    htmlspecialchars($field->name) .
                                 '</a>';
                 ?>
-                <div class="form-group" data-v-bind_class="{ 'text-danger': !!vm.errors.<?php echo htmlspecialchars($fieldURN)?> }">
-                  <label>
-                    <?php echo $fieldHTML . ' ' . $fieldCaption; ?>
-                  </label>
-                </div>
+                <label class="form-group" data-v-bind_class="{ 'text-danger': !!vm.errors.<?php echo htmlspecialchars($fieldURN)?> }">
+                  <?php echo $fieldHTML . ' ' . $fieldCaption; ?>
+                </label>
               </div>
             </div>
           </form>

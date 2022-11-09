@@ -45,16 +45,12 @@ $showInnerHeader = function (
 ) use (
     &$showCloseButton
 ) {
-    $result = ' <div class="menu-mobile__back">
-                  <a class="menu-mobile__back-link"></a>
-                </div>
-                <div class="menu-mobile__title">
-                  <a ' . ($vueLink ? 'data-v-bind_' : '') . 'href="' . htmlspecialchars($url) . '"' . ($vueText ? ' data-v-html="' . htmlspecialchars($text) . '"' : '') . '>';
+    $result = ' <a class="menu-mobile__back menu-mobile__back-link"></a>
+                <a class="menu-mobile__title" ' . ($vueLink ? 'data-v-bind_' : '') . 'href="' . htmlspecialchars($url) . '"' . ($vueText ? ' data-v-html="' . htmlspecialchars($text) . '"' : '') . '>';
     if (!$vueText) {
         $result .= htmlspecialchars($text);
     }
-    $result .=   '</a>
-                </div>';
+    $result .=   '</a>';
     $result .= $showCloseButton();
     return $result;
 };
