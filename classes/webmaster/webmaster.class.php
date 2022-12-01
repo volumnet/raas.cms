@@ -1098,7 +1098,20 @@ class Webmaster
         if ($parent) {
             $pageData['pid'] = $parent->id;
             foreach ($parent->getArrayCopy() as $key => $val) {
-                if (!in_array($key, ['id', 'pid', 'pvis', 'cache_url'])) {
+                if (!in_array($key, [
+                    'id',
+                    'pid',
+                    'pvis',
+                    'name',
+                    'urn',
+                    'cache_url',
+                    'meta_title',
+                    'meta_description',
+                    'meta_keywords',
+                    'h1',
+                    'menu_name',
+                    'breadcrumbs_name'
+                ])) {
                     $pageData[$key] = $val;
                 }
             }

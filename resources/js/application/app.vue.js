@@ -11,6 +11,12 @@ export default {
             windowWidth: 0,
 
             /**
+             * Ширина body
+             * @type {Number}
+             */
+            bodyWidth: 0,
+
+            /**
              * Высота экрана
              * @type {Number}
              */
@@ -55,11 +61,13 @@ export default {
 
         this.windowWidth = $(window).outerWidth();
         this.windowHeight = $(window).outerHeight();
+        this.bodyWidth = $('body').outerWidth();
         this.fixHtml();
         $(window).on('resize', self.fixHtml);
         $(window).on('resize', () => {
             this.windowWidth = $(window).outerWidth();
             this.windowHeight = $(window).outerHeight();
+            this.bodyWidth = $('body').outerWidth();
         });
         $(window).on('scroll', () => {
             this.scrollTop = $(window).scrollTop();

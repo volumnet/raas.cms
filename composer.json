@@ -1,14 +1,14 @@
 {
     "name": "volumnet/raas.cms",
     "description": "RAAS.CMS",
-    "version": "4.3.48",
+    "version": "4.3.49",
     "license": "GPL-3.0-or-later",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
         "mustache/mustache": ">=2.5",
         "phpoffice/phpexcel": ">=1.8",
-        "volumnet/some4": "^4.5.12",
+        "volumnet/some4": "^4.*",
         "volumnet/raas.kernel": ">=4.3.0",
         "electrolinux/phpquery": "*",
         "deruli/html-minifier": "*",
