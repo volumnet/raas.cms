@@ -14,14 +14,13 @@ $company = $Set[0];
 
 ?>
 <div class="contacts-top">
-  <?php if ($phones = $company->fields['phone']->getValues(true)) {
-      $phonesText = array_map(function ($phone) {
-          return '<a class="contacts-top-phones-list__item contacts-top-phones-item" href="tel:%2B7' . Text::beautifyPhone($phone) . '">' .
-                    htmlspecialchars($phone) .
-                 '</a>';
-      }, $phones);?>
-      <div class="contacts-top__phones contacts-top__phones-list contacts-top-phones-list">
-        <?php echo implode(', ', $phonesText)?>
+  <?php if ($phones = $company->fields['phone']->getValues(true)) { ?>
+      <div class="contacts-top__phones">
+        <?php foreach ($phones as $phone) { ?>
+            <a href="tel:%2B7<?php echo Text::beautifyPhone($phone)?>">
+              <?php echo htmlspecialchars($phone)?>
+            </a>
+        <?php } ?>
       </div>
   <?php }
   $addressArr = [];
@@ -31,9 +30,7 @@ $company = $Set[0];
       'office' => 'office'
   ] as $suffix => $fieldURN) {
       if ($fieldVal = $company->$fieldURN) {
-          $addressArr[] = '<span class="contacts-top__address-' . $suffix . '">'
-                        .    htmlspecialchars($fieldVal)
-                        . '</span>';
+          $addressArr[] = htmlspecialchars($fieldVal);
       }
   }
   if ($addressArr) { ?>

@@ -39,4 +39,4 @@ if ($Set) { ?>
     <?php
     AssetManager::requestCSS('/css/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.css');
     // AssetManager::requestJS('/js/{{MATERIAL_TYPE_CSS_CLASSNAME}}-main.js');
-} ?>
+}

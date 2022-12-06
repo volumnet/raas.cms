@@ -5,12 +5,12 @@
 namespace RAAS\CMS;
 
 use RAAS\Application;
-use RAAS\LockCommand;
+use RAAS\Command;
 
 /**
  * Команда получения кэша страниц
  */
-class GetPageCacheCommand extends LockCommand
+class GetPageCacheCommand extends Command
 {
     /**
      * Оставлять свободного места при построении кэша, МБ
@@ -20,30 +20,22 @@ class GetPageCacheCommand extends LockCommand
 
     /**
      * Выполнение команды
-     * @param bool $forceUpdate Принудительно выполнить обновление,
-     *                          даже если материалы не были обновлены
-     * @param bool $forceLockUpdate Принудительно выполнить обновление,
-     *                              даже если есть параллельный процесс
+     * @param bool $forceUpdate Принудительно выполнить обновление, даже если материалы не были обновлены
+     * @param bool $forceLockUpdate Принудительно выполнить обновление, даже если есть параллельный процесс
+     *      {@deprecated больше не используется}
      * @param bool $clearBlocksCache Очистить кэши блоков
-     * @param int|string[] $pagesLimit Ограничение числа страниц,
-     *                                 либо перечисление страниц
-     *                                 (отдельными аргументами)
-     * @param float|null $minFreeSpace Минимальное дисковое пространство,
-     *                                 которое нужно оставить (в МБ)
+     * @param int|string[] $pagesLimit Ограничение числа страниц, либо перечисление страниц (отдельными аргументами)
+     * @param float|null $minFreeSpace Минимальное дисковое пространство, которое нужно оставить (в МБ)
      */
     public function process(
         $forceUpdate = false,
         $forceLockUpdate = false,
         $clearBlocksCache = true
     ) {
-        if (!$forceLockUpdate && $this->checkLock()) {
-            return;
-        }
         $args = func_get_args();
         $args = array_slice($args, 3);
         $pagesToUpdate = [];
         $limit = 0;
-        $this->lock();
         $this->cacheLeaveFreeSpace = (int)Package::i()->registryGet('cache_leave_free_space')
                                    * (1024 * 1024);
         if ($clearBlocksCache) {
@@ -131,7 +123,6 @@ class GetPageCacheCommand extends LockCommand
                 }
             }
         }
-        $this->unlock();
     }
 
 

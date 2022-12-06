@@ -148,23 +148,21 @@ if ($_GET['AJAX'] == $Block->id) {
           <?php foreach ($nonCatalogSet as $item) {
               $itemData = $searchFormatter($item);
               ?>
-              <div class="search-list__item">
-                <div class="search-item">
-                  <a class="search-item__image" href="<?php echo htmlspecialchars($itemData['url'])?>">
-                    <img loading="lazy" src="<?php echo htmlspecialchars($itemData['image']['url'] ?: '/files/cms/common/image/design/nophoto.jpg')?>" alt="<?php echo htmlspecialchars($itemData['image']['name'] ?: $itemData['name'])?>" />
+              <div class="search-list__item search-item">
+                <a class="search-item__image" href="<?php echo htmlspecialchars($itemData['url'])?>">
+                  <img loading="lazy" src="<?php echo htmlspecialchars($itemData['image']['url'] ?: '/files/cms/common/image/design/nophoto.jpg')?>" alt="<?php echo htmlspecialchars($itemData['image']['name'] ?: $itemData['name'])?>" />
+                </a>
+                <div class="search-item__text">
+                  <a class="search-item__title" href="<?php echo htmlspecialchars($itemData['url'])?>">
+                    <?php echo htmlspecialchars($itemData['name'])?>
                   </a>
-                  <div class="search-item__text">
-                    <a class="search-item__title" href="<?php echo htmlspecialchars($itemData['url'])?>">
-                      <?php echo htmlspecialchars($itemData['name'])?>
-                    </a>
-                    <?php if ($itemData['date']) { ?>
-                        <div class="search-item__date">
-                          <?php echo htmlspecialchars($itemData['date'])?>
-                        </div>
-                    <?php } ?>
-                    <div class="search-item__description">
-                      <?php echo htmlspecialchars($itemData['description'])?>
-                    </div>
+                  <?php if ($itemData['date']) { ?>
+                      <div class="search-item__date">
+                        <?php echo htmlspecialchars($itemData['date'])?>
+                      </div>
+                  <?php } ?>
+                  <div class="search-item__description">
+                    <?php echo htmlspecialchars($itemData['description'])?>
                   </div>
                 </div>
               </div>

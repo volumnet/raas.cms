@@ -27,21 +27,15 @@ $socialsData = [
     SocialProfile::SN_TG => ['urn' => 'telegram', 'name' => 'TELEGRAM'],
 ];
 if ($socials = $company->fields['socials']->getValues(true)) { ?>
-    <div class="{{WIDGET_CSS_CLASSNAME}}">
-      <div class="{{WIDGET_CSS_CLASSNAME}}__list">
-        <div class="{{WIDGET_CSS_CLASSNAME}}-list">
-          <?php foreach ($socials as $social) {
-              if ($snId = SocialProfile::getSocialNetwork($social)) {
-                  if ($socialData = $socialsData[$snId]) { ?>
-                      <div class="{{WIDGET_CSS_CLASSNAME}}-list__item">
-                        <a href="<?php echo htmlspecialchars($social)?>" class="{{WIDGET_CSS_CLASSNAME}}-item {{WIDGET_CSS_CLASSNAME}}-item_<?php echo htmlspecialchars($socialData['urn'])?>" title="<?php echo htmlspecialchars(View_Web::i()->_($socialData['name']))?>" target="_blank"></a>
-                      </div>
-                  <?php }
-              }
-          } ?>
-        </div>
-      </div>
+    <div class="socials socials__list socials-list">
+      <?php foreach ($socials as $social) {
+          if ($snId = SocialProfile::getSocialNetwork($social)) {
+              if ($socialData = $socialsData[$snId]) { ?>
+                  <a href="<?php echo htmlspecialchars($social)?>" class="socials-list__item socials-item socials-item_<?php echo htmlspecialchars($socialData['urn'])?>" title="<?php echo htmlspecialchars(View_Web::i()->_($socialData['name']))?>" target="_blank"></a>
+              <?php }
+          }
+      } ?>
     </div>
 <?php }
-AssetManager::requestCSS('/css/{{WIDGET_CSS_CLASSNAME}}.css');
-AssetManager::requestJS('/js/{{WIDGET_CSS_CLASSNAME}}.js');
+AssetManager::requestCSS('/css/socials.css');
+AssetManager::requestJS('/js/socials.js');

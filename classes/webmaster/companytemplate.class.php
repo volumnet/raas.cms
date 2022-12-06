@@ -317,28 +317,6 @@ class CompanyTemplate extends MaterialTypeTemplate
 
 
     /**
-     * Создает сниппет социальных сетей в шапке
-     * @return Snippet
-     */
-    public function createSocialsTopBlockSnippet()
-    {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/company/socials.tmp.php';
-        $urn = 'socials_top';
-        $name = View_Web::i()->_('SOCIALS_TOP');
-
-        $snippet = $this->webmaster->createSnippet(
-            $urn,
-            $name,
-            (int)$this->widgetsFolder->id,
-            $filename,
-            $this->getReplaceData($name, $urn)
-        );
-        return $snippet;
-    }
-
-
-    /**
      * Создает блок социальных сетей в шапке
      * @return Block_Material
      */
@@ -351,7 +329,7 @@ class CompanyTemplate extends MaterialTypeTemplate
             [
                 'pages_var_name' => '',
                 'rows_per_page' => 1,
-                'location' => 'socials_top',
+                'location' => 'socials',
                 'name' => $widget->name,
                 'inherit' => 1,
                 'cats' => $page->selfAndChildrenIds,
@@ -458,12 +436,12 @@ class CompanyTemplate extends MaterialTypeTemplate
      * Создает сниппет социальных сетей в подвале
      * @return Snippet
      */
-    public function createSocialsBottomBlockSnippet()
+    public function createSocialsBlockSnippet()
     {
         $filename = Package::i()->resourcesDir
                   . '/widgets/materials/company/socials.tmp.php';
-        $urn = 'socials_bottom';
-        $name = View_Web::i()->_('SOCIALS_BOTTOM');
+        $urn = 'socials';
+        $name = View_Web::i()->_('SOCIALS');
 
         $snippet = $this->webmaster->createSnippet(
             $urn,
@@ -489,7 +467,7 @@ class CompanyTemplate extends MaterialTypeTemplate
             [
                 'pages_var_name' => '',
                 'rows_per_page' => 1,
-                'location' => 'socials_bottom',
+                'location' => 'socials',
                 'name' => $widget->name,
                 'inherit' => 1,
                 'cats' => $page->selfAndChildrenIds,
@@ -575,11 +553,11 @@ class CompanyTemplate extends MaterialTypeTemplate
         $item->fields['schedule']->addValue(View_Web::i()->_('TEST_COMPANY_SCHEDULE'));
         $item->fields['transport']->addValue('...');
         $item->fields['socials']->addValue(View_Web::i()->_('https://vk.com/test'));
-        $item->fields['socials']->addValue(View_Web::i()->_('https://facebook.com/test'));
-        $item->fields['socials']->addValue(View_Web::i()->_('https://instagram.com/test'));
+        // $item->fields['socials']->addValue(View_Web::i()->_('https://facebook.com/test'));
+        // $item->fields['socials']->addValue(View_Web::i()->_('https://instagram.com/test'));
         $item->fields['socials']->addValue(View_Web::i()->_('https://youtube.com/test'));
-        $item->fields['socials']->addValue(View_Web::i()->_('https://twitter.com/test'));
-        $item->fields['socials']->addValue(View_Web::i()->_('https://wa.me/79990000000'));
+        // $item->fields['socials']->addValue(View_Web::i()->_('https://twitter.com/test'));
+        $item->fields['socials']->addValue(View_Web::i()->_('/wa.php?phone=79990000000'));
         $item->fields['copyrights']->addValue(
             '© ' . View_Web::i()->_('COMPANY') . ', ' . date('Y') . '. ' .
             View_Web::i()->_('ALL_RIGHTS_RESERVED') . '.'
@@ -625,19 +603,9 @@ class CompanyTemplate extends MaterialTypeTemplate
             );
         }
 
-        // $socialsTopWidget = Snippet::importByURN('socials_top');
-        // if (!$socialsTopWidget->id) {
-        //     $socialsTopWidget = $this->createSocialsTopBlockSnippet();
-        //     $socialsTopBlock = $this->createSocialsTopBlock(
-        //         $this->webmaster->Site,
-        //         $socialsTopWidget,
-        //         ['nat' => 0]
-        //     );
-        // }
-
-        $socialsBottomWidget = Snippet::importByURN('socials_bottom');
+        $socialsBottomWidget = Snippet::importByURN('socials');
         if (!$socialsBottomWidget->id) {
-            $socialsBottomWidget = $this->createSocialsBottomBlockSnippet();
+            $socialsBottomWidget = $this->createSocialsBlockSnippet();
             $socialsBottomBlock = $this->createSocialsBottomBlock(
                 $this->webmaster->Site,
                 $socialsBottomWidget,

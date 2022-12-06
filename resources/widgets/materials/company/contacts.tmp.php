@@ -36,29 +36,27 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   $addressArr = $mapAddressArr = [];
   if ($postalCode = $company->postal_code) {
       $jsonLd['address']['postalCode'] = $postalCode;
-      $addressArr[] = '<span class="contacts__address-postal-code postal-code" itemprop="postalCode">'
+      $addressArr[] = '<span class="postal-code" itemprop="postalCode">'
                     .    htmlspecialchars($postalCode)
                     . '</span>';
       $mapAddressArr[] = $postalCode;
   }
   if ($city = $company->city) {
       $jsonLd['address']['addressLocality'] = $city;
-      $addressArr[] = '<span class="contacts__address-city locality" itemprop="addressLocality">'
+      $addressArr[] = '<span class="locality" itemprop="addressLocality">'
                     .    htmlspecialchars($city)
                     . '</span>';
       $mapAddressArr[] = 'г. ' . $city;
   }
   if ($streetAddress = $company->street_address) {
       $jsonLd['address']['streetAddress'] = $streetAddress;
-      $addressArr[] = '<span class="contacts__address-address street-address" itemprop="streetAddress">'
+      $addressArr[] = '<span class="street-address" itemprop="streetAddress">'
                     .    htmlspecialchars($streetAddress)
                     . '</span>';
       $mapAddressArr[] = $streetAddress;
   }
   if ($office = $company->office) {
-      $addressArr[] = '<span class="contacts__address-office">'
-                    .    htmlspecialchars($office)
-                    . '</span>';
+      $addressArr[] = htmlspecialchars($office);
       $mapAddressArr[] = $office;
   }
   if (($lat = $company->lat) && ($lon = $company->lon)) { ?>
@@ -70,11 +68,11 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   <?php }
   if ($addressArr) {
       $jsonLd['address']['@type'] = 'PostalAddress'; ?>
-      <div class="contacts__address">
-        <span class="contacts__address-title">
+      <div class="contacts__item contacts__item_address">
+        <span class="contacts__item-title">
           <?php echo View_Web::i()->_('ADDRESS')?>:
         </span>
-        <span class="contacts__address-value adr" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+        <span class="contacts__item-value adr" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
           <?php echo implode(', ', $addressArr)?>
         </span>
       </div>
@@ -82,15 +80,15 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   <?php if ($phones = $company->fields['phone']->getValues(true)) {
       $jsonLd['telephone'] = (count($phones) > 1) ? $phones : $phones[0];
       $phonesText = array_map(function ($phone) {
-          return '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '" class="tel contacts-phones-list__item contacts-phones-item" itemprop="telephone">' .
+          return '<a href="tel:%2B7' . Text::beautifyPhone($phone) . '" class="tel" itemprop="telephone">' .
                     htmlspecialchars($phone) .
                  '</a>';
       }, $phones);?>
-      <div class="contacts__phones">
-        <span class="contacts__phones-title">
+      <div class="contacts__item contacts__item_phones">
+        <span class="contacts__item-title">
           <?php echo htmlspecialchars($company->fields['phone']->name)?>:
         </span>
-        <span class="contacts__phones-list contacts-phones-list">
+        <span class="contacts__item-value">
           <?php echo implode(', ', $phonesText)?>
         </span>
       </div>
@@ -98,35 +96,35 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   <?php if ($emails = $company->fields['email']->getValues(true)) {
       $jsonLd['email'] = (count($emails) > 1) ? $emails : $emails[0];
       $emailsText = array_map(function ($email) {
-          return '<a href="mailto:' . htmlspecialchars($email) . '" class="email contacts-emails-list__item contacts-emails-item" itemprop="email">' .
+          return '<a href="mailto:' . htmlspecialchars($email) . '" class="email" itemprop="email">' .
                     htmlspecialchars($email) .
                  '</a';
       }, $emails);?>
-      <div class="contacts__emails">
-        <span class="contacts__emails-title">
+      <div class="contacts__item contacts__item_emails">
+        <span class="contacts__item-title">
           <?php echo htmlspecialchars($company->fields['email']->name)?>:
         </span>
-        <span class="contacts__emails-list contacts-emails-list">
+        <span class="contacts__item-value">
           <?php echo implode(', ', $emailsText)?>
         </span>
       </div>
   <?php } ?>
   <?php if ($schedule = $company->schedule) { ?>
-      <div class="contacts__schedule">
-        <span class="contacts__schedule-title">
+      <div class="contacts__item contacts__item_schedule">
+        <span class="contacts__item-title">
           <?php echo View_Web::i()->_('SCHEDULE')?>:
         </span>
-        <span class="contacts__schedule-value">
+        <span class="contacts__item-value">
           <?php echo htmlspecialchars($schedule)?>
         </span>
       </div>
   <?php } ?>
   <?php if ($transport = $company->transport) { ?>
-      <div class="contacts__transport">
-        <span class="contacts__transport-title">
+      <div class="contacts__item contacts__item_transport">
+        <span class="contacts__item-title">
           <?php echo View_Web::i()->_('TRANSPORT')?>:
         </span>
-        <span class="contacts__transport-value">
+        <span class="contacts__item-value">
           <?php echo htmlspecialchars($transport)?>
         </span>
       </div>

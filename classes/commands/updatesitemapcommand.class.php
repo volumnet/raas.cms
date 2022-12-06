@@ -6,23 +6,21 @@ namespace RAAS\CMS;
 
 use SOME\EventProcessor;
 use RAAS\Application;
-use RAAS\LockCommand;
+use RAAS\Command;
 
 /**
  * Команда обновления файла sitemap.xml
  */
-class UpdateSitemapCommand extends LockCommand
+class UpdateSitemapCommand extends Command
 {
     /**
      * Выполнение команды
      * @param string $catalogMTypeURN URN типа материалов каталога
-     * @param string $catalogPageURL Относительный путь страницы -
-     *                               корня каталога
+     * @param string $catalogPageURL Относительный путь страницы - корня каталога
      * @param bool $https Включен ли HTTPS
-     * @param bool $forceUpdate Принудительно выполнить обновление,
-     *                          даже если материалы не были обновлены
-     * @param bool $forceLockUpdate Принудительно выполнить обновление,
-     *                              даже если есть параллельный процесс
+     * @param bool $forceUpdate Принудительно выполнить обновление, даже если материалы не были обновлены
+     * @param bool $forceLockUpdate Принудительно выполнить обновление, даже если есть параллельный процесс
+     *      {@deprecated больше не используется}
      */
     public function process(
         $catalogMTypeURN = 'catalog',
@@ -32,9 +30,6 @@ class UpdateSitemapCommand extends LockCommand
         $forceLockUpdate = false
     ) {
         $t = $this;
-        if (!$forceLockUpdate && $this->checkLock()) {
-            return;
-        }
         $outputFile = Application::i()->baseDir . '/sitemap.xml';
         if (!$forceUpdate) {
             $sqlQuery = "SELECT MAX(UNIX_TIMESTAMP(last_modified))
@@ -55,7 +50,6 @@ class UpdateSitemapCommand extends LockCommand
                 }
             }
         }
-        $this->lock();
         $pages = Page::getSet(['where' => "NOT pid"]);
         $page = array_shift($pages);
         if ($page->id) {
@@ -100,6 +94,5 @@ class UpdateSitemapCommand extends LockCommand
         } else {
             $this->controller->doLog('Root page not found');
         }
-        $this->unlock();
     }
 }

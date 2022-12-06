@@ -3,21 +3,22 @@
     display: block;
       
     &__list {
+        display: flex;
         margin: 0;
         padding: 0;
         &_main {
-            @include media-breakpoint-up('md') {
-                display: flex;
+            @include viewport-up('lg') {
                 align-items: center;
             }
-            @include media-breakpoint-down('sm') {
-                display: block;
+            @include viewport-down('md') {
+                flex-direction: column;
             }
         }
         &_inner {
-            @include transition(opacity .5s);
+            transition: opacity .5s;
             background: white;
-            @include media-breakpoint-up('md') {
+            @include viewport-up('lg') {
+                flex-direction: column;
                 pointer-events: none;
                 z-index: 1;
                 opacity: 0;
@@ -27,12 +28,12 @@
                 display: block;
                 box-shadow: 5px 5px 10px rgba(black, .5);
             }
-            @include media-breakpoint-down('sm') {
+            @include viewport-down('md') {
                 display: none;
             }
         }
         &_level_1 {
-            @include media-breakpoint-up('md') {
+            @include viewport-up('lg') {
                 left: 0;
                 top: 100%;
             }
@@ -41,19 +42,17 @@
     &__item {
         display: block;
         position: relative;
-        margin: 0;
-        padding: 0;
-        @include media-breakpoint-up('md') {
+        @include viewport-up('lg') {
             &:hover, &:focus {
                 & > #{$self}__list {
                     opacity: 1;
                     pointer-events: all;
-                    @include transition(opacity .5s)
+                    transition: opacity .5s;
                 }
             }
         }
         &_active, &_semiactive {
-            @include media-breakpoint-down('sm') {
+            @include viewport-down('md') {
                 & > #{$self}__list {
                     display: block;
                 }
@@ -64,7 +63,7 @@
         display: flex;
         align-items: center;
         position: relative;
-        @include transition(background .5s, color .5s);
+        transition: background .5s, color .5s;
         &:hover, &:focus {
             outline: none;
         }

@@ -4,29 +4,26 @@
  */
 namespace RAAS\CMS;
 
-use RAAS\LockCommand;
+use RAAS\Command;
 
 /**
  * Команда получения кэша каталога
  */
-class GetCatalogCacheCommand extends LockCommand
+class GetCatalogCacheCommand extends Command
 {
     /**
      * Выполнение команды
      * @param string|null $mtypeURN URN типа материалов кэша
      * @param bool $forceUpdate Принудительно выполнить обновление,
-     *                          даже если материалы не были обновлены
+     *     даже если материалы не были обновлены
      * @param bool $forceLockUpdate Принудительно выполнить обновление,
-     *                              даже если есть параллельный процесс
+     *     даже если есть параллельный процесс {@deprecated больше не используется}
      */
     public function process(
         $mtypeURN = 'catalog',
         $forceUpdate = false,
         $forceLockUpdate = false
     ) {
-        if (!$forceLockUpdate && $this->checkLock()) {
-            return;
-        }
         $mtype = Material_Type::importByURN($mtypeURN);
         if (!$mtype->id) {
             $this->controller->doLog(
@@ -50,9 +47,7 @@ class GetCatalogCacheCommand extends LockCommand
                 while (ob_get_level()) {
                     ob_end_clean();
                 }
-                $this->lock();
                 $result = $cc->getCache();
-                $this->unlock();
             } else {
                 $this->controller->doLog('Data is actual');
                 return;

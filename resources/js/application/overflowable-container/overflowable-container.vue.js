@@ -11,7 +11,7 @@ export default {
          * Определяет, превышает ли внутренний размер размер блока
          * и выдает сообщение
          */
-        checkOverflow: function () {
+        checkOverflow() {
             let selfHeight = $(this.$el).outerHeight();
             let innerHeight = $(this.$refs.inner).outerHeight();
             let selfWidth = $(this.$el).outerWidth();
@@ -28,7 +28,7 @@ export default {
          * Распаковка текущего экземпляра для слота
          * @return {Object}
          */
-        self: function () { 
+        self() { 
             return { ...this };
         },
     },

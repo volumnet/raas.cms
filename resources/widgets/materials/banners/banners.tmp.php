@@ -10,13 +10,15 @@ namespace RAAS\CMS;
 use RAAS\AssetManager;
 
 if ($Set) { ?>
-    <div class="banners slider" data-vue-role="raas-slider" data-vue-type="fade" data-v-bind_autoscroll="true" data-v-slot="vm">
-      <div class="banners__list banners-list slider-list slider-list_fade" data-role="slider-list">
-        <?php for ($i = 0; $i < count($Set); $i++) { $item = $Set[$i]; ?>
-            <a class="banners-list__item slider-list__item banners-item banners-item__image"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?> data-role="slider-item" data-slider-index="<?php echo (int)$i?>" data-v-bind_class="{ 'banners-list__item_active': (vm.activeFrame == <?php echo $i?>), 'slider-list__item_active': (vm.activeFrame == <?php echo $i?>) }">
-              <img<?php echo $i ? ' loading="lazy"' : ''?> src="/<?php echo htmlspecialchars($item->image->fileURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" />
-            </a>
-        <?php } ?>
+    <div class="banners slider slider_fade" data-vue-role="raas-slider" data-vue-type="fade" data-v-bind_autoscroll="true" data-v-slot="vm">
+      <div class="banners__list slider__list" data-role="slider-list">
+        <div class="banners-list slider-list slider-list_fade">
+          <?php for ($i = 0; $i < count($Set); $i++) { $item = $Set[$i]; ?>
+              <a class="banners-list__item slider-list__item banners-item banners-item__image"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?> data-role="slider-item" data-slider-index="<?php echo (int)$i?>" data-v-bind_class="{ 'banners-list__item_active': (vm.activeFrame == <?php echo $i?>), 'slider-list__item_active': (vm.activeFrame == <?php echo $i?>) }">
+                <img class="banners-item__image"<?php echo $i ? ' loading="lazy"' : ''?> src="/<?php echo htmlspecialchars($item->image->fileURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" />
+              </a>
+          <?php } ?>
+        </div>
       </div>
       <?php if (count($Set) > 1) { ?>
           <div class="banners__nav banners-nav slider-nav">

@@ -103,7 +103,7 @@ ob_start(); // Для $separateScripts
     <div id="top" class="body__background-holder">
       <div class="body__header-outer"> <?php // Обертка, чтобы при фиксации шапки контент не скакал?>
         <header class="body__header" itemscope itemtype="http://schema.org/WPHeader" data-v-bind_class="{ 'body__header_fixed': fixedHeader, 'body__header_active': fixedHeaderActive }">
-          <div class="body__row body__row_header body__row_header_1 body__container">
+          <div class="body__row body__row_header body__row_header_1">
             <!--nomobile-->
             <div class="body__menu-top">
               <?php echo $Page->location('menu_top')?>
@@ -113,7 +113,7 @@ ob_start(); // Для $separateScripts
               <?php echo $Page->location('menu_user')?>
             </div>
           </div>
-          <div class="body__row body__row_header body__row_header_2 body__container">
+          <div class="body__row body__row_header body__row_header_2">
             <div class="body__logo">
               <?php echo $Page->location('logo')?>
             </div>
@@ -126,7 +126,7 @@ ob_start(); // Для $separateScripts
             </div>
             <!--/nomobile-->
           </div>
-          <div class="body__row body__row_header body__row_header_3 body__container">
+          <div class="body__row body__row_header body__row_header_3">
             <!--nomobile-->
             <div class="body__menu-catalog">
               <?php echo $Page->location('menu_catalog')?>
@@ -147,10 +147,8 @@ ob_start(); // Для $separateScripts
         </header>
       </div>
       <?php if ($bannersText = $Page->location('banners')) { ?>
-          <div class="body__row body__row_banners body__container">
-            <div class="body__banners">
-              <?php echo $bannersText?>
-            </div>
+          <div class="body__row body__row_banners body__banners">
+            <?php echo $bannersText?>
           </div>
       <?php } ?>
       <main class="body__main">
@@ -188,14 +186,14 @@ ob_start(); // Для $separateScripts
             $rightText = $contentLocations[$i]['right'];
             $contentText = $contentLocations[$i]['content'];
             if (!$i || $leftText || $contentText || $rightText) { ?>
-                <div class="body__row body__row_content body__row_content_<?php echo ($i + 1)?> body__container">
+                <div class="body__row body__row_content body__row_content_<?php echo ($i + 1)?>">
                   <?php if ($leftText) { ?>
                       <aside class="body__left body__left_<?php echo ($i + 1)?>" itemscope itemtype="http://schema.org/WPSideBar">
                         <?php echo $leftText?>
                       </aside>
                   <?php }
                   if (!$i || $contentText) { ?>
-                      <div class="body__content body__content_<?php echo ($i + 1)?>">
+                      <div class="body__content body__content_<?php echo ($i + 1) . (($leftText || $rightText) ? ' body__content_sided' : '')?>">
                         <?php if ($i || !$Page->pid) {
                             echo $contentText;
                         } else {
@@ -222,22 +220,20 @@ ob_start(); // Для $separateScripts
             <?php }
         } ?>
       </main>
-      <footer class="body__footer" itemscope itemtype="http://schema.org/WPFooter">
-        <div class="body__row body__row_footer body__container">
-          <div class="body__copyrights">
-            <?php echo $Page->location('copyrights')?>
-          </div>
-          <div class="body__contacts-bottom">
-            <?php echo $Page->location('contacts_bottom')?>
-          </div>
-          <!--nomobile-->
-          <div class="body__menu-bottom">
-            <?php echo $Page->location('menu_bottom')?>
-          </div>
-          <!--/nomobile-->
-          <div class="body__socials-bottom">
-            <?php echo $Page->location('socials_bottom')?>
-          </div>
+      <footer class="body__footer body__row body__row_footer" itemscope itemtype="http://schema.org/WPFooter">
+        <div class="body__copyrights">
+          <?php echo $Page->location('copyrights')?>
+        </div>
+        <div class="body__contacts-bottom">
+          <?php echo $Page->location('contacts_bottom')?>
+        </div>
+        <!--nomobile-->
+        <div class="body__menu-bottom">
+          <?php echo $Page->location('menu_bottom')?>
+        </div>
+        <!--/nomobile-->
+        <div class="body__socials-bottom">
+          <?php echo $Page->location('socials_bottom')?>
         </div>
         <div class="body__developer">
           Разработка и сопровождение сайта

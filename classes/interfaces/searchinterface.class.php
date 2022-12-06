@@ -439,7 +439,7 @@ class SearchInterface extends AbstractInterface
             } else {
                 $row = new Page(PageRecursiveCache::i()->cache[substr($x, 1)]);
             }
-            $row->rollback();
+            $row->trust();
             return $row;
         }, $resultIds)));
         return $set;
