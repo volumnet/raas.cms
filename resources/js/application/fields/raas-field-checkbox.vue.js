@@ -40,15 +40,15 @@ export default {
         /**
          * Переключение одиночного флажка
          */
-        toggleCheckbox: function () {
+        toggleCheckbox() {
             window.setTimeout(() => {
                 let val;
-
                 if (this.checked) {
                     val = this.mask || '';
                 } else {
                     val = this.defval;
                 }
+                this.pValue = val;
                 this.$emit('input', val);
             }, 0)
         },
@@ -59,7 +59,7 @@ export default {
          *     checked: Boolean Установлено ли значение
          * }</code></pre>
          */
-        toggleOption: function ($event) {
+        toggleOption($event) {
             let newValue = [];
             for (let option of this.flatSource) {
                 let checked;
@@ -82,8 +82,8 @@ export default {
          * Установлен ли одиночный флажок
          * @return {Boolean}
          */
-        checked: function () {
-            return !!this.value && (this.value != this.mask);
+        checked() {
+            return !!this.pValue && (this.pValue != this.mask);
         },
     },
 };

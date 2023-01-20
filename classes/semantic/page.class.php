@@ -565,7 +565,8 @@ class Page extends SOME
         $this->processHeaders();
         $SITE = $this->Domain;
         $Page = $this;
-        if ($this->blocksByLocations['']) {
+        $blocksByLocations = $this->blocksByLocations;
+        if ($blocksByLocations[''] ?? null) {
             echo $this->location('');
         }
         if ($this->template) {
@@ -640,7 +641,8 @@ class Page extends SOME
     {
         if (!isset($this->locationBlocksText[$location])) {
             $Location = new Location($this->Template, $location);
-            $Set = (array)$this->blocksByLocations[$Location->urn];
+            $blocksByLocations = $this->blocksByLocations;
+            $Set = (array)($blocksByLocations[$Location->urn] ?? []);
             // $texts = [];
             foreach ($Set as $row) {
                 // 2021-03-31, AVS: перенесли условие совместимости
@@ -659,7 +661,7 @@ class Page extends SOME
             //     }
             // }
         }
-        return implode('', (array)$this->locationBlocksText[$location]);
+        return implode('', (array)($this->locationBlocksText[$location] ?? []));
     }
 
 

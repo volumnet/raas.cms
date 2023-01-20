@@ -311,7 +311,7 @@ class Sub_Main extends RAASAbstractSubController
             $Item = Block::spawn($this->id);
             $classname = $Item->block_type;
         } else {
-            $classname = 'RAAS\\CMS\\' . str_replace('.', '\\', $_GET['type']);
+            $classname = 'RAAS\\CMS\\' . str_replace('.', '\\', ($_GET['type'] ?? ''));
         }
         if (!($blockType = Block_Type::getType($classname)) ||
             !class_exists($classname)
@@ -403,14 +403,14 @@ class Sub_Main extends RAASAbstractSubController
             if (isset($_GET['pid']) &&
                 in_array((int)$_GET['pid'], $Item->pages_ids)
             ) {
-                $Parent = new Page((int)$_GET['pid']);
+                $Parent = new Page((int)($_GET['pid'] ?? 0));
             } elseif ($Item->parents) {
                 $Parent = new Page($Item->parents_ids[0]);
             } else {
-                $Parent = new Page((int)$_GET['pid']);
+                $Parent = new Page((int)($_GET['pid'] ?? 0));
             }
         } elseif (isset($_GET['pid'])) {
-            $Parent = new Page((int)$_GET['pid']);
+            $Parent = new Page((int)($_GET['pid'] ?? 0));
         }
         foreach ($Item->relatedMaterialTypes as $mtype) {
             foreach (['sort', 'order'] as $v) {
@@ -486,11 +486,11 @@ class Sub_Main extends RAASAbstractSubController
         if (isset($_GET['pid']) &&
             in_array((int)$_GET['pid'], $Item->pages_ids)
         ) {
-            $Parent = new Page((int)$_GET['pid']);
+            $Parent = new Page((int)($_GET['pid'] ?? 0));
         } elseif ($Item->pages) {
             $Parent = new Page($Item->pages_ids[0]);
         } else {
-            $Parent = new Page((int)$_GET['pid']);
+            $Parent = new Page((int)($_GET['pid'] ?? 0));
         }
         $OUT = [];
         $OUT['Parent'] = $Parent;

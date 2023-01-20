@@ -22,7 +22,7 @@ Disallow: /activate/
 Disallow: /login/
 Disallow: /recovery/
 Disallow: /my-orders/
-Clean-param: sort&order&print&price_from&price_to
+Clean-param: sort&order&print&price_from&price_to&yadclid&yadordid&etext
 
 User-agent: Yandex
 Disallow: /404/

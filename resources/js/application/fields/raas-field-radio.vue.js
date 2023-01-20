@@ -26,8 +26,8 @@ export default {
          * Установлен ли одиночный флажок
          * @return {Boolean}
          */
-        checked: function () {
-            return (this.value == this.defval);
+        checked() {
+            return (this.pValue == this.defval);
         },
     },
 };

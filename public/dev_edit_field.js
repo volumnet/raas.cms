@@ -75,7 +75,7 @@ jQuery(function($) {
             case 'checkbox':
                 if ($('#source_type').val() == 'dictionary') {
                     $('#source_dictionary').fadeIn().removeAttr('disabled').attr('required', 'required');
-                } else {
+                } else if ($('#multiple').is(':checked')) {
                     $('#source_textarea').fadeIn().removeAttr('disabled').attr('required', 'required');
                 }
                 break;

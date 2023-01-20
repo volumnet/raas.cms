@@ -576,7 +576,7 @@ class Controller_Frontend extends Abstract_Controller
      */
     protected function outputDebug()
     {
-        if ($_SESSION['login']) {
+        if (isset($_SESSION['login']) && $_SESSION['login']) {
             $nonHtmlContentTypeHeaders = array_values(
                 array_filter(
                     (array)headers_list(),
@@ -677,7 +677,7 @@ class Controller_Frontend extends Abstract_Controller
         if ($originalPage->id) {
             $text .= " * Страница ID#: " . (int)$originalPage->id . "\n";
         }
-        if ($originalPage->Material->id) {
+        if ($originalPage->Material->id ?? null) {
             $text .= " * Материал ID#: " . (int)$originalPage->Material->id . "\n"
                   .  " * Материал обработан: " . ($originalPage->Material->proceed ? 'да' : 'нет') . "\n";
         }

@@ -24,16 +24,16 @@ export default {
     },
     mixins: [InputMask],
     inheritAttrs: false,
-    data: function () {
+    data() {
         return {
             pValue: this.value,
         };
     },
-    mounted: function () {
+    mounted() {
         this.inputMask();
         this.applyInputMaskListeners();
     },
-    updated: function () {
+    updated() {
         this.inputMask();  
         this.applyInputMaskListeners();
     },
@@ -69,7 +69,7 @@ export default {
         },
     },
     computed: {
-        resolvedAttrs: function () {
+        resolvedAttrs() {
             let result = this.$attrs;
             if (typeof this.type == 'object') {
                 result.is = 'raas-field-' + (this.type.datatype || 'text');
@@ -142,7 +142,7 @@ export default {
          *     level: Number Уровень вложенности
          * }></code></pre>
          */
-        flatSource: function () {
+        flatSource() {
             let source = this.source;
             if (!(source instanceof Array)) {
                 source = [];
@@ -153,14 +153,14 @@ export default {
          * Тег текущего компонента
          * @return {String}
          */
-        currentComponent: function () {
+        currentComponent() {
             return 'raas-field-' + (this.type || 'text');
         },
         /**
          * Слушатели событий полей (с учетом v-model)
          * @return {Object}
          */
-        inputListeners: function () {
+        inputListeners() {
             return Object.assign({}, this.$listeners, {
                 input: (event) => {
                     // console.log('aaa')
@@ -173,12 +173,12 @@ export default {
          * Многоуровневый источник
          * @return {Boolean}
          */
-        multilevel: function () {
+        multilevel() {
             return this.flatSource.filter(x => (x.level > 0)).length > 0;
         },
     },
     watch: {
-        value: function () {
+        value() {
             this.pValue = this.value;
         },
     },

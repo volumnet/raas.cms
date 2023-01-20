@@ -329,7 +329,7 @@ class CompanyTemplate extends MaterialTypeTemplate
             [
                 'pages_var_name' => '',
                 'rows_per_page' => 1,
-                'location' => 'socials',
+                'location' => 'socials_bottom',
                 'name' => $widget->name,
                 'inherit' => 1,
                 'cats' => $page->selfAndChildrenIds,

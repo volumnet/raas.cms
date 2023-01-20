@@ -36,7 +36,7 @@ export default {
             default: false,
         },
     },
-    data: function () {
+    data() {
         let result = {
             /**
              * Активность формы по кнопке
@@ -71,7 +71,7 @@ export default {
         };
         return result;
     },
-    mounted: function () {
+    mounted() {
         if (this.blockId) {
             this.searchString = $('[data-role="search-string"]', this.$el).val();
             $('[data-role="search-string"]', this.$el).on('keyup', (e) => {
@@ -102,7 +102,7 @@ export default {
          * Событие при изменении текста
          * @param {String} value Новое значение поисковой строки
          */
-        change: function (value) {
+        change(value) {
             window.clearTimeout(this.timeoutId);
             if (value.length > this.minLength) {
                 var url = this.autocompleteURL + value;
@@ -120,20 +120,33 @@ export default {
         /**
          * Разворачивает/скрывает форму
          */
-        toggle: function () {
+        toggle() {
             this.active = !this.active;
         },
         /**
          * Активирует форму
          */
-        activate: function () {
+        activate() {
             this.active = true;
         },
         /**
          * Деактивирует форму
          */
-        deactivate: function () {
+        deactivate() {
             this.active = false;
+        },
+        /**
+         * Очищает автозаполнение
+         */
+        clearAutocomplete() {
+            this.autocomplete = null;
+        },
+        /**
+         * Очищает поле ввода и автозаполнение
+         */
+        clearSearch() {
+            $('[data-role="search-string"]', this.$el).val('');
+            this.autocomplete = null;
         },
     },
     computed: {
@@ -141,7 +154,7 @@ export default {
          * URL автоподстановки
          * @return {String}
          */
-        autocompleteURL: function () {
+        autocompleteURL() {
             let result = this.$attrs.action;
             if (/\?/gi.test(result)) {
                 result += '&';
@@ -157,7 +170,7 @@ export default {
          * Аналог this для привязки к слоту
          * @return {Object}
          */
-        self: function () {
+        self() {
             return { ...this };
         },
     },

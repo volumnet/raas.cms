@@ -5,6 +5,7 @@
 namespace RAAS\CMS;
 
 use RAAS\Abstract_Package_Controller as RAASAbstractPackageController;
+use RAAS\Application;
 
 /**
  * Класс абстрактного контроллера
@@ -24,7 +25,7 @@ abstract class Abstract_Controller extends RAASAbstractPackageController
                 Sub_Main::i()->run();
                 break;
         }
-        if (!$this->model->registryGet('clear_cache_manually')) {
+        if (!$this->model->registryGet('clear_cache_manually') || Application::i()->debug) {
             $this->model->clearCache();
         }
     }

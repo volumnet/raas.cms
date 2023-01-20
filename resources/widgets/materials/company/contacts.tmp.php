@@ -61,7 +61,7 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   }
   if (($lat = $company->lat) && ($lon = $company->lon)) { ?>
       <div class="contacts__map">
-        <div data-vue-role="yandex-map" data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]" data-v-bind_zoom="15">
+        <div data-vue-role="yandex-map" data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]" data-v-bind_zoom="15" data-v-on_map-was-initialized="$event.controls.remove('searchControl')">
           <div data-vue-role="ymap-marker" data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]" data-vue-marker-id="company" data-vue-hint-content="<?php echo htmlspecialchars(implode(', ', $mapAddressArr))?>"></div>
         </div>
       </div>

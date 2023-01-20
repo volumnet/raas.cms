@@ -34,10 +34,10 @@ export default {
             required: true,
         },
     },
-    data: () => {
+    data() {
         return {};
     },
-    mounted: function () {
+    mounted() {
         $(this.$el).on('keydown', (e) => {
             let delta = 0;
             switch (e.keyCode) {

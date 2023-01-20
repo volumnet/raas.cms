@@ -248,10 +248,10 @@ abstract class Block extends SOME
                 return true;
                 break;
             case self::BYMATERIAL_WITH:
-                return (bool)$Page->Material->id;
+                return (bool)($Page->Material->id ?? null);
                 break;
             case self::BYMATERIAL_WITHOUT:
-                return !$Page->Material->id;
+                return !($Page->Material->id ?? null);
                 break;
         }
         return true;
@@ -397,6 +397,7 @@ abstract class Block extends SOME
         $config = $this->getAddData();
 
         // Пытаемся прочесть из HTML-кэша
+        $in = [];
         if (!$nocache && ($this->cache_type == static::CACHE_HTML)) {
             $in = (array)$this->loadCache($_SERVER['REQUEST_URI']);
         }
@@ -441,7 +442,7 @@ abstract class Block extends SOME
                 }
                 $diag->handle('blocks', $diagId, microtime(true) - $bst);
             }
-            if ($data) {
+            if ($data ?? null) {
                 return $data;
             }
         }

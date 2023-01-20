@@ -198,15 +198,15 @@ $_RAASForm_Control = function (
                         <?php echo htmlspecialchars(basename($row->filename))?>
                     <?php } ?>
                   </a>
-                  <input type="hidden" name="<?php echo htmlspecialchars($field->name . '@attachment')?>" value="<?php echo (int)$DATA['attachment']?>" />
+                  <input type="hidden" name="<?php echo htmlspecialchars($field->name . '@attachment')?>" value="<?php echo (int)($DATA['attachment'] ?? 0)?>" />
                   <input<?php echo $_RAASForm_Attrs($field, $attrs)?> />
                   <label class="checkbox">
                     <input type="checkbox" name="<?php echo htmlspecialchars($field->name . '@vis')?>" value="1" <?php echo $DATA['vis'] ? 'checked="checked"' : ''?> />
                     <?php echo \CMS\VISIBLE?>
                   </label>
                   <div class="cms-filecard__fields<?php echo (($field->type == 'image' && $row->id) ? ' cms-filecard__fields_image' : '')?>">
-                    <input type="text" name="<?php echo htmlspecialchars($field->name . '@name')?>" value="<?php echo htmlspecialchars($DATA['name'])?>" placeholder="<?php echo $field->type == 'image' ? \CMS\IMG_NAME_ALT_TITLE : NAME?>" />
-                    <textarea v-pre name="<?php echo htmlspecialchars($field->name . '@description')?>" placeholder="<?php echo DESCRIPTION?>"><?php echo htmlspecialchars($DATA['description'])?></textarea>
+                    <input type="text" name="<?php echo htmlspecialchars($field->name . '@name')?>" value="<?php echo htmlspecialchars($DATA['name'] ?? '')?>" placeholder="<?php echo $field->type == 'image' ? \CMS\IMG_NAME_ALT_TITLE : NAME?>" />
+                    <textarea v-pre name="<?php echo htmlspecialchars($field->name . '@description')?>" placeholder="<?php echo DESCRIPTION?>"><?php echo htmlspecialchars($DATA['description'] ?? '')?></textarea>
                   </div>
                 </div>
             <?php } else { ?>

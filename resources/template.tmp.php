@@ -181,16 +181,18 @@ ob_start(); // Для $separateScripts
                 'right' => $Page->location('right5'),
             ],
         ];
-        for ($i = 0; $i <= count($contentLocations); $i++) {
+        for ($i = 0; $i < count($contentLocations); $i++) {
             $leftText = $contentLocations[$i]['left'];
             $rightText = $contentLocations[$i]['right'];
             $contentText = $contentLocations[$i]['content'];
             if (!$i || $leftText || $contentText || $rightText) { ?>
                 <div class="body__row body__row_content body__row_content_<?php echo ($i + 1)?>">
                   <?php if ($leftText) { ?>
+                      <?php echo stristr($leftText, 'catalog-filter') ? '' : '<!--nomobile-->'?>
                       <aside class="body__left body__left_<?php echo ($i + 1)?>" itemscope itemtype="http://schema.org/WPSideBar">
                         <?php echo $leftText?>
                       </aside>
+                      <?php echo stristr($leftText, 'catalog-filter') ? '' : '<!--/nomobile-->'?>
                   <?php }
                   if (!$i || $contentText) { ?>
                       <div class="body__content body__content_<?php echo ($i + 1) . (($leftText || $rightText) ? ' body__content_sided' : '')?>">
@@ -212,9 +214,11 @@ ob_start(); // Для $separateScripts
                       </div>
                   <?php }
                   if ($rightText) { ?>
+                      <?php echo stristr($rightText, 'catalog-filter') ? '' : '<!--nomobile-->'?>
                       <aside class="body__right body__right_<?php echo ($i + 1)?>"  itemscope itemtype="http://schema.org/WPSideBar">
                         <?php echo $rightText?>
                       </aside>
+                      <?php echo stristr($rightText, 'catalog-filter') ? '' : '<!--/nomobile-->'?>
                   <?php } ?>
                 </div>
             <?php }
@@ -244,6 +248,7 @@ ob_start(); // Для $separateScripts
       echo '<div data-vue-role="confirm" data-vue-ref="confirm"></div>';
       if (class_exists('\\RAAS\\CMS\\Shop\\Module')) {
           echo '<div data-vue-role="added-modal" data-vue-ref="addedModal"></div>';
+          echo '<!--nodesktop--><!--raas-teleport-to#catalog-filter--><!--/nodesktop-->';
       }
       echo $Page->location('footer_counters') .
           AssetManager::asset('/js/footer.js');

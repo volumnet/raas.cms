@@ -128,11 +128,17 @@ class Controller_Ajax extends Abstract_Controller
             $Set,
             array_values(array_filter($Material_Type->fields, function ($x) {
                 return !(
-                    $x->multiple ||
+                    // 2022-12-19, AVS: (2019-07-30, AVS:) убрали проверку на единичность полей,
+                    // т.к. фильтр может быть и по множественному полю
+                    // $x->multiple ||
                     in_array($x->datatype, ['file', 'image'])
                 );
             }))
         );
+        $Set[] = (object)[
+            'id' => 'random',
+            'name' => $this->view->_('RANDOM')
+        ];
         $OUT['Set'] = array_map(
             function ($x) {
                 return ['val' => $x->id, 'text' => $x->name];

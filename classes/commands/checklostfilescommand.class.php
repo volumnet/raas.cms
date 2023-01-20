@@ -146,6 +146,8 @@ class CheckLostFilesCommand extends Command
                 }
             }
             $this->controller->doLog($text);
+        } else {
+            $this->controller->doLog('Потерянных файлов не обнаружено');
         }
     }
 }

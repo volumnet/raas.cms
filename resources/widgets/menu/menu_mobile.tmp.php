@@ -23,9 +23,7 @@ $ajax = (bool)stristr($Page->url, '/ajax/');
  * Возвращает код закрытия меню
  */
 $showCloseButton = function () {
-    $result = ' <div class="menu-mobile__close">
-                  <a class="menu-mobile__close-link btn-close"></a>
-                </div>';
+    $result = ' <a class="menu-mobile__close menu-mobile__close-link btn-close"></a>';
     return $result;
 };
 
@@ -102,7 +100,7 @@ $showMenu = function ($node, Page $current) use (
                       .    '</a>
                           </li>';
             }
-            if (class_exists('RAAS\CMS\Shop\Users')) {
+            if (class_exists('RAAS\CMS\Users\Module')) {
                 $text .= '<li data-v-if="user.id" class="menu-mobile__item menu-mobile__item_level_0 menu-mobile__item_main menu-mobile__item_user menu-mobile__item_has-children">
                             <a href="/profile/" class="menu-mobile__link menu-mobile__link_level_0 menu-mobile__link_main menu-mobile__link_has-children menu-mobile__link_user" data-v-html="user.first_name || user.full_name"></a>
                             <a href="#" class="menu-mobile__children-trigger menu-mobile__children-trigger_main menu-mobile__children-trigger_level_0"></a>

@@ -236,4 +236,13 @@ export default {
             }, 10);
         },
     },
+    computed: {
+        /**
+         * Координаты нижней границы окна
+         * @return {[type]} [description]
+         */
+        windowBottomPosition() {
+            return this.scrollTop + this.windowHeight;
+        },
+    },
 }

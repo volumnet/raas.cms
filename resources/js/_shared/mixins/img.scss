@@ -1,0 +1,13 @@
+/// Путь к папке с изображениями дизайна
+$imagesDir: '/files/cms/common/image/design/' !default;
+
+/// Возвращает путь к изображению для использования в background-image
+/// @param {string} $file Название файла
+/// @param {string} $defaultExt Расширение по умолчанию, если не указано в файле
+@function img($file, $defaultExt: 'svg') {
+    $filename: $file;
+    @if (str-index($file, '.') == null) {
+        $filename: $filename + '.' + $defaultExt;
+    }
+    @return unquote('url(' + $imagesDir + $filename + ')');
+}

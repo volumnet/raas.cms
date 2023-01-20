@@ -47,14 +47,27 @@ class MenuInterface extends AbstractInterface
     {
         $out = [];
         $menu = $this->block->Menu;
+
         if (!(int)$this->block->full_menu) {
-            $menu = $menu->findPage($this->page);
+            $menu = $menu->findPage($this->getCurrentPage());
         }
         $out['Item'] = $menu;
         $out['menuArr'] = [
             'children' => $menu ? $this->getVisSubmenu($menu) : []
         ];
         return $out;
+    }
+
+
+    /**
+     * Получает текущую страницу (с учетом AJAX'а)
+     */
+    public function getCurrentPage()
+    {
+        if (!(int)$this->block->full_menu && stristr($this->page->url, '/ajax/')) {
+            return new Page($this->get['id']);
+        }
+        return $this->page;
     }
 
 

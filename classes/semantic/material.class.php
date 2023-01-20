@@ -165,6 +165,7 @@ class Material extends SOME
             default:
                 $origVar = $var;
                 $val = parent::__get($var);
+                $vis = false;
                 // echo $var . ' = ' . $val; exit;
                 if ($val !== null) {
                     return $val;
