@@ -28,18 +28,26 @@ class Antispam
     public $host;
 
     /**
+     * User-Agent пользователя
+     * @var string
+     */
+    public $userAgent;
+
+    /**
      * Конструктор класса
      * @param Form $form Форма для проверки
      * @param string $lang Язык для проверки
      * @param string|null $host Хост (null, чтобы использовать текущий)
+     * @param string|null $userAgent User-Agent пользователя (null, чтобы использовать текущий)
      */
-    public function __construct(Form $form, $lang = 'ru', $host = null)
+    public function __construct(Form $form, $lang = 'ru', $host = null, $userAgent = null)
     {
         $this->form = $form;
         $this->lang = $lang;
-        $host = idn_to_ascii($host ?: $_SERVER['HTTP_HOST']);
+        $host = idn_to_ascii($host ?: ($_SERVER['HTTP_HOST'] ?? ''));
         $host = str_replace('www.', '', $host);
         $this->host = $host;
+        $this->userAgent = ($userAgent ?: ($_SERVER['HTTP_USER_AGENT'] ?? ''));
     }
 
 
@@ -70,6 +78,9 @@ class Antispam
      */
     public function checkInternational(array $flatData = [])
     {
+        if (!$this->checkUserAgent($this->userAgent)) {
+            return false;
+        }
         if (!$this->checkForeignLinks($flatData)) {
             return false;
         }
@@ -77,6 +88,52 @@ class Antispam
             return false;
         }
         return true;
+    }
+
+
+    /**
+     * Проверяет User-Agent на ботов
+     * @return bool Пройден ли антиспам-фильтр
+     */
+    public function checkUserAgent($userAgent)
+    {
+        if (stristr($userAgent, 'curl') || stristr($userAgent, 'bot')) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Проверяет email на соответствие спаму
+     * @return bool Пройден ли антиспам-фильтр
+     */
+    public function checkEmail($email)
+    {
+        $chunks = preg_split('/[@\\-\\.\\_]/', $email);
+        $spamicity = 0;
+        $c = count($chunks);
+        foreach ($chunks as $i => $chunk) {
+            $inDomain = ($i >= $c - 2); // Чанк в домене
+            if (preg_match_all('/^[a-z][A-Z][A-Z]/u', $chunk, $regs)) { // В начале маленькая, потом две больших
+                return false;
+            }
+            if (preg_match_all('/[a-z][A-Z][A-Z]/u', $chunk, $regs)) {
+                if ($inDomain) {
+                    return false;
+                } else {
+                    $spamicity += 2 * count($regs[0]);
+                }
+            }
+            if (preg_match_all('/[a-z][A-Z]/u', $chunk, $regs)) {
+                if ($inDomain) {
+                    $spamicity += 2 * count($regs[0]);
+                } else {
+                    $spamicity += 1 * count($regs[0]);
+                }
+            }
+        }
+        return $spamicity <= 3;
     }
 
 
@@ -95,9 +152,18 @@ class Antispam
                 continue; // Если поле предназначено для ссылки или соц. сети,
                           // то его не учитываем
             }
-            $field = $this->form->fields[$fieldURN];
-            if ($field && (in_array($field->datatype, ['url', 'email']))) {
-                continue; // Если поле типа "Адрес сайта", то его не учитываем
+            $field = null;
+            if (isset($this->form->fields[$fieldURN])) {
+                $field = $this->form->fields[$fieldURN];
+            }
+            if ($field) {
+                if ($field->datatype == 'email') {
+                    if (!$this->checkEmail($val)) {
+                        return false;
+                    }
+                } elseif ($field->datatype == 'url') {
+                    continue; // Если поле типа "Адрес сайта", то его не учитываем
+                }
             }
             if (!$this->checkTextForeignLinks($val)) {
                 return false;
@@ -146,7 +212,10 @@ class Antispam
         $urls = $this->extractURLs($text);
         if ($urls) {
             foreach ($urls as $url) {
-                $url = idn_to_ascii($url);
+                $idnURL = idn_to_ascii($url);
+                if ($idnURL) {
+                    $url = $idnURL;
+                }
                 if (!stristr($url, $this->host) && !stristr($this->host, $url)) {
                     return false;
                 }
@@ -164,7 +233,7 @@ class Antispam
     public function extractURLs($text)
     {
         $result = [];
-        $rx = '/(^|\\s)(((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.(([a-zA-Z\\-]+)|рф|ком)/umis';
+        $rx = '/(^|\\s)(((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.(([a-zA-Z0-9\\-]+)|рф|ком)/umis';
         if (preg_match_all($rx, $text, $regs)) {
             foreach ($regs[0] as $url) {
                 $url = preg_replace('/((http(s)?)|(ftp)):\\/\\//umis', '', trim($url));
@@ -235,6 +304,9 @@ class Antispam
             if (preg_match('/email/umis', $fieldURN)) {
                 continue;
             }
+            if (!isset($this->form->fields[$fieldURN])) {
+                continue;
+            }
             $field = $this->form->fields[$fieldURN];
             if (!$field || ($field->datatype == 'email')) {
                 continue;
@@ -274,7 +346,10 @@ class Antispam
     {
         foreach ($flatData as $key => $val) {
             $fieldURN = $this->getFieldURN($key);
-            $field = $this->form->fields[$fieldURN];
+            $field = null;
+            if (isset($this->form->fields[$fieldURN])) {
+                $field = $this->form->fields[$fieldURN];
+            }
             if (!preg_match('/phone|(^tel$)/umis', $fieldURN)) {
                 if (!$field || ($field->datatype != 'tel')) {
                     continue; // Поле не подходит ни по названию, ни по типу
@@ -300,6 +375,9 @@ class Antispam
             return false;
         }
         $beautifiedPhone = preg_replace('/\\D/umis', '', $text);
+        if (!$beautifiedPhone) {
+            return true;
+        }
         if ($beautifiedPhone[0] == '0') {
             return false;
         }

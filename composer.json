@@ -1,7 +1,7 @@
 {
     "name": "volumnet/raas.cms",
     "description": "RAAS.CMS",
-    "version": "4.3.53",
+    "version": "4.3.54",
     "license": "GPL-3.0-or-later",
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -31,5 +31,10 @@
     },
     "autoload-dev": {
         "classmap": ["tests"]
+    },
+    "config": {
+        "allow-plugins": {
+            "robloach/component-installer": true
+        }
     }
 }

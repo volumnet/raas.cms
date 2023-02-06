@@ -10,6 +10,126 @@ namespace RAAS\CMS;
 class AntispamTest extends BaseTest
 {
     /**
+     * Провайдер данных для метода testCheckUserAgent
+     * @return array <pre><code>array<[
+     *     string Текст для проверки,
+     *     bool Ожидаемый результат
+     * ]></code></pre>
+     */
+    public function checkUserAgentDataProvider()
+    {
+        return [
+            [
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 YaBrowser/23.1.3.688 (beta) Yowser/2.5 Safari/537.36',
+                true,
+            ],
+            [
+                'YandexBot',
+                false,
+            ],
+            [
+                'curl/7.54.0',
+                false,
+            ],
+        ];
+    }
+
+    /**
+     * Проверяет соответствие User-Agent
+     * @dataProvider checkUserAgentDataProvider
+     */
+    public function testCheckUserAgent($text, $expected)
+    {
+        $antispam = new Antispam(
+            new Form(),
+            'ru',
+            '',
+            $text,
+        );
+
+        $result = $antispam->checkUserAgent($text);
+
+        $this->assertEquals($expected, $result);
+    }
+
+
+    /**
+     * Провайдер данных для метода testCheckEmail
+     * @return array <pre><code>array<[
+     *     string Текст для проверки,
+     *     bool Ожидаемый результат
+     * ]></code></pre>
+     */
+    public function checkEmailDataProvider()
+    {
+        return [
+            [
+                'AlexVSurnin@GMail.com',
+                true,
+            ],
+            [
+                'VolumNet@Yandex.RU',
+                true,
+            ],
+            [
+                'b.FroUdiere@LHeRMiTe-aGRI.cOm',
+                false,
+            ],
+            [
+                'COrKs@rOGErs.COm',
+                false,
+            ],
+            [
+                'v.GIlL@ROGeRs.CoM',
+                false,
+            ],
+            [
+                'LAUrAgsAAD@gMaIL.Com',
+                false,
+            ],
+            [
+                'plAStICoPera@YAhoo.COM',
+                false,
+            ],
+            [
+                'RITA.patEL0627@gMaIL.coM',
+                false,
+            ],
+            [
+                'gUrdYWolOSz@rOgErs.com',
+                false,
+            ],
+            [
+                'SkLEcher@aol.coM',
+                false,
+            ],
+            [
+                'Ron@toMbALLCPAs.com',
+                false,
+            ],
+        ];
+    }
+
+    /**
+     * Проверяет соответствие почтового адреса
+     * @dataProvider checkEmailDataProvider
+     */
+    public function testCheckEmail($text, $expected)
+    {
+        $antispam = new Antispam(
+            new Form(),
+            'ru',
+            '',
+            $text,
+        );
+
+        $result = $antispam->checkEmail($text);
+
+        $this->assertEquals($expected, $result);
+    }
+
+
+    /**
      * Проверка уплощения данных
      */
     public function testFlattenData()
@@ -985,6 +1105,15 @@ class AntispamTest extends BaseTest
                 [
                     'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
                     'phone_call' => '+7 (999) 000-00-00',
+                    'agree' => '1'
+                ],
+                'ru',
+                true,
+            ],
+            [
+                [
+                    'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
+                    'email' => 'CEd8SrH@GmAIl.CoM',
                     'agree' => '1'
                 ],
                 'ru',
