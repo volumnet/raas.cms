@@ -148,10 +148,13 @@ class Antispam
     {
         foreach ($flatData as $key => $val) {
             $fieldURN = $this->getFieldURN($key);
-            if (preg_match('/url|social|site|web|link|www|internet|email/umis', $fieldURN)) {
+            if (preg_match('/url|social|site|web|link|www|internet/umis', $fieldURN)) {
                 continue; // Если поле предназначено для ссылки или соц. сети,
                           // то его не учитываем
             }
+            // if ($fieldURN == 'email') {
+            //     var_dump(mixed:value, mixed:values...)
+            // }
             $field = null;
             if (isset($this->form->fields[$fieldURN])) {
                 $field = $this->form->fields[$fieldURN];
@@ -163,10 +166,19 @@ class Antispam
                     }
                 } elseif ($field->datatype == 'url') {
                     continue; // Если поле типа "Адрес сайта", то его не учитываем
+                } else {
+                    if (!$this->checkTextForeignLinks($val)) {
+                        return false;
+                    }
                 }
-            }
-            if (!$this->checkTextForeignLinks($val)) {
-                return false;
+            } elseif ($fieldURN == 'email') {
+                if (!$this->checkEmail($val)) {
+                    return false;
+                }
+            } else {
+                if (!$this->checkTextForeignLinks($val)) {
+                    return false;
+                }
             }
         }
         return true;

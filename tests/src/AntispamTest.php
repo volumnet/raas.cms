@@ -1113,11 +1113,13 @@ class AntispamTest extends BaseTest
             [
                 [
                     'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
-                    'email' => 'CEd8SrH@GmAIl.CoM',
+                    'full_name' => 'Тестовый пользователь',
+                    'phone' => '+7 999 000-00-00',
+                    'email' => 'Ron@toMbALLCPAs.com',
                     'agree' => '1'
                 ],
                 'ru',
-                true,
+                false,
             ],
         ];
     }
