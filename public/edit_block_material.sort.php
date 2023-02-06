@@ -50,15 +50,15 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
           </tr>
         </thead>
         <tbody data-role="raas-repo-container">
-          <?php foreach ((array)$DATA['sort_var'] as $i => $temp) { ?>
+          <?php foreach ((array)($DATA['sort_var'] ?? []) as $i => $temp) { ?>
               <tr data-role="raas-repo-element">
                 <td>
-                  <input type="text" name="sort_var[]" value="<?php echo htmlspecialchars($DATA['sort_var'][$i])?>" class="span3" />
+                  <input type="text" name="sort_var[]" value="<?php echo htmlspecialchars($DATA['sort_var'][$i] ?? '')?>" class="span3" />
                 </td>
                 <td>
                   <select name="sort_field[]" class="jsMaterialTypeField span2">
                     <?php foreach ($CONTENT['fields'] as $row) { ?>
-                        <option value="<?php echo htmlspecialchars($row['value'])?>" <?php echo $DATA['sort_field'][$i] == $row['value'] ? 'selected="selected"' : ''?>>
+                        <option value="<?php echo htmlspecialchars($row['value'])?>" <?php echo ($DATA['sort_field'][$i] ?? '') == $row['value'] ? 'selected="selected"' : ''?>>
                           <?php echo htmlspecialchars($row['caption'])?>
                         </option>
                     <?php } ?>
@@ -67,7 +67,7 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
                 <td>
                   <select name="sort_relation[]" class="span2">
                     <?php foreach (Block_Material::$orderRelations as $key => $val) { ?>
-                        <option value="<?php echo htmlspecialchars($key)?>" <?php echo $DATA['sort_relation'][$i] == $key ? 'selected="selected"' : ''?>>
+                        <option value="<?php echo htmlspecialchars($key)?>" <?php echo ($DATA['sort_relation'][$i] ?? '') == $key ? 'selected="selected"' : ''?>>
                           <?php echo constant('CMS\\' . $val)?>
                         </option>
                     <?php } ?>
@@ -87,8 +87,8 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
               </td>
               <td>
                 <select name="sort_field[]" class="span2 jsMaterialTypeField" disabled="disabled">
-                  <?php foreach ($CONTENT['fields'] as $row) { ?>
-                      <option value="<?php echo htmlspecialchars($row['value'])?>" <?php echo $DATA['filter_field'][$i] == $row['value'] ? 'selected="selected"' : ''?>>
+                  <?php foreach ((array)($CONTENT['fields'] ?? []) as $row) { ?>
+                      <option value="<?php echo htmlspecialchars($row['value'])?>">
                         <?php echo htmlspecialchars($row['caption'])?>
                       </option>
                   <?php } ?>
@@ -97,7 +97,7 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
               <td>
                 <select name="sort_relation[]" class="span2" disabled="disabled">
                   <?php foreach (Block_Material::$orderRelations as $key => $val) { ?>
-                      <option value="<?php echo htmlspecialchars($key)?>" <?php echo $DATA['filter_relation'][$i] == $key ? 'selected="selected"' : ''?>>
+                      <option value="<?php echo htmlspecialchars($key)?>">
                         <?php echo constant('CMS\\' . $val)?>
                       </option>
                   <?php } ?>

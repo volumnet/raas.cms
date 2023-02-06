@@ -4,6 +4,7 @@
  * @return {String} 
  */
 export default function (price) {
+    price = (Math.round(price * 100) / 100);
     var pR = Math.round((parseFloat(price) - parseInt(price)) * 100);
     var pS = parseInt(price).toString();
     var pT = '';

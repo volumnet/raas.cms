@@ -4,6 +4,8 @@
  */
 namespace RAAS\CMS;
 
+use InvalidArgumentException;
+
 /**
  * Класс интерфейса меню
  */
@@ -73,25 +75,34 @@ class MenuInterface extends AbstractInterface
 
     /**
      * Получает видимое подменю
-     * @param Menu $menu Входное меню
+     * @param Menu|array $menu Входное меню или его копия
      * @return array<[
      *             'name' => string Наименование пункта,
      *             'url' => string URL пункта,
      *             'children' =>? array рекурсивно такой же массив
      *         ]>
      */
-    public function getVisSubmenu(Menu $menu)
+    public function getVisSubmenu($menu)
     {
+        $st = microtime(1);
         $result = [];
-        $subMenu = $menu->visSubMenu;
+        if ($menu instanceof Menu) {
+            $menuData = $menu->getArrayCopy();
+        } elseif (is_array($menu)) {
+            $menuData = $menu;
+        } else {
+            throw new InvalidArgumentException('Menu must be of a class Menu or array');
+        }
+        // $subMenu = $menu->getSubMenu(true);
+        $subMenu = Menu::getSubMenuData($menuData, true);
         foreach ($subMenu as $child) {
             $childData = [
-                'url' => $child->url,
-                'name' => $child->name,
+                'url' => $child['url'],
+                'name' => $child['name'],
                 'children' => $this->getVisSubmenu($child)
             ];
-            if ($child->page_id) {
-                $childData['page_id'] = (int)$child->page_id;
+            if ($child['page_id']) {
+                $childData['page_id'] = (int)$child['page_id'];
             }
             $result[] = $childData;
         }

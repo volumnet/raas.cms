@@ -57,6 +57,7 @@ class PageRecursiveCache extends VisibleRecursiveCache
         } else {
             $st = microtime(1);
             $this->load();
+            // var_dump(microtime(1) - $st); exit;
         }
     }
 

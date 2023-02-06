@@ -525,7 +525,7 @@ class Material_Type extends SOME
     {
         $mtCache = MaterialTypeRecursiveCache::i();
         $mtCache->refresh();
-        if ($materialTypeId = $materialType->id) {
+        if ($materialTypeId = ($materialType->id ?? 0)) {
             $materialTypesIds = array_merge(
                 [$materialTypeId],
                 $mtCache->getChildrenIds($materialTypeId)
@@ -598,7 +598,7 @@ class Material_Type extends SOME
     public static function updateAffectedPagesForSelf(Material_Type $materialType = null)
     {
         $sqlQuery = "DELETE FROM cms_material_types_affected_pages_for_self_cache";
-        if ($materialTypeId = $materialType->id) {
+        if ($materialTypeId = ($materialType->id ?? 0)) {
             $sqlQuery .= " WHERE material_type_id = " . (int)$materialTypeId;
         }
         static::_SQL()->query($sqlQuery);

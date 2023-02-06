@@ -192,9 +192,15 @@ class Diag
         $timeKey = 'time'
     ) {
         if ($counterKey) {
+            if (!isset($this->data[$entityName][$entityId][$counterKey])) {
+                $this->data[$entityName][$entityId][$counterKey] = 0;
+            }
             $this->data[$entityName][$entityId][$counterKey]++;
         }
         if ($timeKey) {
+            if (!isset($this->data[$entityName][$entityId][$timeKey])) {
+                $this->data[$entityName][$entityId][$timeKey] = 0;
+            }
             $this->data[$entityName][$entityId][$timeKey] += (float)$microtime;
         }
     }
@@ -309,11 +315,23 @@ class Diag
             foreach ($temp as $row) {
                 foreach ($row->data as $key => $keyData) {
                     foreach ((array)$keyData as $k => $arr) {
-                        $diag->data[$key][$k]['counter'] += (int)$arr['counter'];
-                        $diag->data[$key][$k]['time'] += (float)$arr['time'];
+                        if (!isset($diag->data[$key][$k]['counter'])) {
+                            $diag->data[$key][$k]['counter'] = 0;
+                        }
+                        if (!isset($diag->data[$key][$k]['time'])) {
+                            $diag->data[$key][$k]['time'] = 0;
+                        }
+                        $diag->data[$key][$k]['counter'] += (int)($arr['counter'] ?? 0);
+                        $diag->data[$key][$k]['time'] += (float)($arr['time'] ?? 0);
                         if ($key == 'blocks') {
-                            $diag->data[$key][$k]['widgetTime'] += (float)$arr['widgetTime'];
-                            $diag->data[$key][$k]['interfaceTime'] += (float)$arr['interfaceTime'];
+                            if (!isset($diag->data[$key][$k]['widgetTime'])) {
+                                $diag->data[$key][$k]['widgetTime'] = 0;
+                            }
+                            if (!isset($diag->data[$key][$k]['interfaceTime'])) {
+                                $diag->data[$key][$k]['interfaceTime'] = 0;
+                            }
+                            $diag->data[$key][$k]['widgetTime'] += (float)($arr['widgetTime'] ?? 0);
+                            $diag->data[$key][$k]['interfaceTime'] += (float)($arr['interfaceTime'] ?? 0);
                         }
                     }
                 }

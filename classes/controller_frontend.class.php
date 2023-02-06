@@ -194,7 +194,7 @@ class Controller_Frontend extends Abstract_Controller
                 if ($this->diag) {
                     if ($Page) {
                         $diagId = $Page->id;
-                        if ($Page->Material->id || $Page->Item->id) {
+                        if (($Page->Material && $Page->Material->id) || ($Page->Item && $Page->Item->id)) {
                             $diagId .= '@m';
                         }
                         $this->diag->handle(

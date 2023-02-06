@@ -212,9 +212,20 @@ class Menu extends SOME
      */
     public function getSubMenu($visOnly = false)
     {
-        $temp = [];
+        $subMenuData = static::getSubMenuData($this->getArrayCopy(), $visOnly);
+        $result = Menu::getArraySet($subMenuData);
+        return $result;
+    }
+
+
+    public static function getSubMenuData($menuData, $visOnly = false)
+    {
+        $result = [];
         $realized = [];
-        $id = (int)$this->id;
+        $id = (int)$menuData['id'];
+        $pvis = ($menuData['vis'] && $menuData['pvis']);
+        $inherit = $menuData['inherit'];
+        $pageId = $menuData['page_id'];
         $cache = MenuRecursiveCache::i();
         if ($id) {
             if ($visOnly) {
@@ -227,12 +238,9 @@ class Menu extends SOME
                 if ($pageId = $childData['page_id']) {
                     $realized[(string)$pageId] = $pageId;
                 }
-                $temp[] = new Menu($childData);
+                $result[] = $childData;
             }
         }
-        $pvis = ($this->vis && $this->pvis);
-        $inherit = $this->inherit;
-        $pageId = $this->page_id;
         $cache = PageRecursiveCache::i();
         if (($inherit > 0) && $pageId) {
             $i = 0;
@@ -256,11 +264,11 @@ class Menu extends SOME
                         'priority' => $childPageData['priority'],
                         'realized' => false,
                     ];
-                    $temp[] = new Menu($row);
+                    $result[] = $row;
                 }
             }
         }
-        return $temp;
+        return $result;
     }
 
 

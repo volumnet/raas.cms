@@ -185,7 +185,7 @@ function displayLocation(Location $location, Page $page)
                     <?php }
                 } ?>
                 <div class="input-append">
-                  <input type="search" class="span2 search-query" name="m<?php echo (int)$mtype->id?>search_string" value="<?php echo htmlspecialchars(ViewSub_Main::i()->nav['m' . (int)$mtype->id . 'search_string'])?>" />
+                  <input type="search" class="span2 search-query" name="m<?php echo (int)$mtype->id?>search_string" value="<?php echo htmlspecialchars(ViewSub_Main::i()->nav['m' . (int)$mtype->id . 'search_string'] ?? '')?>" />
                   <button type="submit" class="btn">
                     <i class="icon-search"></i>
                   </button>

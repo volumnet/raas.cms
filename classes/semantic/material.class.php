@@ -162,6 +162,13 @@ class Material extends SOME
                     . '.' . urlencode($url) . '.php';
                 return $file;
                 break;
+            // 2023-01-26, AVS: вынес сюда, чтобы не было путаницы
+            // Эти поля точно переопределять нельзя!
+            case 'id':
+            case 'pid':
+            case 'fields':
+                return parent::__get($var);
+                break;
             default:
                 $origVar = $var;
                 $val = parent::__get($var);
@@ -179,6 +186,7 @@ class Material extends SOME
                 // isset($this->fields[$var]) выдает false, хотя на локальном
                 // PHP5.6 выдает true - хз почему
                 $st = microtime(1);
+                // 2023-01-26 Нельзя isset или ??, т.к. считает что переменная не определена явно
                 $fields = $this->fields;
                 $field = isset($fields[$var]) ? $fields[$var] : null;
                 if (isset($field) && $field->id && ($field instanceof Material_Field)) {
@@ -541,8 +549,8 @@ class Material extends SOME
         Material_Type $materialType = null,
         Material $material = null
     ) {
-        $materialId = $material->id;
-        if ($materialTypeId = $materialType->id) {
+        $materialId = ($material->id ?? 0);
+        if ($materialTypeId = ($materialType->id ?? 0)) {
             $materialTypesIds = $materialType->selfAndChildrenIds;
         }
 
@@ -586,13 +594,18 @@ class Material extends SOME
 
         // Соберем привязку материалов к страницам
         $realMaterialsToPagesAssoc = [];
+        $i = 0;
         foreach ((array)$materialsToMaterialTypesAssoc as $mId => $mtId) {
-            foreach ((array)$materialTypesToPagesAssoc[$mtId] as $mtPageId) {
-                if (!isset($materialsToPagesAssoc[$mId]) ||
-                    isset($materialsToPagesAssoc[$mId][$mtPageId])
-                ) {
-                    $realMaterialsToPagesAssoc[trim($mId)][trim($mtPageId)] = (int)$mtPageId;
-                }
+            if (!isset($materialTypesToPagesAssoc[$mtId])) {
+                continue;
+            }
+            if (!isset($materialsToPagesAssoc[$mId])) {
+                $realMaterialsToPagesAssoc[trim($mId)] = $materialTypesToPagesAssoc[$mtId];
+            } else {
+                $realMaterialsToPagesAssoc[trim($mId)] = array_intersect_key(
+                    $materialTypesToPagesAssoc[$mtId],
+                    $materialsToPagesAssoc[$mId]
+                );
             }
         }
 
@@ -719,10 +732,10 @@ class Material extends SOME
             ) {
                 $materialsData[$materialId]['new_cache_url_parent_id'] = $materialData['page_id'];
             } elseif ($materialData['cache_url_parent_id'] &&
-                $materialData['affectedPages'][$materialData['cache_url_parent_id']]
+                ($materialData['affectedPages'][$materialData['cache_url_parent_id']] ?? 0)
             ) {
                 $materialsData[$materialId]['new_cache_url_parent_id'] = $materialData['cache_url_parent_id'];
-            } elseif ($affectedPages = $materialData['affectedPages']) {
+            } elseif ($affectedPages = ($materialData['affectedPages'] ?? [])) {
                 usort($affectedPages, function ($a, $b) use ($pagesData) {
                     $aPriority = $pagesData[$a['id']]['priority'];
                     $bPriority = $pagesData[$b['id']]['priority'];

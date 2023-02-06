@@ -21,9 +21,9 @@ $_RAASForm_FormTab = function(FormTab $formTab) use (
     ?>
     <p style="font-weight: bold">
       <?php echo \CMS\DIAGNOSTICS_COUNTER?>:
-      <?php echo (int)$Item->$cVar?><br />
+      <?php echo (int)($Item->$cVar ?? 0)?><br />
       <?php echo \CMS\DIAGNOSTICS_TOTAL_TIME?>:
-      <?php echo number_format($Item->$tVar, 3, '.', ' ')?>
+      <?php echo number_format($Item->$tVar ?? 0, 3, '.', ' ')?>
     </p>
     <?php
     if (array_filter(

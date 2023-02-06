@@ -158,7 +158,7 @@ $_RAASForm_Control = function (
                     'value' => $val->id,
                     'data-field-id' => (int)$field->Form->Item->fields[$field->name]->id,
                     'data-material-id' => $val->id,
-                    'data-material-pid' => $val->parents[0]->id,
+                    'data-material-pid' => isset($val->parents[0]) ? $val->parents[0]->id : 0,
                     'data-material-name' => $val->name
                 ];
                 ?>
@@ -212,7 +212,7 @@ $_RAASForm_Control = function (
             <?php } else { ?>
                 <div data-role="raas-repo-block">
                   <div data-role="raas-repo-container">
-                    <?php if ($Set = $field->Form->DATA[$field->name . ($field->Form->isPost ? '@attachment' : '')]) {
+                    <?php if ($Set = (array)($field->Form->DATA[$field->name . ($field->Form->isPost ? '@attachment' : '')] ?? [])) {
                         for ($i = 0; $i < count($Set); $i++) {
                             $row = $Set[$i];
                             if ($field->Form->isPost) {

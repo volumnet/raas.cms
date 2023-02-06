@@ -103,9 +103,9 @@ class DiagTable extends Table
                 ],
             ],
             'callback' => function ($Row) {
-                if ($Row->source['danger']) {
+                if ($Row->source['danger'] ?? false) {
                     $Row->class = 'error';
-                } elseif ($Row->source['alert']) {
+                } elseif ($Row->source['alert'] ?? false) {
                     $Row->class = 'warning';
                 }
             },

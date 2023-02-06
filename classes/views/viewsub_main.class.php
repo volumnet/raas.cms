@@ -852,6 +852,12 @@ class ViewSub_Main extends RAASAbstractSubView
      */
     public function pagesMenu($node, $current)
     {
+        // Статическая переменная введена для оптимизации при большом количестве страниц
+        static $packageUrl;
+        if (!$packageUrl) {
+            $packageUrl = $this->url;
+        }
+        $st = microtime(1);
         $pageCache = PageRecursiveCache::i();
         $menu = [];
         $nodeId = (int)(($node instanceof SOME) ? $node->id : $node);
@@ -861,7 +867,7 @@ class ViewSub_Main extends RAASAbstractSubView
             $childData = $pageCache->cache[$childId];
             $temp = [
                 'name' => Text::cuttext($childData['name'], 64, '...'),
-                'href' => $this->url . '&id=' . (int)$childId,
+                'href' => $packageUrl . '&id=' . (int)$childId,
                 'class' => '',
                 'active' => false
             ];

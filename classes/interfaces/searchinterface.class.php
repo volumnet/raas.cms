@@ -318,7 +318,7 @@ class SearchInterface extends AbstractInterface
                 $searchLimit
             );
             foreach ($materialsDataResult as $materialId => $materialWeight) {
-                $materials[$materialId] = $materialWeight;
+                $materials[$materialId] += $materialWeight;
             }
         }
 

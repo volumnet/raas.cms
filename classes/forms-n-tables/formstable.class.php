@@ -49,21 +49,14 @@ class FormsTable extends Table
                 ],
                 'urn' => [
                     'caption' => $this->view->_('URN'),
-                    'callback' => function (Form $form) use ($view, $Item) {
+                    'callback' => function (Form $form) use ($view) {
                         return '<a href="' . $this->getEditURL($form) . '">
                                   ' . htmlspecialchars($form->urn) . '
                                 </a>';
                     }
                 ],
                 ' ' => [
-                    'callback' => function (
-                        Form $form,
-                        $i
-                    ) use (
-                        $view,
-                        $contextMenuName,
-                        $params
-                    ) {
+                    'callback' => function (Form $form, $i) use ($view, $params) {
                         return rowContextMenu($view->getFormContextMenu(
                             $form,
                             $i,

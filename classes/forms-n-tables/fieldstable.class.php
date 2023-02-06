@@ -40,7 +40,7 @@ class FieldsTable extends Table
                                  ?  $view->$allCtxMenu()
                                  :  null,
                 'allValue' => 'all'
-                           . ($params['Item'] ? '&pid=' . (int)$params['Item']->id : ''),
+                           . (($params['Item'] ?? null) ? '&pid=' . (int)$params['Item']->id : ''),
             ],
             'data-role' => 'multitable',
             'columns' => [
@@ -120,7 +120,7 @@ class FieldsTable extends Table
                 ]
             ],
             'Set' => $params['Set'],
-            'Pages' => $params['Pages'],
+            'Pages' => $params['Pages'] ?? null,
             'template' => 'cms/prioritytable.tmp.php'
         ];
         $arr = array_merge($defaultParams, $params);

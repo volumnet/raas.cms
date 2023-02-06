@@ -134,7 +134,10 @@ class EditFieldForm extends RAASForm
             'caption' => $this->view->_('URN')
         ];
 
-        $fieldGroups = (array)$parent->fieldGroups;
+        $fieldGroups = [];
+        if ($parent) {
+            $fieldGroups = (array)$parent->fieldGroups;
+        }
         if (count($fieldGroups) > 1) {
             $children['gid'] = [
                 'type' => 'select',

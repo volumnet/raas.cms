@@ -1935,7 +1935,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         $arr[] = [
             'name' => $this->_('MOVE_TO_FIELDGROUP'),
             'href' => $this->url . '&action=move_material_field_to_group&pid='
-                . $_GET['id'],
+                . ($_GET['id'] ?? ''),
             'icon' => 'share-alt'
         ];
         $arr[] = [
@@ -2082,8 +2082,8 @@ class ViewSub_Dev extends RAASAbstractSubView
         }
         $arr = array_merge($arr, $this->stdView->stdContextMenu(
             $form,
-            $i,
-            $c,
+            $i ?? 0,
+            $c ?? 0,
             'edit_form',
             'forms',
             'delete_form'
@@ -2231,6 +2231,7 @@ class ViewSub_Dev extends RAASAbstractSubView
     public function getMenuContextMenu(Menu $menu)
     {
         $arr = [];
+        $edit = false;
         if ($menu->id) {
             $edit = ($this->action == 'edit_menu');
             $showlist = ($this->action == 'menus');

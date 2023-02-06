@@ -1026,8 +1026,8 @@ class Sub_Dev extends RAASAbstractSubController
      */
     protected function diag()
     {
-        $tFrom = strtotime($_GET['from']);
-        $tTo = strtotime($_GET['to']);
+        $tFrom = strtotime($_GET['from'] ?? '');
+        $tTo = strtotime($_GET['to'] ?? '');
         $from = date('Y-m-d', ($tFrom > 0) ? $tFrom : time());
         $to = date('Y-m-d', ($tTo > 0) ? $tTo : time());
         $Item = Diag::getMerged($from, $to);

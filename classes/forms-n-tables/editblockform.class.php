@@ -324,7 +324,7 @@ class EditBlockForm extends RAASForm
                     },
                     'export' => function () use ($item) {
                         $result = [];
-                        foreach ($_POST['params_name'] as $i => $val) {
+                        foreach (($_POST['params_name'] ?? []) as $i => $val) {
                             $result[] = $_POST['params_name'][$i] . '='
                                       . urlencode($_POST['params_value'][$i]);
                         }

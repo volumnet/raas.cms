@@ -230,8 +230,15 @@ abstract class Block extends SOME
             self::$SQL->add(static::$tablename2, $arr);
         }
         $this->reload();
-        foreach ($this->pages as $row) {
-            $row->modify();
+        // 2023-01-26, AVS: заменил на прямой SQL-запрос, поскольку при большом количестве товаров сильно тормозит
+        // foreach ($this->pages as $row) {
+        //     $row->modify();
+        // }
+        if ($pagesIds = array_map('intval', $this->pages_ids)) {
+            $sqlQuery = "UPDATE " . Page::_tablename()
+                      . "   SET last_modified = NOW(), modify_counter = modify_counter + 1
+                          WHERE id IN (" . implode(", ", $pagesIds) . ")";
+            Page::_SQL()->query($sqlQuery);
         }
     }
 
@@ -275,7 +282,7 @@ abstract class Block extends SOME
     {
         if ($this->cats) {
             $tablename = self::_dbprefix() . self::$links['pages']['tablename'];
-            $ids = array_merge($this->cats, (array)$Parent->all_children_ids);
+            $ids = (array)($this->cats ?? []);
             $old_ids = array_map('intval', array_diff($this->pages_ids, $ids));
             $new_ids = array_map('intval', array_diff($ids, $this->pages_ids));
             if ($old_ids) {
@@ -436,7 +443,7 @@ abstract class Block extends SOME
                 $diagId = $this->id;
                 if (($this instanceof Block_Material) &&
                     $this->nat &&
-                    ($page->Material->id || $page->Item->id)
+                    (($page->Material && $page->Material->id) || ($page->Item && $page->Item->id))
                 ) {
                     $diagId .= '@m';
                 }
@@ -500,7 +507,7 @@ abstract class Block extends SOME
                 $diagId = $this->id;
                 if (($this instanceof Block_Material) &&
                     $this->nat &&
-                    ($page->Material->id || $page->Item->id)
+                    (($page->Material && $page->Material->id) || ($page->Item && $page->Item->id))
                 ) {
                     $diagId .= '@m';
                 }
@@ -540,7 +547,7 @@ abstract class Block extends SOME
                 $diagId = $this->id;
                 if (($this instanceof Block_Material) &&
                     $this->nat &&
-                    ($page->Material->id || $page->Item->id)
+                    (($page->Material && $page->Material->id) || ($page->Item && $page->Item->id))
                 ) {
                     $diagId .= '@m';
                 }

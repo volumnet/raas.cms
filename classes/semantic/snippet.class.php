@@ -104,7 +104,7 @@ class Snippet extends SOME
         }
         $this->modify_date = $datetime;
         $this->editor_id = $uid;
-        if ($this->id && ($this->updates['urn'] != $this->properties['urn'])) {
+        if ($this->id && ($this->updates['urn'] ?? false) && ($this->updates['urn'] != $this->properties['urn'])) {
             $this->deleteFile();
         }
         parent::commit();
@@ -134,7 +134,10 @@ class Snippet extends SOME
                 $data['Block']->nat &&
                 $data['Page'] &&
                 ($data['Page'] instanceof Page) &&
-                ($data['Page']->Material->id || $data['Page']->Item->id)
+                (
+                    ($data['Page']->Material && $data['Page']->Material->id) ||
+                    ($data['Page']->Item && $data['Page']->Item->id)
+                )
             ) {
                 $diagId .= '@m';
             }

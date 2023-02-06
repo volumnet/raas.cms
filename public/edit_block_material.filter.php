@@ -29,7 +29,7 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
           </tr>
         </thead>
         <tbody data-role="raas-repo-container">
-          <?php foreach ((array)$DATA['filter_var'] as $i => $temp) { ?>
+          <?php foreach ((array)($DATA['filter_var'] ?? []) as $i => $temp) { ?>
               <tr data-role="raas-repo-element">
                 <td>
                   <input type="text" name="filter_var[]" value="<?php echo htmlspecialchars($DATA['filter_var'][$i])?>" class="span2" />
@@ -45,7 +45,7 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
                 </td>
                 <td>
                   <select name="filter_field[]" class="jsMaterialTypeField span2">
-                    <?php foreach ($CONTENT['fields'] as $row) { ?>
+                    <?php foreach ((array)($CONTENT['fields'] ?? []) as $row) { ?>
                         <option value="<?php echo htmlspecialchars($row['value'])?>" <?php echo $DATA['filter_field'][$i] == $row['value'] ? 'selected="selected"' : ''?>>
                           <?php echo htmlspecialchars($row['caption'])?>
                         </option>
