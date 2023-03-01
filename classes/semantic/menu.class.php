@@ -173,12 +173,30 @@ class Menu extends SOME
      */
     public function findPage(Page $page)
     {
-        if (($this->page_id == $page->id) || ($this->url == $page->url)) {
+        $pageData = $page->getArrayCopy();
+        if (($this->page_id == $pageData['id']) || ($this->url == $pageData['cache_url'])) {
             return $this;
         }
-        foreach ($this->visSubMenu as $row) {
-            if ($row2 = $row->findPage($page)) {
-                return $row2;
+        $subMenuData = static::getSubMenuData($this->getArrayCopy(), true);
+        $result = static::findPageBySubMenuData($subMenuData, $pageData);
+        if ($result) {
+            return new Menu($result);
+        }
+        return false;
+    }
+
+
+    public static function findPageBySubMenuData(array $subMenuData, array $pageData)
+    {
+        foreach ($subMenuData as $row) {
+            if (($row['page_id'] == $pageData['id']) || ($row['url'] == $pageData['cache_url'])) {
+                return $row;
+            }
+            $childData = static::getSubMenuData($row, true);
+            if ($childData) {
+                if ($childResult = static::findPageBySubMenuData($childData, $pageData)) {
+                    return $childResult;
+                }
             }
         }
         return false;

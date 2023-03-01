@@ -36,7 +36,7 @@ class EditFieldForm extends RAASForm
         $parent = isset($params['meta']['Parent'])
                 ? $params['meta']['Parent']
                 : null;
-        $parentUrl = $params['meta']['parentUrl'];
+        $parentUrl = $params['meta']['parentUrl'] ?? '';
 
         $defaultParams = [
             'caption' => $item->id

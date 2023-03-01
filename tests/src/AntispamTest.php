@@ -205,7 +205,8 @@ class AntispamTest extends BaseTest
         http://localhost
         ...
         test.org,
-        google.com/?db=antispam.org';
+        google.com/?db=antispam.org,
+        6.319';
         $antispam = new Antispam(new Form(), 'ru');
 
         $result = $antispam->extractURLs($text);

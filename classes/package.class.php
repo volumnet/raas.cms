@@ -394,7 +394,8 @@ class Package extends RAASPackage
                              ON tD.pid = tM.id
                            LEFT JOIN " . Material_Field::_tablename()
                       .  "   AS tF
-                             ON tD.fid = tF.id ";
+                             ON tD.fid = tF.id
+                            AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid ";
         }
         if (!$mType->global_type) {
             $sqlQuery .= " LEFT JOIN " . Material::_dbprefix() . "cms_materials_pages_assoc
@@ -411,8 +412,7 @@ class Package extends RAASPackage
         // 2016-01-14, AVS: добавил поиск по данным
         if ($searchString) {
             $likeSearchString = $this->SQL->real_escape_string($searchString);
-            $sqlQuery .= " AND tF.classname = 'RAAS\\\\CMS\\\\Material_Type' AND tF.pid
-                            AND (
+            $sqlQuery .= "  AND (
                                     tM.id = '" . $likeSearchString . "'
                                  OR tM.name LIKE '%" . $likeSearchString . "%'
                                  OR tM.description LIKE '%" . $likeSearchString . "%'
@@ -552,7 +552,7 @@ class Package extends RAASPackage
         $types = $mType->selfAndChildrenIds;
         $sqlQuery .= " WHERE tM.pid IN (" . implode(", ", $types) . ")
                          AND tD.fid IN (" . implode(", ", $fields) . ")
-                         AND tD.value = " . (int)$item->id;
+                         AND tD.value = '" . (int)$item->id . "'";
         if ($searchString) {
             $likeSearchString = $this->SQL->real_escape_string($searchString);
             $sqlQuery .= " AND tF2.classname = 'RAAS\\\\CMS\\\\Material_Type'

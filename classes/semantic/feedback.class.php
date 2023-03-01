@@ -68,6 +68,7 @@ class Feedback extends SOME
                 return $this->page->domain;
                 break;
             case 'description':
+                $text = '';
                 foreach ($this->fields as $field) {
                     $values = $field->getValues(true);
                     $arr = [];
@@ -84,7 +85,7 @@ class Feedback extends SOME
                                 break;
                             case 'email':
                             case 'url':
-                                $arr[$key] .= $val;
+                                $arr[$key] = $val;
                                 break;
                             case 'htmlarea':
                                 $arr[$key] = strip_tags($val);
@@ -104,7 +105,7 @@ class Feedback extends SOME
                                 break;
                         }
                         $arr[$key] = Text::cuttext(
-                            preg_replace('/\\s/i', ' ', $arr[$key]),
+                            preg_replace('/\\s/i', ' ', $arr[$key] ?? ''),
                             32
                         );
                     }
@@ -128,7 +129,7 @@ class Feedback extends SOME
                         $var = strtolower(substr($var, 3));
                         $vis = true;
                     }
-                    if ($this->fields[$var] &&
+                    if (($this->fields[$var] ?? null) &&
                         ($this->fields[$var] instanceof Form_Field)
                     ) {
                         $temp = $this->fields[$var]->getValues();

@@ -70,7 +70,7 @@ export default {
         // 2023-01-16, AVS: сделал чтобы закрывалось при переходе по ссылке
         $(this.$el).on(
             'click', 
-            '.menu-mobile__item:not(:has(> .menu-mobile__list)) > .menu-mobile__link', 
+            '.menu-mobile__item:not(:has(> .menu-mobile__list)) > .menu-mobile__link[href]', 
             () => {
                 $('.menu-mobile__list').removeClass('menu-mobile__list_active');
                 this.active = false;

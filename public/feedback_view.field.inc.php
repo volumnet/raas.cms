@@ -34,22 +34,22 @@ $_RAASForm_Control = function (RAASField $field) use (
                     $arr[$key] = '<span style="display: inline-block; height: 16px; width: 16px; background-color: ' . htmlspecialchars($val) . '"></span>';
                     break;
                 case 'email':
-                    $arr[$key] .= '<a href="mailto:' . htmlspecialchars($val) . '">'
+                    $arr[$key] = '<a href="mailto:' . htmlspecialchars($val) . '">'
                                .     htmlspecialchars($val)
                                .  '</a>';
                     break;
                 case 'url':
-                    $arr[$key] .= '<a href="' . (!preg_match('/^http(s)?:\\/\\//umi', trim($val)) ? 'http://' : '') . htmlspecialchars($val) . '">'
+                    $arr[$key] = '<a href="' . (!preg_match('/^http(s)?:\\/\\//umi', trim($val)) ? 'http://' : '') . htmlspecialchars($val) . '">'
                                .     htmlspecialchars($val)
                                .  '</a>';
                     break;
                 case 'file':
-                    $arr[$key] .= '<a href="/' . $val->fileURL . '">'
+                    $arr[$key] = '<a href="/' . $val->fileURL . '">'
                                .     htmlspecialchars($val->filename)
                                .  '</a>';
                     break;
                 case 'image':
-                    $arr[$key] .= '<a href="/' . $val->fileURL . '">'
+                    $arr[$key] = '<a href="/' . $val->fileURL . '">'
                                .    '<img src="/' . $val->tnURL. '" alt="' . htmlspecialchars($val->filename) . '" title="' . htmlspecialchars($val->filename) . '" />'
                                .  '</a>';
                     break;
@@ -57,7 +57,7 @@ $_RAASForm_Control = function (RAASField $field) use (
                     $arr[$key] = '<div>' . $val . '</div>';
                     break;
                 case 'material':
-                    $arr[$key] .= '<a href="?p=cms&action=edit_material&id=' . $val->id . '" target="_blank">'
+                    $arr[$key] = '<a href="?p=cms&action=edit_material&id=' . $val->id . '" target="_blank">'
                                .     htmlspecialchars($val->name)
                                .  '</a>';
                     break;
@@ -94,7 +94,7 @@ $_RAASForm_Control = function (RAASField $field) use (
                 echo '<a href="' . Sub_Main::i()->url . '&id=' . (int)$Item->page_id . '">' .
                         htmlspecialchars($Item->page->name) .
                       '</a>';
-                if ($Item->material->id) {
+                if ($Item && $Item->material && $Item->material->id) {
                     echo ' / ' .
                          '<a href="' . Sub_Main::i()->url . '&action=edit_material&id=' . (int)$Item->material_id . '&pid=' . (int)$Item->page_id . '">' .
                             htmlspecialchars($Item->material->name) .

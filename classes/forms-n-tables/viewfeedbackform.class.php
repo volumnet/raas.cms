@@ -49,7 +49,7 @@ class ViewFeedbackForm extends RAASForm
     protected function getParams(array $params = [])
     {
         $arr = [];
-        $arr['caption'] = sprintf($this->view->_('FEEDBACK_N'), (int)$params['Item']->id);
+        $arr['caption'] = sprintf($this->view->_('FEEDBACK_N'), (int)($params['Item']->id ?? 0));
         $arr['template'] = 'cms/feedback_view';
         return $arr;
     }

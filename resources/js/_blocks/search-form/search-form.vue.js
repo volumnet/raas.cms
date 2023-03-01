@@ -106,14 +106,13 @@ export default {
             window.clearTimeout(this.timeoutId);
             if (value.length > this.minLength) {
                 var url = this.autocompleteURL + value;
-                this.timeoutId = window.setTimeout(() => { 
+                this.timeoutId = window.setTimeout(async () => { 
                     this.searchString = value;
                     this.busy = true;
                     this.autocomplete = null;
-                    $.get(url, (data) => {
-                        this.busy = false;
-                        this.autocomplete = data;
-                    });
+                    const data = await this.$root.api(url, null, this.blockId);
+                    this.busy = false;
+                    this.autocomplete = data;
                 }, this.showInterval);
             }
         },

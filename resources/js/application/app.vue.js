@@ -2,7 +2,7 @@
  * Каркас приложения
  */
 export default {
-    data: function () {
+    data() {
         return {
             /**
              * Ширина экрана
@@ -55,7 +55,7 @@ export default {
             },
         };
     },
-    mounted: function () {
+    mounted() {
         let self = this;
         this.lightBoxInit();
 
@@ -99,11 +99,81 @@ export default {
     },
     methods: {
         /**
+         * Отправляет запрос к API
+         * 
+         * @param  {String} url URL для отправки
+         * @param  {mixed} postData POST-данные для отправки (если null, то GET-запрос)
+         * @param  {Number} blockId ID# блока для добавления AJAX={blockId} и заголовка X-RAAS-Block-Id
+         * @param  {String} responseType MIME-тип получаемого ответа (если присутствует слэш /, то отправляется также заголовок Accept)
+         * @param  {String} requestType MIME-тип запроса (если присутствует слэш /, то отправляется также заголовок Content-Type)
+         * @param  {Object} additionalHeaders Дополнительные заголовки
+         * @return {mixed} Результат запроса
+         */
+        async api(
+            url, 
+            postData = null, 
+            blockId = null, 
+            responseType = 'application/json', 
+            requestType = 'application/x-www-form-urlencoded',
+            additionalHeaders = {}
+        ) {
+            let realUrl = url;
+            if (!/\/\//gi.test(realUrl)) {
+                realUrl = '//' + window.location.host + realUrl;
+            }
+            const headers = {...additionalHeaders};
+            let rx;
+            if (blockId) {
+                if (!/(\?|&)AJAX=/gi.test(realUrl)) {
+                    realUrl += (/\?/gi.test(realUrl) ? '&' : '?') + 'AJAX=' + blockId;
+                }
+                headers['X-RAAS-Block-Id'] = blockId;
+            }
+            if (/\//gi.test(responseType)) {
+                headers['Accept'] = responseType;
+            }
+            if (/\//gi.test(requestType) && !!postData) {
+                headers['Content-Type'] = requestType;
+            }
+            const fetchOptions = {
+                headers,
+            };
+            if (!!postData) {
+                fetchOptions.method = 'POST';
+                if (/form/gi.test(requestType)) {
+                    if (/multipart/gi.test(requestType)) {
+                        const formData  = new FormData();
+                        for (const name in postData) {
+                            formData.append(name, postData[name]);
+                        }
+                        fetchOptions.body = formData;
+                    } else {
+                        fetchOptions.body = window.queryString.stringify(postData, { arrayFormat: 'bracket' });
+                    }
+                } else if ((typeof postData) == 'object') {
+                    fetchOptions.body = JSON.stringify(postData);
+                } else {
+                    fetchOptions.body = postData;
+                }
+            } else {
+                fetchOptions.method = 'GET';
+            }
+            const response = await fetch(realUrl, fetchOptions);
+            let result;
+            if (/json/gi.test(responseType)) {
+                result = await response.json();
+            } else {
+                result = await response.text();
+            }
+            return result;
+
+        },
+        /**
          * Получает смещение по вертикали для scrollTo 
          * (для случая фиксированной шапки)
          * @return {Number}
          */
-        getScrollOffset: function () {
+        getScrollOffset() {
             return 0;
         },
 
@@ -112,7 +182,7 @@ export default {
          * @param {String} hash хэш-тег (первый символ #)
          * @return {jQuery|null} null, если не найден
          */
-        getObjFromHash: function (hash) {
+        getObjFromHash(hash) {
             if (hash[0] != '#') {
                 hash = '#' + hash;
             }
@@ -131,7 +201,7 @@ export default {
          * Обрабатывает хэш-ссылку
          * @param {String} hash хэш-тег (первый символ #)
          */
-        processHashLink: function (hash) {
+        processHashLink(hash) {
             let $obj = this.getObjFromHash(hash);
             if ($obj && $obj.length) {
                 if ($obj.hasClass('modal')) {
@@ -154,7 +224,7 @@ export default {
          * Инициализация lightBox'а
          * (по умолчанию используется lightCase)
          */
-        lightBoxInit: function (options = {}) {
+        lightBoxInit(options = {}) {
             let defaults = {
                 processAllImageLinks: true,
                 swipe: true, 
@@ -186,7 +256,7 @@ export default {
          * Фиксация HTML (хелпер для модификации верстки)
          * (абстрактный, для переопределения)
          */
-        fixHtml: function () {
+        fixHtml() {
             // ...
         },
 
@@ -198,7 +268,7 @@ export default {
          * @param  {String} cancelText Текст кнопки "Отмена"
          * @return {jQuery.Promise}
          */
-        confirm: function (text, okText, cancelText) {
+        confirm(text, okText, cancelText) {
             return this.$refs.confirm.confirm(text, okText, cancelText);
         },
 
@@ -207,7 +277,7 @@ export default {
          * @param  {Number} x Цена
          * @return {String}
          */
-        formatPrice: function (price) {
+        formatPrice(price) {
             return window.formatPrice(price);
         },
 
@@ -221,7 +291,7 @@ export default {
          * ]</code></pre> Словоформы
          * @return {String}
          */
-        numTxt: function (x, forms) {
+        numTxt(x, forms) {
             return window.numTxt(x, forms);
         },
 
@@ -230,7 +300,7 @@ export default {
          * @param {String} eventName Наименование события
          * @param {mixed} data Данные для передачи
          */
-        jqEmit: function (eventName, data = null, originalEvent = null) {
+        jqEmit(eventName, data = null, originalEvent = null) {
             window.setTimeout(function () {
                 let result = $(document).trigger(eventName, data);
             }, 10);

@@ -248,6 +248,9 @@ class Antispam
         $rx = '/(^|\\s)(((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.(([a-zA-Z0-9\\-]+)|рф|ком)/umis';
         if (preg_match_all($rx, $text, $regs)) {
             foreach ($regs[0] as $url) {
+                if (is_numeric($url)) {
+                    continue; // 2023-02-09, AVS: убрал, т.к. в корзине вес не проходит
+                }
                 $url = preg_replace('/((http(s)?)|(ftp)):\\/\\//umis', '', trim($url));
                 $url = str_replace('www.', '', $url);
                 $result[] = $url;

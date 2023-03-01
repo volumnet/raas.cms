@@ -172,12 +172,12 @@ $_RAASForm_Control = function (
                 $attrs['accept'] = 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml';
             }
             if (!$field->multiple) {
-                $row = $field->Form->DATA[$field->name];
+                $row = $field->Form->DATA[$field->name] ?? null;
                 if ($field->Form->isPost) {
                     foreach (['name', 'attachment', 'vis', 'description'] as $key) {
                         $DATA[$key] = $field->Form->DATA[$field->name . '@' . $key];
                     }
-                } elseif ($row->id) {
+                } elseif ($row && $row->id) {
                     foreach (['name', 'attachment', 'vis', 'description'] as $key) {
                         $DATA[$key] = isset($row->$key) ? $row->$key : '';
                     }
@@ -186,16 +186,16 @@ $_RAASForm_Control = function (
                     $DATA['vis'] = 1;
                 } ?>
                 <div class="well cms-filecard">
-                  <?php if (!$field->meta['CustomField']->required && $row->id) { ?>
+                  <?php if (!$field->meta['CustomField']->required && $row && $row->id) { ?>
                       <a class="close" data-role="delete-attach" href="#" data-ondelete="<?php echo $field->type == 'image' ? DELETE_IMAGE_TEXT : DELETE_FILE_TEXT?>">
                         &times;
                       </a>
                   <?php } ?>
-                  <a href="<?php echo htmlspecialchars($row->fileURL)?>" target="_blank" data-role="file-link">
+                  <a href="<?php echo htmlspecialchars($row ? $row->fileURL : '')?>" target="_blank" data-role="file-link">
                     <?php if ($field->type == 'image') { ?>
-                        <img src="<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars(basename($row->filename))?>" title="<?php echo htmlspecialchars(basename($row->filename))?>" class="cms-filecard__image" />
+                        <img src="<?php echo htmlspecialchars($row ? $row->tnURL : '')?>" alt="<?php echo htmlspecialchars(basename($row ? $row->filename : ''))?>" title="<?php echo htmlspecialchars(basename($row ? $row->filename : ''))?>" class="cms-filecard__image" />
                     <?php } else { ?>
-                        <?php echo htmlspecialchars(basename($row->filename))?>
+                        <?php echo htmlspecialchars(basename($row ? $row->filename : ''))?>
                     <?php } ?>
                   </a>
                   <input type="hidden" name="<?php echo htmlspecialchars($field->name . '@attachment')?>" value="<?php echo (int)($DATA['attachment'] ?? 0)?>" />
@@ -204,7 +204,7 @@ $_RAASForm_Control = function (
                     <input type="checkbox" name="<?php echo htmlspecialchars($field->name . '@vis')?>" value="1" <?php echo $DATA['vis'] ? 'checked="checked"' : ''?> />
                     <?php echo \CMS\VISIBLE?>
                   </label>
-                  <div class="cms-filecard__fields<?php echo (($field->type == 'image' && $row->id) ? ' cms-filecard__fields_image' : '')?>">
+                  <div class="cms-filecard__fields<?php echo (($field->type == 'image' && $row && $row->id) ? ' cms-filecard__fields_image' : '')?>">
                     <input type="text" name="<?php echo htmlspecialchars($field->name . '@name')?>" value="<?php echo htmlspecialchars($DATA['name'] ?? '')?>" placeholder="<?php echo $field->type == 'image' ? \CMS\IMG_NAME_ALT_TITLE : NAME?>" />
                     <textarea v-pre name="<?php echo htmlspecialchars($field->name . '@description')?>" placeholder="<?php echo DESCRIPTION?>"><?php echo htmlspecialchars($DATA['description'] ?? '')?></textarea>
                   </div>
@@ -297,7 +297,7 @@ $_RAASForm_Control = function (
                 echo $_RAASForm_Checkbox($field->children);
             } else {
                 $attrs['value'] = 1;
-                if ($field->Form->DATA[$field->name]) {
+                if ($field->Form->DATA[$field->name] ?? '') {
                     $attrs['checked'] = 'checked';
                 } ?>
                 <input<?php echo $_RAASForm_Attrs($field, $attrs)?> />
@@ -321,7 +321,7 @@ $_RAASForm_Control = function (
                 $attrs = array_merge($attrs, ['multiple' => false]); ?>
                 <div data-role="raas-repo-block">
                   <div data-role="raas-repo-container">
-                    <?php foreach ((array)$field->Form->DATA[$field->name] as $key => $val) {
+                    <?php foreach ((array)($field->Form->DATA[$field->name] ?? []) as $key => $val) {
                         $field->value = $val; ?>
                         <div data-role="raas-repo-element">
                           <select<?php echo $_RAASForm_Attrs($field, $attrs)?>>
@@ -359,7 +359,7 @@ $_RAASForm_Control = function (
                 ?>
                 <div data-role="raas-repo-block">
                   <div data-role="raas-repo-container">
-                    <?php foreach ((array)$field->Form->DATA[$field->name] as $key => $val) { ?>
+                    <?php foreach ((array)($field->Form->DATA[$field->name] ?? []) as $key => $val) { ?>
                         <div data-role="raas-repo-element">
                           <raas-field-<?php echo htmlspecialchars($fieldType)?> <?php echo $_RAASForm_Attrs($field, array_merge($attrs, [':value' => json_encode($val)]))?>></raas-field-<?php echo htmlspecialchars($fieldType)?>>
                         </div>
@@ -372,7 +372,7 @@ $_RAASForm_Control = function (
                 <?php
             } else {
                 ?>
-                <raas-field-<?php echo htmlspecialchars($fieldType)?> <?php echo $_RAASForm_Attrs($field, array_merge($attrs, [':value' => json_encode($field->Form->DATA[$field->name])]))?>></raas-field-<?php echo htmlspecialchars($fieldType)?>>
+                <raas-field-<?php echo htmlspecialchars($fieldType)?> <?php echo $_RAASForm_Attrs($field, array_merge($attrs, [':value' => json_encode($field->Form->DATA[$field->name] ?? null)]))?>></raas-field-<?php echo htmlspecialchars($fieldType)?>>
                 <?php
             }
             break;

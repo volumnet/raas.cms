@@ -14,7 +14,7 @@ if ((array)$Table->Set || ($Table->emptyHeader && $Table->header)) { ?>
         <thead>
           <tr>
             <th>
-              <?php if ($Table->meta['allValue']) { ?>
+              <?php if ($Table->meta['allValue'] ?? false) { ?>
                   <input type="checkbox" data-role="checkbox-all" value="<?php echo htmlspecialchars($Table->meta['allValue'])?>">
               <?php } ?>
             </th>
@@ -39,7 +39,7 @@ if ((array)$Table->Set || ($Table->emptyHeader && $Table->header)) { ?>
               $_RAASTable_Row($row, $i);
           } ?>
         </tbody>
-        <?php if ($Table->meta['allContextMenu']) { ?>
+        <?php if ($Table->meta['allContextMenu'] ?? false) { ?>
             <tfoot>
               <tr>
                 <td colspan="2">

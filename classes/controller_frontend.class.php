@@ -11,6 +11,7 @@ use RAAS\Application;
 use RAAS\IContext;
 use RAAS\Process;
 use RAAS\View_Web as RAASViewWeb;
+use RAAS\CMS\Block;
 use RAAS\CMS\Page;
 use RAAS\CMS\Material;
 use RAAS\CMS\User as CMSUser;
@@ -487,52 +488,64 @@ class Controller_Frontend extends Abstract_Controller
 
     protected function fork()
     {
+        $blockId = (int)($_SERVER['HTTP_X_RAAS_BLOCK_ID'] ?? 0);
         $url = parse_url($this->requestUri);
         $url = $url['path'];
         $url = str_replace('\\', '/', $url);
-        $Page = $originalPage = Page::importByURL(
+        $page = $originalPage = Page::importByURL(
             $this->scheme . '://' . $this->host . $url
         );
         // 2021-11-18, AVS: оставляем кэширование 404-х их собственными настройками
-        // $doCache = (bool)(int)$Page->cache;
-        $Page->initialURL = $url;
+        // $doCache = (bool)(int)$page->cache;
+        $page->initialURL = $url;
 
         // 2021-11-18, AVS: оставляем кэширование 404-х их собственными настройками
-        $cprPage = $this->checkPageRights($Page/*, $doCache*/);
-        $Page = $cprPage;
+        $cprPage = $this->checkPageRights($page/*, $doCache*/);
+        $page = $cprPage;
         // 2021-11-18, AVS: оставляем кэширование 404-х их собственными настройками
-        $cmPage = $this->checkMaterial($Page/*, $doCache*/);
+        $cmPage = $this->checkMaterial($page/*, $doCache*/);
         if ($cmPage->Material) {
             $originalPage->Material = $cmPage->Material;
         }
-        $Page = $cmPage;
+        $page = $cmPage;
 
-        RAASViewWeb::i()->loadLanguage($Page->lang);
-        $this->exportLang(Application::i(), $Page->lang);
-        $this->exportLang($this->model, $Page->lang);
+        RAASViewWeb::i()->loadLanguage($page->lang);
+        $this->exportLang(Application::i(), $page->lang);
+        $this->exportLang($this->model, $page->lang);
         foreach ($this->model->modules as $mod) {
             $classname = Namespaces::getNS($mod) . '\\View_Web';
-            $this->exportLang($mod, $Page->lang);
+            $this->exportLang($mod, $page->lang);
         }
 
-        $content = $Page->process();
 
-        if ($Page->Material && !$Page->Material->proceed) {
+        if ($blockId) {
+            $block = Block::spawn($blockId);
+            if ($block->vis && $block->tuneWithMaterial($page)) {
+                ob_start();
+                $block->process($page);
+                $content = ob_get_contents();
+                ob_end_clean();
+            }
+        } else {
+            $content = $page->process();
+        }
+
+        if ($page->Material && !$page->Material->proceed) {
             // Материал заявлен, но не обработан
-            $Page = $Page->getCodePage(404);
+            $page = $page->getCodePage(404);
             // 2021-11-18, AVS: оставляем кэширование 404-х их собственными настройками
-            // $Page->cache = (bool)(int)$Page->cache || $doCache;
-            $content = $Page->process();
+            // $page->cache = (bool)(int)$page->cache || $doCache;
+            $content = $page->process();
         }
 
-        $Page->visit();
-        if ($Page->Material && $Page->Material->proceed) {
-            $Page->Material->visit();
+        $page->visit();
+        if ($page->Material && $page->Material->proceed) {
+            $page->Material->visit();
         }
-        $content = CMSPackage::processInternalLinks($content, $Page);
+        $content = CMSPackage::processInternalLinks($content, $page);
         echo $content;
 
-        if ($Page->cache && ($this->requestMethod == 'get')) {
+        if (!$blockId && $page->cache && ($this->requestMethod == 'get')) {
             $headers = (array)headers_list();
             if (($status1 = array_filter($headers, function ($x) {
                 return stristr($x, 'Status:');
@@ -547,7 +560,7 @@ class Controller_Frontend extends Abstract_Controller
             $this->saveCache($content, $headers, '', $originalPage);
         }
         $this->outputDebug();
-        return $Page;
+        return $page;
     }
 
 
