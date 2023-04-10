@@ -104,7 +104,11 @@ class Snippet extends SOME
         }
         $this->modify_date = $datetime;
         $this->editor_id = $uid;
-        if ($this->id && ($this->updates['urn'] ?? false) && ($this->updates['urn'] != $this->properties['urn'])) {
+        if ($this->id &&
+            ($this->updates['urn'] ?? false) &&
+            ($this->properties['urn'] ?? false) &&
+            ($this->updates['urn'] != $this->properties['urn'])
+        ) {
             $this->deleteFile();
         }
         parent::commit();

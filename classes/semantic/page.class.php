@@ -421,13 +421,13 @@ class Page extends SOME
         if ($this->pid && !$this->urn && $this->name) {
             $this->urn = $this->name;
         }
-        if ($this->updates['urn']) {
+        if ($this->updates['urn'] ?? false) {
             $urnUpdated = true;
         }
-        if ($this->updates['pid']) {
+        if ($this->updates['pid'] ?? false) {
             $pidUpdated = true;
         }
-        if ($this->updates['urn'] && $this->pid) {
+        if (($this->updates['urn'] ?? false) && $this->pid) {
             $this->urn = Text::beautify($this->urn, '-');
             $this->urn = preg_replace('/\\-\\-/umi', '-', $this->urn);
             $this->urn = trim($this->urn, '-');
@@ -440,13 +440,13 @@ class Page extends SOME
         foreach (static::$inheritedFields as $inheritanceFieldURN => $originalFieldURN) {
             // Только если значение изменено (включая создание нового)
             // и включено наследование (актуальное)
-            if ($this->updates[$originalFieldURN] &&
+            if (($this->updates[$originalFieldURN] ?? false) &&
                 $this->$inheritanceFieldURN
             ) {
                 $inheritanceChildrenIds = $this->getInheritedChildren(
                     $inheritanceFieldURN,
                     $originalFieldURN,
-                    $this->properties[$originalFieldURN]
+                    ($this->properties[$originalFieldURN] ?? null)
                 );
                 if ($inheritanceChildrenIds) {
                     static::_SQL()->update(
@@ -490,7 +490,7 @@ class Page extends SOME
             }
         }
 
-        if (!$this->meta['dontUpdateAffectedPages']) {
+        if (!($this->meta['dontUpdateAffectedPages'] ?? false)) {
             // 2019-04-25, AVS: обновим связанные страницы типов материалов
             // 2020-02-10, AVS: добавил условие для загрузчика прайсов
             // (чтобы было быстрее)

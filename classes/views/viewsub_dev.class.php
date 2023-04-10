@@ -1493,6 +1493,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         $c = 0
     ) {
         $arr = [];
+        $edit = false;
         if ($dictionary->id) {
             $edit = ($this->action == 'edit_dictionary');
             $showlist = ($this->action == 'dictionaries');

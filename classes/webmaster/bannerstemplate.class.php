@@ -100,16 +100,18 @@ class BannersTemplate extends MaterialTypeTemplate
                 'sitemaps_priority' => 0.5
             ]);
             $item->commit();
-            $att = Attachment::createFromFile(
-                $imagesUrls[$i],
-                $this->materialType->fields['images']
-            );
-            $item->fields['image']->addValue(json_encode([
-                'vis' => 1,
-                'name' => '',
-                'description' => '',
-                'attachment' => (int)$att->id
-            ]));
+            if ($imagesUrls[$i] ?? null) {
+                $att = Attachment::createFromFile(
+                    $imagesUrls[$i],
+                    $this->materialType->fields['image']
+                );
+                $item->fields['image']->addValue(json_encode([
+                    'vis' => 1,
+                    'name' => '',
+                    'description' => '',
+                    'attachment' => (int)$att->id
+                ]));
+            }
             $item->fields['url']->addValue('#');
             $result[] = $item;
         }

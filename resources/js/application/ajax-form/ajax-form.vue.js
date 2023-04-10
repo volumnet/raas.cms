@@ -85,30 +85,41 @@ export default {
     mounted: function () {
         var self = this;
 
-        $(this.$el).submit(function (e) {
+        $(this.$el).on('submit', async function (e) {
             $(this).trigger('RAAS.AJAXForm.submit');
             $(this).trigger('raas.ajaxform.submit');
             self.$emit('submit', e);
+            e.stopPropagation();
+            e.preventDefault();
 
             self.loading = true;
             self.success = false;
             self.localError = {};
-            $(this).ajaxSubmit({ 
-                dataType: 'json', 
-                'url': $(this).attr('action'), 
-                success: self.handle.bind(self), 
-                error: function () {
-                    self.loading = false;
-                },
-                data: { 
-                    AJAX: (self.blockId || 1) 
-                } 
-            });
+            const postData = new FormData(self.$el);
+            postData.append('AJAX', (self.blockId || 1));
+
+            const url = $(this).attr('action') || window.location.href;
+            const requestType = $(this).attr('enctype') || 'multipart/form-data';
+            try {
+                const response = await self.$root.api(
+                    url, 
+                    postData, 
+                    self.blockId || 1, 
+                    'application/json', 
+                    requestType
+                );
+                self.handle(response);
+            } catch (err) {
+                self.loading = false;
+            }
             return false;
         });
         $('input, select, textarea', this.$el).change(function () {
             $(this).closest('.form-group').removeClass('text-danger');
             $(this).removeClass('text-danger');
+            let newErrors = JSON.parse(JSON.stringify(self.errors));
+            delete newErrors[$(this).attr('name')];
+            self.errors = newErrors;
         });
 
     },
@@ -143,8 +154,9 @@ export default {
                 this.$emit('error', data.localError);
                 if (this.scrollToErrors) {
                     window.setTimeout(() => {
+                        // console.log(this.$refs.errors);
                         $.scrollTo(this.$refs.errors || window.app.$el, 500);
-                    }, 10);
+                    }, 10); // Чтобы успела появиться плашка с ошибками
                 }
             }
         },

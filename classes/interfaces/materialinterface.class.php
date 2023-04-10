@@ -186,22 +186,13 @@ class MaterialInterface extends AbstractInterface
      *             'order' => Значение порядка для вывода в виджет
      *         ] Данные по списку материалов
      */
-    public function processList(
-        Block_Material $block,
-        Page $page,
-        array $get = []
-    ) {
+    public function processList(Block_Material $block, Page $page, array $get = [])
+    {
         $pages = null;
         $sort = $order = '';
-        if (isset($block->pages_var_name, $block->rows_per_page) &&
-            (int)$block->rows_per_page
-        ) {
+        if (isset($block->pages_var_name, $block->rows_per_page) && (int)$block->rows_per_page) {
             $pages = new Pages(
-                (
-                    isset($get[$block->pages_var_name]) ?
-                    (int)$get[$block->pages_var_name] :
-                    1
-                ),
+                (isset($get[$block->pages_var_name]) ? (int)$get[$block->pages_var_name] : 1),
                 (int)$block->rows_per_page
             );
         }
@@ -223,26 +214,16 @@ class MaterialInterface extends AbstractInterface
 
     /**
      * Получает список материалов
-     * @param Block_Material|null $block Блок, для которого применяется
-     *                                   интерфейс
+     * @param Block_Material|null $block Блок, для которого применяется интерфейс
      * @param Page|null $page Страница, для которой применяется интерфейс
      * @param array $get Поля $_GET параметров
      * @param Pages|null $pages Постраничная разбивка
-     * @return array<Material>
+     * @return Material[]
      */
-    public function getList(
-        Block_Material $block,
-        Page $page,
-        array $get = [],
-        Pages $pages = null
-    ) {
+    public function getList(Block_Material $block, Page $page, array $get = [], Pages $pages = null)
+    {
         $sqlParts = $this->getSQLParts($block, $page, $get);
-        $sqlQuery = $this->getSQLQuery(
-            $sqlParts['from'],
-            $sqlParts['where'],
-            $sqlParts['sort'],
-            $sqlParts['order']
-        );
+        $sqlQuery = $this->getSQLQuery($sqlParts['from'], $sqlParts['where'], $sqlParts['sort'], $sqlParts['order']);
         // if ($block->id == 69) {
         //     echo $sqlQuery;
         //     var_dump($sqlParts);

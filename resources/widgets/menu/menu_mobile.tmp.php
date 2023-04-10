@@ -17,7 +17,7 @@ use SOME\Text;
 
 $useAjax = true;
 
-$ajax = (bool)stristr($Page->url, '/ajax/');
+$ajax = (bool)stristr($Page->url, '/ajax/') || (($_GET['AJAX'] ?? '') == $Block->id);
 
 /**
  * Возвращает код закрытия меню
@@ -222,7 +222,14 @@ $company = Material::getSet([
 $phone = (array)$company->phone;
 $phone = $phone[0];
 ?>
-<nav class="menu-mobile" data-vue-role="menu-mobile" data-v-bind_page-id="<?php echo (int)$Page->id?>" data-v-bind_use-ajax="<?php echo htmlspecialchars(json_encode($useAjax))?>" data-v-slot="vm">
+<nav
+  class="menu-mobile"
+  data-vue-role="menu-mobile"
+  data-v-bind_page-id="<?php echo (int)$Page->id?>"
+  data-v-bind_block-id="<?php echo (int)$Block->id?>"
+  data-v-bind_use-ajax="<?php echo htmlspecialchars(json_encode($useAjax))?>"
+  data-v-slot="vm"
+>
   <a class="menu-mobile__trigger" data-v-on_click.stop="jqEmit('raas.openmobilemenu')"></a>
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>

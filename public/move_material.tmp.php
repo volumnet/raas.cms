@@ -16,6 +16,7 @@ use SOME\HTTP;
 function showMoveMenu(Page $node, array $ids, array $actives)
 {
     static $level = 0;
+    $text = '';
     foreach ($node->children as $row) {
         $active = in_array($row->id, $actives);
         $text .= '<li class="' . ((!$row->vis || !$row->pvis) ? ' cms-invis' : '') . (!$row->pvis ? ' cms-inpvis' : '') . ($active ? ' active' : '') . '">';

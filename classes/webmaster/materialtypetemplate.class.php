@@ -202,10 +202,10 @@ class MaterialTypeTemplate
                 'sort_field_default' => 'name',
                 'sort_order_default' => 'asc',
                 'interface_id' => (int)Snippet::importByURN('__raas_material_interface')->id,
-                'widget_id' => (int)$widget->id,
+                'widget_id' => (int)($widget ? $widget->id : 0),
                 'location' => 'content',
-                'inherit' => (int)$inherit,
-                'cats' => $additionalData['inherit'] ? $page->selfAndChildrenIds : [(int)$page->id]
+                'inherit' => (int)($additionalData['inherit'] ?? false),
+                'cats' => ($additionalData['inherit'] ?? false) ? $page->selfAndChildrenIds : [(int)$page->id]
             ], $additionalData);
             $block = new Block_Material($blockData);
             $block->commit();
@@ -226,7 +226,7 @@ class MaterialTypeTemplate
     {
         $newMaterialType = false;
         $materialType = Material_Type::importByURN($urn);
-        if (!$materialType->id) {
+        if (!($materialType && $materialType->id)) {
             $materialType = new Material_Type([
                 'name' => $name,
                 'urn' => $urn,
@@ -251,13 +251,13 @@ class MaterialTypeTemplate
     public function create()
     {
         $widget = Snippet::importByURN($this->materialType->urn);
-        if (!$widget->id) {
+        if (!($widget && $widget->id)) {
             $widget = $this->createBlockSnippet();
         }
 
         if ($this->createMainSnippet) {
             $mainWidget = Snippet::importByURN($this->materialType->urn . '_main');
-            if (!$mainWidget->id) {
+            if (!($mainWidget && $mainWidget->id)) {
                 $mainWidget = $this->createMainPageSnippet();
             }
             if ($this->createMainBlock) {

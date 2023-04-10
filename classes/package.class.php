@@ -39,7 +39,7 @@ class Package extends RAASPackage
 
     public function __get($var)
     {
-        $ua = $_SERVER['HTTP_USER_AGENT'];
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
         switch ($var) {
             case 'cacheDir':
                 return $this->application->baseDir . '/cache';
@@ -227,6 +227,7 @@ class Package extends RAASPackage
         $sqlQuery = "SELECT SQL_CALC_FOUND_ROWS *
                        FROM " . Dictionary::_tablename()
                   . " WHERE pid = " . (int)$Parent->id;
+        $sort = $order = null;
         if ($Parent->orderby && ($Parent->orderby != 'priority')) {
             $sort = $Parent->orderby;
         }

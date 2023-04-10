@@ -139,15 +139,15 @@ class CMSAccess extends SOME
         $tablename = Page::_dbprefix()
                    . $tablename['allowedUsers']['tablename'];
         $sqlQuery = "DELETE FROM " . $tablename . " WHERE 1";
-        if ($user->id) {
+        if ($user && $user->id) {
             $sqlQuery .= " AND uid = " . (int)$user->id;
         }
-        if ($page->id) {
+        if ($page && $page->id) {
             $sqlQuery .= " AND page_id = " . (int)$page->id;
         }
         self::_SQL()->query($sqlQuery);
 
-        if ((int)$user->id) {
+        if ($user && (int)$user->id) {
             $usersIds = [(int)$user->id];
         } else {
             $sqlQuery = "SELECT tU.id FROM " . User::_tablename() . " AS tU";
@@ -162,7 +162,7 @@ class CMSAccess extends SOME
                   . "    AS tA
                          ON tA.page_id = tP.id
                       WHERE 1";
-        if ((int)$page->id) {
+        if ($page && (int)$page->id) {
             $sqlQuery .= " AND tP.id = " . (int)$page->id;
         }
         $sqlQuery .= " GROUP BY tP.id";
@@ -198,15 +198,15 @@ class CMSAccess extends SOME
         $tablename = Material::_dbprefix()
                    . $tablename['allowedUsers']['tablename'];
         $sqlQuery = "DELETE FROM " . $tablename . " WHERE 1";
-        if ($user->id) {
+        if ($user && $user->id) {
             $sqlQuery .= " AND uid = " . (int)$user->id;
         }
-        if ($material->id) {
+        if ($material && $material->id) {
             $sqlQuery .= " AND material_id = " . (int)$material->id;
         }
         self::_SQL()->query($sqlQuery);
 
-        if ((int)$user->id) {
+        if ($user && (int)$user->id) {
             $usersIds = [(int)$user->id];
         } else {
             $sqlQuery = "SELECT tU.id FROM " . User::_tablename() . " AS tU";
@@ -221,7 +221,7 @@ class CMSAccess extends SOME
                   . "    AS tA
                          ON tA.material_id = tM.id
                       WHERE 1";
-        if ((int)$material->id) {
+        if ($material && (int)$material->id) {
             $sqlQuery .= " AND tM.id = " . (int)$material->id;
         }
         $sqlQuery .= " GROUP BY tM.id";
@@ -257,15 +257,15 @@ class CMSAccess extends SOME
         $tablename = Block::_dbprefix()
                    . $tablename['allowedUsers']['tablename'];
         $sqlQuery = "DELETE FROM " . $tablename . " WHERE 1";
-        if ($user->id) {
+        if ($user->id ?? null) {
             $sqlQuery .= " AND uid = " . (int)$user->id;
         }
-        if ($block->id) {
+        if ($block->id ?? null) {
             $sqlQuery .= " AND block_id = " . (int)$block->id;
         }
         self::_SQL()->query($sqlQuery);
 
-        if ((int)$user->id) {
+        if ((int)($user->id ?? 0)) {
             $usersIds = [(int)$user->id];
         } else {
             $sqlQuery = "SELECT tU.id FROM " . User::_tablename() . " AS tU";
@@ -280,7 +280,7 @@ class CMSAccess extends SOME
                   . "    AS tA
                          ON tA.block_id = tM.id
                       WHERE 1";
-        if ((int)$block->id) {
+        if ((int)($block->id ?? 0)) {
             $sqlQuery .= " AND tM.id = " . (int)$block->id;
         }
         $sqlQuery .= " GROUP BY tM.id";

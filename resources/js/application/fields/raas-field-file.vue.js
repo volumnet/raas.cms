@@ -39,7 +39,6 @@ export default {
             let self = this;
             let tgt = e.target || window.event.srcElement;
             let files = tgt.files;
-
             // FileReader support
             if (files && files.length) {
                 this.fileName = files[0].name;
@@ -47,6 +46,7 @@ export default {
                 let ext = (fileChunks.length > 1) ? fileChunks[fileChunks.length - 1] : '';
                 let mime = files[0].type;
                 if (!this.allowedTypes || 
+                    !this.allowedTypes.length ||
                     (this.allowedTypes.indexOf(ext) != -1) ||
                     (this.allowedTypes.indexOf(mime) != -1)
                 ) {
@@ -67,6 +67,7 @@ export default {
          */
         clearFile: function () {
             this.fileName = '';
+            this.$refs.input.value = '';
             this.$emit('input', '')
         },
         /**
@@ -86,7 +87,7 @@ export default {
                 return null;
             }
             let allowedTypes = this.accept.split(',');
-            allowedTypes = allowedTypes.filter(x => !!x).map(x => x.replace('.', ''));
+            allowedTypes = allowedTypes.map(x => x.replace('.', '')).filter(x => !!x);
             return allowedTypes;
         },
         /**

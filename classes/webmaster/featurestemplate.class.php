@@ -112,7 +112,7 @@ class FeaturesTemplate extends MaterialTypeTemplate
     public function create()
     {
         $mainWidget = Snippet::importByURN($this->materialType->urn . '_main');
-        if (!$mainWidget->id) {
+        if (!($mainWidget && $mainWidget->id)) {
             $mainWidget = $this->createMainPageSnippet();
         }
         if ($this->createMainBlock) {

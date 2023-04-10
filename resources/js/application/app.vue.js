@@ -58,7 +58,6 @@ export default {
     mounted() {
         let self = this;
         this.lightBoxInit();
-
         this.windowWidth = $(window).outerWidth();
         this.windowHeight = $(window).outerHeight();
         this.bodyWidth = $('body').outerWidth();
@@ -142,11 +141,17 @@ export default {
                 fetchOptions.method = 'POST';
                 if (/form/gi.test(requestType)) {
                     if (/multipart/gi.test(requestType)) {
-                        const formData  = new FormData();
-                        for (const name in postData) {
-                            formData.append(name, postData[name]);
+                        let formData  = new FormData();
+                        if (postData instanceof FormData) {
+                            formData = postData;
+                        } else {
+                            formData = new FormData();
+                            for (const name in postData) {
+                                formData.append(name, postData[name]);
+                            }
                         }
                         fetchOptions.body = formData;
+                        delete headers['Content-Type']; // Там автоматически boundary ставится, без него фигня получается
                     } else {
                         fetchOptions.body = window.queryString.stringify(postData, { arrayFormat: 'bracket' });
                     }
@@ -158,6 +163,7 @@ export default {
             } else {
                 fetchOptions.method = 'GET';
             }
+            // console.log(fetchOptions);
             const response = await fetch(realUrl, fetchOptions);
             let result;
             if (/json/gi.test(responseType)) {

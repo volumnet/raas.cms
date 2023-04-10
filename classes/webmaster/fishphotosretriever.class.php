@@ -30,8 +30,9 @@ class FishPhotosRetriever
     {
         if (!$this->imagesRetrieved || $refresh) {
             $url = static::$url . ($search ? '&q=' . urlencode($search) : '');
-            $result = json_decode(file_get_contents($url), true);
-            $result = $result['hits'];
+            $text = @file_get_contents($url);
+            $result = @(array)json_decode($text, true);
+            $result = $result['hits'] ?? [];
             $this->imagesRetrieved = array_map(function ($x) {
                 return $x['largeImageURL'];
             }, $result);

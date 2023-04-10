@@ -93,7 +93,7 @@ class NewsTemplate extends MaterialTypeTemplate
         $textRetriever = new FishYandexReferatsRetriever();
         $photosRetriever = new FishPhotosRetriever();
         $imagesUrls = $photosRetriever->retrieve(15);
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; ($i < 3 && $i < count($imagesUrls)); $i++) {
             $text = $textRetriever->retrieve();
             $item = new Material([
                 'pid' => (int)$this->materialType->id,
@@ -109,16 +109,18 @@ class NewsTemplate extends MaterialTypeTemplate
             );
             $item->fields['brief']->addValue($text['brief']);
             for ($j = 0; $j < 5; $j++) {
-                $att = Attachment::createFromFile(
-                    $imagesUrls[($i * 5) + $j],
-                    $this->materialType->fields['images']
-                );
-                $item->fields['images']->addValue(json_encode([
-                    'vis' => 1,
-                    'name' => '',
-                    'description' => '',
-                    'attachment' => (int)$att->id
-                ]));
+                if ($imagesUrls[($i * 5) + $j] ?? null) {
+                    $att = Attachment::createFromFile(
+                        $imagesUrls[($i * 5) + $j],
+                        $this->materialType->fields['images']
+                    );
+                    $item->fields['images']->addValue(json_encode([
+                        'vis' => 1,
+                        'name' => '',
+                        'description' => '',
+                        'attachment' => (int)$att->id
+                    ]));
+                }
             }
             $result[] = $item;
         }

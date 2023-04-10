@@ -63,7 +63,7 @@ class Block_Search extends Block
                       WHERE id = ?";
         self::$SQL->query([$sqlQuery, (int)$this->id]);
         $arr = [];
-        if ($this->meta['mtypes'] && is_array($this->meta['mtypes'])) {
+        if (($this->meta['mtypes'] ?? false) && is_array($this->meta['mtypes'])) {
             for ($i = 0; $i < count($this->meta['mtypes']); $i++) {
                 $val = $this->meta['mtypes'][$i];
                 $arr[] = [
@@ -83,7 +83,7 @@ class Block_Search extends Block
                       WHERE id = ?";
         self::$SQL->query([$sqlQuery, (int)$this->id]);
         $arr = [];
-        if ($this->meta['languages'] && is_array($this->meta['languages'])) {
+        if (($this->meta['languages'] ?? false) && is_array($this->meta['languages'])) {
             for ($i = 0; $i < count($this->meta['languages']); $i++) {
                 if ($val = $this->meta['languages'][$i]) {
                     $arr[] = [
@@ -104,7 +104,7 @@ class Block_Search extends Block
                       WHERE id = ?";
         self::$SQL->query([$sqlQuery, (int)$this->id]);
         $arr = [];
-        if ($this->meta['search_pages_ids'] &&
+        if (($this->meta['search_pages_ids'] ?? false) &&
             is_array($this->meta['search_pages_ids'])
         ) {
             for ($i = 0; $i < count($this->meta['search_pages_ids']); $i++) {

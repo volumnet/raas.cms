@@ -37,9 +37,9 @@ class FieldArrayFormatter
     /**
      * Форматирует данные
      * @param array $with <pre>array<(
-     *     string[] URN поля => function (Field $field Поле): mixed Обработчик данных
+     *     string[] URN атрибута => function (Field $field Поле): mixed Обработчик данных
      * )|(
-     *     int[] Индекс поля => string URN поля
+     *     int[] Индекс атрибута => string URN поля
      * )> Массив дополнительных полей для отображения
      * @return array <pre>array<string[] Свойство поля => mixed></pre>
      */

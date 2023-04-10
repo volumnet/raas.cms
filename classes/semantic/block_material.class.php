@@ -78,8 +78,10 @@ class Block_Material extends Block
 
     public function commit()
     {
+        $oldMaterialTypeId = null;
         if ($this->id &&
-            $this->updates['material_type'] &&
+            ($this->updates['material_type'] ?? false) &&
+            ($this->properties['material_type'] ?? false) &&
             ($this->updates['material_type'] != $this->properties['material_type'])
         ) {
             $oldMaterialTypeId = $this->properties['material_type'];

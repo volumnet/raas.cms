@@ -186,12 +186,12 @@ class Material_Type extends SOME
         Package::i()->getUniqueURN($this);
         $globDirection = 0; // Направление глобализации
         if (isset($this->updates['global_type'])) {
-            if ($this->properties['global_type'] &&
-                !$this->updates['global_type']
+            if (($this->properties['global_type'] ?? false) &&
+                !($this->updates['global_type'] ?? false)
             ) {
                 $globDirection = -1;
-            } elseif (!$this->properties['global_type'] &&
-                $this->updates['global_type']
+            } elseif (!($this->properties['global_type'] ?? false) &&
+                ($this->updates['global_type'] ?? false)
             ) {
                 $globDirection = 1;
             }

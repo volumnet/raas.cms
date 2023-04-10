@@ -75,7 +75,7 @@ jQuery(function($) {
             case 'checkbox':
                 if ($('#source_type').val() == 'dictionary') {
                     $('#source_dictionary').fadeIn().removeAttr('disabled').attr('required', 'required');
-                } else if ($('#multiple').is(':checked')) {
+                } else if ($('#multiple').is(':checked') || ($('#datatype').val() == 'select') || ($('#datatype').val() == 'radio')) {
                     $('#source_textarea').fadeIn().removeAttr('disabled').attr('required', 'required');
                 }
                 break;

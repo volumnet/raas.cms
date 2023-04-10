@@ -143,13 +143,13 @@ class EditFieldForm extends RAASForm
                 'type' => 'select',
                 'name' => 'gid',
                 'caption' => $this->view->_('FIELD_GROUP'),
-                'children' => array_map(function ($fieldGroup) {
+                'children' => array_values(array_map(function ($fieldGroup) {
                     $option = new Option([
                         'value' => (int)$fieldGroup->id,
                         'caption' => $fieldGroup->name ?: $this->view->_('GENERAL'),
                     ]);
                     return $option;
-                }, $fieldGroups),
+                }, $fieldGroups)),
             ];
         }
 

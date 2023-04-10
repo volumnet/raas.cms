@@ -223,6 +223,7 @@ class Material extends SOME
     public function commit()
     {
         if ($this->id &&
+            isset($this->updates['pid']) &&
             $this->updates['pid'] &&
             ($this->updates['pid'] != $this->properties['pid'])
         ) {
@@ -236,7 +237,7 @@ class Material extends SOME
         if ($this->pid && !$this->urn && $this->name) {
             $this->urn = $this->name;
         }
-        if ($this->updates['urn']) {
+        if ($this->updates['urn'] ?? false) {
             $this->urn = \SOME\Text::beautify($this->urn, '-');
             $this->urn = preg_replace('/\\-\\-/umi', '-', $this->urn);
             $this->urn = trim($this->urn, '-');
@@ -259,12 +260,12 @@ class Material extends SOME
         }
         $this->exportPages();
 
-        if (!$this->meta['dontUpdateAffectedPages']) {
+        if (!($this->meta['dontUpdateAffectedPages'] ?? false)) {
             // 2019-04-25, AVS: обновим связанные страницы
             // 2020-02-10, AVS: добавил условие для загрузчика прайсов
             // (чтобы было быстрее)
             static::updateAffectedPages(null, $this);
-            if ($oldMaterialTypeId) {
+            if ($oldMaterialTypeId ?? false) {
                 Material_Type::updateAffectedPagesForSelf(
                     new Material_Type($oldMaterialTypeId)
                 );
@@ -360,7 +361,7 @@ class Material extends SOME
     private function exportPages()
     {
         $tablename = self::_dbprefix() . self::$links['pages']['tablename'];
-        if ($this->meta['cats']) {
+        if ($this->meta['cats'] ?? []) {
             $sqlQuery = "DELETE FROM " . $tablename
                        . " WHERE id = " . (int)$this->id;
             self::$SQL->query($sqlQuery);
@@ -373,7 +374,7 @@ class Material extends SOME
             );
             unset($this->meta['cats']);
             self::$SQL->add($tablename, $arr);
-        } elseif (!$this->meta['dontCheckPages']) {
+        } elseif (!($this->meta['dontCheckPages'] ?? false)) {
             // 2020-02-10, AVS: добавил условие dontCheckPages
             // для ускорения загрузчика прайсов
             if ($this->material_type->global_type) {

@@ -574,7 +574,7 @@ class CompanyTemplate extends MaterialTypeTemplate
     public function create()
     {
         $logoWidget = Snippet::importByURN('logo');
-        if (!$logoWidget->id) {
+        if (!($logoWidget && $logoWidget->id)) {
             $logoWidget = $this->createLogoBlockSnippet();
             $logoBlock = $this->createLogoBlock(
                 $this->webmaster->Site,
@@ -584,7 +584,7 @@ class CompanyTemplate extends MaterialTypeTemplate
         }
 
         $contactsTopWidget = Snippet::importByURN('contacts_top');
-        if (!$widget->id) {
+        if (!($contactsTopWidget && $contactsTopWidget->id)) {
             $contactsTopWidget = $this->createContactsTopBlockSnippet();
             $contactsTopBlock = $this->createContactsTopBlock(
                 $this->webmaster->Site,
@@ -594,7 +594,7 @@ class CompanyTemplate extends MaterialTypeTemplate
         }
 
         $contactsBottomWidget = Snippet::importByURN('contacts_bottom');
-        if (!$contactsBottomWidget->id) {
+        if (!($contactsBottomWidget && $contactsBottomWidget->id)) {
             $contactsBottomWidget = $this->createContactsBottomBlockSnippet();
             $contactsBottomBlock = $this->createContactsBottomBlock(
                 $this->webmaster->Site,
@@ -604,7 +604,7 @@ class CompanyTemplate extends MaterialTypeTemplate
         }
 
         $socialsBottomWidget = Snippet::importByURN('socials');
-        if (!$socialsBottomWidget->id) {
+        if (!($socialsBottomWidget && $socialsBottomWidget->id)) {
             $socialsBottomWidget = $this->createSocialsBlockSnippet();
             $socialsBottomBlock = $this->createSocialsBottomBlock(
                 $this->webmaster->Site,
@@ -614,7 +614,7 @@ class CompanyTemplate extends MaterialTypeTemplate
         }
 
         $copyrightsWidget = Snippet::importByURN('copyrights');
-        if (!$copyrightsWidget->id) {
+        if (!($copyrightsWidget && $copyrightsWidget->id)) {
             $copyrightsWidget = $this->createCopyrightsBlockSnippet();
             $copyrightsBlock = $this->createCopyrightsBlock(
                 $this->webmaster->Site,
@@ -637,7 +637,7 @@ class CompanyTemplate extends MaterialTypeTemplate
             ];
             $privacy = $this->webmaster->createPage($privacyPageData, $this->webmaster->Site);
             $privacyWidget = Snippet::importByURN('privacy');
-            if (!$privacyWidget->id) {
+            if (!($privacyWidget && $privacyWidget->id)) {
                 $materialType = Material_Type::importByURN('company');
                 $privacyWidget = $this->createPrivacyBlockSnippet();
             }
@@ -688,7 +688,7 @@ class CompanyTemplate extends MaterialTypeTemplate
                 $this->webmaster->Site
             );
             $contactsWidget = Snippet::importByURN('contacts');
-            if (!$contactsWidget->id) {
+            if (!($contactsWidget && $contactsWidget->id)) {
                 $materialType = Material_Type::importByURN('company');
                 $contactsWidget = $this->createContactsBlockSnippet();
                 $contactsBlock = $this->createContactsBlock(

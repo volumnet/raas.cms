@@ -68,10 +68,18 @@ export default {
              * @type {Number|null}
              */
             timeoutId: null,
+            /**
+             * Форма отправлена
+             * @type {Boolean}
+             */
+            sent: false,
         };
         return result;
     },
     mounted() {
+        $(this.$el).on('submit', () => {
+            this.onFormSubmit();
+        });
         if (this.blockId) {
             this.searchString = $('[data-role="search-string"]', this.$el).val();
             $('[data-role="search-string"]', this.$el).on('keyup', (e) => {
@@ -104,7 +112,7 @@ export default {
          */
         change(value) {
             window.clearTimeout(this.timeoutId);
-            if (value.length > this.minLength) {
+            if (!this.sent && (value.length > this.minLength)) {
                 var url = this.autocompleteURL + value;
                 this.timeoutId = window.setTimeout(async () => { 
                     this.searchString = value;
@@ -146,6 +154,15 @@ export default {
         clearSearch() {
             $('[data-role="search-string"]', this.$el).val('');
             this.autocomplete = null;
+        },
+        /**
+         * При отправке формы
+         */
+        onFormSubmit() {
+            this.busy = false;
+            this.sent = true;
+            window.clearTimeout(this.timeoutId);
+            this.timeoutId = null;
         },
     },
     computed: {

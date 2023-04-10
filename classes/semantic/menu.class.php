@@ -91,6 +91,7 @@ class Menu extends SOME
 
     public function commit()
     {
+        $updateChildrenDomain = false;
         if ($this->page_id) {
             if ($this->page->id) {
                 $this->url = $this->page->url;
@@ -110,7 +111,11 @@ class Menu extends SOME
         } elseif (!$this->domain_id && $this->parent->domain_id) {
             $this->domain_id = $this->parent->domain_id;
         }
-        if ($this->id && ($this->updates['domain_id'] != $this->properties['domain_id'])) {
+        if ($this->id &&
+            ($this->updates['domain_id'] ?? false) &&
+            ($this->properties['domain_id'] ?? false) &&
+            ($this->updates['domain_id'] != $this->properties['domain_id'])
+        ) {
             $updateChildrenDomain = true;
         }
         parent::commit();

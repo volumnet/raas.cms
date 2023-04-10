@@ -488,6 +488,7 @@ class Controller_Frontend extends Abstract_Controller
 
     protected function fork()
     {
+        $content = '';
         $blockId = (int)($_SERVER['HTTP_X_RAAS_BLOCK_ID'] ?? 0);
         $url = parse_url($this->requestUri);
         $url = $url['path'];
@@ -777,6 +778,10 @@ class Controller_Frontend extends Abstract_Controller
             );
             chmod($outputFile, 0777);
         }
+        // 2023-03-02, AVS: убрал заголовки, отвечающие за предотвращение кэширования (устанавливаются с session_start())
+        header_remove('Cache-Control');
+        header_remove('Expires');
+        header_remove('Pragma');
         header('Content-Type: ' . $mime);
         readfile($outputFile);
     }

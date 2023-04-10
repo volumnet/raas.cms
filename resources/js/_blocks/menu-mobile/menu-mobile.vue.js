@@ -1,5 +1,5 @@
 /**
- * Мобильно меню
+ * Мобильное меню
  */
 export default {
     props: {
@@ -17,8 +17,16 @@ export default {
             type: Boolean,
             default: false,
         },
+        /**
+         * ID# блока (использовать AJAX-загрузку с той же страницы)
+         * @type {Number|null}
+         */
+        blockId: {
+            type: Number,
+            default: null,
+        },
     },
-    data: function () {
+    data() {
         return {
             /**
              * Активность формы по кнопке
@@ -27,12 +35,24 @@ export default {
             active: false,
         };
     },
-    mounted: function () {
+    mounted() {
+        // console.log('menu-mobile mounted');
         if (this.useAjax) {
-            $(window).one('load', () => {
+            // console.log('ajax used');
+            // 2023-04-07, AVS: продублировал, а то на андроиде не вызывается window.load
+            if (!this.ajaxLoaded) {
+                // console.log('launched');
+                this.getAJAXMenu();
+                this.ajaxLoaded = true;
+            }
+            $(window).on('load', () => {
+                // console.log('window loaded');
                 window.setTimeout(() => {
-                    this.getAJAXMenu();
-                    this.ajaxLoaded = true;
+                    if (!this.ajaxLoaded) {
+                        // console.log('timeout launched');
+                        this.getAJAXMenu();
+                        this.ajaxLoaded = true;
+                    }
                 }, 50);
             });
         }
@@ -94,6 +114,14 @@ export default {
                 .removeClass('menu-mobile__list_active');
             return false;
         });
+        // Продублируем сюда из app.vue, т.к. клик на .menu-mobile препятствует вызову из app
+        $(this.$el).on('click', this.$root.scrollToSelector, function () {
+            let currentUrl = window.location.pathname + window.location.search;
+            let url = $(this).attr('href').split('#')[0];
+            if (!url || (url == currentUrl)) {
+                window.app.processHashLink(this.hash.replace(/#/gi, ''));
+            }
+        });
         $('.body').on('click', () => { 
             $('.menu-mobile__list').removeClass('menu-mobile__list_active');
             this.active = false;
@@ -120,22 +148,21 @@ export default {
         /**
          * Разворачивает/скрывает меню
          */
-        toggle: function () {
+        toggle() {
             this.active = !this.active;
             console.log(this.active)
         },
         /**
          * Получает полное меню через AJAX
          */
-        getAJAXMenu: function () {
-            $.get(this.ajaxURL, (result) => {
-                let $remoteMenu = $(result);
-                let $localMenu = $(this.$el);
+        async getAJAXMenu() {
+            const response = await this.$root.api(this.ajaxURL, null, this.blockId, 'text/html');
+            let $remoteMenu = $(response);
+            let $localMenu = $(this.$el);
 
-                let $localCatalogItem = $('.menu-mobile__item_main.menu-mobile__item_catalog', $localMenu);
-                let $remoteCatalogItem = $('.menu-mobile__item_main.menu-mobile__item_catalog', $remoteMenu);
-                $localCatalogItem.replaceWith($remoteCatalogItem);
-            })
+            let $localCatalogItem = $('.menu-mobile__item_main.menu-mobile__item_catalog', $localMenu);
+            let $remoteCatalogItem = $('.menu-mobile__item_main.menu-mobile__item_catalog', $remoteMenu);
+            $localCatalogItem.replaceWith($remoteCatalogItem);
         },
     },
     computed: {
@@ -143,14 +170,18 @@ export default {
          * Путь для AJAX-запроса
          * @return {String}
          */
-        ajaxURL: function () {
-            return '/ajax/menu_mobile/?id=' + this.pageId;
+        ajaxURL() {
+            if (this.blockId) {
+                return window.location.pathname;
+            } else {
+                return '/ajax/menu_mobile/?id=' + this.pageId;
+            }
         },
         /**
          * Аналог this для привязки к слоту
          * @return {Object}
          */
-        self: function () {
+        self() {
             return { ...this };
         },
     }

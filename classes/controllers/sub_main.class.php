@@ -520,7 +520,7 @@ class Sub_Main extends RAASAbstractSubController
         $ids = (array)$_GET['id'];
         $pids = (array)$_GET['pid'];
         $pids = array_filter($pids, 'trim');
-        $mtype = new Material_Type((int)$_GET['mtype']);
+        $mtype = new Material_Type((int)($_GET['mtype'] ?? 0));
         if ($mtype->global_type) {
             new Redirector('history:back#_' . $mtype->urn);
         }

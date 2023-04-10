@@ -173,6 +173,9 @@ class PageRecursiveCache extends VisibleRecursiveCache
             'selfAndChildrenIds',
             'allowedIds',
             'systemIds',
+            'visibleIds',
+            'visChildrenIds',
+            'visAllChildrenIds',
         ] as $key) {
             $data[$key] = $this->$key;
         }
@@ -212,8 +215,11 @@ class PageRecursiveCache extends VisibleRecursiveCache
                 'selfAndChildrenIds',
                 'allowedIds',
                 'systemIds',
+                'visibleIds',
+                'visChildrenIds',
+                'visAllChildrenIds',
             ] as $key) {
-                $this->$key = $data[$key];
+                $this->$key = $data[$key] ?? null;
             }
             return true;
         }

@@ -85,7 +85,9 @@ export default {
                 this.refreshFadeInterval();
             })
         } else {
-            this.initJCarousel();
+            window.setTimeout(() => {
+                this.initJCarousel();
+            }, 0); // Чтобы успел инициализироваться App (в частности ширина экрана)
         }
         $('[data-role="slider-list"]', this.$el).on('movestart', (e) => { 
             // console.log(e)

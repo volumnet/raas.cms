@@ -155,14 +155,14 @@ $_RAASForm_Control = function (
                 $attrs = [
                     'datatype' => 'material',
                     'type' => 'hidden',
-                    'value' => $val->id,
+                    'value' => $val ? $val->id : '',
                     'data-field-id' => (int)$field->Form->Item->fields[$field->name]->id,
-                    'data-material-id' => $val->id,
+                    'data-material-id' => $val ? $val->id : '',
                     'data-material-pid' => isset($val->parents[0]) ? $val->parents[0]->id : 0,
-                    'data-material-name' => $val->name
+                    'data-material-name' => $val ? $val->name : '',
                 ];
                 ?>
-                <input<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['value' => $val->id]))?> />
+                <input<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['value' => $val ? $val->id : '']))?> />
             <?php }
             break;
         case 'image':

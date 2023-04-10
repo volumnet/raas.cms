@@ -223,14 +223,18 @@
 /// @param {string} $propertyName Название свойства
 /// @param {map} $medias Значения в зависимости от экрана, 
 ///     ключами являются медиа-запросы в формате vnMQL (либо '' или '*' - для всех), 
-///     значениями - соответствующие значения свойства 
+///     значениями - соответствующие значения свойства, либо статическое значение
 /// @output Переменная в медиа-запросе
 @mixin viewport-prop($propertyName, $medias) {
-    @each $key, $val in $medias {
-        // @debug $key;
-        @include viewport($key) {
-            #{$propertyName}: $val;
+    @if (type-of($medias) == 'map') {
+        @each $key, $val in $medias {
+            // @debug $key;
+            @include viewport($key) {
+                #{$propertyName}: $val;
+            }
         }
+    } @else {
+        #{$propertyName}: $medias;
     }
 }
 

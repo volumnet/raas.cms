@@ -81,6 +81,11 @@ abstract class SocialProfile
     const SN_TG = 13;
 
     /**
+     * Яндекс.Дзен
+     */
+    const SN_ZN = 14;
+
+    /**
      * Токен входа
      * @var string
      */
@@ -122,6 +127,7 @@ abstract class SocialProfile
         'instagram\\.(com|ru)' => self::SN_IN,
         '(whatsapp|wa)\\.(com|ru|me|php)' => self::SN_WA,
         '((t)\\.(com|ru|me))|telegram' => self::SN_TG,
+        '(dzen\\.ru)|(zen.yandex.ru)' => self::SN_ZN,
     ];
 
     public function __get($var)

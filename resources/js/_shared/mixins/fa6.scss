@@ -1,0 +1,12 @@
+@mixin fa($icon) {
+    font-weight: bold;
+    @if (map-get($fa-icons, $icon)) {
+        font-family: $fa-style-family; 
+        content: fa-content(map-get($fa-icons, $icon));
+    } @elseif (map-get($fa-brand-icons, $icon)) {
+        font-family: 'Font Awesome 6 Brands'; 
+        content: fa-content(map-get($fa-brand-icons, $icon));
+    } @else {
+        @error($icon + ' not found');
+    }
+}

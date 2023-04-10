@@ -50,7 +50,7 @@ class Webmaster
             case 'interfacesFolder':
                 if (!$this->_interfacesFolder) {
                     $interfacesFolder = Snippet_Folder::importByURN('__raas_interfaces');
-                    if ($interfacesFolder->id) {
+                    if ($interfacesFolder && $interfacesFolder->id) {
                         $this->_interfacesFolder = $interfacesFolder;
                         $this->_interfacesFolder->trust();
                     }
@@ -60,7 +60,7 @@ class Webmaster
             case 'widgetsFolder':
                 if (!$this->_widgetsFolder) {
                     $widgetsFolder = Snippet_Folder::importByURN('__raas_views');
-                    if ($widgetsFolder->id) {
+                    if ($widgetsFolder && $widgetsFolder->id) {
                         $this->_widgetsFolder = $widgetsFolder;
                         $this->_widgetsFolder->trust();
                     }
@@ -91,7 +91,7 @@ class Webmaster
         $locked = true
     ) {
         $snippet = Snippet::importByURN($urn);
-        if (!$snippet->id) {
+        if (!($snippet && $snippet->id)) {
             $snippet = new Snippet([
                 'pid' => (int)$parent->id,
                 'urn' => $urn,
@@ -322,7 +322,7 @@ class Webmaster
             ],
         ] as $row) {
             $field = Page_Field::importByURN($row['urn']);
-            if (!$field->id) {
+            if (!($field && $field->id)) {
                 $field = new Page_Field($row);
                 $field->commit();
             }
@@ -357,7 +357,7 @@ class Webmaster
             $urn = explode('/', $url);
             $urn = $urn[count($urn) - 1];
             $widget = Snippet::importByURN($urn);
-            if (!$widget->id) {
+            if (!($widget && $widget->id)) {
                 $widget = $this->createSnippet(
                     $urn,
                     $name,
@@ -398,7 +398,7 @@ class Webmaster
         $forms = [];
         foreach ($formsData as $formData) {
             $form = Form::importByURN($formData['urn']);
-            if (!$form->id) {
+            if (!($form && $form->id)) {
                 $form = $this->createForm($formData);
             }
             $forms[$formData['urn']] = $form;
@@ -427,8 +427,8 @@ class Webmaster
         $form = new Form([
             'name' => trim($formData['name']),
             'urn' => trim($formData['urn']),
-            'material_type' => (int)$formData['material_type'],
-            'create_feedback' => (int)!$formData['material_type'],
+            'material_type' => (int)($formData['material_type'] ?? 0),
+            'create_feedback' => (int)!($formData['material_type'] ?? false),
             'signature' => true,
             'antispam' => 'smart',
             'antispam_field_name' => '_question',
@@ -437,8 +437,8 @@ class Webmaster
         $form->commit();
         foreach ((array)$formData['fields'] as $fieldData) {
             $fieldData['pid'] = (int)$form->id;
-            $fieldData['required'] = (int)(bool)$fieldData['required'];
-            $fieldData['show_in_table'] = (int)(bool)$fieldData['show_in_table'];
+            $fieldData['required'] = (int)(bool)($fieldData['required'] ?? false);
+            $fieldData['show_in_table'] = (int)(bool)($fieldData['show_in_table'] ?? false);
             $field = new Form_Field($fieldData);
             $field->commit();
         }
@@ -470,24 +470,24 @@ class Webmaster
         foreach ($menusData as $menuData) {
             // Создадим собственно меню
             $menu = Menu::importByURN($menuData['urn']);
-            if (!$menu->id) {
+            if (!($menu && $menu->id)) {
                 $menu = $this->createMenu(
-                    trim($menuData['urn']),
-                    trim($menuData['name']),
-                    (int)$menuData['pageId'],
-                    (int)$menuData['inherit'],
-                    (bool)$menuData['realize'],
-                    (bool)$menuData['addMainPageLink']
+                    trim($menuData['urn'] ?? ''),
+                    trim($menuData['name'] ?? ''),
+                    (int)($menuData['pageId'] ?? 0),
+                    (int)($menuData['inherit'] ?? 0),
+                    (bool)($menuData['realize'] ?? false),
+                    (bool)($menuData['addMainPageLink'] ?? false)
                 );
             }
             $menus[$menuData['urn']] = $menu;
 
             // Создадим виджет под меню
-            $menuWidgetURN = $menuData['widget_urn'] ?: 'menu_' . $menuData['urn'];
+            $menuWidgetURN = ($menuData['widget_urn'] ?? '') ?: 'menu_' . ($menuData['urn'] ?? '');
             $menuWidget = Snippet::importByURN($menuWidgetURN);
-            if (!$menuWidget->id) {
+            if (!($menuWidget && $menuWidget->id)) {
                 $menuWidgetFilename = $this->context->resourcesDir
-                                    . '/widgets/menu/menu_' . $menuData['urn']
+                                    . '/widgets/menu/menu_' . ($menuData['urn'] ?? '')
                                     . '.tmp.php';
                 if (!is_file($menuWidgetFilename)) {
                     $menuWidgetFilename = Package::i()->resourcesDir
@@ -520,7 +520,7 @@ class Webmaster
                     $menuData['blockLocation'],
                     $menuInterface,
                     $menuWidget,
-                    $menuData['blockPage'] ?: $this->Site,
+                    ($menuData['blockPage'] ?? null) ?: $this->Site,
                     (bool)$menuData['inheritBlock']
                 );
             }
@@ -590,7 +590,7 @@ class Webmaster
      */
     public function createMainPage(Template $template, array $forms)
     {
-        if (!$this->site->id) {
+        if (!($this->site && $this->site->id)) {
             $host = $_SERVER['HTTP_HOST'];
             if (stristr($host, '.volumnet.ru')) {
                 $urn = str_replace('.volumnet.ru', '', $host) . ' ' . $host;
@@ -1165,7 +1165,7 @@ class Webmaster
         $urn = 'search';
 
         $temp = Snippet::importByURN('search');
-        if (!$temp->id) {
+        if (!($temp && $temp->id)) {
             $f = Package::i()->resourcesDir . '/search.tmp.php';
             $this->createSnippet(
                 'search',
@@ -1209,7 +1209,7 @@ class Webmaster
 
 
         $temp = Snippet::importByURN('search_form');
-        if (!$temp->id) {
+        if (!($temp && $temp->id)) {
             $f = Package::i()->resourcesDir . '/search_form.tmp.php';
             $this->createSnippet(
                 'search_form',
