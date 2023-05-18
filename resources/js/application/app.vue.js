@@ -27,12 +27,31 @@ export default {
              * @type {Number}
              */
             scrollTop: 0,
+
             /**
-             * Продолжительность скролла по scrollTo
-             * 2022-04-07, AVS: Уменьшил до 0, т.к. конфликтует с Vue и скроллом браузера
+             * Старое смещение по вертикали
              * @type {Number}
              */
-            scrollToDuration: 0,
+            oldScrollTop: 0,
+
+            /**
+             * Происходит ли сейчас скроллинг
+             * @type {Boolean}
+             */
+            isScrollingNow: false,
+
+            /**
+             * Происходит ли сейчас скроллинг (ID# таймаута)
+             * @type {Number}
+             */
+            isScrollingNowTimeoutId: false,
+
+            /**
+             * Ожидание окончания скроллинга, мс
+             * @type {Number}
+             */
+            isScrollingNowDelay: 250,
+
             /**
              * Селектор ссылок для scrollTo
              */
@@ -58,19 +77,31 @@ export default {
     mounted() {
         let self = this;
         this.lightBoxInit();
-        this.windowWidth = $(window).outerWidth();
+        this.windowWidth = $(window).innerWidth();
         this.windowHeight = $(window).outerHeight();
         this.bodyWidth = $('body').outerWidth();
         this.fixHtml();
-        $(window).on('resize', self.fixHtml);
-        $(window).on('resize', () => {
-            this.windowWidth = $(window).outerWidth();
-            this.windowHeight = $(window).outerHeight();
-            this.bodyWidth = $('body').outerWidth();
-        });
-        $(window).on('scroll', () => {
-            this.scrollTop = $(window).scrollTop();
-        });
+        $(window)
+            .on('resize', self.fixHtml)
+            .on('resize', () => {
+                this.windowWidth = $(window).outerWidth();
+                this.windowHeight = $(window).outerHeight();
+                this.bodyWidth = $('body').outerWidth();
+            })
+            .on('scroll', () => {
+                this.oldScrollTop = this.scrollTop;
+                this.scrollTop = $(window).scrollTop();
+                if (this.isScrollingNowTimeoutId) {
+                    window.clearTimeout(this.isScrollingNowTimeoutId);
+                }
+                if (!this.isScrollingNow) {
+                    this.isScrollingNow = true;
+                }
+                this.isScrollingNowTimeoutId = window.setTimeout(() => {
+                    this.isScrollingNowTimeoutId = 0;
+                    this.isScrollingNow = false;
+                }, this.isScrollingNowDelay);
+            });
         
         $(this.$el).on('click', this.scrollToSelector, function () {
             let currentUrl = window.location.pathname + window.location.search;
@@ -91,6 +122,7 @@ export default {
                 this.processHashLink(window.location.hash);
             }
         });
+        this.scrollTop = this.oldScrollTop = $(window).scrollTop();
 
         // $('.menu-trigger').appendTo('.body__menu-mobile');
 
@@ -218,10 +250,7 @@ export default {
                         $hashLink[0].click();
                     }
                 } else {
-                    $.scrollTo(
-                        $obj.offset().top + this.getScrollOffset(), 
-                        this.scrollToDuration
-                    );
+                    window.scrollTo(0, $obj.offset().top + this.getScrollOffset());
                 }
             }
         },
@@ -319,6 +348,13 @@ export default {
          */
         windowBottomPosition() {
             return this.scrollTop + this.windowHeight;
+        },
+        /**
+         * Последнее смещение по скроллингу
+         * @return {Number}
+         */
+        scrollDelta() {
+            return this.scrollTop - this.oldScrollTop;
         },
     },
 }

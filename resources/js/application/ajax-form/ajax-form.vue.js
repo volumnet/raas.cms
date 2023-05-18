@@ -144,6 +144,7 @@ export default {
                 window.location.href = redirectUrl;
             } else if (data.success) {
                 this.success = true;
+                this.errors = {};
                 $(this.$el).trigger('RAAS.AJAXForm.success', data);
                 $(this.$el).trigger('raas.ajaxform.success', data);
                 this.$emit('success', data);
@@ -159,6 +160,14 @@ export default {
                     }, 10); // Чтобы успела появиться плашка с ошибками
                 }
             }
+        },
+        /**
+         * Устанавливает данные на поле
+         * @param {String} fieldURN Название поля
+         * @param {mixed} value Значение
+         */
+        setData(fieldURN, value) {
+            this.formData[fieldURN] = value;
         },
     },
     computed: {
@@ -178,6 +187,9 @@ export default {
         },
     },
     watch: {
+        initialFormData() {
+            this.formData = this.initialFormData;
+        },
         formData: {
             handler: function () {
                 // console.log(this.formData, this.oldFormData);

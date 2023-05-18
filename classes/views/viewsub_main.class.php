@@ -842,6 +842,8 @@ class ViewSub_Main extends RAASAbstractSubView
      * Возвращает меню для списка страниц
      * @param Page|int $node Страница или ID# страницы, для которой строим меню
      * @param Page|int $current Текущая страница или ID# текущей страницы
+     * @param int $activeLevel Уровень вложенности общий
+     * @param int $activeLevel Уровень вложенности относительно активного элемента
      * @return array<[
      *             'href' ?=> string Ссылка,
      *             'name' => string Заголовок пункта
@@ -850,7 +852,7 @@ class ViewSub_Main extends RAASAbstractSubView
      *             'submenu' => *рекурсивно*,
      *         ]>
      */
-    public function pagesMenu($node, $current)
+    public function pagesMenu($node, $current = 0, $level = 0, $activeLevel = 0)
     {
         // Статическая переменная введена для оптимизации при большом количестве страниц
         static $packageUrl;
@@ -864,33 +866,35 @@ class ViewSub_Main extends RAASAbstractSubView
         $currentId = (int)(($current instanceof SOME) ? $current->id : $current);
         $childrenIds = $pageCache->getChildrenIds($nodeId);
         foreach ($childrenIds as $childId) {
+            $allGrandChildrenIds = $pageCache->getSelfAndChildrenIds($childId, PageRecursiveCache::ASSOC_INNER);
             $childData = $pageCache->cache[$childId];
-            $temp = [
+            $row = [
                 'name' => Text::cuttext($childData['name'], 64, '...'),
                 'href' => $packageUrl . '&id=' . (int)$childId,
                 'class' => '',
-                'active' => false
+                'active' => false,
+                // 'data-active-level' => $activeLevel,
             ];
 
-            $submenu = $this->pagesMenu($childId, $currentId);
-            $semiactive = (bool)array_filter($submenu, function ($x) {
-                return $x['active'];
-            });
-            if (($childId == $currentId) || $semiactive) {
-                $temp['active'] = true;
+            $active = $row['active'] = isset($allGrandChildrenIds[$currentId]);
+            if ($active || !$activeLevel || ($level <= 1)) {
+                $submenu = $this->pagesMenu($childId, $currentId, $level + 1, $active ? 0 : $activeLevel + 1);
+                $row['submenu'] = $submenu;
+                if (!$active && $submenu) {
+                    $row['data-ajax-submenu-url'] = '?p=cms&action=pages_menu&id=' . $childId;
+                }
             }
-            $temp['submenu'] = $submenu;
 
             if (!$childData['vis']) {
-                $temp['class'] .= ' muted';
+                $row['class'] .= ' muted';
             } elseif ($childData['response_code']) {
-                $temp['class'] .= ' text-error';
+                $row['class'] .= ' text-error';
             }
             if (!$childData['pvis']) {
-                $temp['class'] .= ' cms-inpvis';
+                $row['class'] .= ' cms-inpvis';
             }
 
-            $menu[] = $temp;
+            $menu[] = $row;
         }
         return $menu;
     }

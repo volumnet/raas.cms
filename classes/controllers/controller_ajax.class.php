@@ -30,23 +30,30 @@ class Controller_Ajax extends Abstract_Controller
                 break;
             case 'debug_page':
                 $this->debugPage();
+                break;
+            case 'pages_menu':
+                $this->getPagesMenu();
+                break;
         }
     }
 
 
     /**
+     * Получает меню страниц, начиная от текущей
+     */
+    public function getPagesMenu()
+    {
+        $rootId = (int)($this->nav['id'] ?? 0);
+        $result = ViewSub_Main::i()->pagesMenu($rootId);
+        $out = [
+            'menu' => $result,
+        ];
+        $this->view->get_cache_map($out);
+    }
+
+
+    /**
      * Получает карту необходимых кэшей
-     * @return ['Set' => array<int[] ID# страницы => array<
-     *             int[] ID# материала => array<
-     *                 'id' => int ID# страницы,
-     *                 'mid' =>? int ID# материала,
-     *                 'url' => string Полный адрес страницы или
-     *                                 страницы материала,
-     *                 'name' => string Наименование страницы или материала,
-     *                 'cache' => int Включено ли кэширование (1)
-     *                                или отключено (0)
-     *             >
-     *         >>]
      */
     protected function get_cache_map()
     {

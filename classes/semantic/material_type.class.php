@@ -597,6 +597,17 @@ class Material_Type extends SOME
      */
     public static function updateAffectedPagesForSelf(Material_Type $materialType = null)
     {
+        $mtCache = MaterialTypeRecursiveCache::i();
+        $mtCache->refresh();
+        $notGlobalTypesIds = array_map(function ($x) {
+            return (int)$x['id'];
+        }, array_filter($mtCache->cache, function ($x) {
+            return !(int)$x['global_type'];
+        }));
+
+        $sqlQuery = "START TRANSACTION";
+        static::_SQL()->query($sqlQuery);
+
         $sqlQuery = "DELETE FROM cms_material_types_affected_pages_for_self_cache";
         if ($materialTypeId = ($materialType->id ?? 0)) {
             $sqlQuery .= " WHERE material_type_id = " . (int)$materialTypeId;
@@ -604,49 +615,38 @@ class Material_Type extends SOME
         static::_SQL()->query($sqlQuery);
 
         // Запишем данные по материалам
-        $sqlQuery = "REPLACE INTO " . static::$dbprefix . "cms_material_types_affected_pages_for_self_cache
-                            (material_type_id, page_id)
-                     SELECT tMT.id AS material_type_id,
-                            tP.id AS page_id
-                       FROM " . Page::_tablename() . " AS tP
-                       JOIN " . static::$dbprefix . "cms_materials_pages_assoc
-                         AS tMPA
-                         ON tMPA.pid = tP.id
-                       JOIN " . Material::_tablename() . "
-                         AS tM
-                         ON tM.id = tMPA.id
-                       JOIN " . Material_Type::_tablename() . "
-                         AS tMT
-                         ON tMT.id = tM.pid
-                      WHERE NOT tMT.global_type";
-        if ($materialTypeId) {
-            $sqlQuery .= " AND tMT.id = " . $materialTypeId;
+        if (!$materialTypeId || in_array($materialTypeId, $notGlobalTypesIds)) {
+            $sqlQuery = "REPLACE INTO " . static::$dbprefix . "cms_material_types_affected_pages_for_self_cache
+                                (material_type_id, page_id)
+                         SELECT tM.pid AS material_type_id,
+                                tMPA.pid AS page_id
+                           FROM " . static::$dbprefix . "cms_materials_pages_assoc AS tMPA
+                           JOIN " . Material::_tablename() . " AS tM ON tM.id = tMPA.id
+                          WHERE ";
+            if ($materialTypeId) {
+                $sqlQuery .= " tM.pid = " . $materialTypeId;
+            } else {
+                $sqlQuery .= " tM.pid IN (" . implode(", ", $notGlobalTypesIds) . ")";
+            }
+            $sqlQuery .= " GROUP BY tM.pid, tMPA.pid";
+            static::_SQL()->query($sqlQuery);
         }
-        $sqlQuery .= " GROUP BY tMT.id, tP.id";
-        static::_SQL()->query($sqlQuery);
 
         $sqlQuery = "REPLACE INTO " . static::$dbprefix . "cms_material_types_affected_pages_for_self_cache
                             (material_type_id, page_id, nat)
-                     SELECT tMT.id AS material_type_id,
-                            tP.id AS page_id,
+                     SELECT tBM.material_type AS material_type_id,
+                            tBPA.page_id AS page_id,
                             MAX(tB.nat) AS nat
-                       FROM " . Page::_tablename() . " AS tP
-                       JOIN " . static::$dbprefix . "cms_blocks_pages_assoc
-                         AS tBPA
-                         ON tBPA.page_id = tP.id
-                       JOIN " . Block::_tablename() . "
-                         AS tB
-                         ON tB.id = tBPA.block_id
-                       JOIN " . Block::_dbprefix() . "cms_blocks_material
-                         AS tBM
-                         ON tBM.id = tB.id
-                       JOIN " . Material_Type::_tablename() . "
-                         AS tMT
-                         ON tMT.id = tBM.material_type";
+                       FROM " . static::$dbprefix . "cms_blocks_pages_assoc AS tBPA
+                       JOIN " . Block::_tablename() . " AS tB ON tB.id = tBPA.block_id
+                       JOIN " . Block::_dbprefix() . "cms_blocks_material AS tBM ON tBM.id = tB.id";
         if ($materialTypeId) {
-            $sqlQuery .= " AND tMT.id = " . $materialTypeId;
+            $sqlQuery .= " AND tBM.material_type = " . $materialTypeId;
         }
-        $sqlQuery .= " GROUP BY tMT.id, tP.id";
+        $sqlQuery .= " GROUP BY tBM.material_type, tBPA.page_id";
+        static::_SQL()->query($sqlQuery);
+
+        $sqlQuery = "COMMIT";
         static::_SQL()->query($sqlQuery);
     }
 }

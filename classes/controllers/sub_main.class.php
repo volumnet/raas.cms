@@ -126,15 +126,13 @@ class Sub_Main extends RAASAbstractSubController
             case 'vis_material':
             case 'invis_material':
                 $items = [];
-                $ids = (array)$_GET['id'];
-                $pids = (array)$_GET['pid'];
+                $ids = isset($_GET['id']) ? (array)$_GET['id'] : [];
+                $pids = isset($_GET['pid']) ? (array)$_GET['pid'] : [];
                 $pids = array_filter($pids, 'trim');
                 if (in_array('all', $ids, true)) {
                     $mtype = new Material_Type((int)$_GET['mtype']);
-                    $mtypes = (array)$mtype->selfAndChildrenIds;
-                    $where = [
-                        "Material.pid IN (" . implode(", ", $mtypes) . ")"
-                    ];
+                    $mtypesIds = MaterialTypeRecursiveCache::i()->getSelfAndChildrenIds($mtype);
+                    $where = ["Material.pid IN (" . implode(", ", $mtypesIds) . ")"];
                     if (!$mtype->global_type) {
                         if (in_array('all', $pids, true)) {
                         } elseif ($pids) {
@@ -144,10 +142,7 @@ class Sub_Main extends RAASAbstractSubController
                             $where[] = "pages___LINK.pid IN (0)";
                         }
                     }
-                    $items = Material::getSet([
-                        'where' => $where,
-                        'orderBy' => "id"
-                    ]);
+                    $items = Material::getSet(['where' => $where, 'orderBy' => "id"]);
                 } else {
                     $items = array_map(
                         function ($x) {
@@ -156,22 +151,49 @@ class Sub_Main extends RAASAbstractSubController
                         $ids
                     );
                 }
-                $items = array_values($items);
+                $itemsIds = array_values(array_unique(array_filter(array_map(function ($x) {
+                    return (int)$x->id;
+                }, $items))));
                 $Item = isset($items[0]) ? $items[0] : new Material();
                 $mtype = $Item->material_type;
+                if ($mtype->global_type || $pids) {
+                    $pid = array_shift($pids);
+                } elseif ($itemPagesIds = $Item->pages_ids) {
+                    $pid = (int)$itemPagesIds[0];
+                } else {
+                    $pid = 0;
+                }
                 $f = str_replace('_material', '', $this->action);
-                $pid = ($mtype->global_type || $pids)
-                     ? array_shift($pids)
-                     : (int)$Item->pages_ids[0];
-                StdSub::$f(
-                    $items,
-                    (
-                        isset($_GET['back']) ?
-                        'history:back' :
-                        $this->url . '&id=' . (int)$pid
-                    ) . '#_' . $mtype->urn,
-                    false
-                );
+                switch ($f) {
+                    case 'delete':
+                        Material::batchDelete($items);
+                        break;
+                    case 'chvis':
+                    case 'vis':
+                    case 'invis':
+                        if ($itemsIds) {
+                            $sqlQuery = "UPDATE " . Material::_tablename() . " SET vis = ";
+                            if ($f == 'vis') {
+                                $sqlQuery .= "1";
+                            } elseif ($f == 'invis') {
+                                $sqlQuery .= "0";
+                            } else {
+                                $sqlQuery .= "!vis";
+                            }
+                            $sqlQuery .= ", modify_date = NOW(), last_modified = NOW(), modify_counter = modify_counter + 1
+                                WHERE id IN (" . implode(", ", $itemsIds) . ")";
+                            Material::_SQL()->query($sqlQuery);
+                        }
+                        break;
+                }
+
+                if (isset($_GET['back'])) {
+                    $redirectUrl = 'history:back';
+                } else {
+                    $redirectUrl = $this->url . '&id=' . (int)$pid;
+                }
+                $redirectUrl .= '#_' . $mtype->urn;
+                new Redirector($redirectUrl);
                 break;
             case 'clear_cache':
                 $this->clearPageCache();

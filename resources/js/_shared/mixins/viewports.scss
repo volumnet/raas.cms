@@ -1,3 +1,9 @@
+/// Базовая верстка
+$referenceLayout: 'xl' !default;
+
+/// Применять базовую верстку к:
+$relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
+
 /// Разбивает строку
 /// @param {string} $string Исходная строка
 /// @param {string} $separator Разделитель
@@ -95,6 +101,43 @@
     } 
 
     @return null;
+}
+
+/// Возвращает медиа-запросы для пропорционального уменьшения
+/// @param {number} $size Размер
+/// @param {mixed} $relativeTo Размер референсного контейнера в px, либо его название
+/// @param {list} $applyTo Применять пропорциональное уменьшение для:
+/// @return {map}
+@function relSize($size, $applyTo: null, $relativeTo: null)
+{
+    @if ($relativeTo == null) {
+        $relativeTo: $referenceLayout;
+    }
+    @if (type-of($relativeTo) == string) {
+        $relativeTo: map-get($container-max-widths, $relativeTo);
+    }
+    @if ($applyTo == null) {
+        $applyTo: $relativeApplyTo;
+    }
+    $isPx: false;
+    @if (unit($size) == 'px') {
+        $isPx: true;
+    }
+    $result: ();
+    @each $key in $applyTo {
+        $width: map-get($container-max-widths, $key);
+        @if ($width > 0) {
+            $newSize: ($width / $relativeTo) * $size;
+            @if ($isPx) {
+                $newSize: round($newSize)
+            }
+            @if ($key == 'sm') {
+                $key: '<sm';
+            }
+            $result: map-merge($result, ($key: $newSize));
+        }
+    }
+    @return $result;
 }
 
 

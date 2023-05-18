@@ -383,13 +383,8 @@ class FormInterface extends AbstractInterface
      *             'Material' =>? Material Созданный материал
      *         ]
      */
-    public function processForm(
-        Form $form,
-        Page $page,
-        array $post = [],
-        array $server = [],
-        array $files = []
-    ) {
+    public function processForm(Form $form, Page $page, array $post = [], array $server = [], array $files = [])
+    {
         $feedback = $this->getRawFeedback($form);
 
         // Для AJAX'а
@@ -778,12 +773,8 @@ class FormInterface extends AbstractInterface
      *         >|null Набор отправляемых писем либо URL SMS-шлюза
      *                            (только в режиме отладки)
      */
-    public function notify(
-        Feedback $feedback,
-        Material $material = null,
-        $forAdmin = true,
-        $debug = false
-    ) {
+    public function notify(Feedback $feedback, Material $material = null, $forAdmin = true, $debug = false)
+    {
         if (!$feedback->parent->Interface->id) {
             return;
         }

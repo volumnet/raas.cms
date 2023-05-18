@@ -48,6 +48,14 @@ $separateScripts = function ($text) {
     return array($result, $scripts, $styles);
 };
 
+
+$bodyClasses = ['body'];
+if (!$Page->pid) {
+    $bodyClasses[] = 'body_main';
+}
+if ($bannersText = $Page->location('banners')) {
+    $bodyClasses[] = 'body_bannered';
+}
 ob_start(); // Для $sanitizeOutput
 ob_start(); // Для $separateScripts
 ?>
@@ -103,7 +111,7 @@ ob_start(); // Для $separateScripts
     echo $Page->location('head_counters');
     ?>
   </head>
-  <body class="body <?php echo !$Page->pid ? ' body_main' : ''?>" data-page-id="<?php echo (int)$Page->id?>"<?php echo $Page->Material->id ? ' data-page-material-id="' . (int)$Page->Material->id . '"' : ''?>>
+  <body class="<?php echo implode(' ', $bodyClasses)?>" data-page-id="<?php echo (int)$Page->id?>"<?php echo $Page->Material->id ? ' data-page-material-id="' . (int)$Page->Material->id . '"' : ''?>>
     <?php echo $Page->location('top_body_counters')?>
     <div id="top" class="body__background-holder">
       <div class="body__header-outer"> <?php // Обертка, чтобы при фиксации шапки контент не скакал?>
@@ -151,7 +159,7 @@ ob_start(); // Для $separateScripts
           </div>
         </header>
       </div>
-      <?php if ($bannersText = $Page->location('banners')) { ?>
+      <?php if ($bannersText) { ?>
           <div class="body__row body__row_banners body__banners">
             <?php echo $bannersText?>
           </div>
@@ -255,8 +263,9 @@ ob_start(); // Для $separateScripts
           echo '<div data-vue-role="added-modal" data-vue-ref="addedModal"></div>';
           echo '<!--nodesktop--><!--raas-teleport-to#catalog-filter--><!--/nodesktop-->';
       }
-      echo $Page->location('footer_counters') .
-          AssetManager::asset('/js/footer.js');
+      // 2023-04-11, AVS: перенес footer_counters после footer.js, т.к. скрипты типа целей Яндекс.Метрики
+      // должны отрабатывать уже после Vue
+      echo AssetManager::asset('/js/footer.js') . $Page->location('footer_counters');
       ?>
     </div>
     <?php

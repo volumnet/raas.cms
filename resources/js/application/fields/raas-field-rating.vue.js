@@ -39,11 +39,11 @@ export default {
             switch (e.keyCode) {
                 case 37:
                 case 40:
-                    newValue = Math.max(0, (parseInt(this.value) || 0) - 1);
+                    newValue = Math.max(0, (parseInt(this.pValue) || parseInt(this.value) || 0) - 1);
                     break;
                 case 38:
                 case 39:
-                    newValue = Math.min(this.max, (parseInt(this.value) || 0) + 1);
+                    newValue = Math.min(this.max, (parseInt(this.pValue) || parseInt(this.value) || 0) + 1);
                     break;
             }
             if (newValue) {
@@ -80,7 +80,7 @@ export default {
          * @return {Number}
          */
         currentValue: function () {
-            return this.hoveredValue || parseInt(this.value) || 0;
+            return this.hoveredValue || parseInt(this.pValue) || parseInt(this.value) || 0;
         },
         /**
          * Слушатели событий полей (с учетом v-model)

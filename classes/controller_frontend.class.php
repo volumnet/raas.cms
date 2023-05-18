@@ -686,8 +686,8 @@ class Controller_Frontend extends Abstract_Controller
               . " * Файл кэша страницы\n"
               . " * " . $this->url . "\n"
               . " * Создан: " . date('Y-m-d H:i:s') . "\n"
-              . " * IP-адрес: " . $_SERVER['REMOTE_ADDR'] . "\n"
-              . " * User-Agent: " . $_SERVER['HTTP_USER_AGENT'] . "\n";
+              . " * IP-адрес: " . ($_SERVER['REMOTE_ADDR'] ?? '') . "\n"
+              . " * User-Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? '') . "\n";
         if ($originalPage->id) {
             $text .= " * Страница ID#: " . (int)$originalPage->id . "\n";
         }

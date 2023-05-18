@@ -418,7 +418,10 @@ class Diag
             $long = array_filter(
                 $all,
                 function ($x) use ($criticalTime) {
-                    return ($x['time'] / $x['counter']) > $criticalTime;
+                    if (isset($x['time']) && isset($x['counter']) && (float)$x['time'] && (float)$x['counter']) {
+                        return ($x['time'] / $x['counter']) > $criticalTime;
+                    }
+                    return false;
                 }
             );
             usort($long, function ($a, $b) {
@@ -435,11 +438,14 @@ class Diag
             $frequent = array_filter(
                 $all,
                 function ($x) use ($criticalTime, $entityName) {
-                    return (
-                        $entityName != 'queries' ?
-                        ($x['time'] / $x['counter']) :
-                        $x['time']
-                    ) > $criticalTime;
+                    if (isset($x['time']) && isset($x['counter']) && (float)$x['time'] && (float)$x['counter']) {
+                        return (
+                            $entityName != 'queries' ?
+                            ($x['time'] / $x['counter']) :
+                            $x['time']
+                        ) > $criticalTime;
+                    }
+                    return false;
                 }
             );
             usort($frequent, function ($a, $b) {
@@ -453,11 +459,14 @@ class Diag
             $main = array_filter(
                 $all,
                 function ($x) use ($criticalTime, $entityName) {
-                    return (
-                        $entityName != 'queries' ?
-                        ($x['time'] / $x['counter']) :
-                        $x['time']
-                    ) > $criticalTime;
+                    if (isset($x['time']) && isset($x['counter']) && (float)$x['time'] && (float)$x['counter']) {
+                        return (
+                            $entityName != 'queries' ?
+                            ($x['time'] / $x['counter']) :
+                            $x['time']
+                        ) > $criticalTime;
+                    }
+                    return false;
                 }
             );
             usort($main, function ($a, $b) {

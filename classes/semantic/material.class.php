@@ -386,96 +386,117 @@ class Material extends SOME
     }
 
 
-    public static function delete(SOME $object)
+    public static function batchDelete(array $objects)
     {
-        $mtype = $object->material_type;
-        $dontUpdateAffectedPages = (bool)$object->meta['dontUpdateAffectedPages'];
-        $material = $object->deepClone();
+        $st = microtime(1);
+        if (!$objects) {
+            return;
+        }
+
+        $objectsIds = array_map(function ($x) {
+            return (int)$x->id;
+        }, $objects);
 
         // Удалим файловые поля с проверкой на совместное использование
-        // Найдем используемые значения файловых полей в данном материале
-        $sqlQuery = "SELECT tD.value
-                       FROM " . static::_dbprefix() . "cms_data AS tD
-                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
-                      WHERE tD.pid = ?
-                        AND tF.classname = ?
-                        AND tF.pid
-                        AND tF.datatype IN ('image', 'file')";
-        $sqlResult = static::_SQL()->getcol([
-            $sqlQuery,
-            (int)$object->id,
-            Material_Type::class
-        ]);
-        $affectedAttachmentsIds = array_map(function ($x) {
-            $json = (array)json_decode($x, true);
-            $attachmentId = (int)$json['attachment'];
-            return $attachmentId;
-        }, $sqlResult);
-        $affectedAttachmentsIds = array_filter($affectedAttachmentsIds);
-        $affectedAttachmentsIds = array_values($affectedAttachmentsIds);
+        // Найдем все файловые поля и файловые поля материалов
+        $sqlQuery = "SELECT id FROM " . Field::_tablename() . " WHERE datatype IN ('image', 'file')";
+        $allFilesFieldsIds = array_map('intval', Field::_SQL()->getcol($sqlQuery));
 
-        // Найдем используемые значения файловых полей вне данного материала
-        $sqlQuery = "SELECT tD.value
-                       FROM " . static::_dbprefix() . "cms_data AS tD
-                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
-                      WHERE NOT (
-                                    tD.pid = ?
-                                AND tF.classname = ?
-                                AND tF.pid
-                            )
-                        AND tF.datatype IN ('image', 'file')";
-        $sqlResult = static::_SQL()->getcol([
-            $sqlQuery,
-            (int)$object->id,
-            Material_Type::class
-        ]);
-        $otherAttachmentsIds = array_map(function ($x) {
-            $json = (array)json_decode($x, true);
-            $attachmentId = (int)$json['attachment'];
-            return $attachmentId;
-        }, $sqlResult);
-        $otherAttachmentsIds = array_filter($otherAttachmentsIds);
-        $otherAttachmentsIds = array_values($otherAttachmentsIds);
 
-        $attachmentsToDelete = array_diff(
-            $affectedAttachmentsIds,
-            $otherAttachmentsIds
-        );
+        $sqlQuery = "SELECT id
+                       FROM " . Field::_tablename()
+                  . " WHERE classname = ?
+                        AND pid
+                        AND datatype IN ('image', 'file')";
+        $materialFilesFieldsIds = array_map('intval', Field::_SQL()->getcol([$sqlQuery, Material_Type::class]));
 
-        foreach ($attachmentsToDelete as $attachmentToDelete) {
-            $att = new Attachment($attachmentToDelete);
-            Attachment::delete($att);
+        $affectedAttachmentsIds = [];
+        if ($materialFilesFieldsIds) {
+            // Найдем используемые значения файловых полей в данном материале
+            $sqlQuery = "SELECT value
+                           FROM " . static::_dbprefix() . "cms_data
+                          WHERE pid IN (" . implode(", ", $objectsIds) . ")
+                            AND fid IN (" . implode(", ", $materialFilesFieldsIds) . ")";
+            $sqlResult = static::_SQL()->getcol($sqlQuery);
+
+            $affectedAttachmentsIds = array_values(array_filter(array_map(function ($x) {
+                $json = (array)json_decode($x, true);
+                $attachmentId = (int)$json['attachment'];
+                return $attachmentId;
+            }, $sqlResult)));
         }
 
         // Удалим данные из cms_data
         $sqlQuery = "DELETE tD
                        FROM " . static::_dbprefix() . "cms_data AS tD
                        JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
-                      WHERE tD.pid = ?
+                      WHERE tD.pid IN (" . implode(", ", $objectsIds) . ")
                         AND tF.classname = ?
                         AND tF.pid";
-        $sqlResult = static::_SQL()->getcol([
-            $sqlQuery,
-            (int)$object->id,
-            Material_Type::class
-        ]);
+        $sqlResult = static::_SQL()->getcol([$sqlQuery, Material_Type::class]);
 
-        parent::delete($object);
+        parent::batchDelete($objects);
+
+        if ($affectedAttachmentsIds) {
+            // Найдем используемые значения файловых полей вне данного материала
+            $sqlQuery = "SELECT value
+                           FROM " . static::_dbprefix() . "cms_data
+                          WHERE fid IN (" . implode(", ", $allFilesFieldsIds) . ")";
+
+            $sqlResult = static::_SQL()->getcol([$sqlQuery]);
+            $otherAttachmentsIds = array_values(array_filter(array_map(function ($x) {
+                $json = (array)json_decode($x, true);
+                $attachmentId = (int)$json['attachment'];
+                return $attachmentId;
+            }, $sqlResult)));
+
+            $attachmentsToDelete = array_diff($affectedAttachmentsIds, $otherAttachmentsIds);
+
+            foreach ($attachmentsToDelete as $attachmentToDelete) {
+                $att = new Attachment($attachmentToDelete);
+                Attachment::delete($att);
+            }
+        }
 
         // 2019-01-24, AVS: добавил удаление из связанных данных
         // несуществующих материалов
-        $sqlQuery = "DELETE tD
-                       FROM cms_data AS tD
-                       JOIN " . Field::_tablename() . " AS tF ON tF.id = tD.fid
-                  LEFT JOIN " . static::_tablename() . " AS tM ON tM.id = tD.value
-                      WHERE tF.datatype = ?
-                        AND tM.id IS NULL";
-        $result = static::$SQL->query([$sqlQuery, ['material']]);
+        // 2023-04-28, AVS: переделал на отдельные запросы для ускорения (было 44сек, стало 4.8сек),
+        $sqlQuery = "SELECT id FROM " . Field::_tablename() . " WHERE datatype = 'material'";
+        $materialFieldsIds = array_map('intval', Material::_SQL()->getcol($sqlQuery));
+        if ($materialFieldsIds) {
+            $sqlQuery = "SELECT id FROM " . static::_tablename();
+            $allMaterialsIds = array_map('trim', Material::_SQL()->getcol($sqlQuery));
+            if ($allMaterialsIds) {
+                $sqlQuery = "DELETE tD
+                               FROM cms_data AS tD
+                              WHERE tD.fid IN (" . implode(", ", $materialFieldsIds) . ")
+                                AND tD.value NOT IN (" . implode(", ", array_fill(0, count($allMaterialsIds), '?')) . ")";
+                $sqlBind = $allMaterialsIds;
+                $result = static::$SQL->query([$sqlQuery, $sqlBind]);
+            }
+        }
 
+        $dontUpdateAffectedPagesArr = array_filter($objects, function ($x) {
+            return (bool)($x->meta['dontUpdateAffectedPages'] ?? false);
+        });
+        $dontUpdateAffectedPages = (count($dontUpdateAffectedPagesArr) == count($objects));
         // 2021-07-06, AVS: добавили условие для скоростного обновления
         if (!$dontUpdateAffectedPages) {
+            $mtype = $material = null;
+            $mTypesIds = array_values(array_unique(array_map(function ($x) {
+                return (int)$x->pid;
+            }, $objects)));
+            if (count($mTypesIds) == 1) {
+                $mtype = new Material_Type($mTypesIds[0]);
+            }
+
             // 2019-04-25, AVS: обновим связанные страницы
-            static::updateAffectedPages(null, $material);
+            if (count($objects) == 1) {
+                $materials = array_values($objects);
+                static::updateAffectedPages(null, $materials[0]->deepClone());
+            } else {
+                static::updateAffectedPages($mtype);
+            }
             Material_Type::updateAffectedPagesForSelf($mtype);
         }
     }
@@ -542,14 +563,11 @@ class Material extends SOME
 
     /**
      * Обновляет связанные страницы
-     * @param Material_Type $materialType Ограничить обновление одним
-     *                                    типом материалов
+     * @param Material_Type $materialType Ограничить обновление одним типом материалов
      * @param Material $material Ограничить обновление одним материалом
      */
-    public static function updateAffectedPages(
-        Material_Type $materialType = null,
-        Material $material = null
-    ) {
+    public static function updateAffectedPages(Material_Type $materialType = null, Material $material = null)
+    {
         $materialId = ($material->id ?? 0);
         if ($materialTypeId = ($materialType->id ?? 0)) {
             $materialTypesIds = $materialType->selfAndChildrenIds;
@@ -611,11 +629,7 @@ class Material extends SOME
         }
 
         // 2021-07-07, AVS: очистим память
-        unset(
-            $materialTypesToPagesAssoc,
-            $materialsToPagesAssoc,
-            $materialsToMaterialTypesAssoc
-        );
+        unset($materialTypesToPagesAssoc, $materialsToPagesAssoc, $materialsToMaterialTypesAssoc);
 
         // Сформируем массив для записи в базу
         $sqlArr = [];
@@ -644,11 +658,10 @@ class Material extends SOME
             $sqlQuery .= " AS tMAP
                     LEFT JOIN " . static::_tablename() . " AS tM ON tM.id = tMAP.material_id ";
         }
-        $sqlQuery .= " WHERE 1 ";
         if ($materialId) {
-            $sqlQuery .= " AND material_id = " . (int)$materialId;
+            $sqlQuery .= " WHERE material_id = " . (int)$materialId;
         } elseif ($materialTypeId) {
-            $sqlQuery .= " AND (
+            $sqlQuery .= " WHERE (
                                 (tM.pid IN (" . implode(", ", $materialTypesIds) . "))
                              OR (tM.pid IS NULL)
                            )";
@@ -680,7 +693,6 @@ class Material extends SOME
         } elseif ($materialTypeId) {
             $sqlQuery .= " WHERE pid IN (" . implode(", ", $materialTypesIds) . ")";
         }
-        $st = microtime(1);
         $sqlResult = static::_SQL()->get($sqlQuery);
         $materialsData = [];
         $pagesData = [];

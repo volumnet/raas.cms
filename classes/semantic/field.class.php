@@ -67,7 +67,7 @@ class Field extends CustomField
                                 array_filter($allowedExtensions, 'trim')
                             );
                             if ($Field->multiple) {
-                                if ((array)$_FILES[$Field->name]['tmp_name']) {
+                                if ((array)($_FILES[$Field->name]['tmp_name'] ?? [])) {
                                     if ($Field->required) {
                                         foreach ((array)$_FILES[$Field->name]['tmp_name'] as $i => $val) {
                                             if (isset($_POST[$Field->name . '@attachment'][$i]) &&

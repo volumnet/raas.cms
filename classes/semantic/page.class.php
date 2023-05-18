@@ -966,7 +966,7 @@ class Page extends SOME
      */
     public function rebuildCache()
     {
-        if ($this->Material->id) {
+        if ($this->Material && $this->Material->id) {
             return $this->Material->rebuildCache();
         }
         $this->clearCache();

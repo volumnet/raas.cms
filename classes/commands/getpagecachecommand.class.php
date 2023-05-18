@@ -66,7 +66,6 @@ class GetPageCacheCommand extends Command
             if ($args[1] && is_numeric($args[1])) {
                 $minFreeSpace = (float)$args[1];
             }
-            $pagesCache = PageRecursiveCache::i()->getParentsIds((int)$x['id']);
             $pagesCache = array_values(array_filter(
                 PageRecursiveCache::i()->cache,
                 function ($x) {

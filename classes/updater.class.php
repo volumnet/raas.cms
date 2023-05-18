@@ -4,9 +4,10 @@
  */
 namespace RAAS\CMS;
 
-use RAAS\IContext;
 use SOME\SOME;
 use SOME\Text;
+use RAAS\Application;
+use RAAS\IContext;
 use RAAS\Updater as RAASUpdater;
 
 /**
@@ -50,6 +51,9 @@ class Updater extends RAASUpdater
         if (version_compare($v, '4.3.29') < 0) {
             $this->update20220203();
             $this->update20220217();
+        }
+        if (version_compare($v, '4.3.58') < 0) {
+            $this->update20230503();
         }
     }
 
@@ -1938,6 +1942,25 @@ class Updater extends RAASUpdater
             $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_fields
                            ADD gid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Group ID#' AFTER pid,
                            ADD KEY (gid)";
+            $this->SQL->query($sqlQuery);
+        }
+    }
+
+
+    /**
+     * Добавляет индекс на значения таблицы cms_data
+     */
+    public function update20230503()
+    {
+        $sqlQuery = "SELECT COUNT(*)
+                       FROM information_schema.statistics
+                      WHERE TABLE_SCHEMA = ?
+                        AND table_name = 'cms_data'
+                        AND index_name = 'value'";
+        $sqlBind = [Application::i()->dbname];
+        $sqlResult = $this->SQL->getvalue([$sqlQuery, $sqlBind]);
+        if (!$sqlResult) {
+            $sqlQuery = "ALTER TABLE cms_data ADD INDEX value (value(32))";
             $this->SQL->query($sqlQuery);
         }
     }
