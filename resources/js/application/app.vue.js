@@ -284,6 +284,17 @@ export default {
                 swipe: params.swipe, 
                 transition: params.transition 
             });
+            $('body').on('click.lightcase', 'a', function (e, data) {
+                if (/youtu/gi.test($(this).attr('href'))) {
+                    // Костыль, чтобы не дожидаться полной загрузки Youtube
+                    let interval = window.setInterval(() => {
+                        if ($('#lightcase-case iframe').length) {
+                            $('#lightcase-case iframe').trigger('load');
+                            window.clearInterval(interval);
+                        }
+                    }, 100);
+                }
+            });
         },
 
 

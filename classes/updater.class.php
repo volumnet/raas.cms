@@ -1877,7 +1877,9 @@ class Updater extends RAASUpdater
      */
     public function update20220203()
     {
-        if (!in_array(SOME::_dbprefix() . "cms_fields_form_vis", $this->tables)) {
+        if (in_array(SOME::_dbprefix() . "cms_fields", $this->tables) &&
+            !in_array(SOME::_dbprefix() . "cms_fields_form_vis", $this->tables)
+        ) {
             // Создадим форму
             $sqlQuery = "CREATE TABLE IF NOT EXISTS " . SOME::_dbprefix() . "cms_fields_form_vis (
                             fid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Field ID#',
@@ -1952,16 +1954,18 @@ class Updater extends RAASUpdater
      */
     public function update20230503()
     {
-        $sqlQuery = "SELECT COUNT(*)
-                       FROM information_schema.statistics
-                      WHERE TABLE_SCHEMA = ?
-                        AND table_name = 'cms_data'
-                        AND index_name = 'value'";
-        $sqlBind = [Application::i()->dbname];
-        $sqlResult = $this->SQL->getvalue([$sqlQuery, $sqlBind]);
-        if (!$sqlResult) {
-            $sqlQuery = "ALTER TABLE cms_data ADD INDEX value (value(32))";
-            $this->SQL->query($sqlQuery);
+        if (in_array(SOME::_dbprefix() . "cms_data", $this->tables)) {
+            $sqlQuery = "SELECT COUNT(*)
+                           FROM information_schema.statistics
+                          WHERE TABLE_SCHEMA = ?
+                            AND table_name = 'cms_data'
+                            AND index_name = 'value'";
+            $sqlBind = [Application::i()->dbname];
+            $sqlResult = $this->SQL->getvalue([$sqlQuery, $sqlBind]);
+            if (!$sqlResult) {
+                $sqlQuery = "ALTER TABLE cms_data ADD INDEX value (value(32))";
+                $this->SQL->query($sqlQuery);
+            }
         }
     }
 }

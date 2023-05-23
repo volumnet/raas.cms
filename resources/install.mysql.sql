@@ -185,7 +185,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_data (
   PRIMARY KEY (pid,fid,fii),
   KEY pid (pid),
   KEY fid (fid),
-  KEY fii (fii)
+  KEY fii (fii),
+  INDEX value (value(32))
 ) COMMENT='Fields data';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_dictionaries (

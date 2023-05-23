@@ -187,8 +187,12 @@ export default {
         },
     },
     watch: {
-        initialFormData() {
-            this.formData = this.initialFormData;
+        initialFormData(newVal, oldVal) {
+            if (JSON.stringify(newVal) != JSON.stringify(oldVal)) { 
+                // Чтобы не обновлялась статика (например, в регистрации при изменении пользователя 
+                // считается что изменились также и входные данные, а там снова подается старая статика)
+                this.formData = this.initialFormData;
+            }
         },
         formData: {
             handler: function () {

@@ -625,8 +625,10 @@ class Material_Type extends SOME
                           WHERE ";
             if ($materialTypeId) {
                 $sqlQuery .= " tM.pid = " . $materialTypeId;
-            } else {
+            } elseif ($notGlobalTypesIds) {
                 $sqlQuery .= " tM.pid IN (" . implode(", ", $notGlobalTypesIds) . ")";
+            } else {
+                $sqlQuery .= " 0";
             }
             $sqlQuery .= " GROUP BY tM.pid, tMPA.pid";
             static::_SQL()->query($sqlQuery);
