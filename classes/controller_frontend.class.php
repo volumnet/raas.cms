@@ -446,8 +446,9 @@ class Controller_Frontend extends Abstract_Controller
     public function exportLang(IContext $context, $language)
     {
         $filename = $context->systemDir . '/languages/' . $language . '.ini';
+        $translations = [];
         if (is_file($filename)) {
-            $translations = parse_ini_file($filename);
+            $translations = (array)parse_ini_file($filename);
         }
         foreach ((array)$translations as $key => $val) {
             $name = $key;

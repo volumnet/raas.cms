@@ -150,7 +150,11 @@ export default {
         ) {
             let realUrl = url;
             if (!/\/\//gi.test(realUrl)) {
-                realUrl = '//' + window.location.host + realUrl;
+                if (realUrl[0] != '/') {
+                    realUrl = '//' + window.location.host + window.location.pathname + realUrl;
+                } else {
+                    realUrl = '//' + window.location.host + realUrl;
+                }
             }
             const headers = {...additionalHeaders};
             let rx;

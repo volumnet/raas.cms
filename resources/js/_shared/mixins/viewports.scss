@@ -126,7 +126,7 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
     $result: ();
     @each $key in $applyTo {
         $width: map-get($container-max-widths, $key);
-        @if ($width > 0) {
+        @if ($width and ($width > 0)) {
             $newSize: ($width / $relativeTo) * $size;
             @if ($isPx) {
                 $newSize: round($newSize)

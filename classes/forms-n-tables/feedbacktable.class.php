@@ -26,20 +26,19 @@ class FeedbackTable extends Table
 
     public function __construct(array $params = [])
     {
-        $view = $this->view;
         $columns = [];
         $columns['id'] = [
             'caption' => $this->view->_('ID'),
-            'callback' => function ($row) use ($view) {
-                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' .
+            'callback' => function ($row) {
+                return '<a href="' . $this->view->url . '&action=view&id=' . (int)$row->id . '">' .
                           (int)$row->id .
                        '</a>';
             }
         ];
         $columns['post_date'] = [
             'caption' => $this->view->_('POST_DATE'),
-            'callback' => function ($row) use ($view) {
-                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' .
+            'callback' => function ($row) {
+                return '<a href="' . $this->view->url . '&action=view&id=' . (int)$row->id . '">' .
                           date(DATETIMEFORMAT, strtotime($row->post_date)) .
                        '</a>';
             }
@@ -47,8 +46,8 @@ class FeedbackTable extends Table
         if (!$params['Item']->id) {
             $columns['pid'] = [
                 'caption' => $this->view->_('FORM'),
-                'callback' => function ($row) use ($view) {
-                    return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' .
+                'callback' => function ($row) {
+                    return '<a href="' . $this->view->url . '&action=view&id=' . (int)$row->id . '">' .
                               htmlspecialchars($row->parent->name) .
                            '</a>';
                 }
@@ -56,19 +55,19 @@ class FeedbackTable extends Table
         }
         $columns['name'] = [
             'caption' => $this->view->_('PAGE'),
-            'callback' => function ($row) use ($view) {
+            'callback' => function ($row) {
                 $name = $row->material->id
                       ? $row->material->name
                       : $row->page->name;
-                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '">' .
+                return '<a href="' . $this->view->url . '&action=view&id=' . (int)$row->id . '">' .
                           htmlspecialchars($name) .
                        '</a>';
             }
         ];
         $columns['ip'] = [
             'caption' => $this->view->_('IP_ADDRESS'),
-            'callback' => function ($row) use ($view) {
-                return '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '" title="' . htmlspecialchars($row->description) . '">'
+            'callback' => function ($row) {
+                return '<a href="' . $this->view->url . '&action=view&id=' . (int)$row->id . '" title="' . htmlspecialchars($row->description) . '">'
                      .    htmlspecialchars($row->ip)
                      . '</a>';
             }
@@ -77,7 +76,7 @@ class FeedbackTable extends Table
             $columns[$col->urn] = [
                 'caption' => $col->name,
                 'callback' => function ($row) use ($col) {
-                    $text = '<a href="' . $view->url . '&action=view&id=' . (int)$row->id . '" title="' . htmlspecialchars($row->description) . '">';
+                    $text = '<a href="' . $this->view->url . '&action=view&id=' . (int)$row->id . '" title="' . htmlspecialchars($row->description) . '">';
                     $f = $row->fields[$col->urn];
                     switch ($f->datatype) {
                         case 'color':
@@ -126,8 +125,8 @@ class FeedbackTable extends Table
             ];
         }
         $columns[' '] = [
-            'callback' => function ($row) use ($view) {
-                return rowContextMenu($view->getFeedbackContextMenu($row));
+            'callback' => function ($row) {
+                return rowContextMenu($this->view->getFeedbackContextMenu($row));
             }
         ];
 
@@ -147,7 +146,7 @@ class FeedbackTable extends Table
             'template' => 'feedback',
             'data-role' => 'multitable',
             'meta' => [
-                'allContextMenu' => $view->getAllFeedbacksContextMenu(),
+                'allContextMenu' => $this->view->getAllFeedbacksContextMenu(),
             ],
         ];
         unset($params['columns']);

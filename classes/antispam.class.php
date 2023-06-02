@@ -323,7 +323,7 @@ class Antispam
                 continue;
             }
             $field = $this->form->fields[$fieldURN];
-            if (!$field || ($field->datatype == 'email')) {
+            if (!$field || ($field->datatype == 'email') || ($field->datatype == 'select')) {
                 continue;
             }
             if (in_array($fieldURN, [
