@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use Error;
 use SOME\SOME;
 use RAAS\User as RAASUser;
 
@@ -601,7 +602,10 @@ abstract class Block extends SOME
             $filename = $this->getCacheFile($url);
             if (is_file($filename)) {
                 // 2022-07-08, AVS: добавил @, чтобы при вызове ошибочного файла не выводил ошибку
-                $out = @include $filename;
+                try {
+                    $out = @include $filename;
+                } catch (Error $e) {
+                }
             }
         }
         return $out;

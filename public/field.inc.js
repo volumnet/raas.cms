@@ -63,6 +63,13 @@ jQuery(function($) {
             wrap: function()
             {
                 $thisObj.wrap('<div data-role="raas-autotext-container" class="raas-autotext-container"></div>');
+                var textFieldName = $thisObj.attr('name');
+                var textFieldRx = /^(.*?)(\[.*?\])$/gi;
+                if (textFieldRx.test(textFieldName)) {
+                    textFieldName = textFieldName.replace(textFieldRx, '$1@name$2');
+                } else {
+                    textFieldName += '@name';
+                }
                 $container = $thisObj.closest('[data-role="raas-autotext-container"]');
                 
                 var text = '  <div data-role="material-field-with" style="display: none">';
@@ -72,7 +79,7 @@ jQuery(function($) {
                 }
                 text    += '</div>';
                 text    += '<div data-role="material-field-without">';
-                text    += '  <input type="text">';
+                text    += '  <input type="text" name="' + textFieldName + '">';
                 text    += '</div>';
                 $container.append(text);
             },

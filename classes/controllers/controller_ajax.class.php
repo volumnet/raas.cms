@@ -169,10 +169,9 @@ class Controller_Ajax extends Abstract_Controller
     protected function get_materials_by_field()
     {
         if ((int)$this->id) {
-            $Field = new Material_Field((int)$this->id);
-            $Set = [];
-            if ($Field->datatype == 'material') {
-                $mtype = (int)$Field->source;
+            $field = new Material_Field((int)$this->id);
+            if ($field->datatype == 'material') {
+                $mtype = (int)$field->source;
             }
         } elseif ((int)$this->nav['mtype']) {
             $mtype = (int)$this->nav['mtype'];
@@ -191,38 +190,47 @@ class Controller_Ajax extends Abstract_Controller
             10,
             $onlyByName
         );
-        $OUT['Set'] = array_map(
-            function ($x) {
-                $y = [
-                    'id' => (int)$x->id,
-                    'name' => $x->name,
-                    'description' => Text::cuttext(
-                        html_entity_decode(
-                            strip_tags($x->description),
-                            ENT_COMPAT | ENT_HTML5,
-                            'UTF-8'
-                        ),
-                        256,
-                        '...'
-                    )
-                ];
-                if ($x->parents) {
-                    $y['pid'] = (int)$x->parents_ids[0];
-                }
-                foreach ($x->fields as $row) {
-                    if ($row->datatype == 'image') {
-                        if ($val = $row->getValue()) {
-                            if ($val->id) {
-                                $y['img'] = '/' . $val->fileURL;
-                            }
-                        }
+        $OUT['Set'] = array_map([$this, 'formatMaterial'], $Set);
+        $this->view->show_page($OUT);
+    }
+
+
+    /**
+     * Форматирует материал для вывода подсказок
+     * @param Material $material
+     * @return array <pre><code>[
+     *     'id' => int ID# материала,
+     *     'name' => string Наименование материала,
+     *     'description' => string Описание материала,
+     *     'pid' =>? int ID# основного родительского раздела,
+     *     'img' =>? string URL картинки
+     * ]</code></pre>
+     */
+    public function formatMaterial(Material $material)
+    {
+        $description = html_entity_decode(strip_tags($material->description), ENT_COMPAT | ENT_HTML5, 'UTF-8');
+        $description = Text::cuttext($description, 256, '...');
+        $result = [
+            'id' => (int)$material->id,
+            'name' => $material->name,
+            'description' => $description,
+        ];
+        if ($material->cache_url_parent_id) {
+            $result['pid'] = (int)$material->cache_url_parent_id;
+        } elseif ($material->parents_ids) {
+            $result['pid'] = (int)$material->parents_ids[0];
+        }
+        foreach ($material->fields as $field) {
+            if ($field->datatype == 'image') {
+                if ($val = $field->getValue()) {
+                    if ($val->id) {
+                        $result['img'] = '/' . $val->fileURL;
+                        break;
                     }
                 }
-                return $y;
-            },
-            $Set
-        );
-        $this->view->show_page($OUT);
+            }
+        }
+        return $result;
     }
 
 
