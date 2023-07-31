@@ -107,8 +107,9 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
 /// @param {number} $size Размер
 /// @param {mixed} $relativeTo Размер референсного контейнера в px, либо его название
 /// @param {list} $applyTo Применять пропорциональное уменьшение для:
+/// @param {number} $min Минимальный размер (в абсолютных величинах)
 /// @return {map}
-@function relSize($size, $applyTo: null, $relativeTo: null)
+@function relSize($size, $applyTo: null, $relativeTo: null, $min: null)
 {
     @if ($relativeTo == null) {
         $relativeTo: $referenceLayout;
@@ -118,6 +119,9 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
     }
     @if ($applyTo == null) {
         $applyTo: $relativeApplyTo;
+    }
+    @if ($min) {
+        $applyTo: map-keys($grid-breakpoints);
     }
     $isPx: false;
     @if (unit($size) == 'px') {
@@ -131,10 +135,15 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
             @if ($isPx) {
                 $newSize: round($newSize)
             }
-            @if ($key == 'sm') {
+            @if ($min and (abs($min) > abs($newSize))) {
+                $newSize: $min;
+            }
+            @if (($key == 'sm') and not $min) {
                 $key: '<sm';
             }
             $result: map-merge($result, ($key: $newSize));
+        } @elseif ($min) {
+            $result: map-merge($result, ($key: $min));
         }
     }
     @return $result;

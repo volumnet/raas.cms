@@ -27,37 +27,40 @@ jQuery(function($) {
         );
     })
 
-    $('#wysiwyg').on('click', function() {
-        var $originalDescription = $('#description');
-        var mime = $('#description').attr('data-mime');
-        var text = $originalDescription.val();
-        var $container = $originalDescription.closest('.control-group');
-        $container.empty();
-        var $description = $('<textarea>');
-        $description.attr({ 
-            'id': 'description', 
-            'name': 'description',
-            'data-mime': mime, 
-        }).val(text);
-        $container.append($description);
-        if ($(this).is(':checked')) {
-            $description.ckeditor(ckEditorConfig);
-        } else {
-            CodeMirror.fromTextArea(
-                $description[0], 
-                { 
-                    lineNumbers: true, 
-                    mode: mime || 'text/html', 
-                    indentUnit: 2, 
-                    indentWithTabs: false, 
-                    enterMode: "keep", 
-                    tabMode: "shift", 
-                    tabSize: 2 
-                }
-            );
-        }
-    });
+    window.setTimeout(() => {
 
-    $('#cache_type').on('change', checkCaching);
-    checkCaching();
+        $('#wysiwyg').on('click', function() {
+            var $originalDescription = $('#description');
+            var mime = $('#description').attr('data-mime');
+            var text = $originalDescription.val();
+            var $container = $originalDescription.closest('.control-group');
+            $container.empty();
+            var $description = $('<textarea>');
+            $description.attr({ 
+                'id': 'description', 
+                'name': 'description',
+                'data-mime': mime, 
+            }).val(text);
+            $container.append($description);
+            if ($(this).is(':checked')) {
+                $description.ckeditor(ckEditorConfig);
+            } else {
+                CodeMirror.fromTextArea(
+                    $description[0], 
+                    { 
+                        lineNumbers: true, 
+                        mode: mime || 'text/html', 
+                        indentUnit: 2, 
+                        indentWithTabs: false, 
+                        enterMode: "keep", 
+                        tabMode: "shift", 
+                        tabSize: 2 
+                    }
+                );
+            }
+        });
+
+        $('#cache_type').on('change', checkCaching);
+        checkCaching();
+    }, 0); // Чтобы отработал Vue
 });

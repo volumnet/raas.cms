@@ -75,7 +75,7 @@ if ($pages->pages > 1) { ?>
       foreach ($links as $link) {
           if ($link['ellipsis']) { ?>
               <li class="pagination__item pagination__item_disabled">
-                <a class="pagination__link pagination__link_disabled">...</a>
+                <span class="pagination__link pagination__link_disabled">...</span>
               </li>
           <?php } elseif ($link['active']) { ?>
               <li class="pagination__item pagination__item_active">
@@ -93,5 +93,6 @@ if ($pages->pages > 1) { ?>
       } ?>
     </ul>
     <?php
-    AssetManager::requestCSS('/css/pagination.css');
 }
+AssetManager::requestCSS('/css/pagination.css');
+AssetManager::requestJS('/js/pagination.js');

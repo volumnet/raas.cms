@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use Error;
 use SOME\SOME;
 use RAAS\Application;
 use RAAS\Attachment as Attachment;
@@ -137,7 +138,11 @@ class Template extends SOME
         }
         $st = microtime(true);
         extract($data);
-        $result = @include $this->filename;
+        try {
+            $result = @include $this->filename;
+        } catch (Error $e) {
+            $result = null;
+        }
         return $result;
     }
 

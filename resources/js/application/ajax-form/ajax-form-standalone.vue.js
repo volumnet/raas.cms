@@ -15,7 +15,7 @@ export default {
             },
         },
     },
-    data: function () {
+    data() {
         let translations = {
             ASTERISK_MARKED_FIELDS_ARE_REQUIRED: 'Поля, помеченные звездочкой (*), обязательны для заполнения',
             FEEDBACK_SUCCESSFULLY_SENT: 'Спасибо! Ваш запрос успешно отправлен.',
@@ -27,6 +27,17 @@ export default {
         }
         let result = {
             translations,
+            autoFormControlClassFields: [], // Автоматически добавлять класс form-control ко этим типам
+            formControlClassFieldsExceptions: [
+                'checkbox', 
+                'radio', 
+                'htmlarea', 
+                'material',
+                'hidden',
+                'rating',
+                'video',
+                'image',
+            ], // Автоматически добавлять класс form-control ко всем типам кроме заданных
         };
         return result;
     },
@@ -36,7 +47,7 @@ export default {
          * @param {Object} field Данные поля
          * @return {Object}
          */
-        fieldAttrs: function (field) {
+        fieldAttrs(field) {
             let result = { 
                 type: field, 
                 'class': {
@@ -45,13 +56,10 @@ export default {
                 title: ((field && this.errors[field.urn]) || ''),
             };
             if (field && field.datatype) {
-                if ([
-                    'checkbox', 
-                    'radio', 
-                    'htmlarea', 
-                    'material'
-                ].indexOf(field.datatype) == -1) {
-                    result['class']['form-control'] = true
+                if (this.autoFormControlClassFields && this.autoFormControlClassFields.length && (this.autoFormControlClassFields.indexOf(field.datatype) != -1)) {
+                    result['class']['form-control'] = true;
+                } else if (this.formControlClassFieldsExceptions.indexOf(field.datatype) == -1) {
+                    result['class']['form-control'] = true;
                 }
             }
             // console.log(result);
@@ -63,7 +71,7 @@ export default {
          * HTML-код подсказки об обязательных полях
          * @return {String}
          */
-        asteriskHintHTML: function () {
+        asteriskHintHTML() {
             let result = this.translations.ASTERISK_MARKED_FIELDS_ARE_REQUIRED;
             result = result.replace(
                 '*', 

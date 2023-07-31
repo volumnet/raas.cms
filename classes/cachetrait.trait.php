@@ -4,6 +4,8 @@
  */
 namespace RAAS\CMS;
 
+use Error;
+
 /**
  * Трейт кэширования
  */
@@ -79,8 +81,11 @@ trait CacheTrait
     public function load()
     {
         if (is_file($this->getFilename())) {
-            $this->data = include $this->getFilename();
-            return true;
+            try {
+                $this->data = include $this->getFilename();
+                return true;
+            } catch (Error $e) {
+            }
         }
         return false;
     }

@@ -254,7 +254,11 @@ export default {
                         $hashLink[0].click();
                     }
                 } else {
-                    window.scrollTo(0, $obj.offset().top + this.getScrollOffset());
+                    window.scrollTo({
+                        left: 0, 
+                        top: $obj.offset().top + this.getScrollOffset(),
+                        behavior: 'smooth',
+                    });
                 }
             }
         },

@@ -1,5 +1,7 @@
 jQuery(document).ready(function($) {
-    $('#mime').autocomplete({
-        source: JSON.parse($('#mime').attr('data-types'))
-    })
+    window.setTimeout(() => {
+        $('#mime').autocomplete({
+            source: JSON.parse($('#mime').attr('data-types'))
+        })
+    }, 0); // Чтобы отработал Vue
 });

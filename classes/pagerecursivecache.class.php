@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use Error;
 use SOME\Singleton;
 
 /**
@@ -204,7 +205,11 @@ class PageRecursiveCache extends VisibleRecursiveCache
     public function load()
     {
         if (is_file($this->getFilename())) {
-            $data = include $this->getFilename();
+            $data = [];
+            try {
+                $data = include $this->getFilename();
+            } catch (Error $e) {
+            }
             foreach ([
                 'cache',
                 'parentId',

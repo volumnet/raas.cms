@@ -7,7 +7,7 @@ let adjustOnce = function ($obj) {
     $obj.css('height', '');
     if ($obj.length) {
         $obj.each(function () {
-            h = Math.max(h, $obj.outerHeight());
+            h = Math.max(h, $(this).outerHeight());
         });
         $obj.css('height', h + 'px');
     }
@@ -21,7 +21,7 @@ export default function (watch = false) {
     adjustOnce($(this));
     if (watch) {
         $(window).on('resize', () => {
-            $(this).adjustOnce();
+            adjustOnce($(this));
         });
     }
 };

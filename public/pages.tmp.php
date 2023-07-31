@@ -7,47 +7,52 @@ namespace RAAS\CMS;
 use RAAS\Application;
 
 /**
- * Отображает размещение
- * @param Location $location Размещение для отображения
- * @param Page $page Страница для отображения
- * @return string
+ * Форматирует блок
+ * @param Block $block
+ * @param Page $page Страница
+ * @param int $i Порядковый номер
+ * @return array
  */
-function displayLocation(Location $location, Page $page)
-{
-    $text = '';
-    if ($temp = ViewSub_Main::i()->getLocationContextMenu($location, $page)) {
-        $temp = array_map(
-            function($x) {
-                return ['text' => $x['name'], 'href' => $x['href']];
-            },
-            $temp
-        );
-        $temp = json_encode($temp);
-        $text .= '<script type="text/javascript">
-                  jQuery(document).ready(function($) {
-                      context.attach(
-                          "#location-' . htmlspecialchars($location->urn) . '",
-                          ' . $temp . '
-                      );
-                  })
-                  </script>';
-    }
-    $text .=  ' <h6>' . htmlspecialchars($location->urn) . '</h6>
-                <input type="hidden" value="' . $location->urn . '" />';
+$formatBlock = function (Block $block, Page $page, $i) {
     $blocksByLocations = $page->blocksByLocations;
-    if (isset($blocksByLocations[$location->urn]) && $blocksByLocations[$location->urn]) {
-        for ($i = 0; $i < count($page->blocksByLocations[$location->urn]); $i++) {
-            $row = $page->blocksByLocations[$location->urn][$i];
-            $text .= Block_Type::getType($row->block_type)->viewer->renderBlock(
-                $row,
-                $page,
-                $location,
-                $i
-            );
+    $contextMenu = ViewSub_Main::i()->getBlockContextMenu(
+        $block,
+        $page,
+        $i,
+        count($blocksByLocations[$block->location] ?? [])
+    );
+    $result = [
+        'id' => $block->id,
+        'vis' => (bool)(int)$block->vis,
+        'url' => Package::i()->view->url . '&action=edit_block&id=' . (int)$block->id . '&pid=' . (int)$page->id,
+        'name' => $block->name,
+        'cssClass' => Block_Type::getType($block->block_type)->viewer->cssClass,
+        'contextMenu' => getMenu($contextMenu),
+    ];
+    return $result;
+};
+
+/**
+ * Форматирует размещение
+ * @param Location $location Размещение
+ * @param Page $page Страница
+ * @return array
+ */
+$formatLocation = function (Location $location, Page $page) use ($formatBlock) {
+    $blocksByLocations = $page->blocksByLocations;
+    $result['urn'] = $location->urn;
+    if ($result['urn']) {
+        foreach (['x', 'y', 'width', 'height'] as $key) {
+            $result[$key] = $location->$key;
         }
     }
-    return $text;
-}
+    $result['blocks'] = [];
+    foreach (($blocksByLocations[$location->urn] ?? []) as $i => $block) {
+        $result['blocks'][] = $formatBlock($block, $page, $i);
+    }
+    $result['contextMenu'] = getMenu(ViewSub_Main::i()->getLocationContextMenu($location, $page));
+    return $result;
+};
 ?>
 <div class="tabbable">
   <ul class="nav nav-tabs">
@@ -68,32 +73,38 @@ function displayLocation(Location $location, Page $page)
     } ?>
   </ul>
   <div class="tab-content">
-    <?php if ($Item->id) { ?>
+    <?php if ($Item->id) {
+        $templateJSON = $emptyLocationJSON = null;
+        $blocksByLocations = $Item->blocksByLocations;
+        $template = $Item->Template;
+        if ($template->id) {
+            $templateJSON = $template->getArrayCopy();
+            unset($templateJSON['description'], $templateJSON['background']);
+            $templateJSON['locations_info'] = array_map(function ($x) use ($Item, $formatLocation) {
+                return $formatLocation($x, $Item);
+            }, $template->locations);
+        }
+        $blocksByLocations = $Item->blocksByLocations;
+        if ((isset($blocksByLocations['']) && $blocksByLocations['']) || !$template->locations) {
+            $emptyLocationJSON = $formatLocation(new Location(), $Item);
+        }
+
+        $legendJSON = [];
+        foreach (Block_Type::getTypes() as $blockType) {
+            $legendBlockJSON = [
+                'vis' => true,
+                'name' => $blockType->viewer->renderBlockTypeName(),
+                'cssClass' => $blockType->viewer->cssClass,
+            ];
+            $legendJSON[] = $legendBlockJSON;
+        }
+        ?>
         <div class="tab-pane active" id="layout">
-          <div class="row">
-            <div class="span7" style="min-width: 640px; margin-bottom: 20px;">
-              <?php if ($Item->Template->id) { ?>
-                  <div class="cms-template" style="<?php echo htmlspecialchars($Item->Template->style)?>">
-                    <?php foreach ($Item->Template->locations as $loc) { ?>
-                        <div class="cms-location<?php echo $loc->horizontal ? ' cms-horizontal' : ''?>" style="<?php echo htmlspecialchars($loc->style)?>" id="location-<?php echo htmlspecialchars($loc->urn)?>">
-                          <?php echo displayLocation($loc, $Item)?>
-                        </div>
-                    <?php } ?>
-                  </div>
-              <?php }
-              $blocksByLocations = $Item->blocksByLocations;
-              if ((isset($blocksByLocations['']) && $blocksByLocations['']) || !$Item->Template->locations) { ?>
-                  <div class="cms-location" style="position: relative; width: <?php echo $Item->Template->width?>px" id="location-">
-                    <?php echo displayLocation(new Location(), $Item)?>
-                  </div>
-              <?php } ?>
-            </div>
-            <div class="span2">
-              <?php foreach (Block_Type::getTypes() as $key => $row) {
-                  echo $row->viewer->renderLegend($row);
-              } ?>
-            </div>
-          </div>
+          <cms-page-layout
+            :template-data="<?php echo htmlspecialchars(json_encode($templateJSON))?>"
+            :empty-location="<?php echo htmlspecialchars(json_encode($emptyLocationJSON))?>"
+            :legend="<?php echo htmlspecialchars(json_encode($legendJSON))?>"
+          ></cms-page-layout>
         </div>
     <?php } ?>
 

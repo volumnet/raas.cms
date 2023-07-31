@@ -1,47 +1,12 @@
 .cms-inpvis { font-style: italic; }
-.cms-template { 
-  position: relative; min-width: 200px; min-height: 200px;
-  border: 1px solid #ccc; background-repeat: no-repeat; 
-  -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; box-shadow: 5px 5px 15px rgba(0,0,0,0.5); 
-  overflow: hidden;
-  background-size: 100% auto;
-}
 
-.cms-location__outer { position: absolute; cursor: pointer; }
-.cms-location__outer .cms-location { width: 100%; height: 100%; }
+
 .ui-draggable { cursor: pointer;  }
-.cms-location { 
-    min-height: 60px; min-width: 140px; padding: 3px; position: absolute; 
-    box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;  
-    border: 1px dashed #ccc; background: rgba(255, 255, 255, 0.9);
-}
-.cms-location > .btn-group > .btn { line-height: 14px; padding: 0 4px; }
-.cms-location h6 { margin: 0; padding: 0 0 0 3px; min-height: 20px; color: #888; }
-.cms-block { display: block; position: relative; padding: 0; min-height: 24px; margin-bottom: 3px; box-shadow: 2px 2px 2px rgba(0,0,0,0.5); }
-.cms-block > .cms-block-name { padding: 6px; font-size: 11px; line-height: 12px; height: 12px; display: block; width: 100%; overflow: hidden; }
-.cms-block > .dropdown-toggle { display: table-cell; min-width: 24px; text-align: center; }
-.cms-block > .cms-block-name + .dropdown-toggle { border-left: 1px solid #ddd; }
-.cms-block > .dropdown-toggle span.caret { position: relative; top: 8px; }
-.cms-block > a { color: #000; }
-.cms-block > a:hover { text-decoration: none; }
 
-.cms-block { background-color: #eee; }
-.cms-block > a:hover { background-color: rgba(255, 255, 255, 0.25); }
-
-.cms-block-html { background-color: #9ff; }
-.cms-block-php { background-color: #f99; }
-.cms-block-material { background-color: #9f9; }
-.cms-block-menu { background-color: #ff9; }
-.cms-block-form { background-color: #9cf; }
-.cms-block-search { background-color: #c9f; }
-.cms-block-module { background-color: #fc9; }
-
-.cms-legend { max-width: 604px; }
 
 /*.cms-block .btn { display: table-cell; }
 .cms-block .btn:first-child { width: 100%; text-align: left; }
 .cms-block.btn-group + .cms-block.btn-group { margin: 3px 0 0; }*/
-.cms-location.cms-horizontal .cms-block { display: inline-block; width: auto; margin-right: 3px; min-width: 20px; }
 
 div.CodeMirror { height: 310px; border: 1px solid #ccc; border-radius: 5px; padding: 5px; }
 .cms-field_repo { display: none; }

@@ -9,7 +9,7 @@ namespace RAAS\CMS;
  */
 class ViewBlockSearch extends ViewBlock
 {
-    const blockListItemClass = 'cms-block-search';
+    const BLOCK_LIST_ITEM_CLASS = 'cms-block_search';
 
     public function renderBlockTypeName()
     {

@@ -1,27 +1,16 @@
 jQuery(function($) {
-    if ($('.code#description').length) {
-        if (parseInt($('select#interface_id').val()) > 0) {
-            $('.control-group:has(.code#description)').hide();
-        }
-        $('#interface_id').change(function() {
-            if (parseInt($(this).val()) > 0) {
-                $('.control-group:has(.code#description)').fadeOut();
+    window.setTimeout(() => {
+        $('#antispam').change(function() {
+            if (['captcha', 'hidden', 'smart'].indexOf($(this).val()) != -1) {
+                $('#antispam_field_name').removeAttr('disabled');
+                if ($('#antispam').val() == 'captcha') {
+                    $('#antispam_field_name').val('captcha');
+                } else if (($('#antispam').val() == 'hidden') || ($('#antispam').val() == 'smart')) {
+                    $('#antispam_field_name').val('_question');
+                }
             } else {
-                $('.control-group:has(.code#description)').fadeIn();
+                $('#antispam_field_name').attr('disabled', 'disabled');
             }
-        })
-    }
-
-    $('#antispam').change(function() {
-        if (['captcha', 'hidden', 'smart'].indexOf($(this).val()) != -1) {
-            $('#antispam_field_name').removeAttr('disabled');
-            if ($('#antispam').val() == 'captcha') {
-                $('#antispam_field_name').val('captcha');
-            } else if (($('#antispam').val() == 'hidden') || ($('#antispam').val() == 'smart')) {
-                $('#antispam_field_name').val('_question');
-            }
-        } else {
-            $('#antispam_field_name').attr('disabled', 'disabled');
-        }
-    });
+        });
+    }, 0); // Чтобы успел отработать Vue
 });

@@ -4,6 +4,7 @@
  */
 namespace RAAS;
 
+use Error;
 use SOME\Graphics;
 use SOME\Namespaces;
 use SOME\Thumbnail;
@@ -601,7 +602,7 @@ class Controller_Frontend extends Abstract_Controller
                     }
                 )
             );
-            if (!$nonHtmlContentTypeHeaders) {
+            if (!$nonHtmlContentTypeHeaders && !($_GET['AJAX'] ?? null) && !($_SERVER['HTTP_X_RAAS_BLOCK_ID'] ?? 0)) {
                 echo '<script>
                 var f = function (d) {
                     var s = d.createElement("script");
@@ -799,7 +800,10 @@ class Controller_Frontend extends Abstract_Controller
                       . '.' . urlencode($this->url) . '.php';
             if (strlen($filename) < 256) {
                 if ($f = glob($filename)) {
-                    include $f[0];
+                    try {
+                        include $f[0];
+                    } catch (Error $e) {
+                    }
                     $this->outputDebug();
                     exit;
                 }

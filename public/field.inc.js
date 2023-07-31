@@ -123,31 +123,32 @@ jQuery(function($) {
         }
     };
 
-
-    $('.well:has(input:file)').on('click', 'a.close:not([data-role="raas-repo-del"])', function() {
-        var deleteText = $(this).attr('data-ondelete');
-        if (confirm(deleteText)) {
+    window.setTimeout(() => {
+        $('.well:has(input:file)').on('click', 'a.close:not([data-role="raas-repo-del"])', function() {
+            var deleteText = $(this).attr('data-ondelete');
+            if (confirm(deleteText)) {
+                var $w = $(this).closest('.well');
+                $('[data-role="file-link"]', $w).remove();
+                $('input:text, input:hidden, textarea', $w).val('');
+                $('input:checkbox', $w).attr('checked', 'checked');
+                $(this).remove();
+            }
+            return false;
+        });
+        $('body').on('click', '.well:has(input:file) input:checkbox:visible', function () {
+            var checked = $(this).prop('checked');
             var $w = $(this).closest('.well');
-            $('[data-role="file-link"]', $w).remove();
-            $('input:text, input:hidden, textarea', $w).val('');
-            $('input:checkbox', $w).attr('checked', 'checked');
-            $(this).remove();
-        }
-        return false;
-    });
-    $('body').on('click', '.well:has(input:file) input:checkbox:visible', function () {
-        var checked = $(this).prop('checked');
-        var $w = $(this).closest('.well');
-        if (checked) {
-            $('input:checkbox[data-role="checkbox-shadow"]', $w).prop('checked', false);
-        } else {
-            $('input:checkbox[data-role="checkbox-shadow"]', $w).prop('checked', true);
-        }
-    });
-    $('[datatype="material"]:not([disabled])').each(function() { $(this).RAAS_CMS_materialField(); });
-    // 2015-05-04, AVS: заменили input:hidden на [datatype="material"], чтобы вызывалось только у соответствующих репозиториев;
-    // добавили each(), чтобы не вызывались на чужие типы полей
-    $('body').on('RAAS_repo.add', '[data-role="raas-repo-element"]', function() { 
-        $('[datatype="material"]', this).each(function() { $(this).RAAS_CMS_materialField() }); }
-    );
+            if (checked) {
+                $('input:checkbox[data-role="checkbox-shadow"]', $w).prop('checked', false);
+            } else {
+                $('input:checkbox[data-role="checkbox-shadow"]', $w).prop('checked', true);
+            }
+        });
+        $('[datatype="material"]:not([disabled])').each(function() { $(this).RAAS_CMS_materialField(); });
+        // 2015-05-04, AVS: заменили input:hidden на [datatype="material"], чтобы вызывалось только у соответствующих репозиториев;
+        // добавили each(), чтобы не вызывались на чужие типы полей
+        $('body').on('RAAS_repo.add', '[data-role="raas-repo-element"]', function() { 
+            $('[datatype="material"]', this).each(function() { $(this).RAAS_CMS_materialField() }); }
+        );
+    }, 0); // Чтобы успел отработать Vue
 });

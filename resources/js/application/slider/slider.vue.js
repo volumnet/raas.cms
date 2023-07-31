@@ -172,7 +172,7 @@ export default {
                 options.wrap = 'circular';
             }
             options.vertical = (this.type == 'vertical');
-            
+            // console.log(options)
             let $self = $('[data-role="slider-list"]', this.$el).jcarousel(options);
                 
             let $items = $self.jcarousel('items');

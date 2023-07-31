@@ -407,6 +407,7 @@ class ViewSub_Dev extends RAASAbstractSubView
     public function edit_template(array $in = [])
     {
         $this->js[] = $this->publicURL . '/dev_edit_template.js';
+        $this->css[] = $this->publicURL . '/dev_edit_template.css';
         $this->path[] = [
             'name' => $this->_('DEVELOPMENT'),
             'href' => $this->url

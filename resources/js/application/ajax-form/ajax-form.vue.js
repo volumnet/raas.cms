@@ -104,7 +104,7 @@ export default {
                 const response = await self.$root.api(
                     url, 
                     postData, 
-                    self.blockId || 1, 
+                    self.blockId || null, 
                     'application/json', 
                     requestType
                 );

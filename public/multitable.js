@@ -67,7 +67,9 @@ jQuery(document).ready(function($) {
         check();
     };
 
-    $('[data-role="multitable"]').each(function() {
-        $(this).RAAS_MultiTable();
-    })
+    window.setTimeout(() => {
+        $('[data-role="multitable"]').each(function() {
+            $(this).RAAS_MultiTable();
+        });
+    }, 0); // Чтобы успел отработать Vue
 });

@@ -17,7 +17,7 @@ abstract class ViewBlock
     /**
      * CSS-класс блока в списке
      */
-    const blockListItemClass = 'cms-block';
+    const BLOCK_LIST_ITEM_CLASS = 'cms-block';
 
     public function __get($var)
     {
@@ -30,6 +30,9 @@ abstract class ViewBlock
                     $classname = $NS . '\\Module';
                     return $classname::i()->view;
                 }
+                break;
+            case 'cssClass':
+                return static::BLOCK_LIST_ITEM_CLASS;
                 break;
         }
     }
@@ -51,7 +54,7 @@ abstract class ViewBlock
     ) {
         // Заменил $this->view на Package::i()->view, т.к. блоки создаются
         // из основного пакета
-        $text = ' <div class="well well-small cms-block ' . static::blockListItemClass . '" id="block-' . (int)$block->id . '" title="' . ($block->title) . '">
+        $text = ' <div class="well well-small cms-block ' . static::BLOCK_LIST_ITEM_CLASS . '" id="block-' . (int)$block->id . '" title="' . ($block->title) . '">
                     <a class="cms-block-name" href="' . Package::i()->view->url . '&action=edit_block&id=' . (int)$block->id . '&pid=' . (int)$page->id . '">
                       <span' . (!$block->vis ? ' class="muted"' : '') . '>'
               .         $block->title
@@ -117,7 +120,7 @@ abstract class ViewBlock
         } elseif (!is_object($arg)) {
             $name = trim($arg);
         }
-        return '<div class="well well-small cms-block ' . static::blockListItemClass . '">
+        return '<div class="well well-small cms-block ' . static::BLOCK_LIST_ITEM_CLASS . '">
                   <span class="cms-block-name">' .
                     $name .
                '  </span>

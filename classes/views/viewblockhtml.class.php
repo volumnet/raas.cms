@@ -9,7 +9,7 @@ namespace RAAS\CMS;
  */
 class ViewBlockHTML extends ViewBlock
 {
-    const blockListItemClass = 'cms-block-html';
+    const BLOCK_LIST_ITEM_CLASS = 'cms-block_html';
 
     public function renderBlockTypeName()
     {

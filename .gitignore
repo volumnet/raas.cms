@@ -2,6 +2,7 @@ coverage
 vendor
 components
 composer.lock
+/node_modules
 config.php
 files
 .phpunit.result.cache
