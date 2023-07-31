@@ -10,7 +10,7 @@
     "bootstrap-multiselect": "^0.9.15",
     "codemirror": "^5.65.1",
     "inputmask": "^5.0.7",
-    "jquery": "^1.12.4",
+    "jquery": "^3.5.0",
     "jquery-form": "^4.3.0",
     "jquery-ui": "^1.13.1",
     "jquery.event.swipe": "^0.5.4",
