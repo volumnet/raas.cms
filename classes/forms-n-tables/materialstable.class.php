@@ -79,7 +79,7 @@ class MaterialsTable extends Table
                       . '</a>';
                 if (!$params['mtype']->global_type) {
                     $pagesCounter = (int)$row->pages_counter;
-                    if ($pagesCounter != 1) {
+                    if ($pagesCounter > 1) {
                         $text .= '<sup title="' . $this->view->_('ASSOCIATED_WITH_PAGES_COUNTER') . '">(' . $pagesCounter . ')</sup>';
                     }
                 }

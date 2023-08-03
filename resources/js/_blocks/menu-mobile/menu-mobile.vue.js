@@ -64,6 +64,8 @@ export default {
                 
         $(document).on('raas.openmobilemenu', () => {
             if ($('.menu-mobile__list_main').is('.menu-mobile__list_active')) {
+                $('.menu-mobile__link').removeClass('menu-mobile__link_focused');
+                $('.menu-mobile__item').removeClass('menu-mobile__item_focused');
                 $('.menu-mobile__list').removeClass('menu-mobile__list_active');
                 this.active = false;
             } else {
@@ -81,7 +83,12 @@ export default {
             '.menu-mobile__item:has(> .menu-mobile__list) > .menu-mobile__link', 
             function () {
                 if ($(this).is(':not([href]), [href="' + $.escapeSelector('#') + '"]')) {
-                    $(this).closest('.menu-mobile__item').find('> .menu-mobile__list').addClass('menu-mobile__list_active');
+                    $(this)
+                        .addClass('.menu-mobile__link_focused')
+                        .closest('.menu-mobile__item')
+                        .addClass('menu-mobile__item_focused')
+                        .find('> .menu-mobile__list')
+                        .addClass('menu-mobile__list_active');
                     return false;
                 }
             }
@@ -92,18 +99,25 @@ export default {
             'click', 
             '.menu-mobile__item:not(:has(> .menu-mobile__list)) > .menu-mobile__link[href]', 
             () => {
+                $('.menu-mobile__link').removeClass('menu-mobile__link_focused');
+                $('.menu-mobile__item').removeClass('menu-mobile__item_focused');
                 $('.menu-mobile__list').removeClass('menu-mobile__list_active');
                 this.active = false;
             }
         );
         $(this.$el).on('click', '.menu-mobile__children-trigger', function () {
-            $(this)
-                .closest('.menu-mobile__item')
+            let $item = $(this).closest('.menu-mobile__item');
+            $item
+                .toggleClass('menu-mobile__item_focused')
                 .find('> .menu-mobile__list')
-                .addClass('menu-mobile__list_active');
+                .toggleClass('menu-mobile__list_active');
+            $item.find('> .menu-mobile__link')
+                .toggleClass('menu-mobile__link_focused')
             return false;
         });
         $(this.$el).on('click', '.menu-mobile__close-link', () => { 
+            $('.menu-mobile__link').removeClass('menu-mobile__link_focused');
+            $('.menu-mobile__item').removeClass('menu-mobile__item_focused');
             $('.menu-mobile__list').removeClass('menu-mobile__list_active');
             this.active = false;
             return false;
@@ -111,7 +125,11 @@ export default {
         $(this.$el).on('click', '.menu-mobile__back-link', function() { 
             $(this)
                 .closest('.menu-mobile__list')
-                .removeClass('menu-mobile__list_active');
+                .removeClass('menu-mobile__list_active')
+                .closest('.menu-mobile__item')
+                .removeClass('menu-mobile__item_focused')
+                .find('> .menu-mobile__link')
+                .removeClass('menu-mobile__link_focused');
             return false;
         });
         // Продублируем сюда из app.vue, т.к. клик на .menu-mobile препятствует вызову из app
@@ -123,6 +141,8 @@ export default {
             }
         });
         $('.body').on('click', () => { 
+            $('.menu-mobile__link').removeClass('menu-mobile__link_focused');
+            $('.menu-mobile__item').removeClass('menu-mobile__item_focused');
             $('.menu-mobile__list').removeClass('menu-mobile__list_active');
             this.active = false;
         });
@@ -133,7 +153,12 @@ export default {
             let self = this;
             $('.menu-mobile__list').on('movestart', function(e) { 
                 if (e.distX <= -6) {
-                    $(this).removeClass('menu-mobile__list_active');
+                    $(this)
+                        .removeClass('menu-mobile__list_active')
+                        .closest('.menu-mobile__item')
+                        .removeClass('menu-mobile__item_focused')
+                        .find('> .menu-mobile__link')
+                        .removeClass('menu-mobile__link_focused');
                     if ($(this).is('.menu-mobile__list_main')) {
                         self.active = false;
                     }
