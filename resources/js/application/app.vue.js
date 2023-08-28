@@ -254,11 +254,7 @@ export default {
                         $hashLink[0].click();
                     }
                 } else {
-                    window.scrollTo({
-                        left: 0, 
-                        top: $obj.offset().top + this.getScrollOffset(),
-                        behavior: 'smooth',
-                    });
+                    this.scrollTo($obj);
                 }
             }
         },
@@ -358,6 +354,29 @@ export default {
             window.setTimeout(function () {
                 let result = $(document).trigger(eventName, data);
             }, 10);
+        },
+
+        /**
+         * Скроллит по вертикали к заданному объекту/позиции
+         * @param  {Number|HTMLElement|jQuery} destination Назначение (точек по Y, либо элемент)
+         * @param {Boolean} instant Немедленный скролл (плавный, если false)
+         */
+        scrollTo(destination, instant = false) {
+            let destY = null;
+            if (typeof(destination) == 'number') {
+                destY = destination;
+            } else if (destination instanceof HTMLElement) {
+                destY = $(destination).offset().top;
+            } else if (destination instanceof jQuery) {
+                destY = destination.offset().top;
+            }
+            if (destY) {
+                window.scrollTo({
+                    left: 0, 
+                    top: destY + this.getScrollOffset(),
+                    behavior: instant ? 'instant' : 'smooth',
+                });
+            }
         },
     },
     computed: {

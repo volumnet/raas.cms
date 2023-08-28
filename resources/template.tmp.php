@@ -73,12 +73,19 @@ ob_start(); // Для $separateScripts
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <?php if (is_file(Application::i()->baseDir . '/favicon.svg')) { ?>
+    <?php if (is_file(is_file(Application::i()->baseDir . '/apple-touch-icon.png'))) { ?>
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <?php }
+    if (is_file(Application::i()->baseDir . '/favicon.svg')) { ?>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <?php } elseif (is_file(Application::i()->baseDir . '/favicon.ico')) { ?>
+    <?php }
+    if (is_file(Application::i()->baseDir . '/favicon.ico')) { ?>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <?php } ?>
-    <?php echo $Page->headData;
+    <?php }
+    if (is_file(Application::i()->baseDir . '/manifest.json')) { ?>
+        <link rel="manifest" href="/manifest.json">
+    <?php }
+    echo $Page->headData;
     AssetManager::requestCSS([
         'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap',
         '/custom.css',
@@ -254,7 +261,7 @@ ob_start(); // Для $separateScripts
         </div>
         <div class="body__developer">
           Разработка и сопровождение сайта
-          <a href="http://volumnet.ru" target="_blank">Volume&nbsp;Networks</a>
+          <a href="http://volumnet.ru" target="_blank">«Объемные&nbsp;Сети»</a>
         </div>
       </footer>
       <?php

@@ -14,7 +14,14 @@ if ($Set) { ?>
       <div class="banners__list slider__list" data-role="slider-list">
         <div class="banners-list slider-list slider-list_fade">
           <?php for ($i = 0; $i < count($Set); $i++) { $item = $Set[$i]; ?>
-              <a class="banners-list__item slider-list__item banners-item banners-item__image"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?> data-role="slider-item" data-slider-index="<?php echo (int)$i?>" data-v-bind_class="{ 'banners-list__item_active': (vm.activeFrame == <?php echo $i?>), 'slider-list__item_active': (vm.activeFrame == <?php echo $i?>) }">
+              <a
+                class="banners-list__item slider-list__item banners-item banners-item__image"
+                <?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>
+                data-role="slider-item"
+                data-slider-index="<?php echo (int)$i?>"
+                <?php echo !$i ? ' style="position: relative; opacity: 1;" data-v-bind_style="{ position: \'\', opacity: \'\' }"' : ''?>
+                data-v-bind_class="{ 'banners-list__item_active': (vm.activeFrame == <?php echo $i?>), 'slider-list__item_active': (vm.activeFrame == <?php echo $i?>) }"
+              >
                 <img class="banners-item__image"<?php echo $i ? ' loading="lazy"' : ''?> src="/<?php echo htmlspecialchars($item->image->fileURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" />
               </a>
           <?php } ?>

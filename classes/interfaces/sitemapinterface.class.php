@@ -51,7 +51,8 @@ class SitemapInterface extends AbstractInterface
         Timer::add('sitemap.xml');
         $pageCache = PageRecursiveCache::i();
         $this->prepareMetaData();
-        $domainId = array_shift($pageCache->getParentsIds($this->page->id));
+        $tmpPageParentsIds = $pageCache->getParentsIds($this->page->id);
+        $domainId = array_shift($tmpPageParentsIds);
         $domainPageData = $pageCache->cache[$domainId];
         if ($this->server['HTTP_HOST']) {
             $domainURL = 'http' . ($this->server['HTTPS'] ? 's' : '') . '://'
@@ -119,7 +120,8 @@ class SitemapInterface extends AbstractInterface
         $result = [];
         $domainsURLs = [];
         foreach ($sqlResult as $sqlRow) {
-            $domainId = array_shift($pageCache->getParentsIds($sqlRow['id']));
+            $tmpPageParentsIds = $pageCache->getParentsIds($sqlRow['id']);
+            $domainId = array_shift($tmpPageParentsIds);
             if (!isset($domainsURLs[$domainId])) {
                 if ($this->server['HTTP_HOST']) {
                     $domainURL = 'http' . ($this->server['HTTPS'] ? 's' : '') . '://'
@@ -216,13 +218,13 @@ class SitemapInterface extends AbstractInterface
               .  '</priority>';
         $imagesData = [];
         if ($itemData['entry_type'] == 'page') {
-            $imagesData = (array)$this->imagesData['pagesImages'][$itemData['id']];
+            $imagesData = (array)($this->imagesData['pagesImages'][$itemData['id']] ?? []);
         } elseif ($itemData['entry_type'] == 'material') {
-            $imagesData = (array)$this->imagesData['materialsImages'][$itemData['id']];
+            $imagesData = (array)($this->imagesData['materialsImages'][$itemData['id']] ?? []);
         }
         if ($imagesData) {
             foreach ($imagesData as $imgId) {
-                if (!$this->affectedImages[$imgId]) {
+                if (!($this->affectedImages[$imgId] ?? null)) {
                     $imageData = $this->imagesData['images'][$imgId];
                     if ($imageData) {
                         $imageURL = $imageData['url'];
@@ -258,6 +260,7 @@ class SitemapInterface extends AbstractInterface
     public function showMenu(array $pagesData)
     {
         $i = 0;
+        $text = '';
         foreach ($pagesData as $pageRow) {
             EventProcessor::emit(
                 'startpage',
@@ -302,11 +305,8 @@ class SitemapInterface extends AbstractInterface
         $c = $sqlResult->rowCount();
         $domainsURLs = [];
         foreach ($sqlResult as $sqlRow) {
-            $domainId = array_shift(
-                PageRecursiveCache::i()->getParentsIds(
-                    $sqlRow['cache_url_parent_id']
-                )
-            );
+            $tmpPageParentsIds = PageRecursiveCache::i()->getParentsIds($sqlRow['cache_url_parent_id']);
+            $domainId = array_shift($tmpPageParentsIds);
             if (!isset($domainsURLs[$domainId])) {
                 if ($this->server['HTTP_HOST']) {
                     $domainURL = 'http' . ($this->server['HTTPS'] ? 's' : '') . '://'
@@ -380,7 +380,8 @@ class SitemapInterface extends AbstractInterface
     public function getTextBlocksImagesData()
     {
         $pageCache = PageRecursiveCache::i();
-        $domainId = array_shift($pageCache->getParentsIds($this->page->id));
+        $tmpPageParentsIds = $pageCache->getParentsIds($this->page->id);
+        $domainId = array_shift($tmpPageParentsIds);
         $pagesIds = $pageCache->getSelfAndChildrenIds($domainId);
         $sqlQuery = "SELECT tB.name,
                             tBH.description,
@@ -473,14 +474,11 @@ class SitemapInterface extends AbstractInterface
     public function formatImageURL($url)
     {
         $parsedUrl = parse_url($url);
-        if ($parsedUrl['path'] &&
-            ($parsedUrl['scheme'] != 'data') &&
-            (
-                !$parsedUrl['host'] ||
-                ($parsedUrl['host'] == $this->getCurrentHostName())
-            )
-        ) {
-            return $this->getCurrentHostURL() . $parsedUrl['path'];
+        $scheme = $parsedUrl['scheme'] ?? '';
+        $host = $parsedUrl['host'] ?? '';
+        $path = $parsedUrl['path'] ?? '';
+        if ($path && ($scheme != 'data') && (!$host || ($host == $this->getCurrentHostName()))) {
+            return $this->getCurrentHostURL() . $path;
         }
         return false;
     }
@@ -570,7 +568,8 @@ class SitemapInterface extends AbstractInterface
     public function getMaterialsAttachmentsData(array $fieldsIds = [])
     {
         $pageCache = PageRecursiveCache::i();
-        $domainId = array_shift($pageCache->getParentsIds($this->page->id));
+        $tmpPageParentsIds = $pageCache->getParentsIds($this->page->id);
+        $domainId = array_shift($tmpPageParentsIds);
         $pagesIds = $pageCache->getSelfAndChildrenIds($domainId);
 
         $materialsAttachmentsData = [];
@@ -761,7 +760,7 @@ class SitemapInterface extends AbstractInterface
                     $fieldName = $fieldsNames[$fieldId];
                     $i = 0;
                     foreach ($materialFieldImages as $imgId) {
-                        if (!$affectedNumberedImages[$imgId]) {
+                        if (!($affectedNumberedImages[$imgId] ?? null)) {
                             $data['images'][$imgId]['name'] .= ' — '
                                                             . $fieldName
                                                             .  ' ' . (++$i);
