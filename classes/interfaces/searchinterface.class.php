@@ -740,11 +740,10 @@ class SearchInterface extends AbstractInterface
                 return '%' . $x . '%';
             }, $searchArray);
             $sqlQuery = "SELECT tD.*
-                           FROM " . Material::_dbprefix() . "cms_data AS tD ";
-            if ($searchMaterialTypesIds) {
-                $sqlQuery .= " JOIN " . Material::_tablename() . " AS tM ON tM.id = tD.pid ";
-            }
-            $sqlQuery .= " WHERE tD.fid IN (" . implode(", ", $materialFieldsIds) . ") ";
+                           FROM " . Material::_dbprefix() . "cms_data AS tD
+                           JOIN " . Material::_tablename() . " AS tM ON tM.id = tD.pid ";
+            $sqlQuery .= " WHERE tM.vis
+                             AND tD.fid IN (" . implode(", ", $materialFieldsIds) . ") ";
             if ($searchMaterialTypesIds) {
                 $sqlQuery .= " AND tM.pid IN (" . implode(", ", array_map('intval', (array)$searchMaterialTypesIds)) . ") ";
             }

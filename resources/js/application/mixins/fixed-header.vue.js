@@ -2,10 +2,9 @@
  * Фиксированное меню
  */
 export default {
-    data: function () {
+    data() {
         return {
             fixedHeaderActive: false,
-            lastScrollTop: 0,
         };
     },
     computed: {
@@ -13,24 +12,20 @@ export default {
          * Фиксированная ли шапка
          * @return {Boolean}
          */
-        fixedHeader: function () {
+        fixedHeader() {
             return (this.scrollTop > Math.max($('.body__header-outer').outerHeight(), $('.body__header').outerHeight()));
-        }
+        },
     },
     watch: {
-        scrollTop: function () {
+        scrollTop() {
             if (this.fixedHeader) {
-                let delta = this.scrollTop - this.lastScrollTop;
-                if (delta > 100) {
+                if (this.scrollDelta > 100) {
                     this.fixedHeaderActive = false;
-                    this.lastScrollTop = this.scrollTop; // Перенести в общее нельзя, т.к. выполняется по условию
-                } else if (delta < -60) {
+                } else if (this.scrollDelta < -60) {
                     this.fixedHeaderActive = true;
-                    this.lastScrollTop = this.scrollTop; // Перенести в общее нельзя, т.к. выполняется по условию
                 }
             } else {
                 this.fixedHeaderActive = false;
-                this.lastScrollTop = this.scrollTop; // Перенести в общее нельзя, т.к. выполняется по условию
             }
         },
     }

@@ -85,7 +85,7 @@ export default {
             links = links.map(x => {
                 if (x.href) {
                     x.href = window.queryString.stringify(x.href, { arrayFormat: 'bracket' });
-                    x.href = x.href ? ('?' + x.href) : '';
+                    x.href = x.href ? ('?' + x.href) : window.location.pathname;
                 }
                 return x;
             });

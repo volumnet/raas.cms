@@ -152,6 +152,9 @@ $_RAASForm_Control = function (
                 // (int)$field->Form->DATA[$field->name] убрал (int),
                 // т.к. $val типа материал
                 $val = $field->Form->DATA[$field->name];
+                if (is_scalar($val)) {
+                    $val = new Material($val);
+                }
                 $attrs = [
                     'datatype' => 'material',
                     'type' => 'hidden',

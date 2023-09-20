@@ -20,7 +20,8 @@ $company = $Set[0];
                   . ', ' . date('Y') . '. '
                   . View_Web::i()->_('ALL_RIGHTS_RESERVED') . '.';
   }
-  echo htmlspecialchars($copyrights)
+  $copyrights = str_replace('{{YEAR}}', date('Y'), $copyrights);
+  echo htmlspecialchars($copyrights);
   ?>
 </div>
 <?php

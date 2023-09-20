@@ -57,6 +57,7 @@ export default {
              */
             scrollToSelector: 'a[href*="modal"][href*="#"], ' + 
                 'a.scrollTo[href*="#"], ' + 
+                'a[href^="#"]:not([href="#"]), ' + 
                 '.menu-top__link[href*="#"], ' + 
                 '.menu-bottom__link[href*="#"], ' + 
                 '.menu-mobile__link[href*="#"]',
@@ -89,7 +90,7 @@ export default {
                 this.bodyWidth = $('body').outerWidth();
             })
             .on('scroll', () => {
-                this.oldScrollTop = this.scrollTop;
+                let oldScrollTop = this.scrollTop;
                 this.scrollTop = $(window).scrollTop();
                 if (this.isScrollingNowTimeoutId) {
                     window.clearTimeout(this.isScrollingNowTimeoutId);
@@ -98,6 +99,8 @@ export default {
                     this.isScrollingNow = true;
                 }
                 this.isScrollingNowTimeoutId = window.setTimeout(() => {
+                    this.oldScrollTop = oldScrollTop;
+                    this.scrollTop = $(window).scrollTop();
                     this.isScrollingNowTimeoutId = 0;
                     this.isScrollingNow = false;
                 }, this.isScrollingNowDelay);
@@ -291,9 +294,10 @@ export default {
             $('body').on('click.lightcase', 'a', function (e, data) {
                 if (/youtu/gi.test($(this).attr('href'))) {
                     // Костыль, чтобы не дожидаться полной загрузки Youtube
+                    // 2023-09-13, AVS: добавили параметр raas-lightcase-loaded чтобы обрабатывать галерею видео
                     let interval = window.setInterval(() => {
-                        if ($('#lightcase-case iframe').length) {
-                            $('#lightcase-case iframe').trigger('load');
+                        if ($('#lightcase-case iframe:not([raas-lightcase-loaded])').length) {
+                            $('#lightcase-case iframe:not([raas-lightcase-loaded])').attr('raas-lightcase-loaded', '1').trigger('load');
                             window.clearInterval(interval);
                         }
                     }, 100);
@@ -370,12 +374,26 @@ export default {
             } else if (destination instanceof jQuery) {
                 destY = destination.offset().top;
             }
-            if (destY) {
-                window.scrollTo({
+            if (destY !== null) {
+                let scrollToData = {
                     left: 0, 
-                    top: destY + this.getScrollOffset(),
+                    top: Math.round(destY + this.getScrollOffset()),
                     behavior: instant ? 'instant' : 'smooth',
-                });
+                };
+                // console.log(scrollToData);
+                window.scrollTo(scrollToData);
+                // 2023-09-19, AVS: сделаем защиту скроллинга
+                let protectScrolling = window.setInterval(() => {
+                    if (this.scrollTop == scrollToData.top) {
+                        console.log('stop scrolling to ' + scrollToData.top);
+                        window.clearInterval(protectScrolling);
+                        protectScrolling = null;
+                    } else if (!this.isScrollingNow) {
+                        window.scrollTo(scrollToData);
+                        console.log('continue scrolling to ' + scrollToData.top);
+                    }
+                }, this.isScrollingNowDelay)
+                // $.scrollTo(scrollToData.top, instant ? this.isScrollingNowDelay : 0);
             }
         },
     },
