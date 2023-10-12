@@ -489,13 +489,27 @@ class Sub_Dev extends RAASAbstractSubController
             if ($Item->id) {
                 $OUT['Set'] = $Item->subMenu;
             } else {
+                // Найдем количество использующих меню блоков
+                $usage = [];
+                $blockMenuReferences = Block_Menu::_references();
+                $blockMenuMenuMatchingReferences = array_values(array_filter($blockMenuReferences, function ($x) {
+                    return $x['classname'] == Menu::class;
+                }));
+                $blockMenuMenuReference = $blockMenuMenuMatchingReferences[0];
+                $sqlQuery = "SELECT " . $blockMenuMenuReference['FK'] . " as menu_id, COUNT(DISTINCT id) AS c
+                               FROM " . Block_Menu::_dbprefix() . Block_Menu::_tablename2()
+                          . " GROUP BY id";
+                $sqlResult = Block_Menu::_SQL()->get($sqlQuery);
+                foreach ($sqlResult as $sqlRow) {
+                    $usage[trim($sqlRow['menu_id'])] = (int)$sqlRow['c'];
+                }
+
                 $menusIds = $menuCache->getChildrenIds(0);
                 $set = [];
                 foreach ($menusIds as $menuId) {
                     $menuData = $menuCache->cache[$menuId];
-                    if (!isset($_GET['domain_id']) ||
-                        ((string)$menuData['domain_id'] == (string)$_GET['domain_id'])
-                    ) {
+                    $menuData['usage'] = $usage[$menuId] ?? 0;
+                    if (!isset($_GET['domain_id']) || ((string)$menuData['domain_id'] == (string)$_GET['domain_id'])) {
                         $set[] = new Menu($menuData);
                     }
                 }
@@ -606,11 +620,11 @@ class Sub_Dev extends RAASAbstractSubController
      */
     protected function copy_snippet()
     {
-        $Item = new Snippet((int)$this->id);
-        $Item = $this->model->copyItem($Item);
-        $Item->locked = 0;
-        $Form = new CopySnippetForm(['Item' => $Item]);
-        $this->view->edit_snippet($Form->process());
+        $item = new Snippet((int)$this->id);
+        $item = $this->model->copyItem($item);
+        $item->locked = 0;
+        $form = new CopySnippetForm(['Item' => $item]);
+        $this->view->edit_snippet($form->process());
     }
 
 

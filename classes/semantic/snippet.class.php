@@ -6,6 +6,7 @@ namespace RAAS\CMS;
 
 use Error;
 use Exception;
+use phpDocumentor\Reflection\DocBlockFactory;
 use SOME\SOME;
 use RAAS\Application;
 use RAAS\User as RAASUser;
@@ -27,6 +28,7 @@ use RAAS\User as RAASUser;
  * @property-read \RAAS\CMS\Shop\ImageLoader[] $usingImageloaders Загрузчики изображений,
  *                                             использующие этот сниппет
  * @property-read string $filename Имя файла кэша для сохранения
+ * @property-read string $name Наименование сниппета
  */
 class Snippet extends SOME
 {
@@ -35,9 +37,10 @@ class Snippet extends SOME
 
     protected static $tablename = 'cms_snippets';
 
-    protected static $defaultOrderBy = "name";
+    protected static $defaultOrderBy = "urn";
 
     protected static $cognizableVars = [
+        'name',
         'usingSnippets',
         'usingBlocks',
         'usingForms',
@@ -264,6 +267,35 @@ class Snippet extends SOME
             ]);
         }
         return $result;
+    }
+
+
+    /**
+     * Возвращает наименование сниппета
+     * @return string
+     */
+    protected function _name()
+    {
+        if ($description = $this->description) {
+            $tokens = token_get_all($description);
+            $docBlockTexts = array_values(array_filter($tokens, function ($item) {
+                return $item[0] == T_DOC_COMMENT;
+            }));
+            if ($docBlockTexts) {
+                $docBlockText = $docBlockTexts[0][1];
+                $docBlockFactory  = DocBlockFactory::createInstance();
+                try {
+                    $docBlock = $docBlockFactory->create($docBlockText);
+                    $result = $docBlock->getSummary();
+                    return $result;
+                } catch (Exception $e) {
+                }
+            }
+        }
+        if ($this->urn) {
+            return $this->urn;
+        }
+        return '';
     }
 
 

@@ -157,7 +157,7 @@ class EditBlockForm extends RAASForm
             foreach ($x->snippets as $row) {
                 $temp[] = new Option([
                     'value' => $row->id,
-                    'caption' => $row->name
+                    'caption' => $row->urn . (($row->name && ($row->name != $row->urn)) ? (': ' . $row->name) : ''),
                 ]);
             }
             return $temp;
@@ -196,7 +196,7 @@ class EditBlockForm extends RAASForm
             foreach ($x->snippets as $row) {
                 $temp[] = new Option([
                     'value' => $row->id,
-                    'caption' => $row->name
+                    'caption' => $row->urn . (($row->name && ($row->name != $row->urn)) ? (': ' . $row->name) : ''),
                 ]);
             }
             return $temp;

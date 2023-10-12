@@ -100,6 +100,16 @@ class MenusTable extends Table
                 }
             }
         ];
+        if (!$item->id) {
+            $defaultParams['columns']['usage'] = [
+                'caption' => $this->view->_('USAGE'),
+                'callback' => function (Menu $menu, $i) use ($view, $item) {
+                    if ($menu->usage) {
+                        return (int)$menu->usage;
+                    }
+                }
+            ];
+        }
         $defaultParams['columns']['priority'] = [
             'caption' => $this->view->_('PRIORITY'),
             'callback' => function (Menu $menu, $i) use ($view, $item) {

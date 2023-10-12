@@ -51,7 +51,7 @@ class Field extends CustomField
             case 'Field':
                 $t = $this;
                 $f = parent::__get($var);
-                switch ($t->datatype) {
+                switch ($this->datatype) {
                     case 'file':
                     case 'image':
                         $f->template = 'cms/field.inc.php';
@@ -140,19 +140,18 @@ class Field extends CustomField
                         $f->template = 'cms/field.inc.php';
                         break;
                 }
-                if ($t->defval) {
-                    $f->default = $t->defval;
+                if ($this->defval) {
+                    $f->default = $this->defval;
                 }
-                $f->oncommit = function ($Field) use ($t) {
-                    if ($t->Preprocessor->id) {
-                        $postProcess = false;
-                        eval('?' . '>' . $t->Preprocessor->description);
+                $f->oncommit = function ($Field) {
+                    if ($this->Preprocessor->id) {
+                        $this->Preprocessor->process(['field' => $this]);
                     }
-                    switch ($t->datatype) {
+                    switch ($this->datatype) {
                         case 'file':
                         case 'image':
                             $addedAttachments = [];
-                            $t->deleteValues();
+                            $this->deleteValues();
                             if ($Field->multiple) {
                                 foreach ((array)$_FILES[$Field->name]['tmp_name'] as $key => $val) {
                                     $row2 = [
@@ -162,7 +161,7 @@ class Field extends CustomField
                                         'attachment' => (int)$_POST[$Field->name . '@attachment'][$key]
                                     ];
                                     if (is_uploaded_file($_FILES[$Field->name]['tmp_name'][$key]) &&
-                                        $t->validate($_FILES[$Field->name]['tmp_name'][$key])
+                                        $this->validate($_FILES[$Field->name]['tmp_name'][$key])
                                     ) {
                                         // 2017-09-05, AVS: убрал создание attachment'а
                                         // по ID#, чтобы не было конфликтов
@@ -175,7 +174,7 @@ class Field extends CustomField
                                         $att->filename = $_FILES[$Field->name]['name'][$key];
                                         $att->mime = $_FILES[$Field->name]['type'][$key];
                                         $att->parent = $t;
-                                        if ($t->datatype == 'image') {
+                                        if ($this->datatype == 'image') {
                                             $att->image = 1;
                                             if ($temp = (int)Application::i()->context->registryGet('maxsize')) {
                                                 $att->maxWidth = $att->maxHeight = $temp;
@@ -187,9 +186,9 @@ class Field extends CustomField
                                         $att->commit();
                                         $addedAttachments[] = $att;
                                         $row2['attachment'] = (int)$att->id;
-                                        $t->addValue(json_encode($row2));
+                                        $this->addValue(json_encode($row2));
                                     } elseif ($row2['attachment']) {
-                                        $t->addValue(json_encode($row2));
+                                        $this->addValue(json_encode($row2));
                                     }
                                     unset($att, $row2);
                                 }
@@ -201,7 +200,7 @@ class Field extends CustomField
                                     'attachment' => (int)$_POST[$Field->name . '@attachment']
                                 ];
                                 if (is_uploaded_file($_FILES[$Field->name]['tmp_name']) &&
-                                    $t->validate($_FILES[$Field->name]['tmp_name'])
+                                    $this->validate($_FILES[$Field->name]['tmp_name'])
                                 ) {
                                     // 2017-09-05, AVS: убрал создание
                                     // attachment'а по ID#, чтобы не было
@@ -214,7 +213,7 @@ class Field extends CustomField
                                     $att->filename = $_FILES[$Field->name]['name'];
                                     $att->mime = $_FILES[$Field->name]['type'];
                                     $att->parent = $t;
-                                    if ($t->datatype == 'image') {
+                                    if ($this->datatype == 'image') {
                                         $att->image = 1;
                                         if ($temp = (int)Application::i()->context->registryGet('maxsize')) {
                                             $att->maxWidth = $att->maxHeight = $temp;
@@ -226,32 +225,35 @@ class Field extends CustomField
                                     $att->commit();
                                     $addedAttachments[] = $att;
                                     $row2['attachment'] = (int)$att->id;
-                                    $t->addValue(json_encode($row2));
+                                    $this->addValue(json_encode($row2));
                                 } elseif ($_POST[$Field->name . '@attachment']) {
                                     $row2['attachment'] = (int)$_POST[$Field->name . '@attachment'];
-                                    $t->addValue(json_encode($row2));
+                                    $this->addValue(json_encode($row2));
                                 }
                                 unset($att, $row2);
                             }
-                            $t->clearLostAttachments();
+                            $this->clearLostAttachments();
                             break;
                         default:
-                            $t->deleteValues();
+                            $this->deleteValues();
                             if (isset($_POST[$Field->name])) {
                                 foreach ((array)$_POST[$Field->name] as $val) {
                                     // 2019-01-24, AVS: добавил условие, чтобы
                                     // не добавлялись пустые слоты материалов
-                                    if (($t->datatype == 'material') && !(int)$val) {
+                                    if (($this->datatype == 'material') && !(int)$val) {
                                         continue;
                                     }
-                                    $t->addValue($val);
+                                    $this->addValue($val);
                                 }
                             }
                             break;
                     }
-                    if ($t->Postprocessor->id) {
-                        $postProcess = true;
-                        eval('?' . '>' . $t->Postprocessor->description);
+                    if ($this->Postprocessor->id) {
+                        $this->Postprocessor->process([
+                            'field' => $this,
+                            'postProcess' => true,
+                            'attachmentsToProcess' => $addedAttachments
+                        ]);
                     }
                 };
                 return $f;

@@ -18,6 +18,7 @@ use SOME\SOME;
  * @property-read array<Menu> $children Набор дочерних элементов
  * @property-read string $url URL пункта меню
  * @property-read array<Menu> $visChildren Видимые реальные дочерние пункты
+ * @property-read Block_Menu[] $usingBlocks Блоки, использующие меню
  */
 class Menu extends SOME
 {
@@ -35,6 +36,7 @@ class Menu extends SOME
         'selfAndChildrenIds',
         'selfAndParents',
         'selfAndParentsIds',
+        'usingBlocks',
     ];
 
     protected static $references = [
@@ -311,5 +313,30 @@ class Menu extends SOME
             $block = new Block_Menu($blockId);
             Block_Menu::delete($block);
         }
+    }
+
+
+    /**
+     * Блоки, использующие это меню
+     * @return Block_Menu[]
+     */
+    protected function _usingBlocks()
+    {
+        $blockMenuReferences = Block_Menu::_references();
+        $blockMenuMenuMatchingReferences = array_values(array_filter($blockMenuReferences, function ($x) {
+            return $x['classname'] == Menu::class;
+        }));
+        $blockMenuMenuReference = $blockMenuMenuMatchingReferences[0];
+        $sqlQuery = "SELECT tB." . Block::_idN() . "
+                       FROM " . Block_Menu::_tablename() . " AS tB
+                       JOIN " . Block_Menu::_tablename2() . " AS tBM ON tBM." . Block::_idN() . " = tB." . Block::_idN() . "
+                      WHERE tBM." . $blockMenuMenuReference['FK'] . " = " . (int)$this->id
+                  . " ORDER BY tB." . Block::_idN();
+        $sqlResult = Block::_SQL()->getcol($sqlQuery);
+        $result = [];
+        foreach ($sqlResult as $sqlVal) {
+            $result[] = Block::spawn($sqlVal);
+        }
+        return $result;
     }
 }

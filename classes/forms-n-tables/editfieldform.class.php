@@ -105,7 +105,7 @@ class EditFieldForm extends RAASForm
             foreach ($x->snippets as $row) {
                 $temp[] = new Option([
                     'value' => $row->id,
-                    'caption' => $row->name
+                    'caption' => $row->urn . (($row->name && ($row->name != $row->urn)) ? (': ' . $row->name) : ''),
                 ]);
             }
             return $temp;

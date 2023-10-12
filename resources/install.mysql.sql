@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_form (
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_html (
   id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'ID#',
-  description text COMMENT 'Text',
+  description mediumtext COMMENT 'Text',
   wysiwyg tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'WYSIWYG editor on',
   PRIMARY KEY (id)
 ) COMMENT='HTML blocks';
@@ -137,7 +137,6 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_pages_assoc (
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_php (
   id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'ID#',
-  description text COMMENT 'Code',
   widget int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Widget ID#',
   PRIMARY KEY (id),
   KEY widget (widget)
@@ -180,7 +179,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_data (
   pid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Parent ID#',
   fid int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field ID#',
   fii int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Field index',
-  `value` text COMMENT 'Value',
+  `value` mediumtext COMMENT 'Value',
   inherited tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Inherited',
   PRIMARY KEY (pid,fid,fii),
   KEY pid (pid),
@@ -318,7 +317,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   editor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Editor ID#',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
-  description text COMMENT 'Description',
+  description mediumtext COMMENT 'Description',
   meta_title varchar(255) NOT NULL DEFAULT '' COMMENT 'Meta title',
   meta_description text COMMENT 'Meta description',
   meta_keywords text COMMENT 'Meta keywords',
@@ -496,8 +495,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippets (
   author_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Author ID#',
   editor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Editor ID#',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
-  `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
-  description text COMMENT 'Code',
+  description mediumtext COMMENT 'Code',
   locked tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Locked',
   PRIMARY KEY (id),
   KEY pid (pid),
@@ -521,9 +519,8 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   modify_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Modify date',
   author_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Author ID#',
   editor_id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Editor ID#',
-  `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name',
   urn varchar(255) NOT NULL DEFAULT '' COMMENT 'URN',
-  description text COMMENT 'Code',
+  description mediumtext COMMENT 'Code',
   width int(10) unsigned NOT NULL DEFAULT '640' COMMENT 'Width',
   height int(10) unsigned NOT NULL DEFAULT '1024' COMMENT 'Height',
   visual tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT 'Template is visual',

@@ -55,6 +55,9 @@ class Updater extends RAASUpdater
         if (version_compare($v, '4.3.58') < 0) {
             $this->update20230503();
         }
+        if (version_compare($v, '4.3.66') < 0) {
+            $this->update20231008();
+        }
     }
 
 
@@ -1966,6 +1969,26 @@ class Updater extends RAASUpdater
                 $sqlQuery = "ALTER TABLE cms_data ADD INDEX value (value(32))";
                 $this->SQL->query($sqlQuery);
             }
+        }
+    }
+
+
+    /**
+     * Убирает название сниппетов и шаблонов (заменяет автоматическими)
+     */
+    public function update20231008()
+    {
+        if (in_array(SOME::_dbprefix() . "cms_snippets", $this->tables) &&
+            in_array('name', $this->columns(SOME::_dbprefix() . "cms_snippets"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_snippets DROP name";
+            $this->SQL->query($sqlQuery);
+        }
+        if (in_array(SOME::_dbprefix() . "cms_templates", $this->tables) &&
+            in_array('name', $this->columns(SOME::_dbprefix() . "cms_templates"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_templates DROP name";
+            $this->SQL->query($sqlQuery);
         }
     }
 }

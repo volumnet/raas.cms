@@ -63,7 +63,7 @@ class EditFormForm extends RAASForm
             foreach ($x->snippets as $row) {
                 $temp[] = new Option([
                     'value' => $row->id,
-                    'caption' => $row->name
+                    'caption' => $row->urn . (($row->name && ($row->name != $row->urn)) ? (': ' . $row->name) : ''),
                 ]);
             }
             return $temp;
@@ -73,6 +73,7 @@ class EditFormForm extends RAASForm
         $defaultParams = [
             'caption' => $Item->id ? $Item->name : $view->_('CREATING_FORM'),
             'parentUrl' => Sub_Dev::i()->url . '&action=forms',
+            'meta' => [],
             'children' => [
                 [
                     'name' => 'name',
@@ -132,6 +133,19 @@ class EditFormForm extends RAASForm
                 ],
             ]
         ];
+        if ($usingBlocks = $Item->usingBlocks) {
+            $defaultParams['meta']['blocksTable'] = new EntityUsersTable([
+                'caption' => $this->view->_('BLOCKS'),
+                'Set' => $usingBlocks,
+            ]);
+        }
+        if ($usingCartTypes = $Item->usingCartTypes) {
+            $shopViewClassname = 'RAAS\CMS\Shop\ViewSub_Dev';
+            $defaultParams['meta']['cartTypesTable'] = new EntityUsersTable([
+                'caption' => $shopViewClassname::i()->_('CART_TYPES'),
+                'Set' => $usingCartTypes,
+            ]);
+        }
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
     }

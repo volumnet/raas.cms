@@ -13,6 +13,8 @@ use SOME\SOME;
  * @property-read int $unreadFeedbacks Количество непрочитанных сообщений
  * @property-read Material_Type $Material_Type Тип создаваемых материалов
  * @property-read Snippet $Interface Интерфейс уведомления формы
+ * @property-read Block[] $usingBlocks Блоки, использующие форму
+ * @property-read Cart_Type[] $usingCartTypes Типы корзины, использующие форму
  */
 class Form extends SOME
 {
@@ -27,7 +29,9 @@ class Form extends SOME
     protected static $cognizableVars = [
         'fields',
         'visFields',
-        'unreadFeedbacks'
+        'unreadFeedbacks',
+        'usingBlocks',
+        'usingCartTypes',
     ];
 
     protected static $references = [
@@ -130,5 +134,69 @@ class Form extends SOME
     public function getSignature(Block $block)
     {
         return md5('form' . (int)$this->id . (int)$block->id);
+    }
+
+
+    /**
+     * Блоки, использующие это меню
+     * @return Block[]
+     */
+    protected function _usingBlocks()
+    {
+        $blockFormReferences = Block_Form::_references();
+        $blockFormFormMatchingReferences = array_values(array_filter($blockFormReferences, function ($x) {
+            return $x['classname'] == Form::class;
+        }));
+        $blockFormFormReference = $blockFormFormMatchingReferences[0];
+        $sqlQuery = "SELECT tB." . Block::_idN() . "
+                       FROM " . Block_Form::_tablename() . " AS tB
+                      WHERE (
+                            SELECT tBM." . $blockFormFormReference['FK'] . "
+                              FROM " . Block_Form::_tablename2() . " AS tBM
+                             WHERE tBM." . Block::_idN() . " = tB." . Block::_idN() . "
+                        ) = " . (int)$this->id;
+        if (class_exists($blockRegisterClassname = 'RAAS\CMS\Users\Block_Register')) {
+            $blockRegisterReferences = $blockRegisterClassname::_references();
+            $blockRegisterFormMatchingReferences = array_values(array_filter($blockRegisterReferences, function ($x) {
+                return $x['classname'] == Form::class;
+            }));
+            foreach ($blockRegisterFormMatchingReferences as $blockRegisterFormMatchingReference) {
+                // var_dump($blockFormFormReference);
+                // exit;
+                $sqlQuery .= " OR (
+                                SELECT " . $blockRegisterFormMatchingReference['FK'] . "
+                                  FROM " . $blockRegisterClassname::_tablename2() . "
+                                 WHERE " . Block::_idN() . " = tB." . Block::_idN() . "
+                            ) = " . (int)$this->id;
+            }
+        }
+        $sqlQuery .= " ORDER BY tB." . Block::_idN();
+        $sqlResult = Block::_SQL()->getcol($sqlQuery);
+        $result = [];
+        foreach ($sqlResult as $sqlVal) {
+            $result[] = Block::spawn($sqlVal);
+        }
+        return $result;
+    }
+
+
+    /**
+     * Типы корзины, использующие это меню
+     * @return Cart_Type[]
+     */
+    protected function _usingCartTypes()
+    {
+        if (class_exists($cartTypeClassname = 'RAAS\CMS\Shop\Cart_Type')) {
+            $cartTypeReferences = $cartTypeClassname::_references();
+            $cartTypeFormMatchingReferences = array_values(array_filter($cartTypeReferences, function ($x) {
+                return $x['classname'] == Form::class;
+            }));
+            $cartTypeFormReference = $cartTypeFormMatchingReferences[0];
+            $result = $cartTypeClassname::getSet([
+                'where' => [$cartTypeFormReference['FK'] . " = " . (int)$this->id]
+            ]);
+            return $result;
+        }
+        return [];
     }
 }

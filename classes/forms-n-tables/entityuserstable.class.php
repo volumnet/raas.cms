@@ -1,6 +1,6 @@
 <?php
 /**
- * Таблица сущностей, использующих сниппет
+ * Таблица сущностей, использующих текущую сущность
  */
 namespace RAAS\CMS;
 
@@ -9,10 +9,10 @@ use RAAS\Table;
 use RAAS\Row;
 
 /**
- * Класс таблицы сущностей, использующих сниппет
+ * Класс таблицы сущностей, использующих текущую сущность
  * @property-read ViewSub_Dev $view Представление
  */
-class SnippetUsersTable extends Table
+class EntityUsersTable extends Table
 {
     public function __get($var)
     {
@@ -81,20 +81,22 @@ class SnippetUsersTable extends Table
     {
         $priceloaderClassname = 'RAAS\\CMS\\Shop\\PriceLoader';
         $imageloaderClassname = 'RAAS\\CMS\\Shop\\ImageLoader';
+        $cartTypeClassname = 'RAAS\\CMS\\Shop\\Cart_Type';
 
-        $isPriceLoader = $isImageLoader = false;
+        $isPriceLoader = $isImageLoader = $isCartType = false;
         if (class_exists($priceloaderClassname)) {
-            if ((get_class($item) == $priceloaderClassname) ||
-                is_subclass_of($item, $priceloaderClassname)
-            ) {
+            if ((get_class($item) == $priceloaderClassname) || is_subclass_of($item, $priceloaderClassname)) {
                 $isPriceLoader = true;
             }
         }
         if (class_exists($imageloaderClassname)) {
-            if ((get_class($item) == $imageloaderClassname) ||
-                is_subclass_of($item, $imageloaderClassname)
-            ) {
+            if ((get_class($item) == $imageloaderClassname) || is_subclass_of($item, $imageloaderClassname)) {
                 $isImageLoader = true;
+            }
+        }
+        if (class_exists($cartTypeClassname)) {
+            if ((get_class($item) == $cartTypeClassname) || is_subclass_of($item, $cartTypeClassname)) {
+                $isCartType = true;
             }
         }
         if ($item instanceof Block) {
@@ -118,6 +120,8 @@ class SnippetUsersTable extends Table
             $url = $this->view->url . '&m=shop&action=edit_priceloader';
         } elseif ($isImageLoader) {
             $url = $this->view->url . '&m=shop&action=edit_imageloader';
+        } elseif ($isCartType) {
+            $url = $this->view->url . '&m=shop&action=edit_cart_type';
         }
         $url .= '&id=' . (int)$item->id;
         return $url;

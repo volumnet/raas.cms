@@ -914,46 +914,32 @@ class Package extends RAASPackage
     {
         $classname = get_class($item);
         $item2 = clone($item);
-        // 2018-04-03, AVS: заменил везде '/\\d+$/umi' на / \\d+$/umi,
-        // чтобы не травмировать числовые наименования
-        $sqlQuery = "SELECT COUNT(*)
-                       FROM " . $classname::_tablename()
-                  . " WHERE name = ?";
-        do {
-            if (preg_match('/ \\d+$/umi', trim($item2->name), $regs)) {
-                $i = (int)$regs[0] + 1;
-                $item2->name = preg_replace(
-                    '/ \\d+$/umi',
-                    ' ' . $i,
-                    trim($item2->name)
-                );
-            } else {
-                $i = 2;
-                $item2->name .= ' ' . $i;
-            }
-        } while ((int)$this->SQL->getvalue([$sqlQuery, $item2->name]));
-
-        // 2018-04-03, AVS: заменил везде '/\\d+$/umi' на /_\\d+$/umi,
-        // чтобы не травмировать числовые URN'ы
-        if (preg_match('/_\\d+$/umi', trim($item2->urn), $regs)) {
-            $item2->urn = preg_replace(
-                '/_\\d+$/umi',
-                '_' . $i,
-                trim($item2->urn)
-            );
-        } else {
-            $item2->urn .= '_' . $i;
+        if ($item->properties['name']) {
+            // 2018-04-03, AVS: заменил везде '/\\d+$/umi' на / \\d+$/umi,
+            // чтобы не травмировать числовые наименования
+            $sqlQuery = "SELECT COUNT(*) FROM " . $classname::_tablename() . " WHERE name = ?";
+            $rx = '/ (\\d+)$/umi';
+            do {
+                if (preg_match($rx, trim($item2->name), $regs)) {
+                    $item2->name = preg_replace($rx, ' ' . ($regs[1] + 1), trim($item2->name));
+                } else {
+                    $item2->name .= ' 2';
+                }
+            } while ((int)$this->SQL->getvalue([$sqlQuery, $item2->name]));
         }
-        $sqlQuery = "SELECT COUNT(*)
-                       FROM " . $classname::_tablename()
-                  . " WHERE urn = ?
-                        AND id != ?";
-        while ((int)Package::i()->SQL->getvalue([
-            $sqlQuery,
-            $item2->urn,
-            (int)$item2->id
-        ])) {
-            $item2->urn = '_' . $item2->urn . '_';
+
+        if ($item->properties['urn']) {
+            // 2018-04-03, AVS: заменил везде '/\\d+$/umi' на /_\\d+$/umi,
+            // чтобы не травмировать числовые URN'ы
+            $sqlQuery = "SELECT COUNT(*) FROM " . $classname::_tablename() . " WHERE urn = ?";
+            do {
+                $rx = '/_(\\d+)$/umi';
+                if (preg_match('/_(\\d+)$/umi', trim($item2->urn), $regs)) {
+                    $item2->urn = preg_replace($rx, '_' . ($regs[1] + 1), trim($item2->urn));
+                } else {
+                    $item2->urn .= '_2';
+                }
+            } while ((int)$this->SQL->getvalue([$sqlQuery, $item2->name]));
         }
         return $item2;
     }

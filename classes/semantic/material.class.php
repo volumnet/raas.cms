@@ -5,6 +5,7 @@
 namespace RAAS\CMS;
 
 use SOME\SOME;
+use SOME\Text;
 use RAAS\Attachment;
 use RAAS\Application;
 use RAAS\User as RAASUser;
@@ -238,7 +239,7 @@ class Material extends SOME
             $this->urn = $this->name;
         }
         if ($this->updates['urn'] ?? false) {
-            $this->urn = \SOME\Text::beautify($this->urn, '-');
+            $this->urn = Text::beautify($this->urn, '-');
             $this->urn = preg_replace('/\\-\\-/umi', '-', $this->urn);
             $this->urn = trim($this->urn, '-');
         }

@@ -136,8 +136,7 @@ class CMSAccess extends SOME
         Page $page = null
     ) {
         $tablename = Page::_links();
-        $tablename = Page::_dbprefix()
-                   . $tablename['allowedUsers']['tablename'];
+        $tablename = Page::_dbprefix() . $tablename['allowedUsers']['tablename'];
         $sqlQuery = "DELETE FROM " . $tablename . " WHERE 1";
         if ($user && $user->id) {
             $sqlQuery .= " AND uid = " . (int)$user->id;
@@ -156,32 +155,23 @@ class CMSAccess extends SOME
         }
 
         $sqlQuery = "SELECT tP.id
-                       FROM " . Page::_tablename()
-                  . "    AS tP
-                       JOIN " . self::_tablename()
-                  . "    AS tA
-                         ON tA.page_id = tP.id
+                       FROM " . Page::_tablename() . " AS tP
+                       JOIN " . self::_tablename() . " AS tA ON tA.page_id = tP.id
                       WHERE 1";
         if ($page && (int)$page->id) {
             $sqlQuery .= " AND tP.id = " . (int)$page->id;
         }
         $sqlQuery .= " GROUP BY tP.id";
         $pagesIds = self::_SQL()->getcol($sqlQuery);
+        $sqlArr = [];
         foreach ($pagesIds as $pid) {
             foreach ($usersIds as $uid) {
                 $row = new Page($pid);
-                $u = new User($uid);
-                $a = $row->userHasAccess($u);
-                self::_SQL()->add(
-                    $tablename,
-                    [
-                        'uid' => (int)$u->id,
-                        'page_id' => (int)$row->id,
-                        'allow' => (int)$a
-                    ]
-                );
+                $a = $row->userHasAccess(new User($uid));
+                $sqlArr[] = ['uid' => (int)$uid, 'page_id' => (int)$pid, 'allow' => (int)$a];
             }
         }
+        self::_SQL()->add($tablename, $sqlArr);
     }
 
 
@@ -190,10 +180,8 @@ class CMSAccess extends SOME
      * @param User $user фильтр по пользователю
      * @param Material $material фильтр по материалу
      */
-    public static function refreshMaterialsAccessCache(
-        User $user = null,
-        Material $material = null
-    ) {
+    public static function refreshMaterialsAccessCache(User $user = null, Material $material = null)
+    {
         $tablename = Material::_links();
         $tablename = Material::_dbprefix()
                    . $tablename['allowedUsers']['tablename'];
@@ -215,32 +203,23 @@ class CMSAccess extends SOME
         }
 
         $sqlQuery = "SELECT tM.id
-                       FROM " . Material::_tablename()
-                  . "    AS tM
-                       JOIN " . self::_tablename()
-                  . "    AS tA
-                         ON tA.material_id = tM.id
+                       FROM " . Material::_tablename() . " AS tM
+                       JOIN " . self::_tablename() . " AS tA ON tA.material_id = tM.id
                       WHERE 1";
         if ($material && (int)$material->id) {
             $sqlQuery .= " AND tM.id = " . (int)$material->id;
         }
         $sqlQuery .= " GROUP BY tM.id";
         $materialsIds = self::_SQL()->getcol($sqlQuery);
+        $sqlArr = [];
         foreach ($materialsIds as $mid) {
             foreach ($usersIds as $uid) {
                 $row = new Material($mid);
-                $u = new User($uid);
-                $a = $row->userHasAccess($u);
-                self::_SQL()->add(
-                    $tablename,
-                    [
-                        'uid' => (int)$u->id,
-                        'material_id' => (int)$row->id,
-                        'allow' => (int)$a
-                    ]
-                );
+                $a = $row->userHasAccess(new User($uid));
+                $sqlArr[] = ['uid' => (int)$uid, 'material_id' => (int)$mid, 'allow' => (int)$a];
             }
         }
+        self::_SQL()->add($tablename, $sqlArr);
     }
 
 
@@ -249,10 +228,8 @@ class CMSAccess extends SOME
      * @param User $user фильтр по пользователю
      * @param Block $block фильтр по блоку
      */
-    public static function refreshBlocksAccessCache(
-        User $user = null,
-        Block $block = null
-    ) {
+    public static function refreshBlocksAccessCache(User $user = null, Block $block = null)
+    {
         $tablename = Block::_links();
         $tablename = Block::_dbprefix()
                    . $tablename['allowedUsers']['tablename'];
@@ -274,31 +251,22 @@ class CMSAccess extends SOME
         }
 
         $sqlQuery = "SELECT tM.id
-                       FROM " . Block::_tablename()
-                  . "    AS tM
-                       JOIN " . self::_tablename()
-                  . "    AS tA
-                         ON tA.block_id = tM.id
+                       FROM " . Block::_tablename() . " AS tM
+                       JOIN " . self::_tablename() . " AS tA ON tA.block_id = tM.id
                       WHERE 1";
         if ((int)($block->id ?? 0)) {
             $sqlQuery .= " AND tM.id = " . (int)$block->id;
         }
         $sqlQuery .= " GROUP BY tM.id";
         $blocksIds = self::_SQL()->getcol($sqlQuery);
+        $sqlArr = [];
         foreach ($blocksIds as $bid) {
             foreach ($usersIds as $uid) {
                 $row = Block::spawn($bid);
-                $u = new User($uid);
-                $a = $row->userHasAccess($u);
-                self::_SQL()->add(
-                    $tablename,
-                    [
-                        'uid' => (int)$u->id,
-                        'block_id' => (int)$row->id,
-                        'allow' => (int)$a
-                    ]
-                );
+                $a = $row->userHasAccess(new User($uid));
+                $sqlArr[] = ['uid' => (int)$uid, 'block_id' => (int)$bid, 'allow' => (int)$a];
             }
         }
+        self::_SQL()->add($tablename, $sqlArr);
     }
 }

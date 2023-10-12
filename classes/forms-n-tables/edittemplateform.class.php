@@ -61,11 +61,6 @@ class EditTemplateForm extends RAASForm
             'name' => 'common',
             'caption' => $this->view->_('GENERAL'),
             'children' => [
-                'name' => [
-                    'name' => 'name',
-                    'caption' => $this->view->_('NAME'),
-                    'required' => true,
-                ],
                 'urn' => [
                     'name' => 'urn',
                     'caption' => $this->view->_('URN'),

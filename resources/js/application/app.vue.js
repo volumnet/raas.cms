@@ -57,7 +57,7 @@ export default {
              */
             scrollToSelector: 'a[href*="modal"][href*="#"], ' + 
                 'a.scrollTo[href*="#"], ' + 
-                'a[href^="#"]:not([href="#"]), ' + 
+                'a[href^="#"]:not([href="#"]):not([data-toggle]):not([data-bs-toggle]), ' + 
                 '.menu-top__link[href*="#"], ' + 
                 '.menu-bottom__link[href*="#"], ' + 
                 '.menu-mobile__link[href*="#"]',
@@ -287,10 +287,7 @@ export default {
                     $(this).removeAttr('data-lightbox');
                 }
             });
-            $('a[data-rel^=lightcase]').lightcase({ 
-                swipe: params.swipe, 
-                transition: params.transition 
-            });
+            $('a[data-rel^=lightcase]').lightcase(params);
             $('body').on('click.lightcase', 'a', function (e, data) {
                 if (/youtu/gi.test($(this).attr('href'))) {
                     // Костыль, чтобы не дожидаться полной загрузки Youtube
@@ -377,7 +374,7 @@ export default {
             if (destY !== null) {
                 let scrollToData = {
                     left: 0, 
-                    top: Math.round(destY + this.getScrollOffset()),
+                    top: Math.max(0, Math.round(destY + this.getScrollOffset())),
                     behavior: instant ? 'instant' : 'smooth',
                 };
                 // console.log(scrollToData);

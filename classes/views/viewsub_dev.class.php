@@ -144,15 +144,13 @@ class ViewSub_Dev extends RAASAbstractSubView
         if ($in['Item']->parents) {
             foreach ($in['Item']->parents as $row) {
                 $this->path[] = [
-                    'href' => $this->url . '&action=dictionaries'
-                           .  '&id=' . (int)$row->id,
+                    'href' => $this->url . '&action=dictionaries' . '&id=' . (int)$row->id,
                     'name' => $row->name
                 ];
             }
         }
         $this->path[] = [
-            'href' => $this->url . '&action=dictionaries'
-                   .  '&id=' . (int)$in['Item']->id,
+            'href' => $this->url . '&action=dictionaries' . '&id=' . (int)$in['Item']->id,
             'name' => $in['Item']->name
         ];
         if (count($in['items']) == 1) {
@@ -187,16 +185,14 @@ class ViewSub_Dev extends RAASAbstractSubView
                         ? $pageCache->cache[(int)$current->domain_id]['name']
                         : $this->_('WITHOUT_DOMAIN');
             $this->path[] = [
-                'href' => $this->url . '&action=menus&domain_id='
-                       .  (int)$current->domain_id,
+                'href' => $this->url . '&action=menus&domain_id=' . (int)$current->domain_id,
                 'name' => $domainName
             ];
         }
         foreach ($menuCache->getParentsIds($current->id) as $parentId) {
             $parentData = $menuCache->cache[$parentId];
             $this->path[] = [
-                'href' => $this->url . '&action=menus'
-                       .  '&id=' . (int)$parentData['id'],
+                'href' => $this->url . '&action=menus' . '&id=' . (int)$parentData['id'],
                 'name' => $parentData['name']
             ];
         }
@@ -219,6 +215,9 @@ class ViewSub_Dev extends RAASAbstractSubView
         $item = $in['Item'];
 
         $in['Table'] = new MenusTable($in);
+        if ($item->id && !$item->pid) {
+            $in['Form'] = new ViewMenuForm($in);
+        }
         $this->assignVars($in);
         $this->title = $item->id ? $item->name : $this->_('MENUS');
         $this->path[] = [
@@ -229,7 +228,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             $this->getMenuBreadcrumbs($item);
         }
         $this->contextmenu = $this->getMenuContextMenu($in['Item']);
-        $this->template = 'dev_menus';
+        $this->template = ($item->id && !$item->pid) ? $in['Form']->template : 'dev_menus';
         $this->subtitle = $this->getMenuSubtitle($in['Item']);
     }
 
@@ -266,8 +265,7 @@ class ViewSub_Dev extends RAASAbstractSubView
                 ];
             }
             $this->path[] = [
-                'href' => $this->url . '&action=menus&id='
-                       .  (int)$in['Parent']->id,
+                'href' => $this->url . '&action=menus&id=' . (int)$in['Parent']->id,
                 'name' => $in['Parent']->name
             ];
         }
@@ -582,13 +580,8 @@ class ViewSub_Dev extends RAASAbstractSubView
                 $Set[] = $row;
             }
         }
-        $in['Table'] = new MaterialFieldsTable(array_merge($in, [
-            'Set' => $Set,
-            'grouped' => $grouped
-        ]));
-        $in['childrenTable'] = new MaterialTypesTable(
-            ['Item' => $in['Item']]
-        );
+        $in['Table'] = new MaterialFieldsTable(array_merge($in, ['Set' => $Set, 'grouped' => $grouped]));
+        $in['childrenTable'] = new MaterialTypesTable(['Item' => $in['Item']]);
         $this->assignVars($in);
         $this->title = $in['Form']->caption;
         $this->template = 'edit_material_type';
@@ -603,14 +596,12 @@ class ViewSub_Dev extends RAASAbstractSubView
         if ($in['Parent']->id) {
             foreach ((array)$in['Parent']->parents as $row) {
                 $this->path[] = [
-                    'href' => $this->url . '&action=edit_material_type&id='
-                           .  (int)$row->id,
+                    'href' => $this->url . '&action=edit_material_type&id=' . (int)$row->id,
                     'name' => $row->name
                 ];
             }
             $this->path[] = [
-                'href' => $this->url . '&action=edit_material_type&id='
-                       .  (int)$in['Parent']->id,
+                'href' => $this->url . '&action=edit_material_type&id=' . (int)$in['Parent']->id,
                 'name' => $in['Parent']->name
             ];
         }
@@ -649,15 +640,13 @@ class ViewSub_Dev extends RAASAbstractSubView
         ];
         foreach ((array)$in['Parent']->parents as $row) {
             $this->path[] = [
-                'href' => $this->url . '&action=edit_material_type&id='
-                       .  (int)$row->id,
+                'href' => $this->url . '&action=edit_material_type&id=' . (int)$row->id,
                 'name' => $row->name
             ];
         }
         $this->path[] = [
             'name' => $in['Parent']->name,
-            'href' => $this->url . '&action=edit_material_type&id='
-                   .  (int)$in['Parent']->id
+            'href' => $this->url . '&action=edit_material_type&id=' . (int)$in['Parent']->id
         ];
         $this->stdView->stdEdit($in, 'getMaterialFieldContextMenu');
         $this->subtitle = $this->getFieldSubtitle($in['Item']);
@@ -693,15 +682,13 @@ class ViewSub_Dev extends RAASAbstractSubView
         ];
         foreach ((array)$in['Parent']->parents as $row) {
             $this->path[] = [
-                'href' => $this->url . '&action=edit_material_type&id='
-                       .  (int)$row->id,
+                'href' => $this->url . '&action=edit_material_type&id=' . (int)$row->id,
                 'name' => $row->name
             ];
         }
         $this->path[] = [
             'name' => $in['Parent']->name,
-            'href' => $this->url . '&action=edit_material_type&id='
-                   .  (int)$in['Parent']->id
+            'href' => $this->url . '&action=edit_material_type&id=' . (int)$in['Parent']->id
         ];
         $this->stdView->stdEdit($in, 'getMaterialFieldGroupContextMenu');
         $this->subtitle = $this->getFieldGroupSubtitle($in['Item']);
@@ -749,20 +736,17 @@ class ViewSub_Dev extends RAASAbstractSubView
         if ($in['Item']->parent->id) {
             foreach ((array)$in['Item']->parent->parents as $row) {
                 $this->path[] = [
-                    'href' => $this->url . '&action=edit_material_type&id='
-                           .  (int)$row->id,
+                    'href' => $this->url . '&action=edit_material_type&id=' . (int)$row->id,
                     'name' => $row->name
                 ];
             }
             $this->path[] = [
-                'href' => $this->url . '&action=edit_material_type&id='
-                       .  (int)$in['Item']->parent->id,
+                'href' => $this->url . '&action=edit_material_type&id=' . (int)$in['Item']->parent->id,
                 'name' => $in['Item']->parent->name
             ];
         }
         $this->path[] = [
-            'href' => $this->url . '&action=edit_material_field&id='
-                   .  (int)$in['Item']->id,
+            'href' => $this->url . '&action=edit_material_field&id=' . (int)$in['Item']->id,
             'name' => $in['Item']->name
         ];
         if (count($in['items']) == 1) {
@@ -815,14 +799,12 @@ class ViewSub_Dev extends RAASAbstractSubView
         if ($in['Item']->parent->id) {
             foreach ((array)$in['Item']->parent->parents as $row) {
                 $this->path[] = [
-                    'href' => $this->url . '&action=edit_material_type&id='
-                           .  (int)$row->id,
+                    'href' => $this->url . '&action=edit_material_type&id=' . (int)$row->id,
                     'name' => $row->name
                 ];
             }
             $this->path[] = [
-                'href' => $this->url . '&action=edit_material_type&id='
-                       .  (int)$in['Item']->parent->id,
+                'href' => $this->url . '&action=edit_material_type&id=' . (int)$in['Item']->parent->id,
                 'name' => $in['Item']->parent->name
             ];
         }
@@ -855,14 +837,12 @@ class ViewSub_Dev extends RAASAbstractSubView
         if ($in['Item']->parent->id) {
             foreach ((array)$in['Item']->parent->parents as $row) {
                 $this->path[] = [
-                    'href' => $this->url . '&action=edit_material_type&id='
-                           .  (int)$row->id,
+                    'href' => $this->url . '&action=edit_material_type&id=' . (int)$row->id,
                     'name' => $row->name
                 ];
             }
             $this->path[] = [
-                'href' => $this->url . '&action=edit_material_type&id='
-                       .  (int)$in['Item']->parent->id,
+                'href' => $this->url . '&action=edit_material_type&id=' . (int)$in['Item']->parent->id,
                 'name' => $in['Item']->parent->name
             ];
         }
@@ -900,14 +880,12 @@ class ViewSub_Dev extends RAASAbstractSubView
         ];
         if ($in['Item']->parent->id) {
             $this->path[] = [
-                'href' => $this->url . '&action=edit_material_type&id='
-                       .  (int)$in['Item']->parent->id,
+                'href' => $this->url . '&action=edit_material_type&id=' . (int)$in['Item']->parent->id,
                 'name' => $in['Item']->parent->name
             ];
         }
         $this->path[] = [
-            'href' => $this->url . '&action=edit_material_field&id='
-                   .  (int)$in['Item']->id,
+            'href' => $this->url . '&action=edit_material_field&id=' . (int)$in['Item']->id,
             'name' => $in['Item']->name
         ];
         if (count($in['items']) == 1) {
@@ -971,7 +949,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         ]));
         $this->assignVars($in);
         $this->title = $in['Form']->caption;
-        $this->template = 'form_table';
+        $this->template = 'dev_edit_form';
         $this->js[] = $this->publicURL . '/dev_edit_form.js';
         $this->path[] = [
             'name' => $this->_('DEVELOPMENT'),
@@ -1016,8 +994,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         ];
         $this->path[] = [
             'name' => $in['Parent']->name,
-            'href' => $this->url . '&action=edit_form&id='
-                   .  (int)$in['Parent']->id
+            'href' => $this->url . '&action=edit_form&id=' . (int)$in['Parent']->id
         ];
         $this->stdView->stdEdit($in, 'getFormFieldContextMenu');
         $this->subtitle = $this->getFieldSubtitle($in['Item']);
@@ -1108,20 +1085,15 @@ class ViewSub_Dev extends RAASAbstractSubView
         $this->contextmenu = [
             [
                 'name' => $this->_('CLEAR_DIAGNOSTICS_PERIOD'),
-                'href' => $this->url . '&action=delete_diag&from=' . $in['from']
-                       .  '&to=' . $in['to'],
+                'href' => $this->url . '&action=delete_diag&from=' . $in['from'] . '&to=' . $in['to'],
                 'icon' => 'remove',
-                'onclick' => 'return confirm("'
-                          .  addslashes($this->_('CLEAR_DIAGNOSTICS_CONFIRM'))
-                          .  '")'
+                'onclick' => 'return confirm("' . addslashes($this->_('CLEAR_DIAGNOSTICS_CONFIRM')) . '")'
             ],
             [
                 'name' => $this->_('CLEAR_DIAGNOSTICS_ALL'),
                 'href' => $this->url . '&action=delete_diag',
                 'icon' => 'remove',
-                'onclick' => 'return confirm("'
-                          .  addslashes($this->_('CLEAR_DIAGNOSTICS_CONFIRM'))
-                          .  '")'
+                'onclick' => 'return confirm("' . addslashes($this->_('CLEAR_DIAGNOSTICS_CONFIRM')) . '")'
             ],
         ];
         $this->template = $in['Form']->template;
@@ -1170,20 +1142,13 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=dictionaries',
             'name' => $this->_('DICTIONARIES'),
             'active' => (
-                in_array(
-                    $this->action,
-                    ['dictionaries', 'edit_dictionary', 'move_dictionary']
-                ) &&
+                in_array($this->action, ['dictionaries', 'edit_dictionary', 'move_dictionary']) &&
                 !$this->moduleName
             ),
             'submenu' => (
-                in_array(
-                    $this->action,
-                    ['dictionaries', 'edit_dictionary', 'move_dictionary']
-                ) ?
+                in_array($this->action, ['dictionaries', 'edit_dictionary', 'move_dictionary']) ?
                 $this->dictionariesMenu(new Dictionary(
-                    $this->id ?:
-                    (isset($this->nav['pid']) ? $this->nav['pid'] : 0)
+                    $this->id ?: (isset($this->nav['pid']) ? $this->nav['pid'] : 0)
                 )) :
                 null
             )
@@ -1192,15 +1157,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=snippets',
             'name' => $this->_('SNIPPETS'),
             'active' => (
-                in_array(
-                    $this->action,
-                    [
-                        'snippets',
-                        'edit_snippet',
-                        'edit_snippet_folder',
-                        'copy_snippet'
-                    ]
-                ) &&
+                in_array($this->action, ['snippets', 'edit_snippet', 'edit_snippet_folder', 'copy_snippet']) &&
                 !$this->moduleName
             )
         ];
@@ -1208,55 +1165,27 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=material_types',
             'name' => $this->_('MATERIAL_TYPES'),
             'active' => (
-                in_array(
-                    $this->action,
-                    [
-                        'material_types',
-                        'edit_material_type',
-                        'edit_material_field'
-                    ]
-                ) &&
+                in_array($this->action, ['material_types', 'edit_material_type', 'edit_material_field']) &&
                 !$this->moduleName
             )
         ];
         $submenu[] = [
             'href' => $this->url . '&action=pages_fields',
             'name' => $this->_('PAGES_FIELDS'),
-            'active' => (
-                in_array(
-                    $this->action,
-                    ['pages_fields', 'edit_page_field']
-                ) &&
-                !$this->moduleName
-            )
+            'active' => (in_array($this->action, ['pages_fields', 'edit_page_field']) && !$this->moduleName)
         ];
         $submenu[] = [
             'href' => $this->url . '&action=forms',
             'name' => $this->_('FORMS'),
-            'active' => (
-                in_array(
-                    $this->action,
-                    ['forms', 'edit_form', 'edit_form_field']
-                ) &&
-                !$this->moduleName
-            )
+            'active' => (in_array($this->action, ['forms', 'edit_form', 'edit_form_field']) && !$this->moduleName)
         ];
         $submenu[] = [
             'href' => $this->url . '&action=menus',
             'name' => $this->_('MENUS'),
-            'active' => (
-                in_array(
-                    $this->action,
-                    ['menus', 'edit_menu', 'move_menu']
-                ) &&
-                !$this->moduleName
-            ),
+            'active' => (in_array($this->action, ['menus', 'edit_menu', 'move_menu']) && !$this->moduleName),
             'submenu' => (
                 in_array($this->action, ['menus', 'edit_menu', 'move_menu']) ?
-                $this->menusMenu(new Menu(
-                    $this->id ?:
-                    (isset($this->nav['pid']) ? $this->nav['pid'] : 0)
-                )) :
+                $this->menusMenu(new Menu($this->id ?: (isset($this->nav['pid']) ? $this->nav['pid'] : 0))) :
                 null
             )
         ];
@@ -1314,18 +1243,14 @@ class ViewSub_Dev extends RAASAbstractSubView
                 }
                 $subMenu = $this->menusMenuByDomainId($current, $domainId);
                 if ($subMenu) {
-                    $active =  in_array(
-                        $this->action,
-                        ['menus', 'edit_menu', 'move_menu']
-                    ) && ((string)$_GET['domain_id'] === (string)$domainId);
+                    $active =  in_array($this->action, ['menus', 'edit_menu', 'move_menu']) &&
+                        ((string)$_GET['domain_id'] === (string)$domainId);
                     $semiactive = (bool)array_filter($subMenu, function ($x) {
                         return (bool)$x['active'];
                     });
                     $menu[] = [
                         'name' => Text::cuttext($domainData['name'], 64, '...'),
-                        'href' => $this->url
-                               .  '&sub=dev&action=menus&domain_id='
-                               .  (int)$domainId,
+                        'href' => $this->url . '&sub=dev&action=menus&domain_id=' . (int)$domainId,
                         'active' => $active || $semiactive,
                         'submenu' => $subMenu,
                     ];
@@ -1356,15 +1281,12 @@ class ViewSub_Dev extends RAASAbstractSubView
         foreach ($node->children as $row) {
             $temp = [
                 'name' => Text::cuttext($row->name, 64, '...'),
-                'href' => $this->url . '&sub=dev&action=dictionaries&id='
-                       .  (int)$row->id,
+                'href' => $this->url . '&sub=dev&action=dictionaries&id=' . (int)$row->id,
                 'class' => '',
                 'active' => false
             ];
 
-            if (($row->id == $current->id) ||
-                in_array($current->id, $row->all_children_ids)
-            ) {
+            if (($row->id == $current->id) || in_array($current->id, $row->all_children_ids)) {
                 $temp['active'] = true;
             }
 
@@ -1402,15 +1324,11 @@ class ViewSub_Dev extends RAASAbstractSubView
             }
             $temp = [
                 'name' => Text::cuttext($row['name'], 64, '...'),
-                'href' => $this->url
-                       .  '&sub=dev&action=menus&id=' . (int)$row['id'],
+                'href' => $this->url . '&sub=dev&action=menus&id=' . (int)$row['id'],
                 'class' => '',
                 'active' => (
                     ($row['id'] == $current->id) ||
-                    in_array(
-                        $row['id'],
-                        MenuRecursiveCache::i()->getParentsIds($current->id)
-                    )
+                    in_array($row['id'], MenuRecursiveCache::i()->getParentsIds($current->id))
                 )
             ];
 
@@ -1439,14 +1357,7 @@ class ViewSub_Dev extends RAASAbstractSubView
      */
     public function getTemplateContextMenu(Template $template)
     {
-        return $this->stdView->stdContextMenu(
-            $template,
-            0,
-            0,
-            'edit_template',
-            'templates',
-            'delete_template'
-        );
+        return $this->stdView->stdContextMenu($template, 0, 0, 'edit_template', 'templates', 'delete_template');
     }
 
 
@@ -1488,11 +1399,8 @@ class ViewSub_Dev extends RAASAbstractSubView
      *             'onclick' ?=> string JavaScript-команда при клике,
      *         ]>
      */
-    public function getDictionaryContextMenu(
-        Dictionary $dictionary,
-        $i = 0,
-        $c = 0
-    ) {
+    public function getDictionaryContextMenu(Dictionary $dictionary, $i = 0, $c = 0)
+    {
         $arr = [];
         $edit = false;
         if ($dictionary->id) {
@@ -1500,16 +1408,14 @@ class ViewSub_Dev extends RAASAbstractSubView
             $showlist = ($this->action == 'dictionaries');
             if ($this->id == $dictionary->id) {
                 $arr[] = [
-                    'href' => $this->url . '&action=edit_dictionary&pid='
-                           .  (int)$dictionary->id,
+                    'href' => $this->url . '&action=edit_dictionary&pid=' . (int)$dictionary->id,
                     'name' => $this->_('CREATE_SUBNOTE'),
                     'icon' => 'plus'
                 ];
             }
             if ($edit) {
                 $arr[] = [
-                    'href' => $this->url . '&action=dictionaries&id='
-                           .  (int)$dictionary->id,
+                    'href' => $this->url . '&action=dictionaries&id=' . (int)$dictionary->id,
                     'name' => htmlspecialchars($dictionary->name),
                     'icon' => 'th-list'
                 ];
@@ -1518,30 +1424,25 @@ class ViewSub_Dev extends RAASAbstractSubView
                 'name' => $dictionary->vis
                        ?  $this->_('VISIBLE')
                        :  '<span class="muted">' . $this->_('INVISIBLE') . '</span>',
-                'href' => $this->url . '&action=chvis_dictionary&id='
-                       .  (int)$dictionary->id . '&back=1',
+                'href' => $this->url . '&action=chvis_dictionary&id=' . (int)$dictionary->id . '&back=1',
                 'icon' => $dictionary->vis ? 'ok' : '',
                 'title' => $this->_($dictionary->vis ? 'HIDE' : 'SHOW')
             ];
             if ($this->action != 'move_dictionary') {
                 $arr[] = [
-                    'href' => $this->url . '&action=move_dictionary&id='
-                           .  (int)$dictionary->id,
+                    'href' => $this->url . '&action=move_dictionary&id=' . (int)$dictionary->id,
                     'name' => $this->_('MOVE'),
                     'icon' => 'share-alt'
                 ];
             }
-            $arr = array_merge(
-                $arr,
-                $this->stdView->stdContextMenu(
-                    $dictionary,
-                    0,
-                    0,
-                    'edit_dictionary',
-                    'dictionaries',
-                    'delete_dictionary'
-                )
-            );
+            $arr = array_merge($arr, $this->stdView->stdContextMenu(
+                $dictionary,
+                0,
+                0,
+                'edit_dictionary',
+                'dictionaries',
+                'delete_dictionary'
+            ));
         } elseif (!$edit) {
             $arr[] = [
                 'href' => $this->url . '&action=edit_dictionary',
@@ -1587,9 +1488,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_dictionary&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\''
-                      .  $this->_('DELETE_MULTIPLE_TEXT')
-                      .  '\')'
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
         ];
         return $arr;
     }
@@ -1640,9 +1539,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_snippet_folder&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\''
-                      .  $this->_('DELETE_MULTIPLE_TEXT')
-                      .  '\')'
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
         ];
         return $arr;
     }
@@ -1662,19 +1559,11 @@ class ViewSub_Dev extends RAASAbstractSubView
     public function getSnippetContextMenu(Snippet $snippet)
     {
         if (!$snippet->locked) {
-            $arr = $this->stdView->stdContextMenu(
-                $snippet,
-                0,
-                0,
-                'edit_snippet',
-                'snippets',
-                'delete_snippet'
-            );
+            $arr = $this->stdView->stdContextMenu($snippet, 0, 0, 'edit_snippet', 'snippets', 'delete_snippet');
         }
         if ($snippet->id) {
             $arr[] = [
-                'href' => $this->url . '&action=copy_snippet&id='
-                       .  (int)$snippet->id,
+                'href' => $this->url . '&action=copy_snippet&id=' .  (int)$snippet->id,
                 'name' => $this->_('COPY'),
                 'icon' => 'tags'
             ];
@@ -1700,9 +1589,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_snippet&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\''
-                      .  $this->_('DELETE_MULTIPLE_TEXT')
-                      .  '\')'
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
         ];
         return $arr;
     }
@@ -1725,29 +1612,25 @@ class ViewSub_Dev extends RAASAbstractSubView
         if ($materialType->id) {
             if ($this->action == 'edit_material_type') {
                 $arr[] = [
-                    'href' => $this->url . '&action=edit_material_field&pid='
-                           .  (int)$materialType->id,
+                    'href' => $this->url . '&action=edit_material_field&pid=' . (int)$materialType->id,
                     'name' => $this->_('CREATE_FIELD'),
                     'icon' => 'plus'
                 ];
                 $arr[] = [
-                    'href' => $this->url . '&action=edit_material_fieldgroup&pid='
-                           .  (int)$materialType->id,
+                    'href' => $this->url . '&action=edit_material_fieldgroup&pid=' . (int)$materialType->id,
                     'name' => $this->_('CREATE_FIELDGROUP'),
                     'icon' => 'plus'
                 ];
             }
             if (Package::i()->registryGet('allowChangeMaterialType')) {
                 $arr[] = [
-                    'href' => $this->url . '&action=move_material_type&id='
-                           .  (int)$materialType->id,
+                    'href' => $this->url . '&action=move_material_type&id=' . (int)$materialType->id,
                     'name' => $this->_('MOVE'),
                     'icon' => 'share-alt'
                 ];
             }
             $arr[] = [
-                'href' => $this->url . '&action=edit_material_type&pid='
-                       .  (int)$materialType->id,
+                'href' => $this->url . '&action=edit_material_type&pid=' . (int)$materialType->id,
                 'name' => $this->_('CREATE_CHILD_TYPE'),
                 'icon' => 'plus'
             ];
@@ -1781,9 +1664,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_material_type&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\''
-                      .  $this->_('DELETE_MULTIPLE_TEXT')
-                      .  '\')'
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
         ];
         return $arr;
     }
@@ -1813,48 +1694,39 @@ class ViewSub_Dev extends RAASAbstractSubView
                 'name' => $field->vis
                        ?  $this->_('VISIBLE')
                        :  '<span class="muted">' . $this->_('INVISIBLE') . '</span>',
-                'href' => $this->url . '&action=chvis_material_field&id='
-                       .  (int)$field->id . '&back=1',
+                'href' => $this->url . '&action=chvis_material_field&id=' . (int)$field->id . '&back=1',
                 'icon' => $field->vis ? 'ok' : '',
                 'title' => $this->_($field->vis ? 'HIDE' : 'SHOW')
             ];
             $arr[] = [
                 'name' => $this->_('SHOW_IN_TABLE'),
-                'href' => $this->url
-                       .  '&action=show_in_table_material_field&id='
-                       .  (int)$field->id . '&back=1',
+                'href' => $this->url .  '&action=show_in_table_material_field&id=' . (int)$field->id . '&back=1',
                 'icon' => $field->show_in_table ? 'ok' : '',
             ];
             $arr[] = [
                 'name' => $this->_('REQUIRED'),
-                'href' => $this->url . '&action=required_material_field&id='
-                       .  (int)$field->id . '&back=1',
+                'href' => $this->url . '&action=required_material_field&id=' . (int)$field->id . '&back=1',
                 'icon' => $field->required ? 'ok' : '',
             ];
             $arr[] = [
                 'name' => $this->_('MOVE'),
-                'href' => $this->url . '&action=move_material_field&id='
-                       .  (int)$field->id,
+                'href' => $this->url . '&action=move_material_field&id=' . (int)$field->id,
                 'icon' => 'share-alt'
             ];
             $arr[] = [
                 'name' => $this->_('MOVE_VALUES'),
-                'href' => $this->url . '&action=move_material_field_values&id='
-                       .  (int)$field->id,
+                'href' => $this->url . '&action=move_material_field_values&id=' . (int)$field->id,
                 'icon' => 'code-merge'
             ];
         }
-        $arr = array_merge(
-            $arr,
-            $this->stdView->stdContextMenu(
-                $field,
-                $i,
-                $c,
-                'edit_material_field',
-                'edit_material_type',
-                'delete_material_field'
-            )
-        );
+        $arr = array_merge($arr, $this->stdView->stdContextMenu(
+            $field,
+            $i,
+            $c,
+            'edit_material_field',
+            'edit_material_type',
+            'delete_material_field'
+        ));
         return $arr;
     }
 
@@ -1872,23 +1744,17 @@ class ViewSub_Dev extends RAASAbstractSubView
      *             'onclick' ?=> string JavaScript-команда при клике,
      *         ]>
      */
-    public function getMaterialFieldGroupContextMenu(
-        MaterialFieldGroup $fieldGroup,
-        $i = 0,
-        $c = 0
-    ) {
+    public function getMaterialFieldGroupContextMenu(MaterialFieldGroup $fieldGroup, $i = 0, $c = 0)
+    {
         $arr = [];
-        $arr = array_merge(
-            $arr,
-            $this->stdView->stdContextMenu(
-                $fieldGroup,
-                $i,
-                $c,
-                'edit_material_fieldgroup',
-                'edit_material_type',
-                'delete_material_fieldgroup'
-            )
-        );
+        $arr = array_merge($arr, $this->stdView->stdContextMenu(
+            $fieldGroup,
+            $i,
+            $c,
+            'edit_material_fieldgroup',
+            'edit_material_type',
+            'delete_material_fieldgroup'
+        ));
         return $arr;
     }
 
@@ -1920,8 +1786,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         ];
         $arr[] = [
             'name' => $this->_('SHOW_IN_TABLE'),
-            'href' => $this->url
-                   .  '&action=show_in_table_material_field&back=1',
+            'href' => $this->url . '&action=show_in_table_material_field&back=1',
             'icon' => 'align-justify',
         ];
         $arr[] = [
@@ -1936,17 +1801,14 @@ class ViewSub_Dev extends RAASAbstractSubView
         ];
         $arr[] = [
             'name' => $this->_('MOVE_TO_FIELDGROUP'),
-            'href' => $this->url . '&action=move_material_field_to_group&pid='
-                . ($_GET['id'] ?? ''),
+            'href' => $this->url . '&action=move_material_field_to_group&pid=' . ($_GET['id'] ?? ''),
             'icon' => 'share-alt'
         ];
         $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_material_field&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\''
-                      .  $this->_('DELETE_MULTIPLE_TEXT')
-                      .  '\')'
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
         ];
         return $arr;
     }
@@ -1973,35 +1835,29 @@ class ViewSub_Dev extends RAASAbstractSubView
                 'name' => $field->vis
                        ?  $this->_('VISIBLE')
                        :  '<span class="muted">' . $this->_('INVISIBLE') . '</span>',
-                'href' => $this->url . '&action=chvis_page_field&id='
-                       .  (int)$field->id . '&back=1',
+                'href' => $this->url . '&action=chvis_page_field&id=' . (int)$field->id . '&back=1',
                 'icon' => $field->vis ? 'ok' : '',
                 'title' => $this->_($field->vis ? 'HIDE' : 'SHOW')
             ];
             $arr[] = [
                 'name' => $this->_('SHOW_IN_TABLE'),
-                'href' => $this->url . '&action=show_in_table_page_field&id='
-                       .  (int)$field->id . '&back=1',
+                'href' => $this->url . '&action=show_in_table_page_field&id=' . (int)$field->id . '&back=1',
                 'icon' => $field->show_in_table ? 'ok' : '',
             ];
             $arr[] = [
                 'name' => $this->_('REQUIRED'),
-                'href' => $this->url . '&action=required_page_field&id='
-                       .  (int)$field->id . '&back=1',
+                'href' => $this->url . '&action=required_page_field&id=' . (int)$field->id . '&back=1',
                 'icon' => $field->required ? 'ok' : '',
             ];
         }
-        $arr = array_merge(
-            $arr,
-            $this->stdView->stdContextMenu(
-                $field,
-                $i,
-                $c,
-                'edit_page_field',
-                'pages_fields',
-                'delete_page_field'
-            )
-        );
+        $arr = array_merge($arr, $this->stdView->stdContextMenu(
+            $field,
+            $i,
+            $c,
+            'edit_page_field',
+            'pages_fields',
+            'delete_page_field'
+        ));
         return $arr;
     }
 
@@ -2045,9 +1901,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_page_field&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\''
-                      .  $this->_('DELETE_MULTIPLE_TEXT')
-                      .  '\')'
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
         ];
         return $arr;
     }
@@ -2069,8 +1923,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         $arr = [];
         if ($form->id &&$this->action == 'edit_form') {
             $arr[] = [
-                'href' => $this->url . '&action=edit_form_field&pid='
-                       .  (int)$form->id,
+                'href' => $this->url . '&action=edit_form_field&pid=' . (int)$form->id,
                 'name' => $this->_('CREATE_FIELD'),
                 'icon' => 'plus'
             ];
@@ -2078,8 +1931,8 @@ class ViewSub_Dev extends RAASAbstractSubView
         if ($form->id) {
             $arr[] = [
                 'href' => $this->url . '&action=copy_form&id=' . (int)$form->id,
-                    'name' => $this->_('COPY'),
-                    'icon' => 'tags'
+                'name' => $this->_('COPY'),
+                'icon' => 'tags'
             ];
         }
         $arr = array_merge($arr, $this->stdView->stdContextMenu(
@@ -2111,9 +1964,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_form&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\''
-                      .  $this->_('DELETE_MULTIPLE_TEXT')
-                      .  '\')'
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
         ];
         return $arr;
     }
@@ -2140,35 +1991,29 @@ class ViewSub_Dev extends RAASAbstractSubView
                 'name' => $field->vis
                        ?  $this->_('VISIBLE')
                        :  '<span class="muted">' . $this->_('INVISIBLE') . '</span>',
-                'href' => $this->url . '&action=chvis_form_field&id='
-                       .  (int)$field->id . '&back=1',
+                'href' => $this->url . '&action=chvis_form_field&id=' . (int)$field->id . '&back=1',
                 'icon' => $field->vis ? 'ok' : '',
                 'title' => $this->_($field->vis ? 'HIDE' : 'SHOW')
             ];
             $arr[] = [
                 'name' => $this->_('SHOW_IN_TABLE'),
-                'href' => $this->url . '&action=show_in_table_form_field&id='
-                       .  (int)$field->id . '&back=1',
+                'href' => $this->url . '&action=show_in_table_form_field&id=' . (int)$field->id . '&back=1',
                 'icon' => $field->show_in_table ? 'ok' : '',
             ];
             $arr[] = [
                 'name' => $this->_('REQUIRED'),
-                'href' => $this->url . '&action=required_form_field&id='
-                       .  (int)$field->id . '&back=1',
+                'href' => $this->url . '&action=required_form_field&id=' . (int)$field->id . '&back=1',
                 'icon' => $field->required ? 'ok' : '',
             ];
         }
-        $arr = array_merge(
-            $arr,
-            $this->stdView->stdContextMenu(
-                $field,
-                $i,
-                $c,
-                'edit_form_field',
-                'pages_fields',
-                'delete_form_field'
-            )
-        );
+        $arr = array_merge($arr, $this->stdView->stdContextMenu(
+            $field,
+            $i,
+            $c,
+            'edit_form_field',
+            'pages_fields',
+            'delete_form_field'
+        ));
         return $arr;
     }
 
@@ -2211,9 +2056,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_form_field&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\''
-                      .  $this->_('DELETE_MULTIPLE_TEXT')
-                      .  '\')'
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
         ];
         return $arr;
     }
@@ -2237,10 +2080,16 @@ class ViewSub_Dev extends RAASAbstractSubView
         if ($menu->id) {
             $edit = ($this->action == 'edit_menu');
             $showlist = ($this->action == 'menus');
+            if (!$showlist) {
+                $arr[] = [
+                    'href' => $this->url . '&action=menus&id=' . (int)$menu->id,
+                    'name' => $this->_('VIEW'),
+                    'icon' => 'search'
+                ];
+            }
             if ($this->id == $menu->id) {
                 $arr[] = [
-                    'href' => $this->url . '&action=edit_menu&pid='
-                           .  (int)$menu->id,
+                    'href' => $this->url . '&action=edit_menu&pid=' . (int)$menu->id,
                     'name' => $this->_('CREATE_SUBNOTE'),
                     'icon' => 'plus'
                 ];
@@ -2248,40 +2097,32 @@ class ViewSub_Dev extends RAASAbstractSubView
             if ($menu->vis) {
                 $arr[] = [
                     'name' => $this->_('VISIBLE'),
-                    'href' => $this->url . '&action=chvis_menu&id='
-                           .  (int)$menu->id . '&back=1',
+                    'href' => $this->url . '&action=chvis_menu&id=' . (int)$menu->id . '&back=1',
                     'icon' => 'ok',
                     'title' => $this->_('HIDE')
                 ];
             } else {
                 $arr[] = [
-                    'name' => '<span class="muted">'
-                           .     $this->_('INVISIBLE')
-                           .  '</span>',
-                    'href' => $this->url . '&action=chvis_menu&id='
-                           .  (int)$menu->id . '&back=1',
+                    'name' => '<span class="muted">' . $this->_('INVISIBLE') . '</span>',
+                    'href' => $this->url . '&action=chvis_menu&id=' . (int)$menu->id . '&back=1',
                     'icon' => '',
                     'title' => $this->_('SHOW')
                 ];
             }
             if ($this->action != 'move_menu') {
                 $arr[] = [
-                    'href' => $this->url . '&action=move_menu&id='
-                           .  (int)$menu->id,
+                    'href' => $this->url . '&action=move_menu&id=' . (int)$menu->id,
                     'name' => $this->_('MOVE'),
                     'icon' => 'share-alt'
                 ];
             }
             if (($this->id == $menu->id) && ($menu->inherit > 0)) {
                 $arr[] = [
-                    'href' => $this->url . '&action=realize_menu&id='
-                           .  (int)$menu->id
+                    'href' => $this->url . '&action=realize_menu&id=' . (int)$menu->id
                            .  ($edit || $showlist ? '' : '&back=1'),
                     'name' => $this->_('REALIZE'),
                     'icon' => 'asterisk',
-                    'onclick' => 'return confirm(\''
-                              .  $this->_('REALIZE_MENU_TEXT')
-                              .  '\')'
+                    'onclick' => 'return confirm(\'' . $this->_('REALIZE_MENU_TEXT') . '\')'
                 ];
             }
             $arr = array_merge($arr, $this->stdView->stdContextMenu(
@@ -2337,9 +2178,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_menu&back=1',
             'icon' => 'remove',
-            'onclick' => 'return confirm(\''
-                      .  $this->_('DELETE_MULTIPLE_TEXT')
-                      .  '\')'
+            'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')',
         ];
         return $arr;
     }

@@ -97,11 +97,6 @@ class EditSnippetForm extends RAASForm
             'name' => 'common',
             'caption' => $this->view->_('MAIN'),
             'children' => [
-                'name' => [
-                    'name' => 'name',
-                    'caption' => $this->view->_('NAME'),
-                    'required' => 'required',
-                ],
                 'urn' => [
                     'name' => 'urn',
                     'caption' => $this->view->_('URN'),
@@ -163,14 +158,14 @@ class EditSnippetForm extends RAASForm
 
     public function getSnippetUsersTab($name, $urn, array $snippetUsers)
     {
-        $table = new SnippetUsersTable([
+        $table = new EntityUsersTable([
             'Set' => $snippetUsers,
         ]);
         $tab = new FormTab([
             'name' => $urn,
             'caption' => $name,
             'meta' => ['Table' => $table],
-            'template' => 'snippet_users.inc.php'
+            'template' => 'entity_users.inc.php'
         ]);
         return $tab;
     }

@@ -55,13 +55,31 @@ class FormsTable extends Table
                                 </a>';
                     }
                 ],
+                'usage' => [
+                    'caption' => $this->view->_('USAGE'),
+                    'callback' => function ($row) {
+                        $textArr = [];
+                        $sum = 0;
+                        if ($c = count($row->usingBlocks)) {
+                            $sum += $c;
+                            $textArr[] = $this->view->_('BLOCKS') . ': ' . $c;
+                        }
+                        if ($c = count($row->usingCartTypes)) {
+                            $shopViewClassname = 'RAAS\CMS\Shop\ViewSub_Dev';
+                            $sum += $c;
+                            $textArr[] = $shopViewClassname::i()->_('CART_TYPES') . ': ' . $c;
+                        }
+                        if ($textArr) {
+                            return '<span title="' . htmlspecialchars(implode('; ', $textArr)) . '">' .
+                                      $sum .
+                                   '</span>';
+                        }
+                        return '';
+                    },
+                ],
                 ' ' => [
                     'callback' => function (Form $form, $i) use ($view, $params) {
-                        return rowContextMenu($view->getFormContextMenu(
-                            $form,
-                            $i,
-                            count((array)$params['Set'])
-                        ));
+                        return rowContextMenu($view->getFormContextMenu($form, $i, count((array)$params['Set'])));
                     }
                 ]
 
