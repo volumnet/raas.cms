@@ -24,18 +24,6 @@ use RAAS\Attachment;
 class WatermarkInterface extends AbstractInterface
 {
     /**
-     * Поле для обработки
-     * @var Field
-     */
-    public $field = null;
-
-    /**
-     * Пост-обработка
-     * @var bool
-     */
-    public $postProcess = false;
-
-    /**
      * Путь к файлу водяных знаков
      * @var string
      */
@@ -55,9 +43,7 @@ class WatermarkInterface extends AbstractInterface
 
     /**
      * Конструктор класса
-     * @param Field $field Обрабатываемое поле
      * @param string $watermark Путь файла с водяными знаками
-     * @param bool $postProcess Пост-обработка
      * @param array $get Поля $_GET параметров
      * @param array $post Поля $_POST параметров
      * @param array $cookie Поля $_COOKIE параметров
@@ -66,9 +52,7 @@ class WatermarkInterface extends AbstractInterface
      * @param array $files Поля $_FILES параметров
      */
     public function __construct(
-        Field $field,
-        string $watermark,
-        bool $postProcess = false,
+        string $watermark = null,
         array $get = [],
         array $post = [],
         array $cookie = [],
@@ -76,34 +60,26 @@ class WatermarkInterface extends AbstractInterface
         array $server = [],
         array $files = []
     ) {
-        $this->field = $field;
-        $this->watermark = $watermark;
-        $this->postProcess = $postProcess;
+        if ($watermark) {
+            $this->watermark = $watermark;
+        }
         parent::__construct(null, null, $get, $post, $cookie, $session, $server, $files);
     }
 
 
     /**
      * Обработка интерфейса
-     * @param Attachment[] $attachmentsToProcess Вложения для обработки (только для пост-обработки)
+     * @param string[] $files Файлы для обработки
      */
-    public function process(array $attachmentsToProcess = [])
+    public function process(array $files = [])
     {
         $watermarkImage = $this->watermark;
         if (!is_file($watermarkImage) && is_file(Application::i()->baseDir . $this->watermark)) {
             $watermarkImage = Application::i()->baseDir . $this->watermark;
         }
+        $files = array_values(array_filter($files, 'is_file'));
 
-        if (($this->field->datatype == 'image') && is_file($watermarkImage)) {
-            if ($this->postProcess) {
-                $files = array_map(function ($att) {
-                    return $att->file;
-                }, array_values(array_filter($attachmentsToProcess, function ($att) {
-                    return $att->image;
-                })));
-            } else {
-                $files = array_values(array_filter((array)$this->files[$this->field->urn]['tmp_name'], 'is_file'));
-            }
+        if (is_file($watermarkImage)) {
             foreach ($files as $file) {
                 try {
                     $this->processImage($file, $watermarkImage, $this->ratio, $this->quality);

@@ -81,7 +81,7 @@ class Template extends SOME
                 // Шунтирование ...updates... идёт на случай, когда сниппет
                 // генерируется динамически
                 $filename = Package::i()->cacheDir . '/system/templates/'
-                    . ($this->properties['urn'] ?: $this->updates['urn'])
+                    . (($this->properties['urn'] ?? null) ?: ($this->updates['urn'] ?? null))
                     . '.tmp.php';
                 return $filename;
                 break;

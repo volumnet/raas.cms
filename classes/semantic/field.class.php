@@ -55,35 +55,29 @@ class Field extends CustomField
                     case 'file':
                     case 'image':
                         $f->template = 'cms/field.inc.php';
-                        $f->check = function ($Field) {
+                        $f->check = function ($field) {
                             $localError = [];
-                            $ok = !$Field->required;
-                            $allowedExtensions = preg_split(
-                                '/\\W+/umis',
-                                $this->source
-                            );
-                            $allowedExtensions = array_map(
-                                'mb_strtolower',
-                                array_filter($allowedExtensions, 'trim')
-                            );
-                            if ($Field->multiple) {
-                                if ((array)($_FILES[$Field->name]['tmp_name'] ?? [])) {
-                                    if ($Field->required) {
-                                        foreach ((array)$_FILES[$Field->name]['tmp_name'] as $i => $val) {
-                                            if (isset($_POST[$Field->name . '@attachment'][$i]) &&
-                                                $_POST[$Field->name . '@attachment'][$i]
+                            $ok = !$field->required;
+                            $allowedExtensions = preg_split('/\\W+/umis', $this->source);
+                            $allowedExtensions = array_map('mb_strtolower', array_filter($allowedExtensions, 'trim'));
+                            if ($field->multiple) {
+                                if ((array)($_FILES[$field->name]['tmp_name'] ?? [])) {
+                                    if ($field->required) {
+                                        foreach ((array)$_FILES[$field->name]['tmp_name'] as $i => $val) {
+                                            if (isset($_POST[$field->name . '@attachment'][$i]) &&
+                                                $_POST[$field->name . '@attachment'][$i]
                                             ) {
                                                 $ok = true;
                                                 break;
                                             }
                                         }
                                     }
-                                    foreach ((array)$_FILES[$Field->name]['tmp_name'] as $i => $val) {
+                                    foreach ((array)$_FILES[$field->name]['tmp_name'] as $i => $val) {
                                         if ($allowedExtensions &&
-                                            is_uploaded_file($_FILES[$Field->name]['tmp_name'][$i])
+                                            is_uploaded_file($_FILES[$field->name]['tmp_name'][$i])
                                         ) {
                                             $ext = pathinfo(
-                                                $_FILES[$Field->name]['name'][$i],
+                                                $_FILES[$field->name]['name'][$i],
                                                 PATHINFO_EXTENSION
                                             );
                                             $ext = mb_strtolower($ext);
@@ -103,16 +97,16 @@ class Field extends CustomField
                                     }
                                 }
                             } else {
-                                if (!is_uploaded_file($_FILES[$Field->name]['tmp_name']) &&
-                                    isset($_POST[$Field->name . '@attachment']) &&
-                                    trim($_POST[$Field->name . '@attachment'])) {
+                                if (!is_uploaded_file($_FILES[$field->name]['tmp_name']) &&
+                                    isset($_POST[$field->name . '@attachment']) &&
+                                    trim($_POST[$field->name . '@attachment'])) {
                                     $ok = true;
                                 }
                                 if ($allowedExtensions &&
-                                    is_uploaded_file($_FILES[$Field->name]['tmp_name'])
+                                    is_uploaded_file($_FILES[$field->name]['tmp_name'])
                                 ) {
                                     $ext = pathinfo(
-                                        $_FILES[$Field->name]['name'],
+                                        $_FILES[$field->name]['name'],
                                         PATHINFO_EXTENSION
                                     );
                                     $ext = mb_strtolower($ext);
@@ -132,7 +126,7 @@ class Field extends CustomField
                             if ($ok) {
                                 return [];
                             }
-                            $originalErrors = $Field->getErrors();
+                            $originalErrors = $field->getErrors();
                             return array_merge($originalErrors, $localError);
                         };
                         break;
@@ -143,25 +137,25 @@ class Field extends CustomField
                 if ($this->defval) {
                     $f->default = $this->defval;
                 }
-                $f->oncommit = function ($Field) {
+                $f->oncommit = function ($field) {
                     if ($this->Preprocessor->id) {
-                        $this->Preprocessor->process(['field' => $this]);
+                        $this->Preprocessor->process(['files' => (array)$_FILES[$field->name]['tmp_name']]);
                     }
                     switch ($this->datatype) {
                         case 'file':
                         case 'image':
-                            $addedAttachments = [];
+                            $filesToProcess = [];
                             $this->deleteValues();
-                            if ($Field->multiple) {
-                                foreach ((array)$_FILES[$Field->name]['tmp_name'] as $key => $val) {
+                            if ($field->multiple) {
+                                foreach ((array)$_FILES[$field->name]['tmp_name'] as $key => $val) {
                                     $row2 = [
-                                        'vis' => (int)$_POST[$Field->name . '@vis'][$key],
-                                        'name' => (string)$_POST[$Field->name . '@name'][$key],
-                                        'description' => (string)$_POST[$Field->name . '@description'][$key],
-                                        'attachment' => (int)$_POST[$Field->name . '@attachment'][$key]
+                                        'vis' => (int)$_POST[$field->name . '@vis'][$key],
+                                        'name' => (string)$_POST[$field->name . '@name'][$key],
+                                        'description' => (string)$_POST[$field->name . '@description'][$key],
+                                        'attachment' => (int)$_POST[$field->name . '@attachment'][$key]
                                     ];
-                                    if (is_uploaded_file($_FILES[$Field->name]['tmp_name'][$key]) &&
-                                        $this->validate($_FILES[$Field->name]['tmp_name'][$key])
+                                    if (is_uploaded_file($_FILES[$field->name]['tmp_name'][$key]) &&
+                                        $this->validate($_FILES[$field->name]['tmp_name'][$key])
                                     ) {
                                         // 2017-09-05, AVS: убрал создание attachment'а
                                         // по ID#, чтобы не было конфликтов
@@ -170,9 +164,9 @@ class Field extends CustomField
                                         // с текущего момента каждый новый
                                         // загруженный файл - это новый attachment
                                         $att = new Attachment();
-                                        $att->upload = $_FILES[$Field->name]['tmp_name'][$key];
-                                        $att->filename = $_FILES[$Field->name]['name'][$key];
-                                        $att->mime = $_FILES[$Field->name]['type'][$key];
+                                        $att->upload = $_FILES[$field->name]['tmp_name'][$key];
+                                        $att->filename = $_FILES[$field->name]['name'][$key];
+                                        $att->mime = $_FILES[$field->name]['type'][$key];
                                         $att->parent = $t;
                                         if ($this->datatype == 'image') {
                                             $att->image = 1;
@@ -184,7 +178,7 @@ class Field extends CustomField
                                             }
                                         }
                                         $att->commit();
-                                        $addedAttachments[] = $att;
+                                        $filesToProcess[] = $att->file;
                                         $row2['attachment'] = (int)$att->id;
                                         $this->addValue(json_encode($row2));
                                     } elseif ($row2['attachment']) {
@@ -194,13 +188,13 @@ class Field extends CustomField
                                 }
                             } else {
                                 $row2 = [
-                                    'vis' => (int)$_POST[$Field->name . '@vis'],
-                                    'name' => (string)$_POST[$Field->name . '@name'],
-                                    'description' => (string)$_POST[$Field->name . '@description'],
-                                    'attachment' => (int)$_POST[$Field->name . '@attachment']
+                                    'vis' => (int)$_POST[$field->name . '@vis'],
+                                    'name' => (string)$_POST[$field->name . '@name'],
+                                    'description' => (string)$_POST[$field->name . '@description'],
+                                    'attachment' => (int)$_POST[$field->name . '@attachment']
                                 ];
-                                if (is_uploaded_file($_FILES[$Field->name]['tmp_name']) &&
-                                    $this->validate($_FILES[$Field->name]['tmp_name'])
+                                if (is_uploaded_file($_FILES[$field->name]['tmp_name']) &&
+                                    $this->validate($_FILES[$field->name]['tmp_name'])
                                 ) {
                                     // 2017-09-05, AVS: убрал создание
                                     // attachment'а по ID#, чтобы не было
@@ -209,9 +203,9 @@ class Field extends CustomField
                                     // с текущего момента каждый новый
                                     // загруженный файл - это новый attachment
                                     $att = new Attachment();
-                                    $att->upload = $_FILES[$Field->name]['tmp_name'];
-                                    $att->filename = $_FILES[$Field->name]['name'];
-                                    $att->mime = $_FILES[$Field->name]['type'];
+                                    $att->upload = $_FILES[$field->name]['tmp_name'];
+                                    $att->filename = $_FILES[$field->name]['name'];
+                                    $att->mime = $_FILES[$field->name]['type'];
                                     $att->parent = $t;
                                     if ($this->datatype == 'image') {
                                         $att->image = 1;
@@ -223,11 +217,11 @@ class Field extends CustomField
                                         }
                                     }
                                     $att->commit();
-                                    $addedAttachments[] = $att;
+                                    $filesToProcess[] = $att->file;
                                     $row2['attachment'] = (int)$att->id;
                                     $this->addValue(json_encode($row2));
-                                } elseif ($_POST[$Field->name . '@attachment']) {
-                                    $row2['attachment'] = (int)$_POST[$Field->name . '@attachment'];
+                                } elseif ($_POST[$field->name . '@attachment']) {
+                                    $row2['attachment'] = (int)$_POST[$field->name . '@attachment'];
                                     $this->addValue(json_encode($row2));
                                 }
                                 unset($att, $row2);
@@ -236,8 +230,8 @@ class Field extends CustomField
                             break;
                         default:
                             $this->deleteValues();
-                            if (isset($_POST[$Field->name])) {
-                                foreach ((array)$_POST[$Field->name] as $val) {
+                            if (isset($_POST[$field->name])) {
+                                foreach ((array)$_POST[$field->name] as $val) {
                                     // 2019-01-24, AVS: добавил условие, чтобы
                                     // не добавлялись пустые слоты материалов
                                     if (($this->datatype == 'material') && !(int)$val) {
@@ -249,11 +243,7 @@ class Field extends CustomField
                             break;
                     }
                     if ($this->Postprocessor->id) {
-                        $this->Postprocessor->process([
-                            'field' => $this,
-                            'postProcess' => true,
-                            'attachmentsToProcess' => $addedAttachments
-                        ]);
+                        $this->Postprocessor->process(['files' => $filesToProcess]);
                     }
                 };
                 return $f;

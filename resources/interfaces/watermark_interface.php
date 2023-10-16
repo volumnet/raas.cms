@@ -1,9 +1,7 @@
 <?php
 /**
  * Стандартный интерфейс водяных знаков
- * @param Field $field Обрабатываемое поле
- * @param bool $postProcess Пост-обработка
- * @param Attachment[]|null $attachmentsToProcess Добавленные вложения (только в случае пост-обработки)
+ * @param string[]|null $files Пути файлов для обработки
  */
 namespace RAAS\CMS;
 
@@ -19,16 +17,6 @@ foreach (['design/watermark.png', 'watermark.png'] as $tmpWatermark) {
     }
 }
 if ($watermark) {
-    $interface = new WatermarkInterface(
-        $field,
-        $watermark,
-        (bool)$postProcess,
-        $_GET,
-        $_POST,
-        $_COOKIE,
-        $_SESSION,
-        $_SERVER,
-        $_FILES
-    );
-    $interface->process(($postProcess ?? false) ? (array)$attachmentsToProcess : []);
+    $interface = new WatermarkInterface($watermark, $_GET, $_POST, $_COOKIE, $_SESSION, $_SERVER, $_FILES);
+    $interface->process((array)$files);
 }
