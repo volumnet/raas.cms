@@ -252,7 +252,11 @@ export default {
                 if ($obj.hasClass('modal')) {
                     $obj.modal('show');
                 } else if ($obj.hasClass('tab-pane')) {
-                    let $hashLink = $('a[href="' + hash + '"]');
+                    let $hashLink = $(
+                        'a[href="' + hash + '"], ' + 
+                        'a[href="' + window.location.pathname + window.location.search + hash + '"], ' +
+                        'a[href="' + window.location.href + '"]'
+                    );
                     if ($hashLink.length) {
                         $hashLink[0].click();
                     }

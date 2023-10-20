@@ -5,7 +5,7 @@ import RAASFieldFile from './raas-field-file.vue.js';
  */
 export default {
     mixins: [RAASFieldFile],
-    data: function () {
+    data() {
         return {
             /**
              * Data URL файла
@@ -15,12 +15,16 @@ export default {
         };
     },
     methods: {
-        changeFile: function (e) {
-            let self = this;
-            let tgt = e.target || window.event.srcElement;
-            let files = tgt.files;
-
-            // FileReader support
+        changeFile(e) {
+            const tgt = e.target || window.event.srcElement;
+            const files = tgt.files;
+            this.handleFilesChange(files)
+        },
+        /**
+         * Обрабатывает входящий набор файлов
+         * @param {File[]} files Файлы
+         */
+        handleFilesChange(files) {
             if (files && 
                 files.length && 
                 /^image\/(jpeg|png|gif)$/gi.test(files[0].type)
@@ -40,10 +44,29 @@ export default {
                 this.$emit('input', '')
             }
         },
-        clearFile: function () {
+        clearFile() {
             this.fileName = '';
             this.file = '';
             this.$emit('input', '')
+        },
+        handleDrop(e) {
+            const files = e.dataTransfer.files;
+            let filesArr = Array.from(files);
+            filesArr = filesArr.filter(file => /^image\/(jpeg|png|gif)$/gi.test(files[0].type));
+            if (filesArr.length) {
+                const dataTransfer = new DataTransfer();
+                if (this.multiple) {
+                    for (let file of filesArr) {
+                        dataTransfer.items.add(file);
+                    }
+                } else {
+                    dataTransfer.items.add(filesArr[0]);
+                }
+                this.$refs.input.files = dataTransfer.files;
+                this.handleFilesChange(filesArr);
+            } else {
+                clearFile();
+            }
         },
     },
 
