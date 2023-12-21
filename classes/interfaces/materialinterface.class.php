@@ -284,11 +284,8 @@ class MaterialInterface extends AbstractInterface
      *                                                    для SQL-выражения
      *         ]
      */
-    public function getSQLParts(
-        Block_Material $block,
-        Page $page,
-        array $get = []
-    ) {
+    public function getSQLParts(Block_Material $block, Page $page, array $get = [])
+    {
         $sqlFrom = $sqlFromBind = $sqlWhere = $sqlWhereBind = $result = [];
         $sqlSort = $sqlOrder = "";
         $this->getListAccessSQL($sqlFrom, $sqlFromBind, $sqlWhere);
@@ -736,7 +733,7 @@ class MaterialInterface extends AbstractInterface
             if (!isset($sqlFrom[$as]) || !$sqlFrom[$as]) {
                 // 2015-03-31, AVS: заменил JOIN на LEFT JOIN, т.к. если добавить
                 // новое поле и сделать сортировку по нему, материалы пропадают
-                $sqlFrom[$as] = " LEFT JOIN " . Field::data_table . "
+                $sqlFrom[$as] = " LEFT JOIN " . Field::DATA_TABLE . "
                                          AS `" . $as . "`
                                          ON `" . $as . "`.pid = tM.id
                                         AND `" . $as . "`.fid = ?";

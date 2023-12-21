@@ -68,7 +68,7 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
                   'data-vue-role' => 'raas-field',
                   'data-vue-type' => $field->datatype,
                   'data-v-bind_class' => "{ 'is-invalid': !!vm.errors." . $fieldURN . " }",
-                  'data-v-bind_title' => "vm.errors." . $fieldURN . " || ''"
+                  'data-v-bind_title' => "vm.errors." . $fieldURN . " || ''",
               ];
               if ($field->datatype == 'select') {
                   $fieldArrayFormatter = new FieldArrayFormatter($field);

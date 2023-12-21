@@ -125,6 +125,7 @@ class Feedback extends SOME
                 if ($val !== null) {
                     return $val;
                 } else {
+                    $vis = false;
                     if (substr($var, 0, 3) == 'vis') {
                         $var = strtolower(substr($var, 3));
                         $vis = true;

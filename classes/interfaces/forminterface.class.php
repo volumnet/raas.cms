@@ -12,6 +12,10 @@ use SOME\Thumbnail;
 use RAAS\Attachment;
 use RAAS\Application;
 use RAAS\Controller_Frontend as RAASControllerFrontend;
+use RAAS\DatatypeInvalidValueException;
+use RAAS\DatatypeImageTypeMismatchException;
+use RAAS\DatatypeFileTypeMismatchException;
+use RAAS\DateTimeDatatypeStrategy;
 use RAAS\View_Web as RAASViewWeb;
 
 /**
@@ -57,16 +61,7 @@ class FormInterface extends AbstractInterface
         array $server = [],
         array $files = []
     ) {
-        parent::__construct(
-            $block,
-            $page,
-            $get,
-            $post,
-            $cookie,
-            $session,
-            $server,
-            $files
-        );
+        parent::__construct($block, $page, $get, $post, $cookie, $session, $server, $files);
     }
 
 
@@ -76,12 +71,7 @@ class FormInterface extends AbstractInterface
         $form = $this->block->Form;
         if ($form->id) {
             $localError = [];
-            if ($this->isFormProceed(
-                $this->block,
-                $form,
-                $this->server['REQUEST_METHOD'],
-                $this->post
-            )) {
+            if ($this->isFormProceed($this->block, $form, $this->server['REQUEST_METHOD'] ?? 'GET', $this->post)) {
                 // 2019-10-02, AVS: добавили для совместимости с виджетом, где даже
                 // в случае ошибок проверяется соответствие
                 // ($Item instanceof Feedback)
@@ -89,21 +79,13 @@ class FormInterface extends AbstractInterface
                 // первая попавшаяся форма отключает
                 $result['Item'] = $this->getRawFeedback($form);
                 // Проверка полей на корректность
-                $localError = $this->check(
-                    $form,
-                    $this->post,
-                    $this->session,
-                    $this->files
-                );
+                $localError = $this->check($form, $this->post, $this->session, $this->files);
 
                 if (!$localError) {
-                    $result = array_merge($result, $this->processForm(
-                        $form,
-                        $this->page,
-                        $this->post,
-                        $this->server,
-                        $this->files
-                    ));
+                    $result = array_merge(
+                        $result,
+                        $this->processForm($form, $this->page, $this->post, $this->server, $this->files)
+                    );
                     $result['success'][(int)$this->block->id] = true;
                 }
                 $result['DATA'] = $this->post;
@@ -132,12 +114,8 @@ class FormInterface extends AbstractInterface
      * @param array<string[] => mixed> $post Данные POST-запроса
      * @return bool
      */
-    public function isFormProceed(
-        Block $block,
-        Form $form,
-        $requestMethod = 'GET',
-        array $post = []
-    ) {
+    public function isFormProceed(Block $block, Form $form, $requestMethod = 'GET', array $post = [])
+    {
         if ($form->signature) {
             if (isset($post['form_signature'])) {
                 return $post['form_signature'] == $form->getSignature($block);
@@ -157,26 +135,18 @@ class FormInterface extends AbstractInterface
      * @param array $files Данные $_SESSION-полей
      * @return array<string[] URN поля => string Текстовое описание ошибки>
      */
-    public function check(
-        Form $form,
-        array $post = [],
-        array $session = [],
-        array $files = []
-    ) {
+    public function check(Form $form, array $post = [], array $session = [], array $files = [])
+    {
         $localError = [];
         foreach ($form->fields as $fieldURN => $field) {
-            switch ($field->datatype) {
-                case 'file':
-                case 'image':
-                    if ($fieldError = $this->checkFileField($field, $files)) {
-                        $localError[$fieldURN] = $fieldError;
-                    }
-                    break;
-                default:
-                    if ($fieldError = $this->checkRegularField($field, $post)) {
-                        $localError[$fieldURN] = $fieldError;
-                    }
-                    break;
+            if ($field->datatypeStrategy->isMedia()) {
+                if ($fieldError = $this->checkFileField($field, $files)) {
+                    $localError[$fieldURN] = $fieldError;
+                }
+            } else {
+                if ($fieldError = $this->checkRegularField($field, $post)) {
+                    $localError[$fieldURN] = $fieldError;
+                }
             }
         }
 
@@ -198,37 +168,40 @@ class FormInterface extends AbstractInterface
     public function checkRegularField(Form_Field $field, array $post = [])
     {
         $fieldURN = $field->urn;
-        $val = isset($post[$fieldURN]) ? $post[$fieldURN] : null;
-        if ($val && $field->multiple) {
-            $val = (array)$val;
-            $val = array_shift($val);
+        $postArr = $field->datatypeStrategy->getPostData($field, true, $post);
+        $val = $postArr;
+        $val = array_shift($val);
+        $isFilled = false;
+        foreach ($postArr as $value) {
+            if ($field->datatypeStrategy->isFilled($value)) {
+                $isFilled = true;
+                break;
+            }
         }
-        if (!isset($val) || !$field->isFilled($val)) {
-            if ($conditionalRequiredCallback = $this->conditionalRequiredFields[$fieldURN]) {
+
+        $localError = null;
+        if (!$isFilled) {
+            if ($conditionalRequiredCallback = ($this->conditionalRequiredFields[$fieldURN] ?? null)) {
                 $required = $conditionalRequiredCallback($field, $post);
             } else {
-                $required = $field->required;
+                $required = (bool)$field->required;
             }
             if ($required) {
-                return sprintf(
-                    View_Web::i()->_('ERR_CUSTOM_FIELD_REQUIRED'),
-                    $field->name
-                );
+                $localError = 'ERR_CUSTOM_FIELD_REQUIRED';
             }
         } elseif (!$field->multiple) {
-            if (($field->datatype == 'password') &&
-                ($post[$fieldURN] != $post[$fieldURN . '@confirm'])
-            ) {
-                return sprintf(
-                    View_Web::i()->_('ERR_CUSTOM_PASSWORD_DOESNT_MATCH_CONFIRM'),
-                    $field->name
-                );
-            } elseif (!$field->validate($val)) {
-                return sprintf(
-                    View_Web::i()->_('ERR_CUSTOM_FIELD_INVALID'),
-                    $field->name
-                );
+            if (($field->datatype == 'password') && ($post[$fieldURN] != $post[$fieldURN . '@confirm'])) {
+                $localError = 'ERR_CUSTOM_PASSWORD_DOESNT_MATCH_CONFIRM';
+            } else {
+                try {
+                    $field->datatypeStrategy->validate($val, $this->Field);
+                } catch (DatatypeInvalidValueException $e) {
+                    $localError = 'ERR_CUSTOM_FIELD_INVALID';
+                }
             }
+        }
+        if ($localError) {
+            return sprintf(View_Web::i()->_($localError), $field->name);
         }
         return null;
     }
@@ -243,59 +216,48 @@ class FormInterface extends AbstractInterface
      *                     если ошибка отсутствует
      * @todo Нужна проверка множественных требуемых полей изображений
      */
-    public function checkFileField(
-        Form_Field $field,
-        array $files = [],
-        $debug = false
-    ) {
+    public function checkFileField(Form_Field $field, array $files = [], $debug = false)
+    {
         $fieldURN = $field->urn;
-        $val = isset($files[$fieldURN]['tmp_name'])
-             ? $files[$fieldURN]['tmp_name']
-             : null;
-        if ($val && $field->multiple) {
-            $val = (array)$val;
-            $val = array_shift($val);
+        $filesArr = $field->datatypeStrategy->getFilesData($field, true, false, $files);
+        $val = $filesArr;
+        $val = array_shift($val);
+        $isFilled = false;
+        foreach ($filesArr as $file) {
+            if ($field->datatypeStrategy->isFilled($file['tmp_name'], $debug)) {
+                $isFilled = true;
+                break;
+            }
         }
-        if (!isset($val) || !$field->isFilled($val)) {
-            if ($conditionalRequiredCallback = $this->conditionalRequiredFields[$fieldURN]) {
+
+        if (!$isFilled) {
+            if ($conditionalRequiredCallback = ($this->conditionalRequiredFields[$fieldURN] ?? null)) {
                 $required = $conditionalRequiredCallback($field, $files);
             } else {
                 $required = $field->required;
             }
             if ($required && !$field->countValues()) {
-                return sprintf(
-                    View_Web::i()->_('ERR_CUSTOM_FIELD_REQUIRED'),
-                    $field->name
-                );
+                return sprintf(View_Web::i()->_('ERR_CUSTOM_FIELD_REQUIRED'), $field->name);
             }
         } elseif (!$field->multiple) {
-            if (!$field->validate($val)) {
-                return sprintf(
-                    View_Web::i()->_('ERR_CUSTOM_FIELD_INVALID'),
-                    $field->name
-                );
-            }
-        }
-        // @todo: Нужна проверка множественных требуемых полей изображений
-        $allowedExtensions = trim($field->source)
-                           ? preg_split('/\\W+/umis', $field->source)
-                           : [];
-        if ($allowedExtensions) {
-            $possibleExtensionError = sprintf(
-                View_Web::i()->_('INVALID_FILE_EXTENSION'),
-                mb_strtoupper(implode(', ', $allowedExtensions))
-            );
-            $fileTmpNameArr = (array)$files[$fieldURN]['tmp_name'];
-            $fileNameArr = (array)$files[$fieldURN]['name'];
-            foreach ($fileTmpNameArr as $i => $val) {
-                if (!$this->checkFileMatchesAllowedExtensions(
-                    $fileNameArr[$i],
-                    $val,
-                    $allowedExtensions,
-                    $debug
-                )) {
-                    return $possibleExtensionError;
+            try {
+                $field->datatypeStrategy->validate($val, $field->Field);
+            } catch (DatatypeImageTypeMismatchException $e) {
+                return sprintf(View_Web::i()->_('ERR_INVALID_IMAGE_FORMAT'), $field->name);
+            } catch (DatatypeFileTypeMismatchException $e) {
+                $allowedExtensions = trim($field->source) ? preg_split('/\\W+/umis', $field->source) : [];
+                if ($allowedExtensions) {
+                    $allowedExtensions = mb_strtoupper(implode(', ', $allowedExtensions));
+                    return sprintf(
+                        View_Web::i()->_('ERR_CUSTOM_FILE_INVALID_WITH_TYPES'),
+                        $field->name,
+                        $allowedExtensions
+                    );
+                } else {
+                    return sprintf(View_Web::i()->_('ERR_CUSTOM_FILE_INVALID'), $field->name);
                 }
+            } catch (DatatypeInvalidValueException $e) {
+                 return sprintf(View_Web::i()->_('ERR_CUSTOM_FIELD_INVALID'), $field->name);
             }
         }
         return null;
@@ -309,6 +271,7 @@ class FormInterface extends AbstractInterface
      * @param array<string> $allowedExtensions Список допустимых расширений
      * @param bool $debug Режим отладки
      * @return bool
+     * @deprecated 2023-12-04, AVS: используется стратегия типов данных
      */
     public function checkFileMatchesAllowedExtensions(
         $filename,
@@ -318,10 +281,7 @@ class FormInterface extends AbstractInterface
     ) {
         if (is_uploaded_file($filepath) || $debug) {
             $ext = mb_strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-            $allowedExtensions = array_map(
-                'mb_strtolower',
-                array_filter($allowedExtensions, 'trim')
-            );
+            $allowedExtensions = array_map('mb_strtolower', array_filter($allowedExtensions, 'trim'));
             return in_array($ext, $allowedExtensions);
         }
         return true;
@@ -336,11 +296,8 @@ class FormInterface extends AbstractInterface
      * @return string|null Текстовое описание ошибки, либо null,
      *                     если ошибка отсутствует
      */
-    public function checkAntispamField(
-        Form $form,
-        array $post = [],
-        array $session = []
-    ) {
+    public function checkAntispamField(Form $form, array $post = [], array $session = [])
+    {
         $antispamType = $form->antispam;
         $fieldURN = $form->antispam_field_name;
         if ($antispamType == 'smart') {
@@ -453,13 +410,10 @@ class FormInterface extends AbstractInterface
      * @param Page $page Текущая страница
      * @param arrary $server Данные $_SERVER-полей
      */
-    public function processFeedbackReferer(
-        Feedback $feedback,
-        Page $page,
-        array $server = []
-    ) {
+    public function processFeedbackReferer(Feedback $feedback, Page $page, array $server = [])
+    {
         $referer = $refererMaterial = null;
-        if ($refererURL = $server['HTTP_REFERER']) {
+        if ($refererURL = ($server['HTTP_REFERER'] ?? null)) {
             $referer = Page::importByURL($server['HTTP_REFERER']);
 
             $refererRelativeURL = parse_URL($refererURL, PHP_URL_PATH);
@@ -472,10 +426,14 @@ class FormInterface extends AbstractInterface
             }
         }
 
-        $feedback->page_id = (int)$referer->id ?: (int)$page->id;
+        if ($referer && $referer->id) {
+            $feedback->page_id = (int)$referer->id;
+        } else {
+            $feedback->page_id = (int)$page->id;
+        }
         if ($refererMaterial) {
             $feedback->material_id = (int)$refererMaterial->id;
-        } elseif ($materialId = $page->Material->id) {
+        } elseif ($materialId = ($page->Material->id ?? 0)) {
             $feedback->material_id = (int)$materialId;
         }
     }
@@ -488,11 +446,8 @@ class FormInterface extends AbstractInterface
      */
     public function processUserData(SOME $object, array $server = [])
     {
-        foreach ([
-            'ip' => 'REMOTE_ADDR',
-            'user_agent' => 'HTTP_USER_AGENT'
-        ] as $key => $val) {
-            $object->$key = trim($server[$val]);
+        foreach (['ip' => 'REMOTE_ADDR', 'user_agent' => 'HTTP_USER_AGENT'] as $key => $val) {
+            $object->$key = trim($server[$val] ?? '');
         }
     }
 
@@ -506,13 +461,8 @@ class FormInterface extends AbstractInterface
      * @param array $server Данные $_SERVER-полей
      * @param array $files Данные $_FILES-полей
      */
-    public function processObject(
-        SOME $object,
-        Form $form,
-        array $post = [],
-        array $server = [],
-        array $files = []
-    ) {
+    public function processObject(SOME $object, Form $form, array $post = [], array $server = [], array $files = [])
+    {
         $new = !$object->id;
         // Заполняем основные данные создаваемого материала
         if ($object instanceof Material) {
@@ -545,16 +495,12 @@ class FormInterface extends AbstractInterface
      * @param Form $form Текущая форма
      * @param array $post Данные $_POST-полей
      */
-    public function processMaterialHeader(
-        Material $material,
-        Form $form,
-        array $post = []
-    ) {
+    public function processMaterialHeader(Material $material, Form $form, array $post = [])
+    {
         if (isset($post['_name_']) && trim($post['_name_'])) {
             $material->name = trim($post['_name_']);
         } elseif (!$material->id) {
-            $material->name = $form->Material_Type->name . ': '
-                            . date(RAASViewWeb::i()->_('DATETIMEFORMAT'));
+            $material->name = $form->Material_Type->name . ': ' . date(RAASViewWeb::i()->_('DATETIMEFORMAT'));
         }
         if (isset($post['_description_']) && trim($post['_description_'])) {
             $material->description = trim($post['_description_']);
@@ -595,13 +541,10 @@ class FormInterface extends AbstractInterface
      */
     public function processObjectUserData(SOME $object, array $server = [])
     {
-        foreach ([
-            'ip' => 'REMOTE_ADDR',
-            'user_agent' => 'HTTP_USER_AGENT'
-        ] as $key => $val) {
-            if ($field = $object->fields[$key]) {
+        foreach (['ip' => 'REMOTE_ADDR', 'user_agent' => 'HTTP_USER_AGENT'] as $key => $val) {
+            if ($field = ($object->fields[$key] ?? null)) {
                 $field->deleteValues();
-                $field->addValue(trim($server[$val]));
+                $field->addValue(trim($server[$val] ?? ''));
             }
         }
     }
@@ -613,16 +556,10 @@ class FormInterface extends AbstractInterface
      * @param array $post Данные $_POST-полей
      * @param array $session Данные $_SESSION-полей
      */
-    public function processUTM(
-        SOME $object,
-        array $post = [],
-        array $session = []
-    ) {
+    public function processUTM(SOME $object, array $post = [], array $session = [])
+    {
         foreach ($object->fields as $fieldURN => $field) {
-            if (stristr($fieldURN, 'utm_') &&
-                !$post[$fieldURN] &&
-                trim($session[$fieldURN])
-            ) {
+            if (stristr($fieldURN, 'utm_') && !($post[$fieldURN] ?? null) && trim($session[$fieldURN] ?? '')) {
                 $field->deleteValues();
                 $field->addValue(trim($session[$fieldURN]));
             }
@@ -638,24 +575,15 @@ class FormInterface extends AbstractInterface
      * @param array $files Данные $_FILES-полей
      * @param bool $debug Режим отладки
      */
-    public function processObjectFields(
-        SOME $object,
-        Form $form,
-        array $post = [],
-        array $files = [],
-        $debug = false
-    ) {
+    public function processObjectFields(SOME $object, Form $form, array $post = [], array $files = [], $debug = false)
+    {
         foreach ($form->fields as $fieldURN => $temp) {
-            if ($field = $object->fields[$fieldURN]) {
-                switch ($field->datatype) {
-                    case 'file':
-                    case 'image':
-                        $this->processFileField($field, $post, $files, $debug);
-                        $field->clearLostAttachments();
-                        break;
-                    default:
-                        $this->processRegularField($field, $post);
-                        break;
+            if ($field = ($object->fields[$fieldURN] ?? null)) {
+                if ($field->datatypeStrategy->isMedia()) {
+                    $this->processFileField($field, $post, $files, $debug);
+                    $field->clearLostAttachments();
+                } else {
+                    $this->processRegularField($field, $post);
                 }
             }
         }
@@ -670,11 +598,12 @@ class FormInterface extends AbstractInterface
     public function processRegularField(Field $field, array $post = [])
     {
         $field->deleteValues();
-        $fieldURN = $field->urn;
-        if (isset($post[$fieldURN])) {
-            foreach ((array)$post[$fieldURN] as $val) {
-                // 2019-01-22, AVS: закрываем XSS-уязвимость
-                $field->addValue(trim(strip_tags($val)));
+        $postData = $field->datatypeStrategy->getPostData($field, true, $post);
+        foreach ($postData as $key => $value) {
+            $value = trim(strip_tags($value));
+            $value = $field->datatypeStrategy->export($value);
+            if ($value != null) {
+                $field->addValue($value);
             }
         }
     }
@@ -687,58 +616,28 @@ class FormInterface extends AbstractInterface
      * @param array $files Данные $_FILES-полей
      * @param bool $debug Режим отладки
      */
-    public function processFileField(
-        Field $field,
-        array $post = [],
-        array $files = [],
-        $debug = false
-    ) {
+    public function processFileField(Field $field, array $post = [], array $files = [], $debug = false)
+    {
         $field->deleteValues();
-        $fieldURN = $field->urn;
-        $visArr = (array)$post[$fieldURN . '@vis'];
-        $nameArr = (array)$post[$fieldURN . '@name'];
-        $descriptionArr = (array)$post[$fieldURN . '@description'];
-        $attachmentArr = (array)$post[$fieldURN . '@attachment'];
-        $fileTmpNameArr = (array)$files[$fieldURN]['tmp_name'];
-        $fileNameArr = (array)$files[$fieldURN]['name'];
-        $fileTypeArr = (array)$files[$fieldURN]['type'];
+        $filesData = $field->datatypeStrategy->getFilesData($field, true, true, $files, $post);
 
-        $mergedKeys = array_values(array_unique(array_merge(
-            array_keys($fileTmpNameArr),
-            array_keys($attachmentArr)
-        )));
-
-        foreach ($mergedKeys as $key) {
-            $val = $fileTmpNameArr[$key];
-            $data = [
-                'vis' => isset($visArr[$key]) ? (int)$visArr[$key] : 1,
-                'name' => trim($nameArr[$key]),
-                'description' => trim($descriptionArr[$key]),
-                'attachment' => (int)$attachmentArr[$key],
-            ];
-            if ((is_uploaded_file($val) && $field->validate($val)) ||
-                (is_file($val) && $debug)
-            ) {
-                $att = new Attachment((int)$data['attachment']);
-                $att->upload = $val;
-                $att->filename = $fileNameArr[$key];
-                $att->mime = $fileTypeArr[$key];
-                $att->parent = $field;
-                if ($field->datatype == 'image') {
-                    $att->image = 1;
-                    if ($maxSize = (int)Package::i()->registryGet('maxsize')) {
-                        $att->maxWidth = $att->maxHeight = $maxSize;
-                    }
-                    if ($tnSize = (int)Package::i()->registryGet('tnsize')) {
-                        $att->tnsize = $tnSize;
-                    }
+        foreach ($filesData as $key => $fileData) {
+            // 2017-09-05, AVS: убрал создание attachment'а по ID#, чтобы не было конфликтов
+            // в случае дублирования материалов с одним attachment'ом
+            // с текущего момента каждый новый загруженный файл - это новый attachment
+            $attachment = $field->processAttachment($fileData);
+            $oldAttachmentId = (int)($fileData['meta']['attachment'] ?? null);
+            if (!$attachment && $oldAttachmentId) {
+                $attachment = new Attachment($oldAttachmentId);
+            }
+            if ($attachment && $attachment->id) {
+                $attachment->vis = (bool)($fileData['meta']['vis'] ?? true);
+                $attachment->name = trim($fileData['meta']['name'] ?? '');
+                $attachment->description = trim($fileData['meta']['description'] ?? '');
+                $value = $field->datatypeStrategy->export($attachment);
+                if ($value !== null) {
+                    $field->addValue($value);
                 }
-                $att->copy = true;
-                $att->commit();
-                $data['attachment'] = (int)$att->id;
-                $field->addValue(json_encode($data));
-            } elseif ($data['attachment']) {
-                $field->addValue(json_encode($data));
             }
         }
     }
@@ -751,27 +650,26 @@ class FormInterface extends AbstractInterface
      * @param bool $forAdmin Уведомление для администратора
      *                       (если нет, то для пользователя)
      * @param bool $debug Режим отладки
-     * @return array<
-     *             ('emails'|'smsEmails')[] => [
-     *                 'emails' => array<string> e-mail адреса,
-     *                 'subject' => string Тема письма,
-     *                 'message' => string Тело письма,
-     *                 'from' => string Поле "от",
-     *                 'fromEmail' => string Обратный адрес,
-     *                 'attachments' => array<[
-     *                     'tmp_name' => string Путь к реальному файлу,
-     *                     'type' => string MIME-тип файла,
-     *                     'name' => string Имя файла
-     *                 ]> вложения,
-     *                 'embedded' => array<[
-     *                     'tmp_name' => string Путь к реальному файлу,
-     *                     'type' => string MIME-тип файла,
-     *                     'name' => string Имя файла
-     *                 ]> встроенные файлы,
-     *             ],
-     *             'smsPhones' => array<string URL SMS-шлюза>
-     *         >|null Набор отправляемых писем либо URL SMS-шлюза
-     *                            (только в режиме отладки)
+     * @return array|null <pre><code>array<
+     *    ('emails'|'smsEmails')[] => [
+     *        'emails' => array<string> e-mail адреса,
+     *        'subject' => string Тема письма,
+     *        'message' => string Тело письма,
+     *        'from' => string Поле "от",
+     *        'fromEmail' => string Обратный адрес,
+     *        'attachments' => array<[
+     *            'tmp_name' => string Путь к реальному файлу,
+     *            'type' => string MIME-тип файла,
+     *            'name' => string Имя файла
+     *        ]> вложения,
+     *        'embedded' => array<[
+     *            'tmp_name' => string Путь к реальному файлу,
+     *            'type' => string MIME-тип файла,
+     *            'name' => string Имя файла
+     *        ]> встроенные файлы,
+     *    ],
+     *    'smsPhones' => array<string URL SMS-шлюза>
+     * >|null</code></pre> Набор отправляемых писем либо URL SMS-шлюза (только в режиме отладки)
      */
     public function notify(Feedback $feedback, Material $material = null, $forAdmin = true, $debug = false)
     {
@@ -795,14 +693,8 @@ class FormInterface extends AbstractInterface
         ];
 
         $subject = $this->getEmailSubject($feedback, $forAdmin);
-        $message = $this->getMessageBody(
-            $template,
-            array_merge($notificationData, ['SMS' => false])
-        );
-        $smsMessage = $this->getMessageBody(
-            $template,
-            array_merge($notificationData, ['SMS' => true])
-        );
+        $message = $this->getMessageBody($template, array_merge($notificationData, ['SMS' => false]));
+        $smsMessage = $this->getMessageBody($template, array_merge($notificationData, ['SMS' => true]));
         $fromName = $this->getFromName();
         $fromEmail = $this->getFromEmail();
         $debugMessages = [];
@@ -816,7 +708,7 @@ class FormInterface extends AbstractInterface
             $message = CssInliner::fromHtml($message)->inlineCss()->render();
         }
 
-        if ($emails = $addresses['emails']) {
+        if ($emails = ($addresses['emails'] ?? null)) {
             if ($debug) {
                 $debugMessages['emails'] = [
                     'emails' => $emails,
@@ -841,7 +733,7 @@ class FormInterface extends AbstractInterface
             }
         }
 
-        if ($smsEmails = $addresses['smsEmails']) {
+        if ($smsEmails = ($addresses['smsEmails'] ?? null)) {
             if ($debug) {
                 $debugMessages['smsEmails'] = [
                     'emails' => $smsEmails,
@@ -862,19 +754,19 @@ class FormInterface extends AbstractInterface
             }
         }
 
-        if (Application::i()->prod && ($smsPhones = $addresses['smsPhones'])) {
-            if ($urlTemplate = Package::i()->registryGet('sms_gate')) {
-                $m = new Mustache_Engine();
-                foreach ($smsPhones as $phone) {
-                    $url = $m->render($urlTemplate, [
-                        'PHONE' => urlencode($phone),
-                        'TEXT' => urlencode($smsMessage)
-                    ]);
-                    if ($debug) {
-                        $debugMessages['smsPhones'][] = $url;
-                    } else {
-                        $result = file_get_contents($url);
-                    }
+        if (($smsPhones = ($addresses['smsPhones'] ?? null)) &&
+            ($urlTemplate = Package::i()->registryGet('sms_gate'))
+        ) {
+            $m = new Mustache_Engine();
+            foreach ($smsPhones as $phone) {
+                $url = $m->render($urlTemplate, [
+                    'PHONE' => urlencode($phone),
+                    'TEXT' => urlencode($smsMessage)
+                ]);
+                if ($debug || !Application::i()->prod) {
+                    $debugMessages['smsPhones'][] = $url;
+                } elseif (!$debug && Application::i()->prod) {
+                    $result = file_get_contents($url);
                 }
             }
         }
@@ -975,7 +867,7 @@ class FormInterface extends AbstractInterface
      */
     public function getEmailSubject(Feedback $feedback, $forAdmin = true)
     {
-        $host = $this->server['HTTP_HOST'];
+        $host = $this->server['HTTP_HOST'] ?? '';
         if (function_exists('idn_to_utf8')) {
             $host = idn_to_utf8($host);
         }
@@ -1011,7 +903,7 @@ class FormInterface extends AbstractInterface
      */
     public function getFromName()
     {
-        $host = $this->server['HTTP_HOST'];
+        $host = $this->server['HTTP_HOST'] ?? '';
         if (function_exists('idn_to_utf8')) {
             $host = idn_to_utf8($host);
         }
@@ -1025,7 +917,7 @@ class FormInterface extends AbstractInterface
      */
     public function getFromEmail()
     {
-        $host = $this->server['HTTP_HOST'];
+        $host = $this->server['HTTP_HOST'] ?? '';
         return 'info@' . $host;
     }
 
@@ -1042,11 +934,8 @@ class FormInterface extends AbstractInterface
      *     'name' => string Имя файла
      * ]></pre>
      */
-    public function getAttachments(
-        Feedback $feedback,
-        Material $material = null,
-        $forAdmin = true
-    ) {
+    public function getAttachments(Feedback $feedback, Material $material = null, $forAdmin = true)
+    {
         return [];
     }
 
@@ -1121,7 +1010,7 @@ class FormInterface extends AbstractInterface
         $text = '';
         if (preg_match('/^(http(s)?:)?\\/\\//umis', $src, $regs)) {
             // Внешний файл
-            if (!$regs[1]) {
+            if (!($regs[1] ?? null)) {
                 $src = 'http' . ($_SERVER['HTTPS'] ? 's' : '') . ':' . $src;
             }
             $text = @file_get_contents($src);
@@ -1137,7 +1026,7 @@ class FormInterface extends AbstractInterface
         }
         file_put_contents($tmpname, $text);
 
-        if ($type = getimagesize($tmpname)) {
+        if ($type = @getimagesize($tmpname)) {
             $ext = image_type_to_extension($type[2]);
             $name = pathinfo($name, PATHINFO_FILENAME) . $ext;
             $mime = image_type_to_mime_type($type[2]);

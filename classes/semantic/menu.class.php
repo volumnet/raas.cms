@@ -247,10 +247,10 @@ class Menu extends SOME
     {
         $result = [];
         $realized = [];
-        $id = (int)$menuData['id'];
-        $pvis = ($menuData['vis'] && $menuData['pvis']);
-        $inherit = $menuData['inherit'];
-        $pageId = $menuData['page_id'];
+        $id = (int)($menuData['id'] ?? 0);
+        $pvis = (($menuData['vis'] ?? false) && ($menuData['pvis'] ?? false));
+        $inherit = (int)($menuData['inherit'] ?? 0);
+        $pageId = (int)($menuData['page_id'] ?? 0);
         $cache = MenuRecursiveCache::i();
         if ($id) {
             if ($visOnly) {
@@ -260,7 +260,7 @@ class Menu extends SOME
             }
             foreach ($childrenIds as $childId) {
                 $childData = $cache->cache[$childId];
-                if ($pageId = $childData['page_id']) {
+                if ($pageId = (int)($childData['page_id'] ?? 0)) {
                     $realized[(string)$pageId] = $pageId;
                 }
                 $result[] = $childData;
@@ -276,17 +276,17 @@ class Menu extends SOME
             }
             foreach ($childrenPagesIds as $childPageId) {
                 $childPageData = $cache->cache[$childPageId];
-                if (!isset($realized[$childPageData['id']]) && !$childPageData['response_code']) {
+                if (!isset($realized[$childPageData['id']]) && !($childPageData['response_code'] ?? null)) {
                     $row = [
                         'pid' => $id,
                         'vis' => true,
                         'pvis' => $pvis,
-                        'name' => trim($childPageData['menu_name']) ?:
-                                  trim($childPageData['name']),
-                        'url' => $childPageData['cache_url'],
+                        'name' => trim($childPageData['menu_name'] ?? '') ?:
+                                  trim($childPageData['name'] ?? ''),
+                        'url' => $childPageData['cache_url'] ?? '',
                         'page_id' => $childPageId,
                         'inherit' => $inherit - 1,
-                        'priority' => $childPageData['priority'],
+                        'priority' => $childPageData['priority'] ?? 0,
                         'realized' => false,
                     ];
                     $result[] = $row;

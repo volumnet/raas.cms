@@ -60,7 +60,7 @@ class MaterialsTable extends Table
                     ) {
                         $f = $row->fields[$col->urn];
                         $v = $f->getValue();
-                        if ($v->id) {
+                        if ($v && $v->id) {
                             return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
                                      '<img src="/' . $v->tnURL . '" style="max-width: 48px;" />' .
                                    '</a>';

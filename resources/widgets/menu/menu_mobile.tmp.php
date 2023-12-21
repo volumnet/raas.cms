@@ -193,9 +193,9 @@ $showMenu = function ($node, Page $current) use (
             $aClasses[] = 'menu-mobile__link_has-children';
         }
         $text .= '<li class="' . implode(' ', $liClasses) . '">'
-              .  '  <a class="' . implode(' ', $aClasses) . '" ' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>'
+              .  '  <' . ((!$active && $url) ? 'a' : 'span') . ' class="' . implode(' ', $aClasses) . '" ' . (($active || !$url) ? '' : ' href="' . htmlspecialchars($url) . '"') . '>'
               .       htmlspecialchars($name)
-              .  '  </a>';
+              .  '  </' . ((!$active && $url) ? 'a' : 'span') . '>';
         if ($ch) {
             $text .= '<a href="#" class="menu-mobile__children-trigger menu-mobile__children-trigger_' . ($level ? 'inner' : 'main') . ' menu-mobile__children-trigger_level_' . (int)$level . '"></a>'
                   .  $ch;

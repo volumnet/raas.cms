@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<phpunit colors="true" bootstrap="./bootstrap.php">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" bootstrap="./bootstrap.php" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage includeUncoveredFiles="false">
+    <include>
+      <directory suffix=".php">../classes</directory>
+    </include>
+    <report>
+      <html outputDirectory="coverage"/>
+    </report>
+  </coverage>
   <testsuites>
     <testsuite name="AntispamTest">
       <file>src/AntispamTest.php</file>
@@ -14,7 +21,6 @@
     <testsuite name="PageRecursiveCache">
       <file>src/PageRecursiveCacheTest.php</file>
     </testsuite>
-
     <testsuite name="CacheInterface">
       <file>src/interfaces/CacheInterfaceTest.php</file>
     </testsuite>
@@ -30,11 +36,16 @@
     <testsuite name="SearchInterface">
       <file>src/interfaces/SearchInterfaceTest.php</file>
     </testsuite>
-
+    <testsuite name="DatatypeStrategy">
+      <file>src/datatypes/MediaDatatypeStrategyTraitTest.php</file>
+      <file>src/datatypes/MaterialDatatypeStrategyTest.php</file>
+    </testsuite>
+    <testsuite name="Field">
+      <file>src/semantic/FieldTest.php</file>
+    </testsuite>
     <testsuite name="Menu">
       <file>src/semantic/MenuTest.php</file>
     </testsuite>
-
     <testsuite name="FormRenderer">
       <file>src/views/renderers/FormRendererTest.php</file>
     </testsuite>
@@ -74,7 +85,6 @@
     <testsuite name="RadioFormFieldRenderer">
       <file>src/views/renderers/formfield/RadioFormFieldRendererTest.php</file>
     </testsuite>
-
     <testsuite name="NotificationFieldRenderer">
       <file>src/views/renderers/notification/NotificationFieldRendererTest.php</file>
     </testsuite>
@@ -112,12 +122,5 @@
       <file>src/views/renderers/notification/URLNotificationFieldRendererTest.php</file>
     </testsuite>
   </testsuites>
-  <filter>
-    <whitelist addUncoveredFilesFromWhitelist="false">
-      <directory suffix=".php">../classes</directory>
-    </whitelist>
-  </filter>
-  <logging>
-    <log type="coverage-html" target="coverage" />
-  </logging>
+  <logging/>
 </phpunit>

@@ -141,6 +141,7 @@ export default {
          * @param  {String} responseType MIME-тип получаемого ответа (если присутствует слэш /, то отправляется также заголовок Accept)
          * @param  {String} requestType MIME-тип запроса (если присутствует слэш /, то отправляется также заголовок Content-Type)
          * @param  {Object} additionalHeaders Дополнительные заголовки
+         * @param {AbortController|null} abortController Контроллер прерывания
          * @return {mixed} Результат запроса
          */
         async api(
@@ -149,9 +150,11 @@ export default {
             blockId = null, 
             responseType = 'application/json', 
             requestType = 'application/x-www-form-urlencoded',
-            additionalHeaders = {}
+            additionalHeaders = {},
+            abortController = null,
         ) {
-            let realUrl = url;
+            // 2023-11-09, AVS: добавил деление по #, т.к. хэштеги для сервера смысла не имеют
+            let realUrl = url.split('#')[0];
             if (!/\/\//gi.test(realUrl)) {
                 if (realUrl[0] != '/') {
                     realUrl = '//' + window.location.host + window.location.pathname + realUrl;
@@ -176,6 +179,9 @@ export default {
             const fetchOptions = {
                 headers,
             };
+            if (abortController) {
+                fetchOptions.signal = abortController.signal;
+            }
             if (!!postData) {
                 fetchOptions.method = 'POST';
                 if (/form/gi.test(requestType)) {
@@ -384,16 +390,18 @@ export default {
                 // console.log(scrollToData);
                 window.scrollTo(scrollToData);
                 // 2023-09-19, AVS: сделаем защиту скроллинга
-                let protectScrolling = window.setInterval(() => {
-                    if (this.scrollTop == scrollToData.top) {
-                        console.log('stop scrolling to ' + scrollToData.top);
-                        window.clearInterval(protectScrolling);
-                        protectScrolling = null;
-                    } else if (!this.isScrollingNow) {
-                        window.scrollTo(scrollToData);
-                        console.log('continue scrolling to ' + scrollToData.top);
-                    }
-                }, this.isScrollingNowDelay)
+                if (!instant) {
+                    let protectScrolling = window.setInterval(() => {
+                        if (this.scrollTop == scrollToData.top) {
+                            console.log('stop scrolling to ' + scrollToData.top);
+                            window.clearInterval(protectScrolling);
+                            protectScrolling = null;
+                        } else if (!this.isScrollingNow) {
+                            window.scrollTo(scrollToData);
+                            console.log('continue scrolling to ' + scrollToData.top);
+                        }
+                    }, this.isScrollingNowDelay)
+                }
                 // $.scrollTo(scrollToData.top, instant ? this.isScrollingNowDelay : 0);
             }
         },

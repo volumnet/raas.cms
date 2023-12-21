@@ -10,6 +10,35 @@ namespace RAAS\CMS;
 class FormInterfaceTest extends BaseDBTest
 {
     /**
+     * Форма для проверки
+     * @var Form
+     */
+    public $form;
+
+    /**
+     * Блок для проверки
+     * @var Block_Form
+     */
+    public $block;
+
+    // public function setUpBeforeClass()
+    // {
+    //     parent::setUpBeforeClass();
+    //     $formInterface = Snippet::importByURN('__raas_form_interface');
+    //     $formWidget = Snippet::importByURN('feedback');
+    //     $block = new Block_Form([
+    //         'name' => 'Обратная связь',
+    //         'form' => 1,
+    //         'location' => 'content',
+    //         'vis' => true,
+    //         'interface_id' => $formInterface->id,
+    //         'widget_id' => $formWidget->id,
+    //     ]);
+    //     $block->commit();
+    //     $this->block = $block;
+    // }
+
+    /**
      * Тест проверки, действительно ли форма отправлена
      * (случай нормальной отправки формы)
      */
@@ -146,6 +175,27 @@ class FormInterfaceTest extends BaseDBTest
 
     /**
      * Тест проверки на корректность регулярного поля
+     * (случай незаполненного поля)
+     */
+    public function testCheckRegularFieldWithConditional()
+    {
+        $field = new Form_Field(5); // Поле "Ваше имя" формы "Обратная связь"
+        $post = ['full_name' => ' '];
+        $interface = new FormInterface();
+        $interface->conditionalRequiredFields = [
+            'full_name' => function ($field, $post) {
+                return false;
+            },
+        ];
+
+        $result = $interface->checkRegularField($field, $post);
+
+        $this->assertNull($result);
+    }
+
+
+    /**
+     * Тест проверки на корректность регулярного поля
      * (случай неправильного подтверждения пароля)
      */
     public function testCheckRegularFieldWithInvalidPasswordConfirmation()
@@ -211,7 +261,7 @@ class FormInterfaceTest extends BaseDBTest
 
         $result = $interface->checkAntispamField($form, $post, $session);
 
-        $this->assertEquals('Код с картинки указан неверно', $result);
+        $this->assertEquals('Антиспам-система не пройдена', $result);
     }
 
 
@@ -227,9 +277,27 @@ class FormInterfaceTest extends BaseDBTest
         $post = ['_name' => ''];
         $interface = new FormInterface();
 
-        $result = $interface->checkAntispamField($form, $post, $session);
+        $result = $interface->checkAntispamField($form, $post, []);
 
         $this->assertNull($result);
+    }
+
+
+    /**
+     * Тест проверки на корректность антиспам-поля
+     * (случай с ошибочным прохождением анализа данных)
+     */
+    public function testCheckAntispamFieldWithSmartInvalid()
+    {
+        $form = new Form(1); // Обратная связь
+        $form->antispam = 'smart'; // Установим тип проверки "hidden"
+        $form->antispam_field_name = '_name'; // Установим поле "_name"
+        $post = ['full_name' => 'Mr.Smith', 'last_name' => 'www.yandex.com'];
+        $interface = new FormInterface(null, new Page(['lang' => 'ru']));
+
+        $result = $interface->checkAntispamField($form, $post, []);
+
+        $this->assertEquals('Антиспам-система не пройдена', $result);
     }
 
 
@@ -245,9 +313,27 @@ class FormInterfaceTest extends BaseDBTest
         $post = ['_name' => 'aaa'];
         $interface = new FormInterface();
 
-        $result = $interface->checkAntispamField($form, $post, $session);
+        $result = $interface->checkAntispamField($form, $post, []);
 
-        $this->assertEquals('Код с картинки указан неверно', $result);
+        $this->assertEquals('Антиспам-система не пройдена', $result);
+    }
+
+
+    /**
+     * Тест проверки на корректность антиспам-поля
+     * (случай с ошибочным прохождением скрытого поля в случае, если установлен тип "Анализ данных")
+     */
+    public function testCheckAntispamFieldWithHiddenSmartInvalid()
+    {
+        $form = new Form(1); // Обратная связь
+        $form->antispam = 'smart'; // Установим тип проверки "hidden"
+        $form->antispam_field_name = '_name'; // Установим поле "_name"
+        $post = ['_name' => 'aaa'];
+        $interface = new FormInterface(null, new Page(['lang' => 'ru']));
+
+        $result = $interface->checkAntispamField($form, $post, []);
+
+        $this->assertEquals('Антиспам-система не пройдена', $result);
     }
 
 
@@ -451,6 +537,7 @@ class FormInterfaceTest extends BaseDBTest
         $form = new Form(6);
         $interface = new FormInterface();
 
+        $t = time();
         $result = $interface->processMaterialHeader(
             $material,
             $form,
@@ -460,7 +547,7 @@ class FormInterfaceTest extends BaseDBTest
         );
 
         $this->assertEquals(
-            'Отзывы к товарам: ' . date('d.m.Y H:i:s'),
+            'Отзывы к товарам: ' . date('d.m.Y H:i:s', $t),
             $material->name
         );
         $this->assertEquals('Тестовое описание', $material->description);
@@ -477,12 +564,10 @@ class FormInterfaceTest extends BaseDBTest
         $material->commit();
         $interface = new FormInterface();
 
+        $t = time();
         $interface->processObjectDates($material, []);
 
-        $this->assertEquals(
-            date('Y-m-d H:i:s'),
-            $material->fields['date']->doRich()
-        );
+        $this->assertEquals(date('Y-m-d H:i:s', $t), $material->fields['date']->getRawValue());
 
         Material::delete($material);
     }
@@ -498,9 +583,10 @@ class FormInterfaceTest extends BaseDBTest
         $material->commit();
         $interface = new FormInterface();
 
+        $t = time();
         $interface->processObjectDates($material, []);
 
-        $this->assertEquals(date('Y-m-d'), $material->fields['date']->doRich());
+        $this->assertEquals(date('Y-m-d', $t), $material->fields['date']->doRich());
 
         Material::delete($material);
     }
@@ -519,9 +605,10 @@ class FormInterfaceTest extends BaseDBTest
         $material->commit();
         $interface = new FormInterface();
 
+        $t = time();
         $interface->processObjectDates($material, []);
 
-        $this->assertEquals(date('H:i:s'), $material->fields['date']->doRich());
+        $this->assertEquals(date('H:i:s', $t), $material->fields['date']->getRawValue());
 
         $field->datatype = 'datetime-local';
         $field->commit();
@@ -565,6 +652,36 @@ class FormInterfaceTest extends BaseDBTest
         Material::delete($material);
         Material_Field::delete($ipField);
         Material_Field::delete($userAgentField);
+    }
+
+
+    /**
+     * Тест подстановки данных UTM-меток в объект
+     */
+    public function testProcessUTM()
+    {
+        $utmSourceField = new Material_Field([
+            'pid' => 7,
+            'datatype' => 'text',
+            'name' => 'utm_source'
+        ]);
+        $utmSourceField->commit();
+        $session = [
+            'utm_source' => 'UTM source',
+        ];
+        $material = new Material(['name' => 'test', 'pid' => 7]); // Отзывы к товарам
+        $material->commit();
+        $materialId = $material->id;
+
+        $interface = new FormInterface();
+
+        $interface->processUTM($material, [], $session);
+        $material = new Material($materialId);
+
+        $this->assertEquals('UTM source', $material->utm_source);
+
+        Material::delete($material);
+        Material_Field::delete($utmSourceField);
     }
 
 
@@ -755,7 +872,7 @@ class FormInterfaceTest extends BaseDBTest
 
         $result = $interface->getEmailSubject($feedback);
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Новое сообщение с формы «Обратная связь» на странице «Главная» сайта ДОМЕН.РФ',
             $result
         );
@@ -779,10 +896,10 @@ class FormInterfaceTest extends BaseDBTest
             $data
         );
 
-        $this->assertContains('Ваше имя', $result);
-        $this->assertContains('Тестовый пользователь', $result);
-        $this->assertContains('Телефон', $result);
-        $this->assertContains('+7 999 000-00-00', $result);
+        $this->assertStringContainsString('Ваше имя', $result);
+        $this->assertStringContainsString('Тестовый пользователь', $result);
+        $this->assertStringContainsString('Телефон', $result);
+        $this->assertStringContainsString('+7 999 000-00-00', $result);
     }
 
 
@@ -837,7 +954,7 @@ class FormInterfaceTest extends BaseDBTest
         ]];
         $interface = new FormInterface();
 
-        $result = $interface->checkFileField($fileField, $files);
+        $result = $interface->checkFileField($fileField, $files, true);
 
         $this->assertNull($result);
 
@@ -862,9 +979,39 @@ class FormInterfaceTest extends BaseDBTest
         $files = [];
         $interface = new FormInterface();
 
-        $result = $interface->checkFileField($fileField, $files);
+        $result = $interface->checkFileField($fileField, $files, true);
 
         $this->assertEquals('Необходимо заполнить поле «Изображение»', $result);
+
+        Form_Field::delete($fileField);
+    }
+
+
+    /**
+     * Тест проверки на корректность файлового поля
+     * (случай с отсутствием файла)
+     */
+    public function testCheckFileFieldWithConditional()
+    {
+        $fileField = new Form_Field([
+            'pid' => 1,
+            'datatype' => 'image',
+            'urn' => 'image',
+            'name' => 'Изображение',
+            'required' => true
+        ]); // Обратная связь
+        $fileField->commit();
+        $files = [];
+        $interface = new FormInterface();
+        $interface->conditionalRequiredFields = [
+            'image' => function ($field, $post) {
+                return false;
+            },
+        ];
+
+        $result = $interface->checkFileField($fileField, $files, true);
+
+        $this->assertNull($result);
 
         Form_Field::delete($fileField);
     }
@@ -891,9 +1038,9 @@ class FormInterfaceTest extends BaseDBTest
         ]];
         $interface = new FormInterface();
 
-        $result = $interface->checkFileField($fileField, $files);
+        $result = $interface->checkFileField($fileField, $files, true);
 
-        $this->assertEquals('Поле «Изображение» заполнено неверно', $result);
+        $this->assertEquals('Некорректный формат изображения. Доступные форматы: GIF, JPG, PNG', $result);
 
         Form_Field::delete($fileField);
     }
@@ -924,9 +1071,39 @@ class FormInterfaceTest extends BaseDBTest
         $result = $interface->checkFileField($fileField, $files, true);
 
         $this->assertEquals(
-            'Файл данного типа запрещен к загрузке. Разрешенные расширения: JPG, PNG',
+            'Файл «Изображение» недопустимого формата. Допустимые форматы: JPG, PNG',
             $result
         );
+
+        Form_Field::delete($fileField);
+    }
+
+
+    /**
+     * Тест проверки на корректность файлового поля
+     * (случай с несовпадением шаблона)
+     */
+    public function testCheckFileFieldWithPatternMismatch()
+    {
+        $fileField = new Form_Field([
+            'pid' => 1,
+            'datatype' => 'image',
+            'urn' => 'image',
+            'name' => 'Изображение',
+            'required' => true,
+            'pattern' => 'test',
+        ]); // Обратная связь
+        $fileField->commit();
+        $files = ['image' => [
+            'tmp_name' => __DIR__ . '/../../resources/noname.gif',
+            'name' => 'noname.gif',
+            'type' => 'image/gif',
+        ]];
+        $interface = new FormInterface();
+
+        $result = $interface->checkFileField($fileField, $files, true);
+
+        $this->assertEquals('Поле «Изображение» заполнено неверно', $result);
 
         Form_Field::delete($fileField);
     }
@@ -962,7 +1139,7 @@ class FormInterfaceTest extends BaseDBTest
             $result['image']
         );
         $this->assertEquals(
-            'Код с картинки указан неверно',
+            'Антиспам-система не пройдена',
             $result['_name']
         );
 
@@ -1048,10 +1225,10 @@ class FormInterfaceTest extends BaseDBTest
         $material = new Material(['pid' => 7]);
         $interface = new FormInterface();
 
-        $interface->processObject($material, $form, $post, $server, $files);
+        $interface->processObject($material, $form, $post, $server, []);
 
-        $this->assertContains('Отзывы к товарам: ', $material->name);
-        $this->assertContains(date('Y-m-d'), $material->date);
+        $this->assertStringContainsString('Отзывы к товарам: ', $material->name);
+        $this->assertStringContainsString(date('Y-m-d'), $material->date);
         $this->assertEquals(5, $material->rating);
         $this->assertEquals(10, $material->material->id);
         $this->assertEquals('127.0.0.1', $material->ip);
@@ -1079,43 +1256,43 @@ class FormInterfaceTest extends BaseDBTest
         $result = $interface->notify($feedback, null, true, true);
 
         $this->assertEquals(['test@test.org'], $result['emails']['emails']);
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Новое сообщение с формы «Обратная связь»',
             $result['emails']['subject']
         );
-        $this->assertContains('<div>', $result['emails']['message']);
-        $this->assertContains(
+        $this->assertStringContainsString('<div>', $result['emails']['message']);
+        $this->assertStringContainsString(
             'Телефон: +7 999 000-00-00',
             $result['emails']['message']
         );
-        $this->assertContains('/admin/', $result['emails']['message']);
-        $this->assertContains('Администрация сайта', $result['emails']['from']);
-        $this->assertContains('info@', $result['emails']['fromEmail']);
+        $this->assertStringContainsString('/admin/', $result['emails']['message']);
+        $this->assertStringContainsString('Администрация сайта', $result['emails']['from']);
+        $this->assertStringContainsString('info@', $result['emails']['fromEmail']);
         $this->assertEquals(
             ['79990000000@sms.test.org'],
             $result['smsEmails']['emails']
         );
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Новое сообщение с формы «Обратная связь»',
             $result['smsEmails']['subject']
         );
-        $this->assertNotContains('<div>', $result['smsEmails']['message']);
-        $this->assertContains(
+        $this->assertStringNotContainsString('<div>', $result['smsEmails']['message']);
+        $this->assertStringContainsString(
             'Администрация сайта',
             $result['smsEmails']['from']
         );
-        $this->assertContains('info@', $result['smsEmails']['fromEmail']);
-        $this->assertContains(
+        $this->assertStringContainsString('info@', $result['smsEmails']['fromEmail']);
+        $this->assertStringContainsString(
             'Телефон: +7 999 000-00-00',
             $result['smsEmails']['message']
         );
-        $this->assertContains(
+        $this->assertStringContainsString(
             'smsgate/%2B79990000000/',
-            $result['smsPhones'][0]
+            $result['smsPhones'][0] ?? ''
         );
-        $this->assertContains(
+        $this->assertStringContainsString(
             urlencode('Телефон: +7 999 000-00-00'),
-            $result['smsPhones'][0]
+            $result['smsPhones'][0] ?? ''
         );
 
         $form->email = '';
@@ -1140,25 +1317,25 @@ class FormInterfaceTest extends BaseDBTest
         $result = $interface->notify($feedback, null, false, true);
 
         $this->assertEquals(['test@test.org'], $result['emails']['emails']);
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Новое сообщение с формы «Обратная связь»',
             $result['emails']['subject']
         );
-        $this->assertContains('<div>', $result['emails']['message']);
-        $this->assertContains(
+        $this->assertStringContainsString('<div>', $result['emails']['message']);
+        $this->assertStringContainsString(
             'Телефон: +7 999 000-00-00',
             $result['emails']['message']
         );
-        $this->assertContains('Администрация сайта', $result['emails']['from']);
-        $this->assertContains('info@', $result['emails']['fromEmail']);
-        $this->assertEmpty($result['smsEmails']);
-        $this->assertContains(
+        $this->assertStringContainsString('Администрация сайта', $result['emails']['from']);
+        $this->assertStringContainsString('info@', $result['emails']['fromEmail']);
+        $this->assertEmpty($result['smsEmails'] ?? null);
+        $this->assertStringContainsString(
             'smsgate/%2B79990000000/',
-            $result['smsPhones'][0]
+            $result['smsPhones'][0] ?? ''
         );
-        $this->assertContains(
+        $this->assertStringContainsString(
             urlencode('Телефон: +7 999 000-00-00'),
-            $result['smsPhones'][0]
+            $result['smsPhones'][0] ?? ''
         );
 
         Package::i()->registrySet('sms_gate', '');
@@ -1205,7 +1382,7 @@ class FormInterfaceTest extends BaseDBTest
         ];
         $interface = new FormInterface();
 
-        $result = $interface->processForm($form, $page, $post, $server, []);
+        $result = $interface->processForm($form, $page, $post, [], []);
 
         $this->assertInstanceof(Feedback::class, $result['Item']);
         $feedback = $result['Item'];
@@ -1233,9 +1410,9 @@ class FormInterfaceTest extends BaseDBTest
         ];
         $interface = new FormInterface();
 
-        $result = $interface->processForm($form, $page, $post, $server, []);
+        $result = $interface->processForm($form, $page, $post, [], []);
 
-        $this->assertNull($result['Item']);
+        $this->assertNull($result['Item'] ?? null);
         $this->assertInstanceof(Material::class, $result['Material']);
         $material = $result['Material'];
         $this->assertEquals(10, $material->material->id);
@@ -1296,12 +1473,84 @@ class FormInterfaceTest extends BaseDBTest
         $result = $interface->process();
 
         $this->assertEquals([], $result['localError']);
-        $this->assertNull($result['success']);
+        $this->assertFalse(isset($result['success']));
         $this->assertEquals(['phone' => '+7 999 000-00-00'], $result['DATA']);
         $this->assertInstanceof(Form::class, $result['Form']);
         $this->assertEquals(1, $result['Form']->id);
 
         $phoneField->defval = '+7 999 000-00-00';
         $phoneField->commit();
+    }
+
+
+    /**
+     * Проверка метода getBasename
+     */
+    public function testGetBasename()
+    {
+        $interface = new FormInterface();
+
+        $result = $interface->getBasename('https://test.org/test.jpg');
+
+        $this->assertEquals('3f48dd5b-test.jpg', $result);
+    }
+
+
+    /**
+     * Проверка метода processEmbedded
+     */
+    public function testProcessEmbedded()
+    {
+        $interface = new FormInterface();
+        $text = '<img src="http://test/files/cms/common/image/nophoto.jpg">';
+
+        $result = $interface->processEmbedded($text);
+
+        $this->assertEquals('<img src="cid:d9249709-nophoto.jpeg">', $result['message']);
+        $this->assertIsArray($result['embedded']);
+        $this->assertCount(1, $result['embedded']);
+        $this->assertEquals('d9249709-nophoto.jpeg', $result['embedded'][0]['name']);
+        $this->assertEquals('image/jpeg', $result['embedded'][0]['type']);
+    }
+
+
+    /**
+     * Проверка метода getEmbedded
+     */
+    public function testGetEmbedded()
+    {
+        $interface = new FormInterface();
+
+        $result = $interface->getEmbedded('//test/files/cms/common/image/nophoto.jpg');
+
+        $this->assertEquals('8ed4670b-nophoto.jpg', $result['name']);
+    }
+
+
+    /**
+     * Проверка метода getEmbedded - случай с локальным адресом
+     */
+    public function testGetEmbeddedWithLocalAddress()
+    {
+        $interface = new FormInterface();
+
+        $result = $interface->getEmbedded('/files/cms/common/image/nophoto.jpg');
+
+        $this->assertEquals('ccbf470b-nophoto.jpeg', $result['name']);
+        $this->assertEquals('image/jpeg', $result['type']);
+    }
+
+
+    /**
+     * Проверка метода getEmbedded - случай с Data URL
+     */
+    public function testGetEmbeddedWithDataURL()
+    {
+        $interface = new FormInterface();
+
+        $result = $interface->getEmbedded('data:text/plain;base64,dGVzdA==');
+
+        $this->assertStringContainsString('raa', $result['name']);
+        $this->assertEquals('text/plain', $result['type']);
     }
 }

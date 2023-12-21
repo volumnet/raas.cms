@@ -22,7 +22,7 @@ if ($Item) { ?>
       <?php } ?>
       <?php if ($Item->visImages) { ?>
           <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__image" href="/<?php echo $Item->visImages[0]->fileURL?>" data-lightbox-gallery="g">
-            <img loading="lazy" src="/<?php echo htmlspecialchars($Item->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $row->name)?>" /></a>
+            <img loading="lazy" src="/<?php echo htmlspecialchars($Item->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $Item->name)?>" /></a>
       <?php } ?>
       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__description">
         <?php echo $Item->description; ?>

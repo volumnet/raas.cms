@@ -95,15 +95,13 @@ export default {
             self.loading = true;
             self.success = false;
             self.localError = {};
-            const postData = new FormData(self.$el);
-            postData.append('AJAX', (self.blockId || 1));
-
+            const formData = self.getFormData();
             const url = $(this).attr('action') || window.location.href;
             const requestType = $(this).attr('enctype') || 'multipart/form-data';
             try {
                 const response = await self.$root.api(
                     url, 
-                    postData, 
+                    formData, 
                     self.blockId || null, 
                     'application/json', 
                     requestType
@@ -124,6 +122,15 @@ export default {
 
     },
     methods: {
+        /**
+         * Получает данные формы
+         * @return {FormData}
+         */
+        getFormData() {
+            const formData = new FormData(this.$el);
+            formData.append('AJAX', (this.blockId || 1));
+            return formData;
+        },
         /**
          * Обработчик формы
          * @param  {Object} data <pre><code>{

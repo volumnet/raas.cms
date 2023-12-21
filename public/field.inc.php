@@ -180,6 +180,7 @@ $_RAASForm_Control = function (
                     foreach (['name', 'attachment', 'vis', 'description'] as $key) {
                         $DATA[$key] = $field->Form->DATA[$field->name . '@' . $key];
                     }
+                    $row = new Attachment($DATA['attachment'] ?? 0);
                 } elseif ($row && $row->id) {
                     foreach (['name', 'attachment', 'vis', 'description'] as $key) {
                         $DATA[$key] = isset($row->$key) ? $row->$key : '';

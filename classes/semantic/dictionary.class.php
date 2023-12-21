@@ -27,21 +27,6 @@ class Dictionary extends RAASDictionary
 
     protected static $tablename = 'cms_dictionaries';
 
-    protected static $references = [
-        'parent' => [
-            'FK' => 'pid',
-            'classname' => Dictionary::class,
-            'cascade' => true
-        ]
-    ];
-
-    protected static $children = [
-        'children' => [
-            'classname' => Dictionary::class,
-            'FK' => 'pid'
-        ]
-    ];
-
     protected static $caches = [
         'pvis' => [
             'affected' => ['parent'],
@@ -60,12 +45,9 @@ class Dictionary extends RAASDictionary
     {
         switch ($var) {
             case 'visChildren':
-                return array_values(array_filter(
-                    $this->children,
-                    function ($x) {
-                        return $x->vis;
-                    }
-                ));
+                return array_values(array_filter($this->children, function ($x) {
+                    return $x->vis;
+                }));
                 break;
             default:
                 return parent::__get($var);

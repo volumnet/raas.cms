@@ -105,7 +105,7 @@ class Catalog_Cache
                                    ORDER BY fii ASC
                                SEPARATOR '@@@'
                             )
-                      FROM " . Field::data_table . "
+                      FROM " . Field::DATA_TABLE . "
                      WHERE pid = tM.id
                        AND fid = " . (int)$row->id . "
                 ) AS `" . Field::_SQL()->real_escape_string($row->urn) . "`";

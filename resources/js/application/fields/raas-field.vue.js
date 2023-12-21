@@ -178,8 +178,12 @@ export default {
         },
     },
     watch: {
-        value() {
-            this.pValue = this.value;
+        value(newVal, oldVal) {
+            // 2023-11-14, AVS: заменил, чтобы не вызывалось при одинаковых значениях 
+            // (которые по какой-то причине обновились)
+            if (JSON.stringify(newVal) != JSON.stringify(oldVal)) {
+                this.pValue = this.value;
+            }
         },
     },
 }

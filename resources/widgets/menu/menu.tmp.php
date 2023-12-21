@@ -88,10 +88,10 @@ $showMenu = function ($node, Page $current) use (&$showMenu, $ajax) {
             $aClasses[] = '{{MENU_CSS_CLASSNAME}}__link_has-children';
         }
         $text .= '<li class="' . implode(' ', $liClasses) . '">'
-              .  '  <a class="' . implode(' ', $aClasses) . '" ' . ($active ? '' : ' href="' . htmlspecialchars($url) . '"') . '>'
+              .  '  <' . ((!$active && $url) ? 'a' : 'span') . ' class="' . implode(' ', $aClasses) . '" ' . (($active || !$url) ? '' : ' href="' . htmlspecialchars($url) . '"') . '>'
               .       htmlspecialchars($name)
               .       ($ch ? '<span class="{{MENU_CSS_CLASSNAME}}__children-trigger"></span>' : '')
-              .  '  </a>'
+              .  '  </' . ((!$active && $url) ? 'a' : 'span') . '>'
               .     $ch
               .  '</li>';
     }

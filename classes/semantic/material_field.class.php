@@ -53,7 +53,8 @@ class Material_Field extends Field
         // Определим старого и нового родителя в случае переноса поля
         $oldParentType = $newParentType = null;
         if (!$new &&
-            $this->updates['pid'] &&
+            ($this->updates['pid'] ?? null) &&
+            ($this->properties['pid'] ?? null) &&
             ($this->updates['pid'] != $this->properties['pid'])
         ) {
             $oldParentType = new Material_Type($this->properties['pid']);

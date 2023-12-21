@@ -100,7 +100,7 @@ class Snippet extends SOME
         }
         Package::i()->getUniqueURN($this);
         $datetime = date('Y-m-d H:i:s');
-        $uid = (int)Application::i()->user->id;
+        $uid = (int)(Application::i()->user->id ?? 0);
         if (!$this->id) {
             $this->post_date = $datetime;
             $this->author_id = $uid;

@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use Exception;
 use SOME\EventProcessor;
 use SOME\File;
 use SOME\Pages;
@@ -13,6 +14,7 @@ use RAAS\Attachment;
 use RAAS\Application;
 use RAAS\AssetManager;
 use RAAS\Package as RAASPackage;
+use RAAS\SourceStrategy;
 
 /**
  * Класс пакета CMS
@@ -108,36 +110,12 @@ class Package extends RAASPackage
             [Block_Search::class, 'materialTypeCommitEventListener']
         );
         parent::init();
-        Block_Type::registerType(
-            Block_HTML::class,
-            ViewBlockHTML::class,
-            EditBlockHTMLForm::class
-        );
-        Block_Type::registerType(
-            Block_PHP::class,
-            ViewBlockPHP::class,
-            EditBlockPHPForm::class
-        );
-        Block_Type::registerType(
-            Block_Material::class,
-            ViewBlockMaterial::class,
-            EditBlockMaterialForm::class
-        );
-        Block_Type::registerType(
-            Block_Menu::class,
-            ViewBlockMenu::class,
-            EditBlockMenuForm::class
-        );
-        Block_Type::registerType(
-            Block_Form::class,
-            ViewBlockForm::class,
-            EditBlockFormForm::class
-        );
-        Block_Type::registerType(
-            Block_Search::class,
-            ViewBlockSearch::class,
-            EditBlockSearchForm::class
-        );
+        Block_Type::registerType(Block_HTML::class, ViewBlockHTML::class, EditBlockHTMLForm::class);
+        Block_Type::registerType(Block_PHP::class, ViewBlockPHP::class, EditBlockPHPForm::class);
+        Block_Type::registerType(Block_Material::class, ViewBlockMaterial::class, EditBlockMaterialForm::class);
+        Block_Type::registerType(Block_Menu::class, ViewBlockMenu::class, EditBlockMenuForm::class);
+        Block_Type::registerType(Block_Form::class, ViewBlockForm::class, EditBlockFormForm::class);
+        Block_Type::registerType(Block_Search::class, ViewBlockSearch::class, EditBlockSearchForm::class);
         foreach ($this->modules as $module) {
             if (method_exists($module, 'registerBlockTypes')) {
                 $module->registerBlockTypes();
@@ -262,38 +240,27 @@ class Package extends RAASPackage
     /**
      * Загружает справочник из файла
      * @param Dictionary $dictionary Справочник, в который загружаем
-     * @param string $file Имя файла
+     * @param array $file Данные файла
      */
     public function dev_dictionaries_loadFile(Dictionary $dictionary, $file)
     {
-        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $ext = mb_strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, Dictionary::$availableExtensions)) {
+            return;
+        }
         $text = file_get_contents($file['tmp_name']);
-        if (in_array($ext, ['csv', 'ini', 'sql']) &&
-            !mb_check_encoding($text)
-        ) {
+        if (in_array($ext, ['csv', 'ini', 'sql']) && !mb_check_encoding($text)) {
             switch ($this->view->language) {
                 default:
-                    $text = iconv(
-                        'Windows-1251',
-                        mb_internal_encoding(),
-                        $text
-                    );
+                    $text = iconv('Windows-1251', mb_internal_encoding(), $text);
                     break;
             }
         }
-        switch ($ext) {
-            case 'csv':
-                $dictionary->parseCSV($text);
-                break;
-            case 'ini':
-                $dictionary->parseINI($text);
-                break;
-            case 'xml':
-                $dictionary->parseXML($text);
-                break;
-            case 'sql':
-                $dictionary->parseSQL($text);
-                break;
+
+        try {
+            $stdSource = SourceStrategy::spawn($ext)->parse($text);
+            $dictionary->parseStdSource($stdSource);
+        } catch (Exception $e) {
         }
     }
 
@@ -390,7 +357,7 @@ class Package extends RAASPackage
         $sqlQuery .= " FROM " . Material::_tablename() . " AS tM ";
         // 2016-01-14, AVS: добавил поиск по данным
         if ($searchString) {
-            $sqlQuery .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::data_table
+            $sqlQuery .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::DATA_TABLE
                       .  "   AS tD
                              ON tD.pid = tM.id
                            LEFT JOIN " . Material_Field::_tablename()
@@ -538,12 +505,12 @@ class Package extends RAASPackage
         $sqlQuery = "SELECT SQL_CALC_FOUND_ROWS tM.*
                        FROM " . Material::_tablename()
                   . "    AS tM
-                       JOIN " . Material_Field::_dbprefix() . Material_Field::data_table
+                       JOIN " . Material_Field::_dbprefix() . Material_Field::DATA_TABLE
                   . "    AS tD
                          ON tD.pid = tM.id";
         // 2016-01-14, AVS: добавил поиск по данным
         if ($searchString) {
-            $sqlQuery .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::data_table
+            $sqlQuery .= " LEFT JOIN " . Material::_dbprefix() . Material_Field::DATA_TABLE
                       .  "   AS tD2
                              ON tD2.pid = tM.id
                            LEFT JOIN " . Material_Field::_tablename()
@@ -642,7 +609,7 @@ class Package extends RAASPackage
                   . "    AS tFi
                          ON tFi.pid = tF.pid
                         AND tFi.classname = 'RAAS\\\\CMS\\\\Form'
-                  LEFT JOIN " . Feedback::_dbprefix() . Material_Field::data_table
+                  LEFT JOIN " . Feedback::_dbprefix() . Material_Field::DATA_TABLE
                   .  "   AS tD
                          ON tD.pid = tF.id
                         AND tD.fid = tFi.id
@@ -914,7 +881,7 @@ class Package extends RAASPackage
     {
         $classname = get_class($item);
         $item2 = clone($item);
-        if ($item->properties['name']) {
+        if ($item->properties['name'] ?? null) {
             // 2018-04-03, AVS: заменил везде '/\\d+$/umi' на / \\d+$/umi,
             // чтобы не травмировать числовые наименования
             $sqlQuery = "SELECT COUNT(*) FROM " . $classname::_tablename() . " WHERE name = ?";
@@ -987,7 +954,7 @@ class Package extends RAASPackage
         $likeSearchString = $this->SQL->escape_like($search);
         $sqlQuery = "SELECT tM.* FROM " . Material::_tablename() . " AS tM ";
         if (!$onlyByName) {
-            $sqlQuery .= " LEFT JOIN " . Material_Field::_dbprefix() . Material_Field::data_table
+            $sqlQuery .= " LEFT JOIN " . Material_Field::_dbprefix() . Material_Field::DATA_TABLE
                       .  "   AS tD
                              ON tD.pid = tM.id
                            LEFT JOIN " . Material_Field::_tablename()
@@ -1297,5 +1264,16 @@ class Package extends RAASPackage
     public function clearRequestedCSS($group = '')
     {
         return AssetManager::clearRequestedCSS($group);
+    }
+
+
+    /**
+     * Регистрирует стратегии типов данных
+     */
+    public function registerDatatypes()
+    {
+        FileDatatypeStrategy::register('cms.file');
+        ImageDatatypeStrategy::register('cms.image');
+        MaterialDatatypeStrategy::register('cms.material');
     }
 }
