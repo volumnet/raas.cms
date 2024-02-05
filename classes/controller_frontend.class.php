@@ -681,7 +681,7 @@ class Controller_Frontend extends Abstract_Controller
               . " * Создан: " . date('Y-m-d H:i:s') . "\n"
               . " * IP-адрес: " . ($_SERVER['REMOTE_ADDR'] ?? '') . "\n"
               . " * User-Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? '') . "\n";
-        if ($originalPage->id) {
+        if ($originalPage && $originalPage->id) {
             $text .= " * Страница ID#: " . (int)$originalPage->id . "\n";
         }
         if ($originalPage->Material->id ?? null) {
