@@ -1,7 +1,7 @@
 {
     "name": "volumnet/raas.cms",
     "description": "RAAS.CMS",
-    "version": "4.3.71",
+    "version": "4.3.72",
     "license": "GPL-3.0-or-later",
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -12,7 +12,7 @@
         "volumnet/raas.kernel": ">=4.3.14",
         "electrolinux/phpquery": "*",
         "deruli/html-minifier": "*",
-        "twig/twig": "1.*",
+        "twig/twig": "*",
         "pelago/emogrifier": "*"
     },
     "require-dev": {
