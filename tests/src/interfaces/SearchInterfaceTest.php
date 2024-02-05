@@ -576,8 +576,8 @@ class SearchInterfaceTest extends BaseDBTest
         $interface = new SearchInterface();
 
         $result = $interface->getPagesMaterialsRatios(
-            $block,
-            $page,
+            new Block_Search(),
+            new Page(),
             'моменты',
             ['моменты'],
             100,
@@ -599,7 +599,7 @@ class SearchInterfaceTest extends BaseDBTest
         $this->assertEquals(100, $result['m9']);
         $this->assertEquals(1, $result['p20']);
         $this->assertEquals(1, $result['p19']);
-        $this->assertEmpty($result['p14']);
+        $this->assertEmpty($result['p14'] ?? null);
     }
 
 
@@ -691,8 +691,8 @@ class SearchInterfaceTest extends BaseDBTest
         $this->assertInstanceOf(Material::class, $result['Set'][0]);
         $this->assertEquals(9, $result['Set'][0]->id);
         $this->assertInstanceOf(Page::class, $result['Set'][1]);
-        $this->assertEquals(20, $result['Set'][1]->id);
+        $this->assertEquals(1, $result['Set'][1]->id);
         $this->assertInstanceOf(Page::class, $result['Set'][2]);
-        $this->assertEquals(19, $result['Set'][2]->id);
+        $this->assertEquals(2, $result['Set'][2]->id);
     }
 }

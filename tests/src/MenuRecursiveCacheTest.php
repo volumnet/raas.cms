@@ -9,7 +9,7 @@ namespace RAAS\CMS;
  */
 class MenuRecursiveCacheTest extends BaseDBTest
 {
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         $cmsAccess = new CMSAccess(['page_id' => 3, 'allow' => 0, 'to_type' => 1]);
@@ -44,8 +44,8 @@ class MenuRecursiveCacheTest extends BaseDBTest
         $this->assertEquals(10, $result['10']);
         $this->assertEquals(5, $result['5']);
         $this->assertEquals(7, $result['7']);
-        $this->assertNull($result['0']);
-        $this->assertNull($result['6']);
+        $this->assertNull($result['0'] ?? null);
+        $this->assertNull($result['6'] ?? null);
     }
 
 
@@ -60,9 +60,9 @@ class MenuRecursiveCacheTest extends BaseDBTest
 
         $this->assertEquals(10, $result['10']);
         $this->assertEquals(5, $result['5']);
-        $this->assertNull($result['7']);
-        $this->assertNull($result['0']);
-        $this->assertNull($result['6']);
+        $this->assertNull($result['7'] ?? null);
+        $this->assertNull($result['0'] ?? null);
+        $this->assertNull($result['6'] ?? null);
     }
 
 

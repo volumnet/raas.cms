@@ -2,6 +2,8 @@
 /**
  * Файл стандартного интерфейса материалов
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\Pages;
@@ -33,16 +35,7 @@ class MaterialInterface extends AbstractInterface
         array $server = [],
         array $files = []
     ) {
-        parent::__construct(
-            $block,
-            $page,
-            $get,
-            $post,
-            $cookie,
-            $session,
-            $server,
-            $files
-        );
+        parent::__construct($block, $page, $get, $post, $cookie, $session, $server, $files);
     }
 
 
@@ -165,7 +158,7 @@ class MaterialInterface extends AbstractInterface
         ] as $key) {
             if (!isset($page->{'old' . ucfirst($key)})) {
                 $page->{'old' . ucfirst($key)} = $page->$key;
-                $page->$key = trim($item->$key);
+                $page->$key = trim((string)$item->$key);
             }
         }
     }
@@ -709,7 +702,7 @@ class MaterialInterface extends AbstractInterface
         if (isset($result['id']) && !$block->nat) {
             unset($result['id']);
         }
-        parse_str(trim($block->params), $temp);
+        parse_str(trim((string)$block->params), $temp);
         $result = array_merge($result, (array)$temp);
         return $result;
     }
@@ -765,10 +758,10 @@ class MaterialInterface extends AbstractInterface
      */
     public function getOrder($var, $relation, array $get = [])
     {
-        $rel = trim($relation);
+        $rel = trim((string)$relation);
         $val = isset($get[$var]) ? mb_strtolower($get[$var]) : '';
         if (in_array($rel, ['asc!', 'desc!'])) {
-            return trim($rel, '!');
+            return trim((string)$rel, '!');
         } elseif (in_array($rel, ['asc', 'desc'])) {
             $contrary = (($rel == 'desc') ? 'asc' : 'desc');
             return ($val == $contrary) ? $val : $rel;

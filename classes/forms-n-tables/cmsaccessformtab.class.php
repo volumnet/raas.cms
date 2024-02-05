@@ -118,7 +118,7 @@ class CMSAccessFormTab extends FormTab
                 if ($Item->id) {
                     $FK = $Item->_children();
                     $FK = $FK['access']['FK'];
-                    $presentIds = array_map('intval', (array)$_POST['access_id']);
+                    $presentIds = array_map('intval', (array)($_POST['access_id'] ?? []));
                     $presentIds = array_filter($presentIds);
                     $presentIds[] = 0;
                     $presentIds = array_unique($presentIds);
@@ -126,7 +126,7 @@ class CMSAccessFormTab extends FormTab
                               . " WHERE " . $FK . " = ?
                                     AND id NOT IN (" . implode(", ", $presentIds) . ")";
                     $Item->_SQL()->query([$sqlQuery, (int)$Item->id]);
-                    foreach ((array)$_POST['access_id'] as $key => $val) {
+                    foreach ((array)($_POST['access_id'] ?? []) as $key => $val) {
                         $access = new CMSAccess($val);
                         $access->page_id = $access->material_id = $access->block_id = 0;
                         $access->uid = $access->gid = 0;

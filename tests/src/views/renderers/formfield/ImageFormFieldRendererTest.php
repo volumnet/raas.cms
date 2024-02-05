@@ -30,12 +30,12 @@ class ImageFormFieldRendererTest extends BaseTest
         $this->assertEquals('image', $result['data-type']);
         $this->assertEquals('photo', $result['name']);
         $this->assertEquals('required', $result['required']);
-        $this->assertEmpty($result['class']);
-        $this->assertEmpty($result['placeholder']);
-        $this->assertEmpty($result['maxlength']);
-        $this->assertEmpty($result['pattern']);
-        $this->assertEmpty($result['value']);
-        $this->assertEmpty($result['data-value']);
+        $this->assertEmpty($result['class'] ?? null);
+        $this->assertEmpty($result['placeholder'] ?? null);
+        $this->assertEmpty($result['maxlength'] ?? null);
+        $this->assertEmpty($result['pattern'] ?? null);
+        $this->assertEmpty($result['value'] ?? null);
+        $this->assertEmpty($result['data-value'] ?? null);
         $this->assertEquals('image/jpeg,image/png,image/gif', $result['accept']);
         $this->assertStringStartsWith('photo', $result['id']);
     }

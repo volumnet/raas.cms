@@ -136,7 +136,7 @@ class EditPageForm extends RAASForm
                             1
                         ),
                         'oncommit' => function () use ($row) {
-                            if ($_POST['inherit_' . $row->Field->name]) {
+                            if ($_POST['inherit_' . $row->Field->name] ?? false) {
                                 $row->inheritValues();
                             }
                         },

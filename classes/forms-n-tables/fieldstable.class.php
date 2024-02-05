@@ -2,6 +2,8 @@
 /**
  * Таблица полей
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Table;
@@ -28,8 +30,8 @@ class FieldsTable extends Table
     public function __construct(array $params = [])
     {
         $view = $this->view;
-        $editAction = isset($params['editAction']) ? $params['editAction'] : null;
-        $ctxMenu = isset($params['ctxMenu']) ? $params['ctxMenu'] : null;
+        $editAction = isset($params['editAction']) ? $params['editAction'] : '';
+        $ctxMenu = isset($params['ctxMenu']) ? $params['ctxMenu'] : '';
         $allCtxMenu = str_replace('get', 'getAll', $ctxMenu);
         $allCtxMenu = str_replace('ContextMenu', 'sContextMenu', $allCtxMenu);
         $shift = isset($params['shift']) ? (int)$params['shift'] : 0;

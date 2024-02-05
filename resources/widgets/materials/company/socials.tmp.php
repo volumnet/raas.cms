@@ -1,6 +1,6 @@
 <?php
 /**
- * Виджет блока "Социальные сети"
+ * Социальные сети
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
  * @param Material[]|null $Set Список материалов

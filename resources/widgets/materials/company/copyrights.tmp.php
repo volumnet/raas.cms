@@ -1,6 +1,6 @@
 <?php
 /**
- * Виджет блока "Копирайты"
+ * Копирайты
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
  * @param Material[]|null $Set Список материалов

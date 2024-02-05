@@ -95,9 +95,9 @@ class FormFieldRendererTest extends BaseTest
         $this->assertEquals('', $result['data-raas-field']);
         $this->assertEquals('text', $result['data-type']);
         $this->assertEquals('name[]', $result['name']);
-        $this->assertEmpty($result['id']);
+        $this->assertEmpty($result['id'] ?? null);
         $this->assertEquals('multiple', $result['data-multiple']);
-        $this->assertEmpty($result['multiple']);
+        $this->assertEmpty($result['multiple'] ?? null);
         $this->assertEquals('required', $result['required']);
     }
 

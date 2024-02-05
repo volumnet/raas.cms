@@ -75,7 +75,7 @@ class MaterialFieldsTable extends FieldsTable
                 'urn' => [
                     'caption' => $this->view->_('URN'),
                     'callback' => function ($row) use ($view) {
-                        $text = htmlspecialchars($row->urn);
+                        $text = htmlspecialchars((string)$row->urn);
                         if ($row instanceof Field) {
                             if ($row->multiple) {
                                 $text .= '<strong title="' . $view->_('MULTIPLE') . '">'

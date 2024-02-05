@@ -1,6 +1,6 @@
 <?php
 /**
- * Виджет модуля "{{MATERIAL_TYPE_NAME}}"
+ * Модуль "{{MATERIAL_TYPE_NAME}}"
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
  * @param Pages $Pages Постраничная разбивка

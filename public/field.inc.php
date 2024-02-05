@@ -75,7 +75,7 @@ $_RAASForm_Checkbox = function (
         foreach (['type', 'name', 'multiple'] as $key) {
             $attrs[$key] = $field->$key;
         }
-        if (in_array($row->value, (array)$field->Form->DATA[$field->name])) {
+        if (in_array($row->value, (array)($field->Form->DATA[$field->name] ?? []))) {
             $attrs['checked'] = 'checked';
         }
         if ($plain) {

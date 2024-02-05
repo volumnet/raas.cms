@@ -2,6 +2,8 @@
 /**
  * Рендерер флажков формы для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -9,7 +11,7 @@ namespace RAAS\CMS;
  */
 class CheckboxFormFieldRenderer extends FormFieldRenderer
 {
-    public function getAttributes()
+    public function getAttributes(): array
     {
         $attrs = $this->mergeAttributes(
             ['type' => $this->field->datatype],
@@ -40,8 +42,9 @@ class CheckboxFormFieldRenderer extends FormFieldRenderer
      *     'children' => <рекурсивно>
      * ]></pre> Источник опций
      * @param int $level Уровень вложенности
+     * @return string
      */
-    public function getOptionsTree(array $source = [], $level = 0)
+    public function getOptionsTree(array $source = [], int $level = 0): string
     {
         $result = '';
         $stdAttrs = $this->getAttributes();
@@ -69,7 +72,7 @@ class CheckboxFormFieldRenderer extends FormFieldRenderer
     }
 
 
-    public function render($additionalData = [])
+    public function render(array $additionalData = []): string
     {
         if ($this->field->multiple) {
             $optionsTree = $this->getOptionsTree($this->field->stdSource);

@@ -81,7 +81,7 @@ class EditMaterialTypeForm extends RAASForm
                 }
             },
             'oncommit' => function () use ($view, $Item) {
-                if ($_POST['template']) {
+                if ($_POST['template'] ?? null) {
                     switch ($_POST['template']) {
                         case EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_NEWS:
                             $dateField = new Material_Field([
@@ -131,7 +131,7 @@ class EditMaterialTypeForm extends RAASForm
                             break;
                     }
                 }
-                if ($_POST['add_snippet']) {
+                if ($_POST['add_snippet'] ?? null) {
                     $add = (int)$_POST['add_snippet'];
                     $urn = $Item->urn;
                     $pid = Snippet_Folder::importByURN('__raas_views')->id;

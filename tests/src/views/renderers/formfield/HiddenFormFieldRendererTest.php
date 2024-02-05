@@ -31,11 +31,11 @@ class HiddenFormFieldRendererTest extends BaseTest
         $this->assertEquals('hidden', $result['type']);
         $this->assertEquals('name', $result['name']);
         $this->assertEquals('required', $result['required']);
-        $this->assertEmpty($result['class']);
-        $this->assertEmpty($result['placeholder']);
-        $this->assertEmpty($result['maxlength']);
-        $this->assertEmpty($result['pattern']);
-        $this->assertEmpty($result['id']);
+        $this->assertEmpty($result['class'] ?? null);
+        $this->assertEmpty($result['placeholder'] ?? null);
+        $this->assertEmpty($result['maxlength'] ?? null);
+        $this->assertEmpty($result['pattern'] ?? null);
+        $this->assertEmpty($result['id'] ?? null);
     }
 
     /**

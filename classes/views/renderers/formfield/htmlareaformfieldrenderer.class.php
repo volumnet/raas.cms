@@ -2,6 +2,8 @@
 /**
  * Рендерер HTML-полей формы для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -9,7 +11,7 @@ namespace RAAS\CMS;
  */
 class HtmlAreaFormFieldRenderer extends TextAreaFormFieldRenderer
 {
-    public function getAttributes()
+    public function getAttributes(): array
     {
         $attrs = $this->mergeAttributes(
             parent::getAttributes(),

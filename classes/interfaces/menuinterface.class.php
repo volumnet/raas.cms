@@ -84,7 +84,7 @@ class MenuInterface extends AbstractInterface
      */
     public function getVisSubmenu($menu)
     {
-        $st = microtime(1);
+        $st = microtime(true);
         $result = [];
         if ($menu instanceof Menu) {
             $menuData = $menu->getArrayCopy();

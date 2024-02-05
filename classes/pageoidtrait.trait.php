@@ -2,6 +2,8 @@
 /**
  * Файл трейта странице-образных сущностей
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -13,9 +15,9 @@ trait PageoidTrait
      * Получить заголовок H1
      * @return string
      */
-    public function getH1()
+    public function getH1(): string
     {
-        return trim($this->h1) ?: trim($this->name);
+        return trim((string)$this->h1) ?: trim((string)$this->name);
     }
 
 
@@ -23,9 +25,9 @@ trait PageoidTrait
      * Получить имя для пункта меню
      * @return string
      */
-    public function getMenuName()
+    public function getMenuName(): string
     {
-        return trim($this->menu_name) ?: trim($this->name);
+        return trim((string)$this->menu_name) ?: trim((string)$this->name);
     }
 
 
@@ -33,9 +35,9 @@ trait PageoidTrait
      * Получить имя для хлебных крошек
      * @return string
      */
-    public function getBreadcrumbsName()
+    public function getBreadcrumbsName(): string
     {
-        return trim($this->breadcrumbs_name) ?: trim($this->name);
+        return trim((string)$this->breadcrumbs_name) ?: trim((string)$this->name);
     }
 
 
@@ -63,8 +65,8 @@ trait PageoidTrait
     public function modify($commit = true)
     {
         $d0 = time();
-        $d1 = strtotime($this->modify_date);
-        $d2 = strtotime($this->last_modified);
+        $d1 = strtotime((string)$this->modify_date);
+        $d2 = strtotime((string)$this->last_modified);
         $arr = [];
         // 2020-03-24, AVS: убрали условие
         // if (($d0 - $d1 >= 3600) && ($d0 - $d2 >= 3600)) { , т.к.

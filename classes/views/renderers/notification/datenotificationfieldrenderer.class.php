@@ -2,6 +2,8 @@
 /**
  * Рендерер полей даты уведомления для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\View_Web as RAASViewWeb;
@@ -11,9 +13,9 @@ use RAAS\View_Web as RAASViewWeb;
  */
 class DateNotificationFieldRenderer extends NotificationFieldRenderer
 {
-    public function getValueHTML($value, $admin = false, $sms = false)
+    public function getValueHTML($value, bool $admin = false, bool $sms = false): string
     {
-        $t = strtotime($value);
+        $t = strtotime((string)$value);
         if ($t > 0) {
             return date(RAASViewWeb::i()->_('DATEFORMAT'), $t);
         }

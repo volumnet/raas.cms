@@ -2,6 +2,8 @@
 /**
  * Пользователь сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\SOME;
@@ -402,7 +404,7 @@ class User extends SOME
      */
     public static function importByLoginKey($key)
     {
-        $id = (int)substr($key, 0, -32);
+        $id = (int)substr($key ?: '', 0, -32);
         $Set = static::getSet(['where' => ['vis', "id = " . $id]]);
         if ($Set) {
             $User = array_shift($Set);

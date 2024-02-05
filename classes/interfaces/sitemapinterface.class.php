@@ -2,6 +2,8 @@
 /**
  * Файл класса интерфейса sitemap.xml
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Attachment;
@@ -130,7 +132,7 @@ class SitemapInterface extends AbstractInterface
                     $domainPage = new Page($domainId);
                     $domainURL = $domainPage->domain;
                 }
-                $domainsURLs[trim($domainId)] = $domainURL;
+                $domainsURLs[trim((string)$domainId)] = $domainURL;
             }
             $sqlRow['url'] = $domainsURLs[$domainId] . $sqlRow['cache_url'];
             $sqlRow['entry_type'] = 'page';
@@ -214,7 +216,7 @@ class SitemapInterface extends AbstractInterface
         }
         $text .= $this->getChangeFreq($itemData);
         $text .= '<priority>'
-              .     str_replace(',', '.', (float)$itemData['sitemaps_priority'])
+              .     str_replace(',', '.', (string)(float)$itemData['sitemaps_priority'])
               .  '</priority>';
         $imagesData = [];
         if ($itemData['entry_type'] == 'page') {
@@ -315,7 +317,7 @@ class SitemapInterface extends AbstractInterface
                     $domainPage = new Page($domainId);
                     $domainURL = $domainPage->domain;
                 }
-                $domainsURLs[trim($domainId)] = $domainURL;
+                $domainsURLs[trim((string)$domainId)] = $domainURL;
             }
             EventProcessor::emit(
                 'startmaterial',
@@ -543,7 +545,7 @@ class SitemapInterface extends AbstractInterface
         $sqlResult = Field::_SQL()->get([$sqlQuery, $sqlBind]);
         $fieldsNames = [];
         foreach ($sqlResult as $sqlRow) {
-            $fieldsNames[trim((int)$sqlRow['id'])] = $sqlRow['name'];
+            $fieldsNames[trim((string)(int)$sqlRow['id'])] = $sqlRow['name'];
         }
         return $fieldsNames;
     }
@@ -601,8 +603,8 @@ class SitemapInterface extends AbstractInterface
             foreach ($sqlResult as $sqlRow) {
                 $json = json_decode($sqlRow['value'], true);
                 if ($json['vis']) {
-                    $affectedMaterialsIds[trim($sqlRow['pid'])] = (int)$sqlRow['pid'];
-                    $affectedAttachmentsIds[trim($json['attachment'])] = (int)$json['attachment'];
+                    $affectedMaterialsIds[trim((string)$sqlRow['pid'])] = (int)$sqlRow['pid'];
+                    $affectedAttachmentsIds[trim((string)$json['attachment'])] = (int)$json['attachment'];
                     $json['fid'] = $sqlRow['fid'];
                     $json['pid'] = $sqlRow['pid'];
                     $materialsAttachmentsData[] = $json;
@@ -633,7 +635,7 @@ class SitemapInterface extends AbstractInterface
                   . " WHERE id IN (" . implode(", ", $attachmentsIds) . ")";
         $sqlResult = Attachment::getSQLSet($sqlQuery);
         foreach ($sqlResult as $attachment) {
-            $attachmentsUrls[trim($attachment->id)] = '/' . $attachment->fileURL;
+            $attachmentsUrls[trim((string)$attachment->id)] = '/' . $attachment->fileURL;
             $attachment->rollback();
         }
         return $attachmentsUrls;
@@ -656,7 +658,7 @@ class SitemapInterface extends AbstractInterface
                   . " WHERE id IN (" . implode(", ", $materialsIds) . ")";
         $sqlResult = Attachment::_SQL()->get($sqlQuery);
         foreach ($sqlResult as $sqlRow) {
-            $materialsNames[trim($sqlRow['id'])] = $sqlRow['name'];
+            $materialsNames[trim((string)$sqlRow['id'])] = $sqlRow['name'];
         }
         return $materialsNames;
     }
@@ -700,7 +702,7 @@ class SitemapInterface extends AbstractInterface
         foreach ($materialsAttachmentsData as $materialAttachmentData) {
             $materialId = $materialAttachmentData['pid'];
             $fieldId = $materialAttachmentData['fid'];
-            $fileURL = $attachmentsUrls[$materialAttachmentData['attachment']];
+            $fileURL = $attachmentsUrls[$materialAttachmentData['attachment']] ?? '';
             $fileURL = $this->formatImageURL($fileURL);
             $materialName = $materialsNames[$materialId];
             if ($fileURL && $materialName) {
@@ -714,7 +716,7 @@ class SitemapInterface extends AbstractInterface
                     $imageData['name'] = $title;
                 }
                 $images[$imgId] = $imageData;
-                $materialsImages[trim($materialId)][trim($fieldId)][trim($imgId)] = $imgId;
+                $materialsImages[trim((string)$materialId)][trim((string)$fieldId)][trim((string)$imgId)] = $imgId;
             }
         }
         return ['images' => $images, 'materialsImages' => $materialsImages];

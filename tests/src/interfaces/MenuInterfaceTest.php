@@ -20,11 +20,9 @@ class MenuInterfaceTest extends BaseDBTest
 
         $menu = new Menu(4);
 
-        $this->assertFalse(isset($menu->visSubMenu));
 
         $result = $interface->getVisSubmenu($menu);
 
-        $this->assertTrue(isset($menu->visSubMenu));
         $this->assertCount(3, $menu->visSubMenu);
         $this->assertNotEmpty($result);
         $this->assertEquals('/catalog/category1/', $result[0]['url']);

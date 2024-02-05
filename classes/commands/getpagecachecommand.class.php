@@ -2,6 +2,8 @@
 /**
  * Файл класса команды получения кэша страниц
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Application;
@@ -63,7 +65,7 @@ class GetPageCacheCommand extends Command
             }
         } else {
             $limit = (int)$args[0];
-            if ($args[1] && is_numeric($args[1])) {
+            if (($args[1] ?? null) && is_numeric($args[1])) {
                 $minFreeSpace = (float)$args[1];
             }
             $pagesCache = array_values(array_filter(
@@ -141,6 +143,7 @@ class GetPageCacheCommand extends Command
             return false;
         }
         $cachefile = $page->cacheFile;
+        $ft = 0;
         $mt = strtotime($page->last_modified);
         if (is_file($cachefile)) {
             $ft = filemtime($cachefile);

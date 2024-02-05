@@ -2,6 +2,8 @@
 /**
  * Страница
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use Error;
@@ -301,11 +303,7 @@ class Page extends SOME
                 return $result;
                 break;
             case 'additionalURL':
-                $url = preg_replace(
-                    '/^' . preg_quote($this->url, '/') . '/umi',
-                    '',
-                    $this->initialURL
-                );
+                $url = preg_replace('/^' . preg_quote($this->url, '/') . '/umi', '', (string)$this->initialURL);
                 $url = trim($url);
                 return $url;
             case 'additionalURLArray':
@@ -356,14 +354,17 @@ class Page extends SOME
                 return $this->locationBlocksText;
                 break;
             case 'cacheFile':
-                if ($this->Material->id) {
+                if ($this->Material && $this->Material->id) {
                     return $this->Material->cacheFile;
                 }
-                $url = 'http'
-                     . ((isset($_SERVER['HTTPS']) && mb_strtolower($_SERVER['HTTPS'] == 'on')) ? 's' : '')
-                     . ':' . $this->fullURL;
-                $file = Package::i()->cacheDir . '/' . Package::i()->cachePrefix
-                    . '.' . urlencode($url) . '.php';
+                $url = 'http';
+                if (isset($_SERVER['HTTPS'])) {
+                    if (($_SERVER['HTTPS'] === true) || (mb_strtolower((string)$_SERVER['HTTPS'] ?? '') == 'on')) {
+                        $url .= 's';
+                    }
+                }
+                $url .= ':' . $this->fullURL;
+                $file = Package::i()->cacheDir . '/' . Package::i()->cachePrefix . '.' . urlencode($url) . '.php';
                 return $file;
                 break;
             default:
@@ -678,30 +679,45 @@ class Page extends SOME
     }
 
 
-    public function getH1($old = false)
+    /**
+     * Получить заголовок H1
+     * @param bool $old Старое имя (у страницы)
+     * @return string
+     */
+    public function getH1(bool $old = false): string
     {
         if ($old && $this->Material->id) {
-            return trim($this->oldH1) ?: trim($this->oldName);
+            return trim((string)$this->oldH1) ?: trim((string)$this->oldName);
         }
-        return trim($this->h1) ?: trim($this->name);
+        return trim((string)$this->h1) ?: trim((string)$this->name);
     }
 
 
-    public function getMenuName($old = true)
+    /**
+     * Получить имя для меню
+     * @param bool $old Старое имя (у страницы)
+     * @return string
+     */
+    public function getMenuName(bool $old = true): string
     {
-        if ($old && $this->Material->id) {
-            return trim($this->oldMenu_name) ?: trim($this->oldName);
+        if ($old && $this->Material && $this->Material->id) {
+            return trim((string)$this->oldMenu_name) ?: trim((string)$this->oldName);
         }
-        return trim($this->menu_name) ?: trim($this->name);
+        return trim((string)$this->menu_name) ?: trim((string)$this->name);
     }
 
 
-    public function getBreadcrumbsName($old = true)
+    /**
+     * Получить имя для хлебных крошек
+     * @param bool $old Старое имя (у страницы)
+     * @return string
+     */
+    public function getBreadcrumbsName(bool $old = true): string
     {
         if ($old && $this->Material->id) {
-            return trim($this->oldBreadcrumbs_name) ?: trim($this->oldName);
+            return trim((string)$this->oldBreadcrumbs_name) ?: trim((string)$this->oldName);
         }
-        return trim($this->breadcrumbs_name) ?: trim($this->name);
+        return trim((string)$this->breadcrumbs_name) ?: trim((string)$this->name);
     }
 
 

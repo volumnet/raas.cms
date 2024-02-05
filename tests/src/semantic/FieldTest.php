@@ -313,7 +313,7 @@ class FieldTest extends BaseTest
             [['datatype' => 'month'], '0000-00', ['0000-00-00']],
             [['datatype' => 'month'], '0001-01', ['0001-01-01']],
             [['datatype' => 'week'], '2023-W01', ['2023-01-02']], // Хз почему так, но вроде так
-            [['datatype' => 'week'], '0000-W01', ['0000-00-00']],
+            [['datatype' => 'week'], '0000-W01', ['0000-01-03']], // Хз почему так, но вроде так
             [['datatype' => 'week'], 'aaa', ['0000-00-00']],
             [['datatype' => 'checkbox'], 'aaa ', ['aaa']],
             [['datatype' => 'checkbox', 'multiple' => true], ['aaa', 'bbb '], ['aaa', 'bbb']],

@@ -2,6 +2,8 @@
 /**
  * Рендерер HTML-полей уведомления для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -9,10 +11,10 @@ namespace RAAS\CMS;
  */
 class HtmlAreaNotificationFieldRenderer extends NotificationFieldRenderer
 {
-    public function getValueHTML($value, $admin = false, $sms = false)
+    public function getValueHTML($value, bool $admin = false, bool $sms = false): string
     {
         if ($sms) {
-            return strip_tags($value);
+            return strip_tags((string)$value);
         } else {
             return '<div>' . $value . '</div>';
         }

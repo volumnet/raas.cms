@@ -1,6 +1,6 @@
 <?php
 /**
- * Виджет раздела robots.txt
+ * robots.txt
  * @param Page $Page Текущая страница
  * @param Block_HTML $Block Текущий блок
  */

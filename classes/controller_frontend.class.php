@@ -2,6 +2,8 @@
 /**
  * Контроллер сайта
  */
+declare(strict_types=1);
+
 namespace RAAS;
 
 use Error;
@@ -165,11 +167,7 @@ class Controller_Frontend extends Abstract_Controller
         });
         if (!$this->getCache()) {
             $p = pathinfo($this->requestUri);
-            if (preg_match(
-                '/(\\.(\\d+|auto)x(\\d+|auto)(_(\\w+))?)(\\.|$)/i',
-                $p['basename'],
-                $regs
-            )) {
+            if (preg_match('/(\\.(\\d+|auto)x(\\d+|auto)(_(\\w+))?)(\\.|$)/i', $p['basename'], $regs)) {
                 $this->parseThumbnail($regs);
             }
             if ($this->checkCompatibility()) {
@@ -183,10 +181,7 @@ class Controller_Frontend extends Abstract_Controller
                         if (CMSPackage::i()->registryGet('diag')) {
                             $this->diag = Diag::getInstance();
                             if ($this->diag) {
-                                Application::i()->SQL->query_handler = [
-                                    $this->diag,
-                                    'queryHandler'
-                                ];
+                                Application::i()->SQL->query_handler = [$this->diag, 'queryHandler'];
                             }
                             $pst = microtime(true);
                         }
@@ -199,11 +194,7 @@ class Controller_Frontend extends Abstract_Controller
                         if (($Page->Material && $Page->Material->id) || ($Page->Item && $Page->Item->id)) {
                             $diagId .= '@m';
                         }
-                        $this->diag->handle(
-                            'pages',
-                            $diagId,
-                            microtime(true) - $pst
-                        );
+                        $this->diag->handle('pages', $diagId, microtime(true) - $pst);
                     }
                     $this->diag->save();
                 }
@@ -243,16 +234,11 @@ class Controller_Frontend extends Abstract_Controller
             $tagData = [];
             foreach (['open', 'close'] as $openCloseIndex => $openCloseTag) {
                 $i = 0;
-                $realTag = '<!--'
-                    . ($openCloseIndex ? '/' : '')
-                    . $tagToExclude
-                    . '-->';
+                $realTag = '<!--' . ($openCloseIndex ? '/' : '') . $tagToExclude . '-->';
                 $realTagLength = mb_strlen($realTag);
-                while (($i = mb_strpos(
-                    $text,
-                    $realTag,
-                    $i + $realTagLength
-                )) !== false) {
+                while ((mb_strlen($text) >= ($i + $realTagLength)) &&
+                    (($i = mb_strpos($text, $realTag, $i + $realTagLength)) !== false)
+                ) {
                     $tagData[] = [
                         'pos' => $i + ($openCloseIndex ? $realTagLength : 0),
                         'type' => $openCloseTag,
@@ -311,6 +297,7 @@ class Controller_Frontend extends Abstract_Controller
         });
 
         $newTags = [];
+        $tag = null;
         for ($i = 0; $i < count($tags); $i++) {
             if (!$i) {
                 $tag = $tags[$i];
@@ -325,19 +312,23 @@ class Controller_Frontend extends Abstract_Controller
                 }
             }
         }
-        $newTags[] = $tag;
+        if ($tag) {
+            $newTags[] = $tag;
+        }
         $tags = $newTags;
 
         $result = '';
-        for ($i = 0; $i < count($tags); $i++) {
-            $result .= mb_substr(
-                $text,
-                $i ? $tags[$i - 1]['close'] : 0,
-                $tags[$i]['open'] - ($i ? $tags[$i - 1]['close'] : 0)
-            );
-        }
         if (count($tags)) {
+            for ($i = 0; $i < count($tags); $i++) {
+                $result .= mb_substr(
+                    $text,
+                    $i ? $tags[$i - 1]['close'] : 0,
+                    $tags[$i]['open'] - ($i ? $tags[$i - 1]['close'] : 0)
+                );
+            }
             $result .= mb_substr($text, $tags[count($tags) - 1]['close']);
+        } else {
+            $result .= $text;
         }
         return $result;
     }
@@ -353,7 +344,7 @@ class Controller_Frontend extends Abstract_Controller
      */
     public function checkTeleport($text)
     {
-        $st = microtime(1);
+        $st = microtime(true);
         $startTagPrefix = '<!--raas-teleport-from#';
         $endTagPrefix = '<!--/raas-teleport-from#';
         $toTagPrefix = '<!--raas-teleport-to#';
@@ -421,7 +412,7 @@ class Controller_Frontend extends Abstract_Controller
                 }
             }
         } while ($changed);
-        // $text .= '<!--teleport: ' . (microtime(1) - $st) . '-->';
+        // $text .= '<!--teleport: ' . (microtime(true) - $st) . '-->';
         return $text;
     }
 
@@ -712,11 +703,11 @@ class Controller_Frontend extends Abstract_Controller
         $diskFreeSpace = disk_free_space(Application::i()->baseDir);
         $availableCacheSpace = $diskFreeSpace - $cacheLeaveFreeSpace - strlen($text);
         if ($availableCacheSpace > 0) {
-            file_put_contents(
-                $this->model->cacheDir . '/' . $filename . '.php',
-                $text
-            );
-            chmod($this->model->cacheDir . '/' . $filename . '.php', 0777);
+            $filepath = $this->model->cacheDir . '/' . $filename . '.php';
+            @file_put_contents($filepath, $text);
+            if (is_file($filepath)) {
+                chmod($filepath, 0777);
+            }
         }
     }
 

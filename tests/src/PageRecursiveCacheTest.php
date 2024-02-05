@@ -9,12 +9,6 @@ namespace RAAS\CMS;
  */
 class PageRecursiveCacheTest extends BaseDBTest
 {
-    public static function setUpBeforeClass()
-    {
-        parent::setUpBeforeClass();
-    }
-
-
     /**
      * Проверяет свойство allowedIds
      */
@@ -27,8 +21,8 @@ class PageRecursiveCacheTest extends BaseDBTest
         $this->assertEquals(18, $result['18']);
         $this->assertEquals(17, $result['17']);
         $this->assertEquals(1, $result['1']);
-        $this->assertNull($result['0']);
-        $this->assertNull($result['4']);
+        $this->assertNull($result['0'] ?? null);
+        $this->assertNull($result['4'] ?? null);
 
         $cmsAccess = new CMSAccess(['page_id' => 17, 'allow' => 0, 'to_type' => 1]);
         $cmsAccess->commit();
@@ -36,11 +30,11 @@ class PageRecursiveCacheTest extends BaseDBTest
         $cache->refresh();
         $result = $cache->allowedIds;
 
-        $this->assertNull($result['18']);
-        $this->assertNull($result['17']);
+        $this->assertNull($result['18'] ?? null);
+        $this->assertNull($result['17'] ?? null);
         $this->assertEquals(1, $result['1']);
-        $this->assertNull($result['0']);
-        $this->assertNull($result['4']);
+        $this->assertNull($result['0'] ?? null);
+        $this->assertNull($result['4'] ?? null);
 
         CMSAccess::delete($cmsAccess);
         CMSAccess::refreshPagesAccessCache();
@@ -60,9 +54,9 @@ class PageRecursiveCacheTest extends BaseDBTest
         $this->assertEquals(9, $result['9']);
         $this->assertEquals(10, $result['10']);
         $this->assertEquals(11, $result['11']);
-        $this->assertNull($result['0']);
-        $this->assertNull($result['1']);
-        $this->assertNull($result['16']);
+        $this->assertNull($result['0'] ?? null);
+        $this->assertNull($result['1'] ?? null);
+        $this->assertNull($result['16'] ?? null);
     }
 
 
@@ -78,8 +72,8 @@ class PageRecursiveCacheTest extends BaseDBTest
         $this->assertEquals(18, $result['18']);
         $this->assertEquals(17, $result['17']);
         $this->assertEquals(1, $result['1']);
-        $this->assertNull($result['0']);
-        $this->assertNull($result['4']);
+        $this->assertNull($result['0'] ?? null);
+        $this->assertNull($result['4'] ?? null);
 
         $cmsAccess = new CMSAccess(['page_id' => 17, 'allow' => 0, 'to_type' => 1]);
         $cmsAccess->commit();
@@ -87,11 +81,11 @@ class PageRecursiveCacheTest extends BaseDBTest
         $cache->refresh();
         $result = $cache->visibleIds;
 
-        $this->assertNull($result['18']);
-        $this->assertNull($result['17']);
+        $this->assertNull($result['18'] ?? null);
+        $this->assertNull($result['17'] ?? null);
         $this->assertEquals(1, $result['1']);
-        $this->assertNull($result['0']);
-        $this->assertNull($result['4']);
+        $this->assertNull($result['0'] ?? null);
+        $this->assertNull($result['4'] ?? null);
 
         CMSAccess::delete($cmsAccess);
         CMSAccess::refreshPagesAccessCache();

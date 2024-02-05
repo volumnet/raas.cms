@@ -2,6 +2,8 @@
 /**
  * Рендерер текстовых полей формы для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -9,7 +11,7 @@ namespace RAAS\CMS;
  */
 class TextFormFieldRenderer extends FormFieldRenderer
 {
-    public function getAttributes()
+    public function getAttributes(): array
     {
         $attrs = $this->mergeAttributes(
             [
@@ -42,7 +44,7 @@ class TextFormFieldRenderer extends FormFieldRenderer
     }
 
 
-    public function render($additionalData = [])
+    public function render(array $additionalData = []): string
     {
         $attrs = $this->mergeAttributes(
             $this->getAttributes(),

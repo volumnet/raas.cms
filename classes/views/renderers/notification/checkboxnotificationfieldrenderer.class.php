@@ -2,6 +2,8 @@
 /**
  * Рендерер флажков уведомления для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\View_Web as RAASViewWeb;
@@ -11,12 +13,12 @@ use RAAS\View_Web as RAASViewWeb;
  */
 class CheckboxNotificationFieldRenderer extends NotificationFieldRenderer
 {
-    public function getValueHTML($value, $admin = false, $sms = false)
+    public function getValueHTML($value, bool $admin = false, bool $sms = false): string
     {
         if (!$this->field->multiple) {
             return RAASViewWeb::i()->_($value ? '_YES' : '_NO');
         } else {
-            $richValue = $this->field->doRich($value);
+            $richValue = $this->field->doRich((string)$value);
             if ($sms) {
                 return $richValue;
             } else {

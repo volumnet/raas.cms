@@ -2,6 +2,8 @@
 /**
  * Рендерер полей формы для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\HTMLRenderer;
@@ -41,11 +43,8 @@ abstract class FormFieldRenderer extends HTMLRenderer
      *     string[] Индекс множественного поля => string
      * ></pre> Данные поля
      */
-    public function __construct(
-        Form_Field $field,
-        Block $block = null,
-        $data = null
-    ) {
+    public function __construct(Form_Field $field, Block $block = null, $data = null)
+    {
         $this->field = $field;
         $this->block = $block;
         $this->data = $data;
@@ -60,13 +59,10 @@ abstract class FormFieldRenderer extends HTMLRenderer
      *     string[] Индекс множественного поля => string
      * ></pre> Данные поля
      * @param string|null $error Ошибка поля
+     * @return self
      */
-    public static function spawn(
-        Form_Field $field,
-        Block $block = null,
-        $data = [],
-        $error = null
-    ) {
+    public static function spawn(Form_Field $field, Block $block = null, $data = [], string $error = null): self
+    {
         switch ($field->datatype) {
             case 'number':
             case 'range':
@@ -113,7 +109,7 @@ abstract class FormFieldRenderer extends HTMLRenderer
      *     string[] URN атрибута => string|string[] Значение атрибута
      * ></pre>
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         $attrs = [
             'data-raas-field' => '',
@@ -139,7 +135,7 @@ abstract class FormFieldRenderer extends HTMLRenderer
     }
 
 
-    public function render($additionalData = [])
+    public function render(array $additionalData = []): string
     {
         $attrs = $this->mergeAttributes(
             $this->getAttributes(),

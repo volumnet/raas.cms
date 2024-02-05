@@ -30,16 +30,16 @@ class RadioFormFieldRendererTest extends BaseTest
         $this->assertEquals('radio', $result['type']);
         $this->assertEquals('name', $result['name']);
         $this->assertEquals('required', $result['required']);
-        $this->assertEmpty($result['class']);
-        $this->assertEmpty($result['placeholder']);
-        $this->assertEmpty($result['maxlength']);
-        $this->assertEmpty($result['pattern']);
-        $this->assertEmpty($result['multiple']);
-        $this->assertEmpty($result['data-multiple']);
-        $this->assertEmpty($result['checked']);
-        $this->assertEmpty($result['value']);
-        $this->assertEmpty($result['data-value']);
-        $this->assertEmpty($result['id']);
+        $this->assertEmpty($result['class'] ?? null);
+        $this->assertEmpty($result['placeholder'] ?? null);
+        $this->assertEmpty($result['maxlength'] ?? null);
+        $this->assertEmpty($result['pattern'] ?? null);
+        $this->assertEmpty($result['multiple'] ?? null);
+        $this->assertEmpty($result['data-multiple'] ?? null);
+        $this->assertEmpty($result['checked'] ?? null);
+        $this->assertEmpty($result['value'] ?? null);
+        $this->assertEmpty($result['data-value'] ?? null);
+        $this->assertEmpty($result['id'] ?? null);
     }
 
 

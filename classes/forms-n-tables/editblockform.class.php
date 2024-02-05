@@ -2,6 +2,8 @@
 /**
  * Форма редактирования блока
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Application;
@@ -311,7 +313,7 @@ class EditBlockForm extends RAASForm
                     ],
                     'template' => 'edit_block.params.php',
                     'import' => function () use ($item) {
-                        $params = explode('&', $item['params']);
+                        $params = explode('&', $item['params'] ?? '');
                         $result = [];
                         foreach ($params as $row) {
                             if (trim($row)) {

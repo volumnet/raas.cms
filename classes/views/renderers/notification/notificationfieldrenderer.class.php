@@ -2,6 +2,8 @@
 /**
  * Рендерер полей уведомления для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\SOME;
@@ -39,8 +41,9 @@ class NotificationFieldRenderer extends HTMLRenderer
      * Получение конкретного рендерера для поля
      * @param Field $field Поле для отображения
      * @param SOME|null $owner Переопределенный владелец поля
+     * @return self
      */
-    public static function spawn(Field $field, SOME $owner = null)
+    public static function spawn(Field $field, SOME $owner = null): self
     {
         switch ($field->datatype) {
             case 'date':
@@ -89,10 +92,10 @@ class NotificationFieldRenderer extends HTMLRenderer
      * @param mixed $value Значение для фильтрации
      * @return bool
      */
-    public function filterValue($value)
+    public function filterValue($value): bool
     {
         if (is_scalar($value)) {
-            return (bool)trim($value);
+            return (bool)trim((string)$value);
         } elseif ($value instanceof SOME) {
             return (bool)$value->id;
         }
@@ -105,10 +108,11 @@ class NotificationFieldRenderer extends HTMLRenderer
      * @param mixed $value Значение
      * @param bool $admin Рендеринг для администратора
      * @param bool $sms Рендеринг для SMS
+     * @return string
      */
-    public function getValueHTML($value, $admin = false, $sms = false)
+    public function getValueHTML($value, bool $admin = false, bool $sms = false): string
     {
-        $richValue = $this->field->doRich($value);
+        $richValue = $this->field->doRich((string)$value);
         if ($sms) {
             $result = $richValue;
         } else {
@@ -123,11 +127,12 @@ class NotificationFieldRenderer extends HTMLRenderer
      * @param mixed $value Значение
      * @param bool $admin Рендеринг для администратора
      * @param bool $sms Рендеринг для SMS
+     * @return array
      */
-    public function getValuesHTMLArray($admin = false, $sms = false)
+    public function getValuesHTMLArray(bool $admin = false, bool $sms = false): array
     {
         if ($this->owner) {
-            if ($ownerField = $this->owner->fields[$this->field->urn]) {
+            if ($ownerField = ($this->owner->fields[$this->field->urn] ?? null)) {
                 $values = $ownerField->getValues(true);
             } elseif (($value = $this->owner->{$this->field->urn}) !== null) {
                 $values = [$value];
@@ -153,18 +158,19 @@ class NotificationFieldRenderer extends HTMLRenderer
      *     'admin' => bool Рендер для администратора
      *     'sms' => bool Рендер для SMS
      * ]</code></pre>
+     * @return string
      */
-    public function render($additionalData = [])
+    public function render(array $additionalData = []): string
     {
         $values = $this->getValuesHTMLArray(
-            (bool)$additionalData['admin'],
-            (bool)$additionalData['sms']
+            (bool)($additionalData['admin'] ?? false),
+            (bool)($additionalData['sms'] ?? false)
         );
         $values = array_filter($values);
         if (!$values) {
             return '';
         }
-        if ($additionalData['sms']) {
+        if ($additionalData['sms'] ?? null) {
             $result = $this->field->name . ': ' . implode(', ', $values) . "\n";
         } else {
             $result = '<div>'

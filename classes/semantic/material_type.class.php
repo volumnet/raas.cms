@@ -2,6 +2,8 @@
 /**
  * Тип материалов
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\SOME;
@@ -141,8 +143,8 @@ class Material_Type extends SOME
         // Подготовим старые и новые поля для формы в случае смены родителя
         $formFieldsToSet = [];
         if (!$new &&
-            $this->updates['pid'] &&
-            ($this->updates['pid'] != $this->properties['pid'])
+            ($this->updates['pid'] ?? null) &&
+            (($this->updates['pid'] ?? null) != ($this->properties['pid'] ?? null))
         ) {
             $oldParentType = new Material_Type($this->properties['pid']);
             $newParentType = new Material_Type($this->updates['pid']);
@@ -167,13 +169,13 @@ class Material_Type extends SOME
                 $newParentFormFieldsIds
             );
             foreach ($formFieldsIdsToDelete as $formFieldIdToDelete) {
-                $formFieldsToSet[trim($formFieldIdToDelete)] = [
+                $formFieldsToSet[trim((string)$formFieldIdToDelete)] = [
                     'vis' => false,
                     'inherit' => true,
                 ];
             }
             foreach ($formFieldsIdsToAdd as $formFieldIdToAdd) {
-                $formFieldsToSet[trim($formFieldIdToAdd)] = [
+                $formFieldsToSet[trim((string)$formFieldIdToAdd)] = [
                     'vis' => true,
                     'inherit' => true,
                 ];
@@ -357,9 +359,9 @@ class Material_Type extends SOME
             $temp = Material_Field::getSQLSet([$sqlQuery, $sqlBind]);
             $arr = [];
             foreach ($temp as $row) {
-                $arr[trim($row->urn)] = $row;
+                $arr[trim((string)$row->urn)] = $row;
             }
-            static::$selfFieldsCache[trim($this->id)] = $arr;
+            static::$selfFieldsCache[trim((string)$this->id)] = $arr;
         }
         return static::$selfFieldsCache[$this->id];
     }
@@ -372,7 +374,7 @@ class Material_Type extends SOME
     protected function _visSelfFields()
     {
         if (!static::$visSelfFieldsCache[$this->id]) {
-            static::$visSelfFieldsCache[trim($this->id)] = array_filter(
+            static::$visSelfFieldsCache[trim((string)$this->id)] = array_filter(
                 function ($x) {
                     return $x->vis;
                 },
@@ -433,7 +435,7 @@ class Material_Type extends SOME
             foreach ($temp as $row) {
                 $arr[$row->urn] = $row;
             }
-            $result = static::$selfFieldGroupsCache[trim($this->id)] = $arr;
+            $result = static::$selfFieldGroupsCache[trim((string)$this->id)] = $arr;
         }
 
         $result = array_merge(
@@ -464,7 +466,7 @@ class Material_Type extends SOME
             }
             $arr2 = (array)$this->selfFieldGroups;
             $arr = array_merge($arr1, $arr2);
-            $result = static::$fieldGroupsCache[trim($this->id)] = $arr;
+            $result = static::$fieldGroupsCache[trim((string)$this->id)] = $arr;
         }
         unset($result['']);
         $result = array_merge(
@@ -487,7 +489,7 @@ class Material_Type extends SOME
     protected function _visFields()
     {
         if (!static::$visFieldsCache[$this->id]) {
-            static::$visFieldsCache[trim($this->id)] = array_filter($this->fields, function ($x) {
+            static::$visFieldsCache[trim((string)$this->id)] = array_filter($this->fields, function ($x) {
                 return $x->vis;
             });
         }
@@ -510,7 +512,7 @@ class Material_Type extends SOME
             }
             $arr2 = (array)$this->selfFields;
             $arr = array_merge($arr1, $arr2);
-            static::$fieldsCache[trim($this->id)] = $arr;
+            static::$fieldsCache[trim((string)$this->id)] = $arr;
         }
         return static::$fieldsCache[$this->id];
     }

@@ -2,6 +2,8 @@
 /**
  * Материал
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\SOME;
@@ -186,7 +188,7 @@ class Material extends SOME
                 // на $this->fields[$var]->id, т.к. на TimeWeb'е на PHP5.6
                 // isset($this->fields[$var]) выдает false, хотя на локальном
                 // PHP5.6 выдает true - хз почему
-                $st = microtime(1);
+                $st = microtime(true);
                 // 2023-01-26 Нельзя isset или ??, т.к. считает что переменная не определена явно
                 $fields = $this->fields;
                 $field = isset($fields[$var]) ? $fields[$var] : null;
@@ -241,7 +243,7 @@ class Material extends SOME
         if ($this->updates['urn'] ?? false) {
             $this->urn = Text::beautify($this->urn, '-');
             $this->urn = preg_replace('/\\-\\-/umi', '-', $this->urn);
-            $this->urn = trim($this->urn, '-');
+            $this->urn = trim((string)$this->urn, '-');
         }
         $need2UpdateURN = false;
         if ($this->checkForSimilarPages() ||
@@ -389,7 +391,7 @@ class Material extends SOME
 
     public static function batchDelete(array $objects)
     {
-        $st = microtime(1);
+        $st = microtime(true);
         if (!$objects) {
             return;
         }
@@ -518,7 +520,7 @@ class Material extends SOME
         foreach ((array)$temp as $fieldURN => $field) {
             $field = $field->deepClone();
             $field->Owner = $this;
-            $arr[trim($fieldURN)] = $field;
+            $arr[trim((string)$fieldURN)] = $field;
         }
         return $arr;
     }
@@ -584,7 +586,7 @@ class Material extends SOME
         }
         $sqlResult = Material::_SQL()->query($sqlQuery);
         foreach ($sqlResult as $sqlRow) {
-            $materialTypesToPagesAssoc[trim($sqlRow['material_type_id'])][trim($sqlRow['page_id'])] = (int)$sqlRow['page_id'];
+            $materialTypesToPagesAssoc[trim((string)(string)$sqlRow['material_type_id'])][trim((string)(string)$sqlRow['page_id'])] = (int)$sqlRow['page_id'];
         }
 
         // Выберем собственную привязку материалов к страницам
@@ -596,7 +598,7 @@ class Material extends SOME
         }
         $sqlResult = static::_SQL()->query($sqlQuery);
         foreach ($sqlResult as $sqlRow) {
-            $materialsToPagesAssoc[trim($sqlRow['id'])][trim($sqlRow['pid'])] = (int)$sqlRow['pid'];
+            $materialsToPagesAssoc[trim((string)$sqlRow['id'])][trim((string)$sqlRow['pid'])] = (int)$sqlRow['pid'];
         }
 
         // Выберем привязку материалов к типам материалов
@@ -609,7 +611,7 @@ class Material extends SOME
         }
         $sqlResult = Material::_SQL()->query($sqlQuery);
         foreach ($sqlResult as $sqlRow) {
-            $materialsToMaterialTypesAssoc[trim($sqlRow['id'])] = (int)$sqlRow['pid'];
+            $materialsToMaterialTypesAssoc[trim((string)(string)$sqlRow['id'])] = (int)$sqlRow['pid'];
         }
 
         // Соберем привязку материалов к страницам
@@ -620,9 +622,9 @@ class Material extends SOME
                 continue;
             }
             if (!isset($materialsToPagesAssoc[$mId])) {
-                $realMaterialsToPagesAssoc[trim($mId)] = $materialTypesToPagesAssoc[$mtId];
+                $realMaterialsToPagesAssoc[trim((string)$mId)] = $materialTypesToPagesAssoc[$mtId];
             } else {
-                $realMaterialsToPagesAssoc[trim($mId)] = array_intersect_key(
+                $realMaterialsToPagesAssoc[trim((string)$mId)] = array_intersect_key(
                     $materialTypesToPagesAssoc[$mtId],
                     $materialsToPagesAssoc[$mId]
                 );
@@ -698,17 +700,17 @@ class Material extends SOME
         $materialsData = [];
         $pagesData = [];
         foreach ($sqlResult as $sqlRow) {
-            $materialsData[trim($sqlRow['id'])] = [
+            $materialsData[trim((string)$sqlRow['id'])] = [
                 'id' => (int)$sqlRow['id'],
-                'urn' => trim($sqlRow['urn']),
+                'urn' => trim((string)$sqlRow['urn']),
                 'page_id' => (int)$sqlRow['page_id'],
                 'cache_url_parent_id' => (int)$sqlRow['cache_url_parent_id'],
-                'cache_url' => trim($sqlRow['cache_url']),
+                'cache_url' => trim((string)$sqlRow['cache_url']),
             ];
-            $pagesData[trim($sqlRow['page_id'])] = [
+            $pagesData[trim((string)$sqlRow['page_id'])] = [
                 'id' => (int)$sqlRow['page_id'],
             ];
-            $pagesData[trim($sqlRow['cache_url_parent_id'])] = [
+            $pagesData[trim((string)$sqlRow['cache_url_parent_id'])] = [
                 'id' => (int)$sqlRow['cache_url_parent_id'],
             ];
         }
@@ -719,10 +721,10 @@ class Material extends SOME
                           WHERE material_id IN (" . implode(", ", array_keys($materialsData)) . ")";
             $sqlResult = static::_SQL()->get($sqlQuery);
             foreach ($sqlResult as $sqlRow) {
-                $materialsData[trim($sqlRow['material_id'])]['affectedPages'][trim($sqlRow['page_id'])] = [
+                $materialsData[trim((string)$sqlRow['material_id'])]['affectedPages'][trim((string)$sqlRow['page_id'])] = [
                     'id' => (int)$sqlRow['page_id'],
                 ];
-                $pagesData[trim($sqlRow['page_id'])] = [
+                $pagesData[trim((string)$sqlRow['page_id'])] = [
                     'id' => (int)$sqlRow['page_id'],
                 ];
             }
@@ -733,16 +735,16 @@ class Material extends SOME
                       . " WHERE id IN (" . implode(", ", array_keys($pagesData)) . ")";
             $sqlResult = static::_SQL()->get($sqlQuery);
             foreach ($sqlResult as $sqlRow) {
-                $pagesData[trim($sqlRow['id'])] = [
+                $pagesData[trim((string)$sqlRow['id'])] = [
                     'id' => (int)$sqlRow['id'],
-                    'cache_url' => trim($sqlRow['cache_url']),
+                    'cache_url' => trim((string)$sqlRow['cache_url']),
                     'priority' => (int)$sqlRow['priority'],
                 ];
             }
         }
         foreach ($materialsData as $materialId => $materialData) {
-            if ($materialData['page_id'] &&
-                $materialData['affectedPages'][$materialData['page_id']]
+            if (($materialData['page_id'] ?? null) &&
+                ($materialData['affectedPages'][$materialData['page_id']] ?? null)
             ) {
                 $materialsData[$materialId]['new_cache_url_parent_id'] = $materialData['page_id'];
             } elseif ($materialData['cache_url_parent_id'] &&

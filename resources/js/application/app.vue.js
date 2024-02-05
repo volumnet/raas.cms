@@ -53,6 +53,12 @@ export default {
             isScrollingNowDelay: 250,
 
             /**
+             * Погрешность скроллинга
+             * @type {Number}
+             */
+            scrollingInaccuracy: 5,
+
+            /**
              * Селектор ссылок для scrollTo
              */
             scrollToSelector: 'a[href*="modal"][href*="#"], ' + 
@@ -281,9 +287,12 @@ export default {
                 processAllImageLinks: true,
                 swipe: true, 
                 transition: 'scrollHorizontal',
+                typeMapping: {
+                    'image': 'jpg,jpeg,gif,png,bmp,webp,svg', 
+                },
             };
             let params = Object.assign({}, defaults, options)
-            let rx = /\.(jpg|jpeg|pjpeg|png|gif)$/i;
+            let rx = /\.(jpg|jpeg|pjpeg|png|gif|webp|svg)$/i;
             $('a:not([data-rel^=lightcase]):not([data-no-lightbox])').each(function () {
                 if (params.processAllImageLinks) {
                     if (rx.test($(this).attr('href'))) {
@@ -382,9 +391,11 @@ export default {
                 destY = destination.offset().top;
             }
             if (destY !== null) {
+                let top = Math.max(0, Math.round(destY + this.getScrollOffset()));
+                top = Math.min(top, $('body').outerHeight() - this.windowHeight - 1); // 2024-01-15, AVS: Поправка на нижний край документа
                 let scrollToData = {
                     left: 0, 
-                    top: Math.max(0, Math.round(destY + this.getScrollOffset())),
+                    top,
                     behavior: instant ? 'instant' : 'smooth',
                 };
                 // console.log(scrollToData);
@@ -392,13 +403,13 @@ export default {
                 // 2023-09-19, AVS: сделаем защиту скроллинга
                 if (!instant) {
                     let protectScrolling = window.setInterval(() => {
-                        if (this.scrollTop == scrollToData.top) {
+                        if (Math.abs(Math.round(this.scrollTop) - Math.round(scrollToData.top)) < this.scrollingInaccuracy) {
                             console.log('stop scrolling to ' + scrollToData.top);
                             window.clearInterval(protectScrolling);
                             protectScrolling = null;
                         } else if (!this.isScrollingNow) {
                             window.scrollTo(scrollToData);
-                            console.log('continue scrolling to ' + scrollToData.top);
+                            console.log('continue scrolling from ' + this.scrollTop + ' to ' + scrollToData.top);
                         }
                     }, this.isScrollingNowDelay)
                 }

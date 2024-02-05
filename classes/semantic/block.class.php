@@ -2,6 +2,8 @@
 /**
  * Блок
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use Error;
@@ -207,7 +209,7 @@ abstract class Block extends SOME
                 return $this->getAddData();
                 break;
             case 'additionalParams':
-                parse_str(trim($this->params), $temp);
+                parse_str(trim((string)$this->params), $temp);
                 return $temp;
                 break;
             default:
@@ -463,17 +465,14 @@ abstract class Block extends SOME
      * @param Page $page У какой страницы получить файл кэша
      * @return string
      */
-    public function getCacheFile($url = null, Page $page = null)
+    public function getCacheFile(string $url = null, Page $page = null): string
     {
         if ($this->cache_type != static::CACHE_NONE) {
-            $domain = $page
-                    ? preg_replace('/^http(s)?:\\/\\//umi', '', $page->domain)
-                    : $_SERVER['HTTP_HOST'];
+            $domain = $page ? preg_replace('/^http(s)?:\\/\\//umi', '', $page->domain) : ($_SERVER['HTTP_HOST'] ?? '');
             if (!$url) {
-                $url = $page ? $page->url : $_SERVER['REQUEST_URI'];
+                $url = $page ? $page->url : ($_SERVER['REQUEST_URI'] ?? '');
             }
-            $filename = Package::i()->cacheDir . '/' . Package::i()->cachePrefix
-                      . '_block' . (int)$this->id;
+            $filename = Package::i()->cacheDir . '/' . Package::i()->cachePrefix . '_block' . (int)$this->id;
             if ($url && $this->cache_single_page) {
                 $filename .= '.' . urlencode($domain . $url);
             }
@@ -528,9 +527,9 @@ abstract class Block extends SOME
     /**
      * Обрабатывает виджет
      * @param array $in Входные данные
-     * @param Page $page Страница, для которой обрабатываем виджет
+     * @param Page|null $page Страница, для которой обрабатываем виджет
      */
-    protected function processWidget(array $in = [], $page = null)
+    protected function processWidget(array $in = [], Page $page = null)
     {
         if ($this->Widget->id) {
             $st = microtime(true);

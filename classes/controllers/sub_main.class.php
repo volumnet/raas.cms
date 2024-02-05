@@ -609,7 +609,7 @@ class Sub_Main extends RAASAbstractSubController
      */
     protected function deassocMaterial()
     {
-        $st = microtime(1);
+        $st = microtime(true);
         $items = [];
         $ids = (array)$_GET['id'];
         $pids = (array)$_GET['pid'];

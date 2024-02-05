@@ -1,6 +1,6 @@
 <?php
 /**
- * Виджет блока "Контакты в подвале"
+ * Контакты в подвале
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
  * @param Material[]|null $Set Список материалов

@@ -421,7 +421,7 @@ class ViewSub_Dev extends RAASAbstractSubView
 
     /**
      * Список сниппетов
-     * @param [] $in Входные данные
+     * @param array $in Входные данные
      */
     public function snippets(array $in = [])
     {

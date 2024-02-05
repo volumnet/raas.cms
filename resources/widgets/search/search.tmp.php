@@ -1,6 +1,6 @@
 <?php
 /**
- * Виджет поиска по сайту
+ * Поиск по сайту
  * @param Block_Search $Block Текущий блок
  * @param Page $Page Текущая страница
  * @param array<Page|Material> $Set Набор результатов для отображения

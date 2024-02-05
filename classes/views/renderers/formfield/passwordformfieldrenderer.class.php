@@ -2,6 +2,8 @@
 /**
  * Рендерер парольных полей формы для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -9,7 +11,7 @@ namespace RAAS\CMS;
  */
 class PasswordFormFieldRenderer extends TextFormFieldRenderer
 {
-    public function render($additionalData = [])
+    public function render(array $additionalData = []): string
     {
         $attrs = $this->mergeAttributes(
             $this->getAttributes(),

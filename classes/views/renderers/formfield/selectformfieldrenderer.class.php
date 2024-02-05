@@ -2,6 +2,8 @@
 /**
  * Рендерер выпадающих списков формы для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -11,7 +13,7 @@ class SelectFormFieldRenderer extends FormFieldRenderer
 {
     const HTML_VALID_MULTIPLE = true;
 
-    public function getAttributes()
+    public function getAttributes(): array
     {
         $attrs = parent::getAttributes();
         $attrs['class'] = ['form-control' => true];
@@ -27,7 +29,7 @@ class SelectFormFieldRenderer extends FormFieldRenderer
      * ]></pre> Стандартный источник опций
      * @param int $level Уровень вложенности
      */
-    public function getOptionsTree(array $source = [], $level = 0)
+    public function getOptionsTree(array $source = [], int $level = 0): string
     {
         $result = '';
         if (!$level && (
@@ -57,7 +59,7 @@ class SelectFormFieldRenderer extends FormFieldRenderer
     }
 
 
-    public function render($additionalData = [])
+    public function render(array $additionalData = []): string
     {
         $attrs = $this->mergeAttributes(
             $this->getAttributes(),

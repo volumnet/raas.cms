@@ -9,12 +9,6 @@ namespace RAAS\CMS;
  */
 class VisibleRecursiveCacheTest extends BaseDBTest
 {
-    public static function setUpBeforeClass()
-    {
-        parent::setUpBeforeClass();
-    }
-
-
     /**
      * Проверяет свойство visibleIds
      */
@@ -27,7 +21,7 @@ class VisibleRecursiveCacheTest extends BaseDBTest
         $this->assertEquals(18, $result['18']);
         $this->assertEquals(17, $result['17']);
         $this->assertEquals(1, $result['1']);
-        $this->assertNull($result['0']);
+        $this->assertNull($result['0'] ?? null);
 
         $p = new Page(17);
         $p->vis = 0;
@@ -36,9 +30,9 @@ class VisibleRecursiveCacheTest extends BaseDBTest
         $result = $cache->visibleIds;
 
         $this->assertEquals(18, $result['18']);
-        $this->assertNull($result['17']);
+        $this->assertNull($result['17'] ?? null);
         $this->assertEquals(1, $result['1']);
-        $this->assertNull($result['0']);
+        $this->assertNull($result['0'] ?? null);
 
         $p->vis = 1;
         $p->commit();

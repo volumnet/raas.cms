@@ -2,6 +2,8 @@
 /**
  * Шаблон
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use Error;
@@ -111,7 +113,7 @@ class Template extends SOME
             $this->locations_info = json_encode((array)$this->locs);
             unset($this->locs);
         }
-        if ($this->id && ($this->updates['urn'] != $this->properties['urn'])) {
+        if ($this->id && (($this->updates['urn'] ?? null) != ($this->properties['urn'] ?? null))) {
             $this->deleteFile();
         }
         parent::commit();
@@ -158,27 +160,16 @@ class Template extends SOME
      */
     public function _locations()
     {
-        $temp = (array)json_decode($this->locations_info, true);
+        $temp = (array)json_decode($this->locations_info ?: '', true);
         $locs = [];
         foreach ($temp as $row) {
             $locs[$row['urn']] = $row;
         }
         unset($temp);
 
-        preg_match_all(
-            '/\\$Page-\\>location\\(("|\')(.*?)("|\')\\)/i',
-            $this->description,
-            $regs
-        );
-        preg_match_all(
-            '/\\$Page-\\>locationBlocksText\\[("|\')(.*?)("|\')\\]/i',
-            $this->description,
-            $regs2
-        );
-        $newLocs = array_values(array_unique(array_merge(
-            (array)$regs[2],
-            (array)$regs2[2]
-        )));
+        preg_match_all('/\\$Page-\\>location\\(("|\')(.*?)("|\')\\)/i', $this->description ?: '', $regs);
+        preg_match_all('/\\$Page-\\>locationBlocksText\\[("|\')(.*?)("|\')\\]/i', $this->description ?: '', $regs2);
+        $newLocs = array_values(array_unique(array_merge((array)$regs[2], (array)$regs2[2])));
 
         $locations = [];
         $min_y = 0;

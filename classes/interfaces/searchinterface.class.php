@@ -135,13 +135,13 @@ class SearchInterface extends AbstractInterface
      *             'Pages' => Pages Постраничная разбивка
      *         ]
      */
-    public function process($searchLimit = 100)
+    public function process(int $searchLimit = 100): array
     {
         $out = [];
 
         $searchString = trim(
             isset($this->get[$this->block->search_var_name]) ?
-            $this->get[$this->block->search_var_name] :
+            (string)$this->get[$this->block->search_var_name] :
             ''
         );
         $out['search_string'] = $searchString;
@@ -251,7 +251,7 @@ class SearchInterface extends AbstractInterface
         $materialDataWordRatio = 1,
         $pageMaterialsRatio = 1,
         $searchLimit = 100
-    ) {
+    ): array {
         $result = $materials = [];
 
         // Получим начальные условия для страниц и материалов
@@ -267,6 +267,9 @@ class SearchInterface extends AbstractInterface
                 $pageNameWordRatio
             );
             foreach ($pagesNameResult as $pageId => $pageWeight) {
+                if (!isset($result['p' . $pageId])) {
+                    $result['p' . $pageId] = 0;
+                }
                 $result['p' . $pageId] += $pageWeight;
             }
         }
@@ -282,6 +285,9 @@ class SearchInterface extends AbstractInterface
                 $searchLimit
             );
             foreach ($pagesDataResult as $pageId => $pageWeight) {
+                if (!isset($result['p' . $pageId])) {
+                    $result['p' . $pageId] = 0;
+                }
                 $result['p' . $pageId] += $pageWeight;
             }
         }
@@ -318,6 +324,9 @@ class SearchInterface extends AbstractInterface
                 $searchLimit
             );
             foreach ($materialsDataResult as $materialId => $materialWeight) {
+                if (!isset($materials[$materialId])) {
+                    $materials[$materialId] = 0;
+                }
                 $materials[$materialId] += $materialWeight;
             }
         }
@@ -330,9 +339,15 @@ class SearchInterface extends AbstractInterface
                 $pageMaterialsRatio
             );
             foreach ((array)$materialsPagesResult['pages'] as $pageId => $pageWeight) {
+                if (!isset($result['p' . $pageId])) {
+                    $result['p' . $pageId] = 0;
+                }
                 $result['p' . $pageId] += $pageWeight;
             }
             foreach ((array)$materialsPagesResult['materials'] as $materialId => $materialWeight) {
+                if (!isset($result['m' . $materialId])) {
+                    $result['m' . $materialId] = 0;
+                }
                 $result['m' . $materialId] += $materialWeight;
             }
         }
@@ -348,6 +363,9 @@ class SearchInterface extends AbstractInterface
                 $searchLimit
             );
             foreach ($pagesHTMLResult as $pageId => $pageWeight) {
+                if (!isset($result['p' . $pageId])) {
+                    $result['p' . $pageId] = 0;
+                }
                 $result['p' . $pageId] += $pageWeight;
             }
         }
@@ -369,11 +387,8 @@ class SearchInterface extends AbstractInterface
      * @param int $searchLimit Лимит поиска
      * @return array<Page|Material>
      */
-    public function getSearchResults(
-        array $ratios,
-        Pages $pages = null,
-        $searchLimit = 100
-    ) {
+    public function getSearchResults(array $ratios, Pages $pages = null, int $searchLimit = 100): array
+    {
         $user = RAASControllerFrontend::i()->user;
         $resultIds = array_slice(array_keys($ratios), 0, $searchLimit);
         $materialsIds = array_map(
@@ -399,9 +414,9 @@ class SearchInterface extends AbstractInterface
                           WHERE uid = ?
                             AND material_id IN (" . implode(", ", $materialsIds) . ")";
             $sqlBind = [(int)$user->id];
-            $sqlResult = Material::_SQL()->get([$sqlQuery, $sqlRow]);
+            $sqlResult = Material::_SQL()->get([$sqlQuery, $sqlBind]);
             foreach ($sqlResult as $sqlRow) {
-                $materialsAccess[trim($sqlRow['material_id'])] = (int)$sqlRow['allow'];
+                $materialsAccess[trim((string)$sqlRow['material_id'])] = (int)$sqlRow['allow'];
             }
         }
         if ($pagesIds) {
@@ -410,29 +425,25 @@ class SearchInterface extends AbstractInterface
                           WHERE uid = ?
                             AND page_id IN (" . implode(", ", $pagesIds) . ")";
             $sqlBind = [(int)$user->id];
-            $sqlResult = Material::_SQL()->get([$sqlQuery, $sqlRow]);
+            $sqlResult = Material::_SQL()->get([$sqlQuery, $sqlBind]);
             foreach ($sqlResult as $sqlRow) {
-                $pagesAccess[trim($sqlRow['page_id'])] = (int)$sqlRow['allow'];
+                $pagesAccess[trim((string)$sqlRow['page_id'])] = (int)$sqlRow['allow'];
             }
         }
         $newResultIds = [];
         foreach ($resultIds as $resultId) {
             $entityId = mb_substr($resultId, 1);
             if ($resultId[0] == 'm') {
-                if (!isset($materialsAccess[$entityId]) ||
-                    $materialsAccess[$entityId]
-                ) {
+                if (!isset($materialsAccess[$entityId]) || $materialsAccess[$entityId]) {
                     $newResultIds[] = $resultId;
                 }
             } else {
-                if (!isset($pagesAccess[$entityId]) ||
-                    $pagesAccess[$entityId]
-                ) {
+                if (!isset($pagesAccess[$entityId]) || $pagesAccess[$entityId]) {
                     $newResultIds[] = $resultId;
                 }
             }
         }
-        $resultIds = SOME::getArraySet($resultIds, $pages);
+        $newResultIds = SOME::getArraySet($newResultIds, $pages);
         $set = array_values(array_filter(array_map(function ($x) {
             if ($x[0] == 'm') {
                 $row = new Material(substr($x, 1));
@@ -441,7 +452,7 @@ class SearchInterface extends AbstractInterface
             }
             $row->trust();
             return $row;
-        }, $resultIds)));
+        }, $newResultIds)));
         return $set;
     }
 
@@ -511,18 +522,18 @@ class SearchInterface extends AbstractInterface
      * Получает рейтинг строки по поиску
      * @param string $haystack Актуальные данные
      * @param string $searchString Поисковая строка
-     * @param array<string> $searchArray Набор поисковых слов
+     * @param string[] $searchArray Набор поисковых слов
      * @param int $sentenceRatio Вес вхождения поисковой строки
      * @param int $wordRatio Вес вхождения слова
      * @return int
      */
     public function getRatio(
-        $haystack,
-        $searchString,
+        string $haystack,
+        string $searchString,
         array $searchArray,
-        $sentenceRatio = 100,
-        $wordRatio = 10
-    ) {
+        int $sentenceRatio = 100,
+        int $wordRatio = 10
+    ): int {
         $result = 0;
         $haystack = preg_replace('/\\s+/umi', ' ', $haystack);
         $searchString = preg_replace('/\\s+/umi', ' ', $searchString);
@@ -585,7 +596,7 @@ class SearchInterface extends AbstractInterface
         $result = [];
         foreach ($searchPagesIds as $pageId) {
             $pageData = PageRecursiveCache::i()->cache[$pageId];
-            $result[trim($pageId)] = $this->getRatio(
+            $result[trim((string)$pageId)] = $this->getRatio(
                 $pageData['name'],
                 $searchString,
                 $searchArray,
@@ -631,7 +642,10 @@ class SearchInterface extends AbstractInterface
             $sqlBind[] = (int)$searchLimit;
             $sqlResult = Page::_SQL()->get([$sqlQuery, $sqlBind]);
             foreach ($sqlResult as $sqlRow) {
-                $result[trim($sqlRow['pid'])] += $this->getRatio(
+                if (!isset($result[trim((string)$sqlRow['pid'])])) {
+                    $result[trim((string)$sqlRow['pid'])] = 0;
+                }
+                $result[trim((string)$sqlRow['pid'])] += $this->getRatio(
                     $sqlRow['value'],
                     $searchString,
                     $searchArray,
@@ -666,7 +680,7 @@ class SearchInterface extends AbstractInterface
         $descriptionSentenceRatio = 5,
         $descriptionWordRatio = 1,
         $searchLimit = 100
-    ) {
+    ): array {
         $result = [];
 
         if ($searchArray) {
@@ -694,7 +708,10 @@ class SearchInterface extends AbstractInterface
             $sqlResult = Material::_SQL()->get([$sqlQuery, $sqlBind]);
 
             foreach ($sqlResult as $sqlRow) {
-                $result[trim($sqlRow['id'])] += $this->getRatio(
+                if (!isset($result[trim((string)$sqlRow['id'])])) {
+                    $result[trim((string)$sqlRow['id'])] = 0;
+                }
+                $result[trim((string)$sqlRow['id'])] += $this->getRatio(
                     $sqlRow['name'],
                     $searchString,
                     $searchArray,
@@ -730,7 +747,7 @@ class SearchInterface extends AbstractInterface
         $sentenceRatio = 5,
         $wordRatio = 1,
         $searchLimit = 100
-    ) {
+    ): array {
         $result = [];
 
         $materialFieldsIds = $this->getFieldsIds(true);
@@ -752,7 +769,10 @@ class SearchInterface extends AbstractInterface
             $sqlBind[] = (int)$searchLimit;
             $sqlResult = Material::_SQL()->get([$sqlQuery, $sqlBind]);
             foreach ($sqlResult as $sqlRow) {
-                $result[trim($sqlRow['pid'])] += $this->getRatio(
+                if (!isset($result[trim((string)$sqlRow['pid'])])) {
+                    $result[trim((string)$sqlRow['pid'])] = 0;
+                }
+                $result[trim((string)$sqlRow['pid'])] += $this->getRatio(
                     $sqlRow['value'],
                     $searchString,
                     $searchArray,
@@ -767,27 +787,16 @@ class SearchInterface extends AbstractInterface
 
     /**
      * Получает рейтинги страниц списков материалов и страниц материалов
-     * @param array<
-     *            string ID# материала => int Вес материала
-     *        > $materialRatings Рейтинги материалов
+     * @param array<string ID# материала => int Вес материала> $materialRatings Рейтинги материалов
      * @param array<int> $searchPagesIds ID# страниц для поиска
-     * @param int $pageMaterialsRatio Вес попадания подходящих материалов
-     *                                в странице
-     * @return [
-     *             'pages' => array<
-     *                 string ID# страницы => int Вес страницы списка
-     *                                            по материалам
-     *             >,
-     *             'materials' => array<
-     *                 string ID# материала => int Вес страницы материала
-     *             >
-     *         ]
+     * @param int $pageMaterialsRatio Вес попадания подходящих материалов в странице
+     * @return array <pre><code>[
+     *     'pages' => array<string ID# страницы => int Вес страницы списка по материалам>,
+     *     'materials' => array<string ID# материала => int Вес страницы материала>
+     * ]</code></pre>
      */
-    public function getMaterialPageRatings(
-        $materialRatings,
-        array $searchPagesIds,
-        $pageMaterialsRatio = 1
-    ) {
+    public function getMaterialPageRatings($materialRatings, array $searchPagesIds, int $pageMaterialsRatio = 1): array
+    {
         $result = [
             'pages' => [],
             'materials' => [],
@@ -816,6 +825,9 @@ class SearchInterface extends AbstractInterface
                 $sqlResult = Material::_SQL()->get($sqlQuery);
 
                 foreach ($sqlResult as $sqlRow) {
+                    if (!isset($result['pages'][$sqlRow['page_id']])) {
+                        $result['pages'][(string)$sqlRow['page_id']] = 0;
+                    }
                     $result['pages'][$sqlRow['page_id']] += $pageMaterialsRatio;
                 }
             }
@@ -842,7 +854,7 @@ class SearchInterface extends AbstractInterface
         $sentenceRatio = 5,
         $wordRatio = 1,
         $searchLimit = 100
-    ) {
+    ): array {
         $result = [];
 
         if ($searchArray && $searchPagesIds) {
@@ -869,7 +881,10 @@ class SearchInterface extends AbstractInterface
             // echo $sqlQuery; exit;
             $sqlResult = Page::_SQL()->get([$sqlQuery, $sqlBind]);
             foreach ($sqlResult as $sqlRow) {
-                $result[trim($sqlRow['page_id'])] += $this->getRatio(
+                if (!isset($result[trim((string)$sqlRow['page_id'])])) {
+                    $result[trim((string)$sqlRow['page_id'])] = 0;
+                }
+                $result[trim((string)$sqlRow['page_id'])] += $this->getRatio(
                     $sqlRow['description'],
                     $searchString,
                     $searchArray,

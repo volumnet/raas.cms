@@ -2,6 +2,8 @@
 /**
  * Менеджер обновлений
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\SOME;
@@ -17,7 +19,7 @@ class Updater extends RAASUpdater
 {
     public function preInstall()
     {
-        $v = $this->Context->registryGet('baseVersion');
+        $v = (string)($this->Context->registryGet('baseVersion') ?? '');
         if (version_compare($v, '4.2.45') < 0) {
             $this->oldUpdates();
             $this->update20140202();
@@ -63,7 +65,7 @@ class Updater extends RAASUpdater
 
     public function postInstall()
     {
-        $v = $this->Context->registryGet('baseVersion');
+        $v = (string)($this->Context->registryGet('baseVersion') ?? '');
         if (version_compare($v, '4.2.45') < 0) {
             $this->update20141029();
             $this->update20141103();
@@ -163,7 +165,7 @@ class Updater extends RAASUpdater
         }
 
         // Создаем пользовательские папки для CKEditor'а и .htaccess к ним
-        foreach (['file', 'image', 'flash', 'media'] as $key) {
+        foreach (['file', 'image'] as $key) {
             if (!is_dir($this->filesDir . '/' . $key)) {
                 @mkdir($this->filesDir . '/' . $key, 0777, true);
             }

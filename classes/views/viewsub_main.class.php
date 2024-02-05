@@ -861,7 +861,7 @@ class ViewSub_Main extends RAASAbstractSubView
         if (!$packageUrl) {
             $packageUrl = $this->url;
         }
-        $st = microtime(1);
+        $st = microtime(true);
         $pageCache = PageRecursiveCache::i();
         $menu = [];
         $nodeId = (int)(($node instanceof SOME) ? $node->id : $node);

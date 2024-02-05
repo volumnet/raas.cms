@@ -2,6 +2,8 @@
 /**
  * Система антиспама на основе анализа данных
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -242,10 +244,12 @@ class Antispam
      * @param string $text Текст для выборки
      * @return string[] Массив адресов (только сервера)
      */
-    public function extractURLs($text)
+    public function extractURLs(string $text): array
     {
         $result = [];
-        $rx = '/(^|\\s)(((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.(([a-zA-Z\\-]+)|рф|ком)/umis';
+        // 2024-01-03, AVS: добавил в явном виде поддержку Punycode-доменов 1-го уровня
+        // (если добавлять просто цифры, возможно ложное срабатывание)
+        $rx = '/(^|\\s)(((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.((xn--[a-zA-Z0-9\\-]+)|([a-zA-Z]+)|рф|ком)/umis';
         if (preg_match_all($rx, $text, $regs)) {
             foreach ($regs[0] as $url) {
                 if (is_numeric($url)) {

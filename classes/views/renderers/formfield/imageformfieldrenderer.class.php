@@ -2,6 +2,8 @@
 /**
  * Рендерер полей изображений формы для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -9,10 +11,10 @@ namespace RAAS\CMS;
  */
 class ImageFormFieldRenderer extends FileFormFieldRenderer
 {
-    public function getAttributes()
+    public function getAttributes(): array
     {
         $attrs = parent::getAttributes();
-        $allowedExtensions = preg_split('/\\W+/umis', $this->field->source);
+        $allowedExtensions = preg_split('/\\W+/umis', (string)$this->field->source);
         $allowedExtensions = array_map(function ($x) {
             return mb_strtolower($x);
         }, $allowedExtensions);

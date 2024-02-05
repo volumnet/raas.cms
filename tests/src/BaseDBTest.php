@@ -4,7 +4,6 @@
  */
 namespace RAAS\CMS;
 
-use PHPUnit_Framework_TestCase;
 use RAAS\Application;
 
 /**

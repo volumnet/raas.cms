@@ -2,6 +2,8 @@
 /**
  * Рендерер переключателей формы для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -9,7 +11,7 @@ namespace RAAS\CMS;
  */
 class RadioFormFieldRenderer extends CheckboxFormFieldRenderer
 {
-    public function getAttributes()
+    public function getAttributes(): array
     {
         $attrs = $this->mergeAttributes(
             ['type' => $this->field->datatype],
@@ -26,7 +28,7 @@ class RadioFormFieldRenderer extends CheckboxFormFieldRenderer
     }
 
 
-    public function getOptionsTree(array $source = [], $level = 0)
+    public function getOptionsTree(array $source = [], int $level = 0): string
     {
         $result = '';
         $stdAttrs = $this->getAttributes();
@@ -75,7 +77,7 @@ class RadioFormFieldRenderer extends CheckboxFormFieldRenderer
     }
 
 
-    public function render($additionalData = [])
+    public function render(array $additionalData = []): string
     {
         $optionsTree = $this->getOptionsTree($this->field->stdSource);
         $attrs = $this->mergeAttributes([

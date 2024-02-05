@@ -2,6 +2,8 @@
 /**
  * Рендерер материальных полей формы для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -9,7 +11,7 @@ namespace RAAS\CMS;
  */
 class HiddenFormFieldRenderer extends FormFieldRenderer
 {
-    public function getAttributes()
+    public function getAttributes(): array
     {
         $attrs = $this->mergeAttributes(
             ['type' => 'hidden'],
@@ -20,7 +22,7 @@ class HiddenFormFieldRenderer extends FormFieldRenderer
     }
 
 
-    public function render($additionalData = [])
+    public function render(array $additionalData = []): string
     {
         $attrs = $this->mergeAttributes(
             $this->getAttributes(),

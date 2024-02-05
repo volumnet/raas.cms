@@ -1,6 +1,6 @@
 <?php
 /**
- * Виджет sitemap.xml
+ * sitemap.xml
  * @param Block_PHP $Block Текущий блок
  * @param Page $Page Текущая страница
  */

@@ -2,6 +2,8 @@
 /**
  * Рендерер числовых полей формы для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -9,7 +11,7 @@ namespace RAAS\CMS;
  */
 class NumberFormFieldRenderer extends TextFormFieldRenderer
 {
-    public function getAttributes()
+    public function getAttributes(): array
     {
         $attrs = parent::getAttributes();
         foreach (['min_val', 'max_val', 'step'] as $key) {

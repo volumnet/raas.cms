@@ -2,6 +2,8 @@
 /**
  * Рендерер полей e-mail уведомления для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -9,13 +11,13 @@ namespace RAAS\CMS;
  */
 class EmailNotificationFieldRenderer extends NotificationFieldRenderer
 {
-    public function getValueHTML($value, $admin = false, $sms = false)
+    public function getValueHTML($value, bool $admin = false, bool $sms = false): string
     {
         if ($sms) {
             return parent::getValueHTML($value, $admin, $sms);
         } else {
-            return '<a href="mailto:' . htmlspecialchars($value) . '">' .
-                      htmlspecialchars($value) .
+            return '<a href="mailto:' . htmlspecialchars((string)$value) . '">' .
+                      htmlspecialchars((string)$value) .
                    '</a>';
         }
     }

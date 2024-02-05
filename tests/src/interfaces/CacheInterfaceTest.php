@@ -125,6 +125,6 @@ class CacheInterfaceTest extends BaseDBTest
 
         $this->assertEquals($testData, $result);
 
-        $this->assertFileNotExists($filename);
+        $this->assertFileDoesNotExist($filename);
     }
 }

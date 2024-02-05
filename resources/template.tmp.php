@@ -229,7 +229,7 @@ ob_start(); // Для $separateScripts
                                   <?php echo htmlspecialchars($Page->getH1())?>
                                 </h1>
                             <?php }
-                            echo $contentText . $Page->location('share');
+                            echo $contentText;
                         } ?>
                       </div>
                   <?php }

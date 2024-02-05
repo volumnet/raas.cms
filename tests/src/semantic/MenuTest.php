@@ -9,6 +9,13 @@ namespace RAAS\CMS;
  */
 class MenuTest extends BaseDBTest
 {
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        PageRecursiveCache::i()->refresh();
+        MenuRecursiveCache::i()->refresh();
+    }
+
     /**
      * Тест URL
      */

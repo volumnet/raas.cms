@@ -2,6 +2,8 @@
 /**
  * Файл класса меню
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\SOME;

@@ -27,15 +27,15 @@ class SelectFormFieldRendererTest extends BaseTest
 
         $result = $renderer->getAttributes();
 
-        $this->assertEmpty($result['type']);
+        $this->assertEmpty($result['type'] ?? null);
         $this->assertEquals('name[]', $result['name']);
         $this->assertEquals('required', $result['required']);
         $this->assertEquals(['form-control' => true], $result['class']);
-        $this->assertEmpty($result['placeholder']);
-        $this->assertEmpty($result['maxlength']);
-        $this->assertEmpty($result['pattern']);
-        $this->assertEmpty($result['value']);
-        $this->assertEmpty($result['data-value']);
+        $this->assertEmpty($result['placeholder'] ?? null);
+        $this->assertEmpty($result['maxlength'] ?? null);
+        $this->assertEmpty($result['pattern'] ?? null);
+        $this->assertEmpty($result['value'] ?? null);
+        $this->assertEmpty($result['data-value'] ?? null);
     }
 
 

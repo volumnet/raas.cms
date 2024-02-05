@@ -2,6 +2,8 @@
 /**
  * Размещение
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -123,7 +125,7 @@ class Location
         $this->urn = $urn;
         $temp = [];
         if ($this->parent) {
-            $temp = (array)json_decode($this->parent->locations_info, true);
+            $temp = (array)json_decode((string)$this->parent->locations_info, true);
         }
         $locs = [];
         foreach ($temp as $row) {

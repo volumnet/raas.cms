@@ -43,7 +43,7 @@ class FishYandexReferatsRetriever
         $name = trim($name);
         $headerEl->remove();
         $divEl->remove();
-        $text = trim($pq->html());
+        $text =@ trim($pq->html()); // 2024-01-25, AVS: Глючит с 8-кой
         $brief = Text::cuttext(trim($pEl->text()), 256, '...');
         $arr = ['name' => $name, 'text' => $text, 'brief' => $brief];
         return $arr;

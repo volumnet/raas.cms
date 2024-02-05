@@ -1,6 +1,6 @@
 <?php
 /**
- * Виджет блока "уведомление о cookies"
+ * Уведомление о cookies
  * @param Page $Page Текущая страница
  * @param Block_HTML $Block Текущий блок
  */

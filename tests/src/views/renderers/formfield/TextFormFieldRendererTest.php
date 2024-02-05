@@ -93,7 +93,7 @@ class TextFormFieldRendererTest extends BaseTest
         $this->assertEquals('16', $result['maxlength']);
         $this->assertEquals('.*', $result['pattern']);
         $this->assertEquals(json_encode(['aaa', 'bbb']), $result['value']);
-        $this->assertEmpty($result['id']);
+        $this->assertEmpty($result['id'] ?? null);
     }
 
 

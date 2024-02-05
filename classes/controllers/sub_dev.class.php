@@ -243,6 +243,7 @@ class Sub_Dev extends RAASAbstractSubController
                 $f = str_replace('_page', '', $f);
                 $f = str_replace('_material', '', $f);
                 $f = str_replace('_field', '', $f);
+                $url2 = '';
                 if (strstr($this->action, 'form')) {
                     $url2 .= '&action=edit_form&id=' . (int)$Item->parent->id;
                 } elseif (strstr($this->action, 'material')) {
@@ -927,7 +928,7 @@ class Sub_Dev extends RAASAbstractSubController
                     $row->commit();
                 }
                 new Redirector(
-                    $_GET['back'] ?
+                    ($_GET['back'] ?? null) ?
                     'history:back' :
                     $this->url . '&action=edit_material_type&id=' . (int)$item->pid
                 );

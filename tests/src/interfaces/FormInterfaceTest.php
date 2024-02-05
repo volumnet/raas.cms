@@ -4,6 +4,9 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\Application;
+use RAAS\Controller_Frontend as RAASControllerFrontend;
+
 /**
  * Класс теста стандартного интерфейса формы
  */
@@ -21,9 +24,11 @@ class FormInterfaceTest extends BaseDBTest
      */
     public $block;
 
-    // public function setUpBeforeClass()
-    // {
-    //     parent::setUpBeforeClass();
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        RAASControllerFrontend::i()->exportLang(Application::i(), 'ru');
+        RAASControllerFrontend::i()->exportLang(Package::i(), 'ru');
     //     $formInterface = Snippet::importByURN('__raas_form_interface');
     //     $formWidget = Snippet::importByURN('feedback');
     //     $block = new Block_Form([
@@ -36,7 +41,7 @@ class FormInterfaceTest extends BaseDBTest
     //     ]);
     //     $block->commit();
     //     $this->block = $block;
-    // }
+    }
 
     /**
      * Тест проверки, действительно ли форма отправлена

@@ -2,6 +2,8 @@
 /**
  * Рендерер файловых полей уведомления для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Controller_Frontend as ControllerFrontend;
@@ -11,7 +13,7 @@ use RAAS\Controller_Frontend as ControllerFrontend;
  */
 class FileNotificationFieldRenderer extends NotificationFieldRenderer
 {
-    public function getValueHTML($value, $admin = false, $sms = false)
+    public function getValueHTML($value, bool $admin = false, bool $sms = false): string
     {
         if ($sms) {
             return $value->filename;

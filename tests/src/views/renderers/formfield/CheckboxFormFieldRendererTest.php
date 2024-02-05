@@ -30,13 +30,13 @@ class CheckboxFormFieldRendererTest extends BaseTest
         $this->assertEquals('checkbox', $result['type']);
         $this->assertEquals('name', $result['name']);
         $this->assertEquals('required', $result['required']);
-        $this->assertEmpty($result['class']);
-        $this->assertEmpty($result['placeholder']);
-        $this->assertEmpty($result['maxlength']);
-        $this->assertEmpty($result['pattern']);
+        $this->assertEmpty($result['class'] ?? null);
+        $this->assertEmpty($result['placeholder'] ?? null);
+        $this->assertEmpty($result['maxlength'] ?? null);
+        $this->assertEmpty($result['pattern'] ?? null);
         $this->assertEquals(2, $result['value']);
         $this->assertEquals('checked', $result['checked']);
-        $this->assertEmpty($result['data-value']);
+        $this->assertEmpty($result['data-value'] ?? null);
     }
 
 
@@ -59,16 +59,16 @@ class CheckboxFormFieldRendererTest extends BaseTest
 
         $this->assertEquals('checkbox', $result['type']);
         $this->assertEquals('name[]', $result['name']);
-        $this->assertEmpty($result['required']);
-        $this->assertEmpty($result['class']);
-        $this->assertEmpty($result['placeholder']);
-        $this->assertEmpty($result['maxlength']);
-        $this->assertEmpty($result['pattern']);
-        $this->assertEmpty($result['value']);
-        $this->assertEmpty($result['checked']);
-        $this->assertEmpty($result['multiple']);
-        $this->assertEmpty($result['data-multiple']);
-        $this->assertEmpty($result['data-value']);
+        $this->assertEmpty($result['required'] ?? null);
+        $this->assertEmpty($result['class'] ?? null);
+        $this->assertEmpty($result['placeholder'] ?? null);
+        $this->assertEmpty($result['maxlength'] ?? null);
+        $this->assertEmpty($result['pattern'] ?? null);
+        $this->assertEmpty($result['value'] ?? null);
+        $this->assertEmpty($result['checked'] ?? null);
+        $this->assertEmpty($result['multiple'] ?? null);
+        $this->assertEmpty($result['data-multiple'] ?? null);
+        $this->assertEmpty($result['data-value'] ?? null);
     }
 
 

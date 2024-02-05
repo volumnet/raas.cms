@@ -43,7 +43,7 @@ trait MediaDatatypeStrategyTrait
 
     public function import($value)
     {
-        $fileData = (array)json_decode($value, true);
+        $fileData = (array)json_decode($value ?: '', true);
         if ($fileData) {
             $fileData['vis'] = (bool)($fileData['vis'] ?? false);
             $fileData['name'] = trim($fileData['name'] ?? '');
