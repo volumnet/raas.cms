@@ -177,7 +177,7 @@ class Controller_Ajax extends Abstract_Controller
             $mtype = (int)$this->nav['mtype'];
         }
         $onlyByName = false;
-        if ((int)$this->nav['only_by_name']) {
+        if ((int)($this->nav['only_by_name'] ?? 0)) {
             $onlyByName = true;
         }
         $Set = $this->model->getMaterialsBySearch(

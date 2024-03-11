@@ -110,7 +110,7 @@ export default {
             }).draggable({
                 ...commonConfig,
                 scroll: false,
-                drag: this.handleChange.bind(this),
+                stop: this.handleChange.bind(this), // 2024-03-04, AVS: заменил drag на stop, иначе конфликты синхронности и подвинуть не получается
             });
         }
     },

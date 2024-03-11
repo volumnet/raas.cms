@@ -92,9 +92,6 @@ ob_start(); // Для $separateScripts
         '/css/header.css',
     ]);
     AssetManager::requestJS('/js/header.js', 'beforeApp');
-    AssetManager::requestJS([
-        '//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js',
-    ]);
     if (!$Page->pid) {
         AssetManager::requestCSS(['/css/main.css']);
         AssetManager::requestJS(['/js/main.js']);
@@ -273,6 +270,9 @@ ob_start(); // Для $separateScripts
       // 2023-04-11, AVS: перенес footer_counters после footer.js, т.к. скрипты типа целей Яндекс.Метрики
       // должны отрабатывать уже после Vue
       echo AssetManager::asset('/js/footer.js') . $Page->location('footer_counters');
+      echo AssetManager::asset([
+          'https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js',
+      ]); // 2024-02-12, AVS: Сейчас по факту работает только здесь
       ?>
     </div>
     <?php

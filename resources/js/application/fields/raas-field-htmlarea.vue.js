@@ -24,7 +24,7 @@ export default {
             if (!$(this.$el).attr('data-ckeditor-applied')) {
                 let ck = $(this.$el).ckeditor(this.ckEditorConfig);
                 ck.editor.on('change', () => {
-                    this.$emit('input', $(this.$el).val())
+                    this.$emit('input', $(this.$el).val());
                 });
                 $(this.$el).attr('data-ckeditor-applied', 'true');
             }
@@ -65,9 +65,11 @@ export default {
     },
     watch: {
         value() {
-            for (let instance of Object.values(CKEDITOR.instances)) {
-                if ((instance.element.$ == this.$el) && (this.value != instance.getData())) {
-                    instance.setData(this.value);
+            if (window.CKEDITOR) {
+                for (let instance of Object.values(window.CKEDITOR.instances)) {
+                    if ((instance.element.$ == this.$el) && (this.value != instance.getData())) {
+                        instance.setData(this.value);
+                    }
                 }
             }
         }

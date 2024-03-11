@@ -224,7 +224,6 @@ class EditBlockForm extends RAASForm
         $field = new RAASField([
             'name' => 'pages_var_name',
             'caption' => $this->view->_('PAGES_VAR_NAME'),
-            'default' => 'page'
         ]);
         return $field;
     }
@@ -239,7 +238,6 @@ class EditBlockForm extends RAASForm
         $field = new RAASField([
             'name' => 'rows_per_page',
             'caption' => $this->view->_('ITEMS_PER_PAGE'),
-            'default' => Application::i()->registryGet('rowsPerPage')
         ]);
         return $field;
     }

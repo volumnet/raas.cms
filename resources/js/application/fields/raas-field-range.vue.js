@@ -21,14 +21,14 @@ export default {
                     min: parseFloat(this.min) || 0,
                     max: parseFloat(this.max) || 10,
                     step: parseFloat(this.step) || 1,
-                    value: this.value,
+                    value: this.pValue,
                     slide: (event, ui) => {
                         self.pValue = ui.value;
                         self.$emit('input', ui.value);
                     },
                 }).attr('data-slider-applied', 'true');
             } else {
-                $(this.$refs.slider).slider('value', parseFloat(this.value) || 0);
+                $(this.$refs.slider).slider('value', parseFloat(this.pValue) || 0);
             }
         },
     },

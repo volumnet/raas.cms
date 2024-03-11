@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use RAAS\Application;
 use RAAS\Field as RAASField;
 
 /**
@@ -75,5 +76,25 @@ class EditBlockSearchForm extends EditBlockForm
         $tab->children[] = $this->getRowsPerPageField();
         $tab->children[] = $this->getInterfaceField();
         return $tab;
+    }
+
+
+    protected function getPagesVarField()
+    {
+        $field = parent::getPagesVarField();
+        $field->default = 'page';
+        return $field;
+    }
+
+
+    /**
+     * Получает поле "Количество записей на странице (0 — все)"
+     * @return RAASField
+     */
+    protected function getRowsPerPageField()
+    {
+        $field = parent::getRowsPerPageField();
+        $field->default = Application::i()->registryGet('rowsPerPage');
+        return $field;
     }
 }

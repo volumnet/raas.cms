@@ -60,7 +60,7 @@ class FeedbackTable extends Table
                       ? $row->material->name
                       : $row->page->name;
                 return '<a href="' . $this->view->url . '&action=view&id=' . (int)$row->id . '">' .
-                          htmlspecialchars($name) .
+                          htmlspecialchars((string)$name) .
                        '</a>';
             }
         ];

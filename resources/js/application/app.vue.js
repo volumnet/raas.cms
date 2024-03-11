@@ -65,6 +65,7 @@ export default {
                 'a.scrollTo[href*="#"], ' + 
                 'a[href^="#"]:not([href="#"]):not([data-toggle]):not([data-bs-toggle]), ' + 
                 '.menu-top__link[href*="#"], ' + 
+                '.menu-main__link[href*="#"], ' + 
                 '.menu-bottom__link[href*="#"], ' + 
                 '.menu-mobile__link[href*="#"]',
             /**
@@ -391,6 +392,7 @@ export default {
                 destY = destination.offset().top;
             }
             if (destY !== null) {
+                // console.log(destY)
                 let top = Math.max(0, Math.round(destY + this.getScrollOffset()));
                 top = Math.min(top, $('body').outerHeight() - this.windowHeight - 1); // 2024-01-15, AVS: Поправка на нижний край документа
                 let scrollToData = {

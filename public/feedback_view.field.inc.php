@@ -92,7 +92,7 @@ $_RAASForm_Control = function (RAASField $field) use (
                     }
                 }
                 echo '<a href="' . Sub_Main::i()->url . '&id=' . (int)$Item->page_id . '">' .
-                        htmlspecialchars($Item->page->name) .
+                        htmlspecialchars((string)$Item->page->name) .
                       '</a>';
                 if ($Item && $Item->material && $Item->material->id) {
                     echo ' / ' .

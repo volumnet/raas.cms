@@ -125,13 +125,13 @@ $_RAASForm_Control = function (
                         $attrs = [
                             'datatype' => 'material',
                             'type' => 'hidden',
-                            'data-field-id' => (int)$field->Form->Item->fields[$field->name]->id,
-                            'data-material-id' => $val->id,
-                            'data-material-pid' => $val->parents[0]->id,
-                            'data-material-name' => $val->name
+                            'data-field-id' => (int)($field->Form->Item->fields[$field->name]->id ?? 0),
+                            'data-material-id' => $val->id ?? 0,
+                            'data-material-pid' => $val->parents[0]->id ?? 0,
+                            'data-material-name' => $val->name ?? ''
                         ]; ?>
                         <div data-role="raas-repo-element">
-                          <input<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['value' => $val->id]))?> />
+                          <input<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['value' => $val->id ?? 0]))?> />
                         </div>
                     <?php } ?>
                   </div>
@@ -139,7 +139,7 @@ $_RAASForm_Control = function (
                     <?php $attrs = [
                         'datatype' => 'material',
                         'type' => 'hidden',
-                        'data-field-id' => (int)$field->Form->Item->fields[$field->name]->id,
+                        'data-field-id' => (int)($field->Form->Item->fields[$field->name]->id ?? 0),
                         'data-material-id' => '',
                         'data-material-pid' => '',
                         'data-material-name' => ''
@@ -151,7 +151,7 @@ $_RAASForm_Control = function (
                 // 2015-06-08, AVS: В выражении
                 // (int)$field->Form->DATA[$field->name] убрал (int),
                 // т.к. $val типа материал
-                $val = $field->Form->DATA[$field->name];
+                $val = $field->Form->DATA[$field->name] ?? null;
                 if (is_scalar($val)) {
                     $val = new Material($val);
                 }
@@ -197,7 +197,12 @@ $_RAASForm_Control = function (
                   <?php } ?>
                   <a href="<?php echo htmlspecialchars($row ? $row->fileURL : '')?>" target="_blank" data-role="file-link">
                     <?php if ($field->type == 'image') { ?>
-                        <img src="<?php echo htmlspecialchars($row ? $row->tnURL : '')?>" alt="<?php echo htmlspecialchars(basename($row ? $row->filename : ''))?>" title="<?php echo htmlspecialchars(basename($row ? $row->filename : ''))?>" class="cms-filecard__image" />
+                        <img
+                          src="<?php echo htmlspecialchars((string)((string)($row ? $row->tnURL : '')))?>"
+                          alt="<?php echo htmlspecialchars(basename((string)($row ? $row->filename : '')))?>"
+                          title="<?php echo htmlspecialchars(basename((string)($row ? $row->filename : '')))?>"
+                          class="cms-filecard__image"
+                        />
                     <?php } else { ?>
                         <?php echo htmlspecialchars(basename($row ? $row->filename : ''))?>
                     <?php } ?>
@@ -397,7 +402,7 @@ $_RAASForm_Field = function (RAASField $field) use (
             return $x['value'] == $field->name;
         }
     );
-    if (in_array($field->type, ['htmlarea', 'codearea'])) { ?>
+    if (in_array($field->type, ['htmlarea', 'codearea', 'htmlcodearea'])) { ?>
         <div class="control-group<?php echo $err ? ' error' : ''?>">
           <?php if ($field->caption) { ?>
               <label class="control-label" for="<?php echo htmlspecialchars($field->name)?>">

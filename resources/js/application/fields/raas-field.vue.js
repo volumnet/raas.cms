@@ -39,6 +39,13 @@ export default {
     },
     methods: {
         /**
+         * Устанавливает внутреннее значение
+         * @param {mixed} value Значение
+         */
+        setPValue(value) {
+            this.pValue = value;
+        },
+        /**
          * Получает список опций источника в плоском виде
          * @param {Array} source <pre><code>array<{
          *     value: String Значение,

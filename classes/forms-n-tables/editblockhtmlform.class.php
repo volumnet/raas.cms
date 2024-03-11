@@ -44,13 +44,10 @@ class EditBlockHTMLForm extends EditBlockForm
     protected function getCommonTab(Page $parent = null)
     {
         $tab = parent::getCommonTab();
-        $mime = 'text/html';
-        if ($parent->mime) {
-            $mime = $parent->mime;
-        }
-        if (($mime == 'text/html') && (!$this->Item->id || $this->Item->wysiwyg)) {
+        $mime = $parent->mime ?: 'text/html';
+        if ($mime == 'text/html') {
             $tab->children[] = [
-                'type' => 'htmlarea',
+                'type' => 'htmlcodearea',
                 'name' => 'description',
                 'data-mime' => $mime,
             ];

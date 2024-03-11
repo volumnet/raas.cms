@@ -39,7 +39,7 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
                 }
                 return null;
             },
-        ],
+        ]
     );
     $formData = (object)$DATA;
     ?>

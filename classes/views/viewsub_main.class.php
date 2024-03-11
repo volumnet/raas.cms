@@ -37,40 +37,40 @@ class ViewSub_Main extends RAASAbstractSubView
      *            'Morder' => array<
      *                string[] URN типа материала => array<'asc'|'desc'>
      *            > Параметры упорядочения по связанным типам материалов,
-     *        ] $IN Входные данные
+     *        ] $in Входные данные
      */
-    public function show_page(array $IN = [])
+    public function show_page(array $in = [])
     {
         $view = $this;
-        $IN['Table'] = new SubsectionsTable($IN);
+        $in['Table'] = new SubsectionsTable($in);
 
-        if ($IN['Item']->id) {
-            $IN['MTable'] = [];
-            foreach ($IN['Item']->affectedMaterialTypes as $mtype) {
-                $IN['MTable'][$mtype->urn] = new MaterialsTable([
-                    'Item' => $IN['Item'],
+        if ($in['Item']->id) {
+            $in['MTable'] = [];
+            foreach ($in['Item']->affectedMaterialTypes as $mtype) {
+                $in['MTable'][$mtype->urn] = new MaterialsTable([
+                    'Item' => $in['Item'],
                     'mtype' => $mtype,
                     'hashTag' => $mtype->urn,
-                    'Set' => $IN['MSet'][$mtype->urn],
-                    'Pages' => $IN['MPages'][$mtype->urn],
+                    'Set' => $in['MSet'][$mtype->urn],
+                    'Pages' => $in['MPages'][$mtype->urn],
                     'sortVar' => 'm' . $mtype->id . 'sort',
                     'orderVar' => 'm' . $mtype->id . 'order',
                     'pagesVar' => 'm' . $mtype->id . 'page',
-                    'sort' => $IN['Msort'][$mtype->urn],
-                    'order' => (strtolower($IN['Morder'][$mtype->urn]) == 'desc')
+                    'sort' => $in['Msort'][$mtype->urn],
+                    'order' => (strtolower($in['Morder'][$mtype->urn]) == 'desc')
                             ?  Column::SORT_DESC
                             : Column::SORT_ASC
                 ]);
             }
         }
 
-        $this->assignVars($IN);
-        $this->title = $IN['Item']->id ? $IN['Item']->name : $this->_('SITES');
-        $this->subtitle = $this->getPageSubtitle($IN['Item']);
-        if ($IN['Item']->id) {
+        $this->assignVars($in);
+        $this->title = $in['Item']->id ? $in['Item']->name : $this->_('SITES');
+        $this->subtitle = $this->getPageSubtitle($in['Item']);
+        if ($in['Item']->id) {
             $this->path[] = ['href' => $this->url, 'name' => $this->_('PAGES')];
-            if ($IN['Item']->parents) {
-                foreach ($IN['Item']->parents as $row) {
+            if ($in['Item']->parents) {
+                foreach ($in['Item']->parents as $row) {
                     $this->path[] = [
                         'href' => $this->url . '&id=' . (int)$row->id
                                .  '#subsections',
@@ -79,16 +79,16 @@ class ViewSub_Main extends RAASAbstractSubView
                 }
             }
         }
-        $this->submenu = $this->pagesMenu(new Page(), $IN['Item']);
-        if ($IN['Item']->id) {
-            $this->contextmenu = $this->getPageContextMenu($IN['Item']);
+        $this->submenu = $this->pagesMenu(new Page(), $in['Item']);
+        if ($in['Item']->id) {
+            $this->contextmenu = $this->getPageContextMenu($in['Item']);
         } else {
             $this->contextmenu = [[
                 'href' => $this->url . '&action=edit',
                 'name' => $this->_('CREATE_SITE')
             ]];
         }
-        $this->template = $IN['Item']->id ? 'pages' : $IN['Table']->template;
+        $this->template = ($in['Item']->id ?? null) ? 'pages' : $in['Table']->template;
         $this->js[] = $this->publicURL . '/show_page.js';
         $this->css[] = $this->publicURL . '/show_page.css';
     }
@@ -105,14 +105,14 @@ class ViewSub_Main extends RAASAbstractSubView
      *                'description' => string Описание ошибки,
      *            ]> Ошибки,
      *            'Form' => EditPageForm Форма редактирования,
-     *        ] $IN Входные данные
+     *        ] $in Входные данные
      */
-    public function edit_page(array $IN = [])
+    public function edit_page(array $in = [])
     {
         $this->path[] = ['href' => $this->url, 'name' => $this->_('PAGES')];
-        if ($IN['Parent']->id) {
-            if ($IN['Parent']->parents) {
-                foreach ($IN['Parent']->parents as $row) {
+        if ($in['Parent']->id) {
+            if ($in['Parent']->parents) {
+                foreach ($in['Parent']->parents as $row) {
                     $this->path[] = [
                         'href' => $this->url . '&id=' . (int)$row->id
                                .  '#subsections',
@@ -121,26 +121,26 @@ class ViewSub_Main extends RAASAbstractSubView
                 }
             }
             $this->path[] = [
-                'href' => $this->url . '&id=' . (int)$IN['Parent']->id
+                'href' => $this->url . '&id=' . (int)$in['Parent']->id
                        .  '#subsections',
-                'name' => $IN['Parent']->name
+                'name' => $in['Parent']->name
             ];
         }
-        if ($IN['Item']->id) {
+        if ($in['Item']->id) {
             $this->path[] = [
-                'href' => $this->url . '&id=' . (int)$IN['Item']->id,
-                'name' => $IN['Item']->name
+                'href' => $this->url . '&id=' . (int)$in['Item']->id,
+                'name' => $in['Item']->name
             ];
         }
         $this->submenu = $this->pagesMenu(
             new Page(),
-            $IN['Item']->id ? $IN['Item'] : $IN['Parent']
+            $in['Item']->id ? $in['Item'] : $in['Parent']
         );
         $this->js[] = $this->publicURL . '/field.inc.js';
         $this->js[] = $this->publicURL . '/edit_meta.inc.js';
         $this->js[] = $this->publicURL . '/edit_page.js';
-        $this->stdView->stdEdit($IN, 'getPageContextMenu');
-        $this->subtitle = $this->getPageSubtitle($IN['Item']);
+        $this->stdView->stdEdit($in, 'getPageContextMenu');
+        $this->subtitle = $this->getPageSubtitle($in['Item']);
     }
 
 
@@ -149,15 +149,15 @@ class ViewSub_Main extends RAASAbstractSubView
      * @param [
      *            'items' =>? array<Page> Страницы для переноса
      *            'Item' =>? Page Одиночная страница для переноса
-     *        ] $IN Входные данные
+     *        ] $in Входные данные
      */
-    public function move_page(array $IN = [])
+    public function move_page(array $in = [])
     {
         $ids = array_map(
             function ($x) {
                 return (int)$x->id;
             },
-            $IN['items']
+            $in['items']
         );
         $ids = array_unique($ids);
         $ids = array_values($ids);
@@ -165,24 +165,24 @@ class ViewSub_Main extends RAASAbstractSubView
             function ($x) {
                 return (int)$x->pid;
             },
-            $IN['items']
+            $in['items']
         );
         $pids = array_unique($pids);
         $pids = array_values($pids);
         $actives = [];
-        foreach ($IN['items'] as $row) {
+        foreach ($in['items'] as $row) {
             $actives = array_merge($actives, (array)$row->selfAndParentsIds);
         }
         $actives = array_unique($actives);
         $actives = array_values($actives);
-        $IN['ids'] = $ids;
-        $IN['pids'] = $pids;
-        $IN['actives'] = $actives;
+        $in['ids'] = $ids;
+        $in['pids'] = $pids;
+        $in['actives'] = $actives;
 
-        $this->assignVars($IN);
+        $this->assignVars($in);
         $this->path[] = ['href' => $this->url, 'name' => $this->_('PAGES')];
-        if ($IN['Item']->parents) {
-            foreach ($IN['Item']->parents as $row) {
+        if ($in['Item']->parents) {
+            foreach ($in['Item']->parents as $row) {
                 $this->path[] = [
                     'href' => $this->url . '&id=' . (int)$row->id
                            .  '#subsections',
@@ -191,18 +191,18 @@ class ViewSub_Main extends RAASAbstractSubView
             }
         }
         $this->path[] = [
-            'href' => $this->url . '&id=' . (int)$IN['Item']->id,
-            'name' => $IN['Item']->name
+            'href' => $this->url . '&id=' . (int)$in['Item']->id,
+            'name' => $in['Item']->name
         ];
-        if (count($IN['items']) == 1) {
-            $this->contextmenu = $this->getPageContextMenu($IN['Item']);
-            $this->submenu = $this->pagesMenu(new Page(), $IN['Item']);
+        if (count($in['items']) == 1) {
+            $this->contextmenu = $this->getPageContextMenu($in['Item']);
+            $this->submenu = $this->pagesMenu(new Page(), $in['Item']);
         } else {
             $this->submenu = $this->pagesMenu(new Page(), null);
         }
         $this->title = $this->_('MOVING_PAGE');
         $this->template = 'move_page';
-        $this->subtitle = $this->getPageSubtitle($IN['Item']);
+        $this->subtitle = $this->getPageSubtitle($in['Item']);
     }
 
 
@@ -217,15 +217,15 @@ class ViewSub_Main extends RAASAbstractSubView
      *                'description' => string Описание ошибки,
      *            ]> Ошибки,
      *            'Form' => EditBlockForm Форма редактирования,
-     *        ] $IN Входные данные
+     *        ] $in Входные данные
      */
-    public function edit_block(array $IN = [])
+    public function edit_block(array $in = [])
     {
         $this->js[] = $this->publicURL . '/edit_block.js';
         $this->path[] = ['href' => $this->url, 'name' => $this->_('PAGES')];
-        if ($IN['Parent']->id) {
-            if ($IN['Parent']->parents) {
-                foreach ($IN['Parent']->parents as $row) {
+        if ($in['Parent']->id) {
+            if ($in['Parent']->parents) {
+                foreach ($in['Parent']->parents as $row) {
                     $this->path[] = [
                         'href' => $this->url . '&id=' . (int)$row->id,
                         'name' => $row->name
@@ -233,17 +233,17 @@ class ViewSub_Main extends RAASAbstractSubView
                 }
             }
             $this->path[] = [
-                'href' => $this->url . '&id=' . (int)$IN['Parent']->id,
-                'name' => $IN['Parent']->name
+                'href' => $this->url . '&id=' . (int)$in['Parent']->id,
+                'name' => $in['Parent']->name
             ];
         }
-        $this->submenu = $this->pagesMenu(new Page(), $IN['Parent']);
+        $this->submenu = $this->pagesMenu(new Page(), $in['Parent']);
         $this->contextmenu = $this->getBlockContextMenu(
-            $IN['Item'],
-            $IN['Parent']
+            $in['Item'],
+            $in['Parent']
         );
-        $this->stdView->stdEdit($IN);
-        $this->subtitle = $this->getBlockSubtitle($IN['Item']);
+        $this->stdView->stdEdit($in);
+        $this->subtitle = $this->getBlockSubtitle($in['Item']);
     }
 
 
@@ -259,33 +259,33 @@ class ViewSub_Main extends RAASAbstractSubView
      *                'description' => string Описание ошибки,
      *            ]> Ошибки,
      *            'Form' => EditMaterialForm Форма редактирования,
-     *        ] $IN Входные данные
+     *        ] $in Входные данные
      */
-    public function edit_material(array $IN = [])
+    public function edit_material(array $in = [])
     {
         $this->path[] = ['href' => $this->url, 'name' => $this->_('PAGES')];
-        if ($IN['Parent']->id) {
-            if ($IN['Parent']->parents) {
-                foreach ($IN['Parent']->parents as $row) {
+        if ($in['Parent']->id) {
+            if ($in['Parent']->parents) {
+                foreach ($in['Parent']->parents as $row) {
                     $this->path[] = [
                         'href' => $this->url . '&id=' . (int)$row->id
-                               .  '#_' . $IN['Type']->urn,
-                        'name' => $row->name/* . ': ' . $IN['Type']->name*/
+                               .  '#_' . $in['Type']->urn,
+                        'name' => $row->name/* . ': ' . $in['Type']->name*/
                     ];
                 }
             }
             $this->path[] = [
-                'href' => $this->url . '&id=' . (int)$IN['Parent']->id
-                       .  '#_' . $IN['Type']->urn,
-                'name' => $IN['Parent']->name/* . ': ' . $IN['Type']->name*/
+                'href' => $this->url . '&id=' . (int)$in['Parent']->id
+                       .  '#_' . $in['Type']->urn,
+                'name' => $in['Parent']->name/* . ': ' . $in['Type']->name*/
             ];
         }
-        $this->submenu = $this->pagesMenu(new Page(), $IN['Parent']);
+        $this->submenu = $this->pagesMenu(new Page(), $in['Parent']);
         $this->js[] = $this->publicURL . '/field.inc.js';
         $this->js[] = $this->publicURL . '/edit_material.js';
         $this->js[] = $this->publicURL . '/edit_meta.inc.js';
-        $this->stdView->stdEdit($IN, 'getMaterialContextMenu');
-        $this->subtitle = $this->getMaterialSubtitle($IN['Item']);
+        $this->stdView->stdEdit($in, 'getMaterialContextMenu');
+        $this->subtitle = $this->getMaterialSubtitle($in['Item']);
     }
 
 
@@ -294,24 +294,24 @@ class ViewSub_Main extends RAASAbstractSubView
      * @param [
      *            'items' => array<Material> Список материалов для перемещения,
      *            'page' => Page Страница, куда перемещаем
-     *        ] $IN Входные данные
+     *        ] $in Входные данные
      */
-    public function move_material(array $IN = [])
+    public function move_material(array $in = [])
     {
         $ids = array_map(
             function ($x) {
                 return (int)$x->id;
             },
-            $IN['items']
+            $in['items']
         );
-        $ids = [$IN['page']->id];
-        $IN['ids'] = $ids;
-        $IN['actives'] = (array)$IN['page']->selfAndParentsIds;
+        $ids = [$in['page']->id];
+        $in['ids'] = $ids;
+        $in['actives'] = (array)$in['page']->selfAndParentsIds;
 
-        $this->assignVars($IN);
+        $this->assignVars($in);
         $this->path[] = ['href' => $this->url, 'name' => $this->_('PAGES')];
-        if ($IN['page']->parents) {
-            foreach ($IN['page']->parents as $row) {
+        if ($in['page']->parents) {
+            foreach ($in['page']->parents as $row) {
                 $this->path[] = [
                     'href' => $this->url . '&id=' . (int)$row->id
                            .  '#subsections',
@@ -320,14 +320,14 @@ class ViewSub_Main extends RAASAbstractSubView
             }
         }
         $this->path[] = [
-            'href' => $this->url . '&id=' . (int)$IN['page']->id
-                   .  '#_' . $IN['mtype']->id,
-            'name' => $IN['page']->name
+            'href' => $this->url . '&id=' . (int)$in['page']->id
+                   .  '#_' . $in['mtype']->id,
+            'name' => $in['page']->name
         ];
-        if (count($IN['items']) == 1) {
-            $this->contextmenu = $this->getMaterialContextMenu($IN['Item']);
-            $this->submenu = $this->pagesMenu(new Page(), $IN['page']);
-            $this->subtitle = $this->getMaterialSubtitle($IN['Item']);
+        if (count($in['items']) == 1) {
+            $this->contextmenu = $this->getMaterialContextMenu($in['Item']);
+            $this->submenu = $this->pagesMenu(new Page(), $in['page']);
+            $this->subtitle = $this->getMaterialSubtitle($in['Item']);
         } else {
             $this->submenu = $this->pagesMenu(new Page(), null);
         }
@@ -341,23 +341,23 @@ class ViewSub_Main extends RAASAbstractSubView
      * @param [
      *            'items' => array<Material> Список материалов для перемещения,
      *            'page' => Page Страница, куда перемещаем
-     *        ] $IN Входные данные
+     *        ] $in Входные данные
      */
-    public function chtype_material(array $IN = [])
+    public function chtype_material(array $in = [])
     {
         $ids = array_map(
             function ($x) {
                 return (int)$x->id;
             },
-            $IN['items']
+            $in['items']
         );
-        $ids = [$IN['page']->id];
-        $IN['ids'] = $ids;
+        $ids = [$in['page']->id];
+        $in['ids'] = $ids;
 
-        $this->assignVars($IN);
+        $this->assignVars($in);
         $this->path[] = ['href' => $this->url, 'name' => $this->_('PAGES')];
-        if ($IN['page']->parents) {
-            foreach ($IN['page']->parents as $row) {
+        if ($in['page']->parents) {
+            foreach ($in['page']->parents as $row) {
                 $this->path[] = [
                     'href' => $this->url . '&id=' . (int)$row->id
                            .  '#subsections',
@@ -366,14 +366,14 @@ class ViewSub_Main extends RAASAbstractSubView
             }
         }
         $this->path[] = [
-            'href' => $this->url . '&id=' . (int)$IN['page']->id
-                   .  '#_' . $IN['mtype']->id,
-            'name' => $IN['page']->name
+            'href' => $this->url . '&id=' . (int)$in['page']->id
+                   .  '#_' . $in['mtype']->id,
+            'name' => $in['page']->name
         ];
-        if (count($IN['items']) == 1) {
-            $this->contextmenu = $this->getMaterialContextMenu($IN['Item']);
-            $this->submenu = $this->pagesMenu(new Page(), $IN['page']);
-            $this->subtitle = $this->getMaterialSubtitle($IN['Item']);
+        if (count($in['items']) == 1) {
+            $this->contextmenu = $this->getMaterialContextMenu($in['Item']);
+            $this->submenu = $this->pagesMenu(new Page(), $in['page']);
+            $this->subtitle = $this->getMaterialSubtitle($in['Item']);
         } else {
             $this->submenu = $this->pagesMenu(new Page(), null);
         }

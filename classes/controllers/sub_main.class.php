@@ -539,8 +539,8 @@ class Sub_Main extends RAASAbstractSubController
     protected function move_material()
     {
         $items = [];
-        $ids = (array)$_GET['id'];
-        $pids = (array)$_GET['pid'];
+        $ids = (array)($_GET['id'] ?? []);
+        $pids = (array)($_GET['pid'] ?? []);
         $pids = array_filter($pids, 'trim');
         $mtype = new Material_Type((int)($_GET['mtype'] ?? 0));
         if ($mtype->global_type) {
@@ -561,35 +561,28 @@ class Sub_Main extends RAASAbstractSubController
             }
             $items = Material::getSet(['where' => $where, 'orderBy' => "id"]);
         } else {
-            $items = array_map(
-                function ($x) {
-                    return new Material((int)$x);
-                },
-                $ids
-            );
+            $items = array_map(function ($x) {
+                return new Material((int)$x);
+            }, $ids);
         }
         $items = array_values($items);
-        $Item = isset($items[0]) ? $items[0] : new Material();
+        $Item = $items[0] ?? new Material();
         $mtype = $Item->material_type;
-        $pid = ($mtype->global_type || $pids)
-             ? array_shift($pids)
-             : (int)$Item->pages_ids[0];
+        $pid = $pids ? array_shift($pids) : (int)$Item->pages_ids[0];
         $oldPage = new Page($pid);
         if ($items) {
-            if (isset($_GET['new_pid'])) {
-                $Parent = new Page((int)$_GET['new_pid']);
+            if ($_GET['new_pid'] ?? null) {
+                $parent = new Page((int)$_GET['new_pid']);
                 foreach ($items as $row) {
                     $row->dontUpdateAffectedPages = true;
-                    if ($_GET['move']) {
+                    if ($_GET['move'] ?? null) {
                         $row->deassoc($oldPage);
                     }
-                    $row->assoc($Parent);
+                    $row->assoc($parent);
                 }
                 Material::updateAffectedPages();
                 Material_Type::updateAffectedPagesForSelf($mtype);
-                new Redirector(
-                    $this->url . '&id=' . (int)$Parent->id . '#_' . $mtype->urn
-                );
+                new Redirector($this->url . '&id=' . (int)$parent->id . '#_' . $mtype->urn);
             } else {
                 $this->view->move_material([
                     'Item' => $Item,

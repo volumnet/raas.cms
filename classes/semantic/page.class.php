@@ -282,7 +282,7 @@ class Page extends SOME
                 return explode('/', trim($this->cache_url, '/'));
                 break;
             case 'url':
-                return $this->cache_url;
+                return (string)$this->cache_url;
                 break;
             case 'fullURL':
                 $domains = $this->domains;
@@ -372,6 +372,7 @@ class Page extends SOME
                 if ($val !== null) {
                     return $val;
                 } else {
+                    $vis = false;
                     if (substr($var, 0, 3) == 'vis') {
                         $var = strtolower(substr($var, 3));
                         $vis = true;
@@ -594,7 +595,7 @@ class Page extends SOME
      */
     protected function processHeaders()
     {
-        $lastModificationTime = strtotime($this->last_modified);
+        $lastModificationTime = strtotime((string)$this->last_modified);
         $ifModifiedSinceTime = 0;
         if (isset($_ENV['HTTP_IF_MODIFIED_SINCE'])) {
             $ifModifiedSinceTime = strtotime(
