@@ -9,6 +9,8 @@ namespace RAAS\CMS;
  */
 class MenuTest extends BaseDBTest
 {
+    public static $tables = ['cms_menus', 'cms_pages'];
+
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();

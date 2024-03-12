@@ -9,6 +9,8 @@ namespace RAAS\CMS;
  */
 class CacheInterfaceTest extends BaseDBTest
 {
+    public static $tables = ['cms_blocks', 'cms_blocks_menu', 'cms_blocks_html', 'cms_pages'];
+
     /**
      * Тест получения кода для кэширования произвольных данных
      */

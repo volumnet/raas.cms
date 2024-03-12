@@ -1,19 +1,15 @@
 {
     "name": "volumnet/raas.cms",
     "description": "RAAS.CMS",
-    "version": "4.3.74",
+    "version": "4.3.75",
     "license": "GPL-3.0-or-later",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "mustache/mustache": ">=2.5",
         "phpoffice/phpexcel": ">=1.8",
-        "volumnet/some4": ">=4.6.5",
-        "volumnet/raas.kernel": ">=4.3.14",
         "electrolinux/phpquery": "*",
-        "deruli/html-minifier": "*",
-        "twig/twig": "*",
-        "pelago/emogrifier": "*"
+        "volumnet/some4": ">=4.6.15",
+        "volumnet/raas.kernel": ">=4.3.32"
     },
     "require-dev": {
         "phpunit/phpunit": "*",

@@ -7,7 +7,7 @@ namespace RAAS\CMS;
 /**
  * Класс теста рендерера произвольного поля уведомления
  */
-abstract class CustomFormFieldRendererTest extends BaseTest
+abstract class CustomNotificationFieldRendererTest extends BaseTest
 {
     /**
      * Класс рендерера поля

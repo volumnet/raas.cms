@@ -9,6 +9,8 @@ namespace RAAS\CMS;
  */
 class VisibleRecursiveCacheTest extends BaseDBTest
 {
+    public static $tables = ['cms_pages'];
+
     /**
      * Проверяет свойство visibleIds
      */

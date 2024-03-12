@@ -4,8 +4,6 @@
  */
 namespace RAAS\CMS;
 
-use Mustache_Engine;
-use Pelago\Emogrifier\CssInliner;
 use SOME\SOME;
 use SOME\Text;
 use SOME\Thumbnail;
@@ -701,12 +699,8 @@ class FormInterface extends AbstractInterface
         $attachments = $this->getAttachments($feedback, $material, $forAdmin);
 
         $processEmbedded = $this->processEmbedded($message);
-        $message = $processEmbedded['message'];
+        $message = Text::inlineCSS($processEmbedded['message']);
         $embedded = (array)$processEmbedded['embedded'];
-
-        if (class_exists('Pelago\Emogrifier\CssInliner')) {
-            $message = CssInliner::fromHtml($message)->inlineCss()->render();
-        }
 
         if ($emails = ($addresses['emails'] ?? null)) {
             if ($debug) {
@@ -757,9 +751,8 @@ class FormInterface extends AbstractInterface
         if (($smsPhones = ($addresses['smsPhones'] ?? null)) &&
             ($urlTemplate = Package::i()->registryGet('sms_gate'))
         ) {
-            $m = new Mustache_Engine();
             foreach ($smsPhones as $phone) {
-                $url = $m->render($urlTemplate, [
+                $url = Text::renderTemplate($urlTemplate, [
                     'PHONE' => urlencode($phone),
                     'TEXT' => urlencode($smsMessage)
                 ]);

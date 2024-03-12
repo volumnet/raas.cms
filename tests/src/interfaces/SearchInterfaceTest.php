@@ -11,7 +11,30 @@ use SOME\Pages;
  */
 class SearchInterfaceTest extends BaseDBTest
 {
-    // Независимые методы
+    public static $tables = [
+        'cms_access',
+        'cms_access_materials_cache',
+        'cms_pages',
+        'cms_materials',
+        'cms_material_types',
+        'cms_materials_pages_assoc',
+        'cms_blocks_pages_assoc',
+        'cms_blocks',
+        'cms_blocks_html',
+        'cms_blocks_material',
+        'cms_blocks_search',
+        'cms_fields',
+        'cms_data',
+        'cms_material_types_affected_pages_for_materials_cache',
+        'cms_material_types_affected_pages_for_self_cache',
+        'cms_materials_affected_pages_cache',
+    ];
+
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        PageRecursiveCache::i()->refresh();
+    }
 
     /**
      * Тест получения результатов поиска по рейтингам

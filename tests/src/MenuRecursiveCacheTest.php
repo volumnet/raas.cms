@@ -9,6 +9,8 @@ namespace RAAS\CMS;
  */
 class MenuRecursiveCacheTest extends BaseDBTest
 {
+    public static $tables = ['cms_access', 'cms_pages', 'cms_menus'];
+
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();

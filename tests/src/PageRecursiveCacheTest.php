@@ -9,6 +9,8 @@ namespace RAAS\CMS;
  */
 class PageRecursiveCacheTest extends BaseDBTest
 {
+    public static $tables = ['cms_access', 'cms_pages'];
+
     /**
      * Проверяет свойство allowedIds
      */

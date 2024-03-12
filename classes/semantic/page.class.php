@@ -328,7 +328,7 @@ class Page extends SOME
                 return $blocks;
                 break;
             case 'domains':
-                $result = explode(' ', $this->Domain->urn);
+                $result = explode(' ', (string)$this->Domain->urn);
                 $result = array_map(function ($x) {
                     $x = trim($x);
                     $x = preg_replace('/^http(s)?:\\/\\//umi', '', $x);
@@ -338,7 +338,10 @@ class Page extends SOME
                 return $result;
                 break;
             case 'domain':
-                return '//' . $this->domains[0];
+                if ($this->domains[0] ?? '') {
+                    return '//' . $this->domains[0];
+                }
+                return '';
                 break;
             case 'visChildren':
                 return array_values(

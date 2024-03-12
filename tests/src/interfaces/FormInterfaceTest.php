@@ -12,6 +12,16 @@ use RAAS\Controller_Frontend as RAASControllerFrontend;
  */
 class FormInterfaceTest extends BaseDBTest
 {
+    public static $tables = [
+        'cms_blocks',
+        'cms_blocks_form',
+        'cms_fields',
+        'cms_forms',
+        'cms_feedback',
+        'cms_data',
+        'cms_materials'
+    ];
+
     /**
      * Форма для проверки
      * @var Form

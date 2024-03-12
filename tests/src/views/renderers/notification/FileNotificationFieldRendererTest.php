@@ -11,7 +11,7 @@ use RAAS\User as RAASUser;
  * Класс теста рендерера файлового поля уведомления
  * @covers RAAS\CMS\FileNotificationFieldRenderer
  */
-class FileNotificationFieldRendererTest extends CustomFormFieldRendererTest
+class FileNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = FileNotificationFieldRenderer::class;
 

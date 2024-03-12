@@ -8,7 +8,7 @@ namespace RAAS\CMS;
  * Класс теста рендерера материального поля уведомления
  * @covers RAAS\CMS\MaterialNotificationFieldRenderer
  */
-class MaterialNotificationFieldRendererTest extends CustomFormFieldRendererTest
+class MaterialNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = MaterialNotificationFieldRenderer::class;
 

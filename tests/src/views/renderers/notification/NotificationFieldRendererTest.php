@@ -8,7 +8,7 @@ namespace RAAS\CMS;
  * Класс теста рендерера поля уведомления
  * @covers RAAS\CMS\NotificationFieldRenderer
  */
-class NotificationFieldRendererTest extends CustomFormFieldRendererTest
+class NotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     /**
      * Провайдер данных для метода testSpawn()

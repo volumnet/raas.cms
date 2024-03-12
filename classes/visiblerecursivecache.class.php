@@ -2,6 +2,8 @@
 /**
  * Файл абстрактного рекурсивного кэша с видимостью
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\Singleton;
@@ -12,17 +14,17 @@ use SOME\AbstractRecursiveCache;
  * Класс абстрактного рекурсивного кэша с видимостью
  *
  * @property-read array<
- *                    string ID# сущности =>
- *                    int ID# сущности
- *                > $visibleIds Набор ID# видимых сущностей
+ *     string ID# сущности =>
+ *     int ID# сущности
+ * > $visibleIds Набор ID# видимых сущностей
  * @property-read array<
- *                    string[] ID# родительской сущности =>
- *                    array<string ID# дочерней сущности => int ID# дочерней сущности>
- *                > $visChildrenIds Видимые дочерние ID# первого уровня
+ *     string[] ID# родительской сущности =>
+ *     array<string ID# дочерней сущности => int ID# дочерней сущности>
+ * > $visChildrenIds Видимые дочерние ID# первого уровня
  * @property-read array<
- *                    string[] ID# родительской сущности =>
- *                    array<string ID# дочерней сущности => int ID# дочерней сущности>
- *                > $visAllChildrenIds Дочерние ID# всех уровней
+ *     string[] ID# родительской сущности =>
+ *     array<string ID# дочерней сущности => int ID# дочерней сущности>
+ * > $visAllChildrenIds Дочерние ID# всех уровней
  */
 abstract class VisibleRecursiveCache extends AbstractRecursiveCache
 {
@@ -38,10 +40,10 @@ abstract class VisibleRecursiveCache extends AbstractRecursiveCache
 
     /**
      * Видимые дочерние ID# первого уровня
-     * @var array<
-     *          string[] ID# родительской сущности =>
-     *          array<string ID# дочерней сущности => int ID# дочерней сущности>
-     *      >
+     * @var array <pre><code>array<
+     *     string[] ID# родительской сущности =>
+     *     array<string ID# дочерней сущности => int ID# дочерней сущности>
+     * ></code></pre>
      */
     protected $visChildrenIds = [];
 
@@ -71,16 +73,16 @@ abstract class VisibleRecursiveCache extends AbstractRecursiveCache
 
     /**
      * Получает ID# видимых дочерних сущностей
-     * @param SOME|int|array<SOME|int> $data Родительская сущность
-     *                                       или ID# родительской сущности
-     *                                       или их массив
+     * @param SOME|int|SOME[]|int[] $data Родительская сущность
+     *     или ID# родительской сущности
+     *     или их массив
      * @param int $assoc Возвращать массив с ассоциацией по ID# (битовая маска)
-     *                   0 - нет
-     *                   1 - на уровне родительских ID#
-     *                   2 - на уровне дочерних ID#
-     * @return array<int|array<int>>
+     *     0 - нет
+     *     1 - на уровне родительских ID#
+     *     2 - на уровне дочерних ID#
+     * @return array <pre><code>array<int|array<int>></code></pre>
      */
-    public function getVisChildrenIds($data, $assoc = 2)
+    public function getVisChildrenIds($data, int $assoc = 2): array
     {
         return $this->getVarIds('visChildrenIds', $data, $assoc);
     }
@@ -88,16 +90,14 @@ abstract class VisibleRecursiveCache extends AbstractRecursiveCache
 
     /**
      * Получает видимые дочерние сущности
-     * @param SOME|int|array<SOME|int> $data Родительская сущность
-     *                                       или ID# родительской сущности
-     *                                       или их массив
+     * @param SOME|int|array<SOME|int> $data Родительская сущность или ID# родительской сущности или их массив
      * @param int $assoc Возвращать массив с ассоциацией по ID# (битовая маска)
-     *                   0 - нет
-     *                   1 - на уровне родительских ID#
-     *                   2 - на уровне дочерних ID#
-     * @return array<SOME|array<SOME>>
+     *     0 - нет
+     *     1 - на уровне родительских ID#
+     *     2 - на уровне дочерних ID#
+     * @return array <pre><code>array<SOME|array<SOME>></code></pre>
      */
-    public function getVisChildren($data, $assoc = 0)
+    public function getVisChildren($data, int $assoc = 0): array
     {
         return $this->getVar('visChildrenIds', $data, $assoc);
     }
@@ -105,16 +105,14 @@ abstract class VisibleRecursiveCache extends AbstractRecursiveCache
 
     /**
      * Получает ID# видимых дочерних сущностей всех уровней
-     * @param SOME|int|array<SOME|int> $data Родительская сущность
-     *                                       или ID# родительской сущности
-     *                                       или их массив
+     * @param SOME|int|array<SOME|int> $data Родительская сущность или ID# родительской сущности или их массив
      * @param int $assoc Возвращать массив с ассоциацией по ID# (битовая маска)
-     *                   0 - нет
-     *                   1 - на уровне родительских ID#
-     *                   2 - на уровне дочерних ID#
+     *     0 - нет
+     *     1 - на уровне родительских ID#
+     *     2 - на уровне дочерних ID#
      * @return array<int|array<int>>
      */
-    public function getVisAllChildrenIds($data, $assoc = 2)
+    public function getVisAllChildrenIds($data, int $assoc = 2): array
     {
         return $this->getVarIds('visAllChildrenIds', $data, $assoc);
     }
@@ -122,16 +120,14 @@ abstract class VisibleRecursiveCache extends AbstractRecursiveCache
 
     /**
      * Получает видимые дочерние сущности всех уровней
-     * @param SOME|int|array<SOME|int> $data Родительская сущность
-     *                                       или ID# родительской сущности
-     *                                       или их массив
+     * @param SOME|int|array<SOME|int> $data Родительская сущность или ID# родительской сущности или их массив
      * @param int $assoc Возвращать массив с ассоциацией по ID# (битовая маска)
-     *                   0 - нет
-     *                   1 - на уровне родительских ID#
-     *                   2 - на уровне дочерних ID#
-     * @return array<SOME|array<SOME>>
+     *     0 - нет
+     *     1 - на уровне родительских ID#
+     *     2 - на уровне дочерних ID#
+     * @return array <pre><code>array<SOME|array<SOME>></code></pre>
      */
-    public function getVisAllChildren($data, $assoc = 0)
+    public function getVisAllChildren($data, int $assoc = 0): array
     {
         return $this->getVar('visAllChildrenIds', $data, $assoc);
     }

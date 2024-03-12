@@ -11,7 +11,7 @@ use RAAS\User as RAASUser;
  * Класс теста рендерера поля изображения уведомления
  * @covers RAAS\CMS\ImageNotificationFieldRenderer
  */
-class ImageNotificationFieldRendererTest extends CustomFormFieldRendererTest
+class ImageNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = ImageNotificationFieldRenderer::class;
 

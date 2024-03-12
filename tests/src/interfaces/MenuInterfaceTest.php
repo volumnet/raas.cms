@@ -9,6 +9,8 @@ namespace RAAS\CMS;
  */
 class MenuInterfaceTest extends BaseDBTest
 {
+    public static $tables = ['cms_pages', 'cms_menus'];
+
     /**
      * Тест обработки видимых дочерних элементов меню
      */

@@ -11,6 +11,8 @@ use SOME\Pages;
  */
 class MaterialInterfaceTest extends BaseDBTest
 {
+    public static $tables = ['cms_pages', 'cms_blocks', 'cms_blocks_material', 'cms_materials'];
+
     /**
      * Тест получения полного списка параметров (включая GET и дополнительные из блока)
      */

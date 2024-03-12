@@ -8,7 +8,7 @@ namespace RAAS\CMS;
  * Класс теста рендерера поля e-mail уведомления
  * @covers RAAS\CMS\EmailNotificationFieldRenderer
  */
-class EmailNotificationFieldRendererTest extends CustomFormFieldRendererTest
+class EmailNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = EmailNotificationFieldRenderer::class;
 

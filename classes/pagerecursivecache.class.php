@@ -2,6 +2,8 @@
 /**
  * Файл рекурсивного кэша страниц
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use Error;
@@ -9,15 +11,14 @@ use SOME\Singleton;
 
 /**
  * Класс рекурсивного кэша страниц
- * @property-read array<
- *                    string ID# страницы =>
- *                    int ID# страницы
- *                > $allowedIds Набор ID# страниц, доступных для текущего
- *                              пользователя
- * @property-read array<
- *                    string ID# страницы =>
- *                    int ID# страницы
- *                > $systemIds Набор ID# служебных страниц
+ * @property-read array <pre><code>array<
+ *     string ID# страницы =>
+ *     int ID# страницы
+ * ></code></pre> $allowedIds Набор ID# страниц, доступных для текущего пользователя
+ * @property-read array <pre><code>array<
+ *     string ID# страницы =>
+ *     int ID# страницы
+ * ></code></pre> $systemIds Набор ID# служебных страниц
  */
 class PageRecursiveCache extends VisibleRecursiveCache
 {
@@ -27,13 +28,13 @@ class PageRecursiveCache extends VisibleRecursiveCache
 
     /**
      * Набор ID# страниц, доступных для текущего пользователя
-     * @var array<string ID# страницы => int ID# страницы>
+     * @var array <pre><code>array<string ID# страницы => int ID# страницы></code></pre>
      */
     protected $allowedIds = [];
 
     /**
      * Набор ID# служебных страниц
-     * @var array<string ID# страницы => int ID# страницы>
+     * @var array <pre><code>array<string ID# страницы => int ID# страницы></code></pre>
      */
     protected $systemIds = [];
 
@@ -114,7 +115,7 @@ class PageRecursiveCache extends VisibleRecursiveCache
      * Определяет, требуется ли обновление
      * @return bool
      */
-    public function updateNeeded()
+    public function updateNeeded(): bool
     {
         $filename = $this->getFilename();
         if (!is_file($filename)) {
@@ -134,7 +135,7 @@ class PageRecursiveCache extends VisibleRecursiveCache
      * Получает имя файла основного кэша
      * @return string
      */
-    public function getFilename()
+    public function getFilename(): string
     {
         return Package::i()->cacheDir . '/system/pagerecursivecache.php';
     }
@@ -144,15 +145,11 @@ class PageRecursiveCache extends VisibleRecursiveCache
      * Получает имя файла временного кэша
      * @return string
      */
-    public function getTmpFilename()
+    public function getTmpFilename(): string
     {
         $filename = $this->getFilename();
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
-        $tmpFilename = preg_replace(
-            '/\\.' . preg_quote($ext, '/') . '$/umi',
-            '.tmp$0',
-            $filename
-        );
+        $tmpFilename = preg_replace('/\\.' . preg_quote($ext, '/') . '$/umi', '.tmp$0', $filename);
         return $tmpFilename;
     }
 
@@ -161,7 +158,7 @@ class PageRecursiveCache extends VisibleRecursiveCache
      * Записывает данные в файл
      * @return bool Удалось ли записать данные
      */
-    public function save()
+    public function save(): bool
     {
         $data = [];
         foreach ([
@@ -181,20 +178,25 @@ class PageRecursiveCache extends VisibleRecursiveCache
             $data[$key] = $this->$key;
         }
 
-        $cacheId = 'RAASCACHE' . date('YmdHis') . md5(rand());
+        $cacheId = 'RAASCACHE' . date('YmdHis') . md5((string)rand());
         $text = '<' . '?php return unserialize(<<' . "<'" . $cacheId . "'\n"
               . serialize($data) . "\n" . $cacheId . "\n);\n";
 
-        $ok = (bool)file_put_contents($this->getTmpFilename(), $text);
         $filename = $this->getFilename();
         $tmpname = $this->getTmpFilename();
-        if (file_exists($tmpname)) {
-            if (file_exists($filename)) {
-                $ok &= unlink($filename);
-            }
-            $ok &= rename($tmpname, $filename);
+
+        if (!file_put_contents($tmpname, $text)) {
+            return false;
         }
-        return $ok;
+        if (file_exists($filename)) {
+            if (!unlink($filename)) {
+                return false;
+            }
+        }
+        if (!rename($tmpname, $filename)) {
+            return false;
+        }
+        return true;
     }
 
 
@@ -202,7 +204,7 @@ class PageRecursiveCache extends VisibleRecursiveCache
      * Загружает данные из файла
      * @return bool Удалось ли загрузить данные
      */
-    public function load()
+    public function load(): bool
     {
         if (is_file($this->getFilename())) {
             $data = [];

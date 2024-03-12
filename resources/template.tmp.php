@@ -5,21 +5,9 @@
  */
 namespace RAAS\CMS;
 
-use zz\Html\HTMLMinify;
 use SOME\HTTP;
 use RAAS\Application;
 use RAAS\AssetManager;
-
-/**
- * Минификация HTML
- * @param string $text Входной HTML-код
- * @return string
- */
-$sanitizeOutput = function ($text) {
-    // $text = HTMLMinify::minify($text, ['removeComment' => false]);
-    return $text;
-};
-
 
 /**
  * Разделение текста на общий HTML, скрипты и, возможно, стили
@@ -56,7 +44,7 @@ if (!$Page->pid) {
 if ($bannersText = $Page->location('banners')) {
     $bodyClasses[] = 'body_bannered';
 }
-ob_start(); // Для $sanitizeOutput
+ob_start(); // Общее
 ob_start(); // Для $separateScripts
 ?>
 <!DOCTYPE html>
@@ -282,4 +270,4 @@ ob_start(); // Для $separateScripts
   </body>
 </html>
 <?php
-echo $sanitizeOutput(ob_get_clean());
+echo ob_get_clean();

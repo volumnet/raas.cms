@@ -8,7 +8,7 @@ namespace RAAS\CMS;
  * Класс теста рендерера HTML-поля уведомления
  * @covers RAAS\CMS\HtmlAreaNotificationFieldRenderer
  */
-class HtmlAreaNotificationFieldRendererTest extends CustomFormFieldRendererTest
+class HtmlAreaNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = HtmlAreaNotificationFieldRenderer::class;
 

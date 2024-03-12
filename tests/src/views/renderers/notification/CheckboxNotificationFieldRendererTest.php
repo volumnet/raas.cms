@@ -8,7 +8,7 @@ namespace RAAS\CMS;
  * Класс теста рендерера флажка уведомления
  * @covers RAAS\CMS\CheckboxNotificationFieldRenderer
  */
-class CheckboxNotificationFieldRendererTest extends CustomFormFieldRendererTest
+class CheckboxNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = CheckboxNotificationFieldRenderer::class;
 

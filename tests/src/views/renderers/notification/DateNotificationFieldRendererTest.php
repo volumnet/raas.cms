@@ -8,7 +8,7 @@ namespace RAAS\CMS;
  * Класс теста рендерера поля даты уведомления
  * @covers RAAS\CMS\DateNotificationFieldRenderer
  */
-class DateNotificationFieldRendererTest extends CustomFormFieldRendererTest
+class DateNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = DateNotificationFieldRenderer::class;
 
