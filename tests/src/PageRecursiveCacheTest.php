@@ -8,6 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рекурсивного кэша страниц
+ * @covers \RAAS\CMS\PageRecursiveCache
  */
 class PageRecursiveCacheTest extends BaseTest
 {

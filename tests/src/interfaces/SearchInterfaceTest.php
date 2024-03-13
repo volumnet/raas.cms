@@ -9,6 +9,7 @@ use SOME\Pages;
 
 /**
  * Класс теста стандартного интерфейса поиска
+ * @covers \RAAS\CMS\SearchInterface
  */
 class SearchInterfaceTest extends BaseTest
 {

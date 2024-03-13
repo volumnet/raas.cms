@@ -8,7 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера числового поля формы
- * @covers RAAS\CMS\NumberFormFieldRenderer
+ * @covers \RAAS\CMS\NumberFormFieldRenderer
  */
 class NumberFormFieldRendererTest extends BaseTest
 {

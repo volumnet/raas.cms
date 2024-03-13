@@ -72,11 +72,7 @@ class CacheInterface extends AbstractInterface
             $availableCacheSpace = $diskFreeSpace - $cacheLeaveFreeSpace - strlen($cacheCode);
             if ($availableCacheSpace > 0) {
                 $tmpFile = tempnam(sys_get_temp_dir(), 'raas');
-                $filename = $this->block->getCacheFile(
-                    isset($this->server['REQUEST_URI']) ?
-                    $this->server['REQUEST_URI'] :
-                    ''
-                );
+                $filename = $this->block->getCacheFile($this->server['REQUEST_URI'] ?? '');
                 file_put_contents($tmpFile, $cacheCode);
                 rename($tmpFile, $filename);
             }

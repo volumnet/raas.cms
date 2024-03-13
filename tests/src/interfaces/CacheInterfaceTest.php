@@ -8,6 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста стандартного интерфейса кэширования
+ * @covers \RAAS\CMS\CacheInterface
  */
 class CacheInterfaceTest extends BaseTest
 {

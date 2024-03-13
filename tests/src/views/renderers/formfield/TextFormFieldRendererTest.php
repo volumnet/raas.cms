@@ -8,7 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера текстового поля формы
- * @covers RAAS\CMS\TextFormFieldRenderer
+ * @covers \RAAS\CMS\TextFormFieldRenderer
  */
 class TextFormFieldRendererTest extends BaseTest
 {

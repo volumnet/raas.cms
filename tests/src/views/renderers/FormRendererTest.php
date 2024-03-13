@@ -8,7 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера формы
- * @covers RAAS\CMS\FormRenderer
+ * @covers \RAAS\CMS\FormRenderer
  */
 class FormRendererTest extends BaseTest
 {

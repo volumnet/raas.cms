@@ -7,6 +7,10 @@ namespace RAAS\CMS;
 use SOME\BaseTest;
 use RAAS\DatatypeStrategy;
 
+/**
+ * Тест для класса MaterialDatatypeStrategy
+ * @covers \RAAS\CMS\MaterialDatatypeStrategy
+ */
 class MaterialDatatypeStrategyTest extends BaseTest
 {
     public static $tables = [
@@ -36,6 +40,7 @@ class MaterialDatatypeStrategyTest extends BaseTest
      */
     public function exportDataProvider(): array
     {
+        static::installTables();
         return [
             [
                 new Material(['id' => 10, 'vis' => true, 'name' => 'aaa', 'description' => 'AAA description']),

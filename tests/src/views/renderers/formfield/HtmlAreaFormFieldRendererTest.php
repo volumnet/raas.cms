@@ -8,7 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера многострочного текстового поля формы
- * @covers RAAS\CMS\HtmlAreaFormFieldRenderer
+ * @covers \RAAS\CMS\HtmlAreaFormFieldRenderer
  */
 class HtmlAreaFormFieldRendererTest extends BaseTest
 {

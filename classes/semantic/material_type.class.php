@@ -653,4 +653,18 @@ class Material_Type extends SOME
         $sqlQuery = "COMMIT";
         static::_SQL()->query($sqlQuery);
     }
+
+
+    /**
+     * Очищает кэш полей
+     */
+    public static function clearSelfFieldsCache()
+    {
+        static::$selfFieldsCache = [];
+        static::$visSelfFieldsCache = [];
+        static::$fieldsCache = [];
+        static::$visFieldsCache = [];
+        static::$selfFieldGroupsCache = [];
+        static::$fieldGroupsCache = [];
+    }
 }

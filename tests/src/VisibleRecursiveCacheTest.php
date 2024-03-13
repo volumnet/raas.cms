@@ -8,6 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста абстрактного рекурсивного кэша с видимостью
+ * @covers \RAAS\CMS\VisibleRecursiveCache
  */
 class VisibleRecursiveCacheTest extends BaseTest
 {

@@ -6,7 +6,7 @@ namespace RAAS\CMS;
 
 /**
  * Класс теста рендерера поля телефона уведомления
- * @covers RAAS\CMS\TelNotificationFieldRenderer
+ * @covers \RAAS\CMS\TelNotificationFieldRenderer
  */
 class TelNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {

@@ -8,6 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста меню
+ * @covers \RAAS\CMS\Menu
  */
 class MenuTest extends BaseTest
 {

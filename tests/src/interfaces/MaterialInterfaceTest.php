@@ -9,6 +9,7 @@ use SOME\Pages;
 
 /**
  * Класс теста стандартного интерфейса материалов
+ * @covers \RAAS\CMS\MaterialInterface
  */
 class MaterialInterfaceTest extends BaseTest
 {
@@ -290,6 +291,22 @@ class MaterialInterfaceTest extends BaseTest
             'tPrice' => "LEFT JOIN cms_data AS `tPrice` ON `tPrice`.pid = tM.id AND `tPrice`.fid = ?"
         ], $sqlFrom);
         $this->assertEquals([26], $sqlBind);
+    }
+
+
+    /**
+     * Тест получения SQL-представления поля для запроса - случайный порядок
+     */
+    public function testGetFieldWithRandom()
+    {
+        $sqlFrom = $sqlBind = [];
+        $interface = new MaterialInterface();
+
+        $result = $interface->getField('random', 'rnd', $sqlFrom, $sqlBind);
+
+        $this->assertEquals('RAND()', trim($result));
+        $this->assertEquals([], $sqlFrom);
+        $this->assertEquals([], $sqlBind);
     }
 
 
@@ -798,6 +815,30 @@ class MaterialInterfaceTest extends BaseTest
               "FROM cms_materials AS tM " .
              "GROUP BY tM.id " .
              "ORDER BY NOT tM.priority, tM.priority ASC",
+            $result
+        );
+    }
+
+
+    /**
+     * Тест получения запроса на получение списка материалов - случай со случайной сортировкой
+     */
+    public function testGetSQLQueryWithRandom()
+    {
+        $sqlFrom = [];
+        $sqlWhere = [];
+        $sqlSort = "RAND()";
+        $sqlOrder = "DESC";
+        $interface = new MaterialInterface();
+
+        $result = $interface->getSQLQuery($sqlFrom, $sqlWhere, $sqlSort, $sqlOrder, true);
+        $result = trim(preg_replace('/\\s+/umis', ' ', $result));
+
+        $this->assertEquals(
+            "SELECT tM.id " .
+              "FROM cms_materials AS tM " .
+             "GROUP BY tM.id " .
+             "ORDER BY RAND()",
             $result
         );
     }

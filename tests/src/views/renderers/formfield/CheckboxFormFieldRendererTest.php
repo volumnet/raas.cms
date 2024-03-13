@@ -8,7 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера текстового поля формы
- * @covers RAAS\CMS\CheckboxFormFieldRenderer
+ * @covers \RAAS\CMS\CheckboxFormFieldRenderer
  */
 class CheckboxFormFieldRendererTest extends BaseTest
 {

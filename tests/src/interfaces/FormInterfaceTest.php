@@ -10,6 +10,7 @@ use RAAS\Controller_Frontend as RAASControllerFrontend;
 
 /**
  * Класс теста стандартного интерфейса формы
+ * @covers \RAAS\CMS\FormInterface
  */
 class FormInterfaceTest extends BaseTest
 {
@@ -34,6 +35,7 @@ class FormInterfaceTest extends BaseTest
         'cms_materials_pages_assoc',
         'cms_pages',
         'cms_snippets',
+        'cms_users', // Только для одиночного теста
         'registry',
     ];
 
@@ -1572,6 +1574,22 @@ class FormInterfaceTest extends BaseTest
 
         $this->assertEquals('ccbf470b-nophoto.jpeg', $result['name']);
         $this->assertEquals('image/jpeg', $result['type']);
+    }
+
+
+    /**
+     * Проверка метода getEmbedded - случай с локальным адресом, большая картинка
+     */
+    public function testGetEmbeddedWithLocalBig()
+    {
+        $interface = new FormInterface();
+
+        $result = $interface->getEmbedded('/files/cms/common/image/arboretum_tree_rings.jpg');
+
+        $this->assertNotEmpty($result['tmp_name']);
+        $this->assertFileExists($result['tmp_name']);
+        $size = getimagesize($result['tmp_name']);
+        $this->assertEquals(600, $size[0]);
     }
 
 

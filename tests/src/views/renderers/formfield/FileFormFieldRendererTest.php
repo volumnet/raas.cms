@@ -8,7 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера файлового поля формы
- * @covers RAAS\CMS\FileFormFieldRenderer
+ * @covers \RAAS\CMS\FileFormFieldRenderer
  */
 class FileFormFieldRendererTest extends BaseTest
 {

@@ -6,7 +6,7 @@ namespace RAAS\CMS;
 
 /**
  * Класс теста рендерера HTML-поля уведомления
- * @covers RAAS\CMS\HtmlAreaNotificationFieldRenderer
+ * @covers \RAAS\CMS\HtmlAreaNotificationFieldRenderer
  */
 class HtmlAreaNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {

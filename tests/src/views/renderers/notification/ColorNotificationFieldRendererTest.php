@@ -6,7 +6,7 @@ namespace RAAS\CMS;
 
 /**
  * Класс теста рендерера цветового поля уведомления
- * @covers RAAS\CMS\ColorNotificationFieldRenderer
+ * @covers \RAAS\CMS\ColorNotificationFieldRenderer
  */
 class ColorNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {

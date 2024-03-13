@@ -9,7 +9,7 @@ use RAAS\User as RAASUser;
 
 /**
  * Класс теста рендерера поля изображения уведомления
- * @covers RAAS\CMS\ImageNotificationFieldRenderer
+ * @covers \RAAS\CMS\ImageNotificationFieldRenderer
  */
 class ImageNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
@@ -19,6 +19,7 @@ class ImageNotificationFieldRendererTest extends CustomNotificationFieldRenderer
 
     public function getValueHTMLDataProvider()
     {
+        static::installTables();
         $att = new Attachment([
             'classname' => RAASUser::class,
             'filename' => 'dummy.jpg',

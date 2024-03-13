@@ -9,7 +9,7 @@ use RAAS\User as RAASUser;
 
 /**
  * Класс теста рендерера файлового поля уведомления
- * @covers RAAS\CMS\FileNotificationFieldRenderer
+ * @covers \RAAS\CMS\FileNotificationFieldRenderer
  */
 class FileNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
@@ -19,6 +19,7 @@ class FileNotificationFieldRendererTest extends CustomNotificationFieldRendererT
 
     public function getValueHTMLDataProvider()
     {
+        static::installTables();
         $att = new Attachment([
             'classname' => RAASUser::class,
             'filename' => 'dummy.txt',

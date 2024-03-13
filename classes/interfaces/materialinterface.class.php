@@ -528,7 +528,7 @@ class MaterialInterface extends AbstractInterface
     public function getOrderVar(Block_Material $block, $get, &$sort, &$order)
     {
         $sortVar = (string)$block->sort_var_name;
-        $sortVal = isset($get[$sortVar]) ? $get[$sortVar] : '';
+        $sortVal = (string)($get[$sortVar] ?? '');
         $orderVar = (string)$block->order_var_name;
         $sortParams = (array)$block->sort;
         $sortDefField = (string)$block->sort_field_default;
@@ -537,16 +537,10 @@ class MaterialInterface extends AbstractInterface
             // Выберем подходящую запись
             // (у которой значение var совпадает со значением
             // переменной сортировки $_GET)
-            $sortItem = $this->getMatchingSortParam(
-                $sortVal,
-                $sortParams,
-                'var'
-            );
+            $sortItem = $this->getMatchingSortParam($sortVal, $sortParams, 'var');
             if ($sortItem) {
-                $orderRelation = isset($sortItem['relation'])
-                               ? (string)$sortItem['relation']
-                               : '';
-                $sort = $sortItem['var'];
+                $orderRelation = (string)($sortItem['relation'] ?? '');
+                $sort = $sortItem['var'] ?? null;
                 $order = $this->getOrder($orderVar, $orderRelation, $get);
                 return;
             }
@@ -555,16 +549,10 @@ class MaterialInterface extends AbstractInterface
         if ($sortDefField) {
             if ($sortParams) {
                 // Есть параметры сортировки, найдем совпадение по полю
-                $sortItem = $this->getMatchingSortParam(
-                    $sortDefField,
-                    $sortParams,
-                    'field'
-                );
+                $sortItem = $this->getMatchingSortParam($sortDefField, $sortParams, 'field');
                 if ($sortItem) {
-                    $orderRelation = isset($sortItem['relation'])
-                                   ? (string)$sortItem['relation']
-                                   : '';
-                    $sort = $sortItem['var'];
+                    $orderRelation = (string)($sortItem['relation'] ?? '');
+                    $sort = $sortItem['var'] ?? null;
                     $order = $this->getOrder($orderVar, $orderRelation, $get);
                     return;
                 }
@@ -612,21 +600,10 @@ class MaterialInterface extends AbstractInterface
             // Выберем подходящую запись
             // (у которой значение var совпадает со значением
             // переменной сортировки $_GET)
-            $sortItem = $this->getMatchingSortParam(
-                $sortVal,
-                $sortParams,
-                'var'
-            );
+            $sortItem = $this->getMatchingSortParam($sortVal, $sortParams, 'var');
             if ($sortItem) {
-                $sqlSort = $this->getField(
-                    $sortItem['field'],
-                    'tOr',
-                    $sqlFrom,
-                    $sqlFromBind
-                );
-                $orderRelation = isset($sortItem['relation'])
-                               ? (string)$sortItem['relation']
-                               : '';
+                $sqlSort = $this->getField($sortItem['field'], 'tOr', $sqlFrom, $sqlFromBind);
+                $orderRelation = (string)($sortItem['relation'] ?? '');
                 $sqlOrder = mb_strtoupper(
                     $this->getOrder($orderVar, $orderRelation, $get)
                 );
@@ -635,15 +612,8 @@ class MaterialInterface extends AbstractInterface
         }
         // Ни с чем не совпадает, но есть сортировка по умолчанию
         if ($sortDefField) {
-            $sqlSort = $this->getField(
-                $sortDefField,
-                'tOr',
-                $sqlFrom,
-                $sqlFromBind
-            );
-            $sqlOrder = mb_strtoupper(
-                $this->getOrder($orderVar, $orderRelDefault, $get)
-            );
+            $sqlSort = $this->getField($sortDefField, 'tOr', $sqlFrom, $sqlFromBind);
+            $sqlOrder = mb_strtoupper($this->getOrder($orderVar, $orderRelDefault, $get));
         }
     }
 
@@ -660,13 +630,8 @@ class MaterialInterface extends AbstractInterface
      * @param bool $idsOnly Получать только ID# всех материалов
      * @return string SQL-запрос
      */
-    public function getSQLQuery(
-        array $sqlFrom,
-        array $sqlWhere,
-        $sqlSort = '',
-        $sqlOrder = '',
-        $idsOnly = false
-    ) {
+    public function getSQLQuery(array $sqlFrom, array $sqlWhere, $sqlSort = '', $sqlOrder = '', $idsOnly = false)
+    {
         if ($idsOnly) {
             $sqlQuery = "SELECT tM.id";
         } else {
@@ -812,10 +777,12 @@ class MaterialInterface extends AbstractInterface
                 if ($debug) {
                     return $headers;
                 } else {
+                    // @codeCoverageIgnoreStart
                     foreach ($headers as $header) {
                         header($header);
                     }
                     exit;
+                    // @codeCoverageIgnoreEnd
                 }
             } else {
                 // Такого материала нет, возвращаем (не обрабатываем).
@@ -863,10 +830,12 @@ class MaterialInterface extends AbstractInterface
                 if ($debug) {
                     return $headers;
                 } else {
+                    // @codeCoverageIgnoreStart
                     foreach ($headers as $header) {
                         header($header);
                     }
                     exit;
+                    // @codeCoverageIgnoreEnd
                 }
             } else {
                 return true;

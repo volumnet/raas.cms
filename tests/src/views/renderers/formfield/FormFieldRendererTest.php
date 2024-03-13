@@ -8,13 +8,13 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера поля формы
- * @covers RAAS\CMS\FormFieldRenderer
+ * @covers \RAAS\CMS\FormFieldRenderer
  */
 class FormFieldRendererTest extends BaseTest
 {
     public static $tables = [
         'cms_blocks_form',
-        'cms_fields',
+        'cms_fields', // Не используется в полном тесте
     ];
 
     /**

@@ -6,13 +6,21 @@ namespace RAAS\CMS;
 
 /**
  * Класс теста рендерера поля уведомления
- * @covers RAAS\CMS\NotificationFieldRenderer
+ * @covers \RAAS\CMS\NotificationFieldRenderer
  */
 class NotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     public static $tables = [
+        'cms_access', // Не используется в полном тесте
+        'cms_blocks', // Не используется в полном тесте
         'cms_fields',
-        'cms_users',
+        'cms_groups', // Не используется в полном тесте
+        'cms_material_types', // Не используется в полном тесте
+        'cms_materials', // Не используется в полном тесте
+        'cms_pages', // Не используется в полном тесте
+        'cms_templates', // Не используется в полном тесте
+        'cms_users', // Не используется в полном тесте
+        'users', // Не используется в полном тесте
     ];
 
     /**
@@ -65,6 +73,7 @@ class NotificationFieldRendererTest extends CustomNotificationFieldRendererTest
      */
     public function filterValueDataProvider()
     {
+        static::installTables();
         return [
             [new Page(), false],
             [new Page(['id' => 1]), true],

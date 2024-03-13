@@ -8,7 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера текстового поля формы
- * @covers RAAS\CMS\RadioFormFieldRenderer
+ * @covers \RAAS\CMS\RadioFormFieldRenderer
  */
 class RadioFormFieldRendererTest extends BaseTest
 {

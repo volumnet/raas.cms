@@ -8,7 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера скрытого поля формы
- * @covers RAAS\CMS\HiddenFormFieldRenderer
+ * @covers \RAAS\CMS\HiddenFormFieldRenderer
  */
 class HiddenFormFieldRendererTest extends BaseTest
 {

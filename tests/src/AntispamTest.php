@@ -8,6 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста антиспама
+ * @covers \RAAS\CMS\Antispam
  */
 class AntispamTest extends BaseTest
 {
@@ -324,7 +325,15 @@ class AntispamTest extends BaseTest
                         . "За последние 10 дней дни зарегистрировано более 300 новых случаев заболевания, и каждый день выявляется все больше зараженных. Только 2 августа зарегистрированы 55 новых случаев, из них 40 в провинции Цзяньсу на востоке страны, остальные - в Пекине и провинциях Хуньань, Хубэй, Шандунь, Хэньань, Хайнань и Юньнань, сообщила Национальная комиссия по здравоохранению.",
                 ],
                 false,
-            ]
+            ],
+            [
+                ['email' => 'test@test.org'],
+                true,
+            ],
+            [
+                ['email' => 'test@tEST.org'],
+                false,
+            ],
         ];
     }
 
@@ -527,6 +536,19 @@ class AntispamTest extends BaseTest
 
 
     /**
+     * Проверка данных на международный спам-фильтр - случай с некорректным User-Agent
+     */
+    public function testCheckInternationalWithInvalidUserAgent()
+    {
+        $antispam = new Antispam(new Form(), 'ru', 'test.org', 'EvilBot');
+
+        $result = $antispam->checkInternational([]);
+
+        $this->assertFalse($result);
+    }
+
+
+    /**
      * Провайдер данных для метода testCheckRussianData
      * @return array <pre><code>array<[
      *     array<
@@ -568,6 +590,15 @@ class AntispamTest extends BaseTest
                     'agree' => '1'
                 ],
                 true,
+            ],
+            [
+                [
+                    'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
+                    'phone_call' => '+7 (999) 000-00-00',
+                    'agree' => '1',
+                    '_description_' => 'bbb',
+                ],
+                false,
             ],
             [
                 [

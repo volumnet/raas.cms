@@ -6,7 +6,7 @@ namespace RAAS\CMS;
 
 /**
  * Класс теста рендерера URL-поля уведомления
- * @covers RAAS\CMS\URLNotificationFieldRenderer
+ * @covers \RAAS\CMS\URLNotificationFieldRenderer
  */
 class URLNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {

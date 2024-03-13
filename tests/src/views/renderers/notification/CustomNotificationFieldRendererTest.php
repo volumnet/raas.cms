@@ -8,6 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера произвольного поля уведомления
+ * @covers \RAAS\CMS\CustomNotificationFieldRenderer
  */
 abstract class CustomNotificationFieldRendererTest extends BaseTest
 {

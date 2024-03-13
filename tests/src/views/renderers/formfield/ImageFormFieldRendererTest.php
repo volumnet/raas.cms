@@ -8,7 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера поля изображения формы
- * @covers RAAS\CMS\ImageFormFieldRenderer
+ * @covers \RAAS\CMS\ImageFormFieldRenderer
  */
 class ImageFormFieldRendererTest extends BaseTest
 {

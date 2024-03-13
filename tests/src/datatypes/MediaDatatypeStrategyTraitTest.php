@@ -1,6 +1,15 @@
 <?php
 /**
  * Тест для класса MediaDatatypeStrategyTrait
+ *
+ * <pre><code>
+ * Предустановленные типы данных:
+ * <ФАЙЛ> => [
+ *     'tmp_name' => string Путь к файлу,
+ *     'name' => string Названия файлов,
+ *     'type' => string MIME-типы файлов,
+ * ]
+ * </code></pre>
  */
 namespace RAAS\CMS;
 
@@ -14,15 +23,7 @@ use RAAS\DatatypeStrategy;
 
 /**
  * Класс теста класса MediaDatatypeStrategyTrait
- *
- * <pre><code>
- * Предустановленные типы данных:
- * <ФАЙЛ> => [
- *     'tmp_name' => string Путь к файлу,
- *     'name' => string Названия файлов,
- *     'type' => string MIME-типы файлов,
- * ]
- * </code></pre>
+ * @covers \RAAS\CMS\MediaDatatypeStrategyTrait
  */
 class MediaDatatypeStrategyTraitTest extends BaseTest
 {
@@ -425,6 +426,7 @@ class MediaDatatypeStrategyTraitTest extends BaseTest
      */
     public function exportDataProvider(): array
     {
+        static::installTables();
         return [
             [
                 new Attachment(['id' => 1, 'vis' => true, 'name' => 'aaa', 'description' => 'AAA description']),

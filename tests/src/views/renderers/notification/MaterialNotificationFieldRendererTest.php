@@ -6,7 +6,7 @@ namespace RAAS\CMS;
 
 /**
  * Класс теста рендерера материального поля уведомления
- * @covers RAAS\CMS\MaterialNotificationFieldRenderer
+ * @covers \RAAS\CMS\MaterialNotificationFieldRenderer
  */
 class MaterialNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
@@ -16,6 +16,7 @@ class MaterialNotificationFieldRendererTest extends CustomNotificationFieldRende
 
     public function getValueHTMLDataProvider()
     {
+        static::installTables();
         $material = new Material([
             'id' => 123,
             'name' => 'aaa',

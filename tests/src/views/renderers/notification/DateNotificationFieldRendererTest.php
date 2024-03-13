@@ -6,7 +6,7 @@ namespace RAAS\CMS;
 
 /**
  * Класс теста рендерера поля даты уведомления
- * @covers RAAS\CMS\DateNotificationFieldRenderer
+ * @covers \RAAS\CMS\DateNotificationFieldRenderer
  */
 class DateNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {

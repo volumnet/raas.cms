@@ -251,9 +251,14 @@ class FormInterface extends AbstractInterface
                         $field->name,
                         $allowedExtensions
                     );
+                // @codeCoverageIgnoreStart
+                // 2024-03-13, AVS: По факту сейчас такого быть не может, поскольку DatatypeFileTypeMismatchException
+                // в чистом виде (не DatatypeImageTypeMismatchException) выбрасывается только в слуае несовпадения с
+                // accept (он же allowedExtensions)
                 } else {
                     return sprintf(View_Web::i()->_('ERR_CUSTOM_FILE_INVALID'), $field->name);
                 }
+                // @codeCoverageIgnoreEnd
             } catch (DatatypeInvalidValueException $e) {
                  return sprintf(View_Web::i()->_('ERR_CUSTOM_FIELD_INVALID'), $field->name);
             }
@@ -714,6 +719,7 @@ class FormInterface extends AbstractInterface
                     'embedded' => $embedded,
                 ];
             } else {
+                // @codeCoverageIgnoreStart
                 Application::i()->sendmail(
                     $emails,
                     $subject,
@@ -724,6 +730,7 @@ class FormInterface extends AbstractInterface
                     $attachments,
                     $embedded
                 );
+                // @codeCoverageIgnoreEnd
             }
         }
 
@@ -737,6 +744,7 @@ class FormInterface extends AbstractInterface
                     'fromEmail' => $fromEmail,
                 ];
             } else {
+                // @codeCoverageIgnoreStart
                 Application::i()->sendmail(
                     $smsEmails,
                     $subject,
@@ -745,6 +753,7 @@ class FormInterface extends AbstractInterface
                     $fromEmail,
                     false
                 );
+                // @codeCoverageIgnoreEnd
             }
         }
 
@@ -758,9 +767,11 @@ class FormInterface extends AbstractInterface
                 ]);
                 if ($debug || !Application::i()->prod) {
                     $debugMessages['smsPhones'][] = $url;
+                // @codeCoverageIgnoreStart
                 } elseif (!$debug && Application::i()->prod) {
                     $result = file_get_contents($url);
                 }
+                // @codeCoverageIgnoreEnd
             }
         }
         if ($debug) {

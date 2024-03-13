@@ -11,6 +11,10 @@ use RAAS\Attachment;
 use RAAS\SelectDatatypeStrategy;
 use RAAS\TextDatatypeStrategy;
 
+/**
+ * Тест класса Field
+ * @covers \RAAS\CMS\Field
+ */
 class FieldTest extends BaseTest
 {
     use WithTempTablesTrait;
@@ -1138,6 +1142,7 @@ class FieldTest extends BaseTest
      */
     public function doRichDataProvider(): array
     {
+        static::installTables();
         $attachment = new Attachment(['id' => 123]);
         return [
             [
@@ -1389,6 +1394,7 @@ class FieldTest extends BaseTest
      */
     public function fromRichDataProvider(): array
     {
+        static::installTables();
         $attachment = new Attachment(['id' => 123]);
         return [
             [

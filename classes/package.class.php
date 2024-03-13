@@ -1071,9 +1071,9 @@ class Package extends RAASPackage
      */
     public function getUniqueURN(SOME $Object)
     {
-        $Object->urn = Text::beautify($Object->urn);
+        $Object->urn = Text::beautify((string)$Object->urn);
         for ($i = 0; $this->checkForSimilar($Object); $i++) {
-            $Object->urn = Application::i()->getNewURN($Object->urn, !$i);
+            $Object->urn = Application::i()->getNewURN((string)$Object->urn, !$i);
         }
         return $Object->urn;
     }

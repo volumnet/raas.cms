@@ -8,7 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рендерера парольного поля формы
- * @covers RAAS\CMS\PasswordFormFieldRenderer
+ * @covers \RAAS\CMS\PasswordFormFieldRenderer
  */
 class PasswordFormFieldRendererTest extends BaseTest
 {

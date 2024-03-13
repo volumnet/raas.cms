@@ -8,6 +8,7 @@ use SOME\BaseTest;
 
 /**
  * Класс теста рекурсивного кэша меню
+ * @covers \RAAS\CMS\MenuRecursiveCache
  */
 class MenuRecursiveCacheTest extends BaseTest
 {
