@@ -4,12 +4,18 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста рендерера файлового поля формы
  * @covers RAAS\CMS\FileFormFieldRenderer
  */
 class FileFormFieldRendererTest extends BaseTest
 {
+    public static $tables = [
+        'cms_blocks_form',
+    ];
+
     /**
      * Тест получения атрибутов
      */

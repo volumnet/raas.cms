@@ -4,12 +4,17 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста абстрактного рекурсивного кэша с видимостью
  */
-class VisibleRecursiveCacheTest extends BaseDBTest
+class VisibleRecursiveCacheTest extends BaseTest
 {
-    public static $tables = ['cms_pages'];
+    public static $tables = [
+        'cms_materials',
+        'cms_pages',
+    ];
 
     /**
      * Проверяет свойство visibleIds

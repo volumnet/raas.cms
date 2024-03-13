@@ -4,12 +4,19 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста стандартного интерфейса кэширования
  */
-class CacheInterfaceTest extends BaseDBTest
+class CacheInterfaceTest extends BaseTest
 {
-    public static $tables = ['cms_blocks', 'cms_blocks_menu', 'cms_blocks_html', 'cms_pages'];
+    public static $tables = [
+        'cms_blocks',
+        'cms_blocks_html',
+        'cms_blocks_menu',
+        'registry',
+    ];
 
     /**
      * Тест получения кода для кэширования произвольных данных

@@ -4,12 +4,19 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста рендерера поля формы
  * @covers RAAS\CMS\FormFieldRenderer
  */
 class FormFieldRendererTest extends BaseTest
 {
+    public static $tables = [
+        'cms_blocks_form',
+        'cms_fields',
+    ];
+
     /**
      * Провайдер данных для метода testSpawn()
      * @return array <pre>array<[

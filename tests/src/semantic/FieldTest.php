@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
 use SOME\SOME;
 use RAAS\Application;
 use RAAS\Attachment;

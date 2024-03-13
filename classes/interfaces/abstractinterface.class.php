@@ -123,9 +123,9 @@ abstract class AbstractInterface
      * Используется ли соединение по HTTPS
      * @return bool
      */
-    public function isHTTPS()
+    public function isHTTPS(): bool
     {
-        return (mb_strtolower($this->server['HTTPS']) == 'on');
+        return (mb_strtolower($this->server['HTTPS'] ?? '') == 'on');
     }
 
 
@@ -133,9 +133,9 @@ abstract class AbstractInterface
      * Возвращает адрес текущего сервера без протокола
      * @return string
      */
-    public function getCurrentHostName()
+    public function getCurrentHostName(): string
     {
-        return $this->server['HTTP_HOST'];
+        return $this->server['HTTP_HOST'] ?? '';
     }
 
 
@@ -143,9 +143,12 @@ abstract class AbstractInterface
      * Возвращает адрес текущего сервера с протоколом
      * @return string
      */
-    public function getCurrentHostURL()
+    public function getCurrentHostURL(): string
     {
-        return 'http' . ($this->isHTTPS() ? 's' : '') . '://' .
-               $this->server['HTTP_HOST'];
+        if ($this->server['HTTP_HOST'] ?? '') {
+            return 'http' . ($this->isHTTPS() ? 's' : '') . '://' .
+                   $this->server['HTTP_HOST'] ?? '';
+        }
+        return '';
     }
 }

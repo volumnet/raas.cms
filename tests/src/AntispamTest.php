@@ -4,11 +4,17 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста антиспама
  */
 class AntispamTest extends BaseTest
 {
+    public static $tables = [
+        'cms_fields',
+    ];
+
     /**
      * Провайдер данных для метода testCheckUserAgent
      * @return array <pre><code>array<[

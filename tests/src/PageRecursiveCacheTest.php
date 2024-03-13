@@ -4,12 +4,22 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста рекурсивного кэша страниц
  */
-class PageRecursiveCacheTest extends BaseDBTest
+class PageRecursiveCacheTest extends BaseTest
 {
-    public static $tables = ['cms_access', 'cms_pages'];
+    public static $tables = [
+        'cms_access',
+        'cms_access_pages_cache',
+        'cms_fields',
+        'cms_groups',
+        'cms_pages',
+        'cms_users',
+        'cms_users_groups_assoc',
+    ];
 
     /**
      * Проверяет свойство allowedIds

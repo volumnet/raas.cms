@@ -4,12 +4,20 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста стандартного интерфейса меню
  */
-class MenuInterfaceTest extends BaseDBTest
+class MenuInterfaceTest extends BaseTest
 {
-    public static $tables = ['cms_pages', 'cms_menus'];
+    public static $tables = [
+        'cms_pages',
+        'cms_menus',
+        'cms_blocks',
+        'cms_blocks_menu',
+        'cms_fields',
+    ];
 
     /**
      * Тест обработки видимых дочерних элементов меню

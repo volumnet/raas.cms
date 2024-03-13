@@ -7,6 +7,7 @@ namespace RAAS\CMS;
 use stdClass;
 use Exception;
 use InvalidArgumentException;
+use SOME\BaseTest;
 use RAAS\Application;
 use RAAS\Attachment;
 use RAAS\DatatypeStrategy;
@@ -25,6 +26,10 @@ use RAAS\DatatypeStrategy;
  */
 class MediaDatatypeStrategyTraitTest extends BaseTest
 {
+    public static $tables = [
+        'attachments',
+    ];
+
     /**
      * Провайдер данных для метода testGetFilesData
      * @return array <pre><code>[

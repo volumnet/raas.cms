@@ -4,12 +4,18 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста рендерера текстового поля формы
  * @covers RAAS\CMS\CheckboxFormFieldRenderer
  */
 class CheckboxFormFieldRendererTest extends BaseTest
 {
+    public static $tables = [
+        'cms_blocks_form',
+    ];
+
     /**
      * Тест получения атрибутов
      */

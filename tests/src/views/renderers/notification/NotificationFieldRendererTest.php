@@ -10,6 +10,11 @@ namespace RAAS\CMS;
  */
 class NotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
+    public static $tables = [
+        'cms_fields',
+        'cms_users',
+    ];
+
     /**
      * Провайдер данных для метода testSpawn()
      * @return array <pre>array<[

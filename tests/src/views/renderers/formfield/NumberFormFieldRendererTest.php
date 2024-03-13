@@ -4,12 +4,18 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста рендерера числового поля формы
  * @covers RAAS\CMS\NumberFormFieldRenderer
  */
 class NumberFormFieldRendererTest extends BaseTest
 {
+    public static $tables = [
+        'cms_blocks_form',
+    ];
+
     /**
      * Тест получения атрибутов
      */

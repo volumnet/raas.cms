@@ -4,30 +4,31 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
 use SOME\Pages;
 
 /**
  * Класс теста стандартного интерфейса поиска
  */
-class SearchInterfaceTest extends BaseDBTest
+class SearchInterfaceTest extends BaseTest
 {
     public static $tables = [
-        'cms_access',
         'cms_access_materials_cache',
-        'cms_pages',
-        'cms_materials',
-        'cms_material_types',
-        'cms_materials_pages_assoc',
-        'cms_blocks_pages_assoc',
+        'cms_access_pages_cache',
         'cms_blocks',
         'cms_blocks_html',
-        'cms_blocks_material',
+        'cms_blocks_pages_assoc',
         'cms_blocks_search',
-        'cms_fields',
+        'cms_blocks_search_languages_assoc',
+        'cms_blocks_search_material_types_assoc',
+        'cms_blocks_search_pages_assoc',
         'cms_data',
+        'cms_fields',
+        'cms_material_types',
         'cms_material_types_affected_pages_for_materials_cache',
-        'cms_material_types_affected_pages_for_self_cache',
-        'cms_materials_affected_pages_cache',
+        'cms_materials',
+        'cms_materials_pages_assoc',
+        'cms_pages',
     ];
 
     public static function setUpBeforeClass(): void

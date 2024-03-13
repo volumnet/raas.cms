@@ -4,14 +4,27 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
 use SOME\Pages;
 
 /**
  * Класс теста стандартного интерфейса материалов
  */
-class MaterialInterfaceTest extends BaseDBTest
+class MaterialInterfaceTest extends BaseTest
 {
-    public static $tables = ['cms_pages', 'cms_blocks', 'cms_blocks_material', 'cms_materials'];
+    public static $tables = [
+        'cms_access',
+        'cms_access_materials_cache',
+        'cms_blocks',
+        'cms_blocks_material',
+        'cms_blocks_material_filter',
+        'cms_blocks_material_sort',
+        'cms_data',
+        'cms_fields',
+        'cms_material_types',
+        'cms_materials',
+        'cms_pages',
+    ];
 
     /**
      * Тест получения полного списка параметров (включая GET и дополнительные из блока)

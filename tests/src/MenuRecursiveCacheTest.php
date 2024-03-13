@@ -4,12 +4,27 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста рекурсивного кэша меню
  */
-class MenuRecursiveCacheTest extends BaseDBTest
+class MenuRecursiveCacheTest extends BaseTest
 {
-    public static $tables = ['cms_access', 'cms_pages', 'cms_menus'];
+    public static $tables = [
+        'cms_access',
+        'cms_access_pages_cache',
+        'cms_fields',
+        'cms_groups',
+        'cms_material_types_affected_pages_for_materials_cache',
+        'cms_materials',
+        'cms_materials_affected_pages_cache',
+        'cms_materials_pages_assoc',
+        'cms_menus',
+        'cms_pages',
+        'cms_users',
+        'cms_users_groups_assoc',
+    ];
 
     public static function setUpBeforeClass(): void
     {

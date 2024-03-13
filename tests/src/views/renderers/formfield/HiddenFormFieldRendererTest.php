@@ -4,6 +4,8 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста рендерера скрытого поля формы
  * @covers RAAS\CMS\HiddenFormFieldRenderer
@@ -11,6 +13,10 @@ namespace RAAS\CMS;
 class HiddenFormFieldRendererTest extends BaseTest
 {
     const HTML_VALID_MULTIPLE = true;
+
+    public static $tables = [
+        'cms_blocks_form',
+    ];
 
     /**
      * Тест получения атрибутов

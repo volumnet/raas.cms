@@ -4,10 +4,28 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
 use RAAS\DatatypeStrategy;
 
 class MaterialDatatypeStrategyTest extends BaseTest
 {
+    public static $tables = [
+        'cms_access',
+        'cms_access_materials_cache',
+        'cms_blocks',
+        'cms_blocks_material',
+        'cms_blocks_pages_assoc',
+        'cms_data',
+        'cms_fields',
+        'cms_material_types',
+        'cms_material_types_affected_pages_for_materials_cache',
+        'cms_material_types_affected_pages_for_self_cache',
+        'cms_materials',
+        'cms_materials_affected_pages_cache',
+        'cms_materials_pages_assoc',
+        'cms_pages',
+    ];
+
     /**
      * Провайдер данных для метода testExport
      * @return array <pre><code>array<[

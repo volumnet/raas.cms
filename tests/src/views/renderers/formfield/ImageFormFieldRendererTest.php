@@ -4,12 +4,18 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста рендерера поля изображения формы
  * @covers RAAS\CMS\ImageFormFieldRenderer
  */
 class ImageFormFieldRendererTest extends BaseTest
 {
+    public static $tables = [
+        'cms_blocks_form',
+    ];
+
     /**
      * Тест получения атрибутов
      */

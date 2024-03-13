@@ -4,22 +4,37 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
 use RAAS\Application;
 use RAAS\Controller_Frontend as RAASControllerFrontend;
 
 /**
  * Класс теста стандартного интерфейса формы
  */
-class FormInterfaceTest extends BaseDBTest
+class FormInterfaceTest extends BaseTest
 {
     public static $tables = [
+        'attachments',
+        'cms_access',
+        'cms_access_materials_cache',
         'cms_blocks',
         'cms_blocks_form',
-        'cms_fields',
-        'cms_forms',
-        'cms_feedback',
+        'cms_blocks_material',
+        'cms_blocks_pages_assoc',
         'cms_data',
-        'cms_materials'
+        'cms_feedback',
+        'cms_fields',
+        'cms_fields_form_vis',
+        'cms_forms',
+        'cms_material_types',
+        'cms_material_types_affected_pages_for_materials_cache',
+        'cms_material_types_affected_pages_for_self_cache',
+        'cms_materials',
+        'cms_materials_affected_pages_cache',
+        'cms_materials_pages_assoc',
+        'cms_pages',
+        'cms_snippets',
+        'registry',
     ];
 
     /**
@@ -900,11 +915,15 @@ class FormInterfaceTest extends BaseDBTest
     public function testGetMessageBody()
     {
         $feedback = new Feedback(1);
+        $interface = new FormInterface();
         $data = [
             'Item' => $feedback,
+            'Material' => null,
             'SMS' => false,
+            'forUser' => false,
+            'ADMIN' => true,
+            'formInterface' => $interface,
         ];
-        $interface = new FormInterface();
 
         $result = $interface->getMessageBody(
             $feedback->parent->Interface,
@@ -1047,9 +1066,9 @@ class FormInterfaceTest extends BaseDBTest
         ]); // Обратная связь
         $fileField->commit();
         $files = ['image' => [
-            'tmp_name' => __DIR__ . '/../../resources/test.sql',
-            'name' => 'test.sql',
-            'type' => 'application/sql',
+            'tmp_name' => __DIR__ . '/../../resources/favicon.txt',
+            'name' => 'favicon.txt',
+            'type' => 'text/plain',
         ]];
         $interface = new FormInterface();
 

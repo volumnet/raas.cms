@@ -4,12 +4,19 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста рендерера формы
  * @covers RAAS\CMS\FormRenderer
  */
 class FormRendererTest extends BaseTest
 {
+    public static $tables = [
+        'cms_blocks',
+        'cms_blocks_form',
+    ];
+
     /**
      * Тест рендера поля подписи
      */

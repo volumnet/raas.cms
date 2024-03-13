@@ -4,12 +4,20 @@
  */
 namespace RAAS\CMS;
 
+use SOME\BaseTest;
+
 /**
  * Класс теста меню
  */
-class MenuTest extends BaseDBTest
+class MenuTest extends BaseTest
 {
-    public static $tables = ['cms_menus', 'cms_pages'];
+    public static $tables = [
+        'cms_menus',
+        'cms_pages',
+        'cms_access_pages_cache',
+        'cms_fields',
+        'cms_blocks_menu',
+    ];
 
     public static function setUpBeforeClass(): void
     {
