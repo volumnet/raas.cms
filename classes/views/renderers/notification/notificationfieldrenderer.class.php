@@ -131,6 +131,7 @@ class NotificationFieldRenderer extends HTMLRenderer
      */
     public function getValuesHTMLArray(bool $admin = false, bool $sms = false): array
     {
+        $values = [];
         if ($this->owner) {
             if ($ownerField = ($this->owner->fields[$this->field->urn] ?? null)) {
                 $values = $ownerField->getValues(true);
@@ -144,7 +145,7 @@ class NotificationFieldRenderer extends HTMLRenderer
         }
         $valuesHTML = array_map(function ($x) use ($admin, $sms) {
             return $this->getValueHTML($x, $admin, $sms);
-        }, $values);
+        }, (array)$values);
         $valuesHTML = array_filter($valuesHTML, function ($x) {
             return $this->filterValue($x);
         });

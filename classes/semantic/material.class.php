@@ -228,9 +228,9 @@ class Material extends SOME
         if ($this->id &&
             isset($this->updates['pid']) &&
             $this->updates['pid'] &&
-            ($this->updates['pid'] != $this->properties['pid'])
+            ($this->updates['pid'] != ($this->properties['pid'] ?? null))
         ) {
-            $oldMaterialTypeId = $this->properties['pid'];
+            $oldMaterialTypeId = ($this->properties['pid'] ?? null);
         }
         $this->modify(false);
         $this->modify_date = date('Y-m-d H:i:s');

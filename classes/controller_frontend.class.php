@@ -17,6 +17,7 @@ use RAAS\View_Web as RAASViewWeb;
 use RAAS\CMS\Block;
 use RAAS\CMS\Page;
 use RAAS\CMS\Material;
+use RAAS\CMS\Material_Type;
 use RAAS\CMS\User as CMSUser;
 use RAAS\CMS\Auth;
 use RAAS\CMS\Diag;
@@ -46,6 +47,18 @@ class Controller_Frontend extends Abstract_Controller
     protected static $instance;
 
     protected $user;
+
+    /**
+     * Текущая страница
+     * @var Page|null
+     */
+    protected $page = null;
+
+    /**
+     * Компания
+     * @var Material|null
+     */
+    protected $company = null;
 
     protected $diag = null;
 
@@ -106,6 +119,12 @@ class Controller_Frontend extends Abstract_Controller
                 break;
             case 'query':
                 return parse_url($this->url, PHP_URL_QUERY);
+                break;
+            case 'page':
+                return $this->page;
+                break;
+            case 'company':
+                return $this->company;
                 break;
             default:
                 return parent::__get($var);
@@ -423,7 +442,7 @@ class Controller_Frontend extends Abstract_Controller
     public function processUTM()
     {
         foreach ($_GET as $key => $val) {
-            if (stristr($key, 'utm_')) {
+            if (stristr((string)$key, 'utm_')) {
                 $_SESSION[$key] = $val;
             }
         }
@@ -481,6 +500,7 @@ class Controller_Frontend extends Abstract_Controller
 
     protected function fork()
     {
+        $this->company = $this->getCompany();
         $content = '';
         $blockId = (int)($_SERVER['HTTP_X_RAAS_BLOCK_ID'] ?? 0);
         $url = parse_url($this->requestUri);
@@ -502,6 +522,8 @@ class Controller_Frontend extends Abstract_Controller
             $originalPage->Material = $cmPage->Material;
         }
         $page = $cmPage;
+        $this->page = $page;
+        $page->company = $this->company;
 
         RAASViewWeb::i()->loadLanguage($page->lang);
         $this->exportLang(Application::i(), $page->lang);
@@ -510,7 +532,6 @@ class Controller_Frontend extends Abstract_Controller
             $classname = Namespaces::getNS($mod) . '\\View_Web';
             $this->exportLang($mod, $page->lang);
         }
-
 
         if ($blockId) {
             $block = Block::spawn($blockId);
@@ -527,6 +548,8 @@ class Controller_Frontend extends Abstract_Controller
         if ($page->Material && !$page->Material->proceed) {
             // Материал заявлен, но не обработан
             $page = $page->getCodePage(404);
+            $this->page = $page;
+            $page->company = $this->company;
             // 2021-11-18, AVS: оставляем кэширование 404-х их собственными настройками
             // $page->cache = (bool)(int)$page->cache || $doCache;
             $content = $page->process();
@@ -555,6 +578,27 @@ class Controller_Frontend extends Abstract_Controller
         }
         $this->outputDebug();
         return $page;
+    }
+
+
+    /**
+     * Получает материал компании
+     * @return Material|null
+     */
+    public function getCompany()
+    {
+        $materialType = Material_Type::importByURN('company');
+        if ($materialType && $materialType->id) {
+            $companies = Material::getSet([
+                'where' => ["pid = " . $materialType->id],
+                'orderBy' => "NOT priority, priority",
+                'limit' => 1,
+            ]);
+            if ($companies) {
+                return $companies[0];
+            }
+        }
+        return null;
     }
 
 

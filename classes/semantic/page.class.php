@@ -303,7 +303,7 @@ class Page extends SOME
                 return $result;
                 break;
             case 'additionalURL':
-                $url = preg_replace('/^' . preg_quote($this->url, '/') . '/umi', '', (string)$this->initialURL);
+                $url = preg_replace('/^' . preg_quote((string)$this->url, '/') . '/umi', '', (string)$this->initialURL);
                 $url = trim($url);
                 return $url;
             case 'additionalURLArray':

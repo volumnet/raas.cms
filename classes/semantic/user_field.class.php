@@ -4,7 +4,7 @@
  */
 namespace RAAS\CMS;
 
-use \RAAS\CMS\Field;
+use SOME\Text;
 
 /**
  * Класс поля пользователей
@@ -53,8 +53,8 @@ class User_Field extends Field
         if (!$this->urn && $this->name) {
             $this->urn = $this->name;
         }
-        if ($this->updates['urn']) {
-            $this->urn = \SOME\Text::beautify($this->urn);
+        if ($this->updates['urn'] ?? null) {
+            $this->urn = Text::beautify($this->urn);
         }
         while (in_array($this->urn, ['login', 'password', 'social', 'email'])) {
             $this->urn = '_' . $this->urn . '_';

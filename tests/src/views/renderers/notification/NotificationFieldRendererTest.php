@@ -139,6 +139,39 @@ class NotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 
 
     /**
+     * Тест получения массива HTML-значений - случай с пустыми значениями
+     */
+    public function testGetValuesHTMLArrayWithEmptyValues()
+    {
+        $field = new FormFieldMock([
+            'datatype' => 'text',
+            'name' => 'Название',
+            'urn' => 'aaa',
+        ]);
+        $owner = new Page(1);
+        $renderer = new NotificationFieldRenderer($field, $owner);
+
+        $result = $renderer->getValuesHTMLArray();
+
+        $this->assertEmpty($result);
+    }
+
+
+    /**
+     * Тест получения массива HTML-значений - случай с самостоятельным полем
+     */
+    public function testGetValuesHTMLArrayWithOrphanField()
+    {
+        $field = new Material_Field(14);
+        $renderer = new NotificationFieldRenderer($field);
+
+        $result = $renderer->getValuesHTMLArray();
+
+        $this->assertEmpty($result);
+    }
+
+
+    /**
      * Тест получения массива HTML-значений (случай с кастомным владельцем)
      */
     public function testGetValuesHTMLArrayWithCustomOwner()

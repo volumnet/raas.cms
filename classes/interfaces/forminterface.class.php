@@ -449,7 +449,14 @@ class FormInterface extends AbstractInterface
      */
     public function processUserData(SOME $object, array $server = [])
     {
-        foreach (['ip' => 'REMOTE_ADDR', 'user_agent' => 'HTTP_USER_AGENT'] as $key => $val) {
+        if (isset($server['HTTP_X_FORWARDED_FOR']) && $server['HTTP_X_FORWARDED_FOR']) {
+            $forwardedFor = explode(',', (string)$server['HTTP_X_FORWARDED_FOR']);
+            $forwardedFor = array_map('trim', $forwardedFor);
+            $this->ip = $forwardedFor[0];
+        } elseif (isset($server['REMOTE_ADDR'])) {
+            $this->ip = $server['REMOTE_ADDR'];
+        }
+        foreach (['user_agent' => 'HTTP_USER_AGENT'] as $key => $val) {
             $object->$key = trim($server[$val] ?? '');
         }
     }

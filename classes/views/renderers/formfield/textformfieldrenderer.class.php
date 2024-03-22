@@ -35,9 +35,9 @@ class TextFormFieldRenderer extends FormFieldRenderer
         } else {
             if (is_array($this->data)) {
                 $dataArr = (array)$this->data;
-                $attrs['value'] = trim(array_shift($dataArr));
+                $attrs['value'] = trim((string)array_shift($dataArr));
             } elseif (is_scalar($this->data)) {
-                $attrs['value'] = trim($this->data);
+                $attrs['value'] = trim((string)$this->data);
             }
         }
         return $attrs;

@@ -147,7 +147,7 @@ abstract class SocialProfile
                 return static::getSocialNetwork($this->profile);
                 break;
             default:
-                return $this->$var;
+                return ($this->$var ?? null);
                 break;
         }
     }
