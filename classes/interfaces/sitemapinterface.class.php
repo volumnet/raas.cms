@@ -66,7 +66,7 @@ class SitemapInterface extends AbstractInterface
         $domainPageData['url'] = $domainURL . '/';
 
         $pages = array_merge(
-            [trim($domainId) => $domainPageData],
+            [trim((string)$domainId) => $domainPageData],
             $this->getPages([$domainId])
         );
         $content = $this->showMenu($pages) . $this->showMaterials($pages);

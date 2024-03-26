@@ -150,6 +150,28 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
 }
 
 
+/// Возвращает clamp-функцию для пропорционального уменьшения
+/// Предполагает наличие переменной --container-width
+/// Поддерживаются только значения в пикселях
+/// @param {number} $size Размер
+/// @param {number} $min Минимальный размер (в абсолютных величинах)
+/// @return {map}
+@function relMin($size, $min: null, $relativeTo: null)
+{
+    $relativeTo: $referenceLayout;
+    @if (type-of($relativeTo) == string) {
+        $relativeTo: map-get($container-max-widths, $relativeTo);
+    }
+    $newSize: #{$size / $relativeTo} * var(--container-width);
+    @if ($min) {
+        $newSize: calc(max(#{$newSize}, #{$min}));
+    } @else {
+        $newSize: calc(#{$newSize});
+    }
+    @return $newSize;
+}
+
+
 /// Между двумя или парсим
 /// @param {string} $from Медиа-запрос "от" в формате vnMQL
 /// @param {string} $to Медиа-запрос "до" в формате vnMQL

@@ -63,7 +63,7 @@ class User_Field extends Field
     }
 
 
-    public static function getSet()
+    public static function getSet(): array
     {
         $args = func_get_args();
         if (!isset($args[0]['where'])) {
