@@ -1,12 +1,12 @@
 {
     "name": "volumnet/raas.cms",
     "description": "RAAS.CMS",
-    "version": "4.3.81",
+    "version": "4.3.82",
     "license": "GPL-3.0-or-later",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "phpoffice/phpexcel": ">=1.8",
+        "phpoffice/phpspreadsheet": "*",
         "electrolinux/phpquery": "*",
         "volumnet/some4": ">=4.6.15",
         "volumnet/raas.kernel": ">=4.3.32"

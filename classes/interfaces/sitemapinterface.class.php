@@ -166,13 +166,13 @@ class SitemapInterface extends AbstractInterface
     public function getChangeFreq($itemData)
     {
         $text = '';
-        if ($itemData['changefreq']) {
+        if ($itemData['changefreq'] ?? null) {
             $text .= '<changefreq>'
                   .     htmlspecialchars($itemData['changefreq'])
                   .  '</changefreq>';
         } else {
-            $d0 = max(0, strtotime($itemData['post_date']));
-            $s = ((time() - $d0) / $itemData['modify_counter']);
+            $d0 = max(0, strtotime($itemData['post_date'] ?? ''));
+            $s = ((time() - $d0) / ($itemData['modify_counter'] ?? 1));
             $text .= '<changefreq>';
             if ($s < 1800) {
                 $text .= 'always';
@@ -209,20 +209,20 @@ class SitemapInterface extends AbstractInterface
         $text = '<url>'
               // .   '<!-- ' . (isset($itemData['page_id']) ? Material::class : Page::class) . ' #' . (int)$itemData['id'] . ' -->'
               .   '<loc>' . htmlspecialchars($url) . '</loc>';
-        if (strtotime($itemData['last_modified']) > 0) {
+        if (strtotime((string)($itemData['last_modified'] ?? '')) > 0) {
             $text .= '<lastmod>'
                   .     date(DATE_W3C, strtotime($itemData['last_modified']))
                   .  '</lastmod>';
         }
         $text .= $this->getChangeFreq($itemData);
         $text .= '<priority>'
-              .     str_replace(',', '.', (string)(float)$itemData['sitemaps_priority'])
+              .     str_replace(',', '.', (string)(float)($itemData['sitemaps_priority'] ?? 0))
               .  '</priority>';
         $imagesData = [];
         if ($itemData['entry_type'] == 'page') {
-            $imagesData = (array)($this->imagesData['pagesImages'][$itemData['id']] ?? []);
+            $imagesData = (array)($this->imagesData['pagesImages'][$itemData['id'] ?? 0] ?? []);
         } elseif ($itemData['entry_type'] == 'material') {
-            $imagesData = (array)($this->imagesData['materialsImages'][$itemData['id']] ?? []);
+            $imagesData = (array)($this->imagesData['materialsImages'][$itemData['id'] ?? 0] ?? []);
         }
         if ($imagesData) {
             foreach ($imagesData as $imgId) {
@@ -266,7 +266,7 @@ class SitemapInterface extends AbstractInterface
         foreach ($pagesData as $pageRow) {
             EventProcessor::emit(
                 'startpage',
-                $pageRow['id'],
+                $pageRow['id'] ?? 0,
                 ['index' => ++$i, 'size' => $this->pagesCounter]
             );
             $text .= $this->getUrl($pageRow);

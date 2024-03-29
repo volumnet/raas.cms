@@ -40,18 +40,19 @@ export default {
     mounted() {
         this.updateWysiwyg();
         $('body').on('click', '[name="' + this.wysiwygName + '"]', () => {
-            this.updateWysiwyg();
+            this.updateWysiwyg(true);
         })
     },
     methods: {
         /**
          * Обновляет состояние визуального редактора
+         * @param {Boolean} beautifyHtml Бьютифицировать HTML
          */
-        updateWysiwyg() {
+        updateWysiwyg(beautifyHtml = false) {
             const $wysiwyg = $('[name="' + this.wysiwygName + '"]');
             this.wysiwygUpdating = true;
             this.wysiwyg = $wysiwyg.prop('checked');
-            if (!this.wysiwyg) {
+            if (!this.wysiwyg && beautifyHtml) {
                 this.pValue = this.beautifiedHTML;
                 this.$emit('input', this.pValue);
             }

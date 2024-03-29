@@ -159,7 +159,7 @@ class Material extends SOME
                 break;
             case 'cacheFile':
                 $url = 'http'
-                     . (mb_strtolower($_SERVER['HTTPS'] == 'on') ? 's' : '')
+                     . (mb_strtolower((($_SERVER['HTTPS'] ?? '') == 'on')) ? 's' : '')
                      . ':' . $this->fullURL;
                 $file = Package::i()->cacheDir . '/' . Package::i()->cachePrefix
                     . '.' . urlencode($url) . '.php';
@@ -312,6 +312,7 @@ class Material extends SOME
 
         // 2020-03-24, AVS: обновим дату связанного изменения
         $this->modify();
+        $this->rollback(); // Чтобы обновить список привязанных страниц
 
         // 2021-07-06, AVS: добавили условие для скоростного обновления
         if (!$this->meta['dontUpdateAffectedPages']) {
@@ -337,6 +338,11 @@ class Material extends SOME
             return false;
         }
         if ((count($pagesIds) < 2) || !in_array($page->id, $pagesIds)) {
+            // 2024-03-29, AVS: count($pagesIds) < 2 (т.е. == 1), чтобы нельзя было оставить материал "висящим"
+            // Это создавало проблемы в Sub_Main::move_material, т.к. там материал сначала дессоциировался со
+            // старой страницы, а уже потом ассоциировался на новую (в результате по факту материал, размещенный
+            // на одной старой странице не дессоциировался, и получался дубль). Поправил там, чтобы материал сначала
+            // ассоциировался с новой страницей
             return false;
         }
         $sqlQuery = "DELETE FROM " . self::_dbprefix() . self::$links['pages']['tablename']
@@ -346,6 +352,7 @@ class Material extends SOME
 
         // 2020-03-24, AVS: обновим дату связанного изменения
         $this->modify();
+        $this->rollback(); // Чтобы обновить список привязанных страниц
 
         // 2021-07-06, AVS: добавили условие для скоростного обновления
         if (!$this->meta['dontUpdateAffectedPages']) {

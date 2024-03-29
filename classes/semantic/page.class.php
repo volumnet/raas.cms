@@ -338,7 +338,8 @@ class Page extends SOME
                 return $result;
                 break;
             case 'domain':
-                if ($this->domains[0] ?? '') {
+                $domains = $this->domains;
+                if ($domains[0] ?? '') {
                     return '//' . $this->domains[0];
                 }
                 return '';

@@ -4,10 +4,11 @@
  */
 namespace RAAS\CMS;
 
-use PHPExcel;
-use PHPExcel_Cell;
-use PHPExcel_IOFactory;
-use PHPExcel_Cell_DataType;
+use PhpOffice\PhpSpreadsheet\Cell\Datatype;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use SOME\CSV;
 use RAAS\Redirector;
 use RAAS\StdSub;
 
@@ -97,47 +98,44 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
             case 'xls':
             case 'xlsx':
                 $filename .= '.' . $type;
-                $x =@ new PHPExcel();
-                $x->setActiveSheetIndex(0)->setTitle($table->caption);
+                $workbook = new Spreadsheet();
+                $sheet = $workbook->setActiveSheetIndex(0);
+                $sheet->setTitle($table->caption);
                 $maxcol = 0;
                 for ($i = 0; $i < count($data); $i++) {
                     $maxcol = max($maxcol, count($data[$i]));
                     for ($j = 0; $j < count($data[$i]); $j++) {
-                        $cell = $x->getActiveSheet()->getCellByColumnAndRow($j, $i + 1);
-                        $cell->setValueExplicit(
-                            $data[$i][$j],
-                            PHPExcel_Cell_DataType::TYPE_STRING
-                        );
+                        $cell = $sheet->getCellByColumnAndRow($j + 1, $i + 1);
+                        $cell->setValueExplicit($data[$i][$j], DataType::TYPE_STRING);
                     }
                 }
-                $range = 'A1:'
-                       . PHPExcel_Cell::stringFromColumnIndex($maxcol)
-                       . '1';
-                $x->getActiveSheet()->getStyle($range)->getFont()->setBold(true);
+                $range = [1, 1, $maxcol + 1, 1];
+                $sheet->getStyle($range)->getFont()->setBold(true);
                 switch ($type) {
                     case 'xlsx':
-                        $writerName = 'Excel2007';
+                        $writerName = 'Xlsx';
                         $header = 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; name="'
                                 . $filename
                                 . '"';
                         header($header);
                         break;
                     default:
-                        $writerName = 'Excel5';
+                        $writerName = 'Xls';
                         $header = 'Content-Type: application/excel; name="'
                                 . $filename
                                 . '"';
                         header($header);
                         break;
                 }
-                $objWriter = PHPExcel_IOFactory::createWriter($x, $writerName);
-                $temp_file = tempnam(sys_get_temp_dir(), '');
-                $objWriter->save($temp_file);
-                $text = file_get_contents($temp_file);
+                $objWriter = IOFactory::createWriter($workbook, $writerName);
+                $tmpfile = tempnam(sys_get_temp_dir(), '');
+                $objWriter->save($tmpfile);
+                $text = file_get_contents($tmpfile);
+                unlink($tmpfile);
                 break;
             default:
                 $filename .= '.csv';
-                $csv = new \SOME\CSV($data);
+                $csv = new CSV($data);
                 unset($DATA);
                 $text = $csv->csv;
                 unset($csv);

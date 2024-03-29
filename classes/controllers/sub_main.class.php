@@ -575,10 +575,13 @@ class Sub_Main extends RAASAbstractSubController
                 $parent = new Page((int)$_GET['new_pid']);
                 foreach ($items as $row) {
                     $row->dontUpdateAffectedPages = true;
+                    // 2024-03-29, AVS: поменял порядок, сделал снчала ассоциацию с новой страницей, потом дессоциацию
+                    // со старой, поскольку материал, размещенный на одной старой странице дессоциироваться не может
+                    // (стоит защита в Material::deassoc), и получался дубль
+                    $row->assoc($parent);
                     if ($_GET['move'] ?? null) {
                         $row->deassoc($oldPage);
                     }
-                    $row->assoc($parent);
                 }
                 Material::updateAffectedPages();
                 Material_Type::updateAffectedPagesForSelf($mtype);

@@ -139,7 +139,7 @@ class SitemapInterfaceExtended extends SitemapInterface
     public function getCatalogSitemap(Page $catalogRoot)
     {
         $pageCache = PageRecursiveCache::i();
-        $catalogPageData = $pageCache->cache[$catalogRoot->id];
+        $catalogPageData = $pageCache->cache[$catalogRoot->id] ?? [];
         $tmpPageParentsIds = $pageCache->getParentsIds($catalogRoot->id);
         $domainId = array_shift($tmpPageParentsIds);
         if ($this->server['HTTP_HOST']) {
@@ -150,10 +150,10 @@ class SitemapInterfaceExtended extends SitemapInterface
             $domainURL = $domainPage->domain;
         }
         $catalogPageData['entry_type'] = 'page';
-        $catalogPageData['url'] = $domainURL . $catalogPageData['cache_url'];
+        $catalogPageData['url'] = $domainURL . ($catalogPageData['cache_url'] ?? '');
 
         $pages = array_merge(
-            [trim($catalogPageData['id']) => $catalogPageData],
+            [trim($catalogPageData['id'] ?? 0) => $catalogPageData],
             $this->getPages([$catalogRoot->id])
         );
         $content = $this->showMenu($pages);
