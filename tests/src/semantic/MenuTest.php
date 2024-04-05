@@ -13,11 +13,25 @@ use SOME\BaseTest;
 class MenuTest extends BaseTest
 {
     public static $tables = [
+        'cms_access',
+        'cms_access_pages_cache',
+        'cms_blocks',
+        'cms_blocks_material',
+        'cms_blocks_menu',
+        'cms_blocks_pages_assoc',
+        'cms_blocks_search_pages_assoc',
+        'cms_data',
+        'cms_fields',
+        'cms_material_types',
+        'cms_material_types_affected_pages_for_materials_cache',
+        'cms_material_types_affected_pages_for_self_cache',
+        'cms_materials',
+        'cms_materials_affected_pages_cache',
+        'cms_materials_pages_assoc',
         'cms_menus',
         'cms_pages',
-        'cms_access_pages_cache',
-        'cms_fields',
-        'cms_blocks_menu',
+        'cms_shop_blocks_yml_pages_assoc',
+        'cms_users',
     ];
 
     public static function setUpBeforeClass(): void
@@ -74,6 +88,7 @@ class MenuTest extends BaseTest
     {
         $menu = new Menu();
         $menu->name = 'Тест';
+        // $menu->page_id = 3;
 
         $menu->commit();
         $id = $menu->id;
@@ -84,6 +99,8 @@ class MenuTest extends BaseTest
 
         $this->assertEquals($id, $menu->id);
         $this->assertEquals('test', $menu->urn);
+
+        Menu::delete($menu);
     }
 
 
@@ -99,6 +116,44 @@ class MenuTest extends BaseTest
         $this->assertEquals('Главная', $menu->name);
 
         Menu::delete($menu);
+    }
+
+
+    /**
+     * Тест сохранения
+     */
+    public function testCommitWithNewDomain()
+    {
+        $page = new Page(['name' => 'Новый домен']);
+        $page->commit();
+
+        $menu = new Menu(1);
+        $menu->domain_id = 1;
+        $menu->commit();
+
+        $menu->domain_id = $page->id;
+        $menu->commit();
+
+        $submenu = new Menu(10);
+        $submenu2 = new Menu(['pid' => 1]);
+        $submenu2->commit();
+
+        $this->assertNotEmpty($page->id);
+        $this->assertEmpty($page->pid);
+        $this->assertEquals($page->id, $submenu->domain_id);
+        $this->assertEquals($page->id, $submenu2->domain_id);
+
+        $menu->domain_id = 0;
+        $menu->commit();
+
+        $submenu = new Menu(10);
+        $submenu2 = new Menu($submenu2->id);
+        $this->assertEquals(0, $submenu->domain_id);
+        $this->assertEquals(0, $submenu2->domain_id);
+
+        Page::delete($page);
+        Menu::delete($submenu2);
+        MenuRecursiveCache::i()->refresh();
     }
 
 

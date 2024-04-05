@@ -2,6 +2,8 @@
 /**
  * PHP-блок
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**

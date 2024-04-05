@@ -76,9 +76,9 @@ if ($SMS) {
           <small>
             <?php
             echo IP_ADDRESS . ': ' .
-                htmlspecialchars($Item->ip) . '<br />' .
+                htmlspecialchars((string)$Item->ip) . '<br />' .
                 USER_AGENT . ': ' .
-                htmlspecialchars($Item->user_agent) . '<br />' .
+                htmlspecialchars((string)$Item->user_agent) . '<br />' .
                 PAGE . ': ';
             if ($page->parents) {
                 foreach ($page->parents as $row) { ?>

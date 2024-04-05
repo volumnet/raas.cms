@@ -198,7 +198,8 @@ class Controller_Frontend extends Abstract_Controller
                             $this->model->clearCache(false);
                         }
                         if (CMSPackage::i()->registryGet('diag')) {
-                            $this->diag = Diag::getInstance();
+                            $diag = Diag::getInstance();
+                            $this->setDiag($diag);
                             if ($this->diag) {
                                 Application::i()->SQL->query_handler = [$this->diag, 'queryHandler'];
                             }
@@ -220,6 +221,16 @@ class Controller_Frontend extends Abstract_Controller
             }
         }
         $text = ob_end_flush();
+    }
+
+
+    /**
+     * Устанавливает модуль диагностики
+     * @param Diag|null Объект модуля диагностики
+     */
+    public function setDiag(Diag $diag = null)
+    {
+        $this->diag = $diag;
     }
 
 

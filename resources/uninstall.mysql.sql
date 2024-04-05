@@ -10,7 +10,6 @@ DROP TABLE IF EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_material_filter;
 DROP TABLE IF EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_material_sort;
 DROP TABLE IF EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_menu;
 DROP TABLE IF EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_pages_assoc;
-DROP TABLE IF EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_php;
 DROP TABLE IF EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search;
 DROP TABLE IF EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search_languages_assoc;
 DROP TABLE IF EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search_material_types_assoc;

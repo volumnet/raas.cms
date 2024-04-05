@@ -122,7 +122,7 @@ abstract class Block extends SOME
      * @param int|array $importData Данные для импорта
      * @return Block
      */
-    public static function spawn($importData)
+    public static function spawn($importData): self
     {
         if (is_array($importData)) {
             if (isset($importData['block_type']) &&
@@ -190,17 +190,15 @@ abstract class Block extends SOME
                 return $this->CacheInterface->description;
                 break;
             case 'parent':
-                if ($this->pages) {
-                    return new Page($this->pages_ids[0]);
-                } else {
-                    return new Page();
-                }
+                $pages = $this->pages;
+                return $pages[0] ?? new Page();
                 break;
             case 'pid':
-                return $this->parent->id;
+                $pagesIds = $this->pages_ids;
+                return $pagesIds[0] ?? null;
                 break;
             case 'title':
-                return htmlspecialchars($this->name);
+                return htmlspecialchars((string)$this->name);
                 break;
             case 'pages_assoc':
                 return parent::__get('pages');
@@ -251,20 +249,20 @@ abstract class Block extends SOME
      * @param Page $Page страница, на которой предполагается отобразиться блоку
      * @return bool показывать ли блок
      */
-    public function tuneWithMaterial(Page $Page)
+    public function tuneWithMaterial(Page $Page): bool
     {
+        $pageWithMaterial = ($Page->Material && $Page->Material->id);
         switch ($this->vis_material) {
-            case self::BYMATERIAL_BOTH:
-                return true;
-                break;
             case self::BYMATERIAL_WITH:
-                return (bool)($Page->Material->id ?? null);
+                return $pageWithMaterial;
                 break;
             case self::BYMATERIAL_WITHOUT:
-                return !($Page->Material->id ?? null);
+                return !$pageWithMaterial;
+                break;
+            default:
+                return true;
                 break;
         }
-        return true;
     }
 
 
@@ -272,7 +270,7 @@ abstract class Block extends SOME
      * Получает дополнительные данные блока
      * @return array<string[] => mixed>
      */
-    public function getAddData()
+    public function getAddData(): array
     {
         return [];
     }
@@ -315,8 +313,9 @@ abstract class Block extends SOME
      * Перемещает блок по списку внутри размещения
      * @param int $step Шаг перемещения, <0 - вверх, >0 - вниз
      * @param Page $page На какой странице
+     * @return bool Успешно ли завершено перемещение
      */
-    public function swap($step, Page $page)
+    public function swap($step, Page $page): bool
     {
         $tablename = self::_dbprefix() . self::$links['pages']['tablename'];
         $sqlQuery = "SELECT priority
@@ -344,7 +343,6 @@ abstract class Block extends SOME
             $sqlBind[] = abs((int)$step);
         }
         $swapwith = static::$SQL->get([$sqlQuery, $sqlBind]);
-        $save_ok = true;
         // 2015-03-12 AVS: закомментил page_id = ..., т.к. менять порядок
         // на каждой странице не удобно
         if ($swapwith) {
@@ -355,7 +353,7 @@ abstract class Block extends SOME
                 } else {
                     $swapPri = (int)$priority;
                 }
-                $save_ok = static::$SQL->update(
+                static::$SQL->update(
                     $tablename,
                     /*"page_id = " . (int)$page->id . " AND " .*/
                     " block_id = " . $swapId,
@@ -369,8 +367,10 @@ abstract class Block extends SOME
                 " block_id = " . $this->id,
                 ['priority' => $priority]
             );
+            return true;
+        } else {
+            return false;
         }
-        return $save_ok;
     }
 
 
@@ -398,7 +398,7 @@ abstract class Block extends SOME
      * @param bool $nocache Без кэша
      * @return mixed|null Данные, возвращенные из виджета (если есть)
      */
-    public function process(Page $page, $nocache = false)
+    public function process(Page $page, bool $nocache = false)
     {
         $bst = microtime(true);
         if (!$this->currentUserHasAccess()) {
@@ -409,12 +409,12 @@ abstract class Block extends SOME
         // Пытаемся прочесть из HTML-кэша
         $in = [];
         if (!$nocache && ($this->cache_type == static::CACHE_HTML)) {
-            $in = (array)$this->loadCache($_SERVER['REQUEST_URI']);
+            $in = (array)$this->loadCache($_SERVER['REQUEST_URI'] ?? '');
         }
         if (!$in) {
             // Пытаемся прочесть из кэша данных
             if (!$nocache && ($this->cache_type == static::CACHE_DATA)) {
-                $in = (array)$this->loadCache($_SERVER['REQUEST_URI']);
+                $in = (array)$this->loadCache($_SERVER['REQUEST_URI'] ?? '');
             }
             // 2015-11-23, AVS: перенес ob_start, т.к., допустим, у блока
             // Яндекс-Маркета нет виджета, а только интерфейс
@@ -468,9 +468,17 @@ abstract class Block extends SOME
     public function getCacheFile(string $url = null, Page $page = null): string
     {
         if ($this->cache_type != static::CACHE_NONE) {
-            $domain = $page ? preg_replace('/^http(s)?:\\/\\//umi', '', $page->domain) : ($_SERVER['HTTP_HOST'] ?? '');
+            if ($page) {
+                $domain = parse_url($page->domain, PHP_URL_HOST);
+            } else {
+                $domain = ($_SERVER['HTTP_HOST'] ?? '');
+            }
             if (!$url) {
-                $url = $page ? $page->url : ($_SERVER['REQUEST_URI'] ?? '');
+                if ($page) {
+                    $url = $page->url;
+                } else {
+                    $url = ($_SERVER['REQUEST_URI'] ?? '');
+                }
             }
             $filename = Package::i()->cacheDir . '/' . Package::i()->cachePrefix . '_block' . (int)$this->id;
             if ($url && $this->cache_single_page) {
@@ -479,7 +487,7 @@ abstract class Block extends SOME
             $filename .= '.php';
             return $filename;
         }
-        return null;
+        return '';
     }
 
 
@@ -511,13 +519,7 @@ abstract class Block extends SOME
                 ) {
                     $diagId .= '@m';
                 }
-                $diag->handle(
-                    'blocks',
-                    $diagId,
-                    microtime(true) - $st,
-                    null,
-                    'interfaceTime'
-                );
+                $diag->handle('blocks', $diagId, microtime(true) - $st, null, 'interfaceTime');
             }
             return $out;
         }
@@ -551,13 +553,7 @@ abstract class Block extends SOME
                 ) {
                     $diagId .= '@m';
                 }
-                $diag->handle(
-                    'blocks',
-                    $diagId,
-                    microtime(true) - $st,
-                    null,
-                    'widgetTime'
-                );
+                $diag->handle('blocks', $diagId, microtime(true) - $st, null, 'widgetTime');
             }
         }
     }
@@ -567,6 +563,7 @@ abstract class Block extends SOME
      * Отрабатывает кэш
      * @param array $in Входные данные
      * @param Page $page Страница, для которой обрабатываем кэш
+     * @return mixed
      */
     protected function processCache(array $in = [], $page = null)
     {
@@ -603,8 +600,11 @@ abstract class Block extends SOME
                 // 2022-07-08, AVS: добавил @, чтобы при вызове ошибочного файла не выводил ошибку
                 try {
                     $out = @include $filename;
+                // @codeCoverageIgnoreStart
+                //  Не можем проверить ошибочный файл
                 } catch (Error $e) {
                 }
+                // @codeCoverageIgnoreEnd
             }
         }
         return $out;
@@ -616,7 +616,6 @@ abstract class Block extends SOME
      */
     public function clearCache()
     {
-        $OUT = [];
         if ($this->cache_type != static::CACHE_NONE) {
             $filename = $this->getCacheFile();
             $globname = str_replace('.php', '.*.php', $filename);
@@ -628,23 +627,23 @@ abstract class Block extends SOME
                 @unlink($file);
             }
         }
-        return $OUT;
     }
 
 
     /**
      * Размещение блока
-     * @return Location
+     * @return Location|null null, если не задано
      */
     protected function _Location()
     {
-        return $this->parent->Template->locations[$this->location];
+        $templateLocations = $this->parent->Template->locations;
+        return $templateLocations[$this->location] ?? null;
     }
 
 
     /**
      * Таблица дополнительных данных
-     * @return string
+     * @return string|null null, если не задана вторая таблица
      */
     public static function _tablename2()
     {
@@ -656,7 +655,8 @@ abstract class Block extends SOME
 
     public static function delete(SOME $item)
     {
-        if ($t2 = static::_tablename2()) {
+        $classname = get_class($item);
+        if ($t2 = $classname::_tablename2()) {
             $sqlQuery = "DELETE FROM " . $t2 . " WHERE id = ?";
             self::$SQL->query([$sqlQuery, (int)$item->id]);
         }

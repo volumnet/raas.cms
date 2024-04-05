@@ -73,8 +73,8 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
               if ($field->datatype == 'select') {
                   $fieldArrayFormatter = new FieldArrayFormatter($field);
                   $fieldRenderData['data-v-bind_source'] = json_encode($fieldArrayFormatter->formatStdSource($field->stdSource));
-                  if (!$field->required && !$field->placeholder) {
-                      $fieldRenderData['data-vue-placeholder'] = '--';
+                  if ($field->placeholder) {
+                      $fieldRenderData['data-vue-placeholder'] = $field->placeholder;
                   }
               }
               $fieldHTML = $fieldRenderer->render($fieldRenderData);

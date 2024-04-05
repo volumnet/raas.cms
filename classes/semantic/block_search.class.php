@@ -2,6 +2,8 @@
 /**
  * Блок поиска
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\User as RAASUser;
@@ -136,7 +138,7 @@ class Block_Search extends Block
      *             'rows_per_page' => int Количество записей на страницу,
      *         ]
      */
-    public function getAddData()
+    public function getAddData(): array
     {
         return [
             'id' => (int)$this->id,

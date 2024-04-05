@@ -21,14 +21,16 @@ class FormArrayFormatter
      *     postprocessor_id,
      *     show_in_table
      * )
+     * @var bool
      */
     public $getAdminFields = false;
 
     /**
      * Конструктор класса
      * @param Form $form Форма для форматирования
+     * @param bool $getAdminFields Получать поля для администратора
      */
-    public function __construct(Form $form, $getAdminFields = false)
+    public function __construct(Form $form, bool $getAdminFields = false)
     {
         $this->form = $form;
         $this->getAdminFields = $getAdminFields;
@@ -48,14 +50,10 @@ class FormArrayFormatter
      * )> Массив дополнительных полей каждого поля формы для отображения
      * @return array <pre>array<string[] Свойство формы => mixed></pre>
      */
-    public function format(array $with = [], array $fieldWith = [])
+    public function format(array $with = [], array $fieldWith = []): array
     {
         $result = (array)$this->form->getArrayCopy();
-        foreach ([
-            'id',
-            'material_type',
-            'interface_id',
-        ] as $key) {
+        foreach (['id', 'material_type', 'interface_id'] as $key) {
             if ($result[$key] !== null) {
                 $result[$key] = (int)$result[$key];
             }

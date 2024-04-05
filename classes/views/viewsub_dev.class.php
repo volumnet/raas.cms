@@ -1244,7 +1244,7 @@ class ViewSub_Dev extends RAASAbstractSubView
                 $subMenu = $this->menusMenuByDomainId($current, $domainId);
                 if ($subMenu) {
                     $active =  in_array($this->action, ['menus', 'edit_menu', 'move_menu']) &&
-                        ((string)$_GET['domain_id'] === (string)$domainId);
+                        ((string)($_GET['domain_id'] ?? '') === (string)$domainId);
                     $semiactive = (bool)array_filter($subMenu, function ($x) {
                         return (bool)$x['active'];
                     });

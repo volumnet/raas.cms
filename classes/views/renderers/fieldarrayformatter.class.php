@@ -2,6 +2,8 @@
 /**
  * Форматтер массива для поля
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -21,14 +23,16 @@ class FieldArrayFormatter
      *     postprocessor_id,
      *     show_in_table
      * )
+     * @var bool
      */
     public $getAdminFields = false;
 
     /**
      * Конструктор класса
      * @param Field $field Поле для форматирования
+     * @param bool $getAdminFields Получать поля для администратора
      */
-    public function __construct(Field $field, $getAdminFields = false)
+    public function __construct(Field $field, bool $getAdminFields = false)
     {
         $this->field = $field;
         $this->getAdminFields = $getAdminFields;
@@ -43,7 +47,7 @@ class FieldArrayFormatter
      * )> Массив дополнительных полей для отображения
      * @return array <pre>array<string[] Свойство поля => mixed></pre>
      */
-    public function format(array $with = [])
+    public function format(array $with = []): array
     {
         $result = (array)$this->field->getArrayCopy();
         foreach ([
@@ -54,24 +58,24 @@ class FieldArrayFormatter
             'postprocessor_id',
             'priority',
         ] as $key) {
-            if ($result[$key] !== null) {
+            if (($result[$key] ?? null) !== null) {
                 $result[$key] = (int)$result[$key];
             }
         }
         foreach (['min_val', 'max_val', 'step'] as $key) {
-            if ($result[$key] !== null) {
+            if (($result[$key] ?? null) !== null) {
                 $result[$key] = (float)$result[$key];
             }
         }
         foreach (['vis', 'required', 'multiple', 'show_in_table'] as $key) {
-            if ($result[$key] !== null) {
+            if (($result[$key] ?? null) !== null) {
                 $result[$key] = (bool)(int)$result[$key];
             }
         }
-        if (is_numeric($result['source'])) {
+        if (is_numeric($result['source'] ?? null)) {
             $result['source'] = (int)$result['source'];
         }
-        if (in_array($result['datatype'], ['file', 'image']) && $result['source']) {
+        if (in_array($result['datatype'], ['file', 'image']) && ($result['source'] ?? null)) {
             $allowedExtensions = preg_split('/\\W+/umis', $this->field->source);
             $allowedExtensions = array_map(function ($x) {
                 return '.' . mb_strtolower($x);
@@ -125,12 +129,12 @@ class FieldArrayFormatter
      *     'children' =>? array Рекурсивно
      * ]]></code></pre>
      */
-    public function formatStdSource($source)
+    public function formatStdSource(array $source): array
     {
         $result = [];
         foreach ($source as $val => $sourceData) {
-            $entry = ['value' => $val, 'name' => $sourceData['name']];
-            if ($sourceData['children']) {
+            $entry = ['value' => $val, 'name' => $sourceData['name'] ?? ''];
+            if ($sourceData['children'] ?? []) {
                 $entry['children'] = $this->formatStdSource($sourceData['children']);
             }
             $result[] = $entry;

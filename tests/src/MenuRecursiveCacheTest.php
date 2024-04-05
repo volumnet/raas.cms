@@ -33,6 +33,7 @@ class MenuRecursiveCacheTest extends BaseTest
         $cmsAccess = new CMSAccess(['page_id' => 3, 'allow' => 0, 'to_type' => 1]);
         $cmsAccess->commit();
         CMSAccess::refreshPagesAccessCache();
+        MenuRecursiveCache::i()->refresh();
     }
 
 

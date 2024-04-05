@@ -112,14 +112,10 @@ class Menu extends SOME
                 $this->urn = $this->name;
             }
             Package::i()->getUniqueURN($this);
-        } elseif (!$this->domain_id && $this->parent->domain_id) {
+        } elseif (/*!$this->domain_id && */$this->parent->id) {
             $this->domain_id = $this->parent->domain_id;
         }
-        if ($this->id &&
-            ($this->updates['domain_id'] ?? false) &&
-            ($this->properties['domain_id'] ?? false) &&
-            ($this->updates['domain_id'] != $this->properties['domain_id'])
-        ) {
+        if ($this->id && (($this->updates['domain_id'] ?? 0) != ($this->properties['domain_id'] ?? 0))) {
             $updateChildrenDomain = true;
         }
         parent::commit();

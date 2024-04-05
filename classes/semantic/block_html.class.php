@@ -2,6 +2,8 @@
 /**
  * HTML-блок
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\Text;
@@ -30,13 +32,13 @@ class Block_HTML extends Block
     }
 
 
-    public function process(Page $Page, $nocache = false)
+    public function process(Page $page, bool $nocache = false)
     {
         if (!$this->currentUserHasAccess()) {
             return null;
         }
         if ($this->Interface->id || $this->Widget->id) {
-            return parent::process($Page);
+            return parent::process($page, $nocache);
         } else {
             echo $this->description;
         }
@@ -51,7 +53,7 @@ class Block_HTML extends Block
      *             'wysiwyg' => 0|1 включен ли визуальный редактор,
      *         ]
      */
-    public function getAddData()
+    public function getAddData(): array
     {
         return [
             'id' => (int)$this->id,

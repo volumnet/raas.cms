@@ -53,6 +53,7 @@ export default {
                         self.$emit('input', $(this).val())
                     });
             } else {
+                // 2024-04-04, AVS: глючит - срабатывает только со второго раза
                 $(this.$el).multiselect('rebuild');
             }
         },

@@ -386,6 +386,9 @@ export default {
             let destY = null;
             if (typeof(destination) == 'number') {
                 destY = destination;
+            } else if (typeof(destination) == 'string') {
+                destination = $(destination);
+                destY = destination.offset().top;
             } else if (destination instanceof HTMLElement) {
                 destY = $(destination).offset().top;
             } else if (destination instanceof jQuery) {

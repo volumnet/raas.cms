@@ -452,6 +452,24 @@ class FormInterfaceTest extends BaseTest
 
 
     /**
+     * Тест подстановки данных пользователя в объект - случай с прокси
+     */
+    public function testProcessUserDataWithProxy()
+    {
+        $feedback = new Feedback(['pid' => 1]);
+        $server = [
+            'REMOTE_ADDR' => '127.0.0.1',
+            'HTTP_X_FORWARDED_FOR' => '11.11.11.11, 22.22.22.22, 33.33.33.33',
+        ];
+        $interface = new FormInterface();
+
+        $interface->processUserData($feedback, $server);
+
+        $this->assertEquals('11.11.11.11', $feedback->ip);
+    }
+
+
+    /**
      * Тест получения "сырого" созданного материала
      * (без commit'а и заполненных полей),
      * если форма поддерживает создание материала

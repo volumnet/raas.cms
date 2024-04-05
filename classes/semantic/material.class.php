@@ -159,7 +159,7 @@ class Material extends SOME
                 break;
             case 'cacheFile':
                 $url = 'http'
-                     . (mb_strtolower((($_SERVER['HTTPS'] ?? '') == 'on')) ? 's' : '')
+                     . (mb_strtolower(((string)($_SERVER['HTTPS'] ?? '') == 'on')) ? 's' : '')
                      . ':' . $this->fullURL;
                 $file = Package::i()->cacheDir . '/' . Package::i()->cachePrefix
                     . '.' . urlencode($url) . '.php';

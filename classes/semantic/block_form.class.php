@@ -2,6 +2,8 @@
 /**
  * Блок формы
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\User as RAASUser;
@@ -50,7 +52,7 @@ class Block_Form extends Block
      *             'form' => int ID# формы,
      *         ]
      */
-    public function getAddData()
+    public function getAddData(): array
     {
         return [
             'id' => (int)$this->id,

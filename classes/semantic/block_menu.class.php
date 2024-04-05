@@ -2,6 +2,8 @@
 /**
  * Блок меню
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\User as RAASUser;
@@ -51,7 +53,7 @@ class Block_Menu extends Block
      *             'full_menu' => 0|1 полное меню (либо только подразделы)
      *         ]
      */
-    public function getAddData()
+    public function getAddData(): array
     {
         return [
             'id' => (int)$this->id,

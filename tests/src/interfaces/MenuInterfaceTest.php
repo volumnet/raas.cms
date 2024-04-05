@@ -13,11 +13,12 @@ use SOME\BaseTest;
 class MenuInterfaceTest extends BaseTest
 {
     public static $tables = [
-        'cms_pages',
-        'cms_menus',
+        'cms_access_pages_cache',
         'cms_blocks',
         'cms_blocks_menu',
         'cms_fields',
+        'cms_menus',
+        'cms_pages',
     ];
 
     /**

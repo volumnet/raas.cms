@@ -75,6 +75,7 @@ class FormFieldRendererTest extends BaseTest
             'type' => 'text',
             'required' => true,
             'urn' => 'name',
+            'placeholder' => 'Placeholder',
         ]), new Block_Form());
 
         $result = $renderer->getAttributes();
@@ -83,6 +84,7 @@ class FormFieldRendererTest extends BaseTest
         $this->assertEquals('name', $result['name']);
         $this->assertStringStartsWith('name', $result['id']);
         $this->assertEquals('required', $result['required']);
+        $this->assertEquals('Placeholder', $result['data-placeholder']);
     }
 
     /**
@@ -132,6 +134,34 @@ class FormFieldRendererTest extends BaseTest
         $this->assertStringContainsString(' data-type="text"', $result);
         $this->assertStringContainsString('name="name[]"', $result);
         $this->assertStringContainsString('data-multiple="multiple"', $result);
+        $this->assertStringContainsString('required="required"', $result);
+    }
+
+
+    /**
+     * Тест рендера - случай с файловым полем
+     */
+    public function testRenderWithFile()
+    {
+        $renderer = new FileFormFieldRenderer(
+            new Form_Field([
+                'datatype' => 'file',
+                'required' => true,
+                'urn' => 'somefile',
+                'multiple' => 'true',
+            ]),
+            new Block_Form(),
+            ['name' => 'aaa']
+        );
+
+        $result = $renderer->render(['data-aaa' => 'bbb']);
+
+        $this->assertStringContainsString('<input', $result);
+        $this->assertStringContainsString(' data-raas-field ', $result);
+        $this->assertStringContainsString(' data-type="file"', $result);
+        $this->assertStringContainsString('name="somefile[]"', $result);
+        $this->assertStringContainsString('type="file"', $result);
+        $this->assertStringContainsString('data-aaa="bbb"', $result);
         $this->assertStringContainsString('required="required"', $result);
     }
 

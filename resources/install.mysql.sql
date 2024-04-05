@@ -135,13 +135,6 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_pages_assoc (
   INDEX priority (priority)
 ) COMMENT='Blocks to pages associations';
 
-CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_php (
-  id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'ID#',
-  widget int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Widget ID#',
-  PRIMARY KEY (id),
-  KEY widget (widget)
-) COMMENT='PHP blocks';
-
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search (
   id int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'ID#',
   search_var_name varchar(255) NOT NULL DEFAULT '' COMMENT 'Search var name',

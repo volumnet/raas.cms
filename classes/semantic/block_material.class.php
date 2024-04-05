@@ -2,6 +2,8 @@
 /**
  * Блок материалов
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\SOME;
@@ -167,7 +169,7 @@ class Block_Material extends Block
      *                             (по id=...)
      *         ]
      */
-    public function getAddData()
+    public function getAddData(): array
     {
         return [
             'id' => (int)$this->id,

@@ -113,7 +113,11 @@ class CMSAccess extends SOME
      */
     public static function userHasCascadeAccess(SOME $entity, User $user)
     {
-        if (is_array($entity->access)) {
+        // 2024-03-31, AVS: добавил условие $entity->id, поскольку без этого смотрятся строки в таблице, где
+        // целевой id == 0 (например block_id == 0), хотя они предназначаются для других сущностей, например страниц
+        // (page_id != 0)
+        // И в целом, если сущность не имеет id, то доступ к ней не определен (0)
+        if ($entity->id && is_array($entity->access)) {
             $accessSet = array_reverse($entity->access);
             foreach ($accessSet as $access) {
                 $a = $access->userHasAccess($user);

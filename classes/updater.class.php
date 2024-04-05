@@ -60,6 +60,9 @@ class Updater extends RAASUpdater
         if (version_compare($v, '4.3.66') < 0) {
             $this->update20231008();
         }
+        if (version_compare($v, '4.3.83') < 0) {
+            $this->update20240402();
+        }
     }
 
 
@@ -1990,6 +1993,18 @@ class Updater extends RAASUpdater
             in_array('name', $this->columns(SOME::_dbprefix() . "cms_templates"))
         ) {
             $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_templates DROP name";
+            $this->SQL->query($sqlQuery);
+        }
+    }
+
+
+    /**
+     * Удалим таблицу cms_blocks_php
+     */
+    public function update20240402()
+    {
+        if (in_array(SOME::_dbprefix() . "cms_blocks_php", $this->tables)) {
+            $sqlQuery = "DROP TABLE " . SOME::_dbprefix() . "cms_blocks_php";
             $this->SQL->query($sqlQuery);
         }
     }

@@ -2,6 +2,8 @@
 /**
  * Форма
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\SOME;
@@ -186,6 +188,7 @@ class Form extends SOME
      */
     protected function _usingCartTypes()
     {
+        $result = [];
         if (class_exists($cartTypeClassname = 'RAAS\CMS\Shop\Cart_Type')) {
             $cartTypeReferences = $cartTypeClassname::_references();
             $cartTypeFormMatchingReferences = array_values(array_filter($cartTypeReferences, function ($x) {
@@ -195,8 +198,7 @@ class Form extends SOME
             $result = $cartTypeClassname::getSet([
                 'where' => [$cartTypeFormReference['FK'] . " = " . (int)$this->id]
             ]);
-            return $result;
         }
-        return [];
+        return $result;
     }
 }

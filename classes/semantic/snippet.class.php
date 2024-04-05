@@ -2,6 +2,8 @@
 /**
  * Сниппет
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use Error;
@@ -136,16 +138,17 @@ class Snippet extends SOME
         $result = @include $this->filename;
         if ($diag = Controller_Frontend::i()->diag) {
             $diagId = $this->id;
-            if ($data['Block'] &&
-                ($data['Block'] instanceof Block_Material) &&
-                $data['Block']->nat &&
-                $data['Page'] &&
-                ($data['Page'] instanceof Page) &&
-                (
-                    ($data['Page']->Material && $data['Page']->Material->id) ||
-                    ($data['Page']->Item && $data['Page']->Item->id)
-                )
-            ) {
+            $block = ($data['Block'] ?? null);
+            $page = ($data['Page'] ?? null);
+            $pageWithMaterial = false;
+            if (($page instanceof Page)) {
+                $material = $page->Material;
+                $item = $page->Item;
+                if (($material && $material->id) || ($item && $item->id)) {
+                    $pageWithMaterial = true;
+                }
+            }
+            if (($block instanceof Block_Material) && $block->nat && $pageWithMaterial) {
                 $diagId .= '@m';
             }
             $diag->handle(
@@ -208,13 +211,6 @@ class Snippet extends SOME
      */
     protected function _usingForms()
     {
-        $snippetsIds = [(int)$this->id];
-        foreach ($this->usingSnippets as $snippet) {
-            $snippetsIds[] = (int)$snippet->id;
-        }
-        if (!$snippetsIds) {
-            return [];
-        }
         $result = Form::getSet([
             'where' => "interface_id = " . (int)$this->id,
         ]);
@@ -287,7 +283,9 @@ class Snippet extends SOME
                 try {
                     $docBlock = $docBlockFactory->create($docBlockText);
                     $result = $docBlock->getSummary();
-                    return $result;
+                    if (trim($result)) {
+                        return trim($result);
+                    }
                 } catch (Exception $e) {
                 }
             }

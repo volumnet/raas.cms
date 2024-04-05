@@ -69,7 +69,9 @@ class CacheInterfaceTest extends BaseTest
         $testData = ['aaa' => 'bbb', 'ccc' => 'ddd', 'eee' => 'fff'];
         $interface = new CacheInterface($block, $page, [], [], [], [], [], [], $testData);
 
-        @unlink($filename);
+        if (is_file($filename)) {
+            @unlink($filename);
+        }
         $result = $interface->process();
 
         $this->assertEquals($testData, $result);
@@ -79,7 +81,9 @@ class CacheInterfaceTest extends BaseTest
 
         $this->assertEquals($testData, $cachedResult);
 
-        unlink($filename);
+        if (is_file($filename)) {
+            unlink($filename);
+        }
     }
 
 
@@ -97,7 +101,9 @@ class CacheInterfaceTest extends BaseTest
               . '<testdata>aaa</testdata>';
         $interface = new CacheInterface($block, $page, [], [], [], [], [], [], $testData);
 
-        @unlink($filename);
+        if (is_file($filename)) {
+            @unlink($filename);
+        }
         ob_start();
         echo $text;
         $result = $interface->process();
@@ -114,7 +120,9 @@ class CacheInterfaceTest extends BaseTest
             $cachedResult
         );
 
-        unlink($filename);
+        if (is_file($filename)) {
+            unlink($filename);
+        }
     }
 
 
@@ -130,7 +138,9 @@ class CacheInterfaceTest extends BaseTest
         $testData = ['aaa' => 'bbb', 'ccc' => 'ddd', 'eee' => 'fff'];
         $interface = new CacheInterface($block, $page, [], [], [], [], [], [], $testData);
 
-        @unlink($filename);
+        if (is_file($filename)) {
+            @unlink($filename);
+        }
         $result = $interface->process();
 
         $this->assertEquals($testData, $result);
