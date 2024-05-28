@@ -108,7 +108,7 @@ class FormRenderer extends HTMLRenderer
             return $this->getElement(
                 'textarea',
                 $attrs,
-                htmlspecialchars(trim($this->data[$fieldURN]))
+                htmlspecialchars(trim((string)($this->data[$fieldURN] ?? '')))
             );
         }
         return '';
