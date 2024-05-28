@@ -114,7 +114,7 @@ class FeedbackTable extends Table
                             break;
                         default:
                             if (isset($f)) {
-                                $y = htmlspecialchars($f->doRich());
+                                $y = htmlspecialchars((string)$f->doRich());
                             }
                             $text .= $y ? $y : '';
                             break;

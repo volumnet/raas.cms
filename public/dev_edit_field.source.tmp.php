@@ -59,4 +59,21 @@ $_RAASForm_Field = function(RAASField $field) use (
       </div>
     </div>
     <?php
+    $field->type = 'text';
+    $field->caption = Application::i()->view->context->_('MEASURE_UNIT');
+    $field->placeholder = '';
+    $field->children = [];
+    $field->id = 'source_unit';
+    ?>
+    <div class="control-group">
+      <label class="control-label">
+        <?php echo htmlspecialchars($field->caption)?>:
+      </label>
+      <div class="controls">
+        <?php
+        $_RAASForm_Control($field);
+        ?>
+      </div>
+    </div>
+    <?php
 };

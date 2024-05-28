@@ -29,6 +29,7 @@ class MediaDatatypeStrategyTraitTest extends BaseTest
 {
     public static $tables = [
         'attachments',
+        'cms_templates',
     ];
 
     /**

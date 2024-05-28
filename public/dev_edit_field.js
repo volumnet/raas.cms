@@ -57,20 +57,18 @@ jQuery(function($) {
             }
         
             // Показываем выбор источника в зависимости от типа
-            $('#source_textarea, #source_dictionary')
-                .hide()
-                .attr('disabled', 'disabled')
-                .removeAttr('required');
-            $('#source_file')
-                .attr('disabled', 'disabled')
-                .closest('.control-group')
-                .hide();
+            $('#source_textarea, #source_dictionary').hide().attr('disabled', 'disabled').removeAttr('required');
+            $('#source_file, #source_unit').attr('disabled', 'disabled').closest('.control-group').hide();
             $('#source_materials').hide().attr('disabled', 'disabled');
 
             switch ($('#datatype').val()) {
                 case 'material':
                     $('#source_materials').fadeIn().removeAttr('disabled');
                     break;
+                case 'number':
+                case 'range':
+                case 'text':
+                    $('#source_unit').removeAttr('disabled', 'disabled').closest('.control-group').fadeIn();
                 case 'radio':
                 case 'select':
                 case 'checkbox':
@@ -81,10 +79,7 @@ jQuery(function($) {
                     }
                     break;
                 case 'file':
-                    $('#source_file')
-                        .removeAttr('disabled', 'disabled')
-                        .closest('.control-group')
-                        .fadeIn();
+                    $('#source_file').removeAttr('disabled', 'disabled').closest('.control-group').fadeIn();
                     break;
 
             }

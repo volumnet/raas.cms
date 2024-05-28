@@ -2,6 +2,8 @@
 /**
  * Файл стандартного интерфейса формы
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\SOME;
@@ -158,12 +160,12 @@ class FormInterface extends AbstractInterface
 
     /**
      * Проверка на корректность регулярного поля
-     * @param Form_Field $field Поле для проверки
+     * @param Field $field Поле для проверки
      * @param array $post Данные $_POST-полей
      * @return string|null Текстовое описание ошибки, либо null,
      *                     если ошибка отсутствует
      */
-    public function checkRegularField(Form_Field $field, array $post = [])
+    public function checkRegularField(Field $field, array $post = [])
     {
         $fieldURN = $field->urn;
         $postArr = $field->datatypeStrategy->getPostData($field, true, $post);
@@ -192,7 +194,7 @@ class FormInterface extends AbstractInterface
                 $localError = 'ERR_CUSTOM_PASSWORD_DOESNT_MATCH_CONFIRM';
             } else {
                 try {
-                    $field->datatypeStrategy->validate($val, $this->Field);
+                    $field->datatypeStrategy->validate($val, $field->Field);
                 } catch (DatatypeInvalidValueException $e) {
                     $localError = 'ERR_CUSTOM_FIELD_INVALID';
                 }
@@ -207,14 +209,14 @@ class FormInterface extends AbstractInterface
 
     /**
      * Проверка на корректность файлового поля
-     * @param Form_Field $field Поле для проверки
+     * @param Field $field Поле для проверки
      * @param array $files Данные $_FILES-полей
      * @param bool $debug Режим отладки
      * @return string|null Текстовое описание ошибки, либо null,
      *                     если ошибка отсутствует
      * @todo Нужна проверка множественных требуемых полей изображений
      */
-    public function checkFileField(Form_Field $field, array $files = [], $debug = false)
+    public function checkFileField(Field $field, array $files = [], $debug = false)
     {
         $fieldURN = $field->urn;
         $filesArr = $field->datatypeStrategy->getFilesData($field, true, false, $files);
@@ -243,7 +245,7 @@ class FormInterface extends AbstractInterface
             } catch (DatatypeImageTypeMismatchException $e) {
                 return sprintf(View_Web::i()->_('ERR_INVALID_IMAGE_FORMAT'), $field->name);
             } catch (DatatypeFileTypeMismatchException $e) {
-                $allowedExtensions = trim($field->source) ? preg_split('/\\W+/umis', $field->source) : [];
+                $allowedExtensions = trim((string)$field->source) ? preg_split('/\\W+/umis', $field->source) : [];
                 if ($allowedExtensions) {
                     $allowedExtensions = mb_strtoupper(implode(', ', $allowedExtensions));
                     return sprintf(
@@ -421,7 +423,7 @@ class FormInterface extends AbstractInterface
 
             $refererRelativeURL = parse_URL($refererURL, PHP_URL_PATH);
             $refererURLArray = array_filter(
-                explode('/', trim($refererRelativeURL, '/'))
+                explode('/', trim((string)$refererRelativeURL, '/'))
             );
             if ($refererURLArray) {
                 $refererMaterialURN = $refererURLArray[count($refererURLArray) - 1];
@@ -457,7 +459,7 @@ class FormInterface extends AbstractInterface
             $object->ip = $server['REMOTE_ADDR'];
         }
         foreach (['user_agent' => 'HTTP_USER_AGENT'] as $key => $val) {
-            $object->$key = trim($server[$val] ?? '');
+            $object->$key = trim((string)($server[$val] ?? ''));
         }
     }
 
@@ -507,13 +509,13 @@ class FormInterface extends AbstractInterface
      */
     public function processMaterialHeader(Material $material, Form $form, array $post = [])
     {
-        if (isset($post['_name_']) && trim($post['_name_'])) {
-            $material->name = trim($post['_name_']);
+        if (isset($post['_name_']) && trim((string)$post['_name_'])) {
+            $material->name = trim((string)$post['_name_']);
         } elseif (!$material->id) {
             $material->name = $form->Material_Type->name . ': ' . date(RAASViewWeb::i()->_('DATETIMEFORMAT'));
         }
-        if (isset($post['_description_']) && trim($post['_description_'])) {
-            $material->description = trim($post['_description_']);
+        if (isset($post['_description_']) && trim((string)$post['_description_'])) {
+            $material->description = trim((string)$post['_description_']);
         }
     }
 
@@ -554,7 +556,7 @@ class FormInterface extends AbstractInterface
         foreach (['ip' => 'REMOTE_ADDR', 'user_agent' => 'HTTP_USER_AGENT'] as $key => $val) {
             if ($field = ($object->fields[$key] ?? null)) {
                 $field->deleteValues();
-                $field->addValue(trim($server[$val] ?? ''));
+                $field->addValue(trim((string)($server[$val] ?? '')));
             }
         }
     }
@@ -569,9 +571,9 @@ class FormInterface extends AbstractInterface
     public function processUTM(SOME $object, array $post = [], array $session = [])
     {
         foreach ($object->fields as $fieldURN => $field) {
-            if (stristr($fieldURN, 'utm_') && !($post[$fieldURN] ?? null) && trim($session[$fieldURN] ?? '')) {
+            if (stristr($fieldURN, 'utm_') && !($post[$fieldURN] ?? null) && trim((string)($session[$fieldURN] ?? ''))) {
                 $field->deleteValues();
-                $field->addValue(trim($session[$fieldURN]));
+                $field->addValue(trim((string)$session[$fieldURN]));
             }
         }
     }
@@ -610,7 +612,7 @@ class FormInterface extends AbstractInterface
         $field->deleteValues();
         $postData = $field->datatypeStrategy->getPostData($field, true, $post);
         foreach ($postData as $key => $value) {
-            $value = trim(strip_tags($value));
+            $value = trim(strip_tags((string)$value));
             $value = $field->datatypeStrategy->export($value);
             if ($value != null) {
                 $field->addValue($value);
@@ -642,8 +644,8 @@ class FormInterface extends AbstractInterface
             }
             if ($attachment && $attachment->id) {
                 $attachment->vis = (bool)($fileData['meta']['vis'] ?? true);
-                $attachment->name = trim($fileData['meta']['name'] ?? '');
-                $attachment->description = trim($fileData['meta']['description'] ?? '');
+                $attachment->name = trim((string)($fileData['meta']['name'] ?? ''));
+                $attachment->description = trim((string)($fileData['meta']['description'] ?? ''));
                 $value = $field->datatypeStrategy->export($attachment);
                 if ($value !== null) {
                     $field->addValue($value);
@@ -802,7 +804,7 @@ class FormInterface extends AbstractInterface
      */
     public function parseFormAddresses(Form $form)
     {
-        $addresses = preg_split('/( |;|,)/', trim($form->email));
+        $addresses = preg_split('/( |;|,)/', trim((string)$form->email));
         $addresses = array_map('trim', $addresses);
         $addresses = array_values(array_filter($addresses));
         $result = [];
@@ -810,7 +812,7 @@ class FormInterface extends AbstractInterface
             if (($address[0] == '[') &&
                 ($address[strlen($address) - 1] == ']')
             ) {
-                $address = trim(substr($address, 1, -1));
+                $address = trim(substr((string)$address, 1, -1));
                 if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
                     $result['smsEmails'][] = $address;
                 } elseif (preg_match('/(\\+)?\\d+/umi', $address)) {
@@ -839,7 +841,7 @@ class FormInterface extends AbstractInterface
      */
     public function parseUserAddresses(SOME $object)
     {
-        $result = [];
+        $result = ['emails' => [], 'smsPhones' => []];
         if ($object->email) {
             $result['emails'][] = $object->email;
         } else {
@@ -882,7 +884,7 @@ class FormInterface extends AbstractInterface
         if (function_exists('idn_to_utf8')) {
             $host = idn_to_utf8($host);
         }
-        $host = mb_strtoupper($host);
+        $host = mb_strtoupper((string)$host);
         $subject = date(RAASViewWeb::i()->_('DATETIMEFORMAT')) . ' ' . sprintf(
             View_Web::i()->_('FEEDBACK_STANDARD_HEADER'),
             $feedback->parent->name,
@@ -971,7 +973,7 @@ class FormInterface extends AbstractInterface
             preg_match_all('/' . $rx . '/umis', $text, $regs);
             foreach ($regs[0] as $i => $oldSrc) {
                 $newSrc = $oldSrc;
-                $attrValue = trim($regs[1][$i], '"\'');
+                $attrValue = trim((string)$regs[1][$i], '"\'');
                 if (!preg_match('/^(cid):/umis', $attrValue)) {
                     $basename = $this->getBasename($attrValue);
                     if (!isset($embedded[$basename]) &&

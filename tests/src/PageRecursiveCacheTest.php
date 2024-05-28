@@ -5,10 +5,11 @@
 namespace RAAS\CMS;
 
 use SOME\BaseTest;
+use SOME\File;
 
 /**
  * Класс теста рекурсивного кэша страниц
- * @covers \RAAS\CMS\PageRecursiveCache
+ * @covers RAAS\CMS\PageRecursiveCache
  */
 class PageRecursiveCacheTest extends BaseTest
 {
@@ -17,10 +18,12 @@ class PageRecursiveCacheTest extends BaseTest
         'cms_access_pages_cache',
         'cms_fields',
         'cms_groups',
+        'cms_materials',
         'cms_pages',
         'cms_users',
         'cms_users_groups_assoc',
     ];
+
 
     /**
      * Проверяет свойство allowedIds
@@ -107,6 +110,39 @@ class PageRecursiveCacheTest extends BaseTest
 
 
     /**
+     * Тест метода init()
+     */
+    public function testInit()
+    {
+        $filename = Package::i()->cacheDir . '/system/pagerecursivecache.php';
+
+        TestPageRecursiveCache::deleteInstance();
+        $cache = TestPageRecursiveCache::i();
+
+        $this->assertEquals('Главная', $cache->cache[1]['name']);
+    }
+
+
+    /**
+     * Тест метода init() - случай с необходимостью обновления
+     */
+    public function testInitWithUpdateNeeded()
+    {
+        $filename = Package::i()->cacheDir . '/system/pagerecursivecache.php';
+        if (is_file($filename)) {
+            unlink($filename);
+        }
+
+        $this->assertFileDoesNotExist($filename);
+
+        TestPageRecursiveCache::deleteInstance();
+        $cache = TestPageRecursiveCache::i();
+
+        $this->assertFileExists($filename);
+    }
+
+
+    /**
      * Тест получения ID# видимых дочерних сущностей всех уровней
      */
     public function testGetVisAllChildrenIds()
@@ -142,5 +178,190 @@ class PageRecursiveCacheTest extends BaseTest
         CMSAccess::delete($cmsAccess);
         CMSAccess::refreshPagesAccessCache();
         $cache->refresh();
+    }
+
+
+    /**
+     * Тест метода updateNeeded()
+     */
+    public function testUpdateNeeded()
+    {
+        $page = new Page(1);
+        $cache = PageRecursiveCache::i();
+        $filename = Package::i()->cacheDir . '/system/pagerecursivecache.php';
+        touch($filename);
+
+        $result = $cache->updateNeeded();
+
+        $this->assertFalse($result);
+
+        sleep(1);
+        $page->commit();
+
+        $result = $cache->updateNeeded();
+
+        $this->assertTrue($result);
+
+        $cache->refresh();
+        $cache->save();
+
+        $result = $cache->updateNeeded();
+
+        $this->assertFalse($result);
+
+        unlink($filename);
+
+        $result = $cache->updateNeeded();
+
+        $this->assertTrue($result);
+    }
+
+
+    /**
+     * Тест метода getFilename()
+     */
+    public function testGetFilename()
+    {
+        $cache = PageRecursiveCache::i();
+        $filename = Package::i()->cacheDir . '/system/pagerecursivecache.php';
+
+        $result = $cache->getFilename();
+
+        $this->assertEquals($filename, $result);
+    }
+
+
+    /**
+     * Тест метода getTmpFilename()
+     */
+    public function testGetTmpFilename()
+    {
+        $cache = PageRecursiveCache::i();
+        $filename = Package::i()->cacheDir . '/system/pagerecursivecache.tmp.php';
+
+        $result = $cache->getTmpFilename();
+
+        $this->assertEquals($filename, $result);
+    }
+
+
+    /**
+     * Тест метода save()
+     */
+    public function testSave()
+    {
+        $filename = Package::i()->cacheDir . '/system/pagerecursivecache.php';
+        if (is_file($filename)) {
+            unlink($filename);
+        }
+
+        $this->assertFileDoesNotExist($filename);
+
+        $cache = PageRecursiveCache::i();
+        $result = $cache->save();
+
+        $this->assertFileExists($filename);
+
+        $this->assertTrue($result);
+
+        $data = include $filename;
+
+        $this->assertEquals('Главная', $data['cache']['1']['name']);
+    }
+
+
+    /**
+     * Тест метода save() - случай с невозможностью сохранить временный файл
+     */
+    public function testSaveWithCannotSaveTmpFile()
+    {
+        $filename = Package::i()->cacheDir . '/system/pagerecursivecache.tmp.php';
+        $cache = PageRecursiveCache::i();
+
+        mkdir($filename, true, 0777);
+
+        $this->assertDirectoryExists($filename);
+
+        $result = $cache->save();
+
+        $this->assertFalse($result);
+
+        rmdir($filename);
+    }
+
+
+    /**
+     * Тест метода save() - случай с невозможностью удалить старый файл
+     */
+    public function testSaveWithCannotDeleteOldFile()
+    {
+        $filename = Package::i()->cacheDir . '/system/pagerecursivecache.php';
+        $bakFile = Package::i()->cacheDir . '/system/pagerecursivecache.php.bak';
+        $cache = PageRecursiveCache::i();
+        rename($filename, $bakFile);
+
+        $this->assertFileDoesNotExist($filename);
+
+        mkdir($filename, true, 0777);
+
+        $this->assertDirectoryExists($filename);
+
+        $result = $cache->save();
+
+        $this->assertFalse($result);
+
+        rmdir($filename);
+        rename($bakFile, $filename);
+
+        $this->assertFileExists($filename);
+        $this->assertFileDoesNotExist($bakFile);
+    }
+
+
+    /**
+     * Тест метода load()
+     */
+    public function testLoad()
+    {
+        $cache = PageRecursiveCache::i();
+        $result = $cache->load();
+
+        $this->assertTrue($result);
+        $this->assertEquals('Главная', $cache->cache[1]['name']);
+    }
+
+
+    /**
+     * Тест метода load()
+     */
+    public function testLoadWithNoFile()
+    {
+        $cache = PageRecursiveCache::i();
+        $filename = Package::i()->cacheDir . '/system/pagerecursivecache.php';
+        unlink($filename);
+
+        $result = $cache->load();
+
+        $this->assertFalse($result);
+
+        $cache->save();
+    }
+
+
+    /**
+     * Тест метода load() - случай с некорректным файлом
+     */
+    public function testLoadWithInvalidFile()
+    {
+        $cache = PageRecursiveCache::i();
+        $filename = Package::i()->cacheDir . '/system/pagerecursivecache.php';
+        file_put_contents($filename, '<?php aaa bbb ccc'); // некорректный код
+
+        $result = $cache->load();
+
+        $this->assertTrue($result);
+        $this->assertEmpty($cache->cache);
+
+        $cache->save();
     }
 }

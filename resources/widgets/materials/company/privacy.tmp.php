@@ -6,8 +6,7 @@
  */
 namespace RAAS\CMS;
 
-use Twig\Environment;
-use Twig\Loader\ArrayLoader;
+use SOME\Text;
 use RAAS\AssetManager;
 
 $companyMaterialType = Material_Type::importByURN('company');
@@ -27,8 +26,7 @@ foreach ($company->fields as $fieldURN => $field) {
     $templateData[$fieldURN] = $val;
 }
 
-$twig = new Environment(new ArrayLoader(['description' => $Block->description]));
-$text = $twig->render('description', $templateData);
+$text = Text::renderTemplate($Block->description, $templateData);
 
 echo $text;
 

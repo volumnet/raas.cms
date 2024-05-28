@@ -9,7 +9,7 @@
       :type="wysiwyg ? 'htmlarea' : 'codearea'" 
       v-bind="$attrs" 
       v-on="inputListeners" 
-      :value="pValue"
+      :value="pValue || ''"
       @input="pValue = $event;"
     ></component>
   </div>

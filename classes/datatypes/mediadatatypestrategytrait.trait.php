@@ -2,6 +2,8 @@
 /**
  * Трейт для стратегий медиа-типов данных
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use InvalidArgumentException;
@@ -67,7 +69,7 @@ trait MediaDatatypeStrategyTrait
         foreach ($values as $value) {
             $value = (array)json_decode($value, true);
             if (isset($value['attachment'])) {
-                $result[trim((int)$value['attachment'])] = (int)$value['attachment'];
+                $result[trim((string)(int)$value['attachment'])] = (int)$value['attachment'];
             }
         }
         $result = array_values($result);
@@ -89,16 +91,16 @@ trait MediaDatatypeStrategyTrait
             $sqlResult = Attachment::_SQL()->get($sqlQuery);
             $attachmentsData = [];
             foreach ($sqlResult as $sqlRow) {
-                $attachmentsData[trim($sqlRow['id'])] = $sqlRow;
+                $attachmentsData[trim((string)$sqlRow['id'])] = $sqlRow;
             }
             foreach ($values as $key => $value) {
                 $value = (array)json_decode($value, true);
                 $value['vis'] = (bool)($value['vis'] ?? false);
-                $value['name'] = trim($value['name'] ?? '');
-                $value['description'] = trim($value['description'] ?? '');
+                $value['name'] = trim((string)($value['name'] ?? ''));
+                $value['description'] = trim((string)($value['description'] ?? ''));
                 $value['attachment'] = (int)($value['attachment'] ?? 0);
-                if (isset($attachmentsData[trim($value['attachment'])])) {
-                    $result[$key] = new Attachment(array_merge($attachmentsData[trim($value['attachment'])], $value));
+                if (isset($attachmentsData[trim((string)$value['attachment'])])) {
+                    $result[$key] = new Attachment(array_merge($attachmentsData[trim((string)$value['attachment'])], $value));
                 }
             }
         }

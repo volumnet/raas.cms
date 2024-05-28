@@ -2,6 +2,8 @@
 /**
  * Стратегия типа данных "Изображение"
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\DatatypeStrategy;

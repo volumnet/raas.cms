@@ -14,6 +14,7 @@ use SOME\Pages;
 class SearchInterfaceTest extends BaseTest
 {
     public static $tables = [
+        'cms_access',
         'cms_access_materials_cache',
         'cms_access_pages_cache',
         'cms_blocks',

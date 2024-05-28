@@ -14,10 +14,12 @@ namespace RAAS\CMS;
 class Form_Field extends Field
 {
     protected static $references = [
+        // 2024-05-02, AVS: заменил каскадирование на true, что в совокупности с $objectCascadeDelete позволяет избежать
+        // удаления полей n-ой формы при удалении n-го типа материала
         'parent' => [
             'FK' => 'pid',
             'classname' => Form::class,
-            'cascade' => false
+            'cascade' => true
         ],
         'Preprocessor' => [
             'FK' => 'preprocessor_id',

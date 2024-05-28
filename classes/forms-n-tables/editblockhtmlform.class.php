@@ -2,6 +2,8 @@
 /**
  * Форма редактирования текстового блока
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Field as RAASField;
@@ -23,14 +25,14 @@ class EditBlockHTMLForm extends EditBlockForm
     }
 
 
-    protected function getInterfaceField()
+    protected function getInterfaceField(): RAASField
     {
         $field = parent::getInterfaceField();
         return $field;
     }
 
 
-    protected function getWidgetField()
+    protected function getWidgetField(): RAASField
     {
         $field = parent::getWidgetField();
         return $field;
@@ -41,25 +43,25 @@ class EditBlockHTMLForm extends EditBlockForm
      * Получает вкладку "Общие"
      * @return FormTab
      */
-    protected function getCommonTab(Page $parent = null)
+    protected function getCommonTab(Page $parent = null): FormTab
     {
         $tab = parent::getCommonTab();
         $mime = $parent->mime ?: 'text/html';
         if ($mime == 'text/html') {
-            $tab->children[] = [
+            $tab->children['description'] = [
                 'type' => 'htmlcodearea',
                 'name' => 'description',
                 'data-mime' => $mime,
             ];
         } else {
-            $tab->children[] = [
+            $tab->children['description'] = [
                 'type' => 'codearea',
                 'name' => 'description',
                 'data-mime' => $mime,
             ];
         }
         if ($mime == 'text/html') {
-            $tab->children[] = [
+            $tab->children['wysiwyg'] = [
                 'type' => 'checkbox',
                 'name' => 'wysiwyg',
                 'caption' => $this->view->_('USE_WYSIWYG_EDITOR'),
@@ -70,11 +72,11 @@ class EditBlockHTMLForm extends EditBlockForm
     }
 
 
-    protected function getServiceTab()
+    protected function getServiceTab(): FormTab
     {
         $tab = parent::getServiceTab();
-        $tab->children[] = $this->getInterfaceField();
-        $tab->children[] = $this->getWidgetField();
+        $tab->children['interface_id'] = $this->getInterfaceField();
+        $tab->children['widget_id'] = $this->getWidgetField();
         return $tab;
     }
 }

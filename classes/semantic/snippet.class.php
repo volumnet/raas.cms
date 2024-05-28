@@ -117,6 +117,7 @@ class Snippet extends SOME
             $this->deleteFile();
         }
         parent::commit();
+        static::$snippetsSet = [];
         $this->saveFile();
     }
 
@@ -172,9 +173,9 @@ class Snippet extends SOME
         }
         $result = [];
         foreach (static::$snippetsSet as $snippet) {
-            if (stristr($snippet->description, 'Snippet::importByURN("' . $this->urn . '")') ||
-                stristr($snippet->description, "Snippet::importByURN('" . $this->urn . "')") ||
-                stristr($snippet->description, 'new Snippet($this->id)')
+            if (stristr((string)$snippet->description, 'Snippet::importByURN("' . $this->urn . '")') ||
+                stristr((string)$snippet->description, "Snippet::importByURN('" . $this->urn . "')") ||
+                stristr((string)$snippet->description, 'new Snippet($this->id)')
             ) {
                 $result[] = $snippet;
             }

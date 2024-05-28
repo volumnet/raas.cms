@@ -2,6 +2,8 @@
 /**
  * Трейт сущности с кэшируемым кодом
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**

@@ -2,6 +2,8 @@
 /**
  * Поле
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use Exception;
@@ -125,5 +127,27 @@ class Field extends CustomField
     {
         $this->show_in_table = (int)!(bool)$this->show_in_table;
         $this->commit();
+    }
+
+
+    /**
+     * Возвращает максимальный размер изображения в пикселях
+     * @return int
+     */
+    public function getMaxSize(): int
+    {
+        $result = (int)Package::i()->registryGet('maxsize');
+        return $result;
+    }
+
+
+    /**
+     * Возвращает размер эскиза в пикселях
+     * @return int
+     */
+    public function getTnSize(): int
+    {
+        $result = (int)Package::i()->registryGet('tnsize');
+        return $result;
     }
 }

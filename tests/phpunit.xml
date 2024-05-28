@@ -12,11 +12,26 @@
     <testsuite name="Antispam">
       <file>src/AntispamTest.php</file>
     </testsuite>
+    <testsuite name="CodeTrait">
+      <file>src/CodeTraitTest.php</file>
+    </testsuite>
     <testsuite name="MaterialDatatypeStrategy">
       <file>src/datatypes/MaterialDatatypeStrategyTest.php</file>
     </testsuite>
     <testsuite name="MediaDatatypeStrategyTrait">
       <file>src/datatypes/MediaDatatypeStrategyTraitTest.php</file>
+    </testsuite>
+    <testsuite name="EditBlockForm">
+      <file>src/forms-n-tables/EditBlockFormTest.php</file>
+    </testsuite>
+    <testsuite name="EditBlockFormForm">
+      <file>src/forms-n-tables/EditBlockFormFormTest.php</file>
+    </testsuite>
+    <testsuite name="EditBlockHTMLForm">
+      <file>src/forms-n-tables/EditBlockHTMLFormTest.php</file>
+    </testsuite>
+    <testsuite name="EditFormForm">
+      <file>src/forms-n-tables/EditFormFormTest.php</file>
     </testsuite>
     <testsuite name="CacheInterface">
       <file>src/interfaces/CacheInterfaceTest.php</file>
@@ -62,6 +77,9 @@
     </testsuite>
     <testsuite name="FieldArrayFormatter">
       <file>src/views/renderers/FieldArrayFormatterTest.php</file>
+    </testsuite>
+    <testsuite name="FormArrayFormatter">
+      <file>src/views/renderers/FormArrayFormatterTest.php</file>
     </testsuite>
     <testsuite name="CheckboxFormFieldRenderer">
       <file>src/views/renderers/formfield/CheckboxFormFieldRendererTest.php</file>

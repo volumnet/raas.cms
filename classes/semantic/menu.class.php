@@ -180,6 +180,7 @@ class Menu extends SOME
     {
         $pageData = $page->getArrayCopy();
         if (($this->page_id == $pageData['id']) || ($this->url == $pageData['cache_url'])) {
+            $this->realized = true;
             return $this;
         }
         $subMenuData = static::getSubMenuData($this->getArrayCopy(), true);
@@ -268,9 +269,9 @@ class Menu extends SOME
         if (($inherit > 0) && $pageId) {
             $i = 0;
             if ($visOnly) {
-                $childrenPagesIds = $cache->visChildrenIds[$pageId];
+                $childrenPagesIds = $cache->visChildrenIds[$pageId] ?? [];
             } else {
-                $childrenPagesIds = $cache->childrenIds[$pageId];
+                $childrenPagesIds = $cache->childrenIds[$pageId] ?? [];
             }
             foreach ($childrenPagesIds as $childPageId) {
                 $childPageData = $cache->cache[$childPageId];

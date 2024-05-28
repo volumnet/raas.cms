@@ -2064,4 +2064,32 @@ class FieldTest extends BaseTest
             '10' => [],
         ], TestField::$cache);
     }
+
+
+
+
+    /**
+     * Проверка метода getMaxSize()
+     */
+    public function testGetMaxSize()
+    {
+        $field = new Field();
+
+        $result = $field->getMaxSize();
+
+        $this->assertEquals(1920, $result);
+    }
+
+
+    /**
+     * Проверка метода getTnSize()
+     */
+    public function testGetTnSize()
+    {
+        $field = new Field();
+
+        $result = $field->getTnSize();
+
+        $this->assertEquals(300, $result);
+    }
 }

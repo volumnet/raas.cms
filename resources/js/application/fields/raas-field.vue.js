@@ -67,6 +67,9 @@ export default {
                     name: option.name || option.caption,
                     level: level,
                 };
+                if (option.disabled) {
+                    newOption.disabled = true;
+                }
                 result.push(newOption);
                 if (option.children) {
                     result = result.concat(this.getFlatSource(option.children, level + 1));

@@ -1155,7 +1155,7 @@ class Package extends RAASPackage
      * raas://material/123 - относительная ссылка на материал
      * raas://domain/page/123 - абсолютная ссылка на страницу
      * raas://domain/material/123 - абсолютная ссылка на материал
-     * блоки по тексту вида [Block#123]
+     * блоки по тексту вида [raas://block/123/]
      * @param string $text Входящий текст
      * @param Page $page Текущая страница
      * @return string

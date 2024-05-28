@@ -19,6 +19,24 @@ class HiddenFormFieldRendererTest extends BaseTest
     ];
 
     /**
+     * Тест ошибки от 2024-05-16
+     * Fatal error: Uncaught TypeError: trim(): Argument #1 ($string) must be of type string, int given
+     * in D:\web\home\libs\raas.cms\classes\views\renderers\formfield\hiddenformfieldrenderer.class.php on line 44
+     */
+    public function test202405161827()
+    {
+        $renderer = new HiddenFormFieldRenderer(new Form_Field([
+            'datatype' => 'material',
+            'urn' => 'name',
+        ]), new Block_Form(), 123);
+
+        $result = $renderer->render();
+
+        $this->assertStringContainsString(' value="123"', $result);
+    }
+
+
+    /**
      * Тест получения атрибутов
      */
     public function testGetAttributes()

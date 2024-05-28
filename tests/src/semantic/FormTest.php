@@ -14,6 +14,7 @@ use RAAS\CMS\Shop\Cart_Type;
 class FormTest extends BaseTest
 {
     public static $tables = [
+        'cms_access',
         'cms_access_blocks_cache',
         'cms_blocks',
         'cms_blocks_form',

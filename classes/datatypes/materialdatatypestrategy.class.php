@@ -2,6 +2,8 @@
 /**
  * Стратегия типа данных "Материал"
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\DatatypeStrategy;
@@ -41,7 +43,7 @@ class MaterialDatatypeStrategy extends DatatypeStrategy
                 'orderBy' => "id",
             ]);
             foreach ($sqlResult as $material) {
-                $materials[trim($material->id)] = $material;
+                $materials[trim((string)$material->id)] = $material;
             }
         }
 

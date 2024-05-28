@@ -54,6 +54,9 @@ class FieldArrayFormatterTest extends BaseTest
                 true,
                 [
                     'aaa' => 123,
+                    'bbb' => function ($field) {
+                        return $field->pid;
+                    },
                     'someprop',
                 ],
                 [
@@ -75,6 +78,7 @@ class FieldArrayFormatterTest extends BaseTest
                     'aaa' => 123,
                     'source' => 123,
                     'someprop' => 1111,
+                    'bbb' => 222,
                 ],
             ],
             [

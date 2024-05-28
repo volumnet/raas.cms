@@ -6,13 +6,14 @@ namespace RAAS\CMS;
 
 use RAAS\Application;
 use RAAS\Field as RAASField;
+use RAAS\FormTab;
 
 /**
  * Класс формы редактирования блока поиска
  */
 class EditBlockSearchForm extends EditBlockForm
 {
-    protected function getInterfaceField()
+    protected function getInterfaceField(): RAASField
     {
         $field = parent::getInterfaceField();
         $snippet = Snippet::importByURN('__raas_search_interface');
@@ -21,7 +22,7 @@ class EditBlockSearchForm extends EditBlockForm
     }
 
 
-    protected function getCommonTab()
+    protected function getCommonTab(): FormTab
     {
         $tab = parent::getCommonTab();
         $tmp_page = new Page();
@@ -69,7 +70,7 @@ class EditBlockSearchForm extends EditBlockForm
     }
 
 
-    protected function getServiceTab()
+    protected function getServiceTab(): FormTab
     {
         $tab = parent::getServiceTab();
         $tab->children[] = $this->getPagesVarField();
@@ -79,7 +80,7 @@ class EditBlockSearchForm extends EditBlockForm
     }
 
 
-    protected function getPagesVarField()
+    protected function getPagesVarField(): RAASField
     {
         $field = parent::getPagesVarField();
         $field->default = 'page';
@@ -91,7 +92,7 @@ class EditBlockSearchForm extends EditBlockForm
      * Получает поле "Количество записей на странице (0 — все)"
      * @return RAASField
      */
-    protected function getRowsPerPageField()
+    protected function getRowsPerPageField(): RAASField
     {
         $field = parent::getRowsPerPageField();
         $field->default = Application::i()->registryGet('rowsPerPage');

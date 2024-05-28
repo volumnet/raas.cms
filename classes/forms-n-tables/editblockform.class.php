@@ -35,34 +35,24 @@ class EditBlockForm extends RAASForm
     public function __construct(array $params = [])
     {
         $view = $this->view;
-        $Item = isset($params['Item']) ? $params['Item'] : null;
-        $Parent = $params['meta']['Parent'];
-        $loc = $Item->location ?: (isset($_GET['loc']) ? $_GET['loc'] : '');
+        $item = isset($params['Item']) ? $params['Item'] : null;
+        $parent = $params['meta']['Parent'] ?? new Page();
+        $loc = ($item && $item->location) ? $item->location : (isset($_GET['loc']) ? $_GET['loc'] : '');
+        $blockType = str_replace('RAAS\\CMS\\', '', $item ? $item->block_type : Block_PHP::class);
+        $newUrl = Package::i()->url . '&pid=%s&action=edit_block&pid=' . (int)$parent->id . '&type='
+            . str_replace('\\', '.', $blockType) . '&loc=' . $loc;
         $defaultParams = [
-            'caption' => $this->view->_(
-                $Item->id ?
-                'EDITING_BLOCK' :
-                'CREATING_BLOCK'
-            ),
-            'data-block-type' => str_replace(
-                'RAAS\\CMS\\',
-                '',
-                $Item->block_type
-            ),
-            'parentUrl' => Package::i()->url . '&id=' . (int)$Parent->id,
-            'newUrl' => Package::i()->url
-                     . '&pid=%s&action=edit_block&pid=' . (int)$Parent->id
-                     . '&type='
-                     . str_replace(
-                         '\\',
-                         '.',
-                         str_replace('RAAS\\CMS\\', '', $Item->block_type)
-                     ) . '&loc=' . $loc,
-            'export' => function ($Form) {
-                $Form->exportDefault();
-                $Form->Item->editor_id = Application::i()->user->id;
-                if (!$Form->Item->id) {
-                    $Form->Item->author_id = $Form->Item->editor_id;
+            'caption' => $this->view->_(($item && $item->id) ? 'EDITING_BLOCK' : 'CREATING_BLOCK'),
+            'data-block-type' => $blockType,
+            'parentUrl' => Package::i()->url . '&id=' . (int)$parent->id,
+            'newUrl' => $newUrl,
+            'export' => function ($form) {
+                $form->exportDefault();
+                if ($form->Item && Application::i()->user) {
+                    $form->Item->editor_id = Application::i()->user->id;
+                    if (!$form->Item->id) {
+                        $form->Item->author_id = $form->Item->editor_id;
+                    }
                 }
             }
         ];
@@ -71,19 +61,19 @@ class EditBlockForm extends RAASForm
         $this->meta['CONTENT'] = [];
         $temp = new Page();
         $this->meta['CONTENT']['cats'] = $this->getMetaCats();
-        foreach ($this->meta['Parent']->Template->locations as $key => $val) {
+        foreach ($parent->Template->locations as $key => $val) {
             $this->meta['CONTENT']['locations'][] = [
                 'value' => $key,
                 'caption' => $key
             ];
         }
-        $this->children['commonTab'] = $this->getCommonTab($Parent);
+        $this->children['commonTab'] = $this->getCommonTab($parent);
         if (isset(Application::i()->packages['cms']->modules['users'])) {
             $this->children['accessTab'] = new CMSAccessFormTab($params);
         }
         $this->children['serviceTab'] = $this->getServiceTab();
         $this->children['pagesTab'] = $this->getPagesTab();
-        if ($this->Item->id) {
+        if ($this->Item && $this->Item->id) {
             $this->children['serviceTab']->children['post_date'] = new RAASField([
                 'name' => 'post_date',
                 'caption' => $this->view->_('CREATED_BY'),
@@ -113,18 +103,9 @@ class EditBlockForm extends RAASForm
             'name' => 'cache_type',
             'caption' => $this->view->_('CACHE_TYPE'),
             'children' => [
-                [
-                    'value' => Block::CACHE_NONE,
-                    'caption' => $this->view->_('_NONE')
-                ],
-                [
-                    'value' => Block::CACHE_DATA,
-                    'caption' => $this->view->_('CACHE_DATA')
-                ],
-                [
-                    'value' => Block::CACHE_HTML,
-                    'caption' => $this->view->_('CACHE_HTML')
-                ],
+                ['value' => Block::CACHE_NONE, 'caption' => $this->view->_('_NONE')],
+                ['value' => Block::CACHE_DATA, 'caption' => $this->view->_('CACHE_DATA')],
+                ['value' => Block::CACHE_HTML, 'caption' => $this->view->_('CACHE_HTML')],
             ],
             'default' => Block::CACHE_NONE
         ];
@@ -141,7 +122,7 @@ class EditBlockForm extends RAASForm
      * Получает поле "Интерфейс"
      * @return RAASField
      */
-    protected function getInterfaceField()
+    protected function getInterfaceField(): RAASField
     {
         $wf = function (Snippet_Folder $x) use (&$wf) {
             $temp = [];
@@ -180,7 +161,7 @@ class EditBlockForm extends RAASForm
      * Получает поле "Представление"
      * @return RAASField
      */
-    protected function getWidgetField()
+    protected function getWidgetField(): RAASField
     {
         $wf = function (Snippet_Folder $x) use (&$wf) {
             $temp = [];
@@ -219,7 +200,7 @@ class EditBlockForm extends RAASForm
      * Получает поле "Переменная $_GET постраничной разбивки"
      * @return RAASField
      */
-    protected function getPagesVarField()
+    protected function getPagesVarField(): RAASField
     {
         $field = new RAASField([
             'name' => 'pages_var_name',
@@ -233,9 +214,10 @@ class EditBlockForm extends RAASForm
      * Получает поле "Количество записей на странице (0 — все)"
      * @return RAASField
      */
-    protected function getRowsPerPageField()
+    protected function getRowsPerPageField(): RAASField
     {
         $field = new RAASField([
+            'type' => 'number',
             'name' => 'rows_per_page',
             'caption' => $this->view->_('ITEMS_PER_PAGE'),
         ]);
@@ -247,7 +229,7 @@ class EditBlockForm extends RAASForm
      * Получает вкладку "Общие"
      * @return FormTab
      */
-    protected function getCommonTab()
+    protected function getCommonTab(): FormTab
     {
         $tab = new FormTab([
             'name' => 'common',
@@ -264,7 +246,7 @@ class EditBlockForm extends RAASForm
      * Получает вкладку "Служебные"
      * @return FormTab
      */
-    protected function getServiceTab()
+    protected function getServiceTab(): FormTab
     {
         $item = $this->Item;
         $tab = new FormTab([
@@ -342,20 +324,21 @@ class EditBlockForm extends RAASForm
      * Получает вкладку "Страницы"
      * @return FormTab
      */
-    protected function getPagesTab()
+    protected function getPagesTab(): FormTab
     {
         $item = $this->Form->Item;
+        $parent = $this->meta['Parent'] ?? new Page();
         $tab = new FormTab([
             'name' => 'pages',
             'caption' => $this->view->_('PAGES')
         ]);
-        $loc = $item->location ?: (isset($_GET['loc']) ? $_GET['loc'] : '');
-        $tab->children[] = new RAASField([
+        $loc = ($item && $item->location) ? $item->location : (isset($_GET['loc']) ? $_GET['loc'] : '');
+        $tab->children['inherit'] = new RAASField([
             'type' => 'checkbox',
             'name' => 'inherit',
             'caption' => $this->view->_('INHERIT')
         ]);
-        $tab->children[] = new RAASField([
+        $tab->children['location'] = new RAASField([
             'type' => 'select',
             'name' => 'location',
             'caption' => $this->view->_('LOCATION'),
@@ -363,7 +346,7 @@ class EditBlockForm extends RAASForm
             'placeholder' => '--',
             'children' => isset($this->meta['CONTENT']['locations']) ? $this->meta['CONTENT']['locations'] : []
         ]);
-        $tab->children[] = new RAASField([
+        $tab->children['cats'] = new RAASField([
             'type' => 'checkbox',
             'name' => 'cats',
             'caption' => $this->view->_('PAGES'),
@@ -381,7 +364,7 @@ class EditBlockForm extends RAASForm
             'import' => function ($Field) {
                 return $Field->Form->Item->pages_ids;
             },
-            'default' => [(int)$this->meta['Parent']->id],
+            'default' => [(int)$parent->id],
         ]);
         return $tab;
     }
@@ -390,15 +373,15 @@ class EditBlockForm extends RAASForm
     /**
      * Получает список категорий для отображения в поле страниц
      * @param int $pid ID# родительской страницы
-     * @return array<[
-     *             'value' => int ID# страницы,
-     *             'caption' => string Наименование страницы,
-     *             'data-group' => int ID# шаблона страницы
-     *                             (группировочный параметр),
-     *             'children' => *рекурсивно*
-     *         ]>
+     * @return array <pre><code>array<[
+     *     'value' => int ID# страницы,
+     *     'caption' => string Наименование страницы,
+     *     'data-group' => int ID# шаблона страницы
+     *                     (группировочный параметр),
+     *     'children' => *рекурсивно*
+     * ]></code></pre>
      */
-    public function getMetaCats($pid = 0)
+    public function getMetaCats($pid = 0): array
     {
         $pageCache = PageRecursiveCache::i();
         $result = [];

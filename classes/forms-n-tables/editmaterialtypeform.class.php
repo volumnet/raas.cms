@@ -135,40 +135,37 @@ class EditMaterialTypeForm extends RAASForm
                     $add = (int)$_POST['add_snippet'];
                     $urn = $Item->urn;
                     $pid = Snippet_Folder::importByURN('__raas_views')->id;
-                    $name = $Item->name;
-                    if ($add &
-                        EditMaterialTypeForm::CREATE_MATERIAL_TYPE_SIMPLE
-                    ) {
-                        $f = Package::i()->resourcesDir
-                           . '/material_main.tmp.php';
-                        $text = file_get_contents($f);
-                        $text = str_ireplace(
-                            '{BLOCK_NAME}',
-                            $urn . '_main',
-                            $text
-                        );
-                        $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
+                    // $name = $Item->name;
+                    if ($add & EditMaterialTypeForm::CREATE_MATERIAL_TYPE_SIMPLE) {
+                        // $f = Package::i()->resourcesDir . '/widgets/material_main.tmp.php';
+                        // $text = file_get_contents($f);
 
                         $s = new Snippet();
                         $s->pid = $pid;
-                        $s->urn = $urn . '_main';
-                        $s->name = $name . ' ' . $view->_('FOR_MAIN');
-                        $s->description = $text;
+                        if ($add & EditMaterialTypeForm::CREATE_MATERIAL_TYPE_EXTENDED) {
+                            $s->urn = $urn . '_main';
+                            // $s->name = $name . ' ' . $view->_('FOR_MAIN');
+                            // $text = str_ireplace('{BLOCK_NAME}', $urn . '-main', $text);
+                        } else {
+                            $s->urn = $urn;
+                            // $s->name = $name;
+                        }
+                        // $text = str_ireplace('{BLOCK_NAME}', str_replace('_', '-', $s->urn), $text);
+                        // $text = str_ireplace('{MATERIAL_NAME}', $s->name, $text);
+                        // $s->description = $text;
                         $s->commit();
                     }
-                    if ($add &
-                        EditMaterialTypeForm::CREATE_MATERIAL_TYPE_EXTENDED
-                    ) {
-                        $f = Package::i()->resourcesDir . '/material.tmp.php';
-                        $text = file_get_contents($f);
-                        $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
-                        $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
+                    if ($add & EditMaterialTypeForm::CREATE_MATERIAL_TYPE_EXTENDED) {
+                        // $f = Package::i()->resourcesDir . '/widgets/material.tmp.php';
+                        // $text = file_get_contents($f);
+                        // $text = str_ireplace('{BLOCK_NAME}', $urn, $text);
+                        // $text = str_ireplace('{MATERIAL_NAME}', $name, $text);
 
                         $s = new Snippet();
                         $s->pid = $pid;
                         $s->urn = $urn;
-                        $s->name = $name;
-                        $s->description = $text;
+                        // $s->name = $name;
+                        // $s->description = $text;
                         $s->commit();
                     }
                 }

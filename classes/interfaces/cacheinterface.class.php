@@ -2,6 +2,8 @@
 /**
  * Файл класса интерфейса кэширования
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Application;
@@ -104,7 +106,7 @@ class CacheInterface extends AbstractInterface
      */
     public function getDataCacheCode($data)
     {
-        $cacheId = 'RAASCACHE' . date('YmdHis') . md5(rand());
+        $cacheId = 'RAASCACHE' . date('YmdHis') . md5((string)rand());
         $cacheCode = '<' . "?php\nreturn unserialize(<<" . "<'"
                    . $cacheId . "'\n" . serialize($data) . "\n"
                    . $cacheId . "\n);\n";

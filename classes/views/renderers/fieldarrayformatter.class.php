@@ -107,7 +107,11 @@ class FieldArrayFormatter
                 }
             } elseif (is_string($key)) {
                 $urn = $key;
-                $value = is_callable($val) ? $val($this->field) : $val;
+                if (is_callable($val)) {
+                    $value = $val($this->field);
+                } else {
+                    $value = $val;
+                }
             }
             if ($value !== null) {
                 $result[$urn] = $value;

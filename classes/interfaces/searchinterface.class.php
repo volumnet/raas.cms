@@ -2,6 +2,8 @@
 /**
  * Файл класса интерфейса поиска
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\Pages;
@@ -182,9 +184,7 @@ class SearchInterface extends AbstractInterface
             (int)$this->block->rows_per_page
         ) {
             $pagesVarName = $this->block->pages_var_name;
-            $currentPage = isset($this->get[$pagesVarName])
-                         ? (int)$this->get[$pagesVarName]
-                         : 1;
+            $currentPage = isset($this->get[$pagesVarName]) ? (int)$this->get[$pagesVarName] : 1;
             $pages = new Pages($currentPage, (int)$this->block->rows_per_page);
         }
         $set = $this->getSearchResults($result, $pages, $searchLimit);
@@ -712,13 +712,13 @@ class SearchInterface extends AbstractInterface
                     $result[trim((string)$sqlRow['id'])] = 0;
                 }
                 $result[trim((string)$sqlRow['id'])] += $this->getRatio(
-                    $sqlRow['name'],
+                    (string)$sqlRow['name'],
                     $searchString,
                     $searchArray,
                     $nameSentenceRatio,
                     $nameWordRatio
                 ) + $this->getRatio(
-                    $sqlRow['description'],
+                    (string)$sqlRow['description'],
                     $searchString,
                     $searchArray,
                     $descriptionSentenceRatio,

@@ -6,13 +6,14 @@ namespace RAAS\CMS;
 
 use RAAS\Field as RAASField;
 use RAAS\FieldSet;
+use RAAS\FormTab;
 
 /**
  * Класс формы редактирования блока материалов
  */
 class EditBlockMaterialForm extends EditBlockForm
 {
-    protected function getInterfaceField()
+    protected function getInterfaceField(): RAASField
     {
         $field = parent::getInterfaceField();
         $snippet = Snippet::importByURN('__raas_material_interface');
@@ -21,7 +22,7 @@ class EditBlockMaterialForm extends EditBlockForm
     }
 
 
-    protected function getCommonTab()
+    protected function getCommonTab(): FormTab
     {
         $tab = parent::getCommonTab();
         $row = new Material_Type();
@@ -45,7 +46,7 @@ class EditBlockMaterialForm extends EditBlockForm
     }
 
 
-    protected function getServiceTab()
+    protected function getServiceTab(): FormTab
     {
         $tab = parent::getServiceTab();
         $this->meta['CONTENT']['fields'] = [
@@ -70,7 +71,7 @@ class EditBlockMaterialForm extends EditBlockForm
                 'caption' => $this->view->_('EDITED_BY')
             ],
         ];
-        if ($this->Item->id) {
+        if ($this->Item && $this->Item->id) {
             $materialType = $this->Item->Material_Type;
         } elseif (isset($_POST['material_type'])) {
             $materialType = new Material_Type($_POST['material_type']);
@@ -98,9 +99,9 @@ class EditBlockMaterialForm extends EditBlockForm
             ];
         }
 
-        $tab->children[] = $this->getPagesVarField();
-        $tab->children[] = $this->getRowsPerPageField();
-        $tab->children[] = new FieldSet([
+        $tab->children['pages_var_name'] = $this->getPagesVarField();
+        $tab->children['rows_per_page'] = $this->getRowsPerPageField();
+        $tab->children['filter_params'] = new FieldSet([
             'caption' => $this->view->_('FILTER_PARAMS'),
             'template' => 'edit_block_material.filter.php',
             'import' => function ($fieldSet) {
@@ -135,7 +136,7 @@ class EditBlockMaterialForm extends EditBlockForm
                 }
             }
         ]);
-        $tab->children[] = new FieldSet([
+        $tab->children['sorting_params'] = new FieldSet([
             'caption' => $this->view->_('SORTING_PARAMS'),
             'template' => 'edit_block_material.sort.php',
             'import' => function ($fieldSet) {
@@ -195,7 +196,7 @@ class EditBlockMaterialForm extends EditBlockForm
                 ]
             ]
         ]);
-        $tab->children[] = new RAASField([
+        $tab->children['legacy'] = new RAASField([
             'type' => 'checkbox',
             'name' => 'legacy',
             'caption' => $this->view->_('REDIRECT_LEGACY_ADDRESSES')

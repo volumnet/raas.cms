@@ -38,6 +38,23 @@ class SnippetTest extends BaseTest
     ];
 
     /**
+     * Тест ошибки от 2024-05-15 12:34
+     * Fatal error: Uncaught TypeError: stristr(): Argument #1 ($haystack) must be of type string, null given
+     * in D:\web\home\libs\raas.cms\classes\semantic\snippet.class.php on line 175
+     */
+    public function test202405151234()
+    {
+        $snippet = new Snippet(['urn' => 'test']);
+        $snippet->commit();
+
+        $result = $snippet->usingSnippets;
+
+        $this->assertEmpty($result);
+
+        Snippet::delete($snippet);
+    }
+
+    /**
      * Тест получения свойства filename
      */
     public function testGetFilename()

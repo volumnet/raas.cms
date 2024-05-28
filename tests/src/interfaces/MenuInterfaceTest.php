@@ -4,11 +4,12 @@
  */
 namespace RAAS\CMS;
 
+use InvalidArgumentException;
 use SOME\BaseTest;
 
 /**
  * Класс теста стандартного интерфейса меню
- * @covers \RAAS\CMS\MenuInterface
+ * @covers RAAS\CMS\MenuInterface
  */
 class MenuInterfaceTest extends BaseTest
 {
@@ -20,6 +21,38 @@ class MenuInterfaceTest extends BaseTest
         'cms_menus',
         'cms_pages',
     ];
+
+    /**
+     * Тест метода getCurrentPage()
+     */
+    public function testGetCurrentPage()
+    {
+        $block = Block::spawn(14);
+        $page = new Page(15);
+        $interface = new MenuInterface($block, $page);
+
+        $result = $interface->getCurrentPage();
+
+        $this->assertSame($page, $result);
+    }
+
+
+    /**
+     * Тест метода getCurrentPage() - случай с AJAX-ом
+     */
+    public function testGetCurrentPageWithAJAX()
+    {
+        $block = Block::spawn(14);
+        $block->full_menu = false;
+        $page = new Page(14); // AJAX
+        $interface = new MenuInterface($block, $page, ['id' => 1]);
+
+        $result = $interface->getCurrentPage();
+
+        $this->assertInstanceOf(Page::class, $result);
+        $this->assertEquals(1, $result->id);
+    }
+
 
     /**
      * Тест обработки видимых дочерних элементов меню
@@ -43,6 +76,21 @@ class MenuInterfaceTest extends BaseTest
         $this->assertEquals('/catalog/category1/category11/', $result[0]['children'][0]['url']);
         $this->assertEquals('Категория 11', $result[0]['children'][0]['name']);
         $this->assertEquals(17, $result[0]['children'][0]['page_id']);
+    }
+
+
+    /**
+     * Тест обработки видимых дочерних элементов меню - случай с некорректным аргументом
+     */
+    public function testGetVisSubmenuWithInvalidMenu()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('must be of');
+        $block = Block::spawn(14);
+        $page = new Page(15);
+        $interface = new MenuInterface($block, $page);
+
+        $result = $interface->getVisSubmenu('aaa');
     }
 
     /**

@@ -2,6 +2,8 @@
 /**
  * Форматтер массива для формы
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -43,7 +45,7 @@ class FormArrayFormatter
      * )|(
      *     int[] Индекс поля => string URN поля
      * )> Массив дополнительных полей формы для отображения
-      * @param array $fieldWith <pre>array<(
+     * @param array $fieldWith <pre>array<(
      *     string[] URN поля => function (Form $form Форма): mixed Обработчик данных
      * )|(
      *     int[] Индекс поля => string URN поля
@@ -72,13 +74,15 @@ class FormArrayFormatter
                 $result['interface_id']
             );
         }
+        if ($this->getAdminFields) {
+            $fields = $this->form->fields;
+        } else {
+            $fields = $this->form->visFields;
+        }
         $result['fields'] = array_map(function ($field) use ($fieldWith) {
-            $fieldArrayFormatter = new FieldArrayFormatter(
-                $field,
-                $this->getAdminFields
-            );
+            $fieldArrayFormatter = new FieldArrayFormatter($field, $this->getAdminFields);
             return $fieldArrayFormatter->format($fieldWith);
-        }, $this->form->{$this->getAdminFields ? 'fields' : 'visFields'});
+        }, $fields);
         // if ($stdSource = $this->field->stdSource) {
         //     $result['stdSource'] = $stdSource;
         // }
@@ -92,7 +96,11 @@ class FormArrayFormatter
                 }
             } elseif (is_string($key)) {
                 $urn = $key;
-                $value = is_callable($val) ? $val($this->form) : $val;
+                if (is_callable($val)) {
+                    $value = $val($this->form);
+                } else {
+                    $value = $val;
+                }
             }
             if ($value !== null) {
                 $result[$urn] = $value;

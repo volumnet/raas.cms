@@ -5,13 +5,14 @@
 namespace RAAS\CMS;
 
 use RAAS\Field as RAASField;
+use RAAS\FormTab;
 
 /**
  * Класс формы редактирования блока меню
  */
 class EditBlockMenuForm extends EditBlockForm
 {
-    protected function getInterfaceField()
+    protected function getInterfaceField(): RAASField
     {
         $field = parent::getInterfaceField();
         $snippet = Snippet::importByURN('__raas_menu_interface');
@@ -20,7 +21,7 @@ class EditBlockMenuForm extends EditBlockForm
     }
 
 
-    protected function getCommonTab()
+    protected function getCommonTab(): FormTab
     {
         $tab = parent::getCommonTab();
         $tmp_menu = new Menu();
@@ -54,7 +55,7 @@ class EditBlockMenuForm extends EditBlockForm
     }
 
 
-    protected function getServiceTab()
+    protected function getServiceTab(): FormTab
     {
         $tab = parent::getServiceTab();
         $tab->children[] = $this->getInterfaceField();
@@ -66,12 +67,12 @@ class EditBlockMenuForm extends EditBlockForm
      * Получает список корневых меню заданного домена,
      * либо без указанного домена
      * @param int $domainId ID# домена
-     * @return array<[
-     *             'value' => int ID# меню,
-     *             'caption' => string Наименование меню
-     *         ]>
+     * @return array <pre><code>array<[
+     *     'value' => int ID# меню,
+     *     'caption' => string Наименование меню
+     * ]></code></pre>
      */
-    public function getMenus($domainId = 0)
+    public function getMenus(int $domainId = 0): array
     {
         $cache = MenuRecursiveCache::i();
         $menusIds = $cache->getChildrenIds(0);

@@ -2,6 +2,8 @@
 /**
  * Форма просмотра сообщения обратной связи
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use \RAAS\Field as RAASField;
@@ -41,12 +43,12 @@ class ViewFeedbackForm extends RAASForm
     /**
      * Получает параметры для конструктора формы
      * @param array $params Входные параметры
-     * @return [
-     *             'caption' => string Заголовок формы,
-     *             'template' => string Шаблон формы
-     *         ]
+     * @return array <pre><code>[
+     *     'caption' => string Заголовок формы,
+     *     'template' => string Шаблон формы
+     * ]</code></pre>
      */
-    protected function getParams(array $params = [])
+    protected function getParams(array $params = []): array
     {
         $arr = [];
         $arr['caption'] = sprintf($this->view->_('FEEDBACK_N'), (int)($params['Item']->id ?? 0));
@@ -57,9 +59,9 @@ class ViewFeedbackForm extends RAASForm
 
     /**
      * Получает список дочерних узлов
-     * @return array<FormTab|FieldSet|RAASField>
+     * @return array <pre><code>array<FormTab|FieldSet|RAASField></code></pre>
      */
-    protected function getChildren()
+    protected function getChildren(): array
     {
         return $this->getDetails();
     }
@@ -67,9 +69,9 @@ class ViewFeedbackForm extends RAASForm
 
     /**
      * Получает список дочерних узлов
-     * @return array<FormTab|FieldSet|RAASField>
+     * @return array <pre><code>array<FormTab|FieldSet|RAASField></code></pre>
      */
-    protected function getDetails()
+    protected function getDetails(): array
     {
         $arr = [];
         $arr['post_date'] = $this->getFeedbackField([
@@ -89,12 +91,12 @@ class ViewFeedbackForm extends RAASForm
 
     /**
      * Получает список дочерних полей по кастомным полям формы
-     * @return array<string[] ID# поля в форме просмотра => RAASField>
+     * @return array <pre><code>array<string[] ID# поля в форме просмотра => RAASField></code></pre>
      */
-    protected function getDetailsFields()
+    protected function getDetailsFields(): array
     {
         $arr = [];
-        foreach ($this->Item->fields as $field) {
+        foreach (($this->Item->fields ?? []) as $field) {
             $arr['field.' . $field->urn] = $this->getFeedbackField([
                 'name' => 'field.' . $field->urn,
                 'caption' => $field->name,
@@ -107,16 +109,16 @@ class ViewFeedbackForm extends RAASForm
 
     /**
      * Получает статистическую информацию по сообщению обратной связи
-     * @return array<string[] URN поля в форме просмотра => [
-     *             'name' => string URN поля,
-     *             'caption' => string Заголовок поля,
-     *             'template' => string Шаблон поля,
-     *         ]>
+     * @return array <pre><code>array<string[] URN поля в форме просмотра => [
+     *     'name' => string URN поля,
+     *     'caption' => string Заголовок поля,
+     *     'template' => string Шаблон поля,
+     * ]></code></pre>
      */
-    protected function getStat()
+    protected function getStat(): array
     {
         $arr = [];
-        if ($this->Item->uid) {
+        if ($this->Item && $this->Item->uid) {
             $arr['uid'] = [
                 'name' => 'uid',
                 'caption' => $this->view->_('USER'),
@@ -128,7 +130,7 @@ class ViewFeedbackForm extends RAASForm
             'caption' => $this->view->_('PAGE'),
             'template' => 'cms/feedback_view.field.inc.php',
         ];
-        if ($this->Item->viewer->id) {
+        if ($this->Item && $this->Item->viewer->id) {
             $arr['vis'] = [
                 'name' => 'vis',
                 'caption' => $this->view->_('VIEWED_BY'),
@@ -158,7 +160,7 @@ class ViewFeedbackForm extends RAASForm
      *        ] Параметры создания поля
      * @return RAASField
      */
-    protected function getFeedbackField(array $params = [])
+    protected function getFeedbackField(array $params = []): RAASField
     {
         $defaultParams = ['template' => 'cms/feedback_view.field.inc.php'];
         $arr = array_merge($defaultParams, $params);

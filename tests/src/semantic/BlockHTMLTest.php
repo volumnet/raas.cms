@@ -19,6 +19,7 @@ class BlockHTMLTest extends BaseTest
         'cms_blocks_html',
         'cms_blocks_pages_assoc',
         'cms_fields',
+        'cms_forms',
         'cms_pages',
         'cms_snippets',
         'cms_users',

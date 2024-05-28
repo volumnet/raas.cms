@@ -2,6 +2,8 @@
 /**
  * Рендерер форм для сайта
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\HTMLRenderer;

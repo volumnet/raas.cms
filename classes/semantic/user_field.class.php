@@ -15,23 +15,9 @@ use SOME\Text;
  */
 class User_Field extends Field
 {
-    protected static $references = [
-        'parent' => [
-            'FK' => 'pid',
-            'classname' => User::class,
-            'cascade' => false
-        ],
-        'Preprocessor' => [
-            'FK' => 'preprocessor_id',
-            'classname' => Snippet::class,
-            'cascade' => false
-        ],
-        'Postprocessor' => [
-            'FK' => 'postprocessor_id',
-            'classname' => Snippet::class,
-            'cascade' => false
-        ],
-    ];
+    // 2024-04-19, AVS: Убрал ссылку на User, т.к. в SOME проверяется связка только по pid без учета classname
+    //     И при удалении 3-го пользователя обнулялись все поля 3-й формы (даже без каскадирования)
+    // 2024-05-02, AVS: вместо этого добавил правки в commit() и getSet()
 
     public function __set($var, $val)
     {
@@ -50,6 +36,8 @@ class User_Field extends Field
 
     public function commit()
     {
+        $this->classname = User::class;
+        $this->pid = 0;
         if (!$this->urn && $this->name) {
             $this->urn = $this->name;
         }
@@ -71,6 +59,7 @@ class User_Field extends Field
         } else {
             $args[0]['where'] = (array)$args[0]['where'];
         }
+        $args[0]['where'][] = "classname = '" . static::$SQL->real_escape_string(User::class) . "'";
         $args[0]['where'][] = "NOT pid";
         return call_user_func_array('parent::getSet', $args);
     }

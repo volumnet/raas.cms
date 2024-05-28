@@ -2,6 +2,8 @@
 /**
  * Файл класса интерфейса меню
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use InvalidArgumentException;

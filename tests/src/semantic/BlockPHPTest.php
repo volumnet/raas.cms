@@ -13,9 +13,12 @@ use SOME\BaseTest;
 class BlockPHPTest extends BaseTest
 {
     public static $tables = [
+        'cms_access',
         'cms_access_blocks_cache',
         'cms_blocks',
         'cms_blocks_pages_assoc',
+        'cms_fields',
+        'cms_forms',
         'cms_pages',
         'cms_snippets',
     ];

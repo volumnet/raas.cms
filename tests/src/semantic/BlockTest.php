@@ -28,6 +28,7 @@ class BlockTest extends BaseTest
         'cms_blocks_pages_assoc',
         'cms_data',
         'cms_fields',
+        'cms_forms',
         'cms_material_types',
         'cms_materials',
         'cms_pages',

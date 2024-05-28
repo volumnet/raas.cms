@@ -2,6 +2,8 @@
 /**
  * Форма редактирования формы
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Application;
@@ -31,7 +33,7 @@ class EditFormForm extends RAASForm
     public function __construct(array $params = [])
     {
         $view = $this->view;
-        $Item = isset($params['Item']) ? $params['Item'] : null;
+        $item = isset($params['Item']) ? $params['Item'] : null;
         $CONTENT = [];
         $CONTENT['material_types'] = (array)Material_Type::getSet();
         foreach ([
@@ -71,57 +73,57 @@ class EditFormForm extends RAASForm
         $field = new RAASField();
 
         $defaultParams = [
-            'caption' => $Item->id ? $Item->name : $view->_('CREATING_FORM'),
+            'caption' => ($item && $item->id) ? $item->name : $view->_('CREATING_FORM'),
             'parentUrl' => Sub_Dev::i()->url . '&action=forms',
             'meta' => [],
             'children' => [
-                [
+                'name' => [
                     'name' => 'name',
                     'caption' => $view->_('NAME'),
                     'required' => 'required'
                 ],
-                [
+                'urn' => [
                     'name' => 'urn',
                     'caption' => $view->_('URN')
                 ],
-                [
+                'material_type' => [
                     'type' => 'select',
                     'name' => 'material_type',
                     'caption' => $view->_('MATERIAL_TYPE'),
                     'children' => ['Set' => $CONTENT['material_types']],
                     'placeholder' => $view->_('_NONE')
                 ],
-                [
+                'create_feedback' => [
                     'type' => 'checkbox',
                     'name' => 'create_feedback',
                     'caption' => $view->_('CREATE_FEEDBACK'),
                     'default' => 1,
                 ],
-                [
+                'signature' => [
                     'type' => 'checkbox',
                     'name' => 'signature',
                     'caption' => $view->_('REQUIRE_UNIQUE'),
                     'default' => 1,
                 ],
-                [
+                'antispam' => [
                     'type' => 'select',
                     'name' => 'antispam',
                     'caption' => $view->_('ANTISPAM_FIELD'),
                     'children' => $CONTENT['antispam'],
                     'default' => 'hidden'
                 ],
-                [
+                'antispam_field_name' => [
                     'name' => 'antispam_field_name',
                     'caption' => $view->_('ANTISPAM_VARIABLE'),
                     'default' => '_question'
                 ],
-                [
+                'email' => [
                     'name' => 'email',
                     'caption' => $view->_('EMAIL_TO_SEND_NOTIFY'),
                     'data-hint' => $view->_('SPACE_COMMA_SEMICOLON_SEPARATED'),
-                    'default' => Application::i()->user->email
+                    'default' => (Application::i()->user ? Application::i()->user->email : '')
                 ],
-                [
+                'interface_id' => [
                     'type' => 'select',
                     'class' => 'input-xxlarge',
                     'name' => 'interface_id',
@@ -133,18 +135,20 @@ class EditFormForm extends RAASForm
                 ],
             ]
         ];
-        if ($usingBlocks = $Item->usingBlocks) {
-            $defaultParams['meta']['blocksTable'] = new EntityUsersTable([
-                'caption' => $this->view->_('BLOCKS'),
-                'Set' => $usingBlocks,
-            ]);
-        }
-        if ($usingCartTypes = $Item->usingCartTypes) {
-            $shopViewClassname = 'RAAS\CMS\Shop\ViewSub_Dev';
-            $defaultParams['meta']['cartTypesTable'] = new EntityUsersTable([
-                'caption' => $shopViewClassname::i()->_('CART_TYPES'),
-                'Set' => $usingCartTypes,
-            ]);
+        if ($item) {
+            if ($usingBlocks = $item->usingBlocks) {
+                $defaultParams['meta']['blocksTable'] = new EntityUsersTable([
+                    'caption' => $this->view->_('BLOCKS'),
+                    'Set' => $usingBlocks,
+                ]);
+            }
+            if ($usingCartTypes = $item->usingCartTypes) {
+                $shopViewClassname = 'RAAS\CMS\Shop\ViewSub_Dev';
+                $defaultParams['meta']['cartTypesTable'] = new EntityUsersTable([
+                    'caption' => $shopViewClassname::i()->_('CART_TYPES'),
+                    'Set' => $usingCartTypes,
+                ]);
+            }
         }
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);

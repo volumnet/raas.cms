@@ -185,17 +185,21 @@ class PageRecursiveCache extends VisibleRecursiveCache
         $filename = $this->getFilename();
         $tmpname = $this->getTmpFilename();
 
-        if (!file_put_contents($tmpname, $text)) {
+        if (!@file_put_contents($tmpname, $text)) {
             return false;
         }
         if (file_exists($filename)) {
-            if (!unlink($filename)) {
+            if (!@unlink($filename)) {
                 return false;
             }
         }
+        // @codeCoverageIgnoreStart
+        // 2024-04-09, AVS: Не могу проверить некорректное переименование - ошибка возникает только при конфликте прав
+        // доступа, который в рамках теста воспроизвести затруднительно
         if (!rename($tmpname, $filename)) {
             return false;
         }
+        // @codeCoverageIgnoreEnd
         return true;
     }
 
@@ -226,7 +230,7 @@ class PageRecursiveCache extends VisibleRecursiveCache
                 'visChildrenIds',
                 'visAllChildrenIds',
             ] as $key) {
-                $this->$key = $data[$key] ?? null;
+                $this->$key = $data[$key] ?? [];
             }
             return true;
         }

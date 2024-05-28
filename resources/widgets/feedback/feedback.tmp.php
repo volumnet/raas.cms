@@ -62,7 +62,7 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
                   $field,
                   $Block,
                   $DATA[$fieldURN],
-                  $localError[$fieldURN] ?? '',
+                  $localError[$fieldURN] ?? ''
               );
               $fieldRenderData = [
                   'data-vue-role' => 'raas-field',

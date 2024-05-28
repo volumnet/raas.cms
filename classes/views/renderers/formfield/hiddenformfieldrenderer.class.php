@@ -41,7 +41,7 @@ class HiddenFormFieldRenderer extends FormFieldRenderer
             }
         } else {
             if (is_scalar($this->data)) {
-                $attrs['value'] = trim($this->data);
+                $attrs['value'] = trim((string)$this->data);
             }
             $result = $this->getElement('input', $attrs);
         }

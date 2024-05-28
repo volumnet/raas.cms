@@ -18,6 +18,7 @@ class FormInterfaceTest extends BaseTest
         'attachments',
         'cms_access',
         'cms_access_materials_cache',
+        'cms_access_pages_cache',
         'cms_blocks',
         'cms_blocks_form',
         'cms_blocks_material',
@@ -35,6 +36,7 @@ class FormInterfaceTest extends BaseTest
         'cms_materials_pages_assoc',
         'cms_pages',
         'cms_snippets',
+        'cms_templates',
         'cms_users', // Только для одиночного теста
         'registry',
     ];

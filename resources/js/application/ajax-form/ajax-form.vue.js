@@ -70,7 +70,7 @@ export default {
              * @type {Object}
              */
             formData: (typeof this.initialFormData == 'object') 
-                ? this.initialFormData
+                ? JSON.parse(JSON.stringify(this.initialFormData)) // Чтобы не было привязки объекта
                 : {},
 
             /**
@@ -198,7 +198,7 @@ export default {
             if (JSON.stringify(newVal) != JSON.stringify(oldVal)) { 
                 // Чтобы не обновлялась статика (например, в регистрации при изменении пользователя 
                 // считается что изменились также и входные данные, а там снова подается старая статика)
-                this.formData = this.initialFormData;
+                this.formData = JSON.parse(JSON.stringify(this.initialFormData)); // Чтобы не было привязки объекта
             }
         },
         formData: {

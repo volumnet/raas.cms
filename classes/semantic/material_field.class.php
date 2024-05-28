@@ -14,10 +14,12 @@ namespace RAAS\CMS;
 class Material_Field extends Field
 {
     protected static $references = [
+        // 2024-05-02, AVS: заменил каскадирование на true, что в совокупности с $objectCascadeDelete позволяет избежать
+        // удаления полей n-го типа материала при удалении n-ой формы
         'parent' => [
             'FK' => 'pid',
             'classname' => Material_Type::class,
-            'cascade' => false
+            'cascade' => true
         ],
         'Preprocessor' => [
             'FK' => 'preprocessor_id',

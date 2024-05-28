@@ -14,13 +14,16 @@ class MenuTest extends BaseTest
 {
     public static $tables = [
         'cms_access',
+        'cms_access_blocks_cache',
         'cms_access_pages_cache',
         'cms_blocks',
+        'cms_blocks_html',
         'cms_blocks_material',
         'cms_blocks_menu',
         'cms_blocks_pages_assoc',
         'cms_blocks_search_pages_assoc',
         'cms_data',
+        'cms_feedback',
         'cms_fields',
         'cms_material_types',
         'cms_material_types_affected_pages_for_materials_cache',
@@ -40,6 +43,23 @@ class MenuTest extends BaseTest
         PageRecursiveCache::i()->refresh();
         MenuRecursiveCache::i()->refresh();
     }
+
+
+    /**
+     * Тест ошибки от 2024-05-02
+     * Выдает ошибку Warning: Undefined array key 18 in D:\web\home\libs\raas.cms\classes\semantic\menu.class.php on line 274
+     * И Warning: foreach() argument must be of type array|object, null given in D:\web\home\libs\raas.cms\classes\semantic\menu.class.php on line 276
+     * При вызове getSubMenuData() если пункт привязан к несуществующей странице
+     */
+    public function test20240502()
+    {
+        $menu = new Menu(['page_id' => 12345, 'inherit' => 1]);
+
+        $result = $menu->getSubMenu();
+
+        $this->assertEquals([], $result);
+    }
+
 
     /**
      * Тест URL
@@ -398,6 +418,22 @@ class MenuTest extends BaseTest
      */
     public function testFindPage()
     {
+        $menu = new Menu(5); // Верхнее меню / О компании
+
+        $result = $menu->findPage(new Page(2)); // О компании
+
+        $this->assertInstanceOf(Menu::class, $result);
+        $this->assertEquals(2, $result->page_id);
+        $this->assertEquals(5, $result->id);
+        $this->assertTrue($result->realized);
+    }
+
+
+    /**
+     * Тест поиска страницы - случай текущего пункта/страницы
+     */
+    public function testFindPageWithSelf()
+    {
         $menu = new Menu(1);
 
         $result = $menu->findPage(new Page(15));
@@ -458,5 +494,56 @@ class MenuTest extends BaseTest
         $menu = Menu::importByURN('aaa');
 
         $this->assertNull($menu);
+    }
+
+
+    public function testDelete()
+    {
+        $menu = new Menu();
+        $menu->name = 'Тест';
+        $menu->commit();
+        $menuId = $menu->id;
+        $block = new Block_Menu([
+            'name' => 'Тестовое меню',
+            'location' => 'content',
+            'menu' => $menuId,
+            'full_menu' => true,
+            'cats' => [1]
+        ]);
+        $block->commit();
+        $blockId = $block->id;
+
+        Menu::delete($menu);
+
+        $block = Block::spawn($blockId);
+
+        $this->assertEmpty($block->id);
+    }
+
+
+    public function testUsingBlocks()
+    {
+        $menu = new Menu();
+        $menu->name = 'Тест';
+        $menu->commit();
+        $menuId = $menu->id;
+        $block = new Block_Menu([
+            'name' => 'Тестовое меню',
+            'location' => 'content',
+            'menu' => $menuId,
+            'full_menu' => true,
+            'cats' => [1]
+        ]);
+        $block->commit();
+        $blockId = $block->id;
+
+        $result = $menu->usingBlocks;
+
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
+        $this->assertInstanceOf(Block_Menu::class, $result[0]);
+        $this->assertEquals($blockId, $result[0]->id);
+
+        Menu::delete($menu);
     }
 }

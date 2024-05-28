@@ -252,9 +252,11 @@ class Antispam
         $rx = '/(^|\\s)(((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.((xn--[a-zA-Z0-9\\-]+)|([a-zA-Z]+)|рф|ком)/umis';
         if (preg_match_all($rx, $text, $regs)) {
             foreach ($regs[0] as $url) {
-                if (is_numeric($url)) {
-                    continue; // 2023-02-09, AVS: убрал, т.к. в корзине вес не проходит
-                }
+                // 2024-04-09, AVS: сейчас необходимости в проверке нет, т.к. явным образом добавлена поддержка
+                // Punycode-доменов (вариант 123.321 не пройдет)
+                // if (is_numeric($url)) {
+                //     continue; // 2023-02-09, AVS: убрал, т.к. в корзине вес не проходит
+                // }
                 $url = preg_replace('/((http(s)?)|(ftp)):\\/\\//umis', '', trim($url));
                 $url = str_replace('www.', '', $url);
                 $result[] = $url;
