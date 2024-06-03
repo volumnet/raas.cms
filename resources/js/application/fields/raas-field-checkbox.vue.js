@@ -32,7 +32,7 @@ export default {
          * @type {Boolean}
          */
         multiple: {
-            type: Boolean,
+            // 2024-05-28, AVS: убрал проверку типа, т.к. может передаваться через HTML-атрибут
             default: false,
         }
     },
@@ -66,14 +66,17 @@ export default {
                 if ($event.value == option.value) {
                     checked = $event.checked;
                 } else {
-                    checked = this.value && (this.value.indexOf(option.value) != -1)
+                    checked = this.value && (this.value.map(x => x.toString()).indexOf(option.value.toString()) != -1);
+                    // 2024-05-28, AVS: приводим к string, чтобы не было путаницы при различных типах
                 }
                 if (checked) {
-                    if (newValue.indexOf(option.value) == -1) {
+                    if (newValue.map(x => x.toString()).indexOf(option.value.toString()) == -1) {
+                        // 2024-05-28, AVS: приводим к string, чтобы не было путаницы при различных типах
                         newValue.push(option.value);
                     }
                 }
             }
+            console.log($event, this.flatSource, this.value, newValue)
             this.$emit('input', newValue);
         },
     },

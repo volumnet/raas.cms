@@ -40,12 +40,12 @@ class EditMaterialForm extends \RAAS\Form
         $parent = isset($params['Parent']) ? $params['Parent'] : null;
 
         $title = $this->view->_(
-            ($item->id ? 'EDITING' : 'CREATING') . '_' .
-            ($parent->id ? 'PAGE' : 'SITE')
+            ($item && $item->id ? 'EDITING' : 'CREATING') . '_' .
+            ($parent && $parent->id ? 'PAGE' : 'SITE')
         );
 
         $tabs = [];
-        foreach ($type->fieldGroups as $fieldGroupURN => $fieldGroup) {
+        foreach (($type->fieldGroups ?? []) as $fieldGroupURN => $fieldGroup) {
             if ($fieldGroupURN == '') {
                 $tabs['common'] = $this->getCommonTab($item, $type);
             } else {
@@ -60,7 +60,7 @@ class EditMaterialForm extends \RAAS\Form
         }
         $tabs['service'] = $this->getServiceTab($item, $parent);
         $tabs['pages'] = $this->getPagesTab($item, $parent, $type);
-        if ($item->id) {
+        if ($item && $item->id) {
             foreach ($item->relatedMaterialTypes as $mtype) {
                 if ($params['MSet'][$mtype->urn]) {
                     $tabs['_' . $mtype->urn] = $this->getMTab(
@@ -75,11 +75,8 @@ class EditMaterialForm extends \RAAS\Form
         $defaultParams = [
             'Item' => $item,
             'action' => '#',
-            'parentUrl' => $this->view->url . '&id=' . $parent->id
-                        .  '#_' . $type->urn,
-            'caption' => $item->id
-                      ?  $item->name
-                      :  $this->view->_('CREATING_MATERIAL'),
+            'parentUrl' => $this->view->url . '&id=' . ($parent->id ?? '') .  '#_' . ($type->urn ?? ''),
+            'caption' => ($item->id ?? null) ? $item->name : $this->view->_('CREATING_MATERIAL'),
             'children' => $tabs,
             'export' => function ($Form) use ($parent) {
                 $Form->exportDefault();
@@ -220,7 +217,7 @@ class EditMaterialForm extends \RAAS\Form
                     'name' => 'meta_title',
                     'class' => 'span5',
                     'caption' => $this->view->_('META_TITLE'),
-                    'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
+                    'placeholder' => ($item && $item->name) ? $item->name : $this->view->_('FROM_NAME'),
                     'data-hint' => sprintf(
                         $this->view->_('META_TITLE_RECOMMENDED_LIMIT'),
                         SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
@@ -253,19 +250,19 @@ class EditMaterialForm extends \RAAS\Form
                 [
                     'name' => 'h1',
                     'caption' => $this->view->_('H1'),
-                    'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
+                    'placeholder' => ($item && $item->name) ? $item->name : $this->view->_('FROM_NAME'),
                     'class' => 'span5'
                 ],
                 [
                     'name' => 'menu_name',
                     'caption' => $this->view->_('MENU_NAME'),
-                    'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
+                    'placeholder' => ($item && $item->name) ? $item->name : $this->view->_('FROM_NAME'),
                     'class' => 'span5'
                 ],
                 [
                     'name' => 'breadcrumbs_name',
                     'caption' => $this->view->_('BREADCRUMBS_NAME'),
-                    'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
+                    'placeholder' => ($item && $item->name) ? $item->name : $this->view->_('FROM_NAME'),
                     'class' => 'span5'
                 ],
                 [
@@ -324,7 +321,7 @@ class EditMaterialForm extends \RAAS\Form
      * Получает вкладку "Служебные"
      * @return FormTab
      */
-    protected function getServiceTab($Item, $Parent)
+    protected function getServiceTab($item, $parent)
     {
         $serviceTab = new FormTab([
             'name' => 'service',
@@ -333,11 +330,7 @@ class EditMaterialForm extends \RAAS\Form
                 [
                     'type' => 'checkbox',
                     'name' => 'vis',
-                    'caption' => $this->view->_(
-                        $Parent->id ?
-                        'VISIBLE' :
-                        'IS_ACTIVE'
-                    ),
+                    'caption' => $this->view->_(($parent && $parent->id) ? 'VISIBLE' : 'IS_ACTIVE'),
                     'default' => 1
                 ],
                 [
@@ -352,7 +345,7 @@ class EditMaterialForm extends \RAAS\Form
                 ],
             ]
         ]);
-        if ($Item->id) {
+        if ($item && $item->id) {
             $serviceTab->children[] = [
                 'name' => 'post_date',
                 'caption' => $this->view->_('CREATED_BY'),
@@ -383,11 +376,11 @@ class EditMaterialForm extends \RAAS\Form
      * Получает вкладку "Страницы"
      * @return FormTab
      */
-    protected function getPagesTab($Item, $Parent, $Type)
+    protected function getPagesTab($item, $parent, $type)
     {
         $temp = new Page();
         $affectedPagesIds = [];
-        foreach ($Item->affectedPages as $affectedPage) {
+        foreach (($item->affectedPages ?? []) as $affectedPage) {
             $affectedPageId = (int)$affectedPage->id;
             $affectedPagesIds[(string)$affectedPageId] = $affectedPageId;
         }
@@ -404,7 +397,7 @@ class EditMaterialForm extends \RAAS\Form
                 ]
             ]
         ]);
-        if (!$Type->global_type) {
+        if (!($type->global_type ?? false)) {
             $pagesTab->children['cats'] = [
                 'type' => 'checkbox',
                 'multiple' => true,
@@ -412,7 +405,7 @@ class EditMaterialForm extends \RAAS\Form
                 'caption' => $this->view->_('PAGES'),
                 'required' => 'required',
                 'children' => $this->getMetaCats(),
-                'default' => [(int)$Parent->id],
+                'default' => [(int)($parent->id ?? 0)],
                 'import' => function ($Field) {
                     return $Field->Form->Item->pages_ids;
                 },
@@ -424,7 +417,7 @@ class EditMaterialForm extends \RAAS\Form
 
     /**
      * Получает вкладку связанных материалов
-     * @param Material $Item Материал, для которого получается вкладка
+     * @param Material $item Материал, для которого получается вкладка
      * @param Material_Type $mtype Связанный тип материалов
      * @param [
      *            'MSet' => array<Material> Список связанных материалов,
