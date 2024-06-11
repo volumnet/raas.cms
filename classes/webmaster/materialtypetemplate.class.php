@@ -201,7 +201,7 @@ class MaterialTypeTemplate
                 'rows_per_page' => 20,
                 'sort_field_default' => 'name',
                 'sort_order_default' => 'asc',
-                'interface_id' => (int)Snippet::importByURN('__raas_material_interface')->id,
+                'interface_classname' => MaterialInterface::class,
                 'widget_id' => (int)($widget ? $widget->id : 0),
                 'location' => 'content',
                 'inherit' => (int)($additionalData['inherit'] ?? false),

@@ -1016,7 +1016,7 @@ class MaterialInterfaceTest extends BaseTest
 
         $result = $interface->process();
 
-        $this->assertNull($result);
+        $this->assertEquals([], $result);
         $this->assertEquals('Новости', $page->name);
         $this->assertEmpty($page->Material);
     }

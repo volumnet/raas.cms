@@ -1,6 +1,6 @@
 <?php
 /**
- * Файл класса интерфейса меню
+ * Стандартный интерфейс меню
  */
 declare(strict_types=1);
 
@@ -9,9 +9,9 @@ namespace RAAS\CMS;
 use InvalidArgumentException;
 
 /**
- * Класс интерфейса меню
+ * Стандартный интерфейс меню
  */
-class MenuInterface extends AbstractInterface
+class MenuInterface extends BlockInterface
 {
     /**
      * Конструктор класса
@@ -47,7 +47,7 @@ class MenuInterface extends AbstractInterface
     }
 
 
-    public function process()
+    public function process(): array
     {
         $out = [];
         $menu = $this->block->Menu;

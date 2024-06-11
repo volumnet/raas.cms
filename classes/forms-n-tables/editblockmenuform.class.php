@@ -2,6 +2,8 @@
 /**
  * Форма редактирования блока меню
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Field as RAASField;
@@ -12,21 +14,14 @@ use RAAS\FormTab;
  */
 class EditBlockMenuForm extends EditBlockForm
 {
-    protected function getInterfaceField(): RAASField
-    {
-        $field = parent::getInterfaceField();
-        $snippet = Snippet::importByURN('__raas_menu_interface');
-        $field->default = $snippet->id;
-        return $field;
-    }
-
+    const DEFAULT_BLOCK_CLASSNAME = Block_Menu::class;
 
     protected function getCommonTab(): FormTab
     {
         $tab = parent::getCommonTab();
         $tmp_menu = new Menu();
-        $domain = $this->meta['Parent']->Domain;
-        $this->meta['CONTENT']['menus'] = $this->getMenus($domain->id);
+        $domain = $this->meta['Parent']->Domain ?? new Page();
+        $this->meta['CONTENT']['menus'] = $this->getMenus((int)$domain->id);
         $this->meta['CONTENT']['menu_appearances'][] = [
             'value' => 1,
             'caption' => $this->view->_('FULL_MENU')
@@ -35,7 +30,7 @@ class EditBlockMenuForm extends EditBlockForm
             'value' => 0,
             'caption' => $this->view->_('PAGE_SUBSECTIONS')
         ];
-        $tab->children[] = new RAASField([
+        $tab->children['menu'] = new RAASField([
             'type' => 'select',
             'name' => 'menu',
             'caption' => $this->view->_('MENU'),
@@ -43,14 +38,14 @@ class EditBlockMenuForm extends EditBlockForm
             'required' => true,
             'placeholder' => '--',
         ]);
-        $tab->children[] = new RAASField([
+        $tab->children['full_menu'] = new RAASField([
             'type' => 'select',
             'name' => 'full_menu',
             'caption' => $this->view->_('MENU_APPEARANCE'),
             'children' => $this->meta['CONTENT']['menu_appearances'],
             'default' => 1
         ]);
-        $tab->children[] = $this->getWidgetField();
+        $tab->children['widget_id'] = $this->getWidgetField();
         return $tab;
     }
 
@@ -58,7 +53,7 @@ class EditBlockMenuForm extends EditBlockForm
     protected function getServiceTab(): FormTab
     {
         $tab = parent::getServiceTab();
-        $tab->children[] = $this->getInterfaceField();
+        $tab->children['interface_id'] = $this->getInterfaceField();
         return $tab;
     }
 
@@ -79,15 +74,12 @@ class EditBlockMenuForm extends EditBlockForm
         $result = [];
         foreach ($menusIds as $menuId) {
             $menuData = $cache->cache[$menuId];
-            if ((int)$menuData['domain_id'] &&
-                ($menuData['domain_id'] != $domainId)
-            ) {
-                continue;
+            if (!(int)$menuData['domain_id'] || ($menuData['domain_id'] == $domainId)) {
+                $result[] = [
+                    'value' => (int)$menuData['id'],
+                    'caption' => $menuData['name'],
+                ];
             }
-            $result[] = [
-                'value' => (int)$menuData['id'],
-                'caption' => $menuData['name'],
-            ];
         }
         return $result;
     }

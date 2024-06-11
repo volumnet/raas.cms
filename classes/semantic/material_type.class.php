@@ -305,10 +305,7 @@ class Material_Type extends SOME
             static::_SQL()->query($sqlQuery);
         }
         if ($sqlArr) {
-            static::_SQL()->add(
-                self::_dbprefix() . "cms_fields_form_vis",
-                $sqlArr
-            );
+            static::_SQL()->add(self::_dbprefix() . "cms_fields_form_vis", $sqlArr);
         }
     }
 
@@ -387,7 +384,7 @@ class Material_Type extends SOME
 
     /**
      * Поля, отображаемые в форме
-     * @return Material_Field[]
+     * @return Material_Field[] <pre><code>array<string[] URN поля => Material_Field></code></pre>
      */
     protected function _formFields()
     {
@@ -411,6 +408,7 @@ class Material_Type extends SOME
         $result = array_map(function ($x) {
             return (int)$x->id;
         }, $this->formFields);
+        $result = array_values($result);
         return $result;
     }
 
@@ -457,9 +455,8 @@ class Material_Type extends SOME
      */
     protected function _fieldGroups()
     {
-        if (!isset(static::$fieldGroupsCache[$this->id]) ||
-            !static::$fieldGroupsCache[$this->id]
-        ) {
+        $result = [];
+        if (!(static::$fieldGroupsCache[$this->id] ?? [])) {
             $arr1 = [];
             if ($this->parent->id) {
                 $arr1 = (array)$this->parent->fieldGroups;

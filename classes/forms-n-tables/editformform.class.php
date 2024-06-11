@@ -49,28 +49,6 @@ class EditFormForm extends RAASForm
                 'caption' => $view->_($val)
             ];
         }
-        $wf = function (Snippet_Folder $x) use (&$wf) {
-            $temp = [];
-            foreach ($x->children as $row) {
-                if (strtolower($row->urn) != '__raas_views') {
-                    $o = new Option([
-                        'value' => '',
-                        'caption' => $row->name,
-                        'disabled' => 'disabled'
-                    ]);
-                    $o->__set('children', $wf($row));
-                    $temp[] = $o;
-                }
-            }
-            foreach ($x->snippets as $row) {
-                $temp[] = new Option([
-                    'value' => $row->id,
-                    'caption' => $row->urn . (($row->name && ($row->name != $row->urn)) ? (': ' . $row->name) : ''),
-                ]);
-            }
-            return $temp;
-        };
-        $field = new RAASField();
 
         $defaultParams = [
             'caption' => ($item && $item->id) ? $item->name : $view->_('CREATING_FORM'),
@@ -123,16 +101,12 @@ class EditFormForm extends RAASForm
                     'data-hint' => $view->_('SPACE_COMMA_SEMICOLON_SEPARATED'),
                     'default' => (Application::i()->user ? Application::i()->user->email : '')
                 ],
-                'interface_id' => [
-                    'type' => 'select',
-                    'class' => 'input-xxlarge',
+                'interface_id' => new InterfaceField([
                     'name' => 'interface_id',
                     'required' => true,
                     'caption' => $view->_('INTERFACE'),
-                    'placeholder' => $view->_('_NONE'),
-                    'children' => $wf(new Snippet_Folder()),
                     'default' => Snippet::importByURN('__raas_form_notify')->id,
-                ],
+                ]),
             ]
         ];
         if ($item) {

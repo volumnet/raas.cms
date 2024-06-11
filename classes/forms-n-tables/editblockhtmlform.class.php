@@ -25,20 +25,6 @@ class EditBlockHTMLForm extends EditBlockForm
     }
 
 
-    protected function getInterfaceField(): RAASField
-    {
-        $field = parent::getInterfaceField();
-        return $field;
-    }
-
-
-    protected function getWidgetField(): RAASField
-    {
-        $field = parent::getWidgetField();
-        return $field;
-    }
-
-
     /**
      * Получает вкладку "Общие"
      * @return FormTab

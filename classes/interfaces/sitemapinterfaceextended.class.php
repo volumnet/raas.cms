@@ -1,6 +1,6 @@
 <?php
 /**
- * Файл класса расширенного интерфейса sitemap.xml
+ * Расширенный интерфейс sitemap.xml
  *
  * Создает четыре файла - sitemap.xml (корневой),
  *                        sitemap.sections.xml (разделы, кроме каталога),
@@ -13,7 +13,7 @@ use RAAS\Timer;
 use RAAS\Application;
 
 /**
- * Класс расширенного интерфейса sitemap.xml
+ * Расширенный интерфейс sitemap.xml
  */
 class SitemapInterfaceExtended extends SitemapInterface
 {
@@ -22,7 +22,7 @@ class SitemapInterfaceExtended extends SitemapInterface
      * @param string $catalogMTypeURN URN типа материалов каталога
      * @param string $catalogPageURL Относительный путь страницы -
      *                               корня каталога
-     * @return text
+     * @return string
      */
     public function process(
         $catalogMTypeURN = 'catalog',

@@ -1,6 +1,6 @@
 <?php
 /**
- * Файл стандартного интерфейса формы
+ * Стандартный интерфейс формы
  */
 declare(strict_types=1);
 
@@ -19,9 +19,9 @@ use RAAS\DateTimeDatatypeStrategy;
 use RAAS\View_Web as RAASViewWeb;
 
 /**
- * Класс стандартного интерфейса формы
+ * Стандартный интерфейс формы
  */
-class FormInterface extends AbstractInterface
+class FormInterface extends BlockInterface
 {
     /**
      * Максимальный размер (px, по большей стороне) изображений для письма
@@ -65,7 +65,7 @@ class FormInterface extends AbstractInterface
     }
 
 
-    public function process()
+    public function process(): array
     {
         $result = [];
         $form = $this->block->Form;

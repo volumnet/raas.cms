@@ -495,6 +495,103 @@ class FieldTest extends BaseTest
 
 
     /**
+     * Тест коммита (случай со медиа-полем и классами процессоров)
+     */
+    public function testOnCommitWithMediaWithProcessorsClassnames()
+    {
+        $item = new CustomEntity(['id' => 10]);
+        $field = new TestField([
+            'id' => 1,
+            'urn' => 'test',
+            'datatype' => 'image',
+            'multiple' => true,
+            'preprocessor_classname' => PreprocessorMock::class,
+            'postprocessor_classname' => PostprocessorMock::class,
+        ]);
+        $field->Owner = $item;
+        $form = new Form(['Item' => $item]);
+        $raasField = $field->Field;
+        $onCommit = $raasField->oncommit;
+        $attachment = new Attachment();
+        $attachment->filename = 'aaa.txt';
+        $attachment->mime = 'text/plain';
+        $attachment->touchFile = true;
+        $attachment->parent = $field;
+        $attachment->commit();
+        $attachmentId = (int)$attachment->id;
+
+        $oldPost = $_POST;
+        $oldFiles = $_FILES;
+        $_POST = [
+            'test@vis' => ['1', '', '1', ''],
+            'test@name' => ['Test 1', 'Test 2', 'Test 3', 'Test 4'],
+            'test@description' => ['Description 1', 'Description 2', 'Description 3', 'Description 4'],
+            'test@attachment' => [null, null, $attachmentId, null],
+        ];
+        $_FILES = ['test' => [
+            'tmp_name' => [
+                $this->getResourcesDir() . '/nophoto.jpg',
+                $this->getResourcesDir() . '/notexist.jpg',
+                null,
+                $this->getResourcesDir() . '/favicon.svg',
+            ],
+            'name' => [
+                'nophoto.jpg',
+                'notexist.jpg',
+                null,
+                'favicon.svg',
+            ],
+            'type' => [
+                'image/jpeg',
+                'image/jpeg',
+                null,
+                'application/xml+svg',
+            ],
+
+        ]];
+
+        $onCommit($raasField);
+
+        $sqlQuery = "SELECT value FROM tmp_data WHERE fid = 1 AND pid = 10 ORDER BY fii";
+        $sqlResult = Application::i()->SQL->getcol($sqlQuery);
+
+        $this->assertIsArray($sqlResult);
+        $this->assertCount(3, $sqlResult);
+        $this->assertNotEmpty($sqlResult[0]);
+        $this->assertEquals(json_encode([
+            'vis' => true,
+            'name' => 'Test 3',
+            'description' => 'Description 3',
+            'attachment' => $attachmentId,
+        ]), $sqlResult[1]);
+        $this->assertNotEmpty($sqlResult[2]);
+
+        $attachment1 = $raasField->datatypeStrategy->import($sqlResult[0]);
+        $oldAttachment = $raasField->datatypeStrategy->import($sqlResult[1]);
+        $attachment2 = $raasField->datatypeStrategy->import($sqlResult[2]);
+
+        $this->assertEquals([
+            $this->getResourcesDir() . '/nophoto.jpg',
+            $this->getResourcesDir() . '/notexist.jpg',
+            null,
+            $this->getResourcesDir() . '/favicon.svg',
+        ], $GLOBALS['preprocessorData']);
+        $this->assertEquals([
+            $attachment1->file,
+            $attachment2->file,
+        ], $GLOBALS['postprocessorData']);
+
+        $_POST = $oldPost;
+        $_FILES = $oldFiles;
+
+        Attachment::delete($attachment);
+        Attachment::delete($attachment1);
+        Attachment::delete($attachment2);
+        unset($GLOBALS['preprocessorData'], $GLOBALS['postprocessorData']);
+    }
+
+
+    /**
      * Записать данные для одного поля и одной сущности, подготовить кэш поля
      */
     public function seedOneField()

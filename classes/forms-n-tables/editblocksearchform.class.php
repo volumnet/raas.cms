@@ -2,6 +2,8 @@
 /**
  * Форма редактирования блока поиска
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Application;
@@ -13,14 +15,7 @@ use RAAS\FormTab;
  */
 class EditBlockSearchForm extends EditBlockForm
 {
-    protected function getInterfaceField(): RAASField
-    {
-        $field = parent::getInterfaceField();
-        $snippet = Snippet::importByURN('__raas_search_interface');
-        $field->default = $snippet->id;
-        return $field;
-    }
-
+    const DEFAULT_BLOCK_CLASSNAME = Block_Search::class;
 
     protected function getCommonTab(): FormTab
     {
@@ -34,38 +29,38 @@ class EditBlockSearchForm extends EditBlockForm
                 'caption' => $val
             ];
         }
-        $tab->children[] = new RAASField([
+        $tab->children['search_var_name'] = new RAASField([
             'name' => 'search_var_name',
             'caption' => $this->view->_('SEARCH_VAR_NAME'),
             'default' => 'search_string'
         ]);
-        $tab->children[] = new RAASField([
+        $tab->children['min_length'] = new RAASField([
             'name' => 'min_length',
             'caption' => $this->view->_('MIN_SEARCH_QUERY_LENGTH'),
             'default' => 3
         ]);
-        $tab->children[] = new RAASField([
+        $tab->children['mtypes'] = new RAASField([
             'type' => 'checkbox',
             'name' => 'mtypes',
             'caption' => $this->view->_('LIMIT_TO_MATERIAL_TYPES'),
             'multiple' => 'multiple',
             'children' => ['Set' => $m->children]
         ]);
-        $tab->children[] = new RAASField([
+        $tab->children['languages'] = new RAASField([
             'type' => 'checkbox',
             'name' => 'languages',
             'caption' => $this->view->_('LIMIT_TO_LANGUAGE'),
             'multiple' => 'multiple',
             'children' => $this->meta['CONTENT']['languages']
         ]);
-        $tab->children[] = new RAASField([
+        $tab->children['search_pages_ids'] = new RAASField([
             'type' => 'checkbox',
             'name' => 'search_pages_ids',
             'caption' => $this->view->_('LIMIT_TO_PAGES'),
             'multiple' => 'multiple',
             'children' => $this->meta['CONTENT']['pages']
         ]);
-        $tab->children[] = $this->getWidgetField();
+        $tab->children['widget_id'] = $this->getWidgetField();
         return $tab;
     }
 
@@ -73,9 +68,9 @@ class EditBlockSearchForm extends EditBlockForm
     protected function getServiceTab(): FormTab
     {
         $tab = parent::getServiceTab();
-        $tab->children[] = $this->getPagesVarField();
-        $tab->children[] = $this->getRowsPerPageField();
-        $tab->children[] = $this->getInterfaceField();
+        $tab->children['pages_var_name'] = $this->getPagesVarField();
+        $tab->children['rows_per_page'] = $this->getRowsPerPageField();
+        $tab->children['interface_id'] = $this->getInterfaceField();
         return $tab;
     }
 

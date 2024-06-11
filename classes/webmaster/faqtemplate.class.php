@@ -288,7 +288,7 @@ class FAQTemplate extends MaterialTypeTemplate
             $blockData = array_merge([
                 'vis' => 1,
                 'form' => (int)$form->id,
-                'interface_id' => (int)Snippet::importByURN('__raas_form_interface')->id,
+                'interface_classname' => FormInterface::class,
                 'widget_id' => (int)$widget->id,
                 'location' => 'content',
                 'cats' => [(int)$page->id],

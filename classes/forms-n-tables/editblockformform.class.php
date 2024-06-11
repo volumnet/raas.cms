@@ -15,14 +15,7 @@ use RAAS\FormTab;
  */
 class EditBlockFormForm extends EditBlockForm
 {
-    protected function getInterfaceField(): RAASField
-    {
-        $field = parent::getInterfaceField();
-        $snippet = Snippet::importByURN('__raas_form_interface');
-        $field->default = $snippet->id;
-        return $field;
-    }
-
+    const DEFAULT_BLOCK_CLASSNAME = Block_Form::class;
 
     protected function getCommonTab(): FormTab
     {

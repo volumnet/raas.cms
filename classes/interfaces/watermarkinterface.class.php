@@ -1,7 +1,6 @@
 <?php
 /**
- * Интерфейс водяных знаков
- *
+ * Стандартный интерфейс водяных знаков
  *
  * <pre><code>
  * Используемые типы
@@ -21,7 +20,10 @@ use GdImage;
 use SOME\Graphics;
 use RAAS\Attachment;
 
-class WatermarkInterface extends AbstractInterface
+/**
+ * Стандартный интерфейс водяных знаков
+ */
+class WatermarkInterface extends FilesProcessorInterface
 {
     /**
      * Путь к файлу водяных знаков
@@ -40,32 +42,6 @@ class WatermarkInterface extends AbstractInterface
      * @var int
      */
     public $quality = 90;
-
-    /**
-     * Конструктор класса
-     * @param string $watermark Путь файла с водяными знаками
-     * @param array $get Поля $_GET параметров
-     * @param array $post Поля $_POST параметров
-     * @param array $cookie Поля $_COOKIE параметров
-     * @param array $session Поля $_SESSION параметров
-     * @param array $server Поля $_SERVER параметров
-     * @param array $files Поля $_FILES параметров
-     */
-    public function __construct(
-        string $watermark = null,
-        array $get = [],
-        array $post = [],
-        array $cookie = [],
-        array $session = [],
-        array $server = [],
-        array $files = []
-    ) {
-        if ($watermark) {
-            $this->watermark = $watermark;
-        }
-        parent::__construct(null, null, $get, $post, $cookie, $session, $server, $files);
-    }
-
 
     /**
      * Обработка интерфейса

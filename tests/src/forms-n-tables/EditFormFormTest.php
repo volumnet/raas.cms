@@ -43,7 +43,7 @@ class EditFormFormTest extends BaseTest
         $form = new EditFormForm();
         $interfaceField = $form->children['interface_id'];
 
-        $this->assertInstanceOf(RAASField::class, $interfaceField);
+        $this->assertInstanceOf(InterfaceField::class, $interfaceField);
         $this->assertCount(2, $interfaceField->children);
         $this->assertEquals('', $interfaceField->children[0]->value);
         $this->assertEquals('Интерфейсы', $interfaceField->children[0]->caption);

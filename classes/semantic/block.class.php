@@ -67,6 +67,11 @@ abstract class Block extends SOME
      */
     const BYMATERIAL_WITHOUT = 2;
 
+    /**
+     * Доступный родительский класс интерфейсов
+     */
+    const ALLOWED_INTERFACE_CLASSNAME = BlockInterface::class;
+
     protected static $tablename = 'cms_blocks';
 
     /**
@@ -499,18 +504,29 @@ abstract class Block extends SOME
      */
     protected function processInterface(array $config = [], Page $page = null)
     {
-        if ($this->Interface->id) {
+        if ($this->interface_classname || $this->Interface->id) {
             $st = microtime(true);
-            $out = $this->Interface->process([
-                'SITE' => $page->Domain,
-                'Page' => $page,
-                'page' => $page,
-                'Block' => $this,
-                'block' => $this,
-                'Interface' => $this->Interface,
-                'Widget' => $this->Widget,
-                'config' => $config,
-            ]);
+            $out = null;
+            if (($interfaceClass = $this->interface_classname) &&
+                (
+                    ($interfaceClass == static::ALLOWED_INTERFACE_CLASSNAME) ||
+                    is_subclass_of($interfaceClass, static::ALLOWED_INTERFACE_CLASSNAME)
+                )
+            ) {
+                $interface = new $interfaceClass($this, $page, $_GET, $_POST, $_COOKIE, $_SESSION, $_SERVER, $_FILES);
+                $out = $interface->process();
+            } elseif ($this->Interface->id) {
+                $out = $this->Interface->process([
+                    'SITE' => $page->Domain,
+                    'Page' => $page,
+                    'page' => $page,
+                    'Block' => $this,
+                    'block' => $this,
+                    'Interface' => $this->Interface,
+                    'Widget' => $this->Widget,
+                    'config' => $config,
+                ]);
+            }
             if ($diag = Controller_Frontend::i()->diag) {
                 $diagId = $this->id;
                 if (($this instanceof Block_Material) &&
@@ -568,7 +584,26 @@ abstract class Block extends SOME
     protected function processCache(array $in = [], $page = null)
     {
         $out = $in;
-        if ($this->CacheInterface->id) {
+        $result = null;
+        if (($cacheInterfaceClass = $this->cache_interface_classname) &&
+            (
+                ($cacheInterfaceClass == CacheInterface::class) ||
+                is_subclass_of($cacheInterfaceClass, CacheInterface::class)
+            )
+        ) {
+            $interface = new $cacheInterfaceClass(
+                $this,
+                $page,
+                $_GET,
+                $_POST,
+                $_COOKIE,
+                $_SESSION,
+                $_SERVER,
+                $_FILES,
+                $out
+            );
+            $result = $interface->process();
+        } elseif ($this->CacheInterface->id) {
             $result = $this->CacheInterface->process(array_merge($in, [
                 'IN' => $in,
                 'OUT' => $in,
@@ -578,9 +613,9 @@ abstract class Block extends SOME
                 'Block' => $this,
                 'block' => $this,
             ]));
-            if (is_array($result)) {
-                $out = array_merge($out, $result);
-            }
+        }
+        if (is_array($result)) {
+            $out = array_merge($out, $result);
         }
         return $out;
     }

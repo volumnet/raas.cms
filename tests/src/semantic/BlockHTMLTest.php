@@ -13,13 +13,18 @@ use SOME\BaseTest;
 class BlockHTMLTest extends BaseTest
 {
     public static $tables = [
+        'attachments',
         'cms_access',
         'cms_access_blocks_cache',
         'cms_blocks',
         'cms_blocks_html',
         'cms_blocks_pages_assoc',
+        'cms_data',
         'cms_fields',
         'cms_forms',
+        'cms_material_types',
+        'cms_materials',
+        'cms_materials_pages_assoc',
         'cms_pages',
         'cms_snippets',
         'cms_users',
@@ -120,6 +125,30 @@ class BlockHTMLTest extends BaseTest
         $this->assertEquals('Какой-то о', $result);
 
         Snippet::delete($snippet);
+        Block_HTML::delete($block);
+    }
+
+
+    /**
+     * Тест метода process() - случай с установленным виджетом
+     */
+    public function testProcessWithInterfaceClass()
+    {
+        $block = new Block_HTML([
+            'description' => 'Какой-то очень длинный текст текстового блока для проверки формирования его названия',
+            'location' => 'content',
+            'interface_classname' => SitemapInterface::class,
+            'cats' => [2]
+        ]);
+        $block->commit();
+        $page = new Page(2);
+
+        ob_start();
+        $block->process($page);
+        $result = ob_get_clean();
+
+        $this->assertStringNotContainsString('Какой-то о', $result);
+
         Block_HTML::delete($block);
     }
 

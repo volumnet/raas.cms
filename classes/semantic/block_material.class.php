@@ -18,6 +18,8 @@ use RAAS\User as RAASUser;
  */
 class Block_Material extends Block
 {
+    const ALLOWED_INTERFACE_CLASSNAME = MaterialInterface::class;
+
     protected static $tablename2 = 'cms_blocks_material';
 
     protected static $references = [
@@ -64,29 +66,31 @@ class Block_Material extends Block
 
     public function __construct($importData = null)
     {
-        parent::__construct($importData);
-        $sqlQuery = "SELECT var, relation, field
-                       FROM " . self::$dbprefix . "cms_blocks_material_filter
-                      WHERE id = " . (int)$this->id
-                  . " ORDER BY priority";
-        $this->filter = self::$SQL->get($sqlQuery);
-        $sqlQuery = "SELECT var, field, relation
-                       FROM " . self::$dbprefix . "cms_blocks_material_sort
-                      WHERE id = " . (int)$this->id
-                  . " ORDER BY priority";
-        $this->sort = self::$SQL->get($sqlQuery);
+        parent::__construct($importData); // Только в случае, когда создаем по ID#
+        if (!is_array($importData)) {
+            $sqlQuery = "SELECT var, relation, field
+                           FROM " . self::$dbprefix . "cms_blocks_material_filter
+                          WHERE id = " . (int)$this->id
+                      . " ORDER BY priority";
+            $this->filter = self::$SQL->get($sqlQuery);
+            $sqlQuery = "SELECT var, field, relation
+                           FROM " . self::$dbprefix . "cms_blocks_material_sort
+                          WHERE id = " . (int)$this->id
+                      . " ORDER BY priority";
+            $this->sort = self::$SQL->get($sqlQuery);
+        }
     }
 
 
     public function commit()
     {
         $oldMaterialTypeId = null;
-        if ($this->id &&
-            ($this->updates['material_type'] ?? false) &&
-            ($this->properties['material_type'] ?? false) &&
-            ($this->updates['material_type'] != $this->properties['material_type'])
-        ) {
-            $oldMaterialTypeId = $this->properties['material_type'];
+        if ($this->id) {
+            $sqlQuery = "SELECT material_type FROM " . static::$dbprefix . static::$tablename2 . " WHERE id = ?";
+            $currentMaterialTypeId = (int)static::$SQL->getvalue([$sqlQuery, $this->id]);
+            if ($currentMaterialTypeId != $this->material_type) {
+                $oldMaterialTypeId = $currentMaterialTypeId;
+            }
         }
         if (!$this->name && $this->Material_Type->id) {
             $this->name = $this->Material_Type->name;
@@ -110,10 +114,7 @@ class Block_Material extends Block
             }
         }
         if ($arr) {
-            self::$SQL->add(
-                self::$dbprefix . "cms_blocks_material_filter",
-                $arr
-            );
+            self::$SQL->add(self::$dbprefix . "cms_blocks_material_filter", $arr);
         }
 
         $sqlQuery = "DELETE FROM " . self::$dbprefix . "cms_blocks_material_sort

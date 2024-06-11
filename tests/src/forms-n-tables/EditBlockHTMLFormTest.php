@@ -43,8 +43,8 @@ class EditBlockHTMLFormTest extends BaseTest
         $descriptionField = $form->children['commonTab']->children['description'];
         $wysiwygField = $form->children['commonTab']->children['wysiwyg'];
 
-        $this->assertInstanceOf(RAASField::class, $interfaceField);
-        $this->assertInstanceOf(RAASField::class, $widgetField);
+        $this->assertInstanceOf(InterfaceField::class, $interfaceField);
+        $this->assertInstanceOf(WidgetField::class, $widgetField);
         $this->assertEquals('htmlcodearea', $descriptionField->type);
         $this->assertEquals('text/html', $descriptionField->{'data-mime'});
         $this->assertEquals('checkbox', $wysiwygField->type);

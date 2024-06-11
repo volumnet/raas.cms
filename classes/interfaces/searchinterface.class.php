@@ -1,6 +1,6 @@
 <?php
 /**
- * Файл класса интерфейса поиска
+ * Стандартный интерфейс поиска
  */
 declare(strict_types=1);
 
@@ -11,9 +11,9 @@ use SOME\SOME;
 use RAAS\Controller_Frontend as RAASControllerFrontend;
 
 /**
- * Класс интерфейса поиска
+ * Стандартный интерфейс поиска
  */
-class SearchInterface extends AbstractInterface
+class SearchInterface extends BlockInterface
 {
     /**
      * Вес совпадения фразы в названии страницы
@@ -758,9 +758,9 @@ class SearchInterface extends AbstractInterface
             }, $searchArray);
             $sqlQuery = "SELECT tD.*
                            FROM " . Material::_dbprefix() . "cms_data AS tD
-                           JOIN " . Material::_tablename() . " AS tM ON tM.id = tD.pid ";
-            $sqlQuery .= " WHERE tM.vis
-                             AND tD.fid IN (" . implode(", ", $materialFieldsIds) . ") ";
+                           JOIN " . Material::_tablename() . " AS tM ON tM.id = tD.pid
+                          WHERE tM.vis
+                            AND tD.fid IN (" . implode(", ", $materialFieldsIds) . ") ";
             if ($searchMaterialTypesIds) {
                 $sqlQuery .= " AND tM.pid IN (" . implode(", ", array_map('intval', (array)$searchMaterialTypesIds)) . ") ";
             }

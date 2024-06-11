@@ -16,6 +16,8 @@ use RAAS\User as RAASUser;
  */
 class Block_Form extends Block
 {
+    const ALLOWED_INTERFACE_CLASSNAME = FormInterface::class;
+
     protected static $tablename2 = 'cms_blocks_form';
 
     protected static $references = [

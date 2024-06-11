@@ -21,6 +21,8 @@ use RAAS\User as RAASUser;
  */
 class Block_Search extends Block
 {
+    const ALLOWED_INTERFACE_CLASSNAME = SearchInterface::class;
+
     protected static $tablename2 = 'cms_blocks_search';
 
     protected static $links = [
@@ -68,17 +70,11 @@ class Block_Search extends Block
         if (($this->meta['mtypes'] ?? false) && is_array($this->meta['mtypes'])) {
             for ($i = 0; $i < count($this->meta['mtypes']); $i++) {
                 $val = $this->meta['mtypes'][$i];
-                $arr[] = [
-                    'id' => (int)$this->id,
-                    'material_type' => (int)$val
-                ];
+                $arr[] = ['id' => (int)$this->id, 'material_type' => (int)$val];
             }
         }
         if ($arr) {
-            self::$SQL->add(
-                self::$dbprefix . "cms_blocks_search_material_types_assoc",
-                $arr
-            );
+            self::$SQL->add(self::$dbprefix . "cms_blocks_search_material_types_assoc", $arr);
         }
 
         $sqlQuery = "DELETE FROM " . self::$dbprefix . "cms_blocks_search_languages_assoc
@@ -88,18 +84,12 @@ class Block_Search extends Block
         if (($this->meta['languages'] ?? false) && is_array($this->meta['languages'])) {
             for ($i = 0; $i < count($this->meta['languages']); $i++) {
                 if ($val = $this->meta['languages'][$i]) {
-                    $arr[] = [
-                        'id' => (int)$this->id,
-                        'language' => (string)$val
-                    ];
+                    $arr[] = ['id' => (int)$this->id, 'language' => (string)$val];
                 }
             }
         }
         if ($arr) {
-            self::$SQL->add(
-                self::$dbprefix . "cms_blocks_search_languages_assoc",
-                $arr
-            );
+            self::$SQL->add(self::$dbprefix . "cms_blocks_search_languages_assoc", $arr);
         }
 
         $sqlQuery = "DELETE FROM " . self::$dbprefix . "cms_blocks_search_pages_assoc
@@ -111,18 +101,12 @@ class Block_Search extends Block
         ) {
             for ($i = 0; $i < count($this->meta['search_pages_ids']); $i++) {
                 if ($val = $this->meta['search_pages_ids'][$i]) {
-                    $arr[] = [
-                        'id' => (int)$this->id,
-                        'page_id' => (int)$val
-                    ];
+                    $arr[] = ['id' => (int)$this->id, 'page_id' => (int)$val];
                 }
             }
         }
         if ($arr) {
-            self::$SQL->add(
-                self::$dbprefix . "cms_blocks_search_pages_assoc",
-                $arr
-            );
+            self::$SQL->add(self::$dbprefix . "cms_blocks_search_pages_assoc", $arr);
         }
     }
 
@@ -182,10 +166,8 @@ class Block_Search extends Block
      * @param Material_Type $materialType Сохраненный тип материала
      * @param mixed $data Дополнительные данные
      */
-    public static function materialTypeCommitEventListener(
-        Material_Type $materialType,
-        $data
-    ) {
+    public static function materialTypeCommitEventListener(Material_Type $materialType, $data)
+    {
         if ($data['new']) {
             $sqlQuery = "SELECT id
                            FROM cms_blocks_search_material_types_assoc

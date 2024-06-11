@@ -703,7 +703,7 @@ class CompanyTemplate extends MaterialTypeTemplate
                     'form' => (int)$feedbackForm->id
                 ]),
                 'content',
-                '__raas_form_interface',
+                FormInterface::class,
                 'feedback',
                 $contacts
             );

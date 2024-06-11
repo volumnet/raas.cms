@@ -20,17 +20,20 @@ class BlockTest extends BaseTest
         'cms_access',
         'cms_access_blocks_cache',
         'cms_access_materials_cache',
+        'cms_access_pages_cache',
         'cms_blocks',
         'cms_blocks_html',
         'cms_blocks_material',
         'cms_blocks_material_filter',
         'cms_blocks_material_sort',
+        'cms_blocks_menu',
         'cms_blocks_pages_assoc',
         'cms_data',
         'cms_fields',
         'cms_forms',
         'cms_material_types',
         'cms_materials',
+        'cms_menus',
         'cms_pages',
         'cms_snippets',
         'cms_templates',
@@ -574,6 +577,53 @@ class BlockTest extends BaseTest
 
 
     /**
+     * Тест метода process() - случай с указанием класса интерфейса
+     */
+    public function testProcessWithInterfaceClassname()
+    {
+        $block = new Block_Material([
+            'material_type' => 1, // Преимущества
+            'interface_classname' => MaterialInterface::class,
+            'widget_id' => 16, // Преимущества на главной
+            'cats' => [1], // Главная
+            'sort_field_default' => 'post_date',
+            'sort_order_default' => 'asc',
+        ]);
+        $page = new Page(1); // Главная
+
+        ob_start();
+        $block->process($page);
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('Клиент-ориентированный подход', $html);
+        $this->assertStringContainsString('features-main', $html);
+    }
+
+
+    /**
+     * Тест метода process() - случай с указанием класса кэширующего интерфейса
+     */
+    public function testProcessWithCacheInterfaceClassname()
+    {
+        $block = new Block_Menu(14); // Верхнее меню;
+        $block->cache_interface_id = 0;
+        $block->cache_interface_classname = CacheInterface::class;
+        $page = new Page(1); // Главная
+        $filename = Package::i()->cacheDir . '/raas_cache_block' . $block->id . '.php';
+        if (is_file($filename)) {
+            unlink($filename);
+        }
+
+        ob_start();
+        $block->process($page);
+        $html = ob_get_clean();
+
+        $this->assertFileExists($filename);
+        unlink($filename);
+    }
+
+
+    /**
      * Тест метода process() - случай с закрытым доступом
      */
     public function testProcessWithDeniedAccess()
@@ -626,7 +676,7 @@ class BlockTest extends BaseTest
         $block = new Block_PHP([
             'cache_type' => Block::CACHE_HTML,
             'interface_id' => $interface->id,
-            'cache_interface_id' => 6, // Стандартный интерфейс кэширования
+            'cache_interface_classname' => CacheInterface::class,
         ]);
         $block->commit();
         $page = new Page(14); // AJAX
@@ -665,35 +715,29 @@ class BlockTest extends BaseTest
         $block->process($page);
         ob_get_clean();
 
-        $this->assertEquals('snippets', $callParams[0][0]);
-        $this->assertEquals(1, $callParams[0][1]); // Стандартный интерфейс новостей
+        $this->assertEquals('blocks', $callParams[0][0]);
+        $this->assertEquals(22, $callParams[0][1]); // ID# блока
         $this->assertIsNumeric($callParams[0][2]);
-        $this->assertEquals('counter', $callParams[0][3]);
-        $this->assertEquals('time', $callParams[0][4]);
+        $this->assertEquals(null, $callParams[0][3]);
+        $this->assertEquals('interfaceTime', $callParams[0][4]);
 
-        $this->assertEquals('blocks', $callParams[1][0]);
-        $this->assertEquals(22, $callParams[1][1]); // ID# блока
+        $this->assertEquals('snippets', $callParams[1][0]);
+        $this->assertEquals(22, $callParams[1][1]); // Сниппет "Новости"
         $this->assertIsNumeric($callParams[1][2]);
-        $this->assertEquals(null, $callParams[1][3]);
-        $this->assertEquals('interfaceTime', $callParams[1][4]);
+        $this->assertEquals('counter', $callParams[1][3]);
+        $this->assertEquals('time', $callParams[1][4]);
 
-        $this->assertEquals('snippets', $callParams[2][0]);
-        $this->assertEquals(22, $callParams[2][1]); // Сниппет "Новости"
+        $this->assertEquals('blocks', $callParams[2][0]);
+        $this->assertEquals(22, $callParams[2][1]); // ID# блока
         $this->assertIsNumeric($callParams[2][2]);
-        $this->assertEquals('counter', $callParams[2][3]);
-        $this->assertEquals('time', $callParams[2][4]);
+        $this->assertEquals(null, $callParams[2][3]);
+        $this->assertEquals('widgetTime', $callParams[2][4]);
 
         $this->assertEquals('blocks', $callParams[3][0]);
         $this->assertEquals(22, $callParams[3][1]); // ID# блока
         $this->assertIsNumeric($callParams[3][2]);
-        $this->assertEquals(null, $callParams[3][3]);
-        $this->assertEquals('widgetTime', $callParams[3][4]);
-
-        $this->assertEquals('blocks', $callParams[4][0]);
-        $this->assertEquals(22, $callParams[4][1]); // ID# блока
-        $this->assertIsNumeric($callParams[4][2]);
-        $this->assertEquals('counter', $callParams[4][3]);
-        $this->assertEquals('time', $callParams[4][4]);
+        $this->assertEquals('counter', $callParams[3][3]);
+        $this->assertEquals('time', $callParams[3][4]);
     }
 
 
@@ -715,35 +759,29 @@ class BlockTest extends BaseTest
         $block->process($page);
         ob_get_clean();
 
-        $this->assertEquals('snippets', $callParams[0][0]);
-        $this->assertEquals('1@m', $callParams[0][1]); // Стандартный интерфейс новостей
+        $this->assertEquals('blocks', $callParams[0][0]);
+        $this->assertEquals('22@m', $callParams[0][1]); // ID# блока
         $this->assertIsNumeric($callParams[0][2]);
-        $this->assertEquals('counter', $callParams[0][3]);
-        $this->assertEquals('time', $callParams[0][4]);
+        $this->assertEquals(null, $callParams[0][3]);
+        $this->assertEquals('interfaceTime', $callParams[0][4]);
 
-        $this->assertEquals('blocks', $callParams[1][0]);
-        $this->assertEquals('22@m', $callParams[1][1]); // ID# блока
+        $this->assertEquals('snippets', $callParams[1][0]);
+        $this->assertEquals('22@m', $callParams[1][1]); // Сниппет "Новости"
         $this->assertIsNumeric($callParams[1][2]);
-        $this->assertEquals(null, $callParams[1][3]);
-        $this->assertEquals('interfaceTime', $callParams[1][4]);
+        $this->assertEquals('counter', $callParams[1][3]);
+        $this->assertEquals('time', $callParams[1][4]);
 
-        $this->assertEquals('snippets', $callParams[2][0]);
-        $this->assertEquals('22@m', $callParams[2][1]); // Сниппет "Новости"
+        $this->assertEquals('blocks', $callParams[2][0]);
+        $this->assertEquals('22@m', $callParams[2][1]); // ID# блока
         $this->assertIsNumeric($callParams[2][2]);
-        $this->assertEquals('counter', $callParams[2][3]);
-        $this->assertEquals('time', $callParams[2][4]);
+        $this->assertEquals(null, $callParams[2][3]);
+        $this->assertEquals('widgetTime', $callParams[2][4]);
 
         $this->assertEquals('blocks', $callParams[3][0]);
         $this->assertEquals('22@m', $callParams[3][1]); // ID# блока
         $this->assertIsNumeric($callParams[3][2]);
-        $this->assertEquals(null, $callParams[3][3]);
-        $this->assertEquals('widgetTime', $callParams[3][4]);
-
-        $this->assertEquals('blocks', $callParams[4][0]);
-        $this->assertEquals('22@m', $callParams[4][1]); // ID# блока
-        $this->assertIsNumeric($callParams[4][2]);
-        $this->assertEquals('counter', $callParams[4][3]);
-        $this->assertEquals('time', $callParams[4][4]);
+        $this->assertEquals('counter', $callParams[3][3]);
+        $this->assertEquals('time', $callParams[3][4]);
     }
 
 

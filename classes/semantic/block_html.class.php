@@ -37,7 +37,7 @@ class Block_HTML extends Block
         if (!$this->currentUserHasAccess()) {
             return null;
         }
-        if ($this->Interface->id || $this->Widget->id) {
+        if ($this->interface_classname || $this->Interface->id || $this->Widget->id) {
             return parent::process($page, $nocache);
         } else {
             echo $this->description;

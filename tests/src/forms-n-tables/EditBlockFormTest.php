@@ -19,6 +19,7 @@ class EditBlockFormTest extends BaseTest
     public static $tables = [
         'cms_access',
         'cms_access_blocks_cache',
+        'cms_access_pages_cache',
         'cms_blocks',
         'cms_blocks_material',
         'cms_blocks_material_filter',
@@ -27,6 +28,7 @@ class EditBlockFormTest extends BaseTest
         'cms_fields',
         'cms_groups',
         'cms_material_types',
+        'cms_menus',
         'cms_pages',
         'cms_snippet_folders',
         'cms_snippets',
@@ -102,27 +104,19 @@ class EditBlockFormTest extends BaseTest
         $oldServer = $_SERVER;
         $_GET = ['loc' => 'content'];
         $_SERVER['REQUEST_URI'] = '/admin/?p=cms&action=edit_block&loc=content&type=Block_PHP';
-        $form = new EditBlockPHPForm();
+        $form = new EditBlockMenuForm();
         $interfaceField = $form->children['serviceTab']->children['interface_id'];
+        $cacheInterfaceField = $form->children['serviceTab']->children['cache_interface_id'];
         $widgetField = $form->children['commonTab']->children['widget_id'];
 
         $this->assertNull($form->Item);
-        $this->assertInstanceOf(RAASField::class, $interfaceField);
-        $this->assertCount(2, $interfaceField->children);
-        $this->assertEquals('', $interfaceField->children[0]->value);
-        $this->assertEquals('Интерфейсы', $interfaceField->children[0]->caption);
-        $this->assertEquals('disabled', $interfaceField->children[0]->disabled);
-        $this->assertEquals('8', $interfaceField->children[1]->value);
-        $this->assertEquals('dummy', $interfaceField->children[1]->caption);
-        $this->assertNull($interfaceField->children[1]->disabled);
-        $this->assertInstanceOf(RAASField::class, $widgetField);
-        $this->assertCount(2, $widgetField->children);
-        $this->assertEquals('', $widgetField->children[0]->value);
-        $this->assertEquals('Представления', $widgetField->children[0]->caption);
-        $this->assertEquals('disabled', $widgetField->children[0]->disabled);
-        $this->assertEquals('8', $widgetField->children[1]->value);
-        $this->assertEquals('dummy', $widgetField->children[1]->caption);
-        $this->assertNull($widgetField->children[1]->disabled);
+        $this->assertInstanceOf(InterfaceField::class, $interfaceField);
+        $this->assertEquals(MenuInterface::class, $interfaceField->meta['rootInterfaceClass']);
+        $this->assertEquals(MenuInterface::class, $interfaceField->default);
+        $this->assertInstanceOf(InterfaceField::class, $cacheInterfaceField);
+        $this->assertEquals(CacheInterface::class, $cacheInterfaceField->meta['rootInterfaceClass']);
+        $this->assertEquals(CacheInterface::class, $cacheInterfaceField->default);
+        $this->assertInstanceOf(WidgetField::class, $widgetField);
         $this->assertInstanceOf(FormTab::class, $form->children['commonTab']);
         $this->assertInstanceOf(FormTab::class, $form->children['serviceTab']);
         $this->assertInstanceOf(FormTab::class, $form->children['pagesTab']);

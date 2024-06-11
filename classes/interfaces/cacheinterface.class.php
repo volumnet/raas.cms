@@ -1,6 +1,6 @@
 <?php
 /**
- * Файл класса интерфейса кэширования
+ * Стандартный интерфейс кэширования
  */
 declare(strict_types=1);
 
@@ -9,7 +9,7 @@ namespace RAAS\CMS;
 use RAAS\Application;
 
 /**
- * Класс интерфейса кэширования
+ * Стандартный интерфейс кэширования
  */
 class CacheInterface extends AbstractInterface
 {

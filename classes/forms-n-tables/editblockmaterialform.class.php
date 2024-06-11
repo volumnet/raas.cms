@@ -2,6 +2,8 @@
 /**
  * Форма редактирования блока материалов
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Field as RAASField;
@@ -13,21 +15,14 @@ use RAAS\FormTab;
  */
 class EditBlockMaterialForm extends EditBlockForm
 {
-    protected function getInterfaceField(): RAASField
-    {
-        $field = parent::getInterfaceField();
-        $snippet = Snippet::importByURN('__raas_material_interface');
-        $field->default = $snippet->id;
-        return $field;
-    }
-
+    const DEFAULT_BLOCK_CLASSNAME = Block_Material::class;
 
     protected function getCommonTab(): FormTab
     {
         $tab = parent::getCommonTab();
         $row = new Material_Type();
         $this->meta['CONTENT']['material_types'] = ['Set' => $row->children];
-        $tab->children[] = new RAASField([
+        $tab->children['material_type'] = new RAASField([
             'type' => 'select',
             'name' => 'material_type',
             'caption' => $this->view->_('MATERIAL_TYPE'),
@@ -35,13 +30,13 @@ class EditBlockMaterialForm extends EditBlockForm
             'required' => true,
             'placeholder' => '--',
         ]);
-        $tab->children[] = new RAASField([
+        $tab->children['nat'] = new RAASField([
             'type' => 'checkbox',
             'name' => 'nat',
             'caption' => $this->view->_('TRANSLATE_ADDRESS'),
             'data-hint' => $this->view->_('BLOCK_TRANSLATE_ADDRESS_DESCRIPTION')
         ]);
-        $tab->children[] = $this->getWidgetField();
+        $tab->children['widget_id'] = $this->getWidgetField();
         return $tab;
     }
 
@@ -155,10 +150,7 @@ class EditBlockMaterialForm extends EditBlockForm
                 $temp = [];
                 if (isset($_POST['sort_var'])) {
                     foreach ((array)$_POST['sort_var'] as $key => $val) {
-                        if (isset(
-                            $_POST['sort_relation'][$key],
-                            $_POST['sort_field'][$key]
-                        )) {
+                        if (isset($_POST['sort_relation'][$key], $_POST['sort_field'][$key])) {
                             $temp[] = [
                                 'var' => (string)$_POST['sort_var'][$key],
                                 'relation' => (string)$_POST['sort_relation'][$key],
@@ -201,7 +193,7 @@ class EditBlockMaterialForm extends EditBlockForm
             'name' => 'legacy',
             'caption' => $this->view->_('REDIRECT_LEGACY_ADDRESSES')
         ]);
-        $tab->children[] = $this->getInterfaceField();
+        $tab->children['interface_id'] = $this->getInterfaceField();
         return $tab;
     }
 }

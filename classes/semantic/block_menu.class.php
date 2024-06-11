@@ -16,6 +16,8 @@ use RAAS\User as RAASUser;
  */
 class Block_Menu extends Block
 {
+    const ALLOWED_INTERFACE_CLASSNAME = MenuInterface::class;
+
     protected static $tablename2 = 'cms_blocks_menu';
 
     protected static $references = [

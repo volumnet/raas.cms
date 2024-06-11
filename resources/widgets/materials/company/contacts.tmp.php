@@ -125,7 +125,7 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
           <?php echo View_Web::i()->_('TRANSPORT')?>:
         </span>
         <span class="contacts__item-value">
-          <?php echo htmlspecialchars($transport)?>
+          <?php echo nl2br(htmlspecialchars($transport))?>
         </span>
       </div>
   <?php } ?>

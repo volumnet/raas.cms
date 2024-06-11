@@ -45,6 +45,42 @@ class BlockPHPTest extends BaseTest
 
 
     /**
+     * Тест метода commit() - случай с установленным классом интерфейса, без виджета
+     */
+    public function testCommitWithInterfaceClassname()
+    {
+        $block = new Block_PHP([
+            'interface_classname' => SitemapInterface::class,
+            'location' => 'content',
+            'cats' => [1],
+        ]);
+        $block->commit();
+
+        $this->assertStringContainsString('sitemap.xml', $block->name);
+
+        Block_PHP::delete($block);
+    }
+
+
+    /**
+     * Тест метода commit() - случай с некорректным установленным классом интерфейса, без виджета
+     */
+    public function testCommitWithInvalidInterfaceClassname()
+    {
+        $block = new Block_PHP([
+            'interface_classname' => 'AAA\BBB\SomeUnexistingClass',
+            'location' => 'content',
+            'cats' => [1],
+        ]);
+        $block->commit();
+
+        $this->assertEquals('AAA\BBB\SomeUnexistingClass', $block->name);
+
+        Block_PHP::delete($block);
+    }
+
+
+    /**
      * Тест метода commit() - случай с установленным интерфейсом, без виджета
      */
     public function testCommitWithInterface()

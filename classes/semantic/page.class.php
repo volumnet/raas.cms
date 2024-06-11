@@ -15,7 +15,7 @@ use RAAS\Application;
 use RAAS\User as RAASUser;
 
 /**
- * Класс страницы
+ * Страница
  * @property-read array<Block> $blocksOrdered Упорядоченные по порядку
  *                                            отображения блоки страницы
  * @property-read array<Page_Field> $fields Поля страницы

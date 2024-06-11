@@ -1,6 +1,6 @@
 <?php
 /**
- * Файл класса интерфейса sitemap.xml
+ * Стандартный интерфейс sitemap.xml
  */
 declare(strict_types=1);
 
@@ -11,7 +11,7 @@ use RAAS\Timer;
 use SOME\EventProcessor;
 
 /**
- * Класс интерфейса sitemap.xml
+ * Стандартный интерфейс sitemap.xml
  */
 class SitemapInterface extends AbstractInterface
 {
@@ -53,22 +53,20 @@ class SitemapInterface extends AbstractInterface
         Timer::add('sitemap.xml');
         $pageCache = PageRecursiveCache::i();
         $this->prepareMetaData();
-        $tmpPageParentsIds = $pageCache->getParentsIds($this->page->id);
-        $domainId = array_shift($tmpPageParentsIds);
+        $tmpPageSelfAndParentsIds = $pageCache->getSelfAndParentsIds($this->page->id);
+        $domainId = array_shift($tmpPageSelfAndParentsIds);
         $domainPageData = $pageCache->cache[$domainId];
         if ($this->server['HTTP_HOST']) {
-            $domainURL = 'http' . ($this->server['HTTPS'] ? 's' : '') . '://'
-                . $this->server['HTTP_HOST'];
+            $domainURL = 'http' . ($this->server['HTTPS'] ? 's' : '') . '://' . $this->server['HTTP_HOST'];
         } else {
             $domainPage = new Page($domainPageData);
             $domainURL = $domainPage->domain;
         }
         $domainPageData['url'] = $domainURL . '/';
+        $domainPageData['entry_type'] = 'page';
 
-        $pages = array_merge(
-            [trim((string)$domainId) => $domainPageData],
-            $this->getPages([$domainId])
-        );
+        $pages = array_merge([trim((string)$domainId) => $domainPageData], $this->getPages([$domainId]));
+
         $content = $this->showMenu($pages) . $this->showMaterials($pages);
         $text = $this->getUrlSet($content)
               . '<!-- ' . Timer::get('sitemap.xml')->time . ' -->';
@@ -95,14 +93,10 @@ class SitemapInterface extends AbstractInterface
      * Получает список данных страниц, пригодных для отображения
      * @param array<int> $parentsIds ID# родительских страниц
      * @param array<int> $ignoredIds ID# игнорируемых страниц
-     * @param array $pagesData Данные уже полученных страниц
      * @return array<string[] ID# страницы => array<string[] => mixed>>
      */
-    public function getPages(
-        array $parentsIds = [],
-        array $ignoredIds = [],
-        array &$pagesData = []
-    ) {
+    public function getPages(array $parentsIds = [], array $ignoredIds = [])
+    {
         $pageCache = PageRecursiveCache::i();
         if ($parentsIds) {
             $pagesIds = $pageCache->getAllChildrenIds($parentsIds);
@@ -122,8 +116,8 @@ class SitemapInterface extends AbstractInterface
         $result = [];
         $domainsURLs = [];
         foreach ($sqlResult as $sqlRow) {
-            $tmpPageParentsIds = $pageCache->getParentsIds($sqlRow['id']);
-            $domainId = array_shift($tmpPageParentsIds);
+            $tmpPageSelfAndParentsIds = $pageCache->getSelfAndParentsIds($sqlRow['id']);
+            $domainId = array_shift($tmpPageSelfAndParentsIds);
             if (!isset($domainsURLs[$domainId])) {
                 if ($this->server['HTTP_HOST']) {
                     $domainURL = 'http' . ($this->server['HTTPS'] ? 's' : '') . '://'
@@ -307,8 +301,8 @@ class SitemapInterface extends AbstractInterface
         $c = $sqlResult->rowCount();
         $domainsURLs = [];
         foreach ($sqlResult as $sqlRow) {
-            $tmpPageParentsIds = PageRecursiveCache::i()->getParentsIds($sqlRow['cache_url_parent_id']);
-            $domainId = array_shift($tmpPageParentsIds);
+            $tmpPageSelfAndParentsIds = PageRecursiveCache::i()->getSelfAndParentsIds($sqlRow['cache_url_parent_id']);
+            $domainId = array_shift($tmpPageSelfAndParentsIds);
             if (!isset($domainsURLs[$domainId])) {
                 if ($this->server['HTTP_HOST']) {
                     $domainURL = 'http' . ($this->server['HTTPS'] ? 's' : '') . '://'
@@ -382,8 +376,8 @@ class SitemapInterface extends AbstractInterface
     public function getTextBlocksImagesData()
     {
         $pageCache = PageRecursiveCache::i();
-        $tmpPageParentsIds = $pageCache->getParentsIds($this->page->id);
-        $domainId = array_shift($tmpPageParentsIds);
+        $tmpPageSelfAndParentsIds = $pageCache->getSelfAndParentsIds($this->page->id);
+        $domainId = array_shift($tmpPageSelfAndParentsIds);
         $pagesIds = $pageCache->getSelfAndChildrenIds($domainId);
         $sqlQuery = "SELECT tB.name,
                             tBH.description,
@@ -570,8 +564,8 @@ class SitemapInterface extends AbstractInterface
     public function getMaterialsAttachmentsData(array $fieldsIds = [])
     {
         $pageCache = PageRecursiveCache::i();
-        $tmpPageParentsIds = $pageCache->getParentsIds($this->page->id);
-        $domainId = array_shift($tmpPageParentsIds);
+        $tmpPageSelfAndParentsIds = $pageCache->getSelfAndParentsIds($this->page->id);
+        $domainId = array_shift($tmpPageSelfAndParentsIds);
         $pagesIds = $pageCache->getSelfAndChildrenIds($domainId);
 
         $materialsAttachmentsData = [];

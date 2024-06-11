@@ -42,11 +42,11 @@ class EditBlockFormFormTest extends BaseTest
         $interfaceField = $form->children['serviceTab']->children['interface_id'];
         $widgetField = $form->children['commonTab']->children['widget_id'];
         $formField = $form->children['commonTab']->children['form'];
-        $snippet = Snippet::importByURN('__raas_form_interface');
 
-        $this->assertInstanceOf(RAASField::class, $interfaceField);
-        $this->assertEquals($snippet->id, $interfaceField->default);
-        $this->assertInstanceOf(RAASField::class, $widgetField);
+        $this->assertInstanceOf(InterfaceField::class, $interfaceField);
+        $this->assertEquals(FormInterface::class, $interfaceField->default);
+        $this->assertEquals(FormInterface::class, $interfaceField->meta['rootInterfaceClass']);
+        $this->assertInstanceOf(WidgetField::class, $widgetField);
         $this->assertInstanceOf(RAASField::class, $formField);
         $this->assertEquals('select', $formField->type);
     }

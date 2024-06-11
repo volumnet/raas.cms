@@ -172,33 +172,9 @@ class Webmaster
 
         $interfaces = [];
         $interfacesData = [
-            '__raas_material_interface' => [
-                'name' => 'MATERIAL_STANDARD_INTERFACE',
-                'filename' => 'material_interface',
-            ],
-            '__raas_form_interface' => [
-                'name' => 'FORM_STANDARD_INTERFACE',
-                'filename' => 'form_interface',
-            ],
-            '__raas_menu_interface' => [
-                'name' => 'MENU_STANDARD_INTERFACE',
-                'filename' => 'menu_interface',
-            ],
-            '__raas_search_interface' => [
-                'name' => 'SEARCH_STANDARD_INTERFACE',
-                'filename' => 'search_interface',
-            ],
             '__raas_form_notify' => [
                 'name' => 'FORM_STANDARD_NOTIFICATION',
                 'filename' => 'form_notification',
-            ],
-            '__raas_cache_interface' => [
-                'name' => 'CACHE_STANDARD_INTERFACE',
-                'filename' => 'cache_interface',
-            ],
-            '__raas_watermark_interface' => [
-                'name' => 'WATERMARK_STANDARD_INTERFACE',
-                'filename' => 'watermark_interface',
             ],
         ];
         foreach ($interfacesData as $interfaceURN => $interfaceData) {
@@ -233,7 +209,6 @@ class Webmaster
             [2, ['menu_catalog', 3], ['menu_main', 3], ['cart', 3], ['menu_mobile', 3]],
             [1, ['banners', 12]],
             [4, ['left', 3], ['content', 6], ['right', 3]],
-            [1, ['', 3], ['share', 6]],
         ];
         for ($i = 2; $i <= 5; $i++) {
             $locations[] = [
@@ -340,7 +315,6 @@ class Webmaster
     {
         $widgets = [];
         $widgetsData = [
-            'share/share' => View_Web::i()->_('SHARE'),
             'triggers/triggers' => View_Web::i()->_('TRIGGERS'),
             'pagination/pagination' => View_Web::i()->_('PAGINATION'),
             'breadcrumbs/breadcrumbs' => View_Web::i()->_('BREADCRUMBS'),
@@ -464,8 +438,6 @@ class Webmaster
      */
     public function createMenus(array $menusData = [])
     {
-        $cacheInterfaceId = Snippet::importByURN('__raas_cache_interface')->id;
-        $menuInterface =  Snippet::importByURN('__raas_menu_interface');
         $menus = [];
         foreach ($menusData as $menuData) {
             // Создадим собственно меню
@@ -513,12 +485,12 @@ class Webmaster
                 ];
                 if ($menuData['fullMenu']) {
                     $blockData['cache_type'] = Block::CACHE_DATA;
-                    $blockData['cache_interface_id'] = (int)$cacheInterfaceId;
+                    $blockData['cache_interface_classname'] = CacheInterface::class;
                 }
                 $this->createBlock(
                     new Block_Menu($blockData),
                     $menuData['blockLocation'],
-                    $menuInterface,
+                    MenuInterface::class,
                     $menuWidget,
                     ($menuData['blockPage'] ?? null) ?: $this->Site,
                     (bool)$menuData['inheritBlock']
@@ -609,7 +581,7 @@ class Webmaster
                     'form' => $forms['feedback']->id ?: 0
                 ]),
                 'footer_counters',
-                '__raas_form_interface',
+                FormInterface::class,
                 'feedback_modal',
                 $this->site,
                 true
@@ -620,7 +592,7 @@ class Webmaster
                     'form' => $forms['order_call']->id ?: 0
                 ]),
                 'footer_counters',
-                '__raas_form_interface',
+                FormInterface::class,
                 'order_call_modal',
                 $this->site,
                 true
@@ -1057,15 +1029,6 @@ class Webmaster
             $ajax = $this->createPage($ajaxPageData, $this->Site);
         }
 
-        $this->createBlock(
-            new Block_PHP(),
-            'share',
-            null,
-            'share',
-            $this->Site,
-            true
-        );
-
         $this->createSearch();
     }
 
@@ -1201,7 +1164,7 @@ class Webmaster
             $searchBlock = $this->createBlock(
                 $searchBlock,
                 'content',
-                '__raas_search_interface',
+                SearchInterface::class,
                 'search',
                 $page
             );
@@ -1257,8 +1220,7 @@ class Webmaster
      * Создать блок
      * @param Block $block Подготовленный для сохранения блок
      * @param string $location Размещение блока
-     * @param Snippet|int|string $interface Интерфейс, ID# или URN интерфейса
-     *                                      блока
+     * @param Snippet|int|string $interface Интерфейс, ID# или URN интерфейса блока, либо имя класса
      * @param Snippet|int|string $widget Виджет, ID# или URN виджета блока
      * @param Page $startPage Исходная страница блока
      * @param boolean $inherit Наследовать ли блок
@@ -1295,18 +1257,23 @@ class Webmaster
         }, $cats);
         $catsIds = array_diff($catsIds, $excludeFromInheritance);
         $block->cats = $catsIds;
+        $block->interface_classname = '';
         $block->interface_id = 0;
         $block->widget_id = 0;
         if ($interface) {
-            if ($interface instanceof Snippet) {
-                $snippetInterface = $interface;
-            } elseif (is_numeric($interface)) {
-                $snippetInterface = new Snippet($interface);
+            if (is_string($interface) && class_exists($interface)) {
+                $block->interface_classname = $interface;
             } else {
-                $snippetInterface = Snippet::importByURN($interface);
-            }
-            if ($snippetInterface->id) {
-                $block->interface_id = (int)$snippetInterface->id;
+                if ($interface instanceof Snippet) {
+                    $snippetInterface = $interface;
+                } elseif (is_numeric($interface)) {
+                    $snippetInterface = new Snippet($interface);
+                } else {
+                    $snippetInterface = Snippet::importByURN($interface);
+                }
+                if ($snippetInterface->id) {
+                    $block->interface_id = (int)$snippetInterface->id;
+                }
             }
         }
         if ($widget) {

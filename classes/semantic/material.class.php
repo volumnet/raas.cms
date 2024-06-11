@@ -13,7 +13,7 @@ use RAAS\Application;
 use RAAS\User as RAASUser;
 
 /**
- * Класс материала
+ * Материал
  * @property-read array<Page_Field> $fields Поля страницы с указанным $Owner
  * @property-read array<Page> $affectedPages Связанные страницы
  * @property-read array<Material_Type> $relatedMaterialTypes Связанные типы

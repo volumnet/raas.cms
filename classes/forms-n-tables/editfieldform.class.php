@@ -33,21 +33,15 @@ class EditFieldForm extends RAASForm
     {
         $view = $this->view;
         $item = isset($params['Item']) ? $params['Item'] : null;
-        $parent = isset($params['meta']['Parent'])
-                ? $params['meta']['Parent']
-                : null;
+        $parent = isset($params['meta']['Parent']) ? $params['meta']['Parent'] : null;
         $parentUrl = $params['meta']['parentUrl'] ?? '';
 
         $defaultParams = [
-            'caption' => $item->id
-                      ?  $item->name
-                      :  $this->view->_('CREATING_FIELD'),
+            'caption' => ($item && $item->id) ? $item->name : $this->view->_('CREATING_FIELD'),
             'parentUrl' => $parentUrl,
             'export' => function ($form) use ($item, $parent) {
                 $form->exportDefault();
-                if (!$form->Item->id &&
-                    isset($parent) && $parent && $parent->id
-                ) {
+                if (!$form->Item->id && isset($parent) && $parent && $parent->id) {
                     $form->Item->pid = (int)$parent->id;
                 }
             },
@@ -71,9 +65,7 @@ class EditFieldForm extends RAASForm
         foreach (Field::$fieldTypes as $key) {
             $content['datatypes'][] = [
                 'value' => $key,
-                'caption' => $this->view->_(
-                    'DATATYPE_' . str_replace('-', '_', strtoupper($key))
-                )
+                'caption' => $this->view->_('DATATYPE_' . str_replace('-', '_', strtoupper($key)))
             ];
         }
         $content['datatypes'][] = [
@@ -84,40 +76,14 @@ class EditFieldForm extends RAASForm
             $content['sourcetypes'][] = [
                 'value' => $key,
                 'caption' => $this->view->_('SOURCETYPE_' . strtoupper($key)),
-                'data-hint' => $this->view->_(
-                    'SOURCETYPE_' . strtoupper($key) . '_HINT'
-                )
+                'data-hint' => $this->view->_('SOURCETYPE_' . strtoupper($key) . '_HINT')
             ];
         }
-        $wf = function (Snippet_Folder $x) use (&$wf) {
-            $temp = [];
-            foreach ($x->children as $row) {
-                if (strtolower($row->urn) != '__raas_views') {
-                    $o = new Option([
-                        'value' => '',
-                        'caption' => $row->name,
-                        'disabled' => 'disabled'
-                    ]);
-                    $o->__set('children', $wf($row));
-                    $temp[] = $o;
-                }
-            }
-            foreach ($x->snippets as $row) {
-                $temp[] = new Option([
-                    'value' => $row->id,
-                    'caption' => $row->urn . (($row->name && ($row->name != $row->urn)) ? (': ' . $row->name) : ''),
-                ]);
-            }
-            return $temp;
-        };
 
         $temp = new Dictionary();
         $content['dictionaries'] = [
             'Set' => array_merge(
-                [new Dictionary([
-                    'id' => 0,
-                    'name' => $this->view->_('SELECT_DICTIONARY')
-                ])],
+                [new Dictionary(['id' => 0, 'name' => $this->view->_('SELECT_DICTIONARY')])],
                 $temp->children
             ),
             'level' => 0
@@ -194,16 +160,9 @@ class EditFieldForm extends RAASForm
             'template' => 'cms/dev_edit_field.source.tmp.php',
             'check' => function ($field) {
                 if (in_array($_POST['datatype'], ['select', 'radio']) ||
-                    (
-                        ($_POST['datatype'] == 'checkbox') &&
-                        isset($_POST['multiple'])
-                    )
+                    (($_POST['datatype'] == 'checkbox') && isset($_POST['multiple']))
                 ) {
-                    if ((!isset($_POST['source_type']) ||
-                        !trim($_POST['source_type'])) ||
-                        !isset($_POST['source']) ||
-                        !trim($_POST['source'])
-                    ) {
+                    if (!trim((string)($_POST['source_type'] ?? '')) || !trim((string)($_POST['source'] ?? ''))) {
                         return [
                             'name' => 'MISSED',
                             'value' => 'source',
@@ -248,22 +207,22 @@ class EditFieldForm extends RAASForm
             'name' => 'pattern',
             'caption' => $this->view->_('PATTERN'),
         ];
-        $children['preprocessor_id'] = [
-            'type' => 'select',
-            'class' => 'input-xxlarge',
+        $children['preprocessor_id'] = new InterfaceField([
             'name' => 'preprocessor_id',
             'caption' => $this->view->_('PREPROCESSOR'),
-            'placeholder' => $this->view->_('_NONE'),
-            'children' => $wf(new Snippet_Folder())
-        ];
-        $children['postprocessor_id'] = [
-            'type' => 'select',
-            'class' => 'input-xxlarge',
+            'meta' => [
+                'rootInterfaceClass' => FilesProcessorInterface::class,
+                'interfaceClassnameFieldName' => 'preprocessor_classname',
+            ],
+        ]);
+        $children['postprocessor_id'] = new InterfaceField([
             'name' => 'postprocessor_id',
             'caption' => $this->view->_('POSTPROCESSOR'),
-            'placeholder' => $this->view->_('_NONE'),
-            'children' => $wf(new Snippet_Folder())
-        ];
+            'meta' => [
+                'rootInterfaceClass' => FilesProcessorInterface::class,
+                'interfaceClassnameFieldName' => 'postprocessor_classname',
+            ],
+        ]);
         $children['show_in_table'] = [
             'type' => 'checkbox',
             'name' => 'show_in_table',

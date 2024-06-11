@@ -2,6 +2,8 @@
 /**
  * Поле пользователей
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\Text;
@@ -54,11 +56,7 @@ class User_Field extends Field
     public static function getSet(): array
     {
         $args = func_get_args();
-        if (!isset($args[0]['where'])) {
-            $args[0]['where'] = [];
-        } else {
-            $args[0]['where'] = (array)$args[0]['where'];
-        }
+        $args[0]['where'] = (array)($args[0]['where'] ?? []);
         $args[0]['where'][] = "classname = '" . static::$SQL->real_escape_string(User::class) . "'";
         $args[0]['where'][] = "NOT pid";
         return call_user_func_array('parent::getSet', $args);

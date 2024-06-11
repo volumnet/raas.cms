@@ -2,6 +2,8 @@
 /**
  * Поле материала
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -51,6 +53,7 @@ class Material_Field extends Field
     public function commit()
     {
         $new = !$this->id;
+        $this->classname = Material_Type::class;
 
         // Определим старого и нового родителя в случае переноса поля
         $oldParentType = $newParentType = null;
@@ -100,5 +103,15 @@ class Material_Field extends Field
                 $newParentType->setFormFieldsIds($newFormFieldsToSet);
             }
         }
+    }
+
+
+    public static function getSet(): array
+    {
+        $args = func_get_args();
+        $args[0]['where'] = (array)($args[0]['where'] ?? []);
+        $args[0]['where'][] = "classname = '" . static::$SQL->real_escape_string(Material_Type::class) . "'";
+        $args[0]['where'][] = "pid";
+        return call_user_func_array('parent::getSet', $args);
     }
 }

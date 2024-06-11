@@ -109,8 +109,13 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
                         $cell->setValueExplicit($data[$i][$j], DataType::TYPE_STRING);
                     }
                 }
-                $range = [1, 1, $maxcol + 1, 1];
-                $sheet->getStyle($range)->getFont()->setBold(true);
+                // 2024-06-03, AVS: переделал на цикл по ячейкам для совместимости со старыми версиями PhpOffice
+                for ($j = 0; $j <= $maxcol; $j++) {
+                    $cell = $sheet->getCellByColumnAndRow($j, 1);
+                    $cell->getStyle()->getFont()->setBold(true);
+                }
+                // $range = [1, 1, $maxcol + 1, 1];
+                // $sheet->getStyle($range)->getFont()->setBold(true);
                 switch ($type) {
                     case 'xlsx':
                         $writerName = 'Xlsx';

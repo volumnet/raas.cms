@@ -2,6 +2,8 @@
 /**
  * Поле формы
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -51,7 +53,7 @@ class Form_Field extends Field
     /**
      * Получает HTML-атрибут id поля
      * @param Block|null $Block Блок, для которого получаем
-     * @param int|null $index Индекс поля в множественном списке
+     * @param int|string|null $index Индекс поля в множественном списке
      * @return string
      */
     public function getHTMLId(Block $block = null, $index = null)

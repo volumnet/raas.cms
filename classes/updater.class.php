@@ -14,6 +14,7 @@ use RAAS\Updater as RAASUpdater;
 
 /**
  * Класс менеджера обновлений
+ * @codeCoverageIgnore Поскольку мы не можем хранить все версии
  */
 class Updater extends RAASUpdater
 {
@@ -62,6 +63,9 @@ class Updater extends RAASUpdater
         }
         if (version_compare($v, '4.3.83') < 0) {
             $this->update20240402();
+        }
+        if (version_compare($v, '4.3.87') < 0) {
+            $this->update20240610();
         }
     }
 
@@ -194,8 +198,7 @@ class Updater extends RAASUpdater
                 $this->SQL->get($sqlQuery)
             );
             $tables = $this->SQL->getcol("SHOW TABLES");
-            if (in_array('description', $columns) &&
-                !in_array(SOME::_dbprefix() . 'cms_blocks_php', $tables)) {
+            if (in_array('description', $columns) && !in_array(SOME::_dbprefix() . 'cms_blocks_php', $tables)) {
                 $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_blocks
                                 SET description = REPLACE(
                                         description,
@@ -212,17 +215,18 @@ class Updater extends RAASUpdater
                     ) COMMENT 'HTML blocks';";
                     $this->SQL->query($sqlQuery);
                 }
-                if (!in_array(SOME::_dbprefix() . 'cms_blocks_php', $tables)) {
-                    $sqlQuery = "CREATE TABLE IF NOT EXISTS " . SOME::_dbprefix() . "cms_blocks_php (
-                        id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
-                        description MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Code',
-                        widget INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Snippet ID#',
+                // 2024-04-02, AVS: убрали
+                // if (!in_array(SOME::_dbprefix() . 'cms_blocks_php', $tables)) {
+                //     $sqlQuery = "CREATE TABLE IF NOT EXISTS " . SOME::_dbprefix() . "cms_blocks_php (
+                //         id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
+                //         description MEDIUMTEXT NULL DEFAULT NULL COMMENT 'Code',
+                //         widget INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Snippet ID#',
 
-                        PRIMARY KEY (id),
-                        KEY (widget)
-                    ) COMMENT 'PHP blocks';";
-                    $this->SQL->query($sqlQuery);
-                }
+                //         PRIMARY KEY (id),
+                //         KEY (widget)
+                //     ) COMMENT 'PHP blocks';";
+                //     $this->SQL->query($sqlQuery);
+                // }
                 if (!in_array(
                     SOME::_dbprefix() . 'cms_blocks_material',
                     $tables
@@ -2006,6 +2010,99 @@ class Updater extends RAASUpdater
         if (in_array(SOME::_dbprefix() . "cms_blocks_php", $this->tables)) {
             $sqlQuery = "DROP TABLE " . SOME::_dbprefix() . "cms_blocks_php";
             $this->SQL->query($sqlQuery);
+        }
+    }
+
+
+    /**
+     * Обновления по версии 4.3.87
+     */
+    public function update20240610()
+    {
+        // В cms_feedback.user_agent по умолчанию пустая строка
+        if (in_array(SOME::_dbprefix() . "cms_feedback", $this->tables)) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_feedback
+                        CHANGE user_agent user_agent VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'User Agent'";
+            $this->SQL->query($sqlQuery);
+        }
+
+        // в cms_blocks поля interface_classname и cache_interface_classname,
+        // а также ключи interface_id, widget_id, interface_classname и cache_interface_classname
+        if (in_array(SOME::_dbprefix() . "cms_blocks", $this->tables) &&
+            !in_array('interface_classname', $this->columns(SOME::_dbprefix() . "cms_blocks"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_blocks
+                           ADD interface_classname VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Interface classname' AFTER params,
+                           ADD cache_interface_classname VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Cache interface classname' AFTER cache_single_page,
+                           ADD INDEX (interface_classname),
+                           ADD KEY (interface_id),
+                           ADD KEY (widget_id),
+                           ADD INDEX (cache_interface_classname)";
+            $this->SQL->query($sqlQuery);
+
+            // в cms_forms ключ interface_id
+            if (in_array(SOME::_dbprefix() . "cms_forms", $this->tables)) {
+                $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_forms
+                               ADD KEY (interface_id)";
+                $this->SQL->query($sqlQuery);
+            }
+        }
+
+        // в cms_fields поля preprocessor_classname и postprocessor_classname
+        if (in_array(SOME::_dbprefix() . "cms_fields", $this->tables) &&
+            !in_array('preprocessor_classname', $this->columns(SOME::_dbprefix() . "cms_fields"))
+        ) {
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_fields
+                           ADD preprocessor_classname VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Preprocessor classname' AFTER step,
+                           ADD postprocessor_classname VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Postprocessor classname' AFTER preprocessor_id,
+                           ADD INDEX (preprocessor_classname),
+                           ADD INDEX (postprocessor_classname)";
+            $this->SQL->query($sqlQuery);
+        }
+
+        $sqlQuery = "SELECT COUNT(*) FROM " . SOME::_dbprefix() . "cms_snippets WHERE urn = '__raas_material_interface'";
+        $sqlResult = (int)$this->SQL->getvalue($sqlQuery);
+        if ($sqlResult > 0) {
+            foreach ([
+                '__raas_cache_interface' => CacheInterface::class,
+                '__raas_form_interface' => FormInterface::class,
+                '__raas_material_interface' => MaterialInterface::class,
+                '__raas_menu_interface' => MenuInterface::class,
+                '__raas_search_interface' => SearchInterface::class,
+                '__raas_watermark_interface' => WatermarkInterface::class,
+            ] as $snippetURN => $interfaceClassname) {
+                $sqlBind = ['snippetURN' => $snippetURN, 'interfaceClassname' => $interfaceClassname];
+                // Заменим основной интерфейс
+                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_blocks AS tB
+                               JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tB.interface_id = tS.id
+                                SET tB.interface_id = 0,
+                                    tB.interface_classname = :interfaceClassname
+                              WHERE tS.urn = :snippetURN";
+                $this->SQL->query([$sqlQuery, $sqlBind]);
+                // Заменим интерфейс кэширования
+                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_blocks AS tB
+                               JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tB.cache_interface_id = tS.id
+                                SET tB.cache_interface_id = 0,
+                                    tB.cache_interface_classname = :interfaceClassname
+                              WHERE tS.urn = :snippetURN";
+                $this->SQL->query([$sqlQuery, $sqlBind]);
+                // Заменим интерфейс процессоров
+                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_fields AS tF
+                               JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tF.preprocessor_id = tS.id
+                                SET tF.preprocessor_id = 0,
+                                    tF.preprocessor_classname = :interfaceClassname
+                              WHERE tS.urn = :snippetURN";
+                $this->SQL->query([$sqlQuery, $sqlBind]);
+                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_fields AS tF
+                               JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tF.postprocessor_id = tS.id
+                                SET tF.postprocessor_id = 0,
+                                    tF.postprocessor_classname = :interfaceClassname
+                              WHERE tS.urn = :snippetURN";
+                $this->SQL->query([$sqlQuery, $sqlBind]);
+                // Удалим сниппеты
+                $sqlQuery = "DELETE FROM " . SOME::_dbprefix() . "cms_snippets WHERE urn = ?";
+                $this->SQL->query([$sqlQuery, [$snippetURN]]);
+            }
         }
     }
 }

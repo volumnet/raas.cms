@@ -19,7 +19,9 @@ class FieldArrayFormatter
 
     /**
      * Получать поля для админки (
+     *     preprocessor_classname,
      *     preprocessor_id,
+     *     postprocessor_classname,
      *     postprocessor_id,
      *     show_in_table
      * )
@@ -87,7 +89,9 @@ class FieldArrayFormatter
         if (!$this->getAdminFields) {
             unset(
                 $result['classname'],
+                $result['preprocessor_classname'],
                 $result['preprocessor_id'],
+                $result['postprocessor_classname'],
                 $result['postprocessor_id'],
                 $result['show_in_table'],
                 $result['source'],

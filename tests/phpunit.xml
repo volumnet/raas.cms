@@ -30,11 +30,41 @@
     <testsuite name="EditBlockHTMLForm">
       <file>src/forms-n-tables/EditBlockHTMLFormTest.php</file>
     </testsuite>
+    <testsuite name="EditBlockMaterialForm">
+      <file>src/forms-n-tables/EditBlockMaterialFormTest.php</file>
+    </testsuite>
+    <testsuite name="EditBlockMenuForm">
+      <file>src/forms-n-tables/EditBlockMenuFormTest.php</file>
+    </testsuite>
+    <testsuite name="EditBlockPHPForm">
+      <file>src/forms-n-tables/EditBlockPHPFormTest.php</file>
+    </testsuite>
+    <testsuite name="EditBlockSearchForm">
+      <file>src/forms-n-tables/EditBlockSearchFormTest.php</file>
+    </testsuite>
+    <testsuite name="EditFieldForm">
+      <file>src/forms-n-tables/EditFieldFormTest.php</file>
+    </testsuite>
     <testsuite name="EditFormForm">
       <file>src/forms-n-tables/EditFormFormTest.php</file>
     </testsuite>
+    <testsuite name="InterfaceField">
+      <file>src/forms-n-tables/InterfaceFieldTest.php</file>
+    </testsuite>
+    <testsuite name="SnippetField">
+      <file>src/forms-n-tables/SnippetFieldTest.php</file>
+    </testsuite>
+    <testsuite name="WidgetField">
+      <file>src/forms-n-tables/WidgetFieldTest.php</file>
+    </testsuite>
+    <testsuite name="BlockInterface">
+      <file>src/interfaces/BlockInterfaceTest.php</file>
+    </testsuite>
     <testsuite name="CacheInterface">
       <file>src/interfaces/CacheInterfaceTest.php</file>
+    </testsuite>
+    <testsuite name="FilesProcessorInterface">
+      <file>src/interfaces/FilesProcessorInterfaceTest.php</file>
     </testsuite>
     <testsuite name="FormInterface">
       <file>src/interfaces/FormInterfaceTest.php</file>
@@ -54,11 +84,23 @@
     <testsuite name="PageRecursiveCache">
       <file>src/PageRecursiveCacheTest.php</file>
     </testsuite>
+    <testsuite name="Block_Form">
+      <file>src/semantic/BlockFormTest.php</file>
+    </testsuite>
     <testsuite name="Block_HTML">
       <file>src/semantic/BlockHTMLTest.php</file>
     </testsuite>
+    <testsuite name="Block_Material">
+      <file>src/semantic/BlockMaterialTest.php</file>
+    </testsuite>
+    <testsuite name="Block_Menu">
+      <file>src/semantic/BlockMenuTest.php</file>
+    </testsuite>
     <testsuite name="Block_PHP">
       <file>src/semantic/BlockPHPTest.php</file>
+    </testsuite>
+    <testsuite name="Block_Search">
+      <file>src/semantic/BlockSearchTest.php</file>
     </testsuite>
     <testsuite name="Block">
       <file>src/semantic/BlockTest.php</file>
@@ -69,11 +111,26 @@
     <testsuite name="Form">
       <file>src/semantic/FormTest.php</file>
     </testsuite>
+    <testsuite name="Form_Field">
+      <file>src/semantic/FormFieldTest.php</file>
+    </testsuite>
+    <testsuite name="Material_Field">
+      <file>src/semantic/MaterialFieldTest.php</file>
+    </testsuite>
     <testsuite name="Menu">
       <file>src/semantic/MenuTest.php</file>
     </testsuite>
+    <testsuite name="Page_Field">
+      <file>src/semantic/PageFieldTest.php</file>
+    </testsuite>
     <testsuite name="Snippet">
       <file>src/semantic/SnippetTest.php</file>
+    </testsuite>
+    <testsuite name="User_Field">
+      <file>src/semantic/UserFieldTest.php</file>
+    </testsuite>
+    <testsuite name="Updater">
+      <file>src/UpdaterTest.php</file>
     </testsuite>
     <testsuite name="FieldArrayFormatter">
       <file>src/views/renderers/FieldArrayFormatterTest.php</file>

@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace RAAS\CMS;
 
+use ReflectionClass;
 use RAAS\Application;
 use RAAS\FormTab;
 use RAAS\Field as RAASField;
@@ -19,6 +20,11 @@ use RAAS\FieldSet;
  */
 class EditBlockForm extends RAASForm
 {
+    /**
+     * Класс блока по умолчанию
+     */
+    const DEFAULT_BLOCK_CLASSNAME = Block_PHP::class;
+
     public function __get($var)
     {
         switch ($var) {
@@ -38,7 +44,7 @@ class EditBlockForm extends RAASForm
         $item = isset($params['Item']) ? $params['Item'] : null;
         $parent = $params['meta']['Parent'] ?? new Page();
         $loc = ($item && $item->location) ? $item->location : (isset($_GET['loc']) ? $_GET['loc'] : '');
-        $blockType = str_replace('RAAS\\CMS\\', '', $item ? $item->block_type : Block_PHP::class);
+        $blockType = str_replace('RAAS\\CMS\\', '', (string)($item ? $item->block_type : static::DEFAULT_BLOCK_CLASSNAME));
         $newUrl = Package::i()->url . '&pid=%s&action=edit_block&pid=' . (int)$parent->id . '&type='
             . str_replace('\\', '.', $blockType) . '&loc=' . $loc;
         $defaultParams = [
@@ -90,14 +96,6 @@ class EditBlockForm extends RAASForm
             ]);
         }
 
-
-        $interfaceField = $this->getInterfaceField();
-        $interfaceField->name = 'cache_interface_id';
-        $interfaceField->caption = $this->view->_('CACHE_INTERFACE');
-        $interfaceField->placeholder = null;
-        $s = Snippet::importByURN('__raas_cache_interface');
-        $interfaceField->default = $s->id;
-
         $this->children['serviceTab']->children['cache_type'] = [
             'type' => 'select',
             'name' => 'cache_type',
@@ -114,83 +112,50 @@ class EditBlockForm extends RAASForm
             'name' => 'cache_single_page',
             'caption' => $this->view->_('CACHE_BY_SINGLE_PAGES')
         ];
-        $this->children['serviceTab']->children['cache_interface_id'] = $interfaceField;
+        $this->children['serviceTab']->children['cache_interface_id'] = new InterfaceField([
+            'name' => 'cache_interface_id',
+            'meta' => [
+                'interfaceClassnameFieldName' => 'cache_interface_classname',
+                'rootInterfaceClass' => CacheInterface::class
+            ],
+            'caption' => $this->view->_('CACHE_INTERFACE'),
+            'default' => CacheInterface::class,
+        ]);
     }
 
 
     /**
      * Получает поле "Интерфейс"
-     * @return RAASField
+     * @return InterfaceField
      */
-    protected function getInterfaceField(): RAASField
+    protected function getInterfaceField(): InterfaceField
     {
-        $wf = function (Snippet_Folder $x) use (&$wf) {
-            $temp = [];
-            foreach ($x->children as $row) {
-                if (strtolower($row->urn) != '__raas_views') {
-                    $o = new Option([
-                        'value' => '',
-                        'caption' => $row->name,
-                        'disabled' => 'disabled'
-                    ]);
-                    $o->__set('children', $wf($row));
-                    $temp[] = $o;
-                }
-            }
-            foreach ($x->snippets as $row) {
-                $temp[] = new Option([
-                    'value' => $row->id,
-                    'caption' => $row->urn . (($row->name && ($row->name != $row->urn)) ? (': ' . $row->name) : ''),
-                ]);
-            }
-            return $temp;
-        };
-        $field = new RAASField([
-            'type' => 'select',
-            'class' => 'input-xxlarge',
+        $defaultBlockClassname = static::DEFAULT_BLOCK_CLASSNAME;
+        $field = new InterfaceField([
             'name' => 'interface_id',
+            'meta' => [
+                'interfaceClassnameFieldName' => 'interface_classname',
+                'rootInterfaceClass' => $defaultBlockClassname::ALLOWED_INTERFACE_CLASSNAME
+            ],
             'caption' => $this->view->_('INTERFACE'),
-            'placeholder' => $this->view->_('_NONE'),
-            'children' => $wf(new Snippet_Folder())
         ]);
+        $reflectionClass = new ReflectionClass($defaultBlockClassname::ALLOWED_INTERFACE_CLASSNAME);
+        if (!$reflectionClass->isAbstract()) {
+            $field->default = $defaultBlockClassname::ALLOWED_INTERFACE_CLASSNAME;
+        }
         return $field;
     }
 
 
     /**
      * Получает поле "Представление"
-     * @return RAASField
+     * @return WidgetField
      */
-    protected function getWidgetField(): RAASField
+    protected function getWidgetField(): WidgetField
     {
-        $wf = function (Snippet_Folder $x) use (&$wf) {
-            $temp = [];
-            foreach ($x->children as $row) {
-                if (strtolower($row->urn) != '__raas_interfaces') {
-                    $o = new Option([
-                        'value' => '',
-                        'caption' => $row->name,
-                        'disabled' => 'disabled'
-                    ]);
-                    $o->__set('children', $wf($row));
-                    $temp[] = $o;
-                }
-            }
-            foreach ($x->snippets as $row) {
-                $temp[] = new Option([
-                    'value' => $row->id,
-                    'caption' => $row->urn . (($row->name && ($row->name != $row->urn)) ? (': ' . $row->name) : ''),
-                ]);
-            }
-            return $temp;
-        };
-        $field = new RAASField([
-            'type' => 'select',
-            'class' => 'input-xxlarge',
+        $field = new WidgetField([
             'name' => 'widget_id',
             'caption' => $this->view->_('WIDGET'),
-            'placeholder' => $this->view->_('_NONE'),
-            'children' => $wf(new Snippet_Folder())
         ]);
         return $field;
     }

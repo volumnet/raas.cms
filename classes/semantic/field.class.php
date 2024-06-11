@@ -85,7 +85,10 @@ class Field extends CustomField
             $this->deleteValues();
             $filesData = $this->datatypeStrategy->getFilesData($this, true, true);
             $filesToProcess = [];
-            if ($this->Preprocessor->id) {
+            if ($preprocessorClassname = $this->preprocessor_classname) {
+                $preprocessor = new $preprocessorClassname($_GET, $_POST, $_COOKIE, $_SESSION, $_SERVER, $_FILES);
+                $preprocessor->process((array)($_FILES[$field->name]['tmp_name'] ?? []));
+            } elseif ($this->Preprocessor->id) {
                 $this->Preprocessor->process(['files' => (array)($_FILES[$field->name]['tmp_name'] ?? [])]);
             }
             foreach ($filesData as $key => $fileData) {
@@ -110,7 +113,10 @@ class Field extends CustomField
                     }
                 }
             }
-            if ($this->Postprocessor->id) {
+            if ($postprocessorClassname = $this->postprocessor_classname) {
+                $postprocessor = new $postprocessorClassname($_GET, $_POST, $_COOKIE, $_SESSION, $_SERVER, $_FILES);
+                $postprocessor->process($filesToProcess);
+            } elseif ($this->Postprocessor->id) {
                 $this->Postprocessor->process(['files' => $filesToProcess]);
             }
             $this->clearLostAttachments();

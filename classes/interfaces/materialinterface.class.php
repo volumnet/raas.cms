@@ -1,6 +1,6 @@
 <?php
 /**
- * Файл стандартного интерфейса материалов
+ * Стандартный интерфейс материалов
  */
 declare(strict_types=1);
 
@@ -9,9 +9,9 @@ namespace RAAS\CMS;
 use SOME\Pages;
 
 /**
- * Класс стандартного интерфейса материалов
+ * Стандартный интерфейс материалов
  */
-class MaterialInterface extends AbstractInterface
+class MaterialInterface extends BlockInterface
 {
     /**
      * Конструктор класса
@@ -39,9 +39,10 @@ class MaterialInterface extends AbstractInterface
     }
 
 
-    public function process()
+    public function process(): array
     {
         $get = $this->getAllParams($this->block, $this->get);
+        $result = [];
         $legacy = $this->checkLegacyAddress(
             $this->block,
             $this->page,
@@ -49,7 +50,7 @@ class MaterialInterface extends AbstractInterface
             $this->server
         );
         if ($legacy) {
-            return;
+            return [];
         }
         if ($this->page->Material && $this->block->nat) {
             $result = $this->processMaterial(
@@ -73,11 +74,11 @@ class MaterialInterface extends AbstractInterface
      * @param Material $item Материал для обработки
      * @param array $get Поля $_GET параметров
      * @param array $server Поля $_SERVER параметров
-     * @return [
-     *             'Item' => Material Обрабатываемый материал,
-     *             'prev' ?=> Material Предыдущий материал,
-     *             'next' ?=> Material Следующий материал
-     *         ]
+     * @return array <pre><code>[
+     *     'Item' => Material Обрабатываемый материал,
+     *     'prev' ?=> Material Предыдущий материал,
+     *     'next' ?=> Material Следующий материал
+     * ]</code></pre>
      */
     public function processMaterial(
         Block_Material $block,
@@ -85,7 +86,7 @@ class MaterialInterface extends AbstractInterface
         Material $item,
         array $get = [],
         array $server = []
-    ) {
+    ): array {
         $legacy = $this->checkLegacyArbitraryMaterialAddress(
             $block,
             $page,
@@ -93,7 +94,7 @@ class MaterialInterface extends AbstractInterface
             $server
         );
         if ($legacy) {
-            return;
+            return [];
         }
         $this->setPageMetatags($page, $item);
         $item->proceed = true;
@@ -170,16 +171,16 @@ class MaterialInterface extends AbstractInterface
      *                                   интерфейс
      * @param Page|null $page Страница, для которой применяется интерфейс
      * @param array $get Поля $_GET параметров
-     * @return [
-     *             'Set' => array<Material> Список материалов,
-     *             'MType' => Material_Type Тип материалов,
-     *             'Pages' => Pages Постраничная разбивка,
-     *             'sort' => Значение сортировки для вывода в виджет
-     *                       (наименование нативного поля или URN кастомного)
-     *             'order' => Значение порядка для вывода в виджет
-     *         ] Данные по списку материалов
+     * @return array <pre><code>[
+     *     'Set' => array<Material> Список материалов,
+     *     'MType' => Material_Type Тип материалов,
+     *     'Pages' => Pages Постраничная разбивка,
+     *     'sort' => Значение сортировки для вывода в виджет
+     *               (наименование нативного поля или URN кастомного)
+     *     'order' => Значение порядка для вывода в виджет
+     * ] Данные по списку материалов</code></pre>
      */
-    public function processList(Block_Material $block, Page $page, array $get = [])
+    public function processList(Block_Material $block, Page $page, array $get = []): array
     {
         $pages = null;
         $sort = $order = '';
@@ -213,7 +214,7 @@ class MaterialInterface extends AbstractInterface
      * @param Pages|null $pages Постраничная разбивка
      * @return Material[]
      */
-    public function getList(Block_Material $block, Page $page, array $get = [], Pages $pages = null)
+    public function getList(Block_Material $block, Page $page, array $get = [], Pages $pages = null): array
     {
         $sqlParts = $this->getSQLParts($block, $page, $get);
         $sqlQuery = $this->getSQLQuery($sqlParts['from'], $sqlParts['where'], $sqlParts['sort'], $sqlParts['order']);
@@ -236,13 +237,13 @@ class MaterialInterface extends AbstractInterface
      *                                   интерфейс
      * @param Page|null $page Страница, для которой применяется интерфейс
      * @param array $get Поля $_GET параметров
-     * @return array<int>
+     * @return int[]
      */
     public function getIdsList(
         Block_Material $block,
         Page $page,
         array $get = []
-    ) {
+    ): array {
         $sqlParts = $this->getSQLParts($block, $page, $get);
         $sqlQuery = $this->getSQLQuery(
             $sqlParts['from'],
@@ -263,48 +264,28 @@ class MaterialInterface extends AbstractInterface
      *                                   интерфейс
      * @param Page|null $page Страница, для которой применяется интерфейс
      * @param array $get Поля $_GET параметров
-     * @return [
-     *             'from' => array<
-     *                 string[] псевдоним поля => string SQL-инструкция
-     *                                                   по выборке таблицы
-     *             > Список подключаемых таблиц,
-     *             'where' => array<string SQL-инструкция> Ограничения
-     *                                                     для SQL WHERE,
-     *             'sort' => string Сортировка для SQL ORDER BY
-     *             'order' => ""|"ASC"|"DESC" Порядок сортировки
-     *                                        для SQL ORDER BY,
-     *             'bind' => array<mixed Значение связки> Связки
-     *                                                    для SQL-выражения
-     *         ]
+     * @return array <pre><code>[
+     *     'from' => array<
+     *         string[] псевдоним поля => string SQL-инструкция
+     *                                           по выборке таблицы
+     *     > Список подключаемых таблиц,
+     *     'where' => array<string SQL-инструкция> Ограничения
+     *                                             для SQL WHERE,
+     *     'sort' => string Сортировка для SQL ORDER BY
+     *     'order' => ""|"ASC"|"DESC" Порядок сортировки
+     *                                для SQL ORDER BY,
+     *     'bind' => array<mixed Значение связки> Связки
+     *                                            для SQL-выражения
+     * ]</code></pre>
      */
-    public function getSQLParts(Block_Material $block, Page $page, array $get = [])
+    public function getSQLParts(Block_Material $block, Page $page, array $get = []): array
     {
         $sqlFrom = $sqlFromBind = $sqlWhere = $sqlWhereBind = $result = [];
         $sqlSort = $sqlOrder = "";
         $this->getListAccessSQL($sqlFrom, $sqlFromBind, $sqlWhere);
-        $this->getMaterialsSQL(
-            $block,
-            $page,
-            $sqlFrom,
-            $sqlWhere,
-            $sqlWhereBind
-        );
-        $this->getFilteringSQL(
-            $sqlFrom,
-            $sqlFromBind,
-            $sqlWhere,
-            $sqlWhereBind,
-            (array)$block->filter,
-            $get
-        );
-        $this->getOrderSQL(
-            $block,
-            $get,
-            $sqlFrom,
-            $sqlFromBind,
-            $sqlSort,
-            $sqlOrder
-        );
+        $this->getMaterialsSQL($block, $page, $sqlFrom, $sqlWhere, $sqlWhereBind);
+        $this->getFilteringSQL($sqlFrom, $sqlFromBind, $sqlWhere, $sqlWhereBind, (array)$block->filter, $get);
+        $this->getOrderSQL($block, $get, $sqlFrom, $sqlFromBind, $sqlSort, $sqlOrder);
         $result = [
             'from' => $sqlFrom,
             'where' => $sqlWhere,
@@ -324,13 +305,10 @@ class MaterialInterface extends AbstractInterface
      *                                              по выборке таблицы
      *        > $sqlFrom Список подключаемых таблиц
      * @param array<mixed Значение связки> $sqlFromBind Связки для SQL FROM
-     * @param array<string SQL-инструкция> $sqlWhere Ограничения для SQL WHERE
+     * @param array <pre><code>array<string SQL-инструкция> $sqlWhere Ограничения для SQL WHERE</code></pre>
      */
-    public function getListAccessSQL(
-        array &$sqlFrom,
-        array &$sqlFromBind,
-        array &$sqlWhere
-    ) {
+    public function getListAccessSQL(array &$sqlFrom, array &$sqlFromBind, array &$sqlWhere)
+    {
         $sqlFrom['tA'] = " LEFT JOIN " . Material::_dbprefix() . "cms_access_materials_cache
                                   AS tA
                                   ON tA.material_id = tM.id
@@ -500,11 +478,8 @@ class MaterialInterface extends AbstractInterface
      *         ]|null Найденная настройка сортировка блока,
      *                либо null, если не найдено
      */
-    public function getMatchingSortParam(
-        $sortVal,
-        array $sortParams = [],
-        $var = 'var'
-    ) {
+    public function getMatchingSortParam($sortVal, array $sortParams = [], $var = 'var')
+    {
         foreach ($sortParams as $sortParam) {
             if (isset($sortParam['var'], $sortParam['field']) &&
                 ($sortVal == $sortParam[$var])
