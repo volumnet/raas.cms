@@ -48,65 +48,67 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
               <li data-v-for="error in vm.errors" data-v-html="error"></li>
             </ul>
           </div>
-          <?php
-          $formRenderer = new FormRenderer(
-              $Form,
-              $Block,
-              $DATA,
-              $localError
-          );
-          echo $formRenderer->renderSignatureField();
-          echo $formRenderer->renderHiddenAntispamField();
-          foreach ($Form->visFields as $fieldURN => $field) {
-              $fieldRenderer = FormFieldRenderer::spawn(
-                  $field,
-                  $Block,
-                  $DATA[$fieldURN],
-                  $localError[$fieldURN] ?? ''
-              );
-              $fieldRenderData = [
-                  'data-vue-role' => 'raas-field',
-                  'data-vue-type' => $field->datatype,
-                  'data-v-bind_class' => "{ 'is-invalid': !!vm.errors." . $fieldURN . " }",
-                  'data-v-bind_title' => "vm.errors." . $fieldURN . " || ''",
-              ];
-              if ($field->datatype == 'select') {
-                  $fieldArrayFormatter = new FieldArrayFormatter($field);
-                  $fieldRenderData['data-v-bind_source'] = json_encode($fieldArrayFormatter->formatStdSource($field->stdSource));
-                  if ($field->placeholder) {
-                      $fieldRenderData['data-vue-placeholder'] = $field->placeholder;
-                  }
-              }
-              $fieldHTML = $fieldRenderer->render($fieldRenderData);
-              $fieldCaption = htmlspecialchars($field->name);
-              if ($fieldURN == 'agree') {
-                  $fieldCaption = '<a href="/privacy/" target="_blank">' .
-                                     $fieldCaption .
-                                  '</a>';
-              }
-              if ($field->required) {
-                  $fieldCaption .= '<span class="feedback__asterisk">*</span>';
-              }
-              ?>
-              <div class="form-group" data-v-bind_class="{ 'text-danger': !!vm.errors.<?php echo htmlspecialchars($fieldURN)?> }">
-                <?php
-                if (($field->datatype == 'checkbox') &&
-                    !$field->multiple
-                ) { ?>
-                    <div class="feedback__control-label"></div>
-                    <label class="feedback__input-container">
-                      <?php echo $fieldHTML . ' ' . $fieldCaption; ?>
-                    </label>
-                <?php } else { ?>
-                    <label class="feedback__control-label" <?php echo !$field->multiple ? ' for="' . htmlspecialchars($field->getHTMLId($Block)) . '"' : ''?>>
-                      <?php echo $fieldCaption; ?>:
-                    </label>
-                    <div class="feedback__input-container">
-                      <?php echo $fieldHTML; ?>
-                    </div>
-                <?php } ?>
-              </div>
-          <?php } ?>
+          <fieldset class="feedback__fieldset">
+            <?php
+            $formRenderer = new FormRenderer(
+                $Form,
+                $Block,
+                $DATA,
+                $localError
+            );
+            echo $formRenderer->renderSignatureField();
+            echo $formRenderer->renderHiddenAntispamField();
+            foreach ($Form->visFields as $fieldURN => $field) {
+                $fieldRenderer = FormFieldRenderer::spawn(
+                    $field,
+                    $Block,
+                    $DATA[$fieldURN],
+                    $localError[$fieldURN] ?? ''
+                );
+                $fieldRenderData = [
+                    'data-vue-role' => 'raas-field',
+                    'data-vue-type' => $field->datatype,
+                    'data-v-bind_class' => "{ 'is-invalid': !!vm.errors." . $fieldURN . " }",
+                    'data-v-bind_title' => "vm.errors." . $fieldURN . " || ''",
+                ];
+                if ($field->datatype == 'select') {
+                    $fieldArrayFormatter = new FieldArrayFormatter($field);
+                    $fieldRenderData['data-v-bind_source'] = json_encode($fieldArrayFormatter->formatStdSource($field->stdSource));
+                    if ($field->placeholder) {
+                        $fieldRenderData['data-vue-placeholder'] = $field->placeholder;
+                    }
+                }
+                $fieldHTML = $fieldRenderer->render($fieldRenderData);
+                $fieldCaption = htmlspecialchars($field->name);
+                if ($fieldURN == 'agree') {
+                    $fieldCaption = '<a href="/privacy/" target="_blank">' .
+                                       $fieldCaption .
+                                    '</a>';
+                }
+                if ($field->required) {
+                    $fieldCaption .= '<span class="feedback__asterisk">*</span>';
+                }
+                ?>
+                <div class="form-group" data-v-bind_class="{ 'text-danger': !!vm.errors.<?php echo htmlspecialchars($fieldURN)?> }">
+                  <?php
+                  if (($field->datatype == 'checkbox') &&
+                      !$field->multiple
+                  ) { ?>
+                      <div class="feedback__control-label"></div>
+                      <label class="feedback__input-container">
+                        <?php echo $fieldHTML . ' ' . $fieldCaption; ?>
+                      </label>
+                  <?php } else { ?>
+                      <label class="feedback__control-label" <?php echo !$field->multiple ? ' for="' . htmlspecialchars($field->getHTMLId($Block)) . '"' : ''?>>
+                        <?php echo $fieldCaption; ?>:
+                      </label>
+                      <div class="feedback__input-container">
+                        <?php echo $fieldHTML; ?>
+                      </div>
+                  <?php } ?>
+                </div>
+            <?php } ?>
+          </fieldset>
           <div class="feedback__controls">
             <button class="feedback__submit btn btn-primary" type="submit" data-v-bind_disabled="vm.loading" data-v-bind_class="{ 'feedback__submit_loading': vm.loading }">
               <?php echo SEND?>

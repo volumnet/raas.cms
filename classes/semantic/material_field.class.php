@@ -83,20 +83,20 @@ class Material_Field extends Field
         if ($new) {
             $parentType = new Material_Type($this->pid);
             $formFieldsToSet = [];
-            $formFieldsToSet[trim($this->id)] = [
+            $formFieldsToSet[trim((string)$this->id)] = [
                 'vis' => true,
                 'inherit' => true,
             ];
             $parentType->setFormFieldsIds($formFieldsToSet);
         } elseif ($oldParentType && $newParentType) {
             $oldFormFieldsToSet = $newFormFieldsToSet = [];
-            $oldFormFieldsToSet[trim($this->id)] = [
+            $oldFormFieldsToSet[trim((string)$this->id)] = [
                 'vis' => false,
                 'inherit' => true,
             ];
             $oldParentType->setFormFieldsIds($oldFormFieldsToSet);
             if ($isFormField) {
-                $newFormFieldsToSet[trim($this->id)] = [
+                $newFormFieldsToSet[trim((string)$this->id)] = [
                     'vis' => true,
                     'inherit' => true,
                 ];

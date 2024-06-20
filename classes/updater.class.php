@@ -2060,48 +2060,50 @@ class Updater extends RAASUpdater
             $this->SQL->query($sqlQuery);
         }
 
-        $sqlQuery = "SELECT COUNT(*) FROM " . SOME::_dbprefix() . "cms_snippets WHERE urn = '__raas_material_interface'";
-        $sqlResult = (int)$this->SQL->getvalue($sqlQuery);
-        if ($sqlResult > 0) {
-            foreach ([
-                '__raas_cache_interface' => CacheInterface::class,
-                '__raas_form_interface' => FormInterface::class,
-                '__raas_material_interface' => MaterialInterface::class,
-                '__raas_menu_interface' => MenuInterface::class,
-                '__raas_search_interface' => SearchInterface::class,
-                '__raas_watermark_interface' => WatermarkInterface::class,
-            ] as $snippetURN => $interfaceClassname) {
-                $sqlBind = ['snippetURN' => $snippetURN, 'interfaceClassname' => $interfaceClassname];
-                // Заменим основной интерфейс
-                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_blocks AS tB
-                               JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tB.interface_id = tS.id
-                                SET tB.interface_id = 0,
-                                    tB.interface_classname = :interfaceClassname
-                              WHERE tS.urn = :snippetURN";
-                $this->SQL->query([$sqlQuery, $sqlBind]);
-                // Заменим интерфейс кэширования
-                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_blocks AS tB
-                               JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tB.cache_interface_id = tS.id
-                                SET tB.cache_interface_id = 0,
-                                    tB.cache_interface_classname = :interfaceClassname
-                              WHERE tS.urn = :snippetURN";
-                $this->SQL->query([$sqlQuery, $sqlBind]);
-                // Заменим интерфейс процессоров
-                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_fields AS tF
-                               JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tF.preprocessor_id = tS.id
-                                SET tF.preprocessor_id = 0,
-                                    tF.preprocessor_classname = :interfaceClassname
-                              WHERE tS.urn = :snippetURN";
-                $this->SQL->query([$sqlQuery, $sqlBind]);
-                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_fields AS tF
-                               JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tF.postprocessor_id = tS.id
-                                SET tF.postprocessor_id = 0,
-                                    tF.postprocessor_classname = :interfaceClassname
-                              WHERE tS.urn = :snippetURN";
-                $this->SQL->query([$sqlQuery, $sqlBind]);
-                // Удалим сниппеты
-                $sqlQuery = "DELETE FROM " . SOME::_dbprefix() . "cms_snippets WHERE urn = ?";
-                $this->SQL->query([$sqlQuery, [$snippetURN]]);
+        if (in_array(SOME::_dbprefix() . "cms_snippets", $this->tables)) {
+            $sqlQuery = "SELECT COUNT(*) FROM " . SOME::_dbprefix() . "cms_snippets WHERE urn = '__raas_material_interface'";
+            $sqlResult = (int)$this->SQL->getvalue($sqlQuery);
+            if ($sqlResult > 0) {
+                foreach ([
+                    '__raas_cache_interface' => CacheInterface::class,
+                    '__raas_form_interface' => FormInterface::class,
+                    '__raas_material_interface' => MaterialInterface::class,
+                    '__raas_menu_interface' => MenuInterface::class,
+                    '__raas_search_interface' => SearchInterface::class,
+                    '__raas_watermark_interface' => WatermarkInterface::class,
+                ] as $snippetURN => $interfaceClassname) {
+                    $sqlBind = ['snippetURN' => $snippetURN, 'interfaceClassname' => $interfaceClassname];
+                    // Заменим основной интерфейс
+                    $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_blocks AS tB
+                                   JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tB.interface_id = tS.id
+                                    SET tB.interface_id = 0,
+                                        tB.interface_classname = :interfaceClassname
+                                  WHERE tS.urn = :snippetURN";
+                    $this->SQL->query([$sqlQuery, $sqlBind]);
+                    // Заменим интерфейс кэширования
+                    $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_blocks AS tB
+                                   JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tB.cache_interface_id = tS.id
+                                    SET tB.cache_interface_id = 0,
+                                        tB.cache_interface_classname = :interfaceClassname
+                                  WHERE tS.urn = :snippetURN";
+                    $this->SQL->query([$sqlQuery, $sqlBind]);
+                    // Заменим интерфейс процессоров
+                    $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_fields AS tF
+                                   JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tF.preprocessor_id = tS.id
+                                    SET tF.preprocessor_id = 0,
+                                        tF.preprocessor_classname = :interfaceClassname
+                                  WHERE tS.urn = :snippetURN";
+                    $this->SQL->query([$sqlQuery, $sqlBind]);
+                    $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_fields AS tF
+                                   JOIN " . SOME::_dbprefix() . "cms_snippets AS tS ON tF.postprocessor_id = tS.id
+                                    SET tF.postprocessor_id = 0,
+                                        tF.postprocessor_classname = :interfaceClassname
+                                  WHERE tS.urn = :snippetURN";
+                    $this->SQL->query([$sqlQuery, $sqlBind]);
+                    // Удалим сниппеты
+                    $sqlQuery = "DELETE FROM " . SOME::_dbprefix() . "cms_snippets WHERE urn = ?";
+                    $this->SQL->query([$sqlQuery, [$snippetURN]]);
+                }
             }
         }
     }

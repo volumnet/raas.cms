@@ -338,13 +338,13 @@ class SearchInterface extends BlockInterface
                 $searchPagesIds,
                 $pageMaterialsRatio
             );
-            foreach ((array)$materialsPagesResult['pages'] as $pageId => $pageWeight) {
+            foreach ((array)($materialsPagesResult['pages'] ?? []) as $pageId => $pageWeight) {
                 if (!isset($result['p' . $pageId])) {
                     $result['p' . $pageId] = 0;
                 }
                 $result['p' . $pageId] += $pageWeight;
             }
-            foreach ((array)$materialsPagesResult['materials'] as $materialId => $materialWeight) {
+            foreach ((array)($materialsPagesResult['materials'] ?? []) as $materialId => $materialWeight) {
                 if (!isset($result['m' . $materialId])) {
                     $result['m' . $materialId] = 0;
                 }
