@@ -76,7 +76,7 @@ export default {
                     }
                 }
             }
-            console.log($event, this.flatSource, this.value, newValue)
+            // console.log($event, this.flatSource, this.value, newValue)
             this.$emit('input', newValue);
         },
     },

@@ -63,10 +63,10 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
         <tbody>
           <tr data-role="raas-repo">
             <td>
-              <input type="text" name="filter_var[]" value="" class="span3" disabled="disabled" />
+              <input type="text" name="filter_var[]" value="" class="span2" disabled="disabled" />
             </td>
             <td>
-              <select name="filter_relation[]" class="span2" disabled="disabled">
+              <select name="filter_relation[]" class="span3" disabled="disabled">
                 <?php foreach (Block_Material::$filterRelations as $key => $val) { ?>
                     <option value="<?php echo htmlspecialchars($key)?>">
                       <?php echo constant('CMS\\' . $val)?>

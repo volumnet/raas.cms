@@ -66,13 +66,30 @@ class Block_Material extends Block
 
     public function __construct($importData = null)
     {
-        parent::__construct($importData); // Только в случае, когда создаем по ID#
-        if (!is_array($importData)) {
+        parent::__construct($importData);
+        // Только в случае, когда создаем по ID#
+        // 2024-06-26, AVS: скорректировал, т.к. в SpecInterface глючит - фильтр не применяется
+        // Сделал именно так, поскольку в commit() идет reload и конструкция по id, но meta не вычищается
+        // if (!is_array($importData)) {
+        //     $sqlQuery = "SELECT var, relation, field
+        //                    FROM " . self::$dbprefix . "cms_blocks_material_filter
+        //                   WHERE id = " . (int)$this->id
+        //               . " ORDER BY priority";
+        //     $this->filter = self::$SQL->get($sqlQuery);
+        //     $sqlQuery = "SELECT var, field, relation
+        //                    FROM " . self::$dbprefix . "cms_blocks_material_sort
+        //                   WHERE id = " . (int)$this->id
+        //               . " ORDER BY priority";
+        //     $this->sort = self::$SQL->get($sqlQuery);
+        // }
+        if (!is_array($importData) || ($this->id && !isset($this->meta['filter']))) {
             $sqlQuery = "SELECT var, relation, field
                            FROM " . self::$dbprefix . "cms_blocks_material_filter
                           WHERE id = " . (int)$this->id
                       . " ORDER BY priority";
             $this->filter = self::$SQL->get($sqlQuery);
+        }
+        if (!is_array($importData) || ($this->id && !isset($this->meta['sort']))) {
             $sqlQuery = "SELECT var, field, relation
                            FROM " . self::$dbprefix . "cms_blocks_material_sort
                           WHERE id = " . (int)$this->id

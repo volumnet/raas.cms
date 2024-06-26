@@ -79,6 +79,19 @@ class BlockMaterialTest extends BaseTest
             $block->sort
         );
 
+        $sqlQuery = "SELECT * FROM cms_blocks WHERE id = " . $blockId;
+        $sqlRow = Block::_SQL()->getline($sqlQuery);
+        $block = new Block_Material($sqlRow);
+        $this->assertEquals('Наши преимущества', $block->name);
+        $this->assertEquals(
+            [['var' => 'name', 'relation' => '=', 'field' => 'name']],
+            $block->filter
+        );
+        $this->assertEquals(
+            [['var' => '13', 'field' => '13', 'relation' => 'asc']],
+            $block->sort
+        );
+
         $materialType = new Material_Type(1); // Преимущества
         $affectedPagesIds = array_map(function ($x) {
             return $x->id;

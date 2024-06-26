@@ -97,12 +97,12 @@ class EditBlockMaterialFormTest extends BaseTest
             // 14 - поле "Адрес ссылки" у баннеров
             return (int)$x->value;
         }, (array)$form->children['serviceTab']->children['sorting_params']->children['sort_field_default']->children));
-        $this->assertEquals('name', $form->DATA['filter_var'][0]);
-        $this->assertEquals('=', $form->DATA['filter_relation'][0]);
-        $this->assertEquals('name', $form->DATA['filter_field'][0]);
-        $this->assertEquals('13', $form->DATA['sort_var'][0]);
-        $this->assertEquals('13', $form->DATA['sort_field'][0]);
-        $this->assertEquals('asc', $form->DATA['sort_relation'][0]);
+        $this->assertEquals('name', $form->DATA['filter_var'][0] ?? null);
+        $this->assertEquals('=', $form->DATA['filter_relation'][0] ?? null);
+        $this->assertEquals('name', $form->DATA['filter_field'][0] ?? null);
+        $this->assertEquals('13', $form->DATA['sort_var'][0] ?? null);
+        $this->assertEquals('13', $form->DATA['sort_field'][0] ?? null);
+        $this->assertEquals('asc', $form->DATA['sort_relation'][0] ?? null);
 
         Block_Material::delete($block);
     }
@@ -142,12 +142,12 @@ class EditBlockMaterialFormTest extends BaseTest
             // 14 - поле "Адрес ссылки" у баннеров
             return (int)$x->value;
         }, (array)$form->children['serviceTab']->children['sorting_params']->children['sort_field_default']->children));
-        $this->assertEquals('name', $block->filter[0]['var']);
-        $this->assertEquals('=', $block->filter[0]['relation']);
-        $this->assertEquals('name', $block->filter[0]['field']);
-        $this->assertEquals('13', $block->sort[0]['var']);
-        $this->assertEquals('13', $block->sort[0]['field']);
-        $this->assertEquals('asc', $block->sort[0]['relation']);
+        $this->assertEquals('name', $block->filter[0]['var'] ?? null);
+        $this->assertEquals('=', $block->filter[0]['relation'] ?? null);
+        $this->assertEquals('name', $block->filter[0]['field'] ?? null);
+        $this->assertEquals('13', $block->sort[0]['var'] ?? null);
+        $this->assertEquals('13', $block->sort[0]['field'] ?? null);
+        $this->assertEquals('asc', $block->sort[0]['relation'] ?? null);
 
         $_POST = $oldPost;
         $_SERVER = $oldServer;
