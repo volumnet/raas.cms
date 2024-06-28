@@ -18,6 +18,7 @@ namespace RAAS\CMS;
 use Exception;
 use GdImage;
 use SOME\Graphics;
+use RAAS\Application;
 use RAAS\Attachment;
 
 /**
