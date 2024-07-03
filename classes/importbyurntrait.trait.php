@@ -2,6 +2,8 @@
 /**
  * Файл трейта импорта по URN
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 /**
@@ -12,13 +14,15 @@ trait ImportByURNTrait
     /**
      * Импортировать сущность по URN
      * @param string $urn URN для импорта
-     * @return static
+     * @return static|null
      */
-    public static function importByURN($urn)
+    public static function importByURN(string $urn)
     {
         $sqlQuery = "SELECT * FROM " . static::_tablename() . " WHERE urn = ?";
         if ($sqlResult = static::$SQL->getline([$sqlQuery, [$urn]])) {
-            return new static($sqlResult);
+            $result = new static($sqlResult);
+            $result->trust();
+            return $result;
         }
         return null;
     }

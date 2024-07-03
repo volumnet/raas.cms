@@ -494,13 +494,10 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_redirects (
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippets (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
   pid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Parent ID#',
-  post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
-  modify_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Modify date',
   author_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Author ID#',
   editor_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Editor ID#',
   urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN',
-  description MEDIUMTEXT COMMENT 'Code',
-  locked TINYINT(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Locked',
+  locked VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Locked symlink',
   PRIMARY KEY (id),
   KEY pid (pid),
   KEY author_id (author_id),
@@ -519,22 +516,14 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippet_folders (
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
-  post_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date',
-  modify_date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Modify date',
   author_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Author ID#',
   editor_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Editor ID#',
-  urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN',
-  description MEDIUMTEXT COMMENT 'Code',
   width INT UNSIGNED NOT NULL DEFAULT '640' COMMENT 'Width',
   height INT UNSIGNED NOT NULL DEFAULT '1024' COMMENT 'Height',
-  visual TINYINT(1) unsigned NOT NULL DEFAULT 1 COMMENT 'Template is visual',
-  background INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Background attachment ID#',
   locations_info TEXT COMMENT 'Locations info',
   PRIMARY KEY (id),
   KEY author_id (author_id),
-  KEY editor_id (editor_id),
-  KEY background (background),
-  INDEX (urn)
+  KEY editor_id (editor_id)
 ) COMMENT='Templates';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (

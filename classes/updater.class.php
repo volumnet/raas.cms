@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace RAAS\CMS;
 
+use SOME\File;
 use SOME\SOME;
 use SOME\Text;
 use RAAS\Application;
@@ -66,6 +67,9 @@ class Updater extends RAASUpdater
         }
         if (version_compare($v, '4.3.87') < 0) {
             $this->update20240610();
+        }
+        if (version_compare($v, '4.3.92') < 0) {
+            $this->update20240702();
         }
     }
 
@@ -1061,7 +1065,8 @@ class Updater extends RAASUpdater
     protected function update20141029()
     {
         if (in_array(SOME::_dbprefix() . "cms_snippets", $this->tables) &&
-            in_array(SOME::_dbprefix() . "cms_snippet_folders", $this->tables)
+            in_array(SOME::_dbprefix() . "cms_snippet_folders", $this->tables) &&
+            in_array('description', $this->columns(SOME::_dbprefix() . "cms_snippets"))
         ) {
             $sqlQuery = "SELECT COUNT(*)
                             FROM " . SOME::_dbprefix() . "cms_snippets AS tS
@@ -1535,22 +1540,23 @@ class Updater extends RAASUpdater
                             AND (name = 'Карта сайта' OR name = 'Sitemap')";
             $this->SQL->query($sqlQuery);
         }
-        if (in_array(SOME::_dbprefix() . "cms_templates", $this->tables) &&
-            !in_array(
-                'urn',
-                $this->columns(SOME::_dbprefix() . "cms_templates")
-            )
-        ) {
-            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_templates
-                            ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
-                            ADD INDEX (urn)";
-            $this->SQL->query($sqlQuery);
-            $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_templates
-                            SET urn = 'main'
-                          WHERE (urn = '')
-                            AND (name = 'Главная' OR name = 'Main')";
-            $this->SQL->query($sqlQuery);
-        }
+        // @deprecated 2024-07-02
+        // if (in_array(SOME::_dbprefix() . "cms_templates", $this->tables) &&
+        //     !in_array(
+        //         'urn',
+        //         $this->columns(SOME::_dbprefix() . "cms_templates")
+        //     )
+        // ) {
+        //     $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_templates
+        //                     ADD urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN' AFTER name,
+        //                     ADD INDEX (urn)";
+        //     $this->SQL->query($sqlQuery);
+        //     $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_templates
+        //                     SET urn = 'main'
+        //                   WHERE (urn = '')
+        //                     AND (name = 'Главная' OR name = 'Main')";
+        //     $this->SQL->query($sqlQuery);
+        // }
     }
 
 
@@ -1817,7 +1823,7 @@ class Updater extends RAASUpdater
     public function update20210301()
     {
         if (in_array(SOME::_dbprefix() . "cms_snippets", $this->tables) &&
-            !in_array('post_date', $this->columns(SOME::_dbprefix() . "cms_snippets"))
+            !in_array('author_id', $this->columns(SOME::_dbprefix() . "cms_snippets"))
         ) {
             $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_snippets
                            ADD post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date' AFTER pid,
@@ -1829,7 +1835,7 @@ class Updater extends RAASUpdater
             $this->SQL->query($sqlQuery);
         }
         if (in_array(SOME::_dbprefix() . "cms_templates", $this->tables) &&
-            !in_array('post_date', $this->columns(SOME::_dbprefix() . "cms_templates"))
+            !in_array('author_id', $this->columns(SOME::_dbprefix() . "cms_templates"))
         ) {
             $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_templates
                            ADD post_date datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Post date' AFTER id,
@@ -2105,6 +2111,99 @@ class Updater extends RAASUpdater
                     $this->SQL->query([$sqlQuery, [$snippetURN]]);
                 }
             }
+        }
+    }
+
+
+    /**
+     * Преобразует данные сниппетов и шаблонов
+     * ВАЖНО!!! здесь меняем все сниппеты, включая модульные, поскольку нет возможности оценить,
+     * какие к кому принадлежат, и, соответственно, адекватно убрать/проставить locked
+     */
+    public function update20240702()
+    {
+        $dir = Application::i()->baseDir . '/inc/snippets';
+        // СНИППЕТЫ
+        if (in_array(SOME::_dbprefix() . "cms_snippets", $this->tables) &&
+            in_array('description', $this->columns(SOME::_dbprefix() . "cms_snippets"))
+        ) {
+            $lockedMapping = [
+                '__raas_form_notify' => 'form_notification.php',
+                '__raas_shop_order_notify' => 'shop/form_notification.php',
+                '__raas_users_recovery_notify' => 'users/recovery_notification.php',
+                '__raas_users_register_notify' => 'users/register_notification.php',
+            ];
+
+            // 1. Преобразуем все locked в строки
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_snippets
+                        CHANGE locked locked VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Locked'";
+            $this->SQL->query($sqlQuery);
+            $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_snippets SET locked = '' WHERE 1";
+            $this->SQL->query($sqlQuery);
+            foreach ($lockedMapping as $urn => $symlink) {
+                $sqlQuery = "UPDATE " . SOME::_dbprefix() . "cms_snippets SET locked = ? WHERE urn = ?";
+                $this->SQL->query([$sqlQuery, [$symlink, $urn]]);
+            }
+
+            // 2. Вытащим все сниппеты в файлы
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+            if (!is_file($dir . '/.htaccess')) {
+                file_put_contents($dir . '/.htaccess', "Order deny,allow\nDeny from all");
+                chmod($dir . '/.htaccess', 0755);
+            }
+            $sqlQuery = "SELECT urn, description FROM " . SOME::_dbprefix() . "cms_snippets WHERE locked = ''";
+            $sqlResult = $this->SQL->get($sqlQuery);
+            foreach ($sqlResult as $sqlRow) {
+                $filename = $dir . '/' . $sqlRow['urn'] . '.tmp.php';
+                if (!is_file($filename)) {
+                    file_put_contents($filename, $sqlRow['description']);
+                }
+                chmod($filename, 0777);
+            }
+
+            // 3. Удалим description и прочие ненужные поля
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_snippets
+                          DROP post_date,
+                          DROP modify_date,
+                          DROP description";
+            $this->SQL->query($sqlQuery);
+            File::unlink(Application::i()->baseDir . '/cache/system/snippets');
+        }
+
+        // ШАБЛОНЫ
+        if (in_array(SOME::_dbprefix() . "cms_templates", $this->tables) &&
+            in_array('description', $this->columns(SOME::_dbprefix() . "cms_templates"))
+        ) {
+            // 1. Вытащим все шаблоны в файлы
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+            if (!is_file($dir . '/.htaccess')) {
+                file_put_contents($dir . '/.htaccess', "Order deny,allow\nDeny from all");
+                chmod($dir . '/.htaccess', 0755);
+            }
+            $sqlQuery = "SELECT id, description FROM " . SOME::_dbprefix() . "cms_templates";
+            $sqlResult = $this->SQL->get($sqlQuery);
+            foreach ($sqlResult as $sqlRow) {
+                $filename = $dir . '/template' . $sqlRow['id'] . '.tmp.php';
+                if (!is_file($filename)) {
+                    file_put_contents($filename, $sqlRow['description']);
+                }
+                chmod($filename, 0777);
+            }
+
+            // 2. Удалим description и прочие ненужные поля
+            $sqlQuery = "ALTER TABLE " . SOME::_dbprefix() . "cms_templates
+                          DROP post_date,
+                          DROP modify_date,
+                          DROP urn,
+                          DROP description,
+                          DROP visual,
+                          DROP background";
+            $this->SQL->query($sqlQuery);
+            File::unlink(Application::i()->baseDir . '/cache/system/templates');
         }
     }
 }

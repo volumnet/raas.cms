@@ -581,6 +581,11 @@ class BlockTest extends BaseTest
      */
     public function testProcessWithInterfaceClassname()
     {
+        $widget = new Snippet(16);
+        $widgetFilename = Package::i()->resourcesDir . '/widgets/materials/features/features_main.tmp.php';
+        $widget->description = file_get_contents($widgetFilename);
+        $widget->commit();
+
         $block = new Block_Material([
             'material_type' => 1, // Преимущества
             'interface_classname' => MaterialInterface::class,
@@ -710,6 +715,7 @@ class BlockTest extends BaseTest
         });
         RAASControllerFrontend::i()->setDiag($diag);
         $block = Block::spawn(22); // Новости на странице новостей
+        $block->Widget->commit();
         $page = new Page(7); // Новости
         ob_start();
         $block->process($page);
@@ -753,6 +759,7 @@ class BlockTest extends BaseTest
         });
         RAASControllerFrontend::i()->setDiag($diag);
         $block = Block::spawn(22); // Новости на странице новостей
+        $block->Widget->commit();
         $page = new Page(7); // Новости
         $page->Material = new Material(7); // Первая новость
         ob_start();
@@ -874,6 +881,9 @@ class BlockTest extends BaseTest
      */
     public function testGetLocation()
     {
+        $template = new Template(1);
+        $template->description = file_get_contents(Package::i()->resourcesDir . '/template.tmp.php');
+        $template->commit();
         $block = Block::spawn(12);
 
         $result = $block->Location;

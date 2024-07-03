@@ -2,6 +2,8 @@
 /**
  * Форма редактирования страницы
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Application;
@@ -29,18 +31,17 @@ class EditPageForm extends RAASForm
 
     public function __construct(array $params = [])
     {
-        $view = $this->view;
-        $Item = isset($params['Item']) ? $params['Item'] : null;
-        $Parent = isset($params['Parent']) ? $params['Parent'] : null;
+        $item = isset($params['Item']) ? $params['Item'] : new Page();
+        $parent = isset($params['Parent']) ? $params['Parent'] : $item->parent;
 
-        if ($Parent->id) {
-            if ($Item->id) {
+        if ($parent && $parent->id) {
+            if ($item->id) {
                 $title =  $this->view->_('EDITING_PAGE');
             } else {
                 $title =  $this->view->_('CREATING_PAGE');
             }
         } else {
-            if ($Item->id) {
+            if ($item && $item->id) {
                 $title = $this->view->_('EDITING_SITE');
             } else {
                 $title = $this->view->_('CREATING_SITE');
@@ -48,22 +49,22 @@ class EditPageForm extends RAASForm
         }
 
         $tabs = [];
-        $tabs['common'] = $this->getCommonTab($Item, $Parent);
-        $tabs['seo'] = $this->getSeoTab($Parent, $Item);
+        $tabs['common'] = $this->getCommonTab($item, $parent);
+        $tabs['seo'] = $this->getSeoTab($parent, $item);
         if (isset(Application::i()->packages['cms']->modules['users'])) {
             $tabs['access'] = new CMSAccessFormTab($params);
         }
-        $tabs['service'] = $this->getServiceTab($Item, $Parent);
+        $tabs['service'] = $this->getServiceTab($item, $parent);
 
         $defaultParams = [
             'parentUrl' => $this->view->url . '&id=%s#subsections',
             'caption' => $title,
             'children' => $tabs,
-            'export' => function ($Form) use ($Parent) {
+            'export' => function ($Form) use ($parent) {
                 $Form->exportDefault();
                 $Form->Item->editor_id = Application::i()->user->id;
                 if (!$Form->Item->id) {
-                    $Form->Item->pid = (int)$Parent->id;
+                    $Form->Item->pid = (int)$parent->id;
                     $Form->Item->author_id = $Form->Item->editor_id;
                 }
             }
@@ -94,13 +95,13 @@ class EditPageForm extends RAASForm
             ]
         ]);
         if ($parent->id) {
-            $commonTab->children[] = [
+            $commonTab->children['urn'] = [
                 'name' => 'urn',
                 'class' => 'span5',
                 'caption' => $this->view->_('URN')
             ];
         } else {
-            $commonTab->children[] = [
+            $commonTab->children['urn'] = [
                 'name' => 'urn',
                 'class' => 'span5',
                 'multiple' => true,
@@ -122,7 +123,7 @@ class EditPageForm extends RAASForm
         }
         foreach ($item->fields as $row) {
             $f = $row->Field;
-            $commonTab->children[] = new FieldSet([
+            $commonTab->children[$row->urn] = new FieldSet([
                 'template' => 'edit_page.inherit.php',
                 'children' => [
                     $f,
@@ -166,7 +167,7 @@ class EditPageForm extends RAASForm
                 'children' => []
             ]
         );
-        $seoTab->children[] = new FieldSet([
+        $seoTab->children['meta_title'] = new FieldSet([
             'template' => 'edit_page.inherit.php',
             'children' => [
                 [
@@ -195,7 +196,7 @@ class EditPageForm extends RAASForm
                 ]
             ]
         ]);
-        $seoTab->children[] = new FieldSet([
+        $seoTab->children['meta_description'] = new FieldSet([
             'template' => 'edit_page.inherit.php',
             'children' => [
                 [
@@ -223,7 +224,7 @@ class EditPageForm extends RAASForm
                 ]
             ]
         ]);
-        $seoTab->children[] = new FieldSet([
+        $seoTab->children['meta_keywords'] = new FieldSet([
             'template' => 'edit_page.inherit.php',
             'children' => [
                 [
@@ -245,26 +246,26 @@ class EditPageForm extends RAASForm
                 ]
             ]
         ]);
-        $seoTab->children[] = [
+        $seoTab->children['h1'] = [
             'name' => 'h1',
             'caption' => $this->view->_('H1'),
             'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
             'class' => 'span5'
         ];
-        $seoTab->children[] = [
+        $seoTab->children['menu_name'] = [
             'name' => 'menu_name',
             'caption' => $this->view->_('MENU_NAME'),
             'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
             'class' => 'span5'
         ];
-        $seoTab->children[] = [
+        $seoTab->children['breadcrumbs_name'] = [
             'name' => 'breadcrumbs_name',
             'caption' => $this->view->_('BREADCRUMBS_NAME'),
             'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
             'class' => 'span5'
         ];
 
-        $seoTab->children[] = new FieldSet([
+        $seoTab->children['changefreq'] = new FieldSet([
             'template' => 'edit_page.inherit.php',
             'children' => [
                 [
@@ -311,7 +312,7 @@ class EditPageForm extends RAASForm
                 ]
             ]
         ]);
-        $seoTab->children[] = new FieldSet([
+        $seoTab->children['sitemaps_priority'] = new FieldSet([
             'template' => 'edit_page.inherit.php',
             'children' => [
                 [
@@ -349,15 +350,14 @@ class EditPageForm extends RAASForm
     protected function getServiceTab(Page $item, Page $parent)
     {
         $CONTENT = [];
-        $CONTENT['templates'] = [
-            'Set' => array_merge(
-                [new Template([
-                    'id' => 0,
-                    'name' => $this->view->_('NOT_SELECTED')
-                ])],
-                Template::getSet()
-            )
-        ];
+        $templates = Template::getSet();
+        $CONTENT['templates'] = [];
+        foreach ($templates as $template) {
+            $CONTENT['templates'][] = [
+                'value' => $template->id,
+                'caption' => trim('#' . $template->id . ' ' . $template->name),
+            ];
+        }
         $CONTENT['languages'] = [];
         foreach ($this->view->availableLanguages as $key => $val) {
             $CONTENT['languages'][] = ['value' => $key, 'caption' => $val];
@@ -383,9 +383,7 @@ class EditPageForm extends RAASForm
                     'caption' => $this->view->_('SERVICE_RESPONSE_CODE'),
                     'data-hint' => $this->view->_('SERVICE_PAGE_DESCRIPTION'),
                     'import' => function () use ($item) {
-                        return (int)$item->response_code ?
-                               (int)$item->response_code :
-                               '';
+                        return (int)$item->response_code ?: '';
                     }
                 ],
                 'mime' => [
@@ -427,6 +425,7 @@ class EditPageForm extends RAASForm
                             'name' => 'template',
                             'caption' => $this->view->_('TEMPLATE'),
                             'children' => $CONTENT['templates'],
+                            'placeholder' => $this->view->_('NOT_SELECTED'),
                             'default' => ($parent->id ? $parent->template : 0)
                         ],
                         'inherit_template' => [

@@ -26,17 +26,17 @@ class Location
     /**
      * Минимальная ширина, px
      */
-    const min_width = 140;
+    const MIN_WIDTH = 140;
 
     /**
      * Минимальная высота, px
      */
-    const min_height = 50;
+    const MIN_HEIGHT = 50;
 
     /**
      * Минимальная высота, px, при которой размещение считается вертикальным
      */
-    const vertical_min_height = 90;
+    const VERTICAL_MIN_HEIGHT = 90;
 
     /**
      * Родительский шаблон
@@ -87,7 +87,7 @@ class Location
                 break;
             case 'horizontal':
                 return $this->urn &&
-                       ($this->height < self::vertical_min_height);
+                       ($this->height < self::VERTICAL_MIN_HEIGHT);
             case 'style':
                 $style = [];
                 $style['left'] = $this->x . 'px';
@@ -143,8 +143,8 @@ class Location
                 $this->$key = (int)$params[$key];
             }
         }
-        $this->width = max($this->width, self::min_width);
-        $this->height = max($this->height, self::min_height);
+        $this->width = max($this->width, self::MIN_WIDTH);
+        $this->height = max($this->height, self::MIN_HEIGHT);
         $parentWidth = $parentHeight = 0;
         if ($parent = $this->parent) {
             $parentWidth = $parent->width;

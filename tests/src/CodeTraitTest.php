@@ -6,6 +6,7 @@ namespace RAAS\CMS;
 
 use SOME\BaseTest;
 use SOME\File;
+use RAAS\Application;
 
 /**
  * Тест трейта CodeTrait
@@ -19,13 +20,126 @@ class CodeTraitTest extends BaseTest
         'cms_snippets',
     ];
 
+
+    /**
+     * Тест получения свойства description
+     */
+    public function testGetDescription()
+    {
+        $snippet = new Snippet(['urn' => 'test', 'description' => 'aaa']);
+        $snippet->commit();
+        $snippet = new Snippet($snippet->id);
+
+        $result = $snippet->description;
+
+        $this->assertEquals('aaa', $result);
+
+        Snippet::delete($snippet);
+    }
+
+
+    /**
+     * Провайдер данных для метода testGetName
+     * @return array <pre><code>array<[
+     *     string Код,
+     *     string Установленный URN,
+     *     string Ожидаемое значение,
+     * ]></code></pre>
+     */
+    public function getNameDataProvider(): array
+    {
+        return [
+            [
+                (
+                    '<' . "?php\n" .
+                    "/**\n" .
+                    " * Тест\n" .
+                    " */\n"
+                ),
+                '',
+                'Тест',
+            ],
+            [
+                (
+                    '<' . "?php\n" .
+                    "/**\n" .
+                    " */\n"
+                ),
+                'test',
+                'test',
+            ],
+            [
+                (
+                    '<' . "?php\n" .
+                    "/**\n" .
+                    " * Тест\n" .
+                    " * @param array<[string]>\n" . // Некорректный тег PHPDoc для проверки исключения
+                    " */\n"
+                ),
+                'test1',
+                'test1',
+            ],
+            [
+                (
+                    '<' . "?php\n" .
+                    "return 'aaa';\n"
+                ),
+                'test',
+                'test',
+            ],
+            [
+                (
+                    '<' . "?php\n" .
+                    "return 'aaa';\n"
+                ),
+                '',
+                '',
+            ],
+        ];
+    }
+
+
+    /**
+     * Тест получения свойства name
+     * @param string $code Код
+     * @param string $urn Установленный URN
+     * @param string $expected Ожидаемое значение
+     * @dataProvider getNameDataProvider
+     */
+    public function testGetName(string $code, string $urn, string $expected)
+    {
+        $snippet = new Snippet(['description' => $code]);
+        if ($urn) {
+            $snippet->urn = $urn;
+        }
+
+        $this->assertEquals($expected, $snippet->name);
+    }
+
+
+    /**
+     * Тест получения свойства name
+     */
+    public function testGetNameWithNoDocBlock()
+    {
+        $code = '<' . "?php\n"
+            . "return 'aaa';\n";
+        $snippet = new Snippet(['urn' => 'test', 'description' => $code]);
+        $snippet->commit();
+
+        $this->assertEquals('test', $snippet->name);
+
+        Snippet::delete($snippet);
+    }
+
+
     /**
      * Тест метода saveFile()
      */
     public function testSaveFile()
     {
         $snippet = Snippet::importByURN('news');
-        $filename = Package::i()->cacheDir . '/system/snippets/news.tmp.php';
+        $filename = Application::i()->baseDir . '/inc/snippets/news.tmp.php';
         if (is_file($filename)) {
             unlink($filename);
         }
@@ -37,22 +151,26 @@ class CodeTraitTest extends BaseTest
         $this->assertFileExists($filename);
     }
 
-
     /**
-     * Тест метода saveFile() - случай с пустым id
+     * Тест метода saveFile() - случай без URN
      */
-    public function testSaveFileWithNoId()
+    public function testSaveFileWithNoURN()
     {
-        $filename = Package::i()->cacheDir . '/system/snippets/test.tmp.php';
+        $snippet = new Snippet();
+        $snippet->commit();
+
+        $filename = Application::i()->baseDir . '/inc/snippets/.tmp.php';
         if (is_file($filename)) {
             unlink($filename);
         }
+
         $this->assertFileDoesNotExist($filename);
 
-        $snippet = new Snippet(['urn' => 'test', 'description' => '']);
         $snippet->saveFile();
 
         $this->assertFileDoesNotExist($filename);
+
+        Snippet::delete($snippet);
     }
 
 
@@ -61,17 +179,17 @@ class CodeTraitTest extends BaseTest
      */
     public function testDeleteFile()
     {
-        $this->assertFileDoesNotExist(Package::i()->cacheDir . '/system/snippets/test.tmp.php');
+        $this->assertFileDoesNotExist(Application::i()->baseDir . '/inc/snippets/test.tmp.php');
 
         $snippet = new Snippet(['urn' => 'test', 'description' => '']);
         $snippet->commit();
 
         $this->assertEquals('test', $snippet->urn);
-        $this->assertFileExists(Package::i()->cacheDir . '/system/snippets/test.tmp.php');
+        $this->assertFileExists(Application::i()->baseDir . '/inc/snippets/test.tmp.php');
 
         Snippet::delete($snippet);
 
-        $this->assertFileDoesNotExist(Package::i()->cacheDir . '/system/snippets/test.tmp.php');
+        $this->assertFileDoesNotExist(Application::i()->baseDir . '/inc/snippets/test.tmp.php');
     }
 
 
@@ -80,7 +198,7 @@ class CodeTraitTest extends BaseTest
      */
     public function testDeleteFileWithNoId()
     {
-        $filename = Package::i()->cacheDir . '/system/snippets/test.tmp.php';
+        $filename = Application::i()->baseDir . '/inc/snippets/test.tmp.php';
         if (is_file($filename)) {
             unlink($filename);
         }
@@ -103,40 +221,11 @@ class CodeTraitTest extends BaseTest
 
 
     /**
-     * Тест метода updateNeeded()
-     */
-    public function testUpdateNeeded()
-    {
-        $snippet = Snippet::importByURN('news');
-        $filename = Package::i()->cacheDir . '/system/snippets/news.tmp.php';
-        if (is_file($filename)) {
-            unlink($filename);
-        }
-
-        $result = $snippet->updateNeeded();
-
-        $this->assertTrue($result);
-
-        touch($filename);
-
-        $result = $snippet->updateNeeded();
-
-        $this->assertFalse($result);
-
-        $snippet->modify_date = date('Y-m-d H:i:s', time() + 10);
-
-        $result = $snippet->updateNeeded();
-
-        $this->assertTrue($result);
-    }
-
-
-    /**
      * Тест метода prepareDir()
      */
     public function testPrepareDir()
     {
-        $dir = Package::i()->cacheDir . '/system/snippets';
+        $dir = Application::i()->baseDir . '/inc/snippets';
         if (is_dir($dir)) {
             File::unlink($dir);
         }

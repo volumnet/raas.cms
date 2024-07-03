@@ -6,9 +6,6 @@ declare(strict_types=1);
 
 namespace RAAS\CMS;
 
-use Error;
-use Exception;
-use phpDocumentor\Reflection\DocBlockFactory;
 use SOME\SOME;
 use RAAS\Application;
 use RAAS\User as RAASUser;
@@ -20,16 +17,17 @@ use RAAS\User as RAASUser;
  * @property-read RAASUser $editor Редактор страницы
  * @property-read Snippet[] $usingSnippets Сниппеты, использующие этот сниппет
  * @property-read Block[] $usingBlocks Блоки, использующие этот сниппет
- *                                     (как виджет, интерфейс или
- *                                     интерфейс кэширования)
+ *     (как виджет, интерфейс или интерфейс кэширования)
  * @property-read Form[] $usingForms Формы, использующие этот сниппет
- * @property-read Field[] $usingFields Поля, использующие этот сниппет
- *                                     в качестве пре- или пост-процессора
- * @property-read \RAAS\CMS\Shop\PriceLoader[] $usingPriceloaders Загрузчики прайсов,
- *                                             использующие этот сниппет
- * @property-read \RAAS\CMS\Shop\ImageLoader[] $usingImageloaders Загрузчики изображений,
- *                                             использующие этот сниппет
- * @property-read string $filename Имя файла кэша для сохранения
+ * @property-read Field[] $usingFields Поля, использующие этот сниппет в качестве пре- или пост-процессора
+ * @property-read \RAAS\CMS\Shop\PriceLoader[] $usingPriceloaders Загрузчики прайсов, использующие этот сниппет
+ * @property-read \RAAS\CMS\Shop\ImageLoader[] $usingImageloaders Загрузчики изображений, использующие этот сниппет
+ * @property-read string|null $lockedFilename Имя символьной ссылки заблокированного сниппета
+ * @property-read string|null $filename Имя актуального файла
+ * @property-read string|null $oldFilename Имя старого файла
+ * @property-read string $post_date Дата создания файла
+ * @property-read string $modify_date Дата обновления файла
+ * @property-read string $description Код сниппета
  * @property-read string $name Наименование сниппета
  */
 class Snippet extends SOME
@@ -42,6 +40,7 @@ class Snippet extends SOME
     protected static $defaultOrderBy = "urn";
 
     protected static $cognizableVars = [
+        'description',
         'name',
         'usingSnippets',
         'usingBlocks',
@@ -77,17 +76,56 @@ class Snippet extends SOME
     public function __get($var)
     {
         switch ($var) {
+            case 'lockedFilename':
+                if (!$this->locked) {
+                    return null;
+                }
+                $nameArr = explode('/', trim((string)$this->locked, '/'));
+                if (count($nameArr) > 1) {
+                    $module = Package::i()->modules[$nameArr[0]] ?? null;
+                    if (!$module) {
+                        return null;
+                    }
+                    $result = $module->resourcesDir . '/interfaces/' . $nameArr[1];
+                    return $result;
+                } else {
+                    $result = Package::i()->resourcesDir . '/interfaces/' . $nameArr[0];
+                    return $result;
+                }
+                break;
             case 'filename':
-                // Здесь именно ...properties... , поскольку при сохранении
-                // нужно удалять старый файл
-                // Обращение к новому файлу идёт только в случае
-                // реального commit'а
-                // Шунтирование ...updates... идёт на случай, когда сниппет
-                // генерируется динамически
-                $filename = Package::i()->cacheDir . '/system/snippets/'
-                    . (($this->properties['urn'] ?? null) ?: ($this->updates['urn'] ?? null))
-                    . '.tmp.php';
-                return $filename;
+                if ($this->locked) {
+                    return $this->lockedFilename;
+                }
+                if (!($this->properties['urn'] ?? null) && !($this->updates['urn'] ?? null)) {
+                    return null;
+                }
+                $filename = (($this->updates['urn'] ?? null) ?: ($this->properties['urn'] ?? null));
+                $filepath = static::getDirName() . '/' . $filename . '.tmp.php';
+                return $filepath;
+                break;
+            case 'oldFilename':
+                if ($this->locked) {
+                    return $this->lockedFilename;
+                }
+                if (!($this->properties['urn'] ?? null) && !($this->updates['urn'] ?? null)) {
+                    return null;
+                }
+                $filename = (($this->properties['urn'] ?? null) ?: ($this->updates['urn'] ?? null));
+                $filepath = static::getDirName() . '/' . $filename . '.tmp.php';
+                return $filepath;
+                break;
+            case 'post_date':
+                if (!$this->filename || !is_file($this->filename)) {
+                    return '0000-00-00 00:00:00';
+                }
+                return date('Y-m-d H:i:s', filectime($this->filename));
+                break;
+            case 'modify_date':
+                if (!$this->filename || !is_file($this->filename)) {
+                    return '0000-00-00 00:00:00';
+                }
+                return date('Y-m-d H:i:s', filemtime($this->filename));
                 break;
             default:
                 return parent::__get($var);
@@ -95,30 +133,49 @@ class Snippet extends SOME
         }
     }
 
+
     public function commit()
     {
         if (!$this->urn && $this->name) {
             $this->urn = $this->name;
         }
         Package::i()->getUniqueURN($this);
-        $datetime = date('Y-m-d H:i:s');
+
         $uid = (int)(Application::i()->user->id ?? 0);
         if (!$this->id) {
-            $this->post_date = $datetime;
             $this->author_id = $uid;
         }
-        $this->modify_date = $datetime;
         $this->editor_id = $uid;
-        if ($this->id &&
-            ($this->updates['urn'] ?? false) &&
-            ($this->properties['urn'] ?? false) &&
-            ($this->updates['urn'] != $this->properties['urn'])
-        ) {
-            $this->deleteFile();
+
+        if (!$this->locked) {
+            $oldFilename = $this->oldFilename;
+            $filename = $this->filename;
+            if (!$this->id) {
+                // Если новый
+                if (trim((string)$this->description)) {
+                    // Если есть описание
+                    $this->saveFile();
+                } elseif ($this->filename) {
+                    // Если нет описания
+                    touch($this->filename);
+                }
+            } else {
+                // Существующий
+                if ($oldFilename &&
+                    $filename &&
+                    ($oldFilename != $filename) &&
+                    is_file($oldFilename) &&
+                    !is_file($filename)
+                ) {
+                    // Если переименовываем
+                    rename($this->oldFilename, $this->filename);
+                }
+                $this->saveFile();
+            }
         }
+
         parent::commit();
         static::$snippetsSet = [];
-        $this->saveFile();
     }
 
 
@@ -128,8 +185,8 @@ class Snippet extends SOME
      */
     public function process(array $data = [])
     {
-        if (!is_file($this->filename)) {
-            $this->saveFile();
+        if (!$this->filename || !is_file($this->filename)) {
+            return;
         }
         $snippetST = microtime(true);
         // 2020-12-25, убрано - в формах вместо POST-данных
@@ -152,11 +209,7 @@ class Snippet extends SOME
             if (($block instanceof Block_Material) && $block->nat && $pageWithMaterial) {
                 $diagId .= '@m';
             }
-            $diag->handle(
-                'snippets',
-                $diagId,
-                microtime(true) - $snippetST
-            );
+            $diag->handle('snippets', $diagId, microtime(true) - $snippetST);
         }
         return $result;
     }
@@ -268,39 +321,52 @@ class Snippet extends SOME
 
 
     /**
-     * Возвращает наименование сниппета
-     * @return string
+     * Проверяет файлы на наличие новых сниппетов и добавляет их при необходимости
      */
-    protected function _name()
+    public static function checkSnippets()
     {
-        if ($description = $this->description) {
-            $tokens = token_get_all($description);
-            $docBlockTexts = array_values(array_filter($tokens, function ($item) {
-                return $item[0] == T_DOC_COMMENT;
-            }));
-            if ($docBlockTexts) {
-                $docBlockText = $docBlockTexts[0][1];
-                $docBlockFactory  = DocBlockFactory::createInstance();
-                try {
-                    $docBlock = $docBlockFactory->create($docBlockText);
-                    $result = $docBlock->getSummary();
-                    if (trim($result)) {
-                        return trim($result);
-                    }
-                } catch (Exception $e) {
-                }
+        $interfacesFolder = $widgetsFolder = null;
+        $glob = glob(static::getDirName() . '/*.tmp.php');
+        $sqlQuery = "SELECT urn FROM " . static::_tablename();
+        $sqlResult = static::_SQL()->getcol($sqlQuery);
+        $urns = [];
+        foreach ($sqlResult as $urn) {
+            $urns[$urn] = $urn;
+        }
+        foreach ($glob as $filename) {
+            $urn = pathinfo($filename, PATHINFO_FILENAME);
+            $urn = explode('.', $urn)[0];
+            if (isset($urns[$urn])) {
+                continue;
             }
+            if (preg_match('/^template\\d+$/umis', $urn)) { // Шаблоны отсекаем
+                continue;
+            }
+            if (stristr($urn, 'interface')) {
+                if (!$interfacesFolder) {
+                    $interfacesFolder = Snippet_Folder::importByURN('__raas_interfaces');
+                }
+                $folder = $interfacesFolder;
+            } else {
+                if (!$widgetsFolder) {
+                    $widgetsFolder = Snippet_Folder::importByURN('__raas_views');
+                }
+                $folder = $widgetsFolder;
+            }
+            $snippet = new Snippet([
+                'urn' => $urn,
+                'pid' => ($folder && $folder->id) ? (int)$folder->id : 0,
+            ]);
+            $snippet->commit();
         }
-        if ($this->urn) {
-            return $this->urn;
-        }
-        return '';
     }
 
 
     public static function delete(SOME $item)
     {
-        $item->deleteFile();
+        if (!$item->locked) {
+            $item->deleteFile();
+        }
         parent::delete($item);
     }
 }

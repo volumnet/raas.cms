@@ -46,14 +46,6 @@ class TemplatesTable extends Table
                                '</a>';
                     }
                 ],
-                'urn' => [
-                    'caption' => $this->view->_('URN'),
-                    'callback' => function ($row) {
-                        return '<a href="' . $this->view->url . '&action=edit_template&id=' . (int)$row->id . '">' .
-                                  htmlspecialchars($row->urn) .
-                               '</a>';
-                    }
-                ],
                 ' ' => [
                     'callback' => function (
                         $row,

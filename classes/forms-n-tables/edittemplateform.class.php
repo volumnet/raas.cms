@@ -32,7 +32,7 @@ class EditTemplateForm extends RAASForm
     public function __construct(array $params = [])
     {
         $view = $this->view;
-        $item = isset($params['Item']) ? $params['Item'] : null;
+        $item = isset($params['Item']) ? $params['Item'] : new Template();
         $defaultParams = [
             'Item' => $item,
             'caption' => $this->view->_('EDIT_TEMPLATE'),
@@ -61,10 +61,6 @@ class EditTemplateForm extends RAASForm
             'name' => 'common',
             'caption' => $this->view->_('GENERAL'),
             'children' => [
-                'urn' => [
-                    'name' => 'urn',
-                    'caption' => $this->view->_('URN'),
-                ],
                 'description' => [
                     'type' => 'codearea',
                     'name' => 'description',
@@ -73,9 +69,6 @@ class EditTemplateForm extends RAASForm
                 ],
             ]
         ];
-        if (!$template->id) {
-            $arr['children']['background'] = $this->getBackgroundField();
-        }
         $tab = new FormTab($arr);
         return $tab;
     }
@@ -96,7 +89,7 @@ class EditTemplateForm extends RAASForm
                     'export' => function (FieldSet $fieldSet) {
                         $item = $fieldSet->Form->Item;
                         foreach (['width', 'height'] as $key) {
-                            if (isset($_POST[$key]) && (int)$_POST[$key]) {
+                            if ((int)($_POST[$key] ?? 0)) {
                                 $item->$key = (int)$_POST[$key];
                             }
                         }
@@ -104,27 +97,16 @@ class EditTemplateForm extends RAASForm
                             $item->locs = new ArrayObject();
                             foreach ($_POST['location'] as $key => $val) {
                                 $item->locs[] = [
-                                    'urn' => isset($_POST['location'][$key])
-                                          ?  (string)$_POST['location'][$key]
-                                          : 'Location',
-                                    'x' => isset($_POST['location-left'][$key])
-                                        ?  (string)$_POST['location-left'][$key]
-                                        :  0,
-                                    'y' => isset($_POST['location-top'][$key])
-                                        ?  (string)$_POST['location-top'][$key]
-                                        :  0,
-                                    'width' => isset($_POST['location-width'][$key])
-                                            ?  (string)$_POST['location-width'][$key]
-                                            :  $item->width,
-                                    'height' => isset($_POST['location-height'][$key])
-                                             ?  (string)$_POST['location-height'][$key]
-                                             :  Location::min_height,
+                                    'urn' => (string)($_POST['location'][$key] ?? 'Location'),
+                                    'x' => (int)($_POST['location-left'][$key] ?? 0),
+                                    'y' => (int)($_POST['location-top'][$key] ?? 0),
+                                    'width' => (int)($_POST['location-width'][$key] ?? $item->width),
+                                    'height' => (int)($_POST['location-height'][$key] ?? Location::MIN_HEIGHT),
                                 ];
                             }
                         }
                     }
                 ]),
-                'background' => $this->getBackgroundField(),
             ]
         ];
         $tab = new FormTab($arr);
@@ -160,26 +142,5 @@ class EditTemplateForm extends RAASForm
         ];
         $tab = new FormTab($arr);
         return $tab;
-    }
-
-
-    /**
-     * Получает поле фонового изображения
-     * @return RAASField
-     */
-    protected function getBackgroundField()
-    {
-        $field = new RAASField([
-            'type' => 'image',
-            'name' => 'background',
-            'caption' => $this->view->_('BACKGROUND'),
-            'meta' => [
-                'attachmentVar' => 'Background',
-                'deleteAttachmentPath' => $this->view->url
-                                       .  '&action=delete_template_image&id='
-                                       . (int)($this->Item ? $this->Item->id : null)
-            ]
-        ]);
-        return $field;
     }
 }

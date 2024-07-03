@@ -48,6 +48,12 @@
     <testsuite name="EditFormForm">
       <file>src/forms-n-tables/EditFormFormTest.php</file>
     </testsuite>
+    <testsuite name="EditPageForm">
+      <file>src/forms-n-tables/EditPageFormTest.php</file>
+    </testsuite>
+    <testsuite name="EditTemplateForm">
+      <file>src/forms-n-tables/EditTemplateFormTest.php</file>
+    </testsuite>
     <testsuite name="InterfaceField">
       <file>src/forms-n-tables/InterfaceFieldTest.php</file>
     </testsuite>
@@ -56,6 +62,9 @@
     </testsuite>
     <testsuite name="WidgetField">
       <file>src/forms-n-tables/WidgetFieldTest.php</file>
+    </testsuite>
+    <testsuite name="ImportByURNTrait">
+      <file>src/ImportByURNTraitTest.php</file>
     </testsuite>
     <testsuite name="BlockInterface">
       <file>src/interfaces/BlockInterfaceTest.php</file>
@@ -125,6 +134,9 @@
     </testsuite>
     <testsuite name="Snippet">
       <file>src/semantic/SnippetTest.php</file>
+    </testsuite>
+    <testsuite name="Template">
+      <file>src/semantic/TemplateTest.php</file>
     </testsuite>
     <testsuite name="User_Field">
       <file>src/semantic/UserFieldTest.php</file>

@@ -64,7 +64,7 @@ class EditBlockForm extends RAASForm
         ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
-        $this->meta['CONTENT'] = [];
+        $this->meta['CONTENT'] = ['cats' => [], 'locations' => []];
         $temp = new Page();
         $this->meta['CONTENT']['cats'] = $this->getMetaCats();
         foreach ($parent->Template->locations as $key => $val) {

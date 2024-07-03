@@ -33,6 +33,7 @@ class SnippetTest extends BaseTest
         'cms_shop_imageloaders',
         'cms_shop_priceloaders',
         'cms_shop_priceloaders_columns',
+        'cms_snippet_folders',
         'cms_snippets',
         'users',
     ];
@@ -54,6 +55,7 @@ class SnippetTest extends BaseTest
         Snippet::delete($snippet);
     }
 
+
     /**
      * Тест получения свойства filename
      */
@@ -63,7 +65,125 @@ class SnippetTest extends BaseTest
 
         $result = $snippet->filename;
 
-        $this->assertEquals(Package::i()->cacheDir . '/system/snippets/news.tmp.php', $result);
+        $this->assertEquals(Application::i()->baseDir . '/inc/snippets/news.tmp.php', $result);
+    }
+
+
+    /**
+     * Тест получения свойства lockedFilename
+     */
+    public function testGetLockedFilename()
+    {
+        $snippet = Snippet::importByURN('__raas_form_notify');
+
+        $result = $snippet->lockedFilename;
+
+        $this->assertEquals(realpath(Package::i()->resourcesDir . '/interfaces/form_notification.php'), realpath($result));
+    }
+
+
+    /**
+     * Тест получения свойства lockedFilename - случай с незаблокированным сниппетом
+     */
+    public function testGetLockedFilenameWithNotLocked()
+    {
+        $snippet = Snippet::importByURN('banners');
+
+        $result = $snippet->lockedFilename;
+
+        $this->assertNull($result);
+    }
+
+
+    /**
+     * Тест получения свойства lockedFilename - случай с неизвестным модулем
+     */
+    public function testGetLockedFilenameWithNoModule()
+    {
+        $snippet = new Snippet(['urn' => 'test', 'locked' => 'aaa/bbb.php']);
+
+        $result = $snippet->lockedFilename;
+
+        $this->assertNull($result);
+
+        Snippet::delete($snippet);
+    }
+
+
+    /**
+     * Тест получения свойства oldFilename
+     */
+    public function testGetOldFilename()
+    {
+        $snippet = Snippet::importByURN('banners');
+        $snippet->urn = 'banners1';
+
+        $result = $snippet->oldFilename;
+
+        $this->assertEquals(Application::i()->baseDir . '/inc/snippets/banners.tmp.php', $result);
+    }
+
+
+    /**
+     * Тест получения свойства oldFilename - случай с заблокированным сниппетом
+     */
+    public function testGetOldFilenameWithLocked()
+    {
+        $snippet = Snippet::importByURN('__raas_form_notify');
+
+        $result = $snippet->oldFilename;
+
+        $this->assertEquals(realpath(Package::i()->resourcesDir . '/interfaces/form_notification.php'), realpath($result));
+    }
+
+
+    /**
+     * Тест получения свойства post_date
+     */
+    public function testGetPostDate()
+    {
+        $snippet = Snippet::importByURN('banners');
+        $filename = Application::i()->baseDir . '/inc/snippets/banners.tmp.php';
+        if (is_file($filename)) {
+            unlink($filename);
+        }
+
+        $result = $snippet->post_date;
+
+        $this->assertEquals('0000-00-00 00:00:00', $result);
+
+        touch($filename);
+
+        $result = $snippet->post_date;
+
+        $this->assertGreaterThan('0000-00-00 00:00:00', $result);
+
+        unlink($filename);
+    }
+
+
+    /**
+     * Тест получения свойства modify_date
+     */
+    public function testGetModifyDate()
+    {
+        $snippet = Snippet::importByURN('banners');
+        $filename = Application::i()->baseDir . '/inc/snippets/banners.tmp.php';
+        if (is_file($filename)) {
+            unlink($filename);
+        }
+
+        $result = $snippet->modify_date;
+
+        $this->assertEquals('0000-00-00 00:00:00', $result);
+
+        touch($filename);
+
+        $result = $snippet->modify_date;
+
+        $this->assertGreaterThan('0000-00-00 00:00:00', $result);
+
+        unlink($filename);
     }
 
 
@@ -72,7 +192,7 @@ class SnippetTest extends BaseTest
      */
     public function testCommit()
     {
-        $this->assertFileDoesNotExist(Package::i()->cacheDir . '/system/snippets/test.tmp.php');
+        $this->assertFileDoesNotExist(Application::i()->baseDir . '/inc/snippets/test.tmp.php');
 
         Application::i()->user = new RAASUser(1);
         $code = '<' . "?php\n"
@@ -84,8 +204,8 @@ class SnippetTest extends BaseTest
         $snippet->commit();
 
         $this->assertEquals('test', $snippet->urn);
-        $this->assertFileExists(Package::i()->cacheDir . '/system/snippets/test.tmp.php');
-        $this->assertFileDoesNotExist(Package::i()->cacheDir . '/system/snippets/test1.tmp.php');
+        $this->assertFileExists(Application::i()->baseDir . '/inc/snippets/test.tmp.php');
+        $this->assertFileDoesNotExist(Application::i()->baseDir . '/inc/snippets/test1.tmp.php');
         $this->assertEquals(date('Y-m-d'), date('Y-m-d', strtotime($snippet->post_date)));
         $this->assertEquals(date('Y-m-d'), date('Y-m-d', strtotime($snippet->modify_date)));
         $this->assertEquals(1, $snippet->author_id);
@@ -94,8 +214,8 @@ class SnippetTest extends BaseTest
         $snippet->urn = 'test1';
         $snippet->commit();
 
-        $this->assertFileDoesNotExist(Package::i()->cacheDir . '/system/snippets/test.tmp.php');
-        $this->assertFileExists(Package::i()->cacheDir . '/system/snippets/test1.tmp.php');
+        $this->assertFileDoesNotExist(Application::i()->baseDir . '/inc/snippets/test.tmp.php');
+        $this->assertFileExists(Application::i()->baseDir . '/inc/snippets/test1.tmp.php');
 
         Snippet::delete($snippet);
     }
@@ -114,6 +234,24 @@ class SnippetTest extends BaseTest
         $result = $snippet->process(['input' => 'bbb']);
 
         $this->assertEquals(['aaa' => 'bbb'], $result);
+
+        Snippet::delete($snippet);
+    }
+
+
+    /**
+     * Тест метода process() - случай без файла
+     */
+    public function testProcessWithNoFilename()
+    {
+        $code = '<' . "?php\n"
+            . "return ['aaa' => \$input ?? null];\n";
+        $snippet = new Snippet(['urn' => '', 'description' => $code]);
+        $snippet->commit();
+
+        $result = $snippet->process(['input' => 'bbb']);
+
+        $this->assertNull($result);
 
         Snippet::delete($snippet);
     }
@@ -145,30 +283,6 @@ class SnippetTest extends BaseTest
         $this->assertIsNumeric($callParams[0][2]);
         $this->assertEquals('counter', $callParams[0][3]);
         $this->assertEquals('time', $callParams[0][4]);
-
-        Snippet::delete($snippet);
-    }
-
-
-    /**
-     * Тест метода process() - случай с удаленным файлом
-     */
-    public function testProcessWithDeletedFile()
-    {
-        $code = '<' . "?php\n"
-            . "return 'aaa';\n";
-        $snippet = new Snippet(['urn' => 'test', 'description' => $code]);
-        $snippet->commit();
-        $file = Package::i()->cacheDir . '/system/snippets/test.tmp.php';
-        if (is_file($file)) {
-            unlink($file);
-        }
-
-        $this->assertFileDoesNotExist($file);
-
-        $result = $snippet->process();
-
-        $this->assertFileExists($file);
 
         Snippet::delete($snippet);
     }
@@ -308,114 +422,51 @@ class SnippetTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testGetName
-     * @return array <pre><code>array<[
-     *     string Код сниппета,
-     *     string Установленный URN,
-     *     string Ожидаемое значение,
-     * ]></code></pre>
-     */
-    public function getNameDataProvider(): array
-    {
-        return [
-            [
-                (
-                    '<' . "?php\n" .
-                    "/**\n" .
-                    " * Тест\n" .
-                    " */\n"
-                ),
-                '',
-                'Тест',
-            ],
-            [
-                (
-                    '<' . "?php\n" .
-                    "/**\n" .
-                    " */\n"
-                ),
-                'test',
-                'test',
-            ],
-            [
-                (
-                    '<' . "?php\n" .
-                    "/**\n" .
-                    " * Тест\n" .
-                    " * @param array<[string]>\n" . // Некорректный тег PHPDoc для проверки исключения
-                    " */\n"
-                ),
-                'test1',
-                'test1',
-            ],
-            [
-                (
-                    '<' . "?php\n" .
-                    "return 'aaa';\n"
-                ),
-                'test',
-                'test',
-            ],
-            [
-                (
-                    '<' . "?php\n" .
-                    "return 'aaa';\n"
-                ),
-                '',
-                '',
-            ],
-        ];
-    }
-
-
-    /**
-     * Тест получения свойства name
-     * @param string $code Код сниппета
-     * @param string $urn Установленный URN
-     * @param string $expected Ожидаемое значение
-     * @dataProvider getNameDataProvider
-     */
-    public function testGetName(string $code, string $urn, string $expected)
-    {
-        $snippet = new Snippet(['description' => $code]);
-        if ($urn) {
-            $snippet->urn = $urn;
-        }
-
-        $this->assertEquals($expected, $snippet->name);
-    }
-
-
-    /**
-     * Тест получения свойства name
-     */
-    public function testGetNameWithNoDocBlock()
-    {
-        $code = '<' . "?php\n"
-            . "return 'aaa';\n";
-        $snippet = new Snippet(['urn' => 'test', 'description' => $code]);
-        $snippet->commit();
-
-        $this->assertEquals('test', $snippet->name);
-
-        Snippet::delete($snippet);
-    }
-
-
-    /**
      * Тест метода delete()
      */
     public function testDelete()
     {
-        $this->assertFileDoesNotExist(Package::i()->cacheDir . '/system/snippets/test.tmp.php');
+        $this->assertFileDoesNotExist(Application::i()->baseDir . '/inc/snippets/test.tmp.php');
 
         $snippet = new Snippet(['urn' => 'test']);
         $snippet->commit();
 
-        $this->assertFileExists(Package::i()->cacheDir . '/system/snippets/test.tmp.php');
+        $this->assertFileExists(Application::i()->baseDir . '/inc/snippets/test.tmp.php');
 
         Snippet::delete($snippet);
 
-        $this->assertFileDoesNotExist(Package::i()->cacheDir . '/system/snippets/test.tmp.php');
+        $this->assertFileDoesNotExist(Application::i()->baseDir . '/inc/snippets/test.tmp.php');
+    }
+
+
+    /**
+     * Тест метода checkSnippets
+     */
+    public function testCheckSnippets()
+    {
+        Snippet::checkSnippets();
+
+        $widget = Snippet::importByURN('test');
+        $interface = Snippet::importByURN('testinterface');
+
+        $this->assertEmpty($widget);
+        $this->assertEmpty($interface);
+
+        touch(Application::i()->baseDir . '/inc/snippets/banners.tmp.php'); // Уже существующий, для покрытия
+        touch(Application::i()->baseDir . '/inc/snippets/test.tmp.php');
+        touch(Application::i()->baseDir . '/inc/snippets/testinterface.tmp.php');
+        touch(Application::i()->baseDir . '/inc/snippets/template1.tmp.php'); // Шаблон, для покрытия
+
+        Snippet::checkSnippets();
+
+        $widget = Snippet::importByURN('test');
+        $interface = Snippet::importByURN('testinterface');
+        $template = Snippet::importByURN('template1');
+
+        $this->assertNotEmpty($widget->id);
+        $this->assertNotEmpty($interface->id);
+        $this->assertEmpty($template);
+        $this->assertEquals('__raas_views', $widget->parent->urn);
+        $this->assertEquals('__raas_interfaces', $interface->parent->urn);
     }
 }

@@ -6,73 +6,103 @@ declare(strict_types=1);
 
 namespace RAAS\CMS;
 
+use Exception;
+use phpDocumentor\Reflection\DocBlockFactory;
+use RAAS\Application;
+
 /**
  * Трейт сущности с кэшируемым кодом
  */
 trait CodeTrait
 {
     /**
-     * Сохраняет кэш-файл
+     * Сохраняет файл
      */
     public function saveFile()
     {
-        if (!$this->id) {
+        $this->prepareDir();
+        $filename = $this->filename;
+        if (!$filename) {
             return;
         }
-        $filename = $this->filename;
-        $dir = dirname($filename);
-        if (!is_dir($dir)) {
-            $this->prepareDir();
-        }
         file_put_contents($filename, $this->description);
+        chmod($filename, 0777);
     }
 
 
     /**
-     * Удаляет кэш-файл
+     * Удаляет файл
      */
     protected function deleteFile()
     {
-        if (!$this->id) {
-            return;
+        if ($this->id && $this->filename && is_file($this->filename)) {
+            @unlink($this->filename);
         }
-        @unlink($this->filename);
     }
 
 
     /**
-     * Проверяет, требуется ли обновление кэш-файла
-     * @return bool
-     */
-    public function updateNeeded()
-    {
-        $filename = $this->filename;
-        if (!is_file($filename)) {
-            return true;
-        }
-        $mt = strtotime($this->modify_date);
-        $ft = filemtime($filename);
-        if ($mt > $ft) {
-            return true;
-        }
-        return false;
-    }
-
-
-    /**
-     * Подготавливает директорию для кэш-файла
+     * Подготавливает директорию для файла
      */
     protected function prepareDir()
     {
-        $filename = $this->filename;
-        $dir = dirname($filename);
+        $dir = static::getDirName();
         if (!is_dir($dir)) {
             @mkdir($dir, 0777, true);
-            file_put_contents(
-                $dir . '/.htaccess',
-                "Order deny,allow\nDeny from all"
-            );
+        }
+        if (!is_file($dir . '/.htaccess')) {
+            file_put_contents($dir . '/.htaccess', "Order deny,allow\nDeny from all");
             chmod($dir . '/.htaccess', 0755);
         }
+    }
+
+
+    public static function getDirName()
+    {
+        return Application::i()->baseDir . '/inc/snippets';
+    }
+
+
+    /**
+     * Возвращает код
+     * @return string
+     */
+    protected function _description(): string
+    {
+        if (!$this->filename || !is_file($this->filename)) {
+            return '';
+        }
+        return file_get_contents($this->filename);
+    }
+
+
+    /**
+     * Возвращает наименование
+     * @return string
+     */
+    protected function _name(): string
+    {
+        if ($description = $this->description) {
+            $tokens = token_get_all($description);
+            $docBlockTexts = array_values(array_filter($tokens, function ($item) {
+                return $item[0] == T_DOC_COMMENT;
+            }));
+            if ($docBlockTexts) {
+                $docBlockText = $docBlockTexts[0][1];
+                $docBlockFactory  = DocBlockFactory::createInstance();
+                try {
+                    $docBlock = $docBlockFactory->create($docBlockText);
+                    $result = $docBlock->getSummary();
+                    if (trim($result)) {
+                        return trim($result);
+                    }
+                } catch (Exception $e) {
+                }
+            }
+        }
+        if ($this->urn) {
+            return $this->urn;
+        }
+        return '';
     }
 }

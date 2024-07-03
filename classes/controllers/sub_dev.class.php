@@ -64,6 +64,7 @@ class Sub_Dev extends RAASAbstractSubController
                 $this->view->templates(['Set' => $this->model->dev_templates()]);
                 break;
             case 'snippets':
+                Snippet::checkSnippets();
                 $this->view->snippets();
                 break;
             case 'chvis_dictionary':
@@ -621,9 +622,10 @@ class Sub_Dev extends RAASAbstractSubController
      */
     protected function copy_snippet()
     {
-        $item = new Snippet((int)$this->id);
-        $item = $this->model->copyItem($item);
-        $item->locked = 0;
+        $item = $oldItem = new Snippet((int)$this->id);
+        $item = $this->model->copyItem($oldItem);
+        $item->locked = '';
+        $item->description = $oldItem->description;
         $form = new CopySnippetForm(['Item' => $item]);
         $this->view->edit_snippet($form->process());
     }

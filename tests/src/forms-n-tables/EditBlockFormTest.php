@@ -151,6 +151,9 @@ class EditBlockFormTest extends BaseTest
      */
     public function testConstructWithImport()
     {
+        $template = new Template(1);
+        $template->description = file_get_contents(Package::i()->resourcesDir . '/template.tmp.php');
+        $template->commit();
         // 34 - блок "Каталог продукции", 15 - страница "Каталог продукции"
         $form = new EditBlockMaterialForm(['Item' => Block::spawn(34), 'meta' => ['Parent' => new Page(15)]]);
         $result = $form->process();
@@ -160,11 +163,11 @@ class EditBlockFormTest extends BaseTest
         $this->assertEquals('withChildrenGoods', $form->DATA['params_name'][1]);
         $this->assertEquals('1', $form->DATA['params_value'][1]);
         $this->assertEquals(
-            ['value' => 'head_counters', 'caption' => 'head_counters'],
+            ['value' => 'banners', 'caption' => 'banners'],
             $form->meta['CONTENT']['locations'][0]
         );
         $this->assertEquals(
-            ['value' => 'logo', 'caption' => 'logo'],
+            ['value' => 'head_counters', 'caption' => 'head_counters'],
             $form->meta['CONTENT']['locations'][1]
         );
     }

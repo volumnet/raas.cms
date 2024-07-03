@@ -15,38 +15,31 @@ use RAAS\User as RAASUser;
 
 /**
  * Класс шаблона
- * @property-read array<
- *                    string[] URN размещения => Location
- *                > $locations Размещения
- * @property-read Attachment $Background Фоновое изображение
+ * @property-read array<string[] URN размещения => Location> $locations Размещения
  * @property-read RAASUser $author Автор страницы
  * @property-read RAASUser $editor Редактор страницы
- * @property-read array<
- *                    string[] CSS-свойство => string значение свойства
- *                > $style Набор CSS-стилей шаблона
+ * @property-read array<string[] CSS-свойство => string значение свойства> $style Набор CSS-стилей шаблона
  * @property-read string $filename Имя файла кэша для сохранения
- * @property-read string $name Наименование сниппета
+ * @property-read string $post_date Дата создания файла
+ * @property-read string $modify_date Дата обновления файла
+ * @property-read string $description Код шаблона
+ * @property-read string $name Наименование шаблона
  */
 class Template extends SOME
 {
-    use ImportByURNTrait;
     use CodeTrait;
 
     protected static $tablename = 'cms_templates';
 
-    protected static $defaultOrderBy = "urn";
+    protected static $defaultOrderBy = "id";
 
     protected static $cognizableVars = [
+        'description',
         'name',
         'locations',
     ];
 
     protected static $references = [
-        'Background' => [
-            'FK' => 'background',
-            'classname' => Attachment::class,
-            'cascade' => false
-        ],
         'author' => [
             'FK' => 'author_id',
             'classname' => RAASUser::class,
@@ -64,11 +57,6 @@ class Template extends SOME
         switch ($var) {
             case 'style':
                 $style = [];
-                if ($this->Background->id) {
-                    $style['background-image'] = 'url(\''
-                                               .     $this->Background->fileURL
-                                               . '\')';
-                }
                 $style['width'] = $this->width . 'px';
                 $style['height'] = $this->height . 'px';
                 foreach ($style as $key => $val) {
@@ -77,15 +65,23 @@ class Template extends SOME
                 return implode(' ', $style);
                 break;
             case 'filename':
-                // Здесь именно ...properties... , поскольку при сохранении
-                // нужно удалять старый файл
-                // Обращение к новому файлу идёт только в случае реального commit'а
-                // Шунтирование ...updates... идёт на случай, когда сниппет
-                // генерируется динамически
-                $filename = Package::i()->cacheDir . '/system/templates/'
-                    . (($this->properties['urn'] ?? null) ?: ($this->updates['urn'] ?? null))
-                    . '.tmp.php';
+                if (!$this->id) {
+                    return null;
+                }
+                $filename = static::getDirName() . '/template' . (int)$this->id . '.tmp.php';
                 return $filename;
+                break;
+            case 'post_date':
+                if (!$this->filename || !is_file($this->filename)) {
+                    return '0000-00-00 00:00:00';
+                }
+                return date('Y-m-d H:i:s', filectime($this->filename));
+                break;
+            case 'modify_date':
+                if (!$this->filename || !is_file($this->filename)) {
+                    return '0000-00-00 00:00:00';
+                }
+                return date('Y-m-d H:i:s', filemtime($this->filename));
                 break;
             default:
                 return parent::__get($var);
@@ -96,41 +92,22 @@ class Template extends SOME
 
     public function commit()
     {
-        if (!$this->urn && $this->name) {
-            $this->urn = $this->name;
-        }
-        Package::i()->getUniqueURN($this);
         $datetime = date('Y-m-d H:i:s');
-        $uid = (int)Application::i()->user->id;
+        $uid = 0;
+        if (Application::i()->user) {
+            $uid = (int)Application::i()->user->id;
+        }
         if (!$this->id) {
-            $this->post_date = $datetime;
             $this->author_id = $uid;
         }
-        $this->modify_date = $datetime;
         $this->editor_id = $uid;
         $this->width = min($this->width, 680);
         if ($this->locs) {
             $this->locations_info = json_encode((array)$this->locs);
             unset($this->locs);
         }
-        if ($this->id && (($this->updates['urn'] ?? null) != ($this->properties['urn'] ?? null))) {
-            $this->deleteFile();
-        }
         parent::commit();
         $this->saveFile();
-    }
-
-
-    /**
-     * Удаляет фоновое изображение
-     */
-    public function deleteBackground()
-    {
-        if ($this->Background->id) {
-            Attachment::delete($this->Background);
-        }
-        $this->background = 0;
-        $this->commit();
     }
 
 
@@ -140,16 +117,9 @@ class Template extends SOME
      */
     public function process(array $data = [])
     {
-        if (!is_file($this->filename)) {
-            $this->saveFile();
-        }
         $st = microtime(true);
         extract($data);
-        try {
-            $result = @include $this->filename;
-        } catch (Error $e) {
-            $result = null;
-        }
+        $result = @include $this->filename;
         return $result;
     }
 
@@ -185,13 +155,13 @@ class Template extends SOME
                             'name' => $l,
                             'x' => 0,
                             'y' => $min_y,
-                            'width' => Location::min_width,
-                            'height' => Location::min_height
+                            'width' => Location::MIN_WIDTH,
+                            'height' => Location::MIN_HEIGHT
                         ]
                     )
                 );
                 if (!isset($locs[$l])) {
-                    if ($min_y < ($this->height - Location::min_height)) {
+                    if ($min_y < ($this->height - Location::MIN_HEIGHT)) {
                         $min_y = max($locations[$l]->y, $min_y)
                                + max($locations[$l]->height, 50);
                     } else {
@@ -205,38 +175,8 @@ class Template extends SOME
     }
 
 
-    /**
-     * Возвращает наименование сниппета
-     * @return string
-     */
-    protected function _name()
-    {
-        if ($description = $this->description) {
-            $tokens = token_get_all($description);
-            $docBlockTexts = array_values(array_filter($tokens, function ($item) {
-                return $item[0] == T_DOC_COMMENT;
-            }));
-            if ($docBlockTexts) {
-                $docBlockText = $docBlockTexts[0][1];
-                $docBlockFactory  = DocBlockFactory::createInstance();
-                try {
-                    $docBlock = $docBlockFactory->create($docBlockText);
-                    $result = $docBlock->getSummary();
-                    return $result;
-                } catch (Exception $e) {
-                }
-            }
-        }
-        if ($this->urn) {
-            return $this->urn;
-        }
-        return '';
-    }
-
-
     public static function delete(SOME $item)
     {
-        $item->deleteBackground();
         $item->deleteFile();
         parent::delete($item);
     }

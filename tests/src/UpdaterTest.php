@@ -22,7 +22,63 @@ class UpdaterTest extends BaseTest
         'cms_blocks_menu',
         'cms_feedback',
         'cms_snippets',
+        'cms_templates',
     ];
+
+
+    /**
+     * Тест состояния версии 4.3.92 - сниппеты и шаблоны в файлах
+     */
+    public function testState040392SnippetsAndTemplatesInFiles()
+    {
+        $snippet = Snippet::importByURN('banners');
+        $snippet->description = 'banners';
+        $snippet->commit();
+        $template = new Template(1);
+        $template->description = 'template';
+        $template->commit();
+
+        $this->assertFileExists(Application::i()->baseDir . '/inc/snippets/.htaccess');
+        $this->assertEquals('banners', file_get_contents(Application::i()->baseDir . '/inc/snippets/banners.tmp.php'));
+        $this->assertEquals('template', file_get_contents(Application::i()->baseDir . '/inc/snippets/template1.tmp.php'));
+
+        $sqlQuery = "SHOW FIELDS FROM cms_snippets";
+        $sqlResult = Application::i()->SQL->get($sqlQuery);
+        $result = [];
+        foreach ($sqlResult as $sqlRow) {
+            $result[$sqlRow['Field']] = $sqlRow;
+        }
+
+        $this->assertNull($result['post_date'] ?? null);
+        $this->assertNull($result['modify_date'] ?? null);
+        $this->assertNull($result['description'] ?? null);
+        $this->assertStringContainsString('varchar', $result['locked']['Type']);
+
+        $sqlQuery = "SHOW FIELDS FROM cms_templates";
+        $sqlResult = Application::i()->SQL->get($sqlQuery);
+        $result = [];
+        foreach ($sqlResult as $sqlRow) {
+            $result[$sqlRow['Field']] = $sqlRow;
+        }
+
+        $this->assertNull($result['post_date'] ?? null);
+        $this->assertNull($result['modify_date'] ?? null);
+        $this->assertNull($result['description'] ?? null);
+        $this->assertNull($result['visual'] ?? null);
+        $this->assertNull($result['background'] ?? null);
+        $this->assertNull($result['urn'] ?? null);
+
+        $lockedMapping = [
+            '__raas_form_notify' => 'form_notification.php',
+            '__raas_shop_order_notify' => 'shop/form_notification.php',
+            '__raas_users_recovery_notify' => 'users/recovery_notification.php',
+            '__raas_users_register_notify' => 'users/register_notification.php',
+        ];
+        foreach ($lockedMapping as $urn => $symlink) {
+            $snippet = Snippet::importByURN($urn);
+            $this->assertEquals($symlink, $snippet->locked);
+        }
+    }
 
 
     /**

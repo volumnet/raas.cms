@@ -78,30 +78,20 @@ class Webmaster
      * Создаем стандартный сниппет
      * @param Snippet_Folder $parent папка, в которой нужно разместить сниппет
      * @param string $urn URN сниппета
-     * @param string $name Название сниппета
-     * @param string $description Код сниппета
-     * @param boolean $locked Заблокирован ли сниппет от редактирования
+     * @param string $lockedFile Ссылка для блокировки
      * @return Snippet существующий или вновь созданный сниппет
      */
-    public function checkSnippet(
-        Snippet_Folder $parent,
-        $urn,
-        $name,
-        $description,
-        $locked = true
-    ) {
+    public function checkSnippet(Snippet_Folder $parent, string $urn, string $lockedFile = '')
+    {
         $snippet = Snippet::importByURN($urn);
-        if (!($snippet && $snippet->id)) {
-            $snippet = new Snippet([
-                'pid' => (int)$parent->id,
-                'urn' => $urn,
-                'locked' => (int)$locked
-            ]);
+        if ($snippet && $snippet->id) {
+            return $snippet;
         }
-        if ($locked || !$snippet->id) {
-            $snippet->name = $this->view->_($name);
-            $snippet->description = $description;
-        }
+        $snippet = new Snippet([
+            'pid' => (int)$parent->id,
+            'urn' => $urn,
+            'locked' => $lockedFile
+        ]);
         $snippet->commit();
         return $snippet;
     }
@@ -131,7 +121,6 @@ class Webmaster
             $snippetText = strtr($snippetText, $newReplaceData);
         }
         $snippet = new Snippet([
-            'name' => $name,
             'urn' => $urn,
             'pid' => $folderId,
             'description' => $snippetText,
@@ -171,23 +160,11 @@ class Webmaster
         }
 
         $interfaces = [];
-        $interfacesData = [
-            '__raas_form_notify' => [
-                'name' => 'FORM_STANDARD_NOTIFICATION',
-                'filename' => 'form_notification',
-            ],
-        ];
-        foreach ($interfacesData as $interfaceURN => $interfaceData) {
-            $interfaces[$interfaceURN] = $this->checkSnippet(
-                $this->interfacesFolder,
-                $interfaceURN,
-                $interfaceData['name'],
-                file_get_contents(
-                    Package::i()->resourcesDir .
-                    '/interfaces/' . $interfaceData['filename'] . '.php'
-                )
-            );
-        }
+        $interfaces['__raas_form_notify'] = $this->checkSnippet(
+            $this->interfacesFolder,
+            '__raas_form_notify',
+            'form_notification.php'
+        );
         return $interfaces;
     }
 
