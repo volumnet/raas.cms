@@ -2,6 +2,8 @@
 /**
  * Таблица меню
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Table;
@@ -28,8 +30,6 @@ class MenusTable extends Table
 
     public function __construct(array $params = [])
     {
-        $view = $this->view;
-        $thisObj = $this;
         $item = $params['Item'];
         $defaultParams = [
             'columns' => [],
@@ -40,16 +40,16 @@ class MenusTable extends Table
             ]
         ];
         if ($item->id) {
-            $defaultParams['meta']['allContextMenu'] = $view->getAllMenusContextMenu();
-            $defaultParams['meta']['allValue'] = 'all&pid='
-                                               . (int)$params['Item']->id;
+            $defaultParams['meta']['allContextMenu'] = $this->view->getAllMenusContextMenu();
+            $defaultParams['meta']['allValue'] = 'all&pid=' . (int)$params['Item']->id;
+            $defaultParams['template'] = 'cms/prioritytable.tmp.php';
         }
         $defaultParams['columns']['id'] = [
             'caption' => $this->view->_('ID'),
-            'callback' => function (Menu $menu) use ($view, $item, $thisObj) {
+            'callback' => function (Menu $menu) use ($item) {
                 $text = (int)$menu->id ?: '';
                 if ($menu->realized || !$item->id) {
-                    $thisObj->meta['realizedCounter'] = $thisObj->meta['realizedCounter']
+                    $this->meta['realizedCounter'] = $this->meta['realizedCounter']
                                                       + 1;
                     return '<a href="' . $this->getEditURL($menu) . '" class="' . $this->getLinkClass($menu) . '">
                               ' . $text . '
@@ -61,7 +61,7 @@ class MenusTable extends Table
         ];
         $defaultParams['columns']['name'] = [
             'caption' => $this->view->_('NAME'),
-            'callback' => function (Menu $menu) use ($view, $item, $thisObj) {
+            'callback' => function (Menu $menu) use ($item) {
                 $text = htmlspecialchars($menu->name);
                 if ($menu->realized || !$item->id) {
                     return '<a href="' . $this->getEditURL($menu) . '" class="' . $this->getLinkClass($menu) . '">
@@ -75,7 +75,7 @@ class MenusTable extends Table
         if (!$item->id) {
             $defaultParams['columns']['urn'] = [
                 'caption' => $this->view->_('URN'),
-                'callback' => function (Menu $menu) use ($view, $item) {
+                'callback' => function (Menu $menu) use ($item) {
                     $text = htmlspecialchars($menu->urn);
                     if ($menu->realized || !$item->id) {
                         return '<a href="' . $this->getEditURL($menu) . '" class="' . $this->getLinkClass($menu) . '">
@@ -89,7 +89,7 @@ class MenusTable extends Table
         }
         $defaultParams['columns']['url'] = [
             'caption' => $this->view->_('URL'),
-            'callback' => function (Menu $menu) use ($view, $item) {
+            'callback' => function (Menu $menu) use ($item) {
                 $text = htmlspecialchars($menu->url);
                 if ($menu->realized || !$item->id) {
                     return '<span class="' . (!$menu->vis ? ' muted' : '') . ($menu->pvis ? '' : ' cms-inpvis') . '">
@@ -103,7 +103,7 @@ class MenusTable extends Table
         if (!$item->id) {
             $defaultParams['columns']['usage'] = [
                 'caption' => $this->view->_('USAGE'),
-                'callback' => function (Menu $menu, $i) use ($view, $item) {
+                'callback' => function (Menu $menu, $i) use ($item) {
                     if ($menu->usage) {
                         return (int)$menu->usage;
                     }
@@ -112,18 +112,18 @@ class MenusTable extends Table
         }
         $defaultParams['columns']['priority'] = [
             'caption' => $this->view->_('PRIORITY'),
-            'callback' => function (Menu $menu, $i) use ($view, $item) {
+            'callback' => function (Menu $menu, $i) use ($item) {
                 if ($menu->realized || !$item->id) {
                     return '<input type="text" class="span1" maxlength="3" name="priority[' . (int)$menu->id . ']" value="' . (($i + 1) * 10) . '" />';
                 } else {
-                    return htmlspecialchars($menu->priority);
+                    return htmlspecialchars((string)$menu->priority);
                 }
             }
         ];
         $defaultParams['columns'][' '] = [
-            'callback' => function (Menu $menu, $i) use ($view, $item, $params) {
+            'callback' => function (Menu $menu, $i) use ($item, $params) {
                 if ($menu->realized || !$item->id) {
-                    return rowContextMenu($view->getMenuContextMenu(
+                    return rowContextMenu($this->view->getMenuContextMenu(
                         $menu,
                         $i,
                         count((array)$params['Set'])

@@ -9,7 +9,7 @@ namespace RAAS\CMS;
 
 use RAAS\AssetManager;
 
-$company = $Set[0];
+$company = $Page->company;
 
 ?>
 <div class="copyrights">
@@ -24,6 +24,3 @@ $company = $Set[0];
   echo htmlspecialchars($copyrights);
   ?>
 </div>
-<?php
-AssetManager::requestCSS('/css/copyrights.css');
-AssetManager::requestJS('/js/copyrights.js');

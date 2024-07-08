@@ -16,6 +16,7 @@ use RAAS\User as RAASUser;
 class TemplateTest extends BaseTest
 {
     public static $tables = [
+        'cms_pages',
         'cms_templates',
         'users',
     ];

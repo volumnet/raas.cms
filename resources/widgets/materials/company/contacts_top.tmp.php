@@ -10,7 +10,7 @@ namespace RAAS\CMS;
 use SOME\Text;
 use RAAS\AssetManager;
 
-$company = $Set[0];
+$company = $Page->company;
 
 ?>
 <div class="contacts-top">
@@ -39,6 +39,3 @@ $company = $Set[0];
       </div>
   <?php } ?>
 </div>
-<?php
-AssetManager::requestCSS('/css/contacts-top.css');
-AssetManager::requestJS('/js/contacts-top.js');

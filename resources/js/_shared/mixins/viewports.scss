@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 /// Базовая верстка
 $referenceLayout: 'xl' !default;
 
@@ -131,7 +133,7 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
     @each $key in $applyTo {
         $width: map-get($container-max-widths, $key);
         @if ($width and ($width > 0)) {
-            $newSize: ($width / $relativeTo) * $size;
+            $newSize: math.div($width, $relativeTo) * $size;
             @if ($isPx) {
                 $newSize: round($newSize)
             }
@@ -142,7 +144,7 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
                 $key: '<sm';
             }
             $result: map-merge($result, ($key: $newSize));
-        } @elseif ($min) {
+        } @else if ($min) {
             $result: map-merge($result, ($key: $min));
         }
     }
@@ -162,13 +164,11 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
     @if (type-of($relativeTo) == string) {
         $relativeTo: map-get($container-max-widths, $relativeTo);
     }
-    $newSize: #{$size / $relativeTo} * var(--container-width);
     @if ($min) {
-        $newSize: calc(max(#{$newSize}, #{$min}));
+        @return calc(max(#{math.div($size, $relativeTo)} * var(--container-width), #{$min}));
     } @else {
-        $newSize: calc(#{$newSize});
+        @return calc(#{math.div($size, $relativeTo)} * var(--container-width));
     }
-    @return $newSize;
 }
 
 

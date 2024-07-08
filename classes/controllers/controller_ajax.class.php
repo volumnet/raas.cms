@@ -316,7 +316,7 @@ class Controller_Ajax extends Abstract_Controller
         $page = Page::importByURL($host . $url);
         $page->initialURL = $url;
         $additionalURLArray = $page->additionalURLArray;
-        $material = Material::importByURN(isset($additionalURLArray[0]) ? $additionalURLArray[0] : null);
+        $material = Material::importByURN((string)($additionalURLArray[0]?: ''));
         if ($page->id) {
             echo "console.log('Страница ID# " . (int)$page->id . " " . $page->name . "');";
             echo "console.log('" . $host . addslashes($page->url) . "');";

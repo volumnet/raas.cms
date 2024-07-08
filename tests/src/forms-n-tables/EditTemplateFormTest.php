@@ -17,6 +17,7 @@ use RAAS\User as RAASUser;
 class EditTemplateFormTest extends BaseTest
 {
     public static $tables = [
+        'cms_pages',
         'cms_templates',
     ];
 

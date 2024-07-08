@@ -1162,28 +1162,31 @@ class Package extends RAASPackage
      */
     public static function processInternalLinks($text, Page $page = null)
     {
-        $result = $text;
+        if (!stristr($text, 'raas://')) {
+            return $text;
+        }
+        $result = (string)$text;
         $result = str_ireplace('http://raas://', 'raas://', $result);
         $result = str_ireplace('https://raas://', 'raas://', $result);
         $result = str_ireplace('//raas://', 'raas://', $result);
 
-        $result = preg_replace_callback(
+        $result = (string)preg_replace_callback(
             '/raas:\\/\\/((domain\\/)?((page|material)\\/)(\\d+)(\\/?))/umis',
             function ($matches) {
                 $oldUrl = $matches[0];
                 $newUrl = Redirect::getInternalLink($oldUrl);
-                return $newUrl ?: $oldUrl;
+                return (string)($newUrl ?: $oldUrl);
             },
             $result
         );
-        $result = preg_replace_callback(
+        $result = (string)preg_replace_callback(
             '/\\[raas:\\/\\/block\\/(\\d+)\\/?\\]/umis',
             function ($matches) use ($page) {
                 $b = Block::spawn((int)$matches[1]);
                 ob_start();
                 $b->process($page);
                 $blockResult = ob_get_clean();
-                return $blockResult;
+                return (string)$blockResult;
             },
             $result
         );

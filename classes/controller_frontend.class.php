@@ -154,9 +154,9 @@ class Controller_Frontend extends Abstract_Controller
 
 
     /**
-     * Обрабатывает стандартные редиректы
+     * Обрабатывает системные редиректы
      */
-    public function checkStdRedirects()
+    public function checkSystemRedirects()
     {
         if ($this->requestUri == '/robots.txt') {
             $_SERVER['REQUEST_URI'] = '/robots/';
@@ -164,7 +164,29 @@ class Controller_Frontend extends Abstract_Controller
             $_SERVER['REQUEST_URI'] = '/custom_css/';
         } elseif ($this->requestUri == '/sitemap.xml') {
             $_SERVER['REQUEST_URI'] = '/sitemaps/';
+        } elseif ($this->requestUri == '/favicon.ico') {
+            $_SERVER['REQUEST_URI'] = '/favicon/?type=ico';
+            $_GET['type'] = 'ico';
+        } elseif ($this->requestUri == '/favicon.svg') {
+            $_SERVER['REQUEST_URI'] = '/favicon/?type=svg';
+            $_GET['type'] = 'svg';
+        } elseif ($this->requestUri == '/apple-touch-icon.png') {
+            $_SERVER['REQUEST_URI'] = '/favicon/?type=apple';
+            $_GET['type'] = 'apple';
+        } elseif ($this->requestUri == '/manifest-logo.png') {
+            $_SERVER['REQUEST_URI'] = '/favicon/?type=manifest';
+            $_GET['type'] = 'apple';
+        } elseif ($this->requestUri == '/manifest.json') {
+            $_SERVER['REQUEST_URI'] = '/manifest/';
         }
+    }
+
+
+    /**
+     * Обрабатывает стандартные редиректы
+     */
+    public function checkStdRedirects()
+    {
         $oldUrl = $this->url;
         $newUrl = Redirect::processAll($oldUrl);
         if ($newUrl != $oldUrl) {
@@ -177,6 +199,7 @@ class Controller_Frontend extends Abstract_Controller
 
     public function run()
     {
+        $this->checkSystemRedirects();
         $this->processUTM();
         ob_start(function ($text) {
             $result = $text;
@@ -721,14 +744,14 @@ class Controller_Frontend extends Abstract_Controller
             @mkdir($this->model->cacheDir, 0777, true);
         }
         $filename = $this->model->cachePrefix . $prefix . '.' . urlencode($this->url);
-        $replace = [];
         // 2015-11-23, AVS: заменил, т.к. в кэше меню <?php так же заменяется
         // и глючит
-        $content = preg_replace(
-            '/\\<\\?xml (.*?)\\?\\>/umi',
-            '<' . '?php echo \'<\' . \'?xml $1?\' . ">\\n"?' . '>',
-            $content
-        );
+        // 2024-07-04, AVS: заменил на str_replace, т.к. preg_replace глючит с бинарными данными
+        $replacements = [];
+        $replacements['<' . '?'] = "<" . "?php echo '<' . '?'?" . ">";
+        $replacements['?' . '>'] = "<" . "?php echo '?' . '>'?" . ">";
+        $content = strtr($content, $replacements);
+        // $content = str_replace('?' . '>', "<?php echo '?' . '>'? >", $content);
         $text = '<' . "?php\n"
               . "/**\n"
               . " * Файл кэша страницы\n"

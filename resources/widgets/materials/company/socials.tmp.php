@@ -9,7 +9,7 @@ namespace RAAS\CMS;
 
 use RAAS\AssetManager;
 
-$company = $Set[0];
+$company = $Page->company;
 
 $socialsData = [
     SocialProfile::SN_VK => ['urn' => 'vk', 'name' => 'VK'],
@@ -31,11 +31,18 @@ if ($socials = $company->fields['socials']->getValues(true)) { ?>
       <?php foreach ($socials as $social) {
           if ($snId = SocialProfile::getSocialNetwork($social)) {
               if ($socialData = $socialsData[$snId]) { ?>
-                  <a href="<?php echo htmlspecialchars($social)?>" class="socials-list__item socials-item socials-item_<?php echo htmlspecialchars($socialData['urn'])?>" title="<?php echo htmlspecialchars(View_Web::i()->_($socialData['name']))?>" target="_blank"></a>
+                  <a
+                    href="<?php echo htmlspecialchars($social)?>"
+                    class="
+                      socials-list__item
+                      socials-item
+                      socials-item_<?php echo htmlspecialchars($socialData['urn'])?>
+                    "
+                    title="<?php echo htmlspecialchars(View_Web::i()->_($socialData['name']))?>"
+                    target="_blank"
+                  ></a>
               <?php }
           }
       } ?>
     </div>
 <?php }
-AssetManager::requestCSS('/css/socials.css');
-AssetManager::requestJS('/js/socials.js');

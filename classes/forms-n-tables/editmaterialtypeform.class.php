@@ -2,6 +2,8 @@
 /**
  * Форма редактирования типа материалов
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RAAS\Form as RAASForm;
@@ -32,21 +34,6 @@ class EditMaterialTypeForm extends RAASForm
      */
     const CREATE_MATERIAL_TYPE_BOTH = 3;
 
-    /**
-     * Без шаблона
-     */
-    const MATERIAL_TYPE_TEMPLATE_NONE = '';
-
-    /**
-     * Шаблон "Новости"
-     */
-    const MATERIAL_TYPE_TEMPLATE_NEWS = 'news';
-
-    /**
-     * Шаблон "Баннеры"
-     */
-    const MATERIAL_TYPE_TEMPLATE_BANNERS = 'banners';
-
     public function __get($var)
     {
         switch ($var) {
@@ -63,79 +50,29 @@ class EditMaterialTypeForm extends RAASForm
     public function __construct(array $params = [])
     {
         $view = $this->view;
-        $Item = isset($params['Item']) ? $params['Item'] : null;
-        $Parent = isset($params['Parent']) ? $params['Parent'] : null;
+        $item = isset($params['Item']) ? $params['Item'] : null;
+        $parent = isset($params['Parent']) ? $params['Parent'] : null;
 
         $defaultParams = [
-            'caption' => $Item->id
-                      ?  $Item->name
+            'caption' => $item->id
+                      ?  $item->name
                       : $this->view->_('CREATING_MATERIAL_TYPE'),
             'parentUrl' => Sub_Dev::i()->url . '&action=material_types',
-            'export' => function ($form) use ($Parent) {
+            'export' => function ($form) use ($parent) {
                 $form->exportDefault();
                 if (!$form->Item->id) {
-                    $form->Item->pid = (int)$Parent->id;
+                    $form->Item->pid = (int)$parent->id;
                 }
-                if ($Parent->id) {
-                    $form->Item->global_type = $Parent->global_type;
+                if ($parent->id) {
+                    $form->Item->global_type = $parent->global_type;
                 }
             },
-            'oncommit' => function () use ($view, $Item) {
-                if ($_POST['template'] ?? null) {
-                    switch ($_POST['template']) {
-                        case EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_NEWS:
-                            $dateField = new Material_Field([
-                                'pid' => $Item->id,
-                                'name' => $view->_('DATE'),
-                                'urn' => 'date',
-                                'datatype' => 'date',
-                                'show_in_table' => 1,
-                            ]);
-                            $dateField->commit();
-
-                            $F = new Material_Field([
-                                'pid' => $Item->id,
-                                'name' => $view->_('IMAGE'),
-                                'multiple' => 1,
-                                'urn' => 'images',
-                                'datatype' => 'image',
-                            ]);
-                            $F->commit();
-
-                            $F = new Material_Field([
-                                'pid' => $Item->id,
-                                'name' => $view->_('BRIEF_TEXT'),
-                                'multiple' => 0,
-                                'urn' => 'brief',
-                                'datatype' => 'textarea',
-                            ]);
-                            $F->commit();
-                            break;
-                        case EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_BANNERS:
-                            $F = new Material_Field([
-                                'pid' => $Item->id,
-                                'name' => $view->_('URL'),
-                                'urn' => 'url',
-                                'datatype' => 'text',
-                                'show_in_table' => 1,
-                            ]);
-                            $F->commit();
-
-                            $F = new Material_Field([
-                                'pid' => $Item->id,
-                                'name' => $view->_('IMAGE'),
-                                'urn' => 'image',
-                                'datatype' => 'image',
-                            ]);
-                            $F->commit();
-                            break;
-                    }
-                }
+            'oncommit' => function () use ($view, $item) {
                 if ($_POST['add_snippet'] ?? null) {
                     $add = (int)$_POST['add_snippet'];
-                    $urn = $Item->urn;
+                    $urn = $item->urn;
                     $pid = Snippet_Folder::importByURN('__raas_views')->id;
-                    // $name = $Item->name;
+                    // $name = $item->name;
                     if ($add & EditMaterialTypeForm::CREATE_MATERIAL_TYPE_SIMPLE) {
                         // $f = Package::i()->resourcesDir . '/widgets/material_main.tmp.php';
                         // $text = file_get_contents($f);
@@ -184,31 +121,12 @@ class EditMaterialTypeForm extends RAASForm
                     'type' => 'checkbox',
                     'name' => 'global_type',
                     'caption' => $this->view->_('GLOBAL_MATERIALS'),
-                    'default' => $Parent->id ? $Parent->global_type : 1,
-                    'disabled' => (bool)$Parent->id
+                    'default' => ($parent && $parent->id) ? $parent->global_type : 1,
+                    'disabled' => (bool)($parent ? $parent->id : false)
                 ]
             ]
         ];
-        if (!$Item->id && !$Parent->id) {
-            $defaultParams['children']['template'] = [
-                'type' => 'select',
-                'name' => 'template',
-                'caption' => $this->view->_('MATERIAL_TYPE_TEMPLATE'),
-                'children' => [
-                    [
-                        'value' => EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_NONE,
-                        'caption' => $this->view->_('_NONE'),
-                    ],
-                    [
-                        'value' => EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_NEWS,
-                        'caption' => $this->view->_('NEWS'),
-                    ],
-                    [
-                        'value' => EditMaterialTypeForm::MATERIAL_TYPE_TEMPLATE_BANNERS,
-                        'caption' => $this->view->_('BANNERS'),
-                    ],
-                ]
-            ];
+        if (!($item && $item->id) && !($parent && $parent->id)) {
             $defaultParams['children']['add_snippet'] = [
                 'type' => 'select',
                 'name' => 'add_snippet',

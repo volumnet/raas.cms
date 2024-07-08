@@ -114,9 +114,19 @@ class SnippetsTable extends Table
                 if ($tableRow->source instanceof Snippet_Folder) {
                     $tableRow->class = 'info';
                 }
+                if (($tableRow->source instanceof Snippet_Folder) ||
+                    $tableRow->source->locked
+                ) {
+                    $tableRow->disableMulti = true;
+                }
             },
             'emptyString' => $this->view->_('NO_SNIPPETS_FOUND'),
-            'Set' => $this->buildSnippetTree(new Snippet_Folder(), 0)
+            'Set' => $this->buildSnippetTree(new Snippet_Folder(), 0),
+            'template' => 'cms/multitable.tmp.php',
+            'data-role' => 'multitable',
+            'meta' => [
+                'allContextMenu' => $this->view->getAllSnippetsContextMenu(),
+            ],
         ];
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);

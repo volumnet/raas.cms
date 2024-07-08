@@ -182,7 +182,7 @@ class Webmaster
 
         $locations = [
             [1, ['menu_top', 6], ['menu_user', 6]],
-            [2, ['logo', 4], ['contacts_top', 4], ['search_form', 4]],
+            [2, ['logo', 4], ['search_form', 4], ['contacts_top', 4]],
             [2, ['menu_catalog', 3], ['menu_main', 3], ['cart', 3], ['menu_mobile', 3]],
             [1, ['banners', 12]],
             [4, ['left', 3], ['content', 6], ['right', 3]],
@@ -297,6 +297,8 @@ class Webmaster
             'breadcrumbs/breadcrumbs' => View_Web::i()->_('BREADCRUMBS'),
             'sitemap/sitemap_xml' => View_Web::i()->_('SITEMAP_XML'),
             'robots/robots_txt' => View_Web::i()->_('ROBOTS_TXT'),
+            'materials/company/favicon' => View_Web::i()->_('FAVICON'),
+            'materials/company/manifest' => View_Web::i()->_('MANIFEST_JSON'),
             'cookies_notification/cookies_notification' => View_Web::i()->_('COOKIES_NOTIFICATION'),
             'feedback/feedback' => View_Web::i()->_('FEEDBACK'),
             'feedback/feedback_modal' => View_Web::i()->_('FEEDBACK_MODAL'),
@@ -577,6 +579,18 @@ class Webmaster
 
             $this->createBlock(
                 new Block_HTML([
+                    'name' => View_Web::i()->_('YANDEX_WEBMASTER'),
+                    'description' => '',
+                    'wysiwyg' => 0,
+                ]),
+                'head_counters',
+                null,
+                null,
+                $this->site,
+                true
+            );
+            $this->createBlock(
+                new Block_HTML([
                     'name' => View_Web::i()->_('YANDEX_METRIKA'),
                     'description' => '',
                     'wysiwyg' => 0,
@@ -765,6 +779,61 @@ class Webmaster
 
 
     /**
+     * Создание manifest.json
+     * @return Page Созданная или существующая страница
+     */
+    public function createManifestJson()
+    {
+        $temp = Page::getSet([
+            'where' => ["pid = " . (int)$this->Site->id, "urn = 'manifest'"]
+        ]);
+        if ($temp) {
+            $manifest = $temp[0];
+        } else {
+            $manifestPageData = [
+                'name' => $this->view->_('MANIFEST_JSON'),
+                'urn' => 'manifest',
+                'template' => 0,
+                'mime' => 'application/json',
+                'cache' => 1,
+                'response_code' => 200
+            ];
+            $manifest = $this->createPage($manifestPageData, $this->Site);
+            $B = new Block_PHP(['name' => $this->view->_('MANIFEST_JSON')]);
+            $this->createBlock($B, '', null, 'manifest', $manifest);
+        }
+        return $manifest;
+    }
+
+
+    /**
+     * Создание favicon
+     * @return Page Созданная или существующая страница
+     */
+    public function createFavicon()
+    {
+        $temp = Page::getSet([
+            'where' => ["pid = " . (int)$this->Site->id, "urn = 'favicon'"]
+        ]);
+        if ($temp) {
+            $favicon = $temp[0];
+        } else {
+            $faviconPageData = [
+                'name' => $this->view->_('FAVICON'),
+                'urn' => 'favicon',
+                'template' => 0,
+                'cache' => 1,
+                'response_code' => 200
+            ];
+            $favicon = $this->createPage($faviconPageData, $this->Site);
+            $B = new Block_PHP(['name' => $this->view->_('FAVICON')]);
+            $this->createBlock($B, '', null, 'favicon', $favicon);
+        }
+        return $favicon;
+    }
+
+
+    /**
      * Создание robots.txt
      * @return Page Созданная или существующая страница
      */
@@ -938,8 +1007,10 @@ class Webmaster
         $p404 = $this->create404();
         $this->map = $this->createMap();
         $sitemaps = $this->createSitemapsXml();
+        $sitemaps = $this->createManifestJson();
+        $sitemaps = $this->createFavicon();
         $robots = $this->createRobotsTxt();
-        $customCss = $this->createCustomCss();
+        // $customCss = $this->createCustomCss();
         $menus = $this->createMenus([
             [
                 'pageId' => (int)$this->Site->id,

@@ -17,7 +17,12 @@ if ($Item) { ?>
     <div class="faq faq__article faq-article">
       <div class="faq-article__text faq-article__text_question">
         <?php if ($Item->image->id) { ?>
-            <img class="faq-article__image" loading="lazy" src="/<?php echo $Item->image->tnURL?>" alt="<?php echo htmlspecialchars($Item->image->name ?: $Item->name)?>" />
+            <img
+              class="faq-article__image"
+              loading="lazy"
+              src="/<?php echo $Item->image->tnURL?>"
+              alt="<?php echo htmlspecialchars($Item->image->name ?: $Item->name)?>"
+            />
         <?php } ?>
         <div class="faq-article__title">
           <span class="faq-article__name">
@@ -42,16 +47,27 @@ if ($Item) { ?>
           <div class="faq-article__text faq-article__text_answer">
             <?php if ($Item->answer_image->id) { ?>
                 <div class="faq-article__image">
-                  <img loading="lazy" src="/<?php echo $Item->answer_image->tnURL?>" alt="<?php echo htmlspecialchars($Item->answer_image->name ?: $Item->answer_name)?>" />
+                  <img
+                    loading="lazy"
+                    src="/<?php echo $Item->answer_image->tnURL?>"
+                    alt="<?php echo htmlspecialchars($Item->answer_image->name ?: $Item->answer_name)?>"
+                  />
                 </div>
             <?php } ?>
             <div class="faq-article__title">
               <span class="faq-article__name">
-                <?php if ($Item->answer_name) { ?>
-                    <?php echo (((string)$Item->answer_gender === '') ? ANSWERED_UNDEFINED : ($Item->answer_gender ? ANSWERED_MALE : ANSWERED_FEMALE)) . ' ' . htmlspecialchars($Item->answer_name)?>
-                <?php } else { ?>
-                    <?php echo ANSWER?>
-                <?php } ?>
+                <?php if ($Item->answer_name) {
+                    if ((string)$Item->answer_gender === '') {
+                        echo ANSWERED_UNDEFINED;
+                    } elseif ($Item->answer_gender) {
+                        echo ANSWERED_MALE;
+                    } else {
+                        echo ANSWERED_FEMALE;
+                    }
+                    echo ' ' . htmlspecialchars($Item->answer_name);
+                } else {
+                    echo ANSWER;
+                } ?>
               </span>
               <?php
               $time = strtotime($Item->answer_date);
@@ -81,12 +97,22 @@ if ($Item) { ?>
               <div class="faq-item">
                 <div class="faq-item__text faq-item__text_question">
                   <?php if ($item->image->id) { ?>
-                      <a class="faq-item__image"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
-                        <img loading="lazy" src="/<?php echo htmlspecialchars($item->image->tnURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" /></a>
+                      <<?php echo $item->url ? 'a href="' . htmlspecialchars($item->url) . '"' : 'span'?>
+                        class="faq-item__image"
+                      >
+                        <img
+                          loading="lazy"
+                          src="/<?php echo htmlspecialchars($item->image->tnURL)?>"
+                          alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>"
+                        />
+                      </<?php echo $item->url ? 'a' : 'span'?>>
                   <?php } ?>
                   <div class="faq-item__title">
-                    <a class="faq-item__name"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
-                      <?php echo htmlspecialchars($item->full_name)?></a>
+                    <<?php echo $item->url ? 'a href="' . htmlspecialchars($item->url) . '"' : 'span'?>
+                      class="faq-item__name"
+                    >
+                      <?php echo htmlspecialchars($item->full_name)?>
+                      </<?php echo $item->url ? 'a' : 'span'?>>
                     <?php
                     $time = strtotime($item->date);
                     if ($time <= 0) {
@@ -94,7 +120,9 @@ if ($Item) { ?>
                     }
                     if ($time > 0) { ?>
                         <span class="faq-item__date">
-                          <?php echo date('d', $time) . ' ' . Text::$months[(int)date('m', $time)] . ' ' . date('Y', $time)?>
+                          <?php
+                          echo date('d', $time) . ' ' . Text::$months[(int)date('m', $time)] . ' ' . date('Y', $time);
+                          ?>
                         </span>
                     <?php } ?>
                   </div>
@@ -102,22 +130,42 @@ if ($Item) { ?>
                     <?php echo htmlspecialchars($item->name)?>
                   </div>
                 </div>
-                <?php if ($item->answer) { ?>
-                    <div class="faq-item__text faq-item__text_answer<?php echo !$item->url ? ' faq-item__text_slider' : ''?>">
+                <?php if ($item->answer) {
+                    $htmlAnswer = html_entity_decode(strip_tags($item->answer), ENT_COMPAT | ENT_HTML5, 'UTF-8');
+                    ?>
+                    <div class="
+                      faq-item__text
+                      faq-item__text_answer
+                      <?php echo !$item->url ? 'faq-item__text_slider' : ''?>
+                    ">
                       <?php if ($item->answer_image->id) { ?>
                           <div class="faq-item__image">
-                            <a<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
-                              <img loading="lazy" src="/<?php echo htmlspecialchars($item->answer_image->tnURL)?>" alt="<?php echo htmlspecialchars($item->answer_image->name ?: $item->answer_name)?>" /></a>
+                            <?php echo $item->url ? 'a href="' . htmlspecialchars($item->url) . '"' : 'span'?>>
+                              <img
+                                loading="lazy"
+                                src="/<?php echo htmlspecialchars($item->answer_image->tnURL)?>"
+                                alt="<?php echo htmlspecialchars($item->answer_image->name ?: $item->answer_name)?>"
+                              />
+                            </<?php echo $item->url ? 'a' : 'span'?>>
                           </div>
                       <?php } ?>
                       <div class="faq-item__title">
-                        <a class="faq-item__name"<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
-                          <?php if ($item->answer_name) { ?>
-                              <?php echo (((string)$item->answer_gender === '') ? ANSWERED_UNDEFINED : ($item->answer_gender ? ANSWERED_MALE : ANSWERED_FEMALE)) . ' ' . htmlspecialchars($item->answer_name)?>
-                          <?php } else { ?>
-                              <?php echo ANSWER?>
-                          <?php } ?>
-                        </a>
+                        <<?php echo $item->url ? 'a href="' . htmlspecialchars($item->url) . '"' : 'span'?>
+                          class="faq-item__name"
+                        >
+                          <?php if ($item->answer_name) {
+                              if ((string)$item->answer_gender === '') {
+                                  echo ANSWERED_UNDEFINED;
+                              } elseif ($item->answer_gender) {
+                                  echo ANSWERED_MALE;
+                              } else {
+                                  echo ANSWERED_FEMALE;
+                              }
+                              echo ' ' . htmlspecialchars($item->answer_name);
+                          } else {
+                              echo ANSWER;
+                          } ?>
+                        </<?php echo $item->url ? 'a' : 'span'?>>
                         <?php
                         $time = strtotime($item->answer_date);
                         if ($time <= 0) {
@@ -126,13 +174,17 @@ if ($Item) { ?>
                         if ($time > 0) {
                             ?>
                             <span class="faq-item__date">
-                              <?php echo date('d', $time) . ' ' . Text::$months[(int)date('m', $time)] . ' ' . date('Y', $time)?>
+                              <?php
+                              echo date('d', $time) . ' ' .
+                                  Text::$months[(int)date('m', $time)] . ' ' .
+                                  date('Y', $time);
+                              ?>
                             </span>
                         <?php } ?>
                       </div>
                       <div class="faq-item__description">
                         <div class="faq-item__brief-description">
-                          <?php echo Text::cuttext(html_entity_decode(strip_tags($item->answer), ENT_COMPAT | ENT_HTML5, 'UTF-8'), 256, '...')?>
+                          <?php echo Text::cuttext($htmlAnswer, 256, '...')?>
                         </div>
                         <?php if (!$item->url) { ?>
                             <div class="faq-item__full-description">
@@ -141,10 +193,13 @@ if ($Item) { ?>
                         <?php } ?>
                       </div>
                       <div class="faq-item__more">
-                        <?php if ($item->url && (mb_strlen(html_entity_decode(strip_tags($item->answer), ENT_COMPAT | ENT_HTML5, 'UTF-8')) > 256)) { ?>
-                            <a<?php echo $item->url ? ' href="' . htmlspecialchars($item->url) . '"' : ' class="faq-item__more-trigger" data-show="' . READ_ANSWER . '" data-hide="' . HIDE . '"'?>>
+                        <?php if ($item->url && (mb_strlen($htmlAnswer) > 256)) { ?>
+                            <<?php echo $item->url ?
+                                ('a href="' . htmlspecialchars($item->url) . '"') :
+                                ('span class="faq-item__more-trigger" data-show="' . READ_ANSWER . '" data-hide="' . HIDE . '"');
+                            ?>>
                               <?php echo READ_ANSWER?>
-                            </a>
+                            </<?php echo $item->url ? 'a' : 'span'?>>
                         <?php } ?>
                       </div>
                     </div>

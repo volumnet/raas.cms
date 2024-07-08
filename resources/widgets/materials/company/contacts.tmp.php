@@ -10,7 +10,7 @@ namespace RAAS\CMS;
 use SOME\Text;
 use RAAS\AssetManager;
 
-$company = $Set[0];
+$company = $Page->company;
 $jsonLd = [
     '@context' => 'http://schema.org',
     '@type' => 'Organization',
@@ -22,7 +22,10 @@ $Page->headPrefix = 'business: http://ogp.me/ns/business#';
 $Page->headData = ' <meta property="og:title" content="' . htmlspecialchars($company->name) . '" />
                     <meta property="og:type" content="business.business" />';
 if ($company->logo->id) {
-    $Page->headData .= ' <meta property="og:image" content="' . htmlspecialchars($host . '/' . $company->logo->fileURL) . '" />';
+    $Page->headData .= ' <meta
+                           property="og:image"
+                           content="' . htmlspecialchars($host . '/' . $company->logo->fileURL) . '"
+                         />';
 }
 $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host) . '" />
                      <meta property="business:contact_data:country_name" content="Russian Federation" />
@@ -61,8 +64,19 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   }
   if (($lat = $company->lat) && ($lon = $company->lon)) { ?>
       <div class="contacts__map">
-        <div data-vue-role="yandex-map" data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]" data-v-bind_zoom="15" data-v-on_map-was-initialized="$event.controls.remove('searchControl')" data-v-bind_scroll-zoom="false">
-          <div data-vue-role="ymap-marker" data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]" data-vue-marker-id="company" data-vue-hint-content="<?php echo htmlspecialchars(implode(', ', $mapAddressArr))?>"></div>
+        <div
+          data-vue-role="yandex-map"
+          data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]"
+          data-v-bind_zoom="15"
+          data-v-on_map-was-initialized="$event.controls.remove('searchControl')"
+          data-v-bind_scroll-zoom="false"
+        >
+          <div
+            data-vue-role="ymap-marker"
+            data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]"
+            data-vue-marker-id="company"
+            data-vue-hint-content="<?php echo htmlspecialchars(implode(', ', $mapAddressArr))?>"
+          ></div>
         </div>
       </div>
   <?php }

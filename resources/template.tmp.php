@@ -9,6 +9,8 @@ use SOME\HTTP;
 use RAAS\Application;
 use RAAS\AssetManager;
 
+$company = $Page->company;
+
 /**
  * Разделение текста на общий HTML, скрипты и, возможно, стили
  * @param string $text Входной HTML
@@ -48,7 +50,10 @@ ob_start(); // Общее
 ob_start(); // Для $separateScripts
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($Page->lang)?>" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# <?php echo $Page->headPrefix?>">
+<html
+  lang="<?php echo htmlspecialchars($Page->lang)?>"
+  prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# <?php echo $Page->headPrefix?>"
+>
   <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# <?php echo $Page->headPrefix?>">
     <title><?php echo ($Page->meta_title ? $Page->meta_title : $Page->name)?></title>
     <?php if ($Page->meta_keywords) { ?>
@@ -61,22 +66,21 @@ ob_start(); // Для $separateScripts
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <?php if (is_file(is_file(Application::i()->baseDir . '/apple-touch-icon.png'))) { ?>
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <?php if ($company->apple_touch_icon && $company->apple_touch_icon->id) {
+        $sizes = getimagesize($company->apple_touch_icon->file);
+        ?>
+        <link rel="apple-touch-icon" sizes="<?php echo $sizes[0] . 'x' . $sizes[1]?>" href="/apple-touch-icon.png">
     <?php }
-    if (is_file(Application::i()->baseDir . '/favicon.svg')) { ?>
+    if ($company->favicon_svg && $company->favicon_svg->id) { ?>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <?php }
-    if (is_file(Application::i()->baseDir . '/favicon.ico')) { ?>
+    if ($company->favicon_ico && $company->favicon_ico->id) { ?>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <?php }
-    if (is_file(Application::i()->baseDir . '/manifest.json')) { ?>
-        <link rel="manifest" href="/manifest.json">
     <?php }
     echo $Page->headData;
     AssetManager::requestCSS([
         'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap',
-        '/custom.css',
         '/css/header.css',
     ]);
     AssetManager::requestJS('/js/header.js', 'beforeApp');
@@ -96,18 +100,31 @@ ob_start(); // Для $separateScripts
     ]);
     echo AssetManager::getRequestedJS();
     ?>
-    <link rel="canonical" href="http<?php echo (mb_strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))?>">
+    <link
+      rel="canonical"
+      href="http<?php echo (mb_strtolower($_SERVER['HTTPS']) == 'on' ? 's' : '')?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))?>"
+    >
     <?php if ($Page->noindex || $Page->Material->noindex || $Page->catalogFilter->filter) { ?>
         <meta name="robots" content="noindex,nofollow" />
     <?php }
     echo $Page->location('head_counters');
     ?>
   </head>
-  <body class="<?php echo implode(' ', $bodyClasses)?>" data-page-id="<?php echo (int)$Page->id?>"<?php echo $Page->Material->id ? ' data-page-material-id="' . (int)$Page->Material->id . '"' : ''?>>
+  <body
+    class="<?php echo implode(' ', $bodyClasses)?>"
+    data-page-id="<?php echo (int)$Page->id?>"
+    <?php echo $Page->Material->id ? ' data-page-material-id="' . (int)$Page->Material->id . '"' : ''?>
+    style="<?php echo ($company->primary_color ? ('--primary: ' . $company->primary_color . '; ') : '') . ($company->secondary_color ? ('--secondary: ' . $company->secondary_color . '; ') : '')?>"
+  >
     <?php echo $Page->location('top_body_counters')?>
     <div id="top" class="body__background-holder">
       <div class="body__header-outer"> <?php // Обертка, чтобы при фиксации шапки контент не скакал?>
-        <header class="body__header" itemscope itemtype="http://schema.org/WPHeader" data-v-bind_class="{ 'body__header_fixed': fixedHeader, 'body__header_active': fixedHeaderActive }">
+        <header
+          class="body__header"
+          itemscope
+          itemtype="http://schema.org/WPHeader"
+          data-v-bind_class="{ 'body__header_fixed': fixedHeader, 'body__header_active': fixedHeaderActive }"
+        >
           <div class="body__row body__row_header body__row_header_1">
             <!--nomobile-->
             <div class="body__menu-top">

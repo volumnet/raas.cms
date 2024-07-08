@@ -2,11 +2,14 @@
 /**
  * Подмодуль "Разработка"
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SOME\HTTP;
+use SOME\File;
 use RAAS\Redirector;
 use RAAS\Application;
 use RAAS\StdSub;
@@ -41,6 +44,7 @@ class Sub_Dev extends RAASAbstractSubController
             case 'material_types':
             case 'move_material_field':
             case 'move_material_type':
+            case 'design':
                 $this->{$this->action}();
                 break;
             case 'move_material_field_to_group':
@@ -59,6 +63,9 @@ class Sub_Dev extends RAASAbstractSubController
                 break;
             case 'move_material_field_values':
                 $this->moveMaterialFieldValues();
+                break;
+            case 'copy_material_type':
+                $this->copyMaterialType();
                 break;
             case 'templates':
                 $this->view->templates(['Set' => $this->model->dev_templates()]);
@@ -170,6 +177,21 @@ class Sub_Dev extends RAASAbstractSubController
                 $items = array_values($items);
                 StdSub::delete($items, $this->url . '&action=snippets');
                 break;
+            case 'create_snippet_assets':
+                $ids = (array)$_GET['id'];
+                $items = array_map(function ($x) {
+                    return new Snippet((int)$x);
+                }, $ids);
+                $items = array_filter($items, function ($x) {
+                    return !$x->locked && ($x->parent->urn == '__raas_views');
+                });
+                $items = array_values($items);
+                foreach ($items as $snippet) {
+                    $codeAssetsCreator = new CodeAssetsCreator($snippet);
+                    $codeAssetsCreator->createAssets();
+                }
+                new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=snippets');
+                break;
             case 'delete_form':
                 $ids = (array)$_GET['id'];
                 $items = array_map(function ($x) {
@@ -186,11 +208,7 @@ class Sub_Dev extends RAASAbstractSubController
                     ? date('Y-m-d', strtotime($_GET['to']))
                     : null;
                 Diag::deleteStat($from, $to);
-                new Redirector(
-                    isset($_GET['back']) ?
-                    'history:back' :
-                    $this->url . '&action=diag'
-                );
+                new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=diag');
                 break;
             case 'chvis_material_field':
             case 'vis_material_field':
@@ -503,7 +521,7 @@ class Sub_Dev extends RAASAbstractSubController
                           . " GROUP BY id";
                 $sqlResult = Block_Menu::_SQL()->get($sqlQuery);
                 foreach ($sqlResult as $sqlRow) {
-                    $usage[trim($sqlRow['menu_id'])] = (int)$sqlRow['c'];
+                    $usage[trim((string)$sqlRow['menu_id'])] = (int)$sqlRow['c'];
                 }
 
                 $menusIds = $menuCache->getChildrenIds(0);
@@ -564,13 +582,23 @@ class Sub_Dev extends RAASAbstractSubController
 
         if ($items) {
             if (isset($_GET['new_pid'])) {
-                StdSub::move(
-                    $items,
-                    new Menu((int)$_GET['new_pid']),
-                    $this->url . '&action=menus&id=%s'
-                );
+                $newParent = new Menu((int)$_GET['new_pid']);
+                foreach ($items as $item) {
+                    if (!in_array(
+                        $newParent->id,
+                        array_merge(array((int)$item->id, (int)$item->pid), (array)$item->all_children_ids)
+                    )) {
+                        if ($_GET['copy'] ?? false) {
+                            $item->copyRecursively($newParent);
+                        } else {
+                            $item->pid = (int)$newParent->id;
+                            $item->commit();
+                        }
+                    }
+                }
+                new Redirector(isset($_GET['back']) ? 'history:back' : $this->url . '&action=menus&id=' . (int)$newParent->id);
             } else {
-                $this->view->move_menu(['Item' => $Item, 'items' => $items]);
+                $this->view->move_menu(['Item' => $Item, 'items' => $items, 'copy' => (bool)($_GET['copy'] ?? false)]);
                 return;
             }
         }
@@ -618,7 +646,7 @@ class Sub_Dev extends RAASAbstractSubController
 
 
     /**
-     * Копирование снипппета
+     * Копирование сниппета
      */
     protected function copy_snippet()
     {
@@ -666,7 +694,7 @@ class Sub_Dev extends RAASAbstractSubController
                 }, $fields);
                 $formVisArr = [];
                 foreach ($fieldsIds as $fieldId) {
-                    $formVisArr[trim($fieldId)] = [
+                    $formVisArr[trim((string)$fieldId)] = [
                         'vis' => isset($_POST['show_in_form'][$fieldId]),
                         'inherit' => isset($_POST['inherit_show_in_form'][$fieldId])
                     ];
@@ -690,6 +718,20 @@ class Sub_Dev extends RAASAbstractSubController
         $this->view->edit_material_type(
             array_merge($Form->process(), ['Parent' => $Parent])
         );
+    }
+
+
+    /**
+     * Копирование типа материалов
+     */
+    protected function copyMaterialType()
+    {
+        $oldItem = new Material_Type((int)$this->id);
+        $item = $this->model->copyItem($oldItem);
+        $form = new CopyMaterialTypeForm(['Item' => $item, 'Original' => $oldItem]);
+        $out = ['Original' => $oldItem];
+        $out = array_merge($out, (array)$form->process());
+        $this->view->edit_material_type($out);
     }
 
 
@@ -1060,5 +1102,65 @@ class Sub_Dev extends RAASAbstractSubController
         $set = Redirect::getSet();
         $form = new RedirectsForm(['Set' => $set]);
         $this->view->redirects($form->process());
+    }
+
+
+    /**
+     * Дизайн
+     */
+    protected function design()
+    {
+        if (Application::i()->prod || !is_file(Application::i()->baseDir . '/design/index.json')) {
+            exit;
+        }
+        $text = file_get_contents(Application::i()->baseDir . '/design/index.json');
+        $json =@ (array)json_decode($text, true);
+        $json = array_map(function ($blockData) {
+            $newBlockData = $blockData;
+            $newBlockData['variants'] = array_map(function ($variant) use ($blockData) {
+                $newVariant = $variant;
+                $newVariant['design'] = array_filter($newVariant['design'] ?? [], function ($designData) use ($blockData) {
+                    $filename = Application::i()->baseDir . '/design/blocks/' . $blockData['urn'] . '.' . $designData['crc32'] . '.jpg';
+                    return is_file($filename);
+                });
+                return $newVariant;
+            }, $newBlockData['variants']);
+            $newBlockData['variants'] = array_filter($newBlockData['variants'], function ($variant) {
+                return (bool)($variant['design'] ?? false);
+            });
+            return $newBlockData;
+        }, $json);
+        $json = array_filter($json, function ($blockData) {
+            return Snippet::importByURN($blockData['urn']) && (bool)($blockData['variants'] ?? false);
+        });
+        if ($_GET['apply'] ?? null) {
+            list($snippetURN, $variantCRC32, $designCRC32) = explode('.', $_GET['apply']);
+            $variantData = $json[$snippetURN]['variants'][$variantCRC32] ?? [];
+            $designData = $json[$snippetURN]['variants'][$variantCRC32]['design'][$designCRC32] ?? [];
+            if ($variantData && $designData) {
+                $filesToCopy = [];
+                $filesToCopy[$variantData['file']] = Application::i()->baseDir . '/inc/snippets/' . basename($variantData['file']);
+                foreach ((array)($designData['path'] ?? []) as $src) {
+                    $dest = preg_replace('/^.*?\\/dev\\/(src|js)\\//umis', Application::i()->baseDir . '/dev/src/', $src);
+                    $filesToCopy[$src] = $dest;
+                }
+                foreach ($filesToCopy as $src => $dest) {
+                    $dir = dirname($dest);
+                    if (!is_dir($dir)) {
+                        mkdir($dir, 0777, true);
+                    }
+                    // var_dump($dir);
+                    if (file_exists($dest)) {
+                        File::unlink($dest);
+                    }
+                    File::copy($src, $dest);
+                }
+                // var_dump($variantData, $designData, $filesToCopy);
+            }
+            // exit;
+            new Redirector($this->url . '&action=design');
+        }
+        $out['designs'] = $json;
+        $this->view->design($out);
     }
 }

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Фотографии
+ * @param Block_Material $Block Текущий блок
+ * @param Page $Page Текущая страница
+ * @param array<Material>|null $Set Список материалов
+ */
 namespace RAAS\CMS;
 
 use \SOME\HTTP;
@@ -12,8 +18,16 @@ if ($Item) {
       <?php if (count($Item->visImages) > 0) { ?>
           <div class="photos-article__images">
             <?php for ($i = 0; $i < count($Item->visImages); $i++) { $row = $Item->visImages[$i]; ?>
-                <a href="/<?php echo htmlspecialchars($row->fileURL)?>" data-lightbox-gallery="gallery" class="photos-article__additional-image">
-                  <img src="/<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars($row->name)?>" /></a>
+                <a
+                  href="/<?php echo htmlspecialchars($row->fileURL)?>"
+                  data-lightbox-gallery="gallery"
+                  class="photos-article__additional-image"
+                >
+                  <img
+                    src="/<?php echo htmlspecialchars($row->tnURL)?>"
+                    alt="<?php echo htmlspecialchars($row->name)?>"
+                  />
+                </a>
             <?php } ?>
           </div>
       <?php } ?>
@@ -22,8 +36,16 @@ if ($Item) {
     <div class="photos">
       <div class="photos__list photos-list">
         <?php foreach ($Set as $row) { ?>
-            <a href="<?php echo htmlspecialchars($Block->nat ? $row->url : '/' . $row2->fileURL)?>" class="photos-list__item photos-item">
-              <img class="photos-item__image" loading="lazy" src="/<?php echo htmlspecialchars($row->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($row->visImages[0]->name ?: $row->name)?>" /></a>
+            <a
+              href="<?php echo htmlspecialchars($Block->nat ? $row->url : '/' . $row2->fileURL)?>"
+              class="photos-list__item photos-item"
+            >
+              <img
+                class="photos-item__image"
+                loading="lazy"
+                src="/<?php echo htmlspecialchars($row->visImages[0]->tnURL)?>"
+                alt="<?php echo htmlspecialchars($row->visImages[0]->name ?: $row->name)?>"
+              />
               <div class="photos-item__title">
                 <?php echo htmlspecialchars($row->name)?>
               </div>

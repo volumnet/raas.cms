@@ -20,8 +20,50 @@ class CompanyTemplate extends MaterialTypeTemplate
 
     public static $global = true;
 
+    public function createBlock(
+        Page $page,
+        Snippet $widget = null,
+        array $additionalData = []
+    ) {
+        if ($page->id) {
+            $blockData = array_merge([
+                'vis' => 1,
+                'material_type' => (int)$this->materialType->id,
+                'nat' => 1,
+                'pages_var_name' => 'page',
+                'rows_per_page' => 1,
+                'sort_field_default' => 'name',
+                'sort_order_default' => 'asc',
+                'interface_classname' => '',
+                'widget_id' => (int)($widget ? $widget->id : 0),
+                'location' => 'content',
+                'inherit' => (int)($additionalData['inherit'] ?? false),
+                'cats' => ($additionalData['inherit'] ?? false) ? $page->selfAndChildrenIds : [(int)$page->id]
+            ], $additionalData);
+            $block = new Block_Material($blockData);
+            $block->commit();
+            return $block;
+        }
+    }
+
     public function createFields()
     {
+        $requisitesFieldGroup = new FieldGroup([
+            'classname' => Material_Type::class,
+            'pid' => $this->materialType->id,
+            'urn' => 'requisites',
+            'name' => View_Web::i()->_('REQUISITES'),
+        ]);
+        $requisitesFieldGroup->commit();
+
+        $siteFieldGroup = new FieldGroup([
+            'classname' => Material_Type::class,
+            'pid' => $this->materialType->id,
+            'urn' => 'website',
+            'name' => View_Web::i()->_('WEBSITE'),
+        ]);
+        $siteFieldGroup->commit();
+
         $logoField = new Material_Field([
             'pid' => $this->materialType->id,
             'vis' => 1,
@@ -145,6 +187,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $legalNameField = new Material_Field([
             'pid' => $this->materialType->id,
+            'gid' => (int)$requisitesFieldGroup->id,
             'vis' => 1,
             'name' => View_Web::i()->_('LEGAL_NAME'),
             'urn' => 'legal_name',
@@ -154,6 +197,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $legalAddressField = new Material_Field([
             'pid' => $this->materialType->id,
+            'gid' => (int)$requisitesFieldGroup->id,
             'vis' => 1,
             'name' => View_Web::i()->_('LEGAL_ADDRESS'),
             'urn' => 'legal_address',
@@ -163,6 +207,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $legalEmailField = new Material_Field([
             'pid' => $this->materialType->id,
+            'gid' => (int)$requisitesFieldGroup->id,
             'vis' => 1,
             'name' => View_Web::i()->_('LEGAL_EMAIL'),
             'urn' => 'legal_email',
@@ -172,12 +217,78 @@ class CompanyTemplate extends MaterialTypeTemplate
 
         $taxIDField = new Material_Field([
             'pid' => $this->materialType->id,
+            'gid' => (int)$requisitesFieldGroup->id,
             'vis' => 1,
             'name' => View_Web::i()->_('TAX_ID'),
             'urn' => 'tax_id',
             'datatype' => 'text',
         ]);
         $taxIDField->commit();
+
+
+        $faviconIcoField = new Material_Field([
+            'pid' => $this->materialType->id,
+            'gid' => (int)$siteFieldGroup->id,
+            'vis' => 1,
+            'name' => View_Web::i()->_('FAVICON_ICO'),
+            'urn' => 'favicon_ico',
+            'datatype' => 'file',
+            'source' => 'ico',
+        ]);
+        $faviconIcoField->commit();
+
+        $faviconSvgField = new Material_Field([
+            'pid' => $this->materialType->id,
+            'gid' => (int)$siteFieldGroup->id,
+            'vis' => 1,
+            'name' => View_Web::i()->_('FAVICON_SVG'),
+            'urn' => 'favicon_svg',
+            'datatype' => 'file',
+            'source' => 'svg',
+        ]);
+        $faviconSvgField->commit();
+
+        $appleTouchIconField = new Material_Field([
+            'pid' => $this->materialType->id,
+            'gid' => (int)$siteFieldGroup->id,
+            'vis' => 1,
+            'name' => View_Web::i()->_('APPLE_TOUCH_ICON'),
+            'urn' => 'apple_touch_icon',
+            'datatype' => 'image',
+            'source' => 'png',
+        ]);
+        $appleTouchIconField->commit();
+
+        $manifestLogoField = new Material_Field([
+            'pid' => $this->materialType->id,
+            'gid' => (int)$siteFieldGroup->id,
+            'vis' => 1,
+            'name' => View_Web::i()->_('MANIFEST_LOGO'),
+            'urn' => 'manifest_logo',
+            'datatype' => 'image',
+            'source' => 'png',
+        ]);
+        $manifestLogoField->commit();
+
+        $primaryColor = new Material_Field([
+            'pid' => $this->materialType->id,
+            'gid' => (int)$siteFieldGroup->id,
+            'vis' => 1,
+            'name' => View_Web::i()->_('PRIMARY_COLOR'),
+            'urn' => 'primary_color',
+            'datatype' => 'color',
+        ]);
+        $primaryColor->commit();
+
+        $secondaryColor = new Material_Field([
+            'pid' => $this->materialType->id,
+            'gid' => (int)$siteFieldGroup->id,
+            'vis' => 1,
+            'name' => View_Web::i()->_('SECONDARY_COLOR'),
+            'urn' => 'secondary_color',
+            'datatype' => 'color',
+        ]);
+        $secondaryColor->commit();
 
         return [
             $logoField->urn => $logoField,
@@ -266,7 +377,7 @@ class CompanyTemplate extends MaterialTypeTemplate
             ],
             $additionalData
         );
-        return parent::createBlock($page, $widget, $additionalData);
+        return $this->createBlock($page, $widget, $additionalData);
     }
 
 
@@ -276,8 +387,7 @@ class CompanyTemplate extends MaterialTypeTemplate
      */
     public function createContactsTopBlockSnippet()
     {
-        $filename = Package::i()->resourcesDir
-                  . '/widgets/materials/company/contacts_top.tmp.php';
+        $filename = Package::i()->resourcesDir . '/widgets/materials/company/contacts_top.tmp.php';
         $urn = 'contacts_top';
         $name = View_Web::i()->_('CONTACTS_TOP');
 
@@ -312,31 +422,7 @@ class CompanyTemplate extends MaterialTypeTemplate
             ],
             $additionalData
         );
-        return parent::createBlock($page, $widget, $additionalData);
-    }
-
-
-    /**
-     * Создает блок социальных сетей в шапке
-     * @return Block_Material
-     */
-    public function createSocialsTopBlock(
-        Page $page,
-        Snippet $widget = null,
-        array $additionalData = []
-    ) {
-        $additionalData = array_merge(
-            [
-                'pages_var_name' => '',
-                'rows_per_page' => 1,
-                'location' => 'socials_bottom',
-                'name' => $widget->name,
-                'inherit' => 1,
-                'cats' => $page->selfAndChildrenIds,
-            ],
-            $additionalData
-        );
-        return parent::createBlock($page, $widget, $additionalData);
+        return $this->createBlock($page, $widget, $additionalData);
     }
 
 
@@ -382,7 +468,7 @@ class CompanyTemplate extends MaterialTypeTemplate
             ],
             $additionalData
         );
-        return parent::createBlock($page, $widget, $additionalData);
+        return $this->createBlock($page, $widget, $additionalData);
     }
 
 
@@ -428,7 +514,7 @@ class CompanyTemplate extends MaterialTypeTemplate
             ],
             $additionalData
         );
-        return parent::createBlock($page, $widget, $additionalData);
+        return $this->createBlock($page, $widget, $additionalData);
     }
 
 
@@ -467,14 +553,14 @@ class CompanyTemplate extends MaterialTypeTemplate
             [
                 'pages_var_name' => '',
                 'rows_per_page' => 1,
-                'location' => 'socials',
+                'location' => 'socials_bottom',
                 'name' => $widget->name,
                 'inherit' => 1,
                 'cats' => $page->selfAndChildrenIds,
             ],
             $additionalData
         );
-        return parent::createBlock($page, $widget, $additionalData);
+        return $this->createBlock($page, $widget, $additionalData);
     }
 
 
@@ -518,7 +604,7 @@ class CompanyTemplate extends MaterialTypeTemplate
             ],
             $additionalData
         );
-        return parent::createBlock($page, $widget, $additionalData);
+        return $this->createBlock($page, $widget, $additionalData);
     }
 
 
@@ -542,6 +628,42 @@ class CompanyTemplate extends MaterialTypeTemplate
             'description' => View_Web::i()->_('TEST_COMPANY_SLOGAN'),
             'attachment' => (int)$att->id
         ]));
+        $att = Attachment::createFromFile(
+            Package::i()->resourcesDir . '/fish/favicon.ico',
+            $this->materialType->fields['favicon_ico']
+        );
+        $item->fields['favicon_ico']->addValue(json_encode([
+            'vis' => 1,
+            'name' => '',
+            'attachment' => (int)$att->id
+        ]));
+        $att = Attachment::createFromFile(
+            Package::i()->resourcesDir . '/fish/favicon.svg',
+            $this->materialType->fields['favicon_svg']
+        );
+        $item->fields['favicon_svg']->addValue(json_encode([
+            'vis' => 1,
+            'name' => '',
+            'attachment' => (int)$att->id
+        ]));
+        $att = Attachment::createFromFile(
+            Package::i()->resourcesDir . '/fish/apple-touch-icon.png',
+            $this->materialType->fields['apple_touch_icon']
+        );
+        $item->fields['apple_touch_icon']->addValue(json_encode([
+            'vis' => 1,
+            'name' => '',
+            'attachment' => (int)$att->id
+        ]));
+        $att = Attachment::createFromFile(
+            Package::i()->resourcesDir . '/fish/manifest-logo.png',
+            $this->materialType->fields['manifest_logo']
+        );
+        $item->fields['manifest_logo']->addValue(json_encode([
+            'vis' => 1,
+            'name' => '',
+            'attachment' => (int)$att->id
+        ]));
         $item->fields['postal_code']->addValue('620000');
         $item->fields['city']->addValue('Екатеринбург');
         $item->fields['street_address']->addValue('Ленина, 39');
@@ -557,10 +679,10 @@ class CompanyTemplate extends MaterialTypeTemplate
         // $item->fields['socials']->addValue(View_Web::i()->_('https://instagram.com/test'));
         $item->fields['socials']->addValue(View_Web::i()->_('https://youtube.com/test'));
         // $item->fields['socials']->addValue(View_Web::i()->_('https://twitter.com/test'));
-        $item->fields['socials']->addValue(View_Web::i()->_('/wa.php?phone=79990000000'));
+        $item->fields['socials']->addValue(View_Web::i()->_('https://wa.me/79990000000'));
+        $item->fields['socials']->addValue(View_Web::i()->_('https://t.me/test'));
         $item->fields['copyrights']->addValue(
-            '© ' . View_Web::i()->_('COMPANY') . ', ' . date('Y') . '. ' .
-            View_Web::i()->_('ALL_RIGHTS_RESERVED') . '.'
+            '© ' . View_Web::i()->_('COMPANY') . ', {{YEAR}}. ' . View_Web::i()->_('ALL_RIGHTS_RESERVED') . '.'
         );
         $item->fields['legal_name']->addValue(View_Web::i()->_('TEST_COMPANY_LEGAL_NAME'));
         $item->fields['legal_address']->addValue(View_Web::i()->_('TEST_COMPANY_LEGAL_ADDRESS'));

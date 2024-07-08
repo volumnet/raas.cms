@@ -33,6 +33,7 @@ class EditPageFormTest extends BaseTest
         'cms_materials',
         'cms_materials_affected_pages_cache',
         'cms_materials_pages_assoc',
+        'cms_menus',
         'cms_pages',
         'cms_shop_blocks_yml_pages_assoc',
         'cms_templates',

@@ -9,11 +9,16 @@ namespace RAAS\CMS;
 
 use RAAS\AssetManager;
 
-$company = $Set[0];
+$company = $Page->company;
 
 ?>
-<a<?php echo ($Page->pid || $Page->Material->id) ? ' href="/"' : ''?> class="logo">
-  <img loading="lazy" class="logo__image" src="/<?php echo htmlspecialchars($company->logo->fileURL)?>" alt="<?php echo htmlspecialchars($company->logo->name ?: $company->name)?>" />
+<<?php echo ($Page->pid || $Page->Material->id) ? 'a href="/"' : 'span'?> class="logo">
+  <img
+    loading="lazy"
+    class="logo__image"
+    src="/<?php echo htmlspecialchars($company->logo->fileURL)?>"
+    alt="<?php echo htmlspecialchars($company->logo->name ?: $company->name)?>"
+  />
   <?php if ($company->logo->name || $company->logo->description) { ?>
       <span class="logo__text">
         <span class="logo__title">
@@ -26,6 +31,4 @@ $company = $Set[0];
         <?php } ?>
       </span>
   <?php } ?>
-</a>
-<?php
-AssetManager::requestCSS('/css/logo.css');
+</<?php echo ($Page->pid || $Page->Material->id) ? 'a' : 'span'?>>

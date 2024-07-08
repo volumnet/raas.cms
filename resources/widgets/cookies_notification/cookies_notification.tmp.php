@@ -14,6 +14,3 @@ use RAAS\AssetManager;
   <?php echo $Block->description?>
 </div>
 <!--/noindex-->
-<?php
-AssetManager::requestCSS('/css/cookies-notification.css');
-AssetManager::requestJS('/js/cookies-notification.js');

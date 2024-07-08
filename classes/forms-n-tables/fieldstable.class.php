@@ -38,11 +38,8 @@ class FieldsTable extends Table
         unset($params['editAction'], $params['ctxMenu'], $params['shift']);
         $defaultParams = [
             'meta' => [
-                'allContextMenu' => ($ctxMenu && $allCtxMenu)
-                                 ?  $view->$allCtxMenu()
-                                 :  null,
-                'allValue' => 'all'
-                           . (($params['Item'] ?? null) ? '&pid=' . (int)$params['Item']->id : ''),
+                'allContextMenu' => ($ctxMenu && $allCtxMenu) ?  $view->$allCtxMenu() : null,
+                'allValue' => 'all' . (($params['Item'] ?? null) ? '&pid=' . (int)$params['Item']->id : ''),
             ],
             'data-role' => 'multitable',
             'columns' => [

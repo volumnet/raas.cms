@@ -88,7 +88,10 @@ $showMenu = function ($node, Page $current) use (&$showMenu, $ajax) {
             $aClasses[] = '{{MENU_CSS_CLASSNAME}}__link_has-children';
         }
         $text .= '<li class="' . implode(' ', $liClasses) . '">'
-              .  '  <' . ((!$active && $url) ? 'a' : 'span') . ' class="' . implode(' ', $aClasses) . '" ' . (($active || !$url) ? '' : ' href="' . htmlspecialchars($url) . '"') . '>'
+              .  '  <' . ((!$active && $url) ? 'a' : 'span') . '
+                      class="' . implode(' ', $aClasses) . '"
+                      ' . (($active || !$url) ? '' : ' href="' . htmlspecialchars($url) . '"') . '
+                    >'
               .       htmlspecialchars($name)
               .       ($ch ? '<span class="{{MENU_CSS_CLASSNAME}}__children-trigger"></span>' : '')
               .  '  </' . ((!$active && $url) ? 'a' : 'span') . '>'
@@ -107,4 +110,3 @@ $showMenu = function ($node, Page $current) use (&$showMenu, $ajax) {
 <nav class="{{MENU_CSS_CLASSNAME}}">
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>
-<?php AssetManager::requestJS('/js/{{MENU_CSS_CLASSNAME}}.js');

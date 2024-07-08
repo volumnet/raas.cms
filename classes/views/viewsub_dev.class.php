@@ -2,10 +2,13 @@
 /**
  * Представление для подмодуля "Разработка"
  */
+declare(strict_types=1);
+
 namespace RAAS\CMS;
 
 use SOME\Text;
 use RAAS\Abstract_Sub_View as RAASAbstractSubView;
+use RAAS\Application;
 
 /**
  * Класс представления для подмодуля "Разработка"
@@ -327,7 +330,20 @@ class ViewSub_Dev extends RAASAbstractSubView
         if (count($in['items']) == 1) {
             $this->contextmenu = $this->getMenuContextMenu($in['Item']);
         }
-        $this->title = $this->_('MOVING_NOTE');
+        if ($in['copy']) {
+            if (count($in['items']) == 1) {
+                $captionToken = 'COPY_NOTE';
+            } else {
+                $captionToken = 'COPY_NOTES';
+            }
+        } else {
+            if (count($in['items']) == 1) {
+                $captionToken = 'MOVING_NOTE';
+            } else {
+                $captionToken = 'MOVING_NOTES';
+            }
+        }
+        $this->title = $this->_($captionToken);
         $this->template = 'dev_move_menu';
         $this->subtitle = $this->getMenuSubtitle($in['Item']);
     }
@@ -593,7 +609,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('MATERIAL_TYPES'),
             'href' => $this->url . '&action=material_types'
         ];
-        if ($in['Parent']->id) {
+        if ($in['Parent']->id ?? null) {
             foreach ((array)$in['Parent']->parents as $row) {
                 $this->path[] = [
                     'href' => $this->url . '&action=edit_material_type&id=' . (int)$row->id,
@@ -1118,6 +1134,24 @@ class ViewSub_Dev extends RAASAbstractSubView
 
 
     /**
+     * Дизайн
+     * @param [] $in Входные данные
+     */
+    public function design(array $in = [])
+    {
+        $this->js[] = $this->publicURL . '/dev_design.js';
+        $this->css[] = $this->publicURL . '/dev_design.css';
+        $this->assignVars($in);
+        $this->title = $this->_('DESIGN');
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->template = 'dev_design';
+    }
+
+
+    /**
      * Возвращает левое меню подмодуля "Разработка"
      * @return array<[
      *             'href' ?=> string Ссылка,
@@ -1165,7 +1199,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=material_types',
             'name' => $this->_('MATERIAL_TYPES'),
             'active' => (
-                in_array($this->action, ['material_types', 'edit_material_type', 'edit_material_field']) &&
+                in_array($this->action, ['material_types', 'edit_material_type', 'edit_material_field', 'copy_material_type']) &&
                 !$this->moduleName
             )
         ];
@@ -1212,6 +1246,12 @@ class ViewSub_Dev extends RAASAbstractSubView
                 $temp = (array)$row->view->devMenu();
                 $submenu = array_merge($submenu, $temp);
             }
+        }
+        if (!Application::i()->prod && is_file(Application::i()->baseDir . '/design/index.json')) {
+            $submenu[] = [
+                'href' => $this->url . '&action=design',
+                'name' => $this->_('DESIGN')
+            ];
         }
         return $submenu;
     }
@@ -1567,6 +1607,14 @@ class ViewSub_Dev extends RAASAbstractSubView
                 'name' => $this->_('COPY'),
                 'icon' => 'tags'
             ];
+            if (!Application::i()->prod && !$snippet->locked && ($snippet->parent->urn == '__raas_views')) {
+                $arr[] = [
+                    'href' => $this->url . '&action=create_snippet_assets&id=' .  (int)$snippet->id
+                        . (($this->action == 'edit_snippet') ? '&back=1' : ''),
+                    'name' => $this->_('CREATE_MISSING_SNIPPET_ASSETS'),
+                    'icon' => 'code',
+                ];
+            }
         }
         return $arr;
     }
@@ -1591,6 +1639,13 @@ class ViewSub_Dev extends RAASAbstractSubView
             'icon' => 'remove',
             'onclick' => 'return confirm(\'' . $this->_('DELETE_MULTIPLE_TEXT') . '\')'
         ];
+        if (!Application::i()->prod) {
+            $arr[] = [
+                'href' => $this->url . '&action=create_snippet_assets',
+                'name' => $this->_('CREATE_MISSING_SNIPPET_ASSETS'),
+                'icon' => 'code'
+            ];
+        }
         return $arr;
     }
 
@@ -1610,6 +1665,11 @@ class ViewSub_Dev extends RAASAbstractSubView
     {
         $arr = [];
         if ($materialType->id) {
+            $arr[] = [
+                'href' => $this->url . '&action=copy_material_type&id=' .  (int)$materialType->id,
+                'name' => $this->_('COPY'),
+                'icon' => 'tags'
+            ];
             if ($this->action == 'edit_material_type') {
                 $arr[] = [
                     'href' => $this->url . '&action=edit_material_field&pid=' . (int)$materialType->id,
@@ -2115,6 +2175,11 @@ class ViewSub_Dev extends RAASAbstractSubView
                     'name' => $this->_('MOVE'),
                     'icon' => 'share-alt'
                 ];
+                $arr[] = [
+                    'href' => $this->url . '&action=move_menu&copy=1&id=' . (int)$menu->id,
+                    'name' => $this->_('COPY'),
+                    'icon' => 'tags'
+                ];
             }
             if (($this->id == $menu->id) && ($menu->inherit > 0)) {
                 $arr[] = [
@@ -2173,6 +2238,11 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('MOVE'),
             'href' => $this->url . '&action=move_menu',
             'icon' => 'share-alt'
+        ];
+        $arr[] = [
+            'href' => $this->url . '&action=move_menu&copy=1',
+            'name' => $this->_('COPY'),
+            'icon' => 'tags'
         ];
         $arr[] = [
             'name' => $this->_('DELETE'),

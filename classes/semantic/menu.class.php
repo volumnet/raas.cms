@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 namespace RAAS\CMS;
 
+use Exception;
 use SOME\SOME;
 
 /**
@@ -259,8 +260,8 @@ class Menu extends SOME
             }
             foreach ($childrenIds as $childId) {
                 $childData = $cache->cache[$childId];
-                if ($pageId = (int)($childData['page_id'] ?? 0)) {
-                    $realized[(string)$pageId] = $pageId;
+                if ($childPageId = (int)($childData['page_id'] ?? 0)) {
+                    $realized[(string)$childPageId] = $childPageId;
                 }
                 $result[] = $childData;
             }
@@ -337,5 +338,34 @@ class Menu extends SOME
             $result[] = Block::spawn($sqlVal);
         }
         return $result;
+    }
+
+
+    /**
+     * Рекурсивно копирует меню
+     * @param Menu|int $newParent Новый родительский элемент или его ID#
+     * @return Menu Вновь созданное меню
+     */
+    public function copyRecursively($newParent): Menu
+    {
+        $srcId = (int)$this->id;
+        if ($newParent instanceof self) {
+            $parentId = (int)$newParent->id;
+        } elseif (is_numeric($newParent)) {
+            $parentId = (int)$newParent;
+        }
+        $sqlQuery = "SELECT * FROM " . static::_tablename() . " WHERE id = " . (int)$srcId;
+        $sqlResult = Menu::_SQL()->getline($sqlQuery);
+        unset($sqlResult['id']);
+        $sqlResult['pid'] = (int)$parentId;
+        $destId = Menu::_SQL()->add(Menu::_tablename(), $sqlResult);
+
+        $sqlQuery = "SELECT * FROM " . static::_tablename() . " WHERE pid = " . (int)$srcId;
+        $sqlResult = Menu::_SQL()->get($sqlQuery);
+        foreach ($sqlResult as $sqlRow) {
+            $child = new Menu($sqlRow);
+            $child->copyRecursively($destId);
+        }
+        return new Menu($destId);
     }
 }

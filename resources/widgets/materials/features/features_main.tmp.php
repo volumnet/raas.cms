@@ -19,13 +19,18 @@ if ($Set) { ?>
             <div class="features-main-list__item features-main-item">
               <?php if ($item->image->id || $item->icon) { ?>
                   <?php if ($item->image->id) { ?>
-                      <img class="features-main-item__image" loading="lazy" src="/<?php echo htmlspecialchars($item->image->fileURL)?>" alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>" />
+                      <img
+                        class="features-main-item__image"
+                        loading="lazy"
+                        src="/<?php echo htmlspecialchars($item->image->fileURL)?>"
+                        alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>"
+                      />
                   <?php } elseif ($item->icon) { ?>
                       <span class="features-main-item__image fa fa-<?php echo htmlspecialchars($item->icon)?>"></span>
                   <?php } ?>
               <?php } ?>
               <div class="features-main-item__text">
-                <div class="features-main-item__title h5">
+                <div class="features-main-item__title">
                   <?php echo htmlspecialchars($item->name)?>
                 </div>
                 <div class="features-main-item__description">
@@ -37,6 +42,4 @@ if ($Set) { ?>
       </div>
     </div>
     <?php
-    AssetManager::requestCSS('/css/features-main.css');
-    // AssetManager::requestJS('/js/features-main.js');
 }

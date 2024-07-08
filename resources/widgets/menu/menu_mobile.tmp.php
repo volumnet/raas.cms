@@ -23,7 +23,7 @@ $ajax = (bool)stristr($Page->url, '/ajax/') || (($_GET['AJAX'] ?? '') == $Block-
  * Возвращает код закрытия меню
  */
 $showCloseButton = function () {
-    $result = ' <a class="menu-mobile__close menu-mobile__close-link btn-close"></a>';
+    $result = ' <button type="button" class="menu-mobile__close menu-mobile__close-link btn-close"></button>';
     return $result;
 };
 
@@ -43,8 +43,12 @@ $showInnerHeader = function (
 ) use (
     &$showCloseButton
 ) {
-    $result = ' <a class="menu-mobile__back menu-mobile__back-link"></a>
-                <a class="menu-mobile__title" ' . ($vueLink ? 'data-v-bind_' : '') . 'href="' . htmlspecialchars($url) . '"' . ($vueText ? ' data-v-html="' . htmlspecialchars($text) . '"' : '') . '>';
+    $result = ' <button type="button" class="menu-mobile__back menu-mobile__back-link"></button>
+                <a
+                  class="menu-mobile__title"
+                  ' . ($vueLink ? 'data-v-bind_' : '') . 'href="' . htmlspecialchars($url) . '"
+                  ' . ($vueText ? ' data-v-html="' . htmlspecialchars($text) . '"' : '') . '
+                >';
     if (!$vueText) {
         $result .= htmlspecialchars($text);
     }
@@ -94,41 +98,105 @@ $showMenu = function ($node, Page $current) use (
         $text .= '   </li>';
         if (!$level && $phone) {
             if ($phone) {
-                $text .= '<li class="menu-mobile__item menu-mobile__item_main menu-mobile__item_level_0 menu-mobile__item_phone">
-                            <a class="menu-mobile__link menu-mobile__link_main menu-mobile__link_level_0 menu-mobile__link_phone" href="tel:%2B7' . Text::beautifyPhone($phone) . '">'
+                $text .= '<li class="
+                            menu-mobile__item
+                            menu-mobile__item_main
+                            menu-mobile__item_level_0
+                            menu-mobile__item_phone
+                          ">
+                            <a
+                              class="
+                                menu-mobile__link
+                                menu-mobile__link_main
+                                menu-mobile__link_level_0
+                                menu-mobile__link_phone
+                              "
+                              href="tel:%2B7' . Text::beautifyPhone($phone) . '"
+                            >'
                       .       htmlspecialchars($phone)
                       .    '</a>
                           </li>';
             }
             if (class_exists('RAAS\CMS\Users\Module')) {
-                $text .= '<li data-v-if="user.id" class="menu-mobile__item menu-mobile__item_level_0 menu-mobile__item_main menu-mobile__item_user menu-mobile__item_has-children">
-                            <a href="/profile/" class="menu-mobile__link menu-mobile__link_level_0 menu-mobile__link_main menu-mobile__link_has-children menu-mobile__link_user" data-v-html="user.first_name || user.full_name"></a>
-                            <a href="#" class="menu-mobile__children-trigger menu-mobile__children-trigger_main menu-mobile__children-trigger_level_0"></a>
+                $text .= '<li
+                            data-v-if="user.id"
+                            class="
+                              menu-mobile__item
+                              menu-mobile__item_level_0
+                              menu-mobile__item_main
+                              menu-mobile__item_user
+                              menu-mobile__item_has-children
+                            "
+                          >
+                            <a
+                              href="/profile/"
+                              class="
+                                menu-mobile__link
+                                menu-mobile__link_level_0
+                                menu-mobile__link_main
+                                menu-mobile__link_has-children
+                                menu-mobile__link_user
+                              "
+                              data-v-html="user.first_name || user.full_name"
+                            ></a>
+                            <button
+                              type="button"
+                              class="
+                                menu-mobile__children-trigger
+                                menu-mobile__children-trigger_main
+                                menu-mobile__children-trigger_level_0
+                              "
+                            ></button>
                             <ul class="menu-mobile__list menu-mobile__list_level_1 menu-mobile__list_inner">
                               <li class="menu-mobile__header">
                                 ' . $showInnerHeader('/profile/', 'user.first_name || user.full_name', true) . '
                               </li>
                               <li class="menu-mobile__item menu-mobile__item_level_1 menu-mobile__item_inner">
-                                <a href="/profile/" class="menu-mobile__link menu-mobile__link_level_1 menu-mobile__link_inner">
+                                <a
+                                  href="/profile/"
+                                  class="menu-mobile__link menu-mobile__link_level_1 menu-mobile__link_inner"
+                                >
                                   ' . EDIT_PROFILE . '
                                 </a>
                               </li>';
                 if (class_exists('RAAS\CMS\Shop\Module')) {
                     $text .= '<li class="menu-mobile__item menu-mobile__item_level_1 menu-mobile__item_inner">
-                                <a href="/my-orders/" class="menu-mobile__link menu-mobile__link_level_1 menu-mobile__link_inner">
+                                <a
+                                  href="/my-orders/"
+                                  class="menu-mobile__link menu-mobile__link_level_1 menu-mobile__link_inner"
+                                >
                                   ' . MY_ORDERS . '
                                 </a>
                               </li>';
                 }
                 $text .= '    <li class="menu-mobile__item menu-mobile__item_level_1 menu-mobile__item_inner">
-                                <a href="/login/?logout=1" class="menu-mobile__link menu-mobile__link_level_1">
+                                <a
+                                  href="/login/?logout=1"
+                                  class="menu-mobile__link menu-mobile__link_level_1 menu-mobile__link_inner"
+                                >
                                   ' . LOG_OUT . '
                                 </a>
                               </li>
                             </ul>
                           </li>
-                          <li data-v-else class="menu-mobile__item menu-mobile__item_level_0 menu-mobile__item_main menu-mobile__item_user">
-                            <a href="/login/" class="menu-mobile__link menu-mobile__link_level_0 menu-mobile__link_main menu-mobile__link_user">
+                          <li
+                            data-v-else
+                            class="
+                              menu-mobile__item
+                              menu-mobile__item_level_0
+                              menu-mobile__item_main
+                              menu-mobile__item_user
+                            "
+                          >
+                            <a
+                              href="/login/"
+                              class="
+                                menu-mobile__link
+                                menu-mobile__link_level_0
+                                menu-mobile__link_main
+                                menu-mobile__link_user
+                              "
+                            >
                               ' . LOG_IN . '
                             </a>
                           </li>';
@@ -193,11 +261,21 @@ $showMenu = function ($node, Page $current) use (
             $aClasses[] = 'menu-mobile__link_has-children';
         }
         $text .= '<li class="' . implode(' ', $liClasses) . '">'
-              .  '  <' . ((!$active && $url) ? 'a' : 'span') . ' class="' . implode(' ', $aClasses) . '" ' . (($active || !$url) ? '' : ' href="' . htmlspecialchars($url) . '"') . '>'
+              .  '  <' . ((!$active && $url) ? 'a' : 'span') . '
+                      class="' . implode(' ', $aClasses) . '"
+                      ' . (($active || !$url) ? '' : ' href="' . htmlspecialchars($url) . '"') . '
+                    >'
               .       htmlspecialchars($name)
               .  '  </' . ((!$active && $url) ? 'a' : 'span') . '>';
         if ($ch) {
-            $text .= '<a href="#" class="menu-mobile__children-trigger menu-mobile__children-trigger_' . ($level ? 'inner' : 'main') . ' menu-mobile__children-trigger_level_' . (int)$level . '"></a>'
+            $text .= '<button
+                        type="button"
+                        class="
+                          menu-mobile__children-trigger
+                          menu-mobile__children-trigger_' . ($level ? 'inner' : 'main') . '
+                          menu-mobile__children-trigger_level_' . (int)$level . '
+                        "
+                      ></button>'
                   .  $ch;
 
         }
@@ -230,6 +308,6 @@ $phone = $phone[0];
   data-v-bind_use-ajax="<?php echo htmlspecialchars(json_encode($useAjax))?>"
   data-v-slot="vm"
 >
-  <a class="menu-mobile__trigger" data-v-on_click.stop="jqEmit('raas.openmobilemenu')"></a>
+  <button type="button" class="menu-mobile__trigger" data-v-on_click.stop="jqEmit('raas.openmobilemenu')"></button>
   <?php echo $showMenu($menuArr ?: $Item, $Page)?>
 </nav>

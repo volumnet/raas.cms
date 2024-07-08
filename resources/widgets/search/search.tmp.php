@@ -150,7 +150,14 @@ if ($_GET['AJAX'] == $Block->id) {
               ?>
               <div class="search-list__item search-item">
                 <a class="search-item__image" href="<?php echo htmlspecialchars($itemData['url'])?>">
-                  <img loading="lazy" src="<?php echo htmlspecialchars($itemData['image']['url'] ?: '/files/cms/common/image/design/nophoto.jpg')?>" alt="<?php echo htmlspecialchars($itemData['image']['name'] ?: $itemData['name'])?>" />
+                  <img
+                    loading="lazy"
+                    src="<?php echo htmlspecialchars(
+                        $itemData['image']['url'] ?:
+                        '/files/cms/common/image/design/nophoto.jpg'
+                    )?>"
+                    alt="<?php echo htmlspecialchars($itemData['image']['name'] ?: $itemData['name'])?>"
+                  />
                 </a>
                 <div class="search-item__text">
                   <a class="search-item__title" href="<?php echo htmlspecialchars($itemData['url'])?>">

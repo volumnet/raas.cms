@@ -14,5 +14,5 @@ use RAAS\FormTab;
 $_RAASForm_FormTab = function (FormTab $formTab) {
     $Table = $formTab->meta['Table'];
     $VIEW = ViewSub_Dev::i();
-    include ViewSub_Dev::i()->tmp('/table.tmp.php');
+    include ViewSub_Dev::i()->tmp($Table->template);
 };

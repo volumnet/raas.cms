@@ -4,8 +4,8 @@
  */
 namespace RAAS\CMS;
 
-use \RAAS\FormTab;
-use \RAAS\FieldSet;
+use RAAS\FormTab;
+use RAAS\FieldSet;
 use RAAS\HTMLElement;
 use RAAS\Field as RAASField;
 

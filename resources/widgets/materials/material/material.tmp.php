@@ -1,6 +1,6 @@
 <?php
 /**
- * Модуль "{{MATERIAL_TYPE_NAME}}"
+ * {{MATERIAL_TYPE_NAME}}
  * @param Block_Material $Block Текущий блок
  * @param Page $Page Текущая страница
  * @param Pages $Pages Постраничная разбивка
@@ -21,8 +21,17 @@ if ($Item) { ?>
           </div>
       <?php } ?>
       <?php if ($Item->visImages) { ?>
-          <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__image" href="/<?php echo $Item->visImages[0]->fileURL?>" data-lightbox-gallery="g">
-            <img loading="lazy" src="/<?php echo htmlspecialchars($Item->visImages[0]->tnURL)?>" alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $Item->name)?>" /></a>
+          <a
+            class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__image"
+            href="/<?php echo $Item->visImages[0]->fileURL?>"
+            data-lightbox-gallery="g"
+          >
+            <img
+              loading="lazy"
+              src="/<?php echo htmlspecialchars($Item->visImages[0]->tnURL)?>"
+              alt="<?php echo htmlspecialchars($Item->visImages[0]->name ?: $Item->name)?>"
+            />
+          </a>
       <?php } ?>
       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__description">
         <?php echo $Item->description; ?>
@@ -34,8 +43,17 @@ if ($Item) { ?>
             </div>
             <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article__images-list {{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-list">
               <?php for ($i = 1; $i < count($visImages); $i++) { $image = $visImages[$i]; ?>
-                  <a href="/<?php echo htmlspecialchars($image->fileURL)?>" class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-list__item {{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-item" data-lightbox-gallery="g">
-                    <img loading="lazy" src="/<?php echo htmlspecialchars($image->tnURL)?>" alt="<?php echo htmlspecialchars($image->name)?>" /></a>
+                  <a
+                    href="/<?php echo htmlspecialchars($image->fileURL)?>"
+                    class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-list__item {{MATERIAL_TYPE_CSS_CLASSNAME}}-article-images-item"
+                    data-lightbox-gallery="g"
+                  >
+                    <img
+                      loading="lazy"
+                      src="/<?php echo htmlspecialchars($image->tnURL)?>"
+                      alt="<?php echo htmlspecialchars($image->name)?>"
+                    />
+                  </a>
               <?php } ?>
             </div>
           </div>
@@ -49,13 +67,21 @@ if ($Item) { ?>
       <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}__list {{MATERIAL_TYPE_CSS_CLASSNAME}}-list">
         <?php foreach ($Set as $item) { ?>
             <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-list__item {{MATERIAL_TYPE_CSS_CLASSNAME}}-item">
-              <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image<?php echo !$item->visImages ? ' {{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image_no-image' : ''?>"<?php echo ($Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : '')?>>
-                <img loading="lazy" src="/<?php echo htmlspecialchars($item->visImages ? $item->visImages[0]->tnURL : '/files/cms/common/image/design/nophoto.jpg')?>" alt="<?php echo htmlspecialchars($item->visImages[0]->name ?: $item->name)?>" />
-              </a>
+              <<?php echo ($Block->nat ? 'a href="' . htmlspecialchars($item->url) . '"' : 'span')?>
+                class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image<?php echo !$item->visImages ? ' {{MATERIAL_TYPE_CSS_CLASSNAME}}-item__image_no-image' : ''?>"
+              >
+                <img
+                  loading="lazy"
+                  src="/<?php echo htmlspecialchars($item->visImages ? $item->visImages[0]->tnURL : '/files/cms/common/image/design/nophoto.jpg')?>"
+                  alt="<?php echo htmlspecialchars($item->visImages[0]->name ?: $item->name)?>"
+                />
+              </<?php echo ($Block->nat ? 'a' : 'span')?>>
               <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__text">
-                <a class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__title"<?php echo $Block->nat ? ' href="' . htmlspecialchars($item->url) . '"' : ''?>>
+                <<?php echo ($Block->nat ? 'a href="' . htmlspecialchars($item->url) . '"' : 'span')?>
+                  class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__title"
+                >
                   <?php echo htmlspecialchars($item->name)?>
-                </a>
+                </<?php echo ($Block->nat ? 'a' : 'span')?>>
                 <?php if (($time = strtotime($item->date)) > 0) { ?>
                     <div class="{{MATERIAL_TYPE_CSS_CLASSNAME}}-item__date">
                       <?php echo date('d', $time) . ' ' . Text::$months[(int)date('m', $time)] . ' ' . date('Y', $time)?>
