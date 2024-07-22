@@ -457,14 +457,17 @@ class Webmaster
             }
 
             // Создадим блок
-            if ($menuData['blockLocation']) {
+            if ($menuData['blockLocation'] ?? null) {
                 $blockData = [
                     'menu' => (int)$menu->id,
                     'full_menu' => (int)$menuData['fullMenu']
                 ];
-                if ($menuData['fullMenu']) {
+                if ($menuData['fullMenu'] ?? null) {
                     $blockData['cache_type'] = Block::CACHE_DATA;
                     $blockData['cache_interface_classname'] = CacheInterface::class;
+                }
+                if ($menuData['blockVisMaterial'] ?? null) {
+                    $blockData['vis_material'] = $menuData['blockVisMaterial'];
                 }
                 $this->createBlock(
                     new Block_Menu($blockData),
@@ -956,6 +959,7 @@ class Webmaster
                         'urn' => 'agree',
                         'required' => 1,
                         'datatype' => 'checkbox',
+                        'defval' => 1,
                     ],
                 ],
             ],
@@ -978,6 +982,7 @@ class Webmaster
                         'urn' => 'agree',
                         'required' => 1,
                         'datatype' => 'checkbox',
+                        'defval' => 1,
                     ],
                 ],
             ]

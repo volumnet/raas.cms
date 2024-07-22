@@ -65,6 +65,7 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
   if (($lat = $company->lat) && ($lon = $company->lon)) { ?>
       <div class="contacts__map">
         <div
+          data-v-once
           data-vue-role="yandex-map"
           data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]"
           data-v-bind_zoom="15"

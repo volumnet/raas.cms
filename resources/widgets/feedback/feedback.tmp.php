@@ -74,6 +74,9 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
             echo $formRenderer->renderSignatureField();
             echo $formRenderer->renderHiddenAntispamField();
             foreach ($Form->visFields as $fieldURN => $field) {
+                if ($field->urn == 'agree') {
+                    continue;
+                }
                 $fieldRenderer = FormFieldRenderer::spawn(
                     $field,
                     $Block,
@@ -130,6 +133,10 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
                 </div>
             <?php } ?>
           </fieldset>
+          <input type="hidden" name="agree" value="1">
+          <div class="feedback-modal__agree feedback__agree" v-html="">
+            <?php echo AGREE_BY_CLICKING_SEND?>
+          </div>
           <div class="feedback__controls">
             <button
               class="feedback__submit btn btn-primary"

@@ -69,14 +69,14 @@ if ($searchBlockId = $Block->additionalParams['searchBlockId']) {
           required="required"
           data-role="search-string"
         />
-        <div
-          class="search-form__autocomplete"
-          data-v-if="vm.autocomplete"
-          data-vue-role="search-form-autocomplete"
-          data-v-bind_autocomplete="vm.autocomplete"
-        ></div>
       </div>
       <button type="submit" class="btn btn-primary search-form__button"></button>
+      <div
+        class="search-form__autocomplete"
+        data-v-if="vm.autocomplete"
+        data-vue-role="search-form-autocomplete"
+        data-v-bind_autocomplete="vm.autocomplete"
+      ></div>
     </div>
   </form>
 </div>

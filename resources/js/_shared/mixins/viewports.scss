@@ -302,7 +302,6 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
 @mixin viewport-prop($propertyName, $medias) {
     @if (type-of($medias) == 'map') {
         @each $key, $val in $medias {
-            // @debug $key;
             @include viewport($key) {
                 #{$propertyName}: $val;
             }
@@ -317,8 +316,19 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
 /// @param {map} $properties Карта для использования в viewport-prop (ключи - $propertyName, значения - $medias)
 /// @output Набор переменных в медиа-запросе
 @mixin viewport-props($properties) {
-    @each $key, $val in $properties {
-        @include viewport-prop($key, $val);
+    @each $propertyName, $medias in $properties {
+        @if (type-of($medias) != 'map') and (type-of($medias) != 'list') {
+            #{$propertyName}: $medias;
+        }
+    }
+    @each $propertyName, $medias in $properties {
+        @if (type-of($medias) == 'map') {
+            @each $key, $val in $medias {
+                @include viewport($key) {
+                    #{$propertyName}: $val;
+                }
+            }
+        }
     }
 }
 

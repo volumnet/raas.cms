@@ -21,6 +21,7 @@ export default {
             FEEDBACK_SUCCESSFULLY_SENT: 'Спасибо! Ваш запрос успешно отправлен.',
             CANCEL: 'Отмена',
             SEND: 'Отправить',
+            AGREE_BY_CLICKING_SEND: 'Отправляя форму, вы даете согласие на <a href="/privacy/" target="_blank">обработку персональных данных</a>',
         };
         if (typeof window.translations == 'object') {
             Object.assign(translations, window.translations);

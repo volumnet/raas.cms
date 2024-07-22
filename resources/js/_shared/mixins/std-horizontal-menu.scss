@@ -58,6 +58,9 @@
                 }
             }
         }
+        &:not(a) {
+            cursor: default;
+        }
     }
     &__link {
         display: flex;

@@ -33,6 +33,18 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
             'htmlId' => function ($field) use ($Block) {
                 return $field->getHTMLId($Block);
             },
+            'placeholder' => function ($field) {
+                $result = '';
+                if ($field->placeholder) {
+                    $result = $field->placeholder;
+                } else {
+                    $result = $field->name;
+                }
+                if ($field->required) {
+                    $result .= '*';
+                }
+                return $result;
+            }
         ]
     );
     $formData = (object)$DATA;

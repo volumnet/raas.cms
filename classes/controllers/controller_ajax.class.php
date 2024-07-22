@@ -316,7 +316,7 @@ class Controller_Ajax extends Abstract_Controller
         $page = Page::importByURL($host . $url);
         $page->initialURL = $url;
         $additionalURLArray = $page->additionalURLArray;
-        $material = Material::importByURN((string)($additionalURLArray[0]?: ''));
+        $material = Material::importByURN((string)($additionalURLArray[0] ?? ''));
         if ($page->id) {
             echo "console.log('Страница ID# " . (int)$page->id . " " . $page->name . "');";
             echo "console.log('" . $host . addslashes($page->url) . "');";
@@ -324,7 +324,7 @@ class Controller_Ajax extends Abstract_Controller
         }
         if ($material && $material->id) {
             echo "console.log('Материал ID# " . (int)$material->id . " " . $material->name . "');";
-            echo "console.log('" . $host . addslashes($material->url) . "');";
+            echo "console.log('" . $host . addslashes((string)$material->url) . "');";
             echo "console.log('" . $host . "/admin/?p=cms&action=edit_material&id=" . (int)$material->id . "');";
             if ($material->url == $url) {
                 echo "console.info('Адрес материала совпадает с текущим адресом');";

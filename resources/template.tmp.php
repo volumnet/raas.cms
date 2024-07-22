@@ -63,7 +63,7 @@ ob_start(); // Для $separateScripts
         <meta name="description" content="<?php echo htmlspecialchars($Page->meta_description)?>" />
     <?php } ?>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="manifest" href="/manifest.json">
@@ -208,6 +208,23 @@ ob_start(); // Для $separateScripts
             $rightText = $contentLocations[$i]['right'];
             $contentText = $contentLocations[$i]['content'];
             if (!$i || $leftText || $contentText || $rightText) { ?>
+                <?php if (!$i && $Page->pid) {
+                    ob_start();
+                    Snippet::importByURN('breadcrumbs')->process(['page' => $Page]);
+                    if (!$Page->Material->id || !in_array(
+                        Material_Type::importByURN('catalog')->id,
+                        MaterialTypeRecursiveCache::i()->getSelfAndParentsIds($Page->Material->pid)
+                    )) { ?>
+                        <h1 class="h1 body__title">
+                          <?php echo htmlspecialchars($Page->getH1())?>
+                        </h1>
+                    <?php }
+                    if ($headerBlockContent = ob_get_clean()) { ?>
+                        <div class="body__row body__row_title">
+                          <?php echo $headerBlockContent?>
+                        </div>
+                    <?php }
+                } ?>
                 <div class="body__row body__row_content body__row_content_<?php echo ($i + 1)?>">
                   <?php if ($leftText) { ?>
                       <?php echo stristr($leftText, 'catalog-filter') ? '' : '<!--nomobile-->'?>
@@ -218,21 +235,7 @@ ob_start(); // Для $separateScripts
                   <?php }
                   if (!$i || $contentText) { ?>
                       <div class="body__content body__content_<?php echo ($i + 1) . (($leftText || $rightText) ? ' body__content_sided' : '')?>">
-                        <?php if ($i || !$Page->pid) {
-                            echo $contentText;
-                        } else {
-                            $catalogMaterialType = Material_Type::importByURN('catalog');
-                            Snippet::importByURN('breadcrumbs')->process(['page' => $Page]);
-                            if (!$Page->Material->id || !in_array(
-                                $catalogMaterialType->id,
-                                MaterialTypeRecursiveCache::i()->getSelfAndParentsIds($Page->Material->pid)
-                            )) { ?>
-                                <h1 class="h1 body__title">
-                                  <?php echo htmlspecialchars($Page->getH1())?>
-                                </h1>
-                            <?php }
-                            echo $contentText;
-                        } ?>
+                        <?php echo $contentText; ?>
                       </div>
                   <?php }
                   if ($rightText) { ?>
