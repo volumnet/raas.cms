@@ -56,8 +56,10 @@ class InterfaceField extends SnippetField
         if (!$classnames && $root) {
             $classMapFile = Application::i()->baseDir . '/vendor/composer/autoload_classmap.php';
             if (is_file($classMapFile)) {
-                $classnames = include $classMapFile;
-                $classnames = array_filter(array_keys($classnames), function ($x) use ($currentClass) {
+                $composerClassnames = include $classMapFile;
+                $classnames = array_merge(get_declared_classes(), array_keys($composerClassnames));
+                $classnames = array_unique($classnames);
+                $classnames = array_filter($classnames, function ($x) use ($currentClass) {
                     try {
                         return @class_exists($x) && (($x == $currentClass) || @is_subclass_of($x, $currentClass));
                         // @ для подавления ошибок совместимости для phpQuery

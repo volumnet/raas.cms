@@ -62,6 +62,7 @@ if ($waMatches) {
       <a
         href="<?php echo htmlspecialchars($whatsapp)?>"
         target="_blank"
+        rel="nofollow"
         class="triggers-list__item triggers-item triggers-item_whatsapp"
         title="<?php echo WE_ARE_IN_WHATSAPP?>"
       ></a>

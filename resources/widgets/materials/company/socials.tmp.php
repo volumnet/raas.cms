@@ -40,6 +40,7 @@ if ($socials = $company->fields['socials']->getValues(true)) { ?>
                     "
                     title="<?php echo htmlspecialchars(View_Web::i()->_($socialData['name']))?>"
                     target="_blank"
+                    rel="nofollow"
                   ></a>
               <?php }
           }

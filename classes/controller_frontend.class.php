@@ -596,7 +596,11 @@ class Controller_Frontend extends Abstract_Controller
         $content = CMSPackage::processInternalLinks($content, $page);
         echo $content;
 
-        if (!$blockId && $page->cache && ($this->requestMethod == 'get')) {
+        if (!$blockId &&
+            $page->cache &&
+            ($this->requestMethod == 'get') &&
+            !(Application::i()->debug && ($_GET['nocache'] ?? null))
+        ) {
             $headers = (array)headers_list();
             if (($status1 = array_filter($headers, function ($x) {
                 return stristr($x, 'Status:');
@@ -864,7 +868,7 @@ class Controller_Frontend extends Abstract_Controller
      */
     protected function getCache()
     {
-        if ($this->requestMethod == 'get') {
+        if (($this->requestMethod == 'get') && !(Application::i()->debug && ($_GET['nocache'] ?? null))) {
             $filename = $this->model->cacheDir . '/' . $this->model->cachePrefix
                       . '.' . urlencode($this->url) . '.php';
             if (strlen($filename) < 256) {

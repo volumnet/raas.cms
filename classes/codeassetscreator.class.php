@@ -160,32 +160,33 @@ class CodeAssetsCreator
      */
     public function generateVue(array $data): string
     {
-        $text = '<style lang="scss">' . "\n"
-              . '// .' . $data['name'] . ' {' . "\n"
-              . '//     $self: &;' . "\n"
-              . '//     ' . "\n"
-              . '//     ' . "\n"
-              . '//     ' . "\n";
-        foreach (($data['modifiers'] ?? []) as $modifier) {
-            $text .= '//     &' . $modifier . ' {' . "\n"
-                  .  '//         ' . "\n"
-                  .  '//     }' . "\n";
-        }
-        foreach (($data['elements'] ?? []) as $element) {
-            $text .= '//     &' . $element['name'] . ' {' . "\n"
-                  .  '//         ' . "\n";
-            foreach (($element['modifiers'] ?? []) as $elementModifier) {
-                $text .= '//         &' . $elementModifier . ' {' . "\n"
-                      .  '//             ' . "\n"
-                      .  '//         }' . "\n";
-            }
-            $text .= '//     }' . "\n";
-        }
-        $text .= '// }' . "\n"
-              .  '</style>';
+        $text = '';
+        // $text .= '<style lang="scss">' . "\n"
+        //       .  '// .' . $data['name'] . ' {' . "\n"
+        //       .  '//     $self: &;' . "\n"
+        //       .  '//     ' . "\n"
+        //       .  '//     ' . "\n"
+        //       .  '//     ' . "\n";
+        // foreach (($data['modifiers'] ?? []) as $modifier) {
+        //     $text .= '//     &' . $modifier . ' {' . "\n"
+        //           .  '//         ' . "\n"
+        //           .  '//     }' . "\n";
+        // }
+        // foreach (($data['elements'] ?? []) as $element) {
+        //     $text .= '//     &' . $element['name'] . ' {' . "\n"
+        //           .  '//         ' . "\n";
+        //     foreach (($element['modifiers'] ?? []) as $elementModifier) {
+        //         $text .= '//         &' . $elementModifier . ' {' . "\n"
+        //               .  '//             ' . "\n"
+        //               .  '//         }' . "\n";
+        //     }
+        //     $text .= '//     }' . "\n";
+        // }
+        // $text .= '// }' . "\n"
+        //       .  '</style>';
         if ($data['hasVue'] ?? null) {
-            $text .= "\n\n\n"
-                  .  '<template>' . "\n"
+            $text .= /*"\n\n\n"
+                  .  */'<template>' . "\n"
                   .  '  <' . $data['hasVue'] . ' class="' . $data['name'] . '">' . "\n";
             if ($data['vueSlot'] ?? null) {
                 $text .= '    <slot v-bind="self"></slot>' . "\n";

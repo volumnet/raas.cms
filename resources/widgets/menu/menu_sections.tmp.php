@@ -42,6 +42,9 @@ $showMenu = function ($node, Page $current) use (&$showMenu) {
             $name = $row['name'];
             $page = new Page($row['page_id']);
         }
+        if ($url == '#') {
+            $url = '';
+        }
         // 2021-02-23, AVS: заменил HTTP::queryString('', true) на $current->url,
         // чтобы была возможность использовать через AJAX
         // 2021-06-16, AVS: Заменили так, чтобы при активном материале ссылка не была активной

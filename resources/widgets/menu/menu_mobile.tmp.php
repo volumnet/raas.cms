@@ -215,6 +215,9 @@ $showMenu = function ($node, Page $current) use (
             $url = $row['url'];
             $name = $row['name'];
         }
+        if ($url == '#') {
+            $url = '';
+        }
         $urn = array_shift(array_reverse(explode('/', trim($url, '/'))));
         $active = $semiactive = false;
         // 2021-02-23, AVS: заменил HTTP::queryString('', true) на $current->url,
@@ -223,9 +226,7 @@ $showMenu = function ($node, Page $current) use (
         // чтобы при активном материале ссылка не была активной
         if (!$ajax && ($url == $_SERVER['REQUEST_URI'])) {
             $active = true;
-        } elseif (preg_match('/^' . preg_quote($url, '/') . '/umi', $current->url) &&
-            ($url != '/')
-        ) {
+        } elseif (preg_match('/^' . preg_quote($url, '/') . '/umi', $current->url) && $url && ($url != '/')) {
             $semiactive = true;
         }
         $ch = '';
