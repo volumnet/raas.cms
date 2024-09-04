@@ -1,13 +1,14 @@
 jQuery(document).ready(function($) {
     $.fn.RAAS_MultiTable = function() {
-        var thisObj = this;
-        var $thisObj = $(this);
-        var $all = $('[data-role="checkbox-all"]', thisObj);
-        var $checkbox = $('[data-role="checkbox-row"]', thisObj);
-        var $menu = $('tfoot .btn-group, tfoot .all-context-menu');
-        var $menuItems = $('.dropdown-menu li a, .menu-dropdown__link', $menu);
+        const thisObj = this;
+        const $thisObj = $(this);
+        const $all = $('[data-role="checkbox-all"]', thisObj);
+        const $checkbox = $('[data-role="checkbox-row"]', thisObj);
+        const $menu = $('tfoot .btn-group, tfoot .all-context-menu');
+        const $menuItems = $('.dropdown-menu li a, .menu-dropdown__link', $menu);
+        const idN = $thisObj.attr('data-idn') || 'id';
 
-        var check = function () {
+        const check = function () {
             if ($all.is(':checked')) {
                 $checkbox.each(function() {
                     if (!$(this).is(':checked')) {
@@ -16,12 +17,12 @@ jQuery(document).ready(function($) {
                     }
                 })
             }
-            var ids = '';
+            let ids = '';
             if ($all.is(':checked') && $all.val() && ($all.val() != 'ids')) {
-                ids += '&id=' + $all.val();
+                ids += '&' + idN + '=' + $all.val();
             } else {
                 $checkbox.filter(':checked').each(function() {
-                    ids += '&id[]=' + $(this).val();
+                    ids += '&' + idN + '[]=' + $(this).val();
                 });
             }
             $menuItems.each(function() {
@@ -34,13 +35,13 @@ jQuery(document).ready(function($) {
             }
         };
 
-        var init = function() {
+        const init = function() {
             $menuItems.each(function() {
                 $(this).attr('data-href', $(this).attr('href'));
             })
         };
 
-        var checkAccurate = function(e) {
+        const checkAccurate = function(e) {
             if ($(this).is(':checked')) {
                 $(this).prop('checked', false);
             } else {

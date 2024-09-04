@@ -69,6 +69,7 @@ jQuery(function($) {
                 case 'range':
                 case 'text':
                     $('#source_unit').removeAttr('disabled', 'disabled').closest('.control-group').fadeIn();
+                    break;
                 case 'radio':
                 case 'select':
                 case 'checkbox':

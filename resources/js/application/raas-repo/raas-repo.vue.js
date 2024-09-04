@@ -60,6 +60,7 @@ export default {
          * @type {Number}
          */
         result.autoIncrement = 0;
+        result.pValue = [...this.value];
         /**
          * Массив элементов
          * @type {Array} <pre><code>array<{
@@ -80,11 +81,11 @@ export default {
         initItems: function () {
             this.autoIncrement = 0;
             this.items = [];
-            if (this.value instanceof Array) {
-                for (let i = 0; i < this.value.length; i++) {
+            if (this.pValue instanceof Array) {
+                for (let i = 0; i < this.pValue.length; i++) {
                     this.items.push({
                         id: ++this.autoIncrement,
-                        value: this.value[i],
+                        value: this.pValue[i],
                     });
                 }
             }
@@ -107,7 +108,8 @@ export default {
          */
         changeItem: function ($event) {
             $event.target.value = $event.value; 
-            this.$emit('input', this.items.map(x => x.value));
+            this.pValue = this.items.map(x => x.value);
+            this.$emit('input', this.pValue);
         },
         /**
          * Сортировка
@@ -122,7 +124,8 @@ export default {
                 0, 
                 this.items.splice($event.originalPosition, 1)[0]
             );
-            this.$emit('input', this.items.map(x => x.value));
+            this.pValue = this.items.map(x => x.value);
+            this.$emit('input', this.pValue);
         },
         /**
          * Добавление элемента
@@ -132,7 +135,8 @@ export default {
                 id: ++this.autoIncrement,
                 value: this.defval,
             });
-            this.$emit('input', this.items.map(x => x.value));
+            this.pValue = this.items.map(x => x.value);
+            this.$emit('input', this.pValue);
         },
         /**
          * Удаление элемента по ID# объекта
@@ -140,12 +144,18 @@ export default {
          */
         deleteItem: function (item) {
             this.items = this.items.filter(x => x.id != item.id);
-            this.$emit('input', this.items.map(x => x.value));
+            this.pValue = this.items.map(x => x.value);
+            this.$emit('input', this.pValue);
         },
     },
     watch: {
-        value: function () {
-            this.initItems();
+        value: function (newValue, oldValue) {
+            // 2023-11-14, AVS: заменил, чтобы не вызывалось при одинаковых значениях 
+            // (которые по какой-то причине обновились)
+            if (JSON.stringify(newValue) != JSON.stringify(oldValue)) {
+                this.pValue = this.value;
+                this.initItems();
+            }
         },
     },
 }

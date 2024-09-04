@@ -10,8 +10,8 @@ export default {
          * @param {String|Object}
          */
         type: {
-            required: true,
-            type: [String, Object]
+            type: [String, Object],
+            default: 'text',
         },
         /**
          * Значение
