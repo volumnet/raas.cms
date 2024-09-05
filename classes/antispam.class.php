@@ -169,7 +169,7 @@ class Antispam
                 } elseif ($field->datatype == 'url') {
                     continue; // Если поле типа "Адрес сайта", то его не учитываем
                 } else {
-                    if (!$this->checkTextForeignLinks($val)) {
+                    if (!$this->checkTextForeignLinks((string)$val)) {
                         return false;
                     }
                 }
@@ -178,7 +178,7 @@ class Antispam
                     return false;
                 }
             } else {
-                if (!$this->checkTextForeignLinks($val)) {
+                if (!$this->checkTextForeignLinks((string)$val)) {
                     return false;
                 }
             }
@@ -197,7 +197,7 @@ class Antispam
     public function checkStopWords(array $flatData = [])
     {
         foreach ($flatData as $key => $val) {
-            if (!$this->checkTextStopWords($val)) {
+            if (!$this->checkTextStopWords((string)$val)) {
                 return false;
             }
         }
@@ -210,7 +210,7 @@ class Antispam
      * @param string $text Текст для проверки
      * @return bool Пройден ли антиспам-фильтр
      */
-    public function checkTextStopWords($text)
+    public function checkTextStopWords(string $text): bool
     {
         return !preg_match('/porn|boobs|(we offer)/umis', $text);
     }
@@ -221,7 +221,7 @@ class Antispam
      * @param string $text Текст для проверки
      * @return bool Пройден ли антиспам-фильтр
      */
-    public function checkTextForeignLinks($text)
+    public function checkTextForeignLinks(string $text): bool
     {
         $urls = $this->extractURLs($text);
         if ($urls) {
@@ -249,9 +249,10 @@ class Antispam
         $result = [];
         // 2024-01-03, AVS: добавил в явном виде поддержку Punycode-доменов 1-го уровня
         // (если добавлять просто цифры, возможно ложное срабатывание)
-        $rx = '/(^|\\s)(((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.((xn--[a-zA-Z0-9\\-]+)|([a-zA-Z]+)|рф|ком)/umis';
+        // 2024-09-04, AVS: добавил ([^\\w\\-А-Яа-я]|$), поскольку срабатывало на ул.Комсомольская - ул.Ком
+        $rx = '/(^|\\s)((((http(s)?)|(ftp)):\\/\\/)?(www\\.)?[\\w\\-\\.]+\\.((xn--[a-zA-Z0-9\\-]+)|([a-zA-Z]+)|рф|ком))([^\\w\\-А-Яа-я]|$)/umis';
         if (preg_match_all($rx, $text, $regs)) {
-            foreach ($regs[0] as $url) {
+            foreach ($regs[2] as $url) {
                 // 2024-04-09, AVS: сейчас необходимости в проверке нет, т.к. явным образом добавлена поддержка
                 // Punycode-доменов (вариант 123.321 не пройдет)
                 // if (is_numeric($url)) {
@@ -319,8 +320,8 @@ class Antispam
     {
         $hasLatinLetters = $hasCyrillicLetters = false;
         foreach ($flatData as $key => $val) {
-            $fieldHasLatinLetters = preg_match('/[A-Za-z]/umis', $val);
-            $fieldHasCyrillicLetters = preg_match('/[А-Яа-я]/umis', $val);
+            $fieldHasLatinLetters = preg_match('/[A-Za-z]/umis', (string)$val);
+            $fieldHasCyrillicLetters = preg_match('/[А-Яа-я]/umis', (string)$val);
             $fieldURN = $this->getFieldURN($key);
             if (preg_match('/email/umis', $fieldURN)) {
                 continue;
@@ -416,10 +417,10 @@ class Antispam
      * ></code></pre> плоские POST-данные
      * @return bool Пройден ли антиспам-фильтр
      */
-    public function checkRussianStopWords(array $flatData = [])
+    public function checkRussianStopWords(array $flatData = []): bool
     {
         foreach ($flatData as $key => $val) {
-            if (!$this->checkRussianTextStopWords($val)) {
+            if (!$this->checkRussianTextStopWords((string)$val)) {
                 return false;
             }
         }
@@ -432,7 +433,7 @@ class Antispam
      * @param string $text Текст для проверки
      * @return bool Пройден ли антиспам-фильтр
      */
-    public function checkRussianTextStopWords($text)
+    public function checkRussianTextStopWords(string $text): bool
     {
         return !preg_match('/((^|\\s)((наша компания)|((мои|наши) услуги)|(стоимость услуг)|предлагаем)(\\s|\\.|,|$))|((^|\\s)(накрут|раскрут))/umis', $text);
     }
