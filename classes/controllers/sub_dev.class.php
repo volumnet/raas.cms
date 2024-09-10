@@ -201,10 +201,10 @@ class Sub_Dev extends RAASAbstractSubController
                 StdSub::delete($items, $this->url . '&action=forms');
                 break;
             case 'delete_diag':
-                $from = (strtotime($_GET['from']) > 0)
+                $from = (strtotime((string)($_GET['from'] ?? '')) > 0)
                       ? date('Y-m-d', strtotime($_GET['from']))
                       : null;
-                $to = (strtotime($_GET['to']) > 0)
+                $to = (strtotime((string)($_GET['to'] ?? '')) > 0)
                     ? date('Y-m-d', strtotime($_GET['to']))
                     : null;
                 Diag::deleteStat($from, $to);
