@@ -258,7 +258,7 @@ $_RAASForm_Control = function (
                               </a>
                               <a href="<?php echo htmlspecialchars($row->fileURL)?>" target="_blank">
                                 <?php if ($field->type == 'image') { ?>
-                                    <img src="<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars(basename($row->filename))?>" title="<?php echo htmlspecialchars(basename($row->filename))?>" class="cms-filecard__image" />
+                                    <img src="<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars(basename((string)$row->filename))?>" title="<?php echo htmlspecialchars(basename((string)$row->filename))?>" class="cms-filecard__image" />
                                 <?php } else { ?>
                                     <?php echo htmlspecialchars(basename($row->filename))?>
                                 <?php } ?>

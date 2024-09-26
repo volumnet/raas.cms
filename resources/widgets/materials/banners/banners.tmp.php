@@ -14,7 +14,8 @@ if ($Set) { ?>
       class="banners slider slider_fade"
       data-vue-role="raas-slider"
       data-vue-type="fade"
-      data-v-bind_autoscroll="true" data-v-slot="vm"
+      data-v-bind_autoscroll="true"
+      data-v-slot="vm"
     >
       <div class="banners__list slider__list" data-role="slider-list">
         <div class="banners-list slider-list slider-list_fade">

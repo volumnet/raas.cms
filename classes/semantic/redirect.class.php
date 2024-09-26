@@ -29,7 +29,7 @@ class Redirect extends SOME
         );
         if ($this->rx) {
             $rx = $this->url_from;
-            if ($isFullRedirect) {
+            if ($isFullRedirect && !stristr($this->url_to, '$')) {
                 if (preg_match('/' . $this->url_from . '/umi', $url)) {
                     $url = $this->url_to;
                 }
