@@ -630,6 +630,12 @@ class FormInterface extends BlockInterface
      */
     public function processFileField(Field $field, array $post = [], array $files = [], $debug = false)
     {
+        // 2024-09-30, AVS: добавил условие, что если поле формы, но форма создает материал, то файлы копируются
+        // (иначе при создании feedback'а файлы перемещаются и в материал уже не загружаются)
+        $copyFiles = false;
+        if (($field instanceof Form_Field) && ($field->parent->material_type)) {
+            $copyFiles = true;
+        }
         $field->deleteValues();
         $filesData = $field->datatypeStrategy->getFilesData($field, true, true, $files, $post);
 
@@ -637,6 +643,11 @@ class FormInterface extends BlockInterface
             // 2017-09-05, AVS: убрал создание attachment'а по ID#, чтобы не было конфликтов
             // в случае дублирования материалов с одним attachment'ом
             // с текущего момента каждый новый загруженный файл - это новый attachment
+            // 2024-09-30, AVS: добавил условие, что если поле формы, но форма создает материал, то файлы копируются
+            // (иначе при создании feedback'а файлы перемещаются и в материал уже не загружаются)
+            if ($copyFiles) {
+                $fileData['copy'] = true;
+            }
             $attachment = $field->processAttachment($fileData);
             $oldAttachmentId = (int)($fileData['meta']['attachment'] ?? null);
             if (!$attachment && $oldAttachmentId) {

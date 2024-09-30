@@ -2,6 +2,8 @@
 
 /// Базовая верстка
 $referenceLayout: 'xl' !default;
+$vwDesktop: 'p|>lg' !default;
+$vwMobile: 's&<md' !default;
 
 /// Применять базовую верстку к:
 $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
@@ -288,6 +290,22 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
 /// @deprecated Предлагается использовать viewport('p|<' + $name)
 @mixin print-or-down($name) {
     @include viewport('p|<' + $name) {
+        @content;
+    }
+}
+
+
+/// Десктопная версия
+@mixin viewport-desktop() {
+    @include viewport($vwDesktop) {
+        @content;
+    }
+}
+
+
+/// Мобильная версия
+@mixin viewport-mobile() {
+    @include viewport($vwMobile) {
         @content;
     }
 }
