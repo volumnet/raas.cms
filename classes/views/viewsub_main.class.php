@@ -1135,7 +1135,7 @@ class ViewSub_Main extends RAASAbstractSubView
                     $childId,
                     $currentIds,
                     $currentMaterialsIds,
-                    $level + 1,
+                    $level + 1
                 );
                 $row['submenu'] = $submenu;
             }

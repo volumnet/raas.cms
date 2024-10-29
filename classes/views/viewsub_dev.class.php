@@ -1669,7 +1669,7 @@ class ViewSub_Dev extends RAASAbstractSubView
                     $childId,
                     $currentIds,
                     $currentFieldsIds,
-                    $level + 1,
+                    $level + 1
                 );
                 $row['submenu'] = $submenu;
             }
