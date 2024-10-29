@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace RAAS\CMS;
 
+use SOME\SOME;
+use SOME\HTTP;
 use SOME\Text;
 use RAAS\Abstract_Sub_View as RAASAbstractSubView;
 use RAAS\Application;
@@ -115,25 +117,7 @@ class ViewSub_Dev extends RAASAbstractSubView
      */
     public function move_dictionary(array $in = [])
     {
-        $ids = array_map(function ($x) {
-            return (int)$x->id;
-        }, $in['items']);
-        $ids = array_unique($ids);
-        $ids = array_values($ids);
-        $pids = array_map(function ($x) {
-            return (int)$x->pid;
-        }, $in['items']);
-        $pids = array_unique($pids);
-        $pids = array_values($pids);
-        $actives = [];
-        foreach ($in['items'] as $row) {
-            $actives = array_merge($actives, $row->selfAndParentsIds);
-        }
-        $actives = array_unique($actives);
-        $actives = array_values($actives);
-        $in['ids'] = $ids;
-        $in['pids'] = $pids;
-        $in['actives'] = $actives;
+        $in['menu'] = $this->moveDictionariesMenu(new Dictionary(), $in['items']);
 
         $this->assignVars($in);
         $this->path[] = [
@@ -160,7 +144,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             $this->contextmenu = $this->getDictionaryContextMenu($in['Item']);
         }
         $this->title = $this->_('MOVING_NOTE');
-        $this->template = 'dev_move_dictionary';
+        $this->template = '/move';
         $this->subtitle = $this->getDictionarySubtitle($in['Item']);
     }
 
@@ -286,25 +270,7 @@ class ViewSub_Dev extends RAASAbstractSubView
      */
     public function move_menu(array $in = [])
     {
-        $ids = array_map(function ($x) {
-            return (int)$x->id;
-        }, $in['items']);
-        $ids = array_unique($ids);
-        $ids = array_values($ids);
-        $pids = array_map(function ($x) {
-            return (int)$x->pid;
-        }, $in['items']);
-        $pids = array_unique($pids);
-        $pids = array_values($pids);
-        $actives = [];
-        foreach ($in['items'] as $row) {
-            $actives = array_merge($actives, $row->selfAndParentsIds);
-        }
-        $actives = array_unique($actives);
-        $actives = array_values($actives);
-        $in['ids'] = $ids;
-        $in['pids'] = $pids;
-        $in['actives'] = $actives;
+        $in['menu'] = $this->moveMenuMenu(new Menu(), $in['items']);
 
         $this->assignVars($in);
         $this->path[] = [
@@ -344,7 +310,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             }
         }
         $this->title = $this->_($captionToken);
-        $this->template = 'dev_move_menu';
+        $this->template = '/move';
         $this->subtitle = $this->getMenuSubtitle($in['Item']);
     }
 
@@ -720,25 +686,10 @@ class ViewSub_Dev extends RAASAbstractSubView
      */
     public function move_material_field(array $in = [])
     {
-        $ids = array_map(function ($x) {
-            return (int)$x->id;
-        }, $in['items']);
-        $ids = array_unique($ids);
-        $ids = array_values($ids);
         $pids = array_map(function ($x) {
             return (int)$x->pid;
         }, $in['items']);
-        $pids = array_unique($pids);
-        $pids = array_values($pids);
-        $actives = [];
-        foreach ($in['items'] as $row) {
-            $actives[] = (int)$row->pid;
-        }
-        $actives = array_unique($actives);
-        $actives = array_values($actives);
-        $in['ids'] = $ids;
-        $in['pids'] = $pids;
-        $in['actives'] = $actives;
+        $in['menu'] = $this->moveMaterialFieldMenu(new Material_Type(), $pids, $in['items']);
 
         $this->assignVars($in);
         $this->path[] = [
@@ -770,7 +721,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             $this->subtitle = $this->getFieldSubtitle($in['Item']);
         }
         $this->title = $this->_('MOVING_NOTE');
-        $this->template = 'dev_move_material_field';
+        $this->template = '/move';
     }
 
 
@@ -783,25 +734,17 @@ class ViewSub_Dev extends RAASAbstractSubView
      */
     public function moveMaterialFieldToGroup(array $in = [])
     {
-        $ids = array_map(function ($x) {
-            return (int)$x->id;
+        $gids = array_map(function ($x) {
+            return (int)$x->gid;
         }, $in['items']);
-        $ids = array_unique($ids);
-        $ids = array_values($ids);
-        $pids = array_map(function ($x) {
-            return (int)$x->pid;
-        }, $in['items']);
-        $pids = array_unique($pids);
-        $pids = array_values($pids);
-        $actives = [];
-        foreach ($in['items'] as $row) {
-            $actives[] = (int)$row->pid;
-        }
-        $actives = array_unique($actives);
-        $actives = array_values($actives);
-        $in['ids'] = $ids;
-        $in['pids'] = $pids;
-        $in['actives'] = $actives;
+        $in['menu'] = array_map(function ($fieldGroup) use ($gids) {
+            return [
+                'name' => $fieldGroup->name ?: $this->_('GENERAL'),
+                'href' => HTTP::queryString('gid=' . (int)$fieldGroup->id),
+                'active' => in_array($fieldGroup->id, $gids),
+            ];
+        }, $in['Parent']->fieldGroups);
+        $in['hint'] = $this->_('CHOOSE_FIELDGROUP');
 
         $this->assignVars($in);
         $this->path[] = [
@@ -829,7 +772,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             $this->subtitle = $this->getFieldSubtitle($in['Item']);
         }
         $this->title = $this->_('MOVING_FIELDS_TO_GROUP');
-        $this->template = 'dev_move_material_field_to_group';
+        $this->template = '/move';
     }
 
     /**
@@ -841,6 +784,14 @@ class ViewSub_Dev extends RAASAbstractSubView
      */
     public function moveMaterialFieldValues(array $in = [])
     {
+        $in['menu'] = array_map(function ($field) {
+            return [
+                'name' => '#' . $field->id . ' — ' . $field->name,
+                'href' => HTTP::queryString('pid=' . (int)$field->id),
+            ];
+        }, $in['Set']);
+        $in['hint'] = $this->_('CHOOSE_FIELD_TO_MOVE_VALUES');
+
         $this->assignVars($in);
         $this->path[] = [
             'name' => $this->_('DEVELOPMENT'),
@@ -865,7 +816,7 @@ class ViewSub_Dev extends RAASAbstractSubView
         $this->contextmenu = $this->getMaterialFieldContextMenu($in['Item']);
         $this->subtitle = $this->getFieldSubtitle($in['Item']);
         $this->title = $this->_('MOVING_FIELD_VALUES');
-        $this->template = 'dev_move_material_field_values';
+        $this->template = '/move';
     }
 
 
@@ -878,12 +829,7 @@ class ViewSub_Dev extends RAASAbstractSubView
      */
     public function move_material_type(array $in = [])
     {
-        $ids = array_map(function ($x) {
-            return (int)$x->id;
-        }, $in['items']);
-        $ids = array_unique($ids);
-        $ids = array_values($ids);
-        $in['ids'] = $ids;
+        $in['menu'] = $this->moveMaterialTypesMenu(new Dictionary(), $in['items']);
 
         $this->assignVars($in);
         $this->path[] = [
@@ -908,7 +854,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             $this->contextmenu = $this->getMaterialTypeContextMenu($in['Item']);
         }
         $this->title = $this->_('MOVING_NOTE');
-        $this->template = 'dev_move_material_type';
+        $this->template = '/move';
         $this->subtitle = $this->getMaterialTypeSubtitle($in['Item']);
     }
 
@@ -1380,6 +1326,357 @@ class ViewSub_Dev extends RAASAbstractSubView
             }
             $menu[] = $temp;
         }
+        return $menu;
+    }
+
+
+    /**
+     * Возвращает меню для перемещения справочников
+     * @param Dictionary|int $node Справочник или ID# справочника, для которго строим меню
+     * @param array $current <pre><code>(Dictionary|int)[]</code></pre> Текущие справочники или ID# текущих справочников
+     * @param int $level Уровень вложенности общий
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'active' ?=> bool Пункт меню активен,
+     *             'unfolded' ?=> bool Пункт меню развернут
+     *             'class' ?=> string Класс пункта меню,
+     *             'submenu' => *рекурсивно*,
+     *             'isCurrent' => bool Является текущим элементом для переноса,
+     *             'isParent' => bool Является непосредственным родителем элемента для переноса
+     *         ]>
+     */
+    public function moveDictionariesMenu($node, array $current = [], $level = 0)
+    {
+        // Статическая переменная введена для оптимизации при большом количестве страниц
+        static $packageUrl;
+        if (!$packageUrl) {
+            $packageUrl = $this->url;
+        }
+        $currentIds = array_map(
+            function ($x) {
+                if ($x instanceof SOME) {
+                    return $x->id;
+                }
+                return $x;
+            },
+            $current
+        );
+        $st = microtime(true);
+        $dictionaryCache = DictionaryRecursiveCache::i();
+        $menu = [];
+        $nodeId = (int)(($node instanceof SOME) ? $node->id : $node);
+        $childrenIds = $dictionaryCache->getChildrenIds($nodeId);
+        foreach ($childrenIds as $childId) {
+            $isCurrent = in_array($childId, $currentIds);
+            $grandchildrenIds = $dictionaryCache->getChildrenIds($childId);
+            $isParent = (bool)array_intersect($grandchildrenIds, $currentIds);
+            $allGrandchildrenIds = $dictionaryCache->getSelfAndChildrenIds($childId);
+            $childData = $dictionaryCache->cache[$childId];
+            $row = [
+                'name' => $childData['name'],
+                'class' => '',
+                'active' => false,
+                'unfolded' => false,
+                'isCurrent' => $isCurrent,
+                'isParent' => $isParent,
+            ];
+
+            $unfolded = $row['unfolded'] = $row['active'] = (bool)array_intersect($allGrandchildrenIds, $currentIds);
+            if (!$isCurrent && !$isParent) {
+                $row['href'] = HTTP::queryString('new_pid=' . (int)$childId);
+            }
+            if (!$isCurrent) {
+                $submenu = $this->moveDictionariesMenu($childId, $currentIds, $level + 1);
+                $row['submenu'] = $submenu;
+            }
+
+            if (!$childData['vis']) {
+                $row['class'] .= ' muted';
+            }
+            if (!$childData['pvis']) {
+                $row['class'] .= ' cms-inpvis';
+            }
+
+            $menu[] = $row;
+        }
+
+        if (!$level) {
+            $grandchildrenIds = $dictionaryCache->getChildrenIds(0);
+            $isParent = (bool)array_intersect($grandchildrenIds, $currentIds);
+            $rootItem = [
+                'name' => $this->_('ROOT_SECTION'),
+                'class' => '',
+                'active' => true,
+                'unfolded' => true,
+                'submenu' => $menu,
+                'isCurrent' => false,
+                'isParent' => $isParent,
+            ];
+            if (!$isParent) {
+                $rootItem['href'] = HTTP::queryString('new_pid=0');
+            }
+            $menu = [$rootItem];
+        }
+        return $menu;
+    }
+
+
+    /**
+     * Возвращает меню для перемещения справочников
+     * @param Material_Type|int $node Тип материалов или ID# типа материалов, для которой строим меню
+     * @param array $current <pre><code>(Material_Type|int)[]</code></pre> Текущие типы материалов
+     *     или ID# текущих типов материалов
+     * @param int $level Уровень вложенности общий
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'active' ?=> bool Пункт меню активен,
+     *             'unfolded' ?=> bool Пункт меню развернут
+     *             'class' ?=> string Класс пункта меню,
+     *             'submenu' => *рекурсивно*,
+     *             'isCurrent' => bool Является текущим элементом для переноса,
+     *             'isParent' => bool Является непосредственным родителем элемента для переноса
+     *         ]>
+     */
+    public function moveMaterialTypesMenu($node, array $current = [], $level = 0)
+    {
+        // Статическая переменная введена для оптимизации при большом количестве страниц
+        static $packageUrl;
+        if (!$packageUrl) {
+            $packageUrl = $this->url;
+        }
+        $currentIds = array_map(
+            function ($x) {
+                if ($x instanceof SOME) {
+                    return $x->id;
+                }
+                return $x;
+            },
+            $current
+        );
+        $st = microtime(true);
+        $materialTypeCache = MaterialTypeRecursiveCache::i();
+        $menu = [];
+        $nodeId = (int)(($node instanceof SOME) ? $node->id : $node);
+        $childrenIds = $materialTypeCache->getChildrenIds($nodeId);
+        foreach ($childrenIds as $childId) {
+            $isCurrent = in_array($childId, $currentIds);
+            $grandchildrenIds = $materialTypeCache->getChildrenIds($childId);
+            $isParent = (bool)array_intersect($grandchildrenIds, $currentIds);
+            $allGrandchildrenIds = $materialTypeCache->getSelfAndChildrenIds($childId);
+            $childData = $materialTypeCache->cache[$childId];
+            $row = [
+                'name' => $childData['name'],
+                'class' => '',
+                'active' => false,
+                'unfolded' => false,
+                'isCurrent' => $isCurrent,
+                'isParent' => $isParent,
+            ];
+
+            $unfolded = $row['unfolded'] = $row['active'] = (bool)array_intersect($allGrandchildrenIds, $currentIds);
+            if (!$isCurrent && !$isParent) {
+                $row['href'] = HTTP::queryString('new_pid=' . (int)$childId);
+            }
+            if (!$isCurrent) {
+                $submenu = $this->moveMaterialTypesMenu($childId, $currentIds, $level + 1);
+                $row['submenu'] = $submenu;
+            }
+
+            $menu[] = $row;
+        }
+
+        if (!$level) {
+            $grandchildrenIds = $materialTypeCache->getChildrenIds(0);
+            $isParent = (bool)array_intersect($grandchildrenIds, $currentIds);
+            $rootItem = [
+                'name' => $this->_('ROOT_SECTION'),
+                'class' => '',
+                'active' => true,
+                'unfolded' => true,
+                'submenu' => $menu,
+                'isCurrent' => false,
+                'isParent' => $isParent,
+            ];
+            if (!$isParent) {
+                $rootItem['href'] = HTTP::queryString('new_pid=0');
+            }
+            $menu = [$rootItem];
+        }
+        return $menu;
+    }
+
+
+    /**
+     * Возвращает меню для перемещения меню
+     * @param Menu|int $node Справочник или ID# меню, для которго строим меню
+     * @param array $current <pre><code>(Menu|int)[]</code></pre> Текущие меню или ID# текущих меню
+     * @param int $level Уровень вложенности общий
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'active' ?=> bool Пункт меню активен,
+     *             'unfolded' ?=> bool Пункт меню развернут
+     *             'class' ?=> string Класс пункта меню,
+     *             'submenu' => *рекурсивно*,
+     *             'isCurrent' => bool Является текущим элементом для переноса,
+     *             'isParent' => bool Является непосредственным родителем элемента для переноса
+     *         ]>
+     */
+    public function moveMenuMenu($node, array $current = [], $level = 0)
+    {
+        // Статическая переменная введена для оптимизации при большом количестве страниц
+        static $packageUrl;
+        if (!$packageUrl) {
+            $packageUrl = $this->url;
+        }
+        $currentIds = array_map(
+            function ($x) {
+                if ($x instanceof SOME) {
+                    return $x->id;
+                }
+                return $x;
+            },
+            $current
+        );
+        $st = microtime(true);
+        $menuCache = MenuRecursiveCache::i();
+        $menu = [];
+        $nodeId = (int)(($node instanceof SOME) ? $node->id : $node);
+        $childrenIds = $menuCache->getChildrenIds($nodeId);
+        foreach ($childrenIds as $childId) {
+            $isCurrent = in_array($childId, $currentIds);
+            $grandchildrenIds = $menuCache->getChildrenIds($childId);
+            $isParent = (bool)array_intersect($grandchildrenIds, $currentIds);
+            $allGrandchildrenIds = $menuCache->getSelfAndChildrenIds($childId);
+            $childData = $menuCache->cache[$childId];
+            $row = [
+                'name' => $childData['name'],
+                'class' => '',
+                'active' => false,
+                'unfolded' => false,
+                'isCurrent' => $isCurrent,
+                'isParent' => $isParent,
+            ];
+
+            $unfolded = $row['unfolded'] = $row['active'] = (bool)array_intersect($allGrandchildrenIds, $currentIds);
+            if (!$isCurrent && !$isParent) {
+                $row['href'] = HTTP::queryString('new_pid=' . (int)$childId);
+            }
+            if (!$isCurrent) {
+                $submenu = $this->moveMenuMenu($childId, $currentIds, $level + 1);
+                $row['submenu'] = $submenu;
+            }
+
+            if (!$childData['vis']) {
+                $row['class'] .= ' muted';
+            }
+            if (!$childData['pvis']) {
+                $row['class'] .= ' cms-inpvis';
+            }
+
+            $menu[] = $row;
+        }
+
+        if (!$level) {
+            $grandchildrenIds = $menuCache->getChildrenIds(0);
+            $isParent = (bool)array_intersect($grandchildrenIds, $currentIds);
+            $rootItem = [
+                'name' => $this->_('ROOT_SECTION'),
+                'class' => '',
+                'active' => true,
+                'unfolded' => true,
+                'submenu' => $menu,
+                'isCurrent' => false,
+                'isParent' => $isParent,
+            ];
+            if (!$isParent) {
+                $rootItem['href'] = HTTP::queryString('new_pid=0');
+            }
+            $menu = [$rootItem];
+        }
+        return $menu;
+    }
+
+
+    /**
+     * Возвращает меню для перемещения полей материалов
+     * @param Material_Type|int $node Тип материалов или ID# типа материалов, для которой строим меню
+     * @param array $current <pre><code>(Material_Type|int)[]</code></pre> Текущие типы материалов или ID# текущих типов материалов
+     * @param array $currentFields <pre><code>(Material|int)[]</code></pre> Список ID# полей для смены типа
+     * @param int $level Уровень вложенности общий
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'active' ?=> bool Пункт меню активен,
+     *             'unfolded' ?=> bool Пункт меню развернут
+     *             'class' ?=> string Класс пункта меню,
+     *             'submenu' => *рекурсивно*,
+     *             'isCurrent' => bool Является текущим элементом для переноса,
+     *             'isParent' => bool Является непосредственным родителем элемента для переноса
+     *         ]>
+     */
+    public function moveMaterialFieldMenu($node, array $current = [], $currentFields = [], $level = 0)
+    {
+        // Статическая переменная введена для оптимизации при большом количестве страниц
+        static $packageUrl;
+        if (!$packageUrl) {
+            $packageUrl = $this->url;
+        }
+        $currentIds = array_map(
+            function ($x) {
+                if ($x instanceof SOME) {
+                    return $x->id;
+                }
+                return $x;
+            },
+            $current
+        );
+        $currentFieldsIds = array_map(
+            function ($x) {
+                if ($x instanceof SOME) {
+                    return $x->id;
+                }
+                return $x;
+            },
+            $currentFields
+        );
+        $st = microtime(true);
+        $materialTypeCache = MaterialTypeRecursiveCache::i();
+        $menu = [];
+        $nodeId = (int)(($node instanceof SOME) ? $node->id : $node);
+        $childrenIds = $materialTypeCache->getChildrenIds($nodeId);
+        foreach ($childrenIds as $childId) {
+            $isCurrent = in_array($childId, $currentIds);
+            $allGrandchildrenIds = $materialTypeCache->getSelfAndChildrenIds($childId);
+            $childData = $materialTypeCache->cache[$childId];
+            $row = [
+                'name' => $childData['name'],
+                'class' => '',
+                'active' => false,
+                'unfolded' => false,
+                'isCurrent' => $isCurrent,
+            ];
+
+            $unfolded = $row['unfolded'] = (bool)array_intersect($allGrandchildrenIds, $currentIds);
+            $row['active'] = $isCurrent;
+            if (!$isCurrent) {
+                $row['href'] = HTTP::queryString('new_pid=' . (int)$childId);
+            }
+            if ($unfolded || ($level <= 1)) {
+                $submenu = $this->moveMaterialFieldMenu(
+                    $childId,
+                    $currentIds,
+                    $currentFieldsIds,
+                    $level + 1,
+                );
+                $row['submenu'] = $submenu;
+            }
+
+            $menu[] = $row;
+        }
+
         return $menu;
     }
 

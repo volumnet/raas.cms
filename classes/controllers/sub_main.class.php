@@ -670,10 +670,10 @@ class Sub_Main extends RAASAbstractSubController
     protected function chtype_material()
     {
         $items = [];
-        $ids = (array)$_GET['id'];
-        $pids = (array)$_GET['pid'];
+        $ids = (array)($_GET['id'] ?? []);
+        $pids = (array)($_GET['pid'] ?? []);
         $pids = array_filter($pids, 'trim');
-        $mtype = new Material_Type((int)$_GET['mtype']);
+        $mtype = new Material_Type((int)($_GET['mtype'] ?? 0));
 
         if (in_array('all', $ids, true)) {
             $mtypes = (array)$mtype->selfAndChildrenIds;
@@ -698,7 +698,9 @@ class Sub_Main extends RAASAbstractSubController
         }
         $items = array_values($items);
         $item = isset($items[0]) ? $items[0] : new Material();
-        $mtype = $item->material_type;
+        if (!$mtype->id) {
+            $mtype = $item->material_type;
+        }
         $pid = ($mtype->global_type || $pids)
              ? array_shift($pids)
              : (int)$item->pages_ids[0];

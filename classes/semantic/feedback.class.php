@@ -77,11 +77,11 @@ class Feedback extends SOME
                         switch ($field->datatype) {
                             case 'date':
                                 $t = strtotime($val);
-                                $arr[$key] = date(DATEFORMAT, $t);
+                                $arr[$key] = date(Package::i()->view->_('DATEFORMAT'), $t);
                                 break;
                             case 'datetime-local':
                                 $t = strtotime($val);
-                                $arr[$key] = date(DATETIMEFORMAT, $t);
+                                $arr[$key] = date(Package::i()->view->_('DATETIMEFORMAT'), $t);
                                 break;
                             case 'email':
                             case 'url':

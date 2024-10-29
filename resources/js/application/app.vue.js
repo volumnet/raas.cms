@@ -120,7 +120,7 @@ export default {
             //     url = '#' + url;
             // }
             if (!url || (url == currentUrl)) {
-                self.processHashLink(this.hash.replace(/#/gi, ''));
+                self.processHashLink(this.hash);
                 return false;
             }
         });
@@ -229,9 +229,10 @@ export default {
         /**
          * Получает смещение по вертикали для scrollTo 
          * (для случая фиксированной шапки)
+         * @param {Number} destY Точка назначения
          * @return {Number}
          */
-        getScrollOffset() {
+        getScrollOffset(destY = null) {
             return 0;
         },
 
@@ -260,6 +261,7 @@ export default {
          * @param {String} hash хэш-тег (первый символ #)
          */
         processHashLink(hash) {
+            this.jqEmit('processHashLink', hash);
             let $obj = this.getObjFromHash(hash);
             if ($obj && $obj.length) {
                 if ($obj.hasClass('modal')) {
@@ -396,7 +398,7 @@ export default {
             }
             if (destY !== null) {
                 // console.log(destY)
-                let top = Math.max(0, Math.round(destY + this.getScrollOffset()));
+                let top = Math.max(0, Math.round(destY + this.getScrollOffset(destY)));
                 top = Math.min(top, $('body').outerHeight() - this.windowHeight - 1); // 2024-01-15, AVS: Поправка на нижний край документа
                 let scrollToData = {
                     left: 0, 

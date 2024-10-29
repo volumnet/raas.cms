@@ -20,6 +20,14 @@ export default {
         name: {
             type: String,
         },
+        /**
+         * Максимальное количество дочерних элементов для плоского списка
+         * @type {Object}
+         */
+        flatMaxCounter: {
+            type: Number,
+            default: 5,
+        },
     },
     computed: {
         /**

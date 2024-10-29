@@ -160,7 +160,7 @@ class EditFieldForm extends RAASForm
             'template' => 'cms/dev_edit_field.source.tmp.php',
             'check' => function ($field) {
                 if (in_array($_POST['datatype'], ['select', 'radio']) ||
-                    (($_POST['datatype'] == 'checkbox') && isset($_POST['multiple']))
+                    (($_POST['datatype'] == 'checkbox') && ($_POST['multiple'] ?? false))
                 ) {
                     if (!trim((string)($_POST['source_type'] ?? '')) || !trim((string)($_POST['source'] ?? ''))) {
                         return [

@@ -1,7 +1,8 @@
 import RAASField from './raas-field.vue.js';
+import CheckboxMixin from './checkbox.mixin.vue.js';
 
 export default {
-    mixins: [RAASField],
+    mixins: [RAASField, CheckboxMixin],
     props: {
         /**
          * Значение по умолчанию для одиночного флажка
@@ -19,17 +20,4 @@ export default {
             type: String,
         },
     },
-    computed: {
-        /**
-         * Значение, принудительно приведенное к массиву
-         * @return {Array}
-         */
-        arrayValue: function () {
-            let value = this.value;
-            if (!(value instanceof Array)) {
-                value = ((value !== null) && (value !== undefined)) ? [value] : [];
-            }
-            return value;
-        },
-    }
 };

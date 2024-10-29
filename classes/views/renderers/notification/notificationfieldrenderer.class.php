@@ -112,7 +112,7 @@ class NotificationFieldRenderer extends HTMLRenderer
      */
     public function getValueHTML($value, bool $admin = false, bool $sms = false): string
     {
-        $richValue = $this->field->doRich((string)$value);
+        $richValue = (string)$this->field->doRich((string)$value);
         if ($sms) {
             $result = $richValue;
         } else {

@@ -997,7 +997,7 @@ class Sub_Dev extends RAASAbstractSubController
         if (!$field->pid || ($field->classname != Material_Type::class)) {
             new Redirector($this->url . '&action=material_types');
         }
-        $newField = new Material_Field($_GET['pid']);
+        $newField = new Material_Field($_GET['pid'] ?? null);
         if (($newField->classname == Material_Type::class) &&
             (in_array($newField->pid, $field->parent->selfAndParentsIds))
         ) {
