@@ -264,7 +264,7 @@ class EditBlockForm extends RAASForm
                             if (trim($row)) {
                                 $row = explode('=', trim($row));
                                 $result['params_name'][] = $row[0];
-                                $result['params_value'][] = urldecode($row[1]);
+                                $result['params_value'][] = urldecode((string)$row[1]);
                             }
                         }
                         return $result;

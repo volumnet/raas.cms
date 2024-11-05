@@ -132,6 +132,7 @@ class WatermarkInterface extends FilesProcessorInterface
      * Применяет водяной знак к источнику
      * @param array $sourceImgData <pre><code>Данные об изображении</code></pre> Данные входного файла
      * @param array $watermarkImgData <pre><code>Данные об изображении</code></pre> Данные файла водяного знака
+     * @param float $ratio Относительный размер водяного знака на исходном изображении
      * @return mixed Изображение с наложенным водяным знаком
      */
     public function applyWatermark(array $sourceImgData, array $watermarkImgData, float $ratio = 1)

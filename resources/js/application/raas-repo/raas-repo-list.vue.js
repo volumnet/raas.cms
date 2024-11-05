@@ -64,7 +64,7 @@ export default {
         sortableParams: function () {
             let originalPosition = null;
             let result = {
-                containment: 'parent',
+                // containment: 'parent', // 2024-11-05, AVS: неудобно, т.к. нельзя поместить перед первым и после последнего
                 revert: true,
                 start: (event, ui) => {
                     originalPosition = ui.item.parent().children().index(ui.item);
