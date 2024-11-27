@@ -37,7 +37,7 @@ class MaterialsTable extends Table
         $columns['id'] = [
             'caption' => $this->view->_('ID'),
             'callback' => function ($row) use ($view, $params, $pidText) {
-                return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>'
+                return '<a href="' . ViewSub_Main::i()->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>'
                      .    (int)$row->id
                      . '</a>';
             }
@@ -61,7 +61,7 @@ class MaterialsTable extends Table
                         $f = $row->fields[$col->urn];
                         $v = $f->getValue();
                         if ($v && $v->id) {
-                            return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
+                            return '<a href="' . ViewSub_Main::i()->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' .
                                      '<img src="/' . $v->tnURL . '" style="max-width: 48px;" />' .
                                    '</a>';
                         }
@@ -74,7 +74,7 @@ class MaterialsTable extends Table
             'caption' => $this->view->_('NAME'),
             'sortable' => Column::SORTABLE_REVERSABLE,
             'callback' => function ($row) use ($view, $params, $pidText) {
-                $text = '<a href="' . $view->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>'
+                $text = '<a href="' . ViewSub_Main::i()->url . '&action=edit_material&id=' . (int)$row->id . $pidText . '" ' . (!$row->vis ? 'class="muted"' : '') . '>'
                       .    htmlspecialchars($row->name)
                       . '</a>';
                 if (!$params['mtype']->global_type) {
@@ -130,13 +130,13 @@ class MaterialsTable extends Table
                                 break;
                             case 'file':
                                 $v = $f->getValue();
-                                return '<a href="/' . $view->fileURL . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' . htmlspecialchars($row->name) . '</a>';
+                                return '<a href="/' . $v->fileURL . '" ' . (!$row->vis ? 'class="muted"' : '') . '>' . htmlspecialchars($row->name) . '</a>';
                                 break;
                             case 'material':
                                 $v = $f->getValue();
                                 $m = new Material($v);
                                 if ($m->id) {
-                                    return '<a href="' . $view->url . '&action=edit_material&id=' . (int)$m->id . '" ' . (!$m->vis ? 'class="muted"' : '') . '>'
+                                    return '<a href="' . ViewSub_Main::i()->url . '&action=edit_material&id=' . (int)$m->id . '" ' . (!$m->vis ? 'class="muted"' : '') . '>'
                                          .    htmlspecialchars($m->name)
                                          . '</a>';
                                 }
@@ -167,14 +167,14 @@ class MaterialsTable extends Table
         ];
         $columns[' '] = [
             'callback' => function ($row) use ($view) {
-                return rowContextMenu($view->getMaterialContextMenu($row));
+                return rowContextMenu(ViewSub_Main::i()->getMaterialContextMenu($row));
             }
         ];
 
         $arr = array_merge(
             [
                 'meta' => [
-                    'allContextMenu' => $view->getAllMaterialsContextMenu(
+                    'allContextMenu' => ViewSub_Main::i()->getAllMaterialsContextMenu(
                         $params['mtype']
                     ),
                     'allValue' => 'all&mtype='

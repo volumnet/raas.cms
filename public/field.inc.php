@@ -57,6 +57,7 @@ $_RAASForm_Source = function (
     foreach ((array)$options as $option) {
         $optionData = (array)$option->attrs;
         $optionData['name'] = $option->caption;
+        $optionData['caption'] = $option->caption;
         foreach (['checked', 'multiple', 'type'] as $key) {
             unset($optionData[$key]);
         }

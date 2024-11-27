@@ -32,7 +32,7 @@ include ViewSub_Main::i()->tmp('/table.inc.php'); ?>
             <tbody>
               <?php for ($i = 0; $i < count($Table->rows); $i++) {
                   $row = $Table->rows[$i];
-                  include Package::i()->view->context->tmp('multirow.inc.php');
+                  include ViewSub_Main::i()->tmp('multirow.inc.php');
                   if ($row->template) {
                       include Application::i()->view->context->tmp($row->template);
                   }
