@@ -376,7 +376,7 @@ class Sub_Dev extends RAASAbstractSubController
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $localError = [];
             if ($Item->id) {
-                if (is_uploaded_file($_FILES['file']['tmp_name'])) {
+                if (is_uploaded_file($_FILES['file']['tmp_name'] ?? '')) {
                     $ext = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
                     if (!in_array($ext, Dictionary::$availableExtensions)) {
                         $localError[] = [

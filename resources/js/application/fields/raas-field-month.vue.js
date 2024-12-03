@@ -32,7 +32,8 @@ export default {
                 $(this.$refs.field).datepicker(this.monthPickerParams)
                     .attr('data-datepicker-applied', 'true');
             } else {
-                $(this.$refs.field).datepicker('refresh');
+                // 2022-03-23, AVS: убрал, т.к. в репе выбор по селектору блокируется обновлением
+                // $(this.$refs.field).datepicker('refresh');
             }
         },
         togglePicker: function () {

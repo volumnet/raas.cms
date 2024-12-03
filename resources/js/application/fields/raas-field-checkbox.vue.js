@@ -73,6 +73,13 @@ export default {
             // 2024-10-10, AVS: заменил value на pValue, чтобы работало со статикой
             // const oldValue = (this.pValue || []).map(x => x.toString());
             let newValue = JSON.parse(JSON.stringify(this.pValue));
+            if (!(newValue instanceof Array)) {
+                if (newValue) {
+                    newValue = [newValue];
+                } else {
+                    newValue = [];
+                }
+            }
 
             // const matchingOptions = this.flatSource.filter(option => option.value.toString() == $event.value.toString());
             // if (!matchingOptions.length) {
