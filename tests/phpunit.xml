@@ -66,6 +66,21 @@
     <testsuite name="ImportByURNTrait">
       <file>src/ImportByURNTraitTest.php</file>
     </testsuite>
+    <testsuite name="DzenVideo">
+      <file>src/hosted-videos/DzenVideoTest.php</file>
+    </testsuite>
+    <testsuite name="HostedVideo">
+      <file>src/hosted-videos/HostedVideoTest.php</file>
+    </testsuite>
+    <testsuite name="RuTubeVideo">
+      <file>src/hosted-videos/RuTubeVideoTest.php</file>
+    </testsuite>
+    <testsuite name="YouTubeVideo">
+      <file>src/hosted-videos/YouTubeVideoTest.php</file>
+    </testsuite>
+    <testsuite name="VKVideo">
+      <file>src/hosted-videos/VKVideoTest.php</file>
+    </testsuite>
     <testsuite name="BlockInterface">
       <file>src/interfaces/BlockInterfaceTest.php</file>
     </testsuite>

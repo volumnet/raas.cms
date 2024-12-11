@@ -32,7 +32,7 @@ $showCloseButton = function () {
  * @param string $url Ссылка
  * @param string $text Заголовок
  * @param bool $vueText Текст отображается через Vue.JS
- * @param bool $vueText Текст отображается через Vue.JS
+ * @param bool $vueLink Ссылка отображается через Vue.JS
  * @return string
  */
 $showInnerHeader = function (
