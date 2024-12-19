@@ -5,6 +5,7 @@
 namespace RAAS\CMS;
 
 use SOME\SOME;
+use RAAS\Attachment;
 
 /**
  * Класс редиректа
@@ -72,6 +73,10 @@ class Redirect extends SOME
                     $m = new Material((int)$internalUrlArr[1]);
                     return $m->url;
                     break;
+                case 'attachment':
+                    $m = new Attachment((int)$internalUrlArr[1]);
+                    return '/' . $m->fileURL;
+                    break;
                 case 'domain':
                     switch ($internalUrlArr[1]) {
                         case 'page':
@@ -81,6 +86,10 @@ class Redirect extends SOME
                         case 'material':
                             $m = new Material((int)$internalUrlArr[2]);
                             return $m->urlParent->domain . $m->url;
+                            break;
+                        case 'attachment':
+                            $m = new Attachment((int)$internalUrlArr[2]);
+                            return $m->urlParent->domain . '/' . $m->fileURL;
                             break;
                     }
                     break;

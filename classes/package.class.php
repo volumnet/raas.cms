@@ -1153,8 +1153,10 @@ class Package extends RAASPackage
      *
      * raas://page/123 - относительная ссылка на страницу
      * raas://material/123 - относительная ссылка на материал
+     * raas://attachment/123 - относительная ссылка на вложение
      * raas://domain/page/123 - абсолютная ссылка на страницу
      * raas://domain/material/123 - абсолютная ссылка на материал
+     * raas://domain/attachment/123 - абсолютная ссылка на вложение
      * блоки по тексту вида [raas://block/123/]
      * @param string $text Входящий текст
      * @param Page $page Текущая страница
@@ -1171,7 +1173,7 @@ class Package extends RAASPackage
         $result = str_ireplace('//raas://', 'raas://', $result);
 
         $result = (string)preg_replace_callback(
-            '/raas:\\/\\/((domain\\/)?((page|material)\\/)(\\d+)(\\/?))/umis',
+            '/raas:\\/\\/((domain\\/)?((page|material|attachment)\\/)(\\d+)(\\/?))/umis',
             function ($matches) {
                 $oldUrl = $matches[0];
                 $newUrl = Redirect::getInternalLink($oldUrl);

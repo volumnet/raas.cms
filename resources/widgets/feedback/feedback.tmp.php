@@ -134,7 +134,7 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
             <?php } ?>
           </fieldset>
           <input type="hidden" name="agree" value="1">
-          <div class="feedback-modal__agree feedback__agree">
+          <div class="feedback__agree">
             <?php echo AGREE_BY_CLICKING_SEND?>
           </div>
           <div class="feedback__controls">

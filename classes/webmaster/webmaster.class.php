@@ -1100,7 +1100,7 @@ class Webmaster
         Page $parent = null,
         $addUnderConstruction = false
     ) {
-        $uid = Application::i()->user->id;
+        $uid = (int)(Application::i()->user->id ?? 0);
         $pageData = [
             'vis' => 1,
             'author_id' => $uid,
