@@ -83,7 +83,7 @@ class YouTubeVideoTest extends BaseTest
      */
     public function testGetPageURL(array $options, string $expected)
     {
-        $result = YouTubeVideo::spawnById('1Oe3pfnJCAI')->getPageURL($options);
+        $result = (new YouTubeVideo('1Oe3pfnJCAI'))->getPageURL($options);
         $this->assertEquals($expected, $result);
     }
 
@@ -186,7 +186,7 @@ class YouTubeVideoTest extends BaseTest
      */
     public function testGetIFrameURL(array $options, string $expected)
     {
-        $result = YouTubeVideo::spawnById('1Oe3pfnJCAI')->getIFrameURL($options);
+        $result = (new YouTubeVideo('1Oe3pfnJCAI'))->getIFrameURL($options);
         $this->assertEquals($expected, $result);
     }
 
@@ -214,7 +214,7 @@ class YouTubeVideoTest extends BaseTest
      */
     public function testGetCoverURL(array $options, string $expected)
     {
-        $result = YouTubeVideo::spawnById('1Oe3pfnJCAI')->getCoverURL($options);
+        $result = (new YouTubeVideo('1Oe3pfnJCAI'))->getCoverURL($options);
         $this->assertEquals($expected, $result);
     }
 }

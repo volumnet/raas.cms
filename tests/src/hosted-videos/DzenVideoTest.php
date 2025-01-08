@@ -70,7 +70,7 @@ class DzenVideoTest extends BaseTest
      */
     public function testGetPageURL(array $options, string $expected)
     {
-        $result = DzenVideo::spawnById('6373fd921c149b3a052105c4')->getPageURL($options);
+        $result = (new DzenVideo('6373fd921c149b3a052105c4'))->getPageURL($options);
         $this->assertEquals($expected, $result);
     }
 

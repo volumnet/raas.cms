@@ -21,26 +21,6 @@ class HostedVideoTest extends BaseTest
         $this->assertEquals('1Oe3pfnJCAI', $result->id);
     }
 
-
-    /**
-     * Тест метода spawnById
-     */
-    public function testSpawnById()
-    {
-        $result = YouTubeVideo::spawnById('1Oe3pfnJCAI');
-        $this->assertInstanceOf(YouTubeVideo::class, $result);
-        $this->assertEquals('1Oe3pfnJCAI', $result->id);
-    }
-
-    /**
-     * Тест метода spawnById - случай корневого класса
-     */
-    public function testSpawnByIdWithRootClass()
-    {
-        $result = HostedVideo::spawnById('1Oe3pfnJCAI');
-        $this->assertNull($result);
-    }
-
     /**
      * Тест метода spawnByURL - случай с недействительной ссылкой
      */

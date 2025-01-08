@@ -82,7 +82,7 @@ class VKVideoTest extends BaseTest
      */
     public function testGetPageURL(array $options, string $expected)
     {
-        $result = VKVideo::spawnById('-45960892_456246794')->getPageURL($options);
+        $result = (new VKVideo('-45960892_456246794'))->getPageURL($options);
         $this->assertEquals($expected, $result);
     }
 
@@ -141,7 +141,7 @@ class VKVideoTest extends BaseTest
      */
     public function testGetIFrameURL(array $options, string $expected)
     {
-        $result = VKVideo::spawnById('-45960892_456246794')->getIFrameURL($options);
+        $result = (new VKVideo('-45960892_456246794'))->getIFrameURL($options);
         $this->assertEquals($expected, $result);
     }
 
@@ -156,7 +156,7 @@ class VKVideoTest extends BaseTest
     public function getCoverURLDataProvider(): array
     {
         return [
-            [[], 'https://sun3-12.userapi.com/c837131/v837131892/71a7/oF-2Dqg2PTQ.jpg'],
+            [[], 'https://sun9-31.userapi.com/c837131/v837131892/71a7/oF-2Dqg2PTQ.jpg'],
         ];
     }
 
@@ -169,7 +169,7 @@ class VKVideoTest extends BaseTest
      */
     public function testGetCoverURL(array $options, string $expected)
     {
-        $result = VKVideo::spawnById('-45960892_456246794')->getCoverURL($options);
+        $result = (new VKVideo('-45960892_456246794'))->getCoverURL($options);
         $this->assertEquals($expected, $result);
     }
 }

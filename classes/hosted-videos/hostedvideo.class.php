@@ -9,9 +9,6 @@ namespace RAAS\CMS;
 /**
  * Видео, размещенное на видеохостинге
  * @property-read $id ID видео
- * @property-read $url URL страницы видео
- * @property-read $iframe URL iframe видео
- * @property-read $cover URL обложки видео
  */
 abstract class HostedVideo
 {
@@ -20,12 +17,6 @@ abstract class HostedVideo
      * @var string
      */
     protected $id;
-
-    /**
-     * Кэш видео по ID
-     * @var array <pre><code>array<string[] Класс видео => array<string[] ID видео => self>></code></pre>
-     */
-    protected static $cache = [];
 
     /**
      * Зарегистрированные сервисы
@@ -38,10 +29,15 @@ abstract class HostedVideo
         DzenVideo::class,
     ];
 
-    protected function __construct(string $id)
+    /**
+     * Конструктор класса
+     * @param string $id ID видео
+     */
+    public function __construct(string $id)
     {
         $this->id = $id;
     }
+
 
     public function __get(string $var)
     {
@@ -88,63 +84,10 @@ abstract class HostedVideo
      */
     public static function spawnByURL(string $url)
     {
-        static::fetchURLs([$url]);
         foreach (static::$registeredServices as $serviceClassname) {
             if ($id = $serviceClassname::getIdFromURL($url)) {
-                return static::$cache[$serviceClassname][$id] ?? null;
+                return new $serviceClassname($id);
             }
         }
     }
-
-    public static function spawnById(string $id)
-    {
-        if (static::class == self::class) {
-            return;
-        }
-        static::fetchIds([$id]);
-        return static::$cache[static::class][$id] ?? null;
-    }
-
-
-    /**
-     * Сохраняет в кэш видео по набору ID
-     * @param string[] $ids набор ID видео
-     */
-    public static function fetchIds(array $ids)
-    {
-        // @codeCoverageIgnoreStart
-        // Не будем проверять этот метод напрямую, т.к. не возвращает значений, а $cache - protected
-        if (static::class == self::class) {
-            return;
-        }
-        // @codeCoverageIgnoreEnd
-        foreach ($ids as $id) {
-            static::$cache[static::class][$id] = new static($id);
-        }
-    }
-
-
-    /**
-     * Сохраняет в кэш видео по набору ссылок
-     * @param string[] $urls набор ссылок видео
-     */
-    public static function fetchURLs(array $urls)
-    {
-        $idsToFetch = [];
-        foreach ($urls as $url) {
-            foreach (static::$registeredServices as $serviceClassname) {
-                if (($id = $serviceClassname::getIdFromURL($url)) &&
-                    !isset(static::$cache[$serviceClassname][$id]) &&
-                    !isset($idsToFetch[$serviceClassname][$id])
-                ) {
-                    $idsToFetch[$serviceClassname][$id] = $id;
-                    break;
-                }
-            }
-        }
-        foreach ($idsToFetch as $serviceClassname => $serviceIds) {
-            $serviceClassname::fetchIds(array_values($serviceIds));
-        }
-    }
-
 }

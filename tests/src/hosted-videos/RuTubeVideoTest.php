@@ -74,7 +74,7 @@ class RuTubeVideoTest extends BaseTest
      */
     public function testGetPageURL(array $options, string $expected)
     {
-        $result = RuTubeVideo::spawnById('0f8778b4b61fa43667831b7301f33c4e')->getPageURL($options);
+        $result = (new RuTubeVideo('0f8778b4b61fa43667831b7301f33c4e'))->getPageURL($options);
         $this->assertEquals($expected, $result);
     }
 
@@ -121,7 +121,7 @@ class RuTubeVideoTest extends BaseTest
      */
     public function testGetIFrameURL(array $options, string $expected)
     {
-        $result = RuTubeVideo::spawnById('0f8778b4b61fa43667831b7301f33c4e')->getIFrameURL($options);
+        $result = (new RuTubeVideo('0f8778b4b61fa43667831b7301f33c4e'))->getIFrameURL($options);
         $this->assertEquals($expected, $result);
     }
 
@@ -149,7 +149,7 @@ class RuTubeVideoTest extends BaseTest
      */
     public function testGetCoverURL(array $options, string $expected)
     {
-        $result = RuTubeVideo::spawnById('0f8778b4b61fa43667831b7301f33c4e')->getCoverURL($options);
+        $result = (new RuTubeVideo('0f8778b4b61fa43667831b7301f33c4e'))->getCoverURL($options);
         $this->assertEquals($expected, $result);
     }
 }
