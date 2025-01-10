@@ -105,6 +105,11 @@ class MenuInterface extends BlockInterface
             ];
             if ($child['page_id']) {
                 $childData['page_id'] = (int)$child['page_id'];
+                $pageCache = PageRecursiveCache::i()->cache[$child['page_id']] ?? [];
+                if ($pageCache) {
+                    // 2025-01-09, AVS: исправление ошибки - при изменении URL страницы адрес в меню автоматом не менялся
+                    $childData['url'] = $pageCache['cache_url'];
+                }
             }
             $result[] = $childData;
         }

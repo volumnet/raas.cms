@@ -19,9 +19,24 @@ class YouTubeVideo extends HostedVideo
      */
     public function getPageURL(array $options = []): string
     {
-        $result = 'https://www.youtube.com/watch?v=' . $this->id;
+        $idParams = explode('@', $this->id);
+        $id = $idParams[0] ?? '';
+        $list = $idParams[1] ?? '';
+
+        $result = 'https://www.youtube.com/watch';
+        $urlParams = [];
+        if ($id) {
+            $urlParams['v'] = $id;
+        }
+        if ($list) {
+            $urlParams['listType'] = 'list';
+            $urlParams['list'] = $list;
+        }
         if ($time = (int)($options['time'] ?? null)) {
-            $result .= '&t=' . $time . 's';
+            $urlParams['t'] = $time . 's';
+        }
+        if ($urlParams) {
+            $result .= '?' . http_build_query($urlParams);
         }
         return $result;
     }
@@ -61,12 +76,21 @@ class YouTubeVideo extends HostedVideo
      */
     public function getIFrameURL(array $options = []): string
     {
+        $idParams = explode('@', $this->id);
+        $id = $idParams[0] ?? '';
+        $list = $idParams[1] ?? '';
+
         $result = 'https://www.youtube' . (($options['nocookies'] ?? false) ? '-nocookie' : '') . '.com/embed/';
         $urlParams = [];
         if ($options['playlistIds'] ?? []) {
-            $urlParams['playlist'] = implode(',', array_merge([$this->id], (array)$options['playlistIds']));
-        } else {
-            $result .= $this->id;
+            $lists = [];
+            if ($id) {
+                $lists[] = $id;
+            }
+            $lists = array_merge($lists, (array)$options['playlistIds']);
+            $urlParams['playlist'] = implode(',', $lists);
+        } elseif ($id) {
+            $result .= $id;
         }
         if ($time = (int)($options['time'] ?? null)) {
             $urlParams['start'] = $time;
@@ -103,9 +127,13 @@ class YouTubeVideo extends HostedVideo
         }
         if ($options['listType'] ?? null) {
             $urlParams['listType'] = $options['listType'];
+        } elseif ($list) {
+            $urlParams['listType'] = 'list';
         }
         if ($options['list'] ?? null) {
             $urlParams['list'] = $options['list'];
+        } elseif ($list) {
+            $urlParams['list'] = $list;
         }
         if ($options['loop'] ?? false) {
             $urlParams['loop'] = 1;
@@ -128,7 +156,14 @@ class YouTubeVideo extends HostedVideo
 
     public function getCoverURL(array $options = []): string
     {
-        $result = 'https://i.ytimg.com/vi/' . addslashes($this->id) . '/hqdefault.jpg';
+        $idParams = explode('@', $this->id);
+        $id = $idParams[0] ?? '';
+        $list = $idParams[1] ?? '';
+
+        $result = '';
+        if ($id) {
+            $result = 'https://i.ytimg.com/vi/' . addslashes($id) . '/hqdefault.jpg';
+        }
         return $result;
     }
 
@@ -138,15 +173,30 @@ class YouTubeVideo extends HostedVideo
         $urlArr = parse_url($url);
         $host = str_replace('www.', '', $urlArr['host'] ?? '');
         $pathArr = explode('/', trim($urlArr['path'] ?? '', '/'));
+        $id = null;
+        $list = null;
         if (stristr($host, 'youtube.') || stristr($host, 'youtube-nocookie.')) {
             parse_str(trim($urlArr['query'] ?? '', ' ?'), $queryArr);
             if ($queryArr['v'] ?? null) {
-                return $queryArr['v'];
+                $id = $queryArr['v'];
             } elseif (($pathArr[0] ?? '') == 'embed') {
-                return $pathArr[1];
+                $id = $pathArr[1];
+            }
+            if ($queryArr['list'] ?? null) {
+                $list = $queryArr['list'];
             }
         } elseif ($host == 'youtu.be') {
-            return $pathArr[0];
+            $id = $pathArr[0];
+        }
+        if ($id || $list) {
+            $result = '';
+            if ($id) {
+                $result .= $id;
+            }
+            if ($list) {
+                $result .= '@' . $list;
+            }
+            return $result;
         }
         return null;
     }

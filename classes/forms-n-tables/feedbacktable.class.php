@@ -147,6 +147,7 @@ class FeedbackTable extends Table
             'data-role' => 'multitable',
             'meta' => [
                 'allContextMenu' => $this->view->getAllFeedbacksContextMenu(),
+                'allValue' => 'ids',
             ],
         ];
         unset($params['columns']);
