@@ -59,6 +59,8 @@ class User_Field extends Field
         $args[0]['where'] = (array)($args[0]['where'] ?? []);
         $args[0]['where'][] = "classname = '" . static::$SQL->real_escape_string(User::class) . "'";
         $args[0]['where'][] = "NOT pid";
-        return call_user_func_array('parent::getSet', $args);
+        // return call_user_func_array('parent::getSet', $args);
+        $result = parent::getSet(...$args);
+        return $result;
     }
 }
