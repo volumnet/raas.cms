@@ -573,10 +573,10 @@ class Material extends SOME
 
     /**
      * Обновляет связанные страницы
-     * @param Material_Type $materialType Ограничить обновление одним типом материалов
-     * @param Material $material Ограничить обновление одним материалом
+     * @param ?Material_Type $materialType Ограничить обновление одним типом материалов
+     * @param ?Material $material Ограничить обновление одним материалом
      */
-    public static function updateAffectedPages(Material_Type $materialType = null, Material $material = null)
+    public static function updateAffectedPages(?Material_Type $materialType = null, ?Material $material = null)
     {
         $materialId = ($material->id ?? 0);
         if ($materialTypeId = ($materialType->id ?? 0)) {

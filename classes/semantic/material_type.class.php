@@ -517,10 +517,9 @@ class Material_Type extends SOME
 
     /**
      * Обновляет связанные страницы для материалов
-     * @param Material_Type $materialType Ограничить обновление одним
-     *                                    типом материалов
+     * @param ?Material_Type $materialType Ограничить обновление одним типом материалов
      */
-    public static function updateAffectedPagesForMaterials(Material_Type $materialType = null)
+    public static function updateAffectedPagesForMaterials(?Material_Type $materialType = null)
     {
         $mtCache = MaterialTypeRecursiveCache::i();
         $mtCache->refresh();
@@ -591,10 +590,9 @@ class Material_Type extends SOME
 
     /**
      * Обновляет связанные страницы для собственного использования (для админки)
-     * @param Material_Type $materialType Ограничить обновление одним
-     *                                    типом материалов
+     * @param ?Material_Type $materialType Ограничить обновление одним типом материалов
      */
-    public static function updateAffectedPagesForSelf(Material_Type $materialType = null)
+    public static function updateAffectedPagesForSelf(?Material_Type $materialType = null)
     {
         $mtCache = MaterialTypeRecursiveCache::i();
         $mtCache->refresh();

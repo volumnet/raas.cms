@@ -29,7 +29,7 @@ class EditBlockHTMLForm extends EditBlockForm
      * Получает вкладку "Общие"
      * @return FormTab
      */
-    protected function getCommonTab(Page $parent = null): FormTab
+    protected function getCommonTab(?Page $parent = null): FormTab
     {
         $tab = parent::getCommonTab();
         $mime = $parent->mime ?: 'text/html';

@@ -199,10 +199,10 @@ class EditMaterialForm extends \RAAS\Form
 
     /**
      * Получает вкладку "Продвижение"
-     * @param Material $item Текущий материал
+     * @param ?Material $item Текущий материал
      * @return FormTab
      */
-    protected function getSeoTab(Material $item = null)
+    protected function getSeoTab(?Material $item = null)
     {
         $seoTab = new FormTab([
             'name' => 'seo',
@@ -459,7 +459,7 @@ class EditMaterialForm extends \RAAS\Form
     /**
      * Получает список категорий для отображения в поле страниц
      * @param int $pid ID# родительской страницы
-     * @param array<int>|null $relatedPagesIds Фильтр по связанным категориям,
+     * @param ?int[] $relatedPagesIds Фильтр по связанным категориям,
      *                                         либо null, если не нужно
      * @return array<[
      *             'value' => int ID# страницы,
@@ -470,7 +470,7 @@ class EditMaterialForm extends \RAAS\Form
      *             'children' => *рекурсивно*
      *         ]>
      */
-    public function getMetaCats($pid = 0, array $relatedPagesIds = null)
+    public function getMetaCats($pid = 0, ?array $relatedPagesIds = null)
     {
         $pageCache = PageRecursiveCache::i();
         $result = [];

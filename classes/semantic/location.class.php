@@ -105,7 +105,7 @@ class Location
 
     /**
      * Конструктор класса
-     * @param Template $template Родительский шаблон
+     * @param ?Template $template Родительский шаблон
      * @param string $urn URN размещения
      * @param [
      *            'x' => int Смещение относительно левого края шаблона
@@ -117,7 +117,7 @@ class Location
      *        ] $params Параметры размещения
      */
     public function __construct(
-        Template $template = null,
+        ?Template $template = null,
         $urn = '',
         array $params = []
     ) {

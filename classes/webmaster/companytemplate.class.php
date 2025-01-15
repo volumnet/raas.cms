@@ -22,7 +22,7 @@ class CompanyTemplate extends MaterialTypeTemplate
 
     public function createBlock(
         Page $page,
-        Snippet $widget = null,
+        ?Snippet $widget = null,
         array $additionalData = []
     ) {
         if ($page->id) {
@@ -363,7 +363,7 @@ class CompanyTemplate extends MaterialTypeTemplate
      */
     public function createLogoBlock(
         Page $page,
-        Snippet $widget = null,
+        ?Snippet $widget = null,
         array $additionalData = []
     ) {
         $additionalData = array_merge(
@@ -408,7 +408,7 @@ class CompanyTemplate extends MaterialTypeTemplate
      */
     public function createContactsTopBlock(
         Page $page,
-        Snippet $widget = null,
+        ?Snippet $widget = null,
         array $additionalData = []
     ) {
         $additionalData = array_merge(
@@ -454,7 +454,7 @@ class CompanyTemplate extends MaterialTypeTemplate
      */
     public function createCopyrightsBlock(
         Page $page,
-        Snippet $widget = null,
+        ?Snippet $widget = null,
         array $additionalData = []
     ) {
         $additionalData = array_merge(
@@ -500,7 +500,7 @@ class CompanyTemplate extends MaterialTypeTemplate
      */
     public function createContactsBottomBlock(
         Page $page,
-        Snippet $widget = null,
+        ?Snippet $widget = null,
         array $additionalData = []
     ) {
         $additionalData = array_merge(
@@ -546,7 +546,7 @@ class CompanyTemplate extends MaterialTypeTemplate
      */
     public function createSocialsBottomBlock(
         Page $page,
-        Snippet $widget = null,
+        ?Snippet $widget = null,
         array $additionalData = []
     ) {
         $additionalData = array_merge(
@@ -592,7 +592,7 @@ class CompanyTemplate extends MaterialTypeTemplate
      */
     public function createContactsBlock(
         Page $page,
-        Snippet $widget = null,
+        ?Snippet $widget = null,
         array $additionalData = []
     ) {
         $additionalData = array_merge(

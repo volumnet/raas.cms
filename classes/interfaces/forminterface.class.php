@@ -41,9 +41,9 @@ class FormInterface extends BlockInterface
 
     /**
      * Конструктор класса
-     * @param Block_Form|null $block Блок, для которого применяется
+     * @param ?Block_Form $block Блок, для которого применяется
      *                               интерфейс
-     * @param Page|null $page Страница, для которой применяется интерфейс
+     * @param ?Page $page Страница, для которой применяется интерфейс
      * @param array $get Поля $_GET параметров
      * @param array $post Поля $_POST параметров
      * @param array $cookie Поля $_COOKIE параметров
@@ -52,8 +52,8 @@ class FormInterface extends BlockInterface
      * @param array $files Поля $_FILES параметров
      */
     public function __construct(
-        Block_Form $block = null,
-        Page $page = null,
+        ?Block_Form $block = null,
+        ?Page $page = null,
         array $get = [],
         array $post = [],
         array $cookie = [],
@@ -669,7 +669,7 @@ class FormInterface extends BlockInterface
     /**
      * Уведомление администратора о заполненной форме
      * @param Feedback $feedback Уведомление формы обратной связи
-     * @param Material $material Созданный материал
+     * @param ?Material $material Созданный материал
      * @param bool $forAdmin Уведомление для администратора
      *                       (если нет, то для пользователя)
      * @param bool $debug Режим отладки
@@ -694,7 +694,7 @@ class FormInterface extends BlockInterface
      *    'smsPhones' => array<string URL SMS-шлюза>
      * >|null</code></pre> Набор отправляемых писем либо URL SMS-шлюза (только в режиме отладки)
      */
-    public function notify(Feedback $feedback, Material $material = null, $forAdmin = true, $debug = false)
+    public function notify(Feedback $feedback, ?Material $material = null, $forAdmin = true, $debug = false)
     {
         if (!$feedback->parent->Interface->id) {
             return;
@@ -949,7 +949,7 @@ class FormInterface extends BlockInterface
     /**
      * Получает вложения для письма
      * @param Feedback $feedback Уведомление формы обратной связи
-     * @param Material $material Созданный материал
+     * @param ?Material $material Созданный материал
      * @param bool $forAdmin Уведомление для администратора
      *                       (если нет, то для пользователя)
      * @return array <pre>array<[
@@ -958,7 +958,7 @@ class FormInterface extends BlockInterface
      *     'name' => string Имя файла
      * ]></pre>
      */
-    public function getAttachments(Feedback $feedback, Material $material = null, $forAdmin = true)
+    public function getAttachments(Feedback $feedback, ?Material $material = null, $forAdmin = true)
     {
         return [];
     }

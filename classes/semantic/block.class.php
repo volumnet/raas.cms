@@ -466,11 +466,11 @@ abstract class Block extends SOME
 
     /**
      * Получает файл кэша
-     * @param string $url С какого URL получить файл кэша
-     * @param Page $page У какой страницы получить файл кэша
+     * @param ?string $url С какого URL получить файл кэша
+     * @param ?Page $page У какой страницы получить файл кэша
      * @return string
      */
-    public function getCacheFile(string $url = null, Page $page = null): string
+    public function getCacheFile(?string $url = null, ?Page $page = null): string
     {
         if ($this->cache_type != static::CACHE_NONE) {
             if ($page) {
@@ -499,10 +499,10 @@ abstract class Block extends SOME
     /**
      * Обрабатывает интерфейс
      * @param array $config Конфигурация блока
-     * @param Page $page Страница, для которой обрабатываем интерфейс
+     * @param ?Page $page Страница, для которой обрабатываем интерфейс
      * @return mixed Результат обработки интерфейса
      */
-    protected function processInterface(array $config = [], Page $page = null)
+    protected function processInterface(array $config = [], ?Page $page = null)
     {
         if ($this->interface_classname || $this->Interface->id) {
             $st = microtime(true);
@@ -545,9 +545,9 @@ abstract class Block extends SOME
     /**
      * Обрабатывает виджет
      * @param array $in Входные данные
-     * @param Page|null $page Страница, для которой обрабатываем виджет
+     * @param ?Page $page Страница, для которой обрабатываем виджет
      */
-    protected function processWidget(array $in = [], Page $page = null)
+    protected function processWidget(array $in = [], ?Page $page = null)
     {
         if ($this->Widget->id) {
             $st = microtime(true);

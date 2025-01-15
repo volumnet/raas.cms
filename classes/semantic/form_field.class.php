@@ -52,11 +52,11 @@ class Form_Field extends Field
 
     /**
      * Получает HTML-атрибут id поля
-     * @param Block|null $Block Блок, для которого получаем
+     * @param ?Block $Block Блок, для которого получаем
      * @param int|string|null $index Индекс поля в множественном списке
      * @return string
      */
-    public function getHTMLId(Block $block = null, $index = null)
+    public function getHTMLId(?Block $block = null, $index = null)
     {
         $result = $this->urn . $this->id;
         if ($block->id) {

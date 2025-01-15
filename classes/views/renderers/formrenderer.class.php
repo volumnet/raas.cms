@@ -46,7 +46,7 @@ class FormRenderer extends HTMLRenderer
     /**
      * Конструктор класса
      * @param Form $form Форма для отображения
-     * @param Block|null $block Блок для связки атрибутов
+     * @param ?Block $block Блок для связки атрибутов
      * @param array $data <pre>array<
      *     string[] URN поля => string|array<
      *         string[] Индекс множественного поля => string
@@ -58,7 +58,7 @@ class FormRenderer extends HTMLRenderer
      */
     public function __construct(
         Form $form,
-        Block $block = null,
+        ?Block $block = null,
         array $data = [],
         array $errors = []
     ) {

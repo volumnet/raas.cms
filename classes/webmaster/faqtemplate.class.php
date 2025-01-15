@@ -255,7 +255,7 @@ class FAQTemplate extends MaterialTypeTemplate
 
     public function createBlock(
         Page $page,
-        Snippet $widget = null,
+        ?Snippet $widget = null,
         array $additionalData = []
     ) {
         $additionalData = array_merge(
@@ -273,14 +273,14 @@ class FAQTemplate extends MaterialTypeTemplate
      * Создает блок формы
      * @param Page $page Страница материалов
      * @param Form $form Форма
-     * @param Snippet|null $widget Виджет блока
+     * @param ?Snippet $widget Виджет блока
      * @param array $additionalData Дополнительные параметры
      * @return Block_Form|null
      */
     public function createFormBlock(
         Page $page,
         Form $form,
-        Snippet $widget = null,
+        ?Snippet $widget = null,
         array $additionalData = []
     )
     {

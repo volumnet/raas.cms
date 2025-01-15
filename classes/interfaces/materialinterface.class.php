@@ -15,9 +15,9 @@ class MaterialInterface extends BlockInterface
 {
     /**
      * Конструктор класса
-     * @param Block_Material|null $block Блок, для которого применяется
+     * @param ?Block_Material $block Блок, для которого применяется
      *                                   интерфейс
-     * @param Page|null $page Страница, для которой применяется интерфейс
+     * @param ?Page $page Страница, для которой применяется интерфейс
      * @param array $get Поля $_GET параметров
      * @param array $post Поля $_POST параметров
      * @param array $cookie Поля $_COOKIE параметров
@@ -26,8 +26,8 @@ class MaterialInterface extends BlockInterface
      * @param array $files Поля $_FILES параметров
      */
     public function __construct(
-        Block_Material $block = null,
-        Page $page = null,
+        ?Block_Material $block = null,
+        ?Page $page = null,
         array $get = [],
         array $post = [],
         array $cookie = [],
@@ -208,13 +208,13 @@ class MaterialInterface extends BlockInterface
 
     /**
      * Получает список материалов
-     * @param Block_Material|null $block Блок, для которого применяется интерфейс
-     * @param Page|null $page Страница, для которой применяется интерфейс
+     * @param Block_Material $block Блок, для которого применяется интерфейс
+     * @param Page $page Страница, для которой применяется интерфейс
      * @param array $get Поля $_GET параметров
-     * @param Pages|null $pages Постраничная разбивка
+     * @param ?Pages $pages Постраничная разбивка
      * @return Material[]
      */
-    public function getList(Block_Material $block, Page $page, array $get = [], Pages $pages = null): array
+    public function getList(Block_Material $block, Page $page, array $get = [], ?Pages $pages = null): array
     {
         $sqlParts = $this->getSQLParts($block, $page, $get);
         $sqlQuery = $this->getSQLQuery($sqlParts['from'], $sqlParts['where'], $sqlParts['sort'], $sqlParts['order']);

@@ -28,9 +28,9 @@ class NotificationFieldRenderer extends HTMLRenderer
     /**
      * Конструктор класса
      * @param Field $field Поле для отображения (с Owner'ом)
-     * @param SOME|null $owner Переопределенный владелец поля
+     * @param ?SOME $owner Переопределенный владелец поля
      */
-    public function __construct(Field $field, SOME $owner = null)
+    public function __construct(Field $field, ?SOME $owner = null)
     {
         $this->field = $field;
         $this->owner = $owner;
@@ -40,10 +40,10 @@ class NotificationFieldRenderer extends HTMLRenderer
     /**
      * Получение конкретного рендерера для поля
      * @param Field $field Поле для отображения
-     * @param SOME|null $owner Переопределенный владелец поля
+     * @param ?SOME $owner Переопределенный владелец поля
      * @return self
      */
-    public static function spawn(Field $field, SOME $owner = null): self
+    public static function spawn(Field $field, ?SOME $owner = null): self
     {
         switch ($field->datatype) {
             case 'date':

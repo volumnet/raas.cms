@@ -56,10 +56,10 @@ class EditFieldForm extends RAASForm
 
     /**
      * Возвращает основную вкладку редактирования поля
-     * @param SOME $parent Родительский объект
+     * @param ?SOME $parent Родительский объект
      * @return FormTab
      */
-    public function getCommonTab(SOME $parent = null)
+    public function getCommonTab(?SOME $parent = null)
     {
         $content = [];
         foreach (Field::$fieldTypes as $key) {

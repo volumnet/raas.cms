@@ -183,13 +183,13 @@ class MaterialTypeTemplate
     /**
      * Создает блок материалов на странице
      * @param Page $page Страница материалов
-     * @param Snippet|null $widget Виджет блока
+     * @param ?Snippet $widget Виджет блока
      * @param array $additionalData Дополнительные параметры
      * @return Block_Material
      */
     public function createBlock(
         Page $page,
-        Snippet $widget = null,
+        ?Snippet $widget = null,
         array $additionalData = []
     ) {
         if ($page->id) {

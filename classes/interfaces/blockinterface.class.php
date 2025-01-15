@@ -12,8 +12,8 @@ namespace RAAS\CMS;
 abstract class BlockInterface extends AbstractInterface
 {
     public function __construct(
-        Block $block = null,
-        Page $page = null,
+        ?Block $block = null,
+        ?Page $page = null,
         array $get = [],
         array $post = [],
         array $cookie = [],

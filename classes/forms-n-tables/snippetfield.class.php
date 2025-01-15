@@ -31,10 +31,10 @@ class SnippetField extends \RAAS\Field
     /**
      * Получает набор параметров дочерних элементов в текущей папке
      * @param string[] $ignoredSnippetFoldersURNs Список URN игнорируемых папок
-     * @param Snippet_Folder|null $currentFolder Текущая папка (для рекурсии)
+     * @param ?Snippet_Folder $currentFolder Текущая папка (для рекурсии)
      * @return array
      */
-    public function getChildrenArr(array $ignoredSnippetFoldersURNs = [], Snippet_Folder $currentFolder = null): array
+    public function getChildrenArr(array $ignoredSnippetFoldersURNs = [], ?Snippet_Folder $currentFolder = null): array
     {
         if (!$currentFolder) {
             $currentFolder = new Snippet_Folder();

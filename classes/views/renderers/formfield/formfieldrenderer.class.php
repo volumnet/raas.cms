@@ -38,12 +38,12 @@ abstract class FormFieldRenderer extends HTMLRenderer
     /**
      * Конструктор класса
      * @param Form_Field $field Поле для отображения
-     * @param Block|null $block Блок для связки атрибутов
+     * @param ?Block $block Блок для связки атрибутов
      * @param string|string[] $data <pre>string|array<
      *     string[] Индекс множественного поля => string
      * ></pre> Данные поля
      */
-    public function __construct(Form_Field $field, Block $block = null, $data = null)
+    public function __construct(Form_Field $field, ?Block $block = null, $data = null)
     {
         $this->field = $field;
         $this->block = $block;
@@ -54,14 +54,14 @@ abstract class FormFieldRenderer extends HTMLRenderer
     /**
      * Получение конкретного рендерера для поля
      * @param Form_Field $field Поле для отображения
-     * @param Block|null $block Блок для связки атрибутов
+     * @param ?Block $block Блок для связки атрибутов
      * @param string|string[] $data <pre>string|array<
      *     string[] Индекс множественного поля => string
      * ></pre> Данные поля
-     * @param string|null $error Ошибка поля
+     * @param ?string $error Ошибка поля
      * @return self
      */
-    public static function spawn(Form_Field $field, Block $block = null, $data = [], string $error = null): self
+    public static function spawn(Form_Field $field, ?Block $block = null, $data = [], ?string $error = null): self
     {
         switch ($field->datatype) {
             case 'number':

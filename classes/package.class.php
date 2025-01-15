@@ -1159,10 +1159,10 @@ class Package extends RAASPackage
      * raas://domain/attachment/123 - абсолютная ссылка на вложение
      * блоки по тексту вида [raas://block/123/]
      * @param string $text Входящий текст
-     * @param Page $page Текущая страница
+     * @param ?Page $page Текущая страница
      * @return string
      */
-    public static function processInternalLinks($text, Page $page = null)
+    public static function processInternalLinks($text, ?Page $page = null)
     {
         if (!stristr($text, 'raas://')) {
             return $text;

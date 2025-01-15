@@ -95,8 +95,8 @@ class SearchInterface extends BlockInterface
 
     /**
      * Конструктор класса
-     * @param Block_Search|null $block Блок, для которого применяется интерфейс
-     * @param Page|null $page Страница, для которой применяется интерфейс
+     * @param ?Block_Search $block Блок, для которого применяется интерфейс
+     * @param ?Page $page Страница, для которой применяется интерфейс
      * @param array $get Поля $_GET параметров
      * @param array $post Поля $_POST параметров
      * @param array $cookie Поля $_COOKIE параметров
@@ -105,8 +105,8 @@ class SearchInterface extends BlockInterface
      * @param array $files Поля $_FILES параметров
      */
     public function __construct(
-        Block_Search $block = null,
-        Page $page = null,
+        ?Block_Search $block = null,
+        ?Page $page = null,
         array $get = [],
         array $post = [],
         array $cookie = [],
@@ -383,11 +383,11 @@ class SearchInterface extends BlockInterface
      *                (int ID# страницы или материала)
      *            ) => int Рейтинг
      *        > $ratios Рейтинги
-     * @param Pages $pages Постраничная разбивка
+     * @param ?Pages $pages Постраничная разбивка
      * @param int $searchLimit Лимит поиска
      * @return array<Page|Material>
      */
-    public function getSearchResults(array $ratios, Pages $pages = null, int $searchLimit = 100): array
+    public function getSearchResults(array $ratios, ?Pages $pages = null, int $searchLimit = 100): array
     {
         $user = RAASControllerFrontend::i()->user;
         $resultIds = array_slice(array_keys($ratios), 0, $searchLimit);

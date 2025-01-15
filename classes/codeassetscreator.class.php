@@ -229,12 +229,12 @@ class CodeAssetsCreator
 
     /**
      * Генерирует текст index.js (либо article.js / list.js)
-     * @param bool|null $isArticle null - для создания index.js,
+     * @param ?bool $isArticle null - для создания index.js,
      *     true - для создания article.js,
      *     false - для создания list.js
      * @return string
      */
-    public function generateRootJS(bool $isArticle = null): string
+    public function generateRootJS(?bool $isArticle = null): string
     {
         $cssClasses = $this->cssClasses;
         if ($isArticle !== null) {

@@ -132,12 +132,12 @@ class CMSAccess extends SOME
 
     /**
      * Обновляет кэш доступа к страницам
-     * @param User $user фильтр по пользователю
-     * @param Page $page фильтр по странице
+     * @param ?User $user фильтр по пользователю
+     * @param ?Page $page фильтр по странице
      */
     public static function refreshPagesAccessCache(
-        User $user = null,
-        Page $page = null
+        ?User $user = null,
+        ?Page $page = null
     ) {
         $tablename = Page::_links();
         $tablename = Page::_dbprefix() . $tablename['allowedUsers']['tablename'];
@@ -181,10 +181,10 @@ class CMSAccess extends SOME
 
     /**
      * Обновляет кэш доступа к материалам
-     * @param User $user фильтр по пользователю
-     * @param Material $material фильтр по материалу
+     * @param ?User $user фильтр по пользователю
+     * @param ?Material $material фильтр по материалу
      */
-    public static function refreshMaterialsAccessCache(User $user = null, Material $material = null)
+    public static function refreshMaterialsAccessCache(?User $user = null, ?Material $material = null)
     {
         $tablename = Material::_links();
         $tablename = Material::_dbprefix()
@@ -229,10 +229,10 @@ class CMSAccess extends SOME
 
     /**
      * Обновляет кэш доступа к блокам
-     * @param User $user фильтр по пользователю
-     * @param Block $block фильтр по блоку
+     * @param ?User $user фильтр по пользователю
+     * @param ?Block $block фильтр по блоку
      */
-    public static function refreshBlocksAccessCache(User $user = null, Block $block = null)
+    public static function refreshBlocksAccessCache(?User $user = null, ?Block $block = null)
     {
         $tablename = Block::_links();
         $tablename = Block::_dbprefix()

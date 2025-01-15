@@ -45,9 +45,9 @@ class Auth
 
     /**
      * Конструктор класса
-     * @param User $user Текущий пользователь
+     * @param ?User $user Текущий пользователь
      */
-    public function __construct(User $user = null)
+    public function __construct(?User $user = null)
     {
         if (!$user) {
             $user = new User();

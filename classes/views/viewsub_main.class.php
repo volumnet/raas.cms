@@ -710,7 +710,7 @@ class ViewSub_Main extends RAASAbstractSubView
     /**
      * Возвращает контекстное меню для блока
      * @param Block $block Блок
-     * @param Page $page Страница
+     * @param ?Page $page Страница
      * @param int $i Порядок блока в списке
      * @param int $c Количество блоков в списке
      * @return array<[
@@ -723,7 +723,7 @@ class ViewSub_Main extends RAASAbstractSubView
      */
     public function getBlockContextMenu(
         Block $block,
-        Page $page = null,
+        ?Page $page = null,
         $i = 0,
         $c = 0
     ) {

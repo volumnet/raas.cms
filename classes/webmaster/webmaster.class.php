@@ -1090,14 +1090,14 @@ class Webmaster
      * Создает страницу
      * @param array<string[] => mixed> $params Дополнительные параметры для
      *                                         создания страницы
-     * @param Page $parent Родительская страница
+     * @param ?Page $parent Родительская страница
      * @param bool $addUnderConstruction Добавить текстовый блок
      *                                   "страница в стадии наполнения"
      * @return Page
      */
     public function createPage(
         array $params,
-        Page $parent = null,
+        ?Page $parent = null,
         $addUnderConstruction = false
     ) {
         $uid = (int)(Application::i()->user->id ?? 0);

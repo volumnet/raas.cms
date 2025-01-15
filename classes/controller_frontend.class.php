@@ -249,9 +249,9 @@ class Controller_Frontend extends Abstract_Controller
 
     /**
      * Устанавливает модуль диагностики
-     * @param Diag|null Объект модуля диагностики
+     * @param ?Diag Объект модуля диагностики
      */
-    public function setDiag(Diag $diag = null)
+    public function setDiag(?Diag $diag = null)
     {
         $this->diag = $diag;
     }
@@ -736,13 +736,13 @@ class Controller_Frontend extends Abstract_Controller
      * @param string $content Текст страницы
      * @param array<string> $headers HTTP-заголовки страницы
      * @param string $prefix Префикс файла кэша
-     * @param Page $originalPage Оригинальная страница
+     * @param ?Page $originalPage Оригинальная страница
      */
     protected function saveCache(
         $content = '',
         array $headers = [],
         $prefix = '',
-        Page $originalPage = null
+        ?Page $originalPage = null
     ) {
         if (!is_dir($this->model->cacheDir)) {
             @mkdir($this->model->cacheDir, 0777, true);

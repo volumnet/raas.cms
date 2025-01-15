@@ -155,10 +155,10 @@ class EditPageForm extends RAASForm
     /**
      * Получает вкладку "Продвижение"
      * @param Page $parent Родительская страница
-     * @param Page $item Текущая страница
+     * @param ?Page $item Текущая страница
      * @return FormTab
      */
-    protected function getSeoTab(Page $parent, Page $item = null)
+    protected function getSeoTab(Page $parent, ?Page $item = null)
     {
         $seoTab = new FormTab(
             [

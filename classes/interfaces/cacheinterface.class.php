@@ -21,8 +21,8 @@ class CacheInterface extends AbstractInterface
 
     /**
      * Конструктор класса
-     * @param Block|null $block Блок, для которого применяется интерфейс
-     * @param Page|null $page Страница, для которой применяется интерфейс
+     * @param ?Block $block Блок, для которого применяется интерфейс
+     * @param ?Page $page Страница, для которой применяется интерфейс
      * @param array $get Поля $_GET параметров
      * @param array $post Поля $_POST параметров
      * @param array $cookie Поля $_COOKIE параметров
@@ -32,8 +32,8 @@ class CacheInterface extends AbstractInterface
      * @param mixed $data Данные, полученные от интерфейса блока
      */
     public function __construct(
-        Block $block = null,
-        Page $page = null,
+        ?Block $block = null,
+        ?Page $page = null,
         array $get = [],
         array $post = [],
         array $cookie = [],
