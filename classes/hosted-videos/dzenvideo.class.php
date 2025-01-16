@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace RAAS\CMS;
 
+use SOME\HTTP;
+
 /**
  * Видео на Дзен
  */
@@ -21,7 +23,7 @@ class DzenVideo extends HostedVideo
      * URL обложки по ID видео
      * @var array <pre><code>array<string[] ID видео => string URL обложки></code></pre>
      */
-    protected static $idsToCoverURLs = [];
+    public static $idsToCoverURLs = [];
 
     public function getPageURL(array $options = []): string
     {
@@ -32,6 +34,7 @@ class DzenVideo extends HostedVideo
 
     public function getIFrameURL(array $options = []): string
     {
+        $options = array_merge($this->params, $options);
         $result = '';
         if (!(static::$iframeIds[$this->id] ?? null)) {
             $this->parsePage();
@@ -39,14 +42,18 @@ class DzenVideo extends HostedVideo
         if (static::$iframeIds[$this->id] ?? null) {
             $result = static::getIFrameByIFrameId(static::$iframeIds[$this->id]);
             $urlParams = [];
-            if (isset($options['controls']) && ($options['controls'] !== null) && !$options['controls']) {
-                $urlParams['tv'] = 1;
+            foreach ([
+                'autoplay' => 'autoplay',
+                'mute' => 'mute',
+            ] as $fromURN => $toURN) {
+                if ($options[$fromURN] ?? false) {
+                    $urlParams[$toURN] = 1;
+                }
             }
-            if ($options['autoplay'] ?? false) {
-                $urlParams['autoplay'] = 1;
-            }
-            if ($options['mute'] ?? false) {
-                $urlParams['mute'] = 1;
+            foreach (['controls' => 'tv'] as $fromURN => $toURN) {
+                if (isset($options[$fromURN]) && ($options[$fromURN] !== null) && !$options[$fromURN]) {
+                    $urlParams[$toURN] = 1;
+                }
             }
             if ($urlParams) {
                 $result .= '?' . http_build_query($urlParams);
@@ -66,26 +73,42 @@ class DzenVideo extends HostedVideo
     }
 
 
-    public static function getIdFromURL(string $url)
+    public static function spawnByURL(string $url): ?self
     {
-        $urlArr = parse_url($url);
-        $host = str_replace('www.', '', $urlArr['host'] ?? '');
-        $pathArr = explode('/', trim($urlArr['path'] ?? '', '/'));
-        if (stristr($host, 'dzen.')) {
-            parse_str(trim($urlArr['query'] ?? '', ' ?'), $queryArr);
-            if ((($pathArr[0] ?? '') == 'video') && (($pathArr[1] ?? '') == 'watch')) {
-                return $pathArr[2];
-            } elseif ($pathArr[0] ?? '' == 'embed') {
-                $iframeId = $pathArr[1];
+        $url = html_entity_decode($url);
+        $urlArr = HTTP::parseURL($url);
+        $urlArr['host'] = str_replace('www.', '', $urlArr['host'] ?? '');
+        $result = null;
+        if (stristr($urlArr['host'], 'dzen.')) {
+            if ((($urlArr['path'][0] ?? '') == 'video') && (($urlArr['path'][1] ?? '') == 'watch')) {
+                $result = new static($urlArr['path'][2]);
+            } elseif ($urlArr['path'][0] ?? '' == 'embed') {
+                $iframeId = $urlArr['path'][1];
                 $id = array_search($iframeId, static::$iframeIds);
                 if (!$id) {
                     static::parseIFrame($iframeId);
                     $id = array_search($iframeId, static::$iframeIds);
                 }
-                return $id ?: null;
+                $result = new static($id ?: null);
             }
         }
-        return null;
+        if ($result) {
+            $result->originalURL = $url;
+            foreach ([
+                'autoplay' => 'autoplay',
+                'mute' => 'mute',
+            ] as $fromURN => $toURN) {
+                if (($urlArr['query'][$fromURN] ?? null) !== null) {
+                    $result->params[$toURN] = (bool)(int)$urlArr['query'][$fromURN];
+                }
+            }
+            foreach (['tv' => 'controls'] as $fromURN => $toURN) {
+                if (($urlArr['query'][$fromURN] ?? null) !== null) {
+                    $result->params[$toURN] = !(int)$urlArr['query'][$fromURN];
+                }
+            }
+        }
+        return $result;
     }
 
 
@@ -99,9 +122,14 @@ class DzenVideo extends HostedVideo
         $coverURL = null;
         $ctx = stream_context_create(['http'=> ['timeout' => 5, 'header' => 'Cookie: zen_sso_checked=1']]);
         $text = file_get_contents($url, false, $ctx);
+        // @codeCoverageIgnoreStart
+        // Fallback, если по какой-то причине не найдет через background-image
         if (preg_match('/"Thumbnail":"(.+?)"/umis', $text, $regs)) {
             $coverURL = $regs[1];
+        } elseif (preg_match('/"thumbnailUrl":"(.+?)"/umis', $text, $regs)) {
+            $coverURL = $regs[1];
         }
+        // @codeCoverageIgnoreEnd
         if (preg_match('/"embedUrl":".*?\\/embed\\/(.+?)"/umis', $text, $regs)) {
             $iframeId = $regs[1];
         }

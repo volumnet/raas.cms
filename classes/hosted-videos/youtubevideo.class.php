@@ -6,31 +6,33 @@ declare(strict_types=1);
 
 namespace RAAS\CMS;
 
+use SOME\HTTP;
+
 /**
  * Видео на YouTube
+ *
+ * Параметры проигрывателя:
+ * https://developers.google.com/youtube/player_parameters?hl=ru
  */
 class YouTubeVideo extends HostedVideo
 {
     /**
      * Возвращает URL страницы видео
      * @param array $options <pre><code>[
-     *     'time' =>? int Метка времени начала воспроизведения
+     *     'time' => ?int Метка времени начала воспроизведения
      * ]</code></pre> Опции получения
      */
     public function getPageURL(array $options = []): string
     {
-        $idParams = explode('@', $this->id);
-        $id = $idParams[0] ?? '';
-        $list = $idParams[1] ?? '';
-
+        $options = array_merge($this->params, $options);
         $result = 'https://www.youtube.com/watch';
         $urlParams = [];
-        if ($id) {
-            $urlParams['v'] = $id;
+        if ($this->id) {
+            $urlParams['v'] = $this->id;
         }
-        if ($list) {
+        if ($options['list'] ?? null) {
             $urlParams['listType'] = 'list';
-            $urlParams['list'] = $list;
+            $urlParams['list'] = $options['list'];
         }
         if ($time = (int)($options['time'] ?? null)) {
             $urlParams['t'] = $time . 's';
@@ -42,110 +44,68 @@ class YouTubeVideo extends HostedVideo
     }
 
 
-    /**
-     * Возвращает URL iframe
-     * @param array $options <pre><code>[
-     *     'time' =>? int Метка времени начала воспроизведения, сек.,
-     *     'controls' =>? bool Отображать панель управления (по умолчанию true),
-     *     'nocookies' =>? bool Вариант без cookies,
-     *     'playlistIds' =>? string[] Массив дополнительных видео для воспроизведения плейлиста
-     *     'autoplay' =>? bool Автовоспроизведение
-     *     'cc' =>? bool Субтитры
-     *     'color' =>? string Цвет полосы прогресса воспроизведения
-     *         (HEX-формат, поддерживается только белый - #fff или #ffffff, по умолчанию - красный)
-     *     'keyboard' =>? bool Включено ли управление клавиатурой (по умолчанию true)
-     *     'jsapi' =>? bool Включен ли JS API
-     *     'end' =>? int Метка времени окончания воспроизведения, сек.,
-     *     'fullscreen' =>? bool Включена ли возможность перехода в полноэкранный режим (по умолчанию true)
-     *     'lang' =>? string Язык интерфейса (явно заданный)
-     *     'iv_load_policy' =>? bool Показывать видеоаннотации (по умолчанию true)
-     *     'listType' =>? string В сочетании с параметром list этот параметр определяет,
-     *         какой контент будет загружен в проигрыватель:
-     *         playlist – параметр list определяет идентификатор плейлиста YouTube. Значение параметра должно начинаться с букв PL.
-     *         search – параметр list задает поисковый запрос, который используется для выбора контента.
-     *         user_uploads – параметр list определяет название канала YouTube, с которого загружаются ролики,
-     *     'list' =>? string
-     *     'loop' =>? bool Циклическое воспроизведение
-     *     'modestbranding' =>? bool Убрать логотип YouTube
-     *     'playsinline' =>? bool
-     *         true - Встроенное воспроизведение роликов UIWebViews, созданных с помощью свойства
-     *             allowsInlineMediaPlayback со значением TRUE.
-     *         false - ролики воспроизводятся в полноэкранном режиме. Это значение по умолчанию может быть изменено.
-     *     'rel' =>? bool Предлагать связанные видео
-     * ]</code></pre> Опции получения
-     */
     public function getIFrameURL(array $options = []): string
     {
-        $idParams = explode('@', $this->id);
-        $id = $idParams[0] ?? '';
-        $list = $idParams[1] ?? '';
-
+        $options = array_merge($this->params, $options);
         $result = 'https://www.youtube' . (($options['nocookies'] ?? false) ? '-nocookie' : '') . '.com/embed/';
         $urlParams = [];
         if ($options['playlistIds'] ?? []) {
             $lists = [];
-            if ($id) {
-                $lists[] = $id;
+            if ($this->id) {
+                $lists[] = $this->id;
             }
             $lists = array_merge($lists, (array)$options['playlistIds']);
             $urlParams['playlist'] = implode(',', $lists);
-        } elseif ($id) {
-            $result .= $id;
+        } elseif ($this->id) {
+            $result .= $this->id;
         }
-        if ($time = (int)($options['time'] ?? null)) {
-            $urlParams['start'] = $time;
+        foreach (['time' => 'start', 't' => 'start', 'end' => 'end'] as $fromURN => $toURN) {
+            if ($time = (int)($options[$fromURN] ?? null)) {
+                $urlParams[$toURN] = $time;
+            }
         }
-        if (isset($options['controls']) && ($options['controls'] !== null) && !$options['controls']) {
-            $urlParams['controls'] = 0;
+        foreach (['controls' => 'controls', 'fullscreen' => 'fs'] as $fromURN => $toURN) {
+            if (isset($options[$fromURN]) && ($options[$fromURN] !== null) && !$options[$fromURN]) {
+                $urlParams[$toURN] = 0;
+            }
         }
-        if ($options['autoplay'] ?? false) {
-            $urlParams['autoplay'] = 1;
+        foreach (['keyboard' => 'disablekb'] as $fromURN => $toURN) {
+            if (isset($options[$fromURN]) && ($options[$fromURN] !== null) && !$options[$fromURN]) {
+                $urlParams[$toURN] = 1;
+            }
         }
-        if ($options['cc'] ?? false) {
-            $urlParams['cc_load_policy'] = 1;
+        foreach ([
+            'autoplay' => 'autoplay',
+            'cc' => 'cc_load_policy',
+            'jsapi' => 'enablejsapi',
+            'loop' => 'loop',
+            'modestbranding' => 'modestbranding',
+            'playsinline' => 'playsinline',
+        ] as $fromURN => $toURN) {
+            if ($options[$fromURN] ?? false) {
+                $urlParams[$toURN] = 1;
+            }
+        }
+        foreach (['lang' => 'hl', 'list' => 'list'] as $fromURN => $toURN) {
+            if ($options[$fromURN] ?? null) {
+                $urlParams[$toURN] = $options[$fromURN];
+            }
+        }
+        foreach (['rel' => 'rel'] as $fromURN => $toURN) {
+            if (!($options[$fromURN] ?? null)) {
+                $urlParams[$toURN] = 0;
+            }
         }
         if (stristr((string)($options['color'] ?? ''), 'fff')) {
             $urlParams['color'] = 'white';
-        }
-        if (isset($options['keyboard']) && ($options['keyboard'] !== null) && !$options['keyboard']) {
-            $urlParams['disablekb'] = 1;
-        }
-        if ($options['jsapi'] ?? false) {
-            $urlParams['enablejsapi'] = 1;
-        }
-        if ($endTime = (int)($options['end'] ?? null)) {
-            $urlParams['end'] = $endTime;
-        }
-        if (isset($options['fullscreen']) && ($options['fullscreen'] !== null) && !$options['fullscreen']) {
-            $urlParams['fs'] = 0;
-        }
-        if ($options['lang'] ?? null) {
-            $urlParams['hl'] = $options['lang'];
         }
         if (isset($options['iv_load_policy']) && ($options['iv_load_policy'] !== null) && !$options['iv_load_policy']) {
             $urlParams['iv_load_policy'] = 3;
         }
         if ($options['listType'] ?? null) {
             $urlParams['listType'] = $options['listType'];
-        } elseif ($list) {
+        } elseif ($options['list'] ?? null) {
             $urlParams['listType'] = 'list';
-        }
-        if ($options['list'] ?? null) {
-            $urlParams['list'] = $options['list'];
-        } elseif ($list) {
-            $urlParams['list'] = $list;
-        }
-        if ($options['loop'] ?? false) {
-            $urlParams['loop'] = 1;
-        }
-        if ($options['modestbranding'] ?? false) {
-            $urlParams['modestbranding'] = 1;
-        }
-        if ($options['playsinline'] ?? false) {
-            $urlParams['playsinline'] = 1;
-        }
-        if (!($options['rel'] ?? null)) {
-            $urlParams['rel'] = 0;
         }
         if ($urlParams) {
             $result .= '?' . http_build_query($urlParams);
@@ -156,48 +116,84 @@ class YouTubeVideo extends HostedVideo
 
     public function getCoverURL(array $options = []): string
     {
-        $idParams = explode('@', $this->id);
-        $id = $idParams[0] ?? '';
-        $list = $idParams[1] ?? '';
-
         $result = '';
-        if ($id) {
-            $result = 'https://i.ytimg.com/vi/' . addslashes($id) . '/hqdefault.jpg';
+        if ($this->id) {
+            $result = 'https://i.ytimg.com/vi/' . addslashes($this->id) . '/hqdefault.jpg';
         }
         return $result;
     }
 
 
-    public static function getIdFromURL(string $url)
+    public static function spawnByURL(string $url): ?self
     {
-        $urlArr = parse_url($url);
-        $host = str_replace('www.', '', $urlArr['host'] ?? '');
-        $pathArr = explode('/', trim($urlArr['path'] ?? '', '/'));
-        $id = null;
-        $list = null;
-        if (stristr($host, 'youtube.') || stristr($host, 'youtube-nocookie.')) {
-            parse_str(trim($urlArr['query'] ?? '', ' ?'), $queryArr);
-            if ($queryArr['v'] ?? null) {
-                $id = $queryArr['v'];
-            } elseif (($pathArr[0] ?? '') == 'embed') {
-                $id = $pathArr[1];
+        $url = html_entity_decode($url);
+        $urlArr = HTTP::parseURL($url);
+        $urlArr['host'] = str_replace('www.', '', $urlArr['host'] ?? '');
+        $result = null;
+        if (stristr($urlArr['host'], 'youtube.') || stristr($urlArr['host'], 'youtube-nocookie.')) {
+            if ($urlArr['query']['v'] ?? null) {
+                $result = new static($urlArr['query']['v']);
+            } elseif (($urlArr['path'][0] ?? '') == 'embed') {
+                $result = new static($urlArr['path'][1]);
+            } elseif ($urlArr['query']['list'] ?? null) {
+                $result = new static('');
             }
-            if ($queryArr['list'] ?? null) {
-                $list = $queryArr['list'];
-            }
-        } elseif ($host == 'youtu.be') {
-            $id = $pathArr[0];
+        } elseif ($urlArr['host'] == 'youtu.be') {
+            $result = new static($urlArr['path'][0]);
         }
-        if ($id || $list) {
-            $result = '';
-            if ($id) {
-                $result .= $id;
+        if ($result) {
+            $result->originalURL = $url;
+            if (stristr($urlArr['host'], 'youtube-nocookie.')) {
+                $result->params['nocookies'] = true;
             }
-            if ($list) {
-                $result .= '@' . $list;
+            foreach ([
+                'list' => 'list',
+                'listType' => 'listType',
+                'hl' => 'lang',
+                'list' => 'list',
+            ] as $fromURN => $toURN) {
+                if ($urlArr['query'][$fromURN] ?? null) {
+                    $result->params[$toURN] = $urlArr['query'][$fromURN];
+                }
             }
-            return $result;
+            foreach ([
+                'start' => 'time',
+                'end' => 'end',
+            ] as $fromURN => $toURN) {
+                if ($value = (int)($urlArr['query'][$fromURN] ?? null)) {
+                    $result->params[$toURN] = $value;
+                }
+            }
+            foreach ([
+                'controls' => 'controls',
+                'fs' => 'fullscreen',
+                'autoplay' => 'autoplay',
+                'cc_load_policy' => 'cc',
+                'enablejsapi' => 'jsapi',
+                'loop' => 'loop',
+                'modestbranding' => 'modestbranding',
+                'playsinline' => 'playsinline',
+                'rel' => 'rel',
+            ] as $fromURN => $toURN) {
+                if (($urlArr['query'][$fromURN] ?? null) !== null) {
+                    $result->params[$toURN] = (bool)(int)$urlArr['query'][$fromURN];
+                }
+            }
+            foreach (['disablekb' => 'keyboard'] as $fromURN => $toURN) {
+                if (($urlArr['query'][$fromURN] ?? null) !== null) {
+                    $result->params[$toURN] = !(int)$urlArr['query'][$fromURN];
+                }
+            }
+            if ($urlArr['query']['playlist'] ?? null) {
+                $result->params['playlistIds'] = explode(',', $urlArr['query']['playlist']);
+            }
+            if (($urlArr['query']['color'] ?? null) == 'white') {
+                $result->params['color'] = '#ffffff';
+            }
+            if (($urlArr['query']['iv_load_policy'] ?? null) == 3) {
+                $result->params['iv_load_policy'] = false;
+            }
         }
-        return null;
+        return $result;
     }
 }

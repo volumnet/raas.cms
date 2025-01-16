@@ -4,6 +4,8 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
@@ -16,8 +18,12 @@ class HostedVideoTest extends BaseTest
      */
     public function testSpawnByURL()
     {
-        $result = YouTubeVideo::spawnByURL('https://www.youtube.com/watch?v=1Oe3pfnJCAI');
+        $result = HostedVideo::spawnByURL('https://www.youtube.com/watch?v=1Oe3pfnJCAI&aaa=bbb');
         $this->assertInstanceOf(YouTubeVideo::class, $result);
+        $this->assertEquals('https://www.youtube.com/watch?v=1Oe3pfnJCAI&aaa=bbb', $result->originalURL);
+        $this->assertEquals($result->getPageURL(), $result->pageURL);
+        $this->assertEquals($result->getIFrameURL(), $result->iframeURL);
+        $this->assertEquals($result->getCoverURL(), $result->coverURL);
         $this->assertEquals('1Oe3pfnJCAI', $result->id);
     }
 
@@ -26,7 +32,7 @@ class HostedVideoTest extends BaseTest
      */
     public function testSpawnByURLWithInvalidURL()
     {
-        $result = YouTubeVideo::spawnByURL('aaa');
+        $result = HostedVideo::spawnByURL('aaa');
         $this->assertNull($result);
     }
 }

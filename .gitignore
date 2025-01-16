@@ -10,3 +10,4 @@ files
 /cache
 /nbproject
 .phpintel
+/tests/.phpunit.result.cache
