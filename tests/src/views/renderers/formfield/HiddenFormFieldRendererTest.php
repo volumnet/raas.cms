@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Класс теста рендерера скрытого поля формы
- * @covers \RAAS\CMS\HiddenFormFieldRenderer
  */
+#[CoversClass(HiddenFormFieldRenderer::class)]
 class HiddenFormFieldRendererTest extends BaseTest
 {
     const HTML_VALID_MULTIPLE = true;

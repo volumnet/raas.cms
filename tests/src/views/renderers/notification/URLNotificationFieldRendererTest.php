@@ -4,17 +4,21 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
+
 /**
  * Класс теста рендерера URL-поля уведомления
- * @covers \RAAS\CMS\URLNotificationFieldRenderer
  */
+#[CoversClass(URLNotificationFieldRenderer::class)]
 class URLNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = URLNotificationFieldRenderer::class;
 
     const DATATYPE = 'url';
 
-    public function getValueHTMLDataProvider()
+    public static function getValueHTMLDataProvider()
     {
         return [
             [

@@ -4,17 +4,21 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
+
 /**
  * Класс теста рендерера HTML-поля уведомления
- * @covers \RAAS\CMS\HtmlAreaNotificationFieldRenderer
  */
+#[CoversClass(HtmlAreaNotificationFieldRenderer::class)]
 class HtmlAreaNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = HtmlAreaNotificationFieldRenderer::class;
 
     const DATATYPE = 'htmlarea';
 
-    public function getValueHTMLDataProvider()
+    public static function getValueHTMLDataProvider()
     {
         return [
             [

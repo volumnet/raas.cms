@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Класс теста антиспама
- * @covers \RAAS\CMS\Antispam
  */
+#[CoversClass(Antispam::class)]
 class AntispamTest extends BaseTest
 {
     public static $tables = [
@@ -17,34 +20,20 @@ class AntispamTest extends BaseTest
     ];
 
     /**
-     * Провайдер данных для метода testCheckUserAgent
-     * @return array <pre><code>array<[
-     *     string Текст для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkUserAgentDataProvider()
-    {
-        return [
-            [
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 YaBrowser/23.1.3.688 (beta) Yowser/2.5 Safari/537.36',
-                true,
-            ],
-            [
-                'YandexBot',
-                false,
-            ],
-            [
-                'curl/7.54.0',
-                false,
-            ],
-        ];
-    }
-
-    /**
      * Проверяет соответствие User-Agent
-     * @dataProvider checkUserAgentDataProvider
      */
+    #[TestWith([
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 YaBrowser/23.1.3.688 (beta) Yowser/2.5 Safari/537.36',
+        true,
+    ])]
+    #[TestWith([
+        'YandexBot',
+        false,
+    ])]
+    #[TestWith([
+        'curl/7.54.0',
+        false,
+    ])]
     public function testCheckUserAgent($text, $expected)
     {
         $antispam = new Antispam(
@@ -61,66 +50,19 @@ class AntispamTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testCheckEmail
-     * @return array <pre><code>array<[
-     *     string Текст для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkEmailDataProvider()
-    {
-        return [
-            [
-                'AlexVSurnin@GMail.com',
-                true,
-            ],
-            [
-                'VolumNet@Yandex.RU',
-                true,
-            ],
-            [
-                'b.FroUdiere@LHeRMiTe-aGRI.cOm',
-                false,
-            ],
-            [
-                'COrKs@rOGErs.COm',
-                false,
-            ],
-            [
-                'v.GIlL@ROGeRs.CoM',
-                false,
-            ],
-            [
-                'LAUrAgsAAD@gMaIL.Com',
-                false,
-            ],
-            [
-                'plAStICoPera@YAhoo.COM',
-                false,
-            ],
-            [
-                'RITA.patEL0627@gMaIL.coM',
-                false,
-            ],
-            [
-                'gUrdYWolOSz@rOgErs.com',
-                false,
-            ],
-            [
-                'SkLEcher@aol.coM',
-                false,
-            ],
-            [
-                'Ron@toMbALLCPAs.com',
-                false,
-            ],
-        ];
-    }
-
-    /**
      * Проверяет соответствие почтового адреса
-     * @dataProvider checkEmailDataProvider
      */
+    #[TestWith(['AlexVSurnin@GMail.com', true])]
+    #[TestWith(['VolumNet@Yandex.RU', true])]
+    #[TestWith(['b.FroUdiere@LHeRMiTe-aGRI.cOm', false])]
+    #[TestWith(['COrKs@rOGErs.COm', false])]
+    #[TestWith(['v.GIlL@ROGeRs.CoM', false])]
+    #[TestWith(['LAUrAgsAAD@gMaIL.Com', false])]
+    #[TestWith(['plAStICoPera@YAhoo.COM', false])]
+    #[TestWith(['RITA.patEL0627@gMaIL.coM', false])]
+    #[TestWith(['gUrdYWolOSz@rOgErs.com', false])]
+    #[TestWith(['SkLEcher@aol.coM', false])]
+    #[TestWith(['Ron@toMbALLCPAs.com', false])]
     public function testCheckEmail($text, $expected)
     {
         $antispam = new Antispam(
@@ -230,33 +172,12 @@ class AntispamTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testCheckTextForeignLinks
-     * @return array <pre><code>array<[
-     *     string Текст для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkTextForeignLinksDataProvider()
-    {
-        return [
-            [
-                'yandex.ru ... google.com ... xn----123-twefc7ajzghiad4a8a4n.xn--p1ai',
-                false,
-            ],
-            [
-                'aaa xn----123-twefc7ajzghiad4a8a4n.xn--p1ai bbb',
-                true,
-            ],
-        ];
-    }
-
-
-    /**
      * Проверка текстов на внешние ссылки
      * @param string $text Текст для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkTextForeignLinksDataProvider
      */
+    #[TestWith(['yandex.ru ... google.com ... xn----123-twefc7ajzghiad4a8a4n.xn--p1ai', false])]
+    #[TestWith(['aaa xn----123-twefc7ajzghiad4a8a4n.xn--p1ai bbb', true])]
     public function testCheckTextForeignLinks($text, $expected)
     {
         $antispam = new Antispam(
@@ -272,74 +193,6 @@ class AntispamTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testCheckForeignLinks
-     * @return array <pre><code>array<[
-     *     array<
-     *         string[] ключ массива => int|string|null
-     *     > Плоские данные для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkForeignLinksDataProvider()
-    {
-        return [
-            [
-                [],
-                true,
-            ],
-            [
-                ['full_name' => ' xn----123-twefc7ajzghiad4a8a4n.xn--p1ai'],
-                true,
-            ],
-            [
-                [
-                    'full_name' => 'yandex.ru ... google.com ... xn----123-twefc7ajzghiad4a8a4n.xn--p1ai'
-                ],
-                false,
-            ],
-            [
-                ['abc' => 'www.yandex.ru'],
-                false,
-            ],
-            [
-                ['social' => 'www.yandex.ru', 'web' => 'google.com'],
-                true,
-            ],
-            [
-                [
-                    'sayt' => 'yandex.ru ... google.com ... xn----123-twefc7ajzghiad4a8a4n.xn--p1ai'
-                ],
-                true,
-            ],
-            [
-                [
-                    '_description' => "Новая вспышка Covid-19, которую уже назвали самой серьезной после Уханя, охватила по меньшей мере 15 китайских провинций и городов. Власти проявляют все больше беспокойства по поводу уязвимости страны перед более заразным вариантом \"Дельта\".Вся информация о новом шиаме вируса доступна по ссылке :\r"
-                        . "https://www.hchp.ru/phorum/viewtopic.php?t=29576\r\n\r\n"
-                        . "За последние 10 дней дни зарегистрировано более 300 новых случаев заболевания, и каждый день выявляется все больше зараженных. Только 2 августа зарегистрированы 55 новых случаев, из них 40 в провинции Цзяньсу на востоке страны, остальные - в Пекине и провинциях Хуньань, Хубэй, Шандунь, Хэньань, Хайнань и Юньнань, сообщила Национальная комиссия по здравоохранению.",
-                ],
-                false,
-            ],
-            [
-                [
-                    '_description_' => 'Новая вспышка Covid-19, которую уже назвали самой серьезной после Уханя, охватила по меньшей мере 15 китайских провинций и городов. Власти проявляют все больше беспокойства по поводу уязвимости страны перед более заразным вариантом "Дельта".Вся информация о новом шиаме вируса доступна по ссылке :' . "\r"
-                        . "https://supermamki.ru/viewtopic.php?f=35&t=1578684\r"
-                        . "За последние 10 дней дни зарегистрировано более 300 новых случаев заболевания, и каждый день выявляется все больше зараженных. Только 2 августа зарегистрированы 55 новых случаев, из них 40 в провинции Цзяньсу на востоке страны, остальные - в Пекине и провинциях Хуньань, Хубэй, Шандунь, Хэньань, Хайнань и Юньнань, сообщила Национальная комиссия по здравоохранению.",
-                ],
-                false,
-            ],
-            [
-                ['email' => 'test@test.org'],
-                true,
-            ],
-            [
-                ['email' => 'test@tEST.org'],
-                false,
-            ],
-        ];
-    }
-
-
-    /**
      * Проверка данных на внешние ссылки
      * @param array $flatData <pre><code>array<[
      *     array<
@@ -348,8 +201,59 @@ class AntispamTest extends BaseTest
      *     bool Ожидаемый результат
      * ]></code></pre> Плоские данные для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkForeignLinksDataProvider
      */
+    #[TestWith([
+        [],
+        true,
+    ])]
+    #[TestWith([
+        ['full_name' => ' xn----123-twefc7ajzghiad4a8a4n.xn--p1ai'],
+        true,
+    ])]
+    #[TestWith([
+        [
+            'full_name' => 'yandex.ru ... google.com ... xn----123-twefc7ajzghiad4a8a4n.xn--p1ai'
+        ],
+        false,
+    ])]
+    #[TestWith([
+        ['abc' => 'www.yandex.ru'],
+        false,
+    ])]
+    #[TestWith([
+        ['social' => 'www.yandex.ru', 'web' => 'google.com'],
+        true,
+    ])]
+    #[TestWith([
+        [
+            'sayt' => 'yandex.ru ... google.com ... xn----123-twefc7ajzghiad4a8a4n.xn--p1ai'
+        ],
+        true,
+    ])]
+    #[TestWith([
+        [
+            '_description' => "Новая вспышка Covid-19, которую уже назвали самой серьезной после Уханя, охватила по меньшей мере 15 китайских провинций и городов. Власти проявляют все больше беспокойства по поводу уязвимости страны перед более заразным вариантом \"Дельта\".Вся информация о новом шиаме вируса доступна по ссылке :\r"
+                . "https://www.hchp.ru/phorum/viewtopic.php?t=29576\r\n\r\n"
+                . "За последние 10 дней дни зарегистрировано более 300 новых случаев заболевания, и каждый день выявляется все больше зараженных. Только 2 августа зарегистрированы 55 новых случаев, из них 40 в провинции Цзяньсу на востоке страны, остальные - в Пекине и провинциях Хуньань, Хубэй, Шандунь, Хэньань, Хайнань и Юньнань, сообщила Национальная комиссия по здравоохранению.",
+        ],
+        false,
+    ])]
+    #[TestWith([
+        [
+            '_description_' => 'Новая вспышка Covid-19, которую уже назвали самой серьезной после Уханя, охватила по меньшей мере 15 китайских провинций и городов. Власти проявляют все больше беспокойства по поводу уязвимости страны перед более заразным вариантом "Дельта".Вся информация о новом шиаме вируса доступна по ссылке :' . "\r"
+                . "https://supermamki.ru/viewtopic.php?f=35&t=1578684\r"
+                . "За последние 10 дней дни зарегистрировано более 300 новых случаев заболевания, и каждый день выявляется все больше зараженных. Только 2 августа зарегистрированы 55 новых случаев, из них 40 в провинции Цзяньсу на востоке страны, остальные - в Пекине и провинциях Хуньань, Хубэй, Шандунь, Хэньань, Хайнань и Юньнань, сообщила Национальная комиссия по здравоохранению.",
+        ],
+        false,
+    ])]
+    #[TestWith([
+        ['email' => 'test@test.org'],
+        true,
+    ])]
+    #[TestWith([
+        ['email' => 'test@tEST.org'],
+        false,
+    ])]
     public function testCheckForeignLinks($flatData, $expected)
     {
         $antispam = new Antispam(
@@ -394,27 +298,12 @@ class AntispamTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testCheckTextStopWords
-     * @return array <pre><code>array<[
-     *     string Текст для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkTextStopWordsDataProvider()
-    {
-        return [
-            ['Test User', true],
-            ['We offer you a greatest deal', false],
-        ];
-    }
-
-
-    /**
      * Проверка текста на стоп-слова
      * @param string $text Текст для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkTextStopWordsDataProvider
      */
+    #[TestWith(['Test User', true])]
+    #[TestWith(['We offer you a greatest deal', false])]
     public function testCheckTextStopWords($text, $expected)
     {
         $antispam = new Antispam(new Form(), 'ru');
@@ -422,37 +311,6 @@ class AntispamTest extends BaseTest
         $result = $antispam->checkTextStopWords($text);
 
         $this->assertEquals($expected, $result);
-    }
-
-
-    /**
-     * Провайдер данных для метода testCheckStopWords
-     * @return array <pre><code>array<[
-     *     array<
-     *         string[] ключ массива => int|string|null
-     *     > Плоские данные для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkStopWordsDataProvider()
-    {
-        return [
-            [
-                [],
-                true,
-            ],
-            [
-                ['full_name' => 'Test User'],
-                true,
-            ],
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'We offer you a greatest deal'
-                ],
-                false,
-            ],
-        ];
     }
 
 
@@ -465,8 +323,22 @@ class AntispamTest extends BaseTest
      *     bool Ожидаемый результат
      * ]></code></pre> Плоские данные для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkStopWordsDataProvider
      */
+    #[TestWith([
+        [],
+        true,
+    ])]
+    #[TestWith([
+        ['full_name' => 'Test User'],
+        true,
+    ])]
+    #[TestWith([
+        [
+            'full_name' => 'Test User',
+            '_description_' => 'We offer you a greatest deal'
+        ],
+        false,
+    ])]
     public function testCheckStopWords($flatData, $expected)
     {
         $antispam = new Antispam(new Form(), 'ru');
@@ -474,44 +346,6 @@ class AntispamTest extends BaseTest
         $result = $antispam->checkStopWords($flatData);
 
         $this->assertEquals($expected, $result);
-    }
-
-
-    /**
-     * Провайдер данных для метода testCheckInternational
-     * @return array <pre><code>array<[
-     *     array<
-     *         string[] ключ массива => int|string|null
-     *     > Плоские данные для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkInternationalDataProvider()
-    {
-        return [
-            [
-                [],
-                true,
-            ],
-            [
-                ['full_name' => 'Test User', '_description_' => 'Test question'],
-                true,
-            ],
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'www.yandex.ru'
-                ],
-                false,
-            ],
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'We offer you a greatest deal'
-                ],
-                false,
-            ],
-        ];
     }
 
 
@@ -524,8 +358,29 @@ class AntispamTest extends BaseTest
      *     bool Ожидаемый результат
      * ]></code></pre> Плоские данные для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkInternationalDataProvider
      */
+    #[TestWith([
+        [],
+        true,
+    ])]
+    #[TestWith([
+        ['full_name' => 'Test User', '_description_' => 'Test question'],
+        true,
+    ])]
+    #[TestWith([
+        [
+            'full_name' => 'Test User',
+            '_description_' => 'www.yandex.ru'
+        ],
+        false,
+    ])]
+    #[TestWith([
+        [
+            'full_name' => 'Test User',
+            '_description_' => 'We offer you a greatest deal'
+        ],
+        false,
+    ])]
     public function testCheckInternational($flatData, $expected)
     {
         $antispam = new Antispam(new Form(), 'ru');
@@ -550,101 +405,6 @@ class AntispamTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testCheckRussianData
-     * @return array <pre><code>array<[
-     *     array<
-     *         string[] ключ массива => int|string|null
-     *     > Плоские данные для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkRussianData()
-    {
-        return [
-            [
-                [],
-                true,
-            ],
-            [
-                ['full_name' => 'Test User', '_description_' => 'Test question'],
-                false,
-            ],
-            [
-                ['e_mail' => 'test@test.org'],
-                true,
-            ],
-            [
-                ['email' => 'test@test.org'],
-                true,
-            ],
-            [
-                [
-                    'full_name' => 'Тестовый пользователь',
-                    '_description_' => 'Test question'
-                ],
-                true,
-            ],
-            [
-                [
-                    'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
-                    'phone_call' => '+7 (999) 000-00-00',
-                    'agree' => '1'
-                ],
-                true,
-            ],
-            [
-                [
-                    'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
-                    'phone_call' => '+7 (999) 000-00-00',
-                    'agree' => '1',
-                    '_description_' => 'bbb',
-                ],
-                false,
-            ],
-            [
-                [
-                    'full_name' => 'KarinaOt',
-                    'phone' => '88471449351',
-                    'email' => '7hcm.chistyukhin2911x1su@gmail.com',
-                    '_description_' => 'Новая вспышка Covid-19, которую уже назвали самой серьезной после Уханя, охватила по меньшей мере 15 китайских провинций и городов. Власти проявляют все больше беспокойства по поводу уязвимости страны перед более заразным вариантом "Дельта".Вся информация о новом шиаме вируса доступна по ссылке :
-                    https://www.hchp.ru/phorum/viewtopic.php?t=29576
-
-                    За последние 10 дней дни зарегистрировано более 300 новых случаев заболевания, и каждый день выявляется все больше зараженных. Только 2 августа зарегистрированы 55 новых случаев, из них 40 в провинции Цзяньсу на востоке страны, остальные - в Пекине и провинциях Хуньань, Хубэй, Шандунь, Хэньань, Хайнань и Юньнань, сообщила Национальная комиссия по здравоохранению.',
-                    'city' => 'Москва',
-                ],
-                false,
-            ],
-            [
-                [
-                    'full_name' => 'MosesZipsy',
-                    'phone' => '85931689399',
-                    'email' => 'xgamer1def@gmail.com',
-                    '_description_' => 'Автоматизирую рабочие процессы на компьюторе, сайте, в интернете.
-                    Нет такого человека кому не нужны мои услуги.
-
-                    Примеры:
-                    - Наполнить интернет магазин 10 000 товаров, с картинками, ценами, описаниями, на 2-х языках (Я сделаю это за 1-2 дня, а ты ?).
-                    - Бот, который отслеживает изменение цены, к примеру как только цена станет ниже 10, отправит сообщение в telegram, что цена ниже 10 пунктов.
-                    - Обработать большие текстовые файлы информации от 1 GB. Составить регулярные выражения под эти базы.
-                    - Написать регистратор какого-то сайта. С активацие ссылки через почту или смс. С автоматическим разгадыванием Google рекаптчи.
-                    - Раскрутить интернет магазин, как минимум по Вашему региону.
-                    - Клонировать магазин конкурента.
-
-                    И много, много чего другого. Каждый заказ индивидуален. Напиши мне . . .
-
-                    Стоимость услуг от 50$
-                    Email: xgamer1cde@gmail.com
-                    Telegram: @eTraffik
-                    ',
-                    'city' => 'Biel',
-                ],
-                false,
-            ]
-        ];
-    }
-
-
-    /**
      * Проверка данных на содержание в полях кириллицы помимо латиницы
      * @param array $flatData <pre><code>array<[
      *     array<
@@ -653,8 +413,86 @@ class AntispamTest extends BaseTest
      *     bool Ожидаемый результат
      * ]></code></pre> Плоские данные для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkRussianData
      */
+    #[TestWith([
+        [],
+        true,
+    ])]
+    #[TestWith([
+        ['full_name' => 'Test User', '_description_' => 'Test question'],
+        false,
+    ])]
+    #[TestWith([
+        ['e_mail' => 'test@test.org'],
+        true,
+    ])]
+    #[TestWith([
+        ['email' => 'test@test.org'],
+        true,
+    ])]
+    #[TestWith([
+        [
+            'full_name' => 'Тестовый пользователь',
+            '_description_' => 'Test question'
+        ],
+        true,
+    ])]
+    #[TestWith([
+        [
+            'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
+            'phone_call' => '+7 (999) 000-00-00',
+            'agree' => '1'
+        ],
+        true,
+    ])]
+    #[TestWith([
+        [
+            'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
+            'phone_call' => '+7 (999) 000-00-00',
+            'agree' => '1',
+            '_description_' => 'bbb',
+        ],
+        false,
+    ])]
+    #[TestWith([
+        [
+            'full_name' => 'KarinaOt',
+            'phone' => '88471449351',
+            'email' => '7hcm.chistyukhin2911x1su@gmail.com',
+            '_description_' => 'Новая вспышка Covid-19, которую уже назвали самой серьезной после Уханя, охватила по меньшей мере 15 китайских провинций и городов. Власти проявляют все больше беспокойства по поводу уязвимости страны перед более заразным вариантом "Дельта".Вся информация о новом шиаме вируса доступна по ссылке :
+            https://www.hchp.ru/phorum/viewtopic.php?t=29576
+
+            За последние 10 дней дни зарегистрировано более 300 новых случаев заболевания, и каждый день выявляется все больше зараженных. Только 2 августа зарегистрированы 55 новых случаев, из них 40 в провинции Цзяньсу на востоке страны, остальные - в Пекине и провинциях Хуньань, Хубэй, Шандунь, Хэньань, Хайнань и Юньнань, сообщила Национальная комиссия по здравоохранению.',
+            'city' => 'Москва',
+        ],
+        false,
+    ])]
+    #[TestWith([
+        [
+            'full_name' => 'MosesZipsy',
+            'phone' => '85931689399',
+            'email' => 'xgamer1def@gmail.com',
+            '_description_' => 'Автоматизирую рабочие процессы на компьюторе, сайте, в интернете.
+            Нет такого человека кому не нужны мои услуги.
+
+            Примеры:
+            - Наполнить интернет магазин 10 000 товаров, с картинками, ценами, описаниями, на 2-х языках (Я сделаю это за 1-2 дня, а ты ?).
+            - Бот, который отслеживает изменение цены, к примеру как только цена станет ниже 10, отправит сообщение в telegram, что цена ниже 10 пунктов.
+            - Обработать большие текстовые файлы информации от 1 GB. Составить регулярные выражения под эти базы.
+            - Написать регистратор какого-то сайта. С активацие ссылки через почту или смс. С автоматическим разгадыванием Google рекаптчи.
+            - Раскрутить интернет магазин, как минимум по Вашему региону.
+            - Клонировать магазин конкурента.
+
+            И много, много чего другого. Каждый заказ индивидуален. Напиши мне . . .
+
+            Стоимость услуг от 50$
+            Email: xgamer1cde@gmail.com
+            Telegram: @eTraffik
+            ',
+            'city' => 'Biel',
+        ],
+        false,
+    ])]
     public function testCheckRussianData($flatData, $expected)
     {
         $antispam = new Antispam(new Form([
@@ -695,31 +533,16 @@ class AntispamTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testCheckIsRussianPhone
-     * @return array <pre><code>array<[
-     *     string Текст для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkIsRussianPhoneDataProvider()
-    {
-        return [
-            [' +7 999 000-00-00', true],
-            [' 1234567890', true],
-            [' 0123456789', false],
-            [' +1 999 000-00-00', false],
-            ['330-689-7666', false],
-            ['We offer you a greatest deal', true],
-        ];
-    }
-
-
-    /**
      * Проверка данных на соответствие российскому формату телефона
      * @param string $text Текст для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkIsRussianPhoneDataProvider
      */
+    #[TestWith([' +7 999 000-00-00', true])]
+    #[TestWith([' 1234567890', true])]
+    #[TestWith([' 0123456789', false])]
+    #[TestWith([' +1 999 000-00-00', false])]
+    #[TestWith(['330-689-7666', false])]
+    #[TestWith(['We offer you a greatest deal', true])]
     public function testCheckIsRussianPhone($text, $expected)
     {
         $antispam = new Antispam(new Form(), 'ru');
@@ -727,49 +550,6 @@ class AntispamTest extends BaseTest
         $result = $antispam->checkIsRussianPhone($text);
 
         $this->assertEquals($expected, $result);
-    }
-
-
-    /**
-     * Провайдер данных для метода testCheckRussianPhones
-     * @return array <pre><code>array<[
-     *     array<
-     *         string[] ключ массива => int|string|null
-     *     > Плоские данные для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkRussianPhonesDataProvider()
-    {
-        return [
-            [
-                [],
-                true,
-            ],
-            [
-                ['full_name' => 'Test User', 'phone' => '+1 999 000-00-00'],
-                false,
-            ],
-            [
-                ['full_name' => 'Test User', 'phone' => '+7 999 000-00-00'],
-                true,
-            ],
-            [
-                ['full_name' => 'Test User', 'cell' => '+1 999 000-00-00'],
-                false,
-            ],
-            [
-                ['full_name' => 'Test User', 'cell' => '+7 999 000-00-00'],
-                true,
-            ],
-            [
-                [
-                    'full_name' => 'Тестовый пользователь',
-                    '_description_' => 'Test question'
-                ],
-                true,
-            ],
-        ];
     }
 
 
@@ -782,8 +562,13 @@ class AntispamTest extends BaseTest
      *     bool Ожидаемый результат
      * ]></code></pre> Плоские данные для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkRussianPhonesDataProvider
      */
+    #[TestWith([[], true])]
+    #[TestWith([['full_name' => 'Test User', 'phone' => '+1 999 000-00-00'], false])]
+    #[TestWith([['full_name' => 'Test User', 'phone' => '+7 999 000-00-00'], true])]
+    #[TestWith([['full_name' => 'Test User', 'cell' => '+1 999 000-00-00'], false])]
+    #[TestWith([['full_name' => 'Test User', 'cell' => '+7 999 000-00-00'], true])]
+    #[TestWith([['full_name' => 'Тестовый пользователь', '_description_' => 'Test question'], true])]
     public function testCheckRussianPhones($flatData, $expected)
     {
         $antispam = new Antispam(new Form([
@@ -824,45 +609,17 @@ class AntispamTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testCheckRussianTextStopWords
-     * @return array <pre><code>array<[
-     *     string Текст для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkRussianTextStopWordsDataProvider()
-    {
-        return [
-            ['Test User', true],
-            ['Наша компания', false],
-            ['мы предлагаем', false],
-            [
-                'Накрутка инстаграм быстро - Накрутка Instagram, Накрутка инстаграм быстро',
-                false,
-            ],
-            [
-                '- Раскрутить интернет магазин, как минимум по Вашему региону.',
-                false,
-            ],
-            [
-                'Нет такого человека кому не нужны мои услуги.',
-                false,
-            ],
-            [
-                'Стоимость услуг от 50$',
-                false,
-            ]
-
-        ];
-    }
-
-
-    /**
      * Проверка данных на стоп-слова для русского языка
      * @param string $text Текст для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkRussianTextStopWordsDataProvider
      */
+    #[TestWith(['Test User', true])]
+    #[TestWith(['Наша компания', false])]
+    #[TestWith(['мы предлагаем', false])]
+    #[TestWith(['Накрутка инстаграм быстро - Накрутка Instagram, Накрутка инстаграм быстро', false])]
+    #[TestWith(['- Раскрутить интернет магазин, как минимум по Вашему региону.', false])]
+    #[TestWith(['Нет такого человека кому не нужны мои услуги.', false])]
+    #[TestWith(['Стоимость услуг от 50$', false])]
     public function testCheckRussianTextStopWords($text, $expected)
     {
         $antispam = new Antispam(new Form(), 'ru');
@@ -870,44 +627,6 @@ class AntispamTest extends BaseTest
         $result = $antispam->checkRussianTextStopWords($text);
 
         $this->assertEquals($expected, $result);
-    }
-
-
-    /**
-     * Провайдер данных для метода testCheckRussianStopWords
-     * @return array <pre><code>array<[
-     *     array<
-     *         string[] ключ массива => int|string|null
-     *     > Плоские данные для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkRussianStopWordsDataProvider()
-    {
-        return [
-            [
-                [],
-                true,
-            ],
-            [
-                ['full_name' => 'Test User'],
-                true,
-            ],
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'Наша компания занимается'
-                ],
-                false,
-            ],
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'Предлагаем вам'
-                ],
-                false,
-            ],
-        ];
     }
 
 
@@ -920,8 +639,11 @@ class AntispamTest extends BaseTest
      *     bool Ожидаемый результат
      * ]></code></pre> Плоские данные для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkRussianStopWordsDataProvider
      */
+    #[TestWith([[], true])]
+    #[TestWith([['full_name' => 'Test User'], true])]
+    #[TestWith([['full_name' => 'Test User', '_description_' => 'Наша компания занимается'], false])]
+    #[TestWith([['full_name' => 'Test User', '_description_' => 'Предлагаем вам'], false])]
     public function testCheckRussianStopWords($flatData, $expected)
     {
         $antispam = new Antispam(new Form(), 'ru');
@@ -929,51 +651,6 @@ class AntispamTest extends BaseTest
         $result = $antispam->checkRussianStopWords($flatData);
 
         $this->assertEquals($expected, $result);
-    }
-
-
-    /**
-     * Провайдер данных для метода testCheckRussian
-     * @return array <pre><code>array<[
-     *     array<
-     *         string[] ключ массива => int|string|null
-     *     > Плоские данные для проверки,
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkRussianDataProvider()
-    {
-        return [
-            [
-                [],
-                true,
-            ],
-            [
-                ['full_name' => 'Test User'],
-                false,
-            ],
-            [
-                [
-                    'full_name' => 'Тестовый пользователь',
-                    '_description_' => 'Наша компания занимается'
-                ],
-                false,
-            ],
-            [
-                [
-                    'full_name' => 'Тестовый пользователь',
-                    'phone' => '333-444-5555'
-                ],
-                false,
-            ],
-            [
-                [
-                    'full_name' => 'Тестовый пользователь',
-                    '_description_' => 'Проверка связи'
-                ],
-                true,
-            ],
-        ];
     }
 
 
@@ -986,8 +663,12 @@ class AntispamTest extends BaseTest
      *     bool Ожидаемый результат
      * ]></code></pre> Плоские данные для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkRussianDataProvider
      */
+    #[TestWith([[], true])]
+    #[TestWith([['full_name' => 'Test User'], false])]
+    #[TestWith([['full_name' => 'Тестовый пользователь', '_description_' => 'Наша компания занимается'], false])]
+    #[TestWith([['full_name' => 'Тестовый пользователь', 'phone' => '333-444-5555'], false])]
+    #[TestWith([['full_name' => 'Тестовый пользователь', '_description_' => 'Проверка связи'], true])]
     public function testCheckRussian($flatData, $expected)
     {
         $antispam = new Antispam(new Form([
@@ -1023,57 +704,6 @@ class AntispamTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testCheckRegional
-     * @return array <pre><code>array<[
-     *     array<
-     *         string[] ключ массива => int|string|null
-     *     > Плоские данные для проверки,
-     *     string Язык для проверки
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkRegionalDataProvider()
-    {
-        return [
-            [
-                [],
-                'ru',
-                true,
-            ],
-            [
-                [],
-                'lt',
-                true,
-            ],
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'Наша компания занимается'
-                ],
-                'ru',
-                false,
-            ],
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'Наша компания занимается'
-                ],
-                'lt',
-                true,
-            ],
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'Проверка связи'
-                ],
-                'ru',
-                true,
-            ],
-        ];
-    }
-
-
-    /**
      * Проверка данных для русского языка
      * @param array $flatData <pre><code>array<[
      *     array<
@@ -1083,8 +713,12 @@ class AntispamTest extends BaseTest
      * ]></code></pre> Плоские данные для проверки
      * @param string $lang Язык для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkRegionalDataProvider
      */
+    #[TestWith([[], 'ru', true])]
+    #[TestWith([[], 'lt', true])]
+    #[TestWith([['full_name' => 'Test User', '_description_' => 'Наша компания занимается'], 'ru', false])]
+    #[TestWith([['full_name' => 'Test User', '_description_' => 'Наша компания занимается'], 'lt', true])]
+    #[TestWith([['full_name' => 'Test User', '_description_' => 'Проверка связи'], 'ru', true])]
     public function testCheckRegional($flatData, $lang, $expected)
     {
         $antispam = new Antispam(new Form(), $lang);
@@ -1092,75 +726,6 @@ class AntispamTest extends BaseTest
         $result = $antispam->checkRegional($flatData);
 
         $this->assertEquals($expected, $result);
-    }
-
-
-    /**
-     * Провайдер данных для метода testCheck
-     * @return array <pre><code>array<[
-     *     array<
-     *         string[] ключ массива => int|string|null
-     *     > Плоские данные для проверки,
-     *     string Язык для проверки
-     *     bool Ожидаемый результат
-     * ]></code></pre>
-     */
-    public function checkDataProvider()
-    {
-        return [
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'Наша компания занимается'
-                ],
-                'ru',
-                false,
-            ],
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'Наша компания занимается'
-                ],
-                'lt',
-                true,
-            ],
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'www.yandex.ru'
-                ],
-                'lt',
-                false,
-            ],
-            [
-                [
-                    'full_name' => 'Test User',
-                    '_description_' => 'Проверка связи'
-                ],
-                'ru',
-                true,
-            ],
-            [
-                [
-                    'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
-                    'phone_call' => '+7 (999) 000-00-00',
-                    'agree' => '1'
-                ],
-                'ru',
-                true,
-            ],
-            [
-                [
-                    'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
-                    'full_name' => 'Тестовый пользователь',
-                    'phone' => '+7 999 000-00-00',
-                    'email' => 'Ron@toMbALLCPAs.com',
-                    'agree' => '1'
-                ],
-                'ru',
-                false,
-            ],
-        ];
     }
 
 
@@ -1174,8 +739,59 @@ class AntispamTest extends BaseTest
      * ]></code></pre> Плоские данные для проверки
      * @param string $lang Язык для проверки
      * @param bool $expected Ожидаемый результат
-     * @dataProvider checkDataProvider
      */
+    #[TestWith([
+        [
+            'full_name' => 'Test User',
+            '_description_' => 'Наша компания занимается'
+        ],
+        'ru',
+        false,
+    ])]
+    #[TestWith([
+        [
+            'full_name' => 'Test User',
+            '_description_' => 'Наша компания занимается'
+        ],
+        'lt',
+        true,
+    ])]
+    #[TestWith([
+        [
+            'full_name' => 'Test User',
+            '_description_' => 'www.yandex.ru'
+        ],
+        'lt',
+        false,
+    ])]
+    #[TestWith([
+        [
+            'full_name' => 'Test User',
+            '_description_' => 'Проверка связи'
+        ],
+        'ru',
+        true,
+    ])]
+    #[TestWith([
+        [
+            'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
+            'phone_call' => '+7 (999) 000-00-00',
+            'agree' => '1'
+        ],
+        'ru',
+        true,
+    ])]
+    #[TestWith([
+        [
+            'form_signature' => 'b39938cd9e014cd1245fb2cd8a5a0440',
+            'full_name' => 'Тестовый пользователь',
+            'phone' => '+7 999 000-00-00',
+            'email' => 'Ron@toMbALLCPAs.com',
+            'agree' => '1'
+        ],
+        'ru',
+        false,
+    ])]
     public function testCheck($flatData, $lang, $expected)
     {
         $antispam = new Antispam(new Form(), $lang);

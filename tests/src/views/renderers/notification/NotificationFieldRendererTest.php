@@ -4,10 +4,14 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
+
 /**
  * Класс теста рендерера поля уведомления
- * @covers \RAAS\CMS\NotificationFieldRenderer
  */
+#[CoversClass(NotificationFieldRenderer::class)]
 class NotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     public static $tables = [
@@ -24,36 +28,22 @@ class NotificationFieldRendererTest extends CustomNotificationFieldRendererTest
     ];
 
     /**
-     * Провайдер данных для метода testSpawn()
-     * @return array <pre>array<[
-     *     string Тип данных поля,
-     *     string Класс рендерера
-     * ]></pre>
-     */
-    public function spawnDataProvider()
-    {
-        return [
-            ['date', DateNotificationFieldRenderer::class],
-            ['datetime-local', DateTimeNotificationFieldRenderer::class],
-            ['color', ColorNotificationFieldRenderer::class],
-            ['email', EmailNotificationFieldRenderer::class],
-            ['tel', TelNotificationFieldRenderer::class],
-            ['url', URLNotificationFieldRenderer::class],
-            ['file', FileNotificationFieldRenderer::class],
-            ['image', ImageNotificationFieldRenderer::class],
-            ['htmlarea', HtmlAreaNotificationFieldRenderer::class],
-            ['material', MaterialNotificationFieldRenderer::class],
-            ['checkbox', CheckboxNotificationFieldRenderer::class],
-            ['text', NotificationFieldRenderer::class],
-        ];
-    }
-
-    /**
      * Тест рендера поля подписи - случай с текстовым полем
-     * @dataProvider spawnDataProvider
      * @param string $datatype Тип данных поля
      * @param string $rendererClassName Класс рендерера
      */
+    #[TestWith(['date', DateNotificationFieldRenderer::class])]
+    #[TestWith(['datetime-local', DateTimeNotificationFieldRenderer::class])]
+    #[TestWith(['color', ColorNotificationFieldRenderer::class])]
+    #[TestWith(['email', EmailNotificationFieldRenderer::class])]
+    #[TestWith(['tel', TelNotificationFieldRenderer::class])]
+    #[TestWith(['url', URLNotificationFieldRenderer::class])]
+    #[TestWith(['file', FileNotificationFieldRenderer::class])]
+    #[TestWith(['image', ImageNotificationFieldRenderer::class])]
+    #[TestWith(['htmlarea', HtmlAreaNotificationFieldRenderer::class])]
+    #[TestWith(['material', MaterialNotificationFieldRenderer::class])]
+    #[TestWith(['checkbox', CheckboxNotificationFieldRenderer::class])]
+    #[TestWith(['text', NotificationFieldRenderer::class])]
     public function testSpawn($datatype, $rendererClassName)
     {
         $field = new Form_Field(['datatype' => $datatype]);
@@ -71,7 +61,7 @@ class NotificationFieldRendererTest extends CustomNotificationFieldRendererTest
      *     bool Результат фильтрации
      * ]></code></pre>
      */
-    public function filterValueDataProvider()
+    public static function filterValueDataProvider()
     {
         static::installTables();
         return [
@@ -87,10 +77,10 @@ class NotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 
     /**
      * Тест фильтрации значений
-     * @dataProvider filterValueDataProvider
      * @param mixed $value Значение для фильтрации
      * @param bool $isFiltered Результат фильтрации
      */
+    #[DataProvider('filterValueDataProvider')]
     public function testFilterValue($value, $isFiltered)
     {
         $renderer = new NotificationFieldRenderer(new Form_Field([
@@ -112,7 +102,7 @@ class NotificationFieldRendererTest extends CustomNotificationFieldRendererTest
      *     string Искомый результат
      * ]></code></pre>
      */
-    public function getValueHTMLDataProvider()
+    public static function getValueHTMLDataProvider()
     {
         return [
             ['"тестовая строка"', false, false, '&quot;тестовая строка&quot;'],

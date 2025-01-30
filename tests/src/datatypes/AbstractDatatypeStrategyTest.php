@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Абстрактный класс проверки класса DatatypeStrategy
- * @covers \RAAS\CMS\AbstractDatatypeStrategy
  */
+#[CoversClass(AbstractDatatypeStrategy::class)]
 abstract class AbstractDatatypeStrategyTest extends BaseTest
 {
     /**
@@ -20,17 +23,17 @@ abstract class AbstractDatatypeStrategyTest extends BaseTest
      *     bool|string Ожидаемый результат (true или класс исключения)
      * ]></code></pre>
      */
-    public function validateDataProvider(): array
+    public static function validateDataProvider(): array
     {
         return [];
     }
 
     /**
      * Проверка метода validate()
-     * @dataProvider validateDataProvider
      * @param mixed $value Проверяемое значение
      * @param mixed $expected Ожидаемое значение
      */
+    #[DataProvider('validateDataProvider')]
     public function testValidate(array $fieldData, $value, $expected)
     {
         $field = new Field($fieldData);

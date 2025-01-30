@@ -13,10 +13,10 @@ use SOME\Text;
 use SOME\HTTP;
 use RAAS\AssetManager;
 
-$materialsSet = array_values(array_filter($Set, function ($x) {
+$materialsSet = array_values(array_filter((array)$Set, function ($x) {
     return $x instanceof Material;
 }));
-$pagesSet = array_values(array_filter($Set, function ($x) {
+$pagesSet = array_values(array_filter((array)$Set, function ($x) {
     return $x instanceof Page;
 }));
 if ($catalogMaterialType = Material_Type::importByURN('catalog')) {
@@ -34,7 +34,7 @@ if ($catalogMaterialType = Material_Type::importByURN('catalog')) {
         }
     ));
     $nonCatalogSet = array_values(array_filter(
-        $Set,
+        (array)$Set,
         function ($x) use ($catalogMaterialTypesIds) {
             return !($x instanceof Material) || !in_array($x->pid, $catalogMaterialTypesIds);
         }

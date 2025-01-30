@@ -4,6 +4,9 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use RAAS\Application;
 use RAAS\Controller_Frontend as RAASControllerFrontend;
@@ -11,8 +14,8 @@ use RAAS\User as RAASUser;
 
 /**
  * Тест класса Template
- * @covers RAAS\CMS\Template
  */
+#[CoversClass(Template::class)]
 class TemplateTest extends BaseTest
 {
     public static $tables = [

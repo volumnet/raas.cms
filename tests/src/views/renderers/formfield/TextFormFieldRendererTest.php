@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Класс теста рендерера текстового поля формы
- * @covers \RAAS\CMS\TextFormFieldRenderer
  */
+#[CoversClass(TextFormFieldRenderer::class)]
 class TextFormFieldRendererTest extends BaseTest
 {
     public static $tables = [

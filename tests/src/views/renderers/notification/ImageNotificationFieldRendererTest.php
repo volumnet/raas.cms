@@ -4,20 +4,23 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use RAAS\Attachment;
 use RAAS\User as RAASUser;
 
 /**
  * Класс теста рендерера поля изображения уведомления
- * @covers \RAAS\CMS\ImageNotificationFieldRenderer
  */
+#[CoversClass(ImageNotificationFieldRenderer::class)]
 class ImageNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = ImageNotificationFieldRenderer::class;
 
     const DATATYPE = 'image';
 
-    public function getValueHTMLDataProvider()
+    public static function getValueHTMLDataProvider()
     {
         static::installTables();
         $att = new Attachment([

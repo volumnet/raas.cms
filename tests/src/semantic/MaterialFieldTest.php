@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Тест класса Material_Field
- * @covers \RAAS\CMS\Material_Field
  */
+#[CoversClass(Material_Field::class)]
 class MaterialFieldTest extends BaseTest
 {
     public static $tables = [

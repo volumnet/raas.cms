@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Класс теста рендерера парольного поля формы
- * @covers \RAAS\CMS\PasswordFormFieldRenderer
  */
+#[CoversClass(PasswordFormFieldRenderer::class)]
 class PasswordFormFieldRendererTest extends BaseTest
 {
     public static $tables = [

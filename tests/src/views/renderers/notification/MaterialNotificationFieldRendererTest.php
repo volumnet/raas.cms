@@ -4,17 +4,21 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
+
 /**
  * Класс теста рендерера материального поля уведомления
- * @covers \RAAS\CMS\MaterialNotificationFieldRenderer
  */
+#[CoversClass(MaterialNotificationFieldRenderer::class)]
 class MaterialNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = MaterialNotificationFieldRenderer::class;
 
     const DATATYPE = 'material';
 
-    public function getValueHTMLDataProvider()
+    public static function getValueHTMLDataProvider()
     {
         static::installTables();
         $material = new Material([

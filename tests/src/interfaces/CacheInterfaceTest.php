@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Класс теста стандартного интерфейса кэширования
- * @covers \RAAS\CMS\CacheInterface
  */
+#[CoversClass(CacheInterface::class)]
 class CacheInterfaceTest extends BaseTest
 {
     public static $tables = [

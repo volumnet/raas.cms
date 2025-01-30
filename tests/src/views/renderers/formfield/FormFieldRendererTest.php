@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Класс теста рендерера поля формы
- * @covers \RAAS\CMS\FormFieldRenderer
  */
+#[CoversClass(FormFieldRenderer::class)]
 class FormFieldRendererTest extends BaseTest
 {
     public static $tables = [
@@ -18,44 +21,30 @@ class FormFieldRendererTest extends BaseTest
     ];
 
     /**
-     * Провайдер данных для метода testSpawn()
-     * @return array <pre>array<[
-     *     string Тип данных поля,
-     *     string Класс рендерера
-     * ]></pre>
-     */
-    public function spawnDataProvider()
-    {
-        return [
-            ['text', TextFormFieldRenderer::class],
-            ['color', TextFormFieldRenderer::class],
-            ['date', TextFormFieldRenderer::class],
-            ['datetime', TextFormFieldRenderer::class],
-            ['email', TextFormFieldRenderer::class],
-            ['number', NumberFormFieldRenderer::class],
-            ['range', NumberFormFieldRenderer::class],
-            ['tel', TextFormFieldRenderer::class],
-            ['time', TextFormFieldRenderer::class],
-            ['url', TextFormFieldRenderer::class],
-            ['month', TextFormFieldRenderer::class],
-            ['password', PasswordFormFieldRenderer::class],
-            ['checkbox', CheckboxFormFieldRenderer::class],
-            ['radio', RadioFormFieldRenderer::class],
-            ['file', FileFormFieldRenderer::class],
-            ['image', ImageFormFieldRenderer::class],
-            ['select', SelectFormFieldRenderer::class],
-            ['textarea', TextAreaFormFieldRenderer::class],
-            ['htmlarea', HtmlAreaFormFieldRenderer::class],
-            ['material', HiddenFormFieldRenderer::class],
-        ];
-    }
-
-    /**
      * Тест рендера поля подписи - случай с текстовым полем
-     * @dataProvider spawnDataProvider
      * @param string $datatype Тип данных поля
      * @param string $rendererClassName Класс рендерера
      */
+    #[TestWith(['text', TextFormFieldRenderer::class])]
+    #[TestWith(['color', TextFormFieldRenderer::class])]
+    #[TestWith(['date', TextFormFieldRenderer::class])]
+    #[TestWith(['datetime', TextFormFieldRenderer::class])]
+    #[TestWith(['email', TextFormFieldRenderer::class])]
+    #[TestWith(['number', NumberFormFieldRenderer::class])]
+    #[TestWith(['range', NumberFormFieldRenderer::class])]
+    #[TestWith(['tel', TextFormFieldRenderer::class])]
+    #[TestWith(['time', TextFormFieldRenderer::class])]
+    #[TestWith(['url', TextFormFieldRenderer::class])]
+    #[TestWith(['month', TextFormFieldRenderer::class])]
+    #[TestWith(['password', PasswordFormFieldRenderer::class])]
+    #[TestWith(['checkbox', CheckboxFormFieldRenderer::class])]
+    #[TestWith(['radio', RadioFormFieldRenderer::class])]
+    #[TestWith(['file', FileFormFieldRenderer::class])]
+    #[TestWith(['image', ImageFormFieldRenderer::class])]
+    #[TestWith(['select', SelectFormFieldRenderer::class])]
+    #[TestWith(['textarea', TextAreaFormFieldRenderer::class])]
+    #[TestWith(['htmlarea', HtmlAreaFormFieldRenderer::class])]
+    #[TestWith(['material', HiddenFormFieldRenderer::class])]
     public function testSpawn($datatype, $rendererClassName)
     {
         $field = new Form_Field(['datatype' => $datatype]);

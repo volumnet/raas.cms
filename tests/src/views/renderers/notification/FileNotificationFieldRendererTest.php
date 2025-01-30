@@ -4,20 +4,23 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use RAAS\Attachment;
 use RAAS\User as RAASUser;
 
 /**
  * Класс теста рендерера файлового поля уведомления
- * @covers \RAAS\CMS\FileNotificationFieldRenderer
  */
+#[CoversClass(FileNotificationFieldRenderer::class)]
 class FileNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = FileNotificationFieldRenderer::class;
 
     const DATATYPE = 'file';
 
-    public function getValueHTMLDataProvider()
+    public static function getValueHTMLDataProvider()
     {
         static::installTables();
         $att = new Attachment([

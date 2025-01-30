@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
@@ -11,6 +12,7 @@ use SOME\BaseTest;
 /**
  * Тест класса RuTubeVideo
  */
+#[CoversClass(RuTubeVideo::class)]
 class RuTubeVideoTest extends BaseTest
 {
     /**
@@ -97,7 +99,6 @@ class RuTubeVideoTest extends BaseTest
 
     /**
      * Тест метода getIFrameURL
-     * @dataProvider getIFrameURLDataProvider
      * @param array $options Опции
      * @param string $expected Ожидаемое значение
      */

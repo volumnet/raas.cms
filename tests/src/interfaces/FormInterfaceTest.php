@@ -4,14 +4,17 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use RAAS\Application;
 use RAAS\Controller_Frontend as RAASControllerFrontend;
 
 /**
  * Класс теста стандартного интерфейса формы
- * @covers \RAAS\CMS\FormInterface
  */
+#[CoversClass(FormInterface::class)]
 class FormInterfaceTest extends BaseTest
 {
     public static $tables = [
@@ -1579,7 +1582,7 @@ class FormInterfaceTest extends BaseTest
 
         $result = $interface->getEmbedded('//test/files/cms/common/image/nophoto.jpg');
 
-        $this->assertEquals('8ed4670b-nophoto.jpg', $result['name']);
+        $this->assertEquals('8ed4670b-nophoto.jpeg', $result['name']);
     }
 
 

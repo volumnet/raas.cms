@@ -4,13 +4,16 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use SOME\Pages;
 
 /**
  * Класс теста стандартного интерфейса материалов
- * @covers \RAAS\CMS\MaterialInterface
  */
+#[CoversClass(MaterialInterface::class)]
 class MaterialInterfaceTest extends BaseTest
 {
     public static $tables = [

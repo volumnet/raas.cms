@@ -4,6 +4,9 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use RAAS\Application;
 use RAAS\Field as RAASField;
@@ -12,8 +15,8 @@ use RAAS\User as RAASUser;
 
 /**
  * Тест класса EditBlockHTMLForm
- * @covers RAAS\CMS\EditBlockHTMLForm
  */
+#[CoversClass(EditBlockHTMLForm::class)]
 class EditBlockHTMLFormTest extends BaseTest
 {
     public static $tables = [

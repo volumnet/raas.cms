@@ -4,13 +4,16 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use SOME\Pages;
 
 /**
  * Класс теста стандартного интерфейса поиска
- * @covers \RAAS\CMS\SearchInterface
  */
+#[CoversClass(SearchInterface::class)]
 class SearchInterfaceTest extends BaseTest
 {
     public static $tables = [
@@ -476,7 +479,7 @@ class SearchInterfaceTest extends BaseTest
     public function testGetPagesMaterialsRatiosWithMock()
     {
         $interface = $this->getMockBuilder(SearchInterface::class)
-            ->setMethods([
+            ->onlyMethods([
                 'getSearchPagesIds',
                 'searchPagesByName',
                 'searchPagesByData',

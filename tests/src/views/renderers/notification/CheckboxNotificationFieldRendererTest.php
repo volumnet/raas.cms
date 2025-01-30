@@ -4,17 +4,21 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
+
 /**
  * Класс теста рендерера флажка уведомления
- * @covers \RAAS\CMS\CheckboxNotificationFieldRenderer
  */
+#[CoversClass(CheckboxNotificationFieldRenderer::class)]
 class CheckboxNotificationFieldRendererTest extends CustomNotificationFieldRendererTest
 {
     const CLASSNAME = CheckboxNotificationFieldRenderer::class;
 
     const DATATYPE = 'date';
 
-    public function getValueHTMLDataProvider()
+    public static function getValueHTMLDataProvider()
     {
         return [
             ['1', false, false, 'Да'],

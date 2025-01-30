@@ -936,6 +936,7 @@ class Webmaster
                         'vis' => 1,
                         'name' => View_Web::i()->_('PHONE'),
                         'urn' => 'phone',
+                        'required' => 1,
                         'datatype' => 'tel',
                         'show_in_table' => 1,
                     ],
@@ -1010,7 +1011,7 @@ class Webmaster
 
         NewsTemplate::spawn(View_Web::i()->_('NEWS'), 'news', $this)->create();
         $p404 = $this->create404();
-        $this->map = $this->createMap();
+        $map = $this->createMap();
         $sitemaps = $this->createSitemapsXml();
         $sitemaps = $this->createManifestJson();
         $sitemaps = $this->createFavicon();
@@ -1051,7 +1052,7 @@ class Webmaster
                 'name' => View_Web::i()->_('SITEMAP'),
                 'blockLocation' => 'content',
                 'fullMenu' => true,
-                'blockPage' => $this->map,
+                'blockPage' => $map,
                 'inheritBlock' => false,
             ],
             [

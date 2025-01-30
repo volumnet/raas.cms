@@ -110,6 +110,24 @@ abstract class SocialProfile
     protected $first_name;
 
     /**
+     * E-mail
+     * @var string
+     */
+    public $email;
+
+    /**
+     * Телефон
+     * @var string
+     */
+    public $phone;
+
+    /**
+     * Никнейм
+     * @var string
+     */
+    public $nickname;
+
+    /**
      * Привязка типов адресов (регулярные выражения) к константам соц. сетей
      * @var array<string[] => int>
      */

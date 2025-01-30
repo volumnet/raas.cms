@@ -4,13 +4,16 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use RAAS\CMS\Shop\Cart_Type;
 
 /**
  * Тест класса Form
- * @covers RAAS\CMS\Form
  */
+#[CoversClass(Form::class)]
 class FormTest extends BaseTest
 {
     public static $tables = [

@@ -892,7 +892,7 @@ class FormInterface extends BlockInterface
     public function getEmailSubject(Feedback $feedback, $forAdmin = true)
     {
         $host = $this->server['HTTP_HOST'] ?? '';
-        if (function_exists('idn_to_utf8')) {
+        if ($host && function_exists('idn_to_utf8')) {
             $host = idn_to_utf8($host);
         }
         $host = mb_strtoupper((string)$host);
@@ -928,7 +928,7 @@ class FormInterface extends BlockInterface
     public function getFromName()
     {
         $host = $this->server['HTTP_HOST'] ?? '';
-        if (function_exists('idn_to_utf8')) {
+        if ($host && function_exists('idn_to_utf8')) {
             $host = idn_to_utf8($host);
         }
         return View_Web::i()->_('ADMINISTRATION_OF_SITE') . ' ' . $host;

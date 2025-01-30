@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Класс теста рендерера произвольного поля уведомления
- * @covers \RAAS\CMS\CustomNotificationFieldRenderer
  */
+#[CoversClass(CustomNotificationFieldRenderer::class)]
 abstract class CustomNotificationFieldRendererTest extends BaseTest
 {
     /**
@@ -31,16 +34,16 @@ abstract class CustomNotificationFieldRendererTest extends BaseTest
      *     string Искомый результат
      * ]></code></pre>
      */
-    abstract public function getValueHTMLDataProvider();
+    abstract public static function getValueHTMLDataProvider();
 
     /**
      * Тест получения HTML для значения
-     * @dataProvider getValueHTMLDataProvider
      * @param mixed $value Значение
      * @param bool $admin Рендеринг для администратора
      * @param bool $sms Рендеринг для SMS
      * @param string $search Искомый результат
      */
+    #[DataProvider('getValueHTMLDataProvider')]
     public function testGetValueHTML($value, $admin, $sms, $search)
     {
         $classname = static::CLASSNAME;

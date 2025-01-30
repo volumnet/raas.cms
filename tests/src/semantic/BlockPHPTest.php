@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Тест класса Block_PHP
- * @covers RAAS\CMS\Block_PHP
  */
+#[CoversClass(Block_PHP::class)]
 class BlockPHPTest extends BaseTest
 {
     public static $tables = [

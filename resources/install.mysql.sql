@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access (
   KEY uid (uid),
   KEY gid (gid),
   INDEX priority (priority)
-) COMMENT='Site access';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Site access';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_blocks_cache (
   uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_blocks_cache (
   PRIMARY KEY (uid,block_id),
   KEY uid (uid),
   KEY block_id (block_id)
-) COMMENT='Blocks access cache';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Blocks access cache';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_materials_cache (
   uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_materials_cache (
   PRIMARY KEY (uid,material_id),
   KEY uid (uid),
   KEY material_id (material_id)
-) COMMENT='Materials access cache';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Materials access cache';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_pages_cache (
   uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_access_pages_cache (
   PRIMARY KEY (uid,page_id),
   KEY uid (uid),
   KEY page_id (page_id)
-) COMMENT='Pages access cache';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Pages access cache';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -73,21 +73,21 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks (
   KEY widget_id (widget_id),
   INDEX cache_interface_classname (cache_interface_classname),
   KEY cache_interface_id (cache_interface_id)
-) COMMENT='Blocks';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Blocks';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_form (
   id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
   form INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Form ID#',
   PRIMARY KEY (id),
   KEY form (form)
-) COMMENT='Form blocks';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Form blocks';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_html (
   id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
   description MEDIUMTEXT COMMENT 'Text',
   wysiwyg TINYINT(1) unsigned NOT NULL DEFAULT 1 COMMENT 'WYSIWYG editor on',
   PRIMARY KEY (id)
-) COMMENT='HTML blocks';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='HTML blocks';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_material (
   id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_material (
   legacy TINYINT(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Redirect legacy addresses',
   PRIMARY KEY (id),
   KEY material_type (material_type)
-) COMMENT='Material blocks';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Material blocks';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_material_filter (
   id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_material_filter (
   priority INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Priority',
   KEY id (id),
   KEY priority (priority)
-) COMMENT='Material blocks filtering';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Material blocks filtering';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_material_sort (
   id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_material_sort (
   priority INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Priority',
   KEY id (id),
   KEY priority (priority)
-) COMMENT='Material blocks sorting';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Material blocks sorting';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_menu (
   id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_menu (
   full_menu TINYINT(1) unsigned NOT NULL DEFAULT 1 COMMENT 'Full menu',
   PRIMARY KEY (id),
   KEY menu (menu)
-) COMMENT='Menu blocks';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Menu blocks';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_pages_assoc (
   block_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Block ID#',
@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_pages_assoc (
   KEY block_id (block_id),
   KEY page_id (page_id),
   INDEX priority (priority)
-) COMMENT='Blocks to pages associations';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Blocks to pages associations';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search (
   id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search (
   pages_var_name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Pages var name',
   rows_per_page TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Rows per page',
   PRIMARY KEY (id)
-) COMMENT='Search blocks';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Search blocks';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search_languages_assoc (
   id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search_languages_a
   PRIMARY KEY (id,`language`),
   KEY id (id),
   KEY `language` (`language`)
-) COMMENT='Search blocks languages';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Search blocks languages';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search_material_types_assoc (
   id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search_material_ty
   PRIMARY KEY (id,material_type),
   KEY id (id),
   KEY material_type (material_type)
-) COMMENT='Search blocks material types';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Search blocks material types';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search_pages_assoc (
   id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'ID#',
@@ -172,7 +172,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_blocks_search_pages_assoc
   PRIMARY KEY (id,page_id),
   KEY id (id),
   KEY page_id (page_id)
-) COMMENT='Search blocks pages';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Search blocks pages';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_data (
   pid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Parent ID#',
@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_data (
   KEY fid (fid),
   KEY fii (fii),
   INDEX value (value(32))
-) COMMENT='Fields data';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Fields data';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_dictionaries (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_dictionaries (
   KEY urn (urn),
   KEY orderby (orderby),
   INDEX priority (priority)
-) COMMENT='Dictionaries';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Dictionaries';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_feedback (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_feedback (
   KEY uid (uid),
   KEY pid (pid),
   KEY page_id (page_id)
-) COMMENT='Feedback';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Feedback';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -256,7 +256,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   INDEX postprocessor_classname (postprocessor_classname),
   KEY postprocessor_id (postprocessor_id),
   INDEX priority (priority)
-) COMMENT='Fields';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Fields';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fieldgroups (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -272,7 +272,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fieldgroups (
   KEY classname (classname),
   KEY classname_2 (classname,pid),
   INDEX priority (priority)
-) COMMENT='Field groups';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Field groups';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields_form_vis (
     fid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Field ID#',
@@ -281,7 +281,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields_form_vis (
     PRIMARY KEY (fid, pid),
     INDEX (fid),
     INDEX (pid)
-) COMMENT 'Fields form';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Fields form';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -297,7 +297,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_forms (
   PRIMARY KEY (id),
   KEY (interface_id),
   INDEX (urn)
-) COMMENT='Forms';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Forms';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_groups (
   id smallint(5) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -308,7 +308,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_groups (
   PRIMARY KEY (id),
   KEY pid (pid),
   INDEX (urn)
-) COMMENT='Groups of users';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Groups of users';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -349,7 +349,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials (
   INDEX priority (priority),
   INDEX cache_url_parent_id (cache_url_parent_id),
   INDEX cache_url (cache_url)
-) COMMENT='Translator exceptions';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Translator exceptions';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_pages_assoc (
   id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
@@ -357,7 +357,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_pages_assoc (
   PRIMARY KEY (id,pid),
   KEY id (id),
   KEY pid (pid)
-) COMMENT='Materials to pages associations';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Materials to pages associations';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_affected_pages_cache (
     material_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
@@ -366,7 +366,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_affected_pages_
     PRIMARY KEY (material_id, page_id),
     KEY (material_id),
     KEY (page_id)
-) COMMENT 'Materials affected pages';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Materials affected pages';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_votes (
     material_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material ID#',
@@ -377,7 +377,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_materials_votes (
     PRIMARY KEY (material_id, ip),
     KEY (material_id),
     KEY (ip)
-) COMMENT 'Materials votes log';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Materials votes log';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -387,7 +387,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types (
   global_type TINYINT(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Global materials',
   PRIMARY KEY (id),
   KEY urn (urn)
-) COMMENT='Material types';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Material types';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types_affected_pages_for_materials_cache (
     material_type_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
@@ -398,7 +398,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types_affected_p
     KEY (material_type_id),
     KEY (page_id),
     KEY (nat)
-) COMMENT 'Material types affected pages for materials';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Material types affected pages for materials';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types_affected_pages_for_self_cache (
     material_type_id INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Material type ID#',
@@ -409,7 +409,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_material_types_affected_p
     KEY (material_type_id),
     KEY (page_id),
     KEY (nat)
-) COMMENT 'Material types affected pages for self (for admin)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Material types affected pages for self (for admin)';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_menus (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -428,7 +428,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_menus (
   KEY page_id (page_id),
   INDEX (urn),
   INDEX priority (priority)
-) COMMENT='Menus';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Menus';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -477,7 +477,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_pages (
   KEY template (template),
   INDEX priority (priority),
   INDEX cache_url (cache_url)
-) COMMENT='Site pages';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Site pages';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_redirects (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -489,7 +489,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_redirects (
   PRIMARY KEY (id),
   KEY post_date (post_date),
   KEY url_from (url_from)
-) COMMENT='Redirects';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Redirects';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippets (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -502,7 +502,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippets (
   KEY pid (pid),
   KEY author_id (author_id),
   KEY editor_id (editor_id)
-) COMMENT='Snippets';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Snippets';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippet_folders (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -512,7 +512,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_snippet_folders (
   locked TINYINT(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Locked',
   PRIMARY KEY (id),
   KEY pid (pid)
-) COMMENT='Snippet folders';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Snippet folders';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -524,7 +524,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_templates (
   PRIMARY KEY (id),
   KEY author_id (author_id),
   KEY editor_id (editor_id)
-) COMMENT='Templates';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Templates';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID#',
@@ -543,7 +543,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users (
   KEY vis (vis),
   KEY `new` (`new`),
   KEY activated (activated)
-) COMMENT='Users';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Users';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users_groups_assoc (
   uid smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'User ID#',
@@ -551,7 +551,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users_groups_assoc (
   PRIMARY KEY (uid,gid),
   KEY uid (uid),
   KEY gid (gid)
-) COMMENT='Users-groups associations';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Users-groups associations';
 
 CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users_social (
   uid INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID#',
@@ -559,4 +559,4 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_users_social (
   PRIMARY KEY (uid,url),
   KEY uid (uid),
   KEY url (url)
-) COMMENT='Users social networks associations';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Users social networks associations';

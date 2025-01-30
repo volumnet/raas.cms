@@ -4,13 +4,16 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use RAAS\DatatypeStrategy;
 
 /**
  * Тест для класса MaterialDatatypeStrategy
- * @covers \RAAS\CMS\MaterialDatatypeStrategy
  */
+#[CoversClass(MaterialDatatypeStrategy::class)]
 class MaterialDatatypeStrategyTest extends BaseTest
 {
     public static $tables = [
@@ -38,7 +41,7 @@ class MaterialDatatypeStrategyTest extends BaseTest
      *     string? Ожидается исключение класса
      * ]></code></pre>
      */
-    public function exportDataProvider(): array
+    public static function exportDataProvider(): array
     {
         static::installTables();
         return [
@@ -57,11 +60,11 @@ class MaterialDatatypeStrategyTest extends BaseTest
 
     /**
      * Проверка метода export()
-     * @dataProvider exportDataProvider
      * @param mixed $inputValue Входное значение
      * @param mixed $expected Ожидаемое значение
      * @param string $expectedException Ожидается исключение класса
      */
+    #[DataProvider('exportDataProvider')]
     public function testExport($inputValue, $expected, $expectedException = null)
     {
         $strategy = DatatypeStrategy::spawn('cms.material');

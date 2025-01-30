@@ -4,6 +4,7 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
@@ -11,6 +12,7 @@ use SOME\BaseTest;
 /**
  * Тест класса VKVideo
  */
+#[CoversClass(VKVideo::class)]
 class VKVideoTest extends BaseTest
 {
     /**

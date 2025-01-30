@@ -16,6 +16,9 @@ namespace RAAS\CMS;
 use stdClass;
 use Exception;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use RAAS\Application;
 use RAAS\Attachment;
@@ -23,7 +26,6 @@ use RAAS\DatatypeStrategy;
 
 /**
  * Класс теста класса MediaDatatypeStrategyTrait
- * @covers \RAAS\CMS\MediaDatatypeStrategyTrait
  */
 class MediaDatatypeStrategyTraitTest extends BaseTest
 {
@@ -33,356 +35,7 @@ class MediaDatatypeStrategyTraitTest extends BaseTest
     ];
 
     /**
-     * Провайдер данных для метода testGetFilesData
-     * @return array <pre><code>[
-     *     array Данные поля,
-     *     [
-     *         'tmp_name' => string|array<string|рекурсивно> Пути к файлам,
-     *         'name' => string|array<string|рекурсивно> Названия файлов,
-     *         'type' => string|array<string|рекурсивно> MIME-типы файлов,
-     *     ] Данные файла(ов),
-     *     array $_POST-данные
-     *     bool Использовать мета-данные
-     *     bool Приводить результат к массиву
-     *     <ФАЙЛ>|array<string[]|int[] Ключ массива => <ФАЙЛ>|рекурсивно> Ожидаемое значение
-     * ]</code></pre>
-     */
-    public function getFilesDataDataProvider(): array
-    {
-        return [
-            [
-                ['urn' => 'test', 'multiple' => false],
-                ['test' => [
-                    'tmp_name' => 'tmpname',
-                    'name' => 'filename',
-                    'type' => 'filetype',
-                ]],
-                [
-                    'test@vis' => '1',
-                    'test@name' => 'Test',
-                    'test@description' => 'Description',
-                    'test@attachment' => '123',
-                ],
-                true,
-                true,
-                [[
-                    'tmp_name' => 'tmpname',
-                    'name' => 'filename',
-                    'type' => 'filetype',
-                    'meta' => [
-                        'vis' => true,
-                        'attachment' => '123',
-                        'name' => 'Test',
-                        'description' => 'Description',
-                    ],
-                ]],
-            ],
-            [
-                ['urn' => 'test', 'multiple' => false],
-                ['test' => [
-                    'tmp_name' => 'tmpname',
-                    'name' => 'filename',
-                    'type' => 'filetype',
-                ]],
-                [],
-                false,
-                false,
-                [
-                    'tmp_name' => 'tmpname',
-                    'name' => 'filename',
-                    'type' => 'filetype',
-                ],
-            ],
-            [
-                ['urn' => 'test', 'multiple' => false],
-                ['test' => [
-                    'tmp_name' => ['tmpname1', 'tmpname2', 'tmpname3'],
-                    'name' => ['filename1', 'filename2', 'filename3'],
-                    'type' => ['filetype1', 'filetype2', 'filetype3'],
-                ]],
-                [],
-                false,
-                false,
-                [
-                    [
-                        'tmp_name' => 'tmpname1',
-                        'name' => 'filename1',
-                        'type' => 'filetype1',
-                    ],
-                    [
-                        'tmp_name' => 'tmpname2',
-                        'name' => 'filename2',
-                        'type' => 'filetype2',
-                    ],
-                    [
-                        'tmp_name' => 'tmpname3',
-                        'name' => 'filename3',
-                        'type' => 'filetype3',
-                    ],
-                ],
-            ],
-            [
-                ['urn' => 'test', 'multiple' => false],
-                ['test' => [
-                    'tmp_name' => ['aaa' => ['bbb' => ['ccc' => 'tmpname']]],
-                    'name' => ['aaa' => ['bbb' => ['ccc' => 'filename']]],
-                    'type' => ['aaa' => ['bbb' => ['ccc' => 'filetype']]],
-                ]],
-                [],
-                false,
-                false,
-                [
-                    'aaa' => [
-                        'bbb' => [
-                            'ccc' => [
-                                'tmp_name' => 'tmpname',
-                                'name' => 'filename',
-                                'type' => 'filetype',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-
-            [
-                ['urn' => 'test', 'multiple' => false],
-                ['test' => [
-                    'tmp_name' => 'tmpname',
-                    'name' => 'filename',
-                    'type' => 'filetype',
-                ]],
-                [],
-                false,
-                true,
-                [[
-                    'tmp_name' => 'tmpname',
-                    'name' => 'filename',
-                    'type' => 'filetype',
-                ]],
-            ],
-            [
-                ['urn' => 'test', 'multiple' => false],
-                ['test' => [
-                    'tmp_name' => ['tmpname1', 'tmpname2', 'tmpname3'],
-                    'name' => ['filename1', 'filename2', 'filename3'],
-                    'type' => ['filetype1', 'filetype2', 'filetype3'],
-                ]],
-                [],
-                false,
-                true,
-                [
-                    [
-                        'tmp_name' => 'tmpname1',
-                        'name' => 'filename1',
-                        'type' => 'filetype1',
-                    ],
-                    [
-                        'tmp_name' => 'tmpname2',
-                        'name' => 'filename2',
-                        'type' => 'filetype2',
-                    ],
-                    [
-                        'tmp_name' => 'tmpname3',
-                        'name' => 'filename3',
-                        'type' => 'filetype3',
-                    ],
-                ],
-            ],
-            [
-                ['urn' => 'test', 'multiple' => false],
-                ['test' => [
-                    'tmp_name' => ['aaa' => ['bbb' => ['ccc' => 'tmpname']]],
-                    'name' => ['aaa' => ['bbb' => ['ccc' => 'filename']]],
-                    'type' => ['aaa' => ['bbb' => ['ccc' => 'filetype']]],
-                ]],
-                ['test' => ['aaa' => ['bbb' => ['ccc' => '123']]]],
-                false,
-                true,
-                [
-                    'aaa' => [
-                        'bbb' => [
-                            'ccc' => [
-                                'tmp_name' => 'tmpname',
-                                'name' => 'filename',
-                                'type' => 'filetype',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            [
-                ['urn' => 'test', 'multiple' => false],
-                ['test' => [
-                    'tmp_name' => ['aaa' => ['bbb' => ['ccc' => 'tmpname']]],
-                    'name' => ['aaa' => ['bbb' => ['ccc' => 'filename']]],
-                    'type' => ['aaa' => ['bbb' => ['ccc' => 'filetype']]],
-                ]],
-                [
-                    'test@vis' => ['aaa' => ['bbb' => ['ccc' => '1']]],
-                    'test@name' => ['aaa' => ['bbb' => ['ccc' => 'Test file']]],
-                    'test@description' => ['aaa' => ['bbb' => ['ccc' => 'Test file description']]],
-                    'test@attachment' => ['aaa' => ['bbb' => ['ccc' => '123']]],
-                ],
-                true,
-                true,
-                [
-                    'aaa' => [
-                        'bbb' => [
-                            'ccc' => [
-                                'tmp_name' => 'tmpname',
-                                'name' => 'filename',
-                                'type' => 'filetype',
-                                'meta' => [
-                                    'vis' => true,
-                                    'name' => 'Test file',
-                                    'description' => 'Test file description',
-                                    'attachment' => 123,
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            [
-                ['urn' => 'test', 'multiple' => true],
-                ['test' => [
-                    'tmp_name' => 'tmpname',
-                    'name' => 'filename',
-                    'type' => 'filetype',
-                ]],
-                [],
-                false,
-                false,
-                [
-                    'tmp_name' => 'tmpname',
-                    'name' => 'filename',
-                    'type' => 'filetype',
-                ],
-            ],
-            [
-                ['urn' => 'test', 'multiple' => true],
-                ['test' => [
-                    'tmp_name' => ['tmpname1', 'tmpname2', 'tmpname3'],
-                    'name' => ['filename1', 'filename2', 'filename3'],
-                    'type' => ['filetype1', 'filetype2', 'filetype3'],
-                ]],
-                [],
-                false,
-                false,
-                [
-                    [
-                        'tmp_name' => 'tmpname1',
-                        'name' => 'filename1',
-                        'type' => 'filetype1',
-                    ],
-                    [
-                        'tmp_name' => 'tmpname2',
-                        'name' => 'filename2',
-                        'type' => 'filetype2',
-                    ],
-                    [
-                        'tmp_name' => 'tmpname3',
-                        'name' => 'filename3',
-                        'type' => 'filetype3',
-                    ],
-                ],
-            ],
-            [
-                ['urn' => 'test', 'multiple' => true],
-                ['test' => [
-                    'tmp_name' => ['aaa' => ['bbb' => ['ccc' => 'tmpname']]],
-                    'name' => ['aaa' => ['bbb' => ['ccc' => 'filename']]],
-                    'type' => ['aaa' => ['bbb' => ['ccc' => 'filetype']]],
-                ]],
-                [],
-                false,
-                false,
-                [
-                    'aaa' => [
-                        'bbb' => [
-                            'ccc' => [
-                                'tmp_name' => 'tmpname',
-                                'name' => 'filename',
-                                'type' => 'filetype',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-
-            [
-                ['urn' => 'test', 'multiple' => true],
-                ['test' => [
-                    'tmp_name' => 'tmpname',
-                    'name' => 'filename',
-                    'type' => 'filetype',
-                ]],
-                [],
-                false,
-                true,
-                [[
-                    'tmp_name' => 'tmpname',
-                    'name' => 'filename',
-                    'type' => 'filetype',
-                ]],
-            ],
-            [
-                ['urn' => 'test', 'multiple' => true],
-                ['test' => [
-                    'tmp_name' => ['tmpname1', 'tmpname2', 'tmpname3'],
-                    'name' => ['filename1', 'filename2', 'filename3'],
-                    'type' => ['filetype1', 'filetype2', 'filetype3'],
-                ]],
-                [],
-                false,
-                true,
-                [
-                    [
-                        'tmp_name' => 'tmpname1',
-                        'name' => 'filename1',
-                        'type' => 'filetype1',
-                    ],
-                    [
-                        'tmp_name' => 'tmpname2',
-                        'name' => 'filename2',
-                        'type' => 'filetype2',
-                    ],
-                    [
-                        'tmp_name' => 'tmpname3',
-                        'name' => 'filename3',
-                        'type' => 'filetype3',
-                    ],
-                ],
-            ],
-            [
-                ['urn' => 'test', 'multiple' => true],
-                ['test' => [
-                    'tmp_name' => ['aaa' => ['bbb' => ['ccc' => 'tmpname']]],
-                    'name' => ['aaa' => ['bbb' => ['ccc' => 'filename']]],
-                    'type' => ['aaa' => ['bbb' => ['ccc' => 'filetype']]],
-                ]],
-                [],
-                false,
-                true,
-                [
-                    'aaa' => [
-                        'bbb' => [
-                            'ccc' => [
-                                'tmp_name' => 'tmpname',
-                                'name' => 'filename',
-                                'type' => 'filetype',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-    }
-
-
-    /**
      * Проверка метода getFilesData()
-     * @dataProvider getFilesDataDataProvider
      * @param array $fieldData Данные поля,
      * @param bool $forceArray Приводить результат к массиву
      * @param array $filesData <pre><code>[
@@ -394,6 +47,330 @@ class MediaDatatypeStrategyTraitTest extends BaseTest
      *     <ФАЙЛ>|array<string[]|int[] Ключ массива => <ФАЙЛ>|рекурсивно>
      * </code></pre> Ожидаемое значение
      */
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => false],
+        ['test' => [
+            'tmp_name' => 'tmpname',
+            'name' => 'filename',
+            'type' => 'filetype',
+        ]],
+        [
+            'test@vis' => '1',
+            'test@name' => 'Test',
+            'test@description' => 'Description',
+            'test@attachment' => '123',
+        ],
+        true,
+        true,
+        [[
+            'tmp_name' => 'tmpname',
+            'name' => 'filename',
+            'type' => 'filetype',
+            'meta' => [
+                'vis' => true,
+                'attachment' => '123',
+                'name' => 'Test',
+                'description' => 'Description',
+            ],
+        ]],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => false],
+        ['test' => [
+            'tmp_name' => 'tmpname',
+            'name' => 'filename',
+            'type' => 'filetype',
+        ]],
+        [],
+        false,
+        false,
+        [
+            'tmp_name' => 'tmpname',
+            'name' => 'filename',
+            'type' => 'filetype',
+        ],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => false],
+        ['test' => [
+            'tmp_name' => ['tmpname1', 'tmpname2', 'tmpname3'],
+            'name' => ['filename1', 'filename2', 'filename3'],
+            'type' => ['filetype1', 'filetype2', 'filetype3'],
+        ]],
+        [],
+        false,
+        false,
+        [
+            [
+                'tmp_name' => 'tmpname1',
+                'name' => 'filename1',
+                'type' => 'filetype1',
+            ],
+            [
+                'tmp_name' => 'tmpname2',
+                'name' => 'filename2',
+                'type' => 'filetype2',
+            ],
+            [
+                'tmp_name' => 'tmpname3',
+                'name' => 'filename3',
+                'type' => 'filetype3',
+            ],
+        ],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => false],
+        ['test' => [
+            'tmp_name' => ['aaa' => ['bbb' => ['ccc' => 'tmpname']]],
+            'name' => ['aaa' => ['bbb' => ['ccc' => 'filename']]],
+            'type' => ['aaa' => ['bbb' => ['ccc' => 'filetype']]],
+        ]],
+        [],
+        false,
+        false,
+        [
+            'aaa' => [
+                'bbb' => [
+                    'ccc' => [
+                        'tmp_name' => 'tmpname',
+                        'name' => 'filename',
+                        'type' => 'filetype',
+                    ],
+                ],
+            ],
+        ],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => false],
+        ['test' => [
+            'tmp_name' => 'tmpname',
+            'name' => 'filename',
+            'type' => 'filetype',
+        ]],
+        [],
+        false,
+        true,
+        [[
+            'tmp_name' => 'tmpname',
+            'name' => 'filename',
+            'type' => 'filetype',
+        ]],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => false],
+        ['test' => [
+            'tmp_name' => ['tmpname1', 'tmpname2', 'tmpname3'],
+            'name' => ['filename1', 'filename2', 'filename3'],
+            'type' => ['filetype1', 'filetype2', 'filetype3'],
+        ]],
+        [],
+        false,
+        true,
+        [
+            [
+                'tmp_name' => 'tmpname1',
+                'name' => 'filename1',
+                'type' => 'filetype1',
+            ],
+            [
+                'tmp_name' => 'tmpname2',
+                'name' => 'filename2',
+                'type' => 'filetype2',
+            ],
+            [
+                'tmp_name' => 'tmpname3',
+                'name' => 'filename3',
+                'type' => 'filetype3',
+            ],
+        ],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => false],
+        ['test' => [
+            'tmp_name' => ['aaa' => ['bbb' => ['ccc' => 'tmpname']]],
+            'name' => ['aaa' => ['bbb' => ['ccc' => 'filename']]],
+            'type' => ['aaa' => ['bbb' => ['ccc' => 'filetype']]],
+        ]],
+        ['test' => ['aaa' => ['bbb' => ['ccc' => '123']]]],
+        false,
+        true,
+        [
+            'aaa' => [
+                'bbb' => [
+                    'ccc' => [
+                        'tmp_name' => 'tmpname',
+                        'name' => 'filename',
+                        'type' => 'filetype',
+                    ],
+                ],
+            ],
+        ],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => false],
+        ['test' => [
+            'tmp_name' => ['aaa' => ['bbb' => ['ccc' => 'tmpname']]],
+            'name' => ['aaa' => ['bbb' => ['ccc' => 'filename']]],
+            'type' => ['aaa' => ['bbb' => ['ccc' => 'filetype']]],
+        ]],
+        [
+            'test@vis' => ['aaa' => ['bbb' => ['ccc' => '1']]],
+            'test@name' => ['aaa' => ['bbb' => ['ccc' => 'Test file']]],
+            'test@description' => ['aaa' => ['bbb' => ['ccc' => 'Test file description']]],
+            'test@attachment' => ['aaa' => ['bbb' => ['ccc' => '123']]],
+        ],
+        true,
+        true,
+        [
+            'aaa' => [
+                'bbb' => [
+                    'ccc' => [
+                        'tmp_name' => 'tmpname',
+                        'name' => 'filename',
+                        'type' => 'filetype',
+                        'meta' => [
+                            'vis' => true,
+                            'name' => 'Test file',
+                            'description' => 'Test file description',
+                            'attachment' => 123,
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => true],
+        ['test' => [
+            'tmp_name' => 'tmpname',
+            'name' => 'filename',
+            'type' => 'filetype',
+        ]],
+        [],
+        false,
+        false,
+        [
+            'tmp_name' => 'tmpname',
+            'name' => 'filename',
+            'type' => 'filetype',
+        ],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => true],
+        ['test' => [
+            'tmp_name' => ['tmpname1', 'tmpname2', 'tmpname3'],
+            'name' => ['filename1', 'filename2', 'filename3'],
+            'type' => ['filetype1', 'filetype2', 'filetype3'],
+        ]],
+        [],
+        false,
+        false,
+        [
+            [
+                'tmp_name' => 'tmpname1',
+                'name' => 'filename1',
+                'type' => 'filetype1',
+            ],
+            [
+                'tmp_name' => 'tmpname2',
+                'name' => 'filename2',
+                'type' => 'filetype2',
+            ],
+            [
+                'tmp_name' => 'tmpname3',
+                'name' => 'filename3',
+                'type' => 'filetype3',
+            ],
+        ],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => true],
+        ['test' => [
+            'tmp_name' => ['aaa' => ['bbb' => ['ccc' => 'tmpname']]],
+            'name' => ['aaa' => ['bbb' => ['ccc' => 'filename']]],
+            'type' => ['aaa' => ['bbb' => ['ccc' => 'filetype']]],
+        ]],
+        [],
+        false,
+        false,
+        [
+            'aaa' => [
+                'bbb' => [
+                    'ccc' => [
+                        'tmp_name' => 'tmpname',
+                        'name' => 'filename',
+                        'type' => 'filetype',
+                    ],
+                ],
+            ],
+        ],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => true],
+        ['test' => [
+            'tmp_name' => 'tmpname',
+            'name' => 'filename',
+            'type' => 'filetype',
+        ]],
+        [],
+        false,
+        true,
+        [[
+            'tmp_name' => 'tmpname',
+            'name' => 'filename',
+            'type' => 'filetype',
+        ]],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => true],
+        ['test' => [
+            'tmp_name' => ['tmpname1', 'tmpname2', 'tmpname3'],
+            'name' => ['filename1', 'filename2', 'filename3'],
+            'type' => ['filetype1', 'filetype2', 'filetype3'],
+        ]],
+        [],
+        false,
+        true,
+        [
+            [
+                'tmp_name' => 'tmpname1',
+                'name' => 'filename1',
+                'type' => 'filetype1',
+            ],
+            [
+                'tmp_name' => 'tmpname2',
+                'name' => 'filename2',
+                'type' => 'filetype2',
+            ],
+            [
+                'tmp_name' => 'tmpname3',
+                'name' => 'filename3',
+                'type' => 'filetype3',
+            ],
+        ],
+    ])]
+    #[TestWith([
+        ['urn' => 'test', 'multiple' => true],
+        ['test' => [
+            'tmp_name' => ['aaa' => ['bbb' => ['ccc' => 'tmpname']]],
+            'name' => ['aaa' => ['bbb' => ['ccc' => 'filename']]],
+            'type' => ['aaa' => ['bbb' => ['ccc' => 'filetype']]],
+        ]],
+        [],
+        false,
+        true,
+        [
+            'aaa' => [
+                'bbb' => [
+                    'ccc' => [
+                        'tmp_name' => 'tmpname',
+                        'name' => 'filename',
+                        'type' => 'filetype',
+                    ],
+                ],
+            ],
+        ],
+    ])]
     public function testGetFilesData(
         array $fieldData,
         array $filesData,
@@ -425,7 +402,7 @@ class MediaDatatypeStrategyTraitTest extends BaseTest
      *     string? Ожидается исключение класса
      * ]></code></pre>
      */
-    public function exportDataProvider(): array
+    public static function exportDataProvider(): array
     {
         static::installTables();
         return [
@@ -440,11 +417,11 @@ class MediaDatatypeStrategyTraitTest extends BaseTest
 
     /**
      * Проверка метода export()
-     * @dataProvider exportDataProvider
      * @param mixed $inputValue Входное значение
      * @param mixed $expected Ожидаемое значение
      * @param string $expectedException Ожидается исключение класса
      */
+    #[DataProvider('exportDataProvider')]
     public function testExport($inputValue, $expected, $expectedException = null)
     {
         $strategy = DatatypeStrategy::spawn('cms.file');

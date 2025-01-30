@@ -4,6 +4,9 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use RAAS\Application;
 use RAAS\Controller_Frontend as RAASControllerFrontend;
@@ -11,8 +14,8 @@ use RAAS\CMS\Shop\Module as ShopModule;
 
 /**
  * Тест класса Block
- * @covers RAAS\CMS\Block
  */
+#[CoversClass(Block::class)]
 class BlockTest extends BaseTest
 {
     public static $tables = [
@@ -337,32 +340,16 @@ class BlockTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testTuneWithMaterial
-     * @return array <pre><code>array<[
-     *     int Настройка vis_material блока
-     *     bool Используется ли материал
-     *     bool Ожидаемое значение
-     * ]></code></pre>
-     */
-    public function tuneWithMaterialDataProvider(): array
-    {
-        return [
-            [Block::BYMATERIAL_BOTH, false, true],
-            [Block::BYMATERIAL_BOTH, true, true],
-            [Block::BYMATERIAL_WITH, false, false],
-            [Block::BYMATERIAL_WITH, true, true],
-            [Block::BYMATERIAL_WITHOUT, false, true],
-            [Block::BYMATERIAL_WITHOUT, true, false],
-            [999, false, true],
-            [999, true, true],
-        ];
-    }
-
-
-    /**
      * Тест метода tuneWithMaterial()
-     * @dataProvider tuneWithMaterialDataProvider
      */
+    #[TestWith([Block::BYMATERIAL_BOTH, false, true])]
+    #[TestWith([Block::BYMATERIAL_BOTH, true, true])]
+    #[TestWith([Block::BYMATERIAL_WITH, false, false])]
+    #[TestWith([Block::BYMATERIAL_WITH, true, true])]
+    #[TestWith([Block::BYMATERIAL_WITHOUT, false, true])]
+    #[TestWith([Block::BYMATERIAL_WITHOUT, true, false])]
+    #[TestWith([999, false, true])]
+    #[TestWith([999, true, true])]
     public function testTuneWithMaterial(int $visMaterial, bool $withMaterial, bool $expected)
     {
         $page = new Page(7); // Новости
@@ -793,34 +780,17 @@ class BlockTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testGetCacheFile
-     * @return array <pre><code>array<[
-     *     int Тип кэша блока
-     *     string|null URL для получения имени файла
-     *     int|null Страница для получения имени файла,
-     *     string Имя относительно папки с кэшами
-     * ]></code></pre>
-     */
-    public function getCacheFileDataProvider()
-    {
-        return [
-            [Block::CACHE_NONE, null, null, ''],
-            [Block::CACHE_HTML, null, null, 'raas_cache_block12.php'],
-            [Block::CACHE_HTML, '/aaa/', null, 'raas_cache_block12.localhost%2Faaa%2F.php'], // Здесь localhost, т.к. берется из HTTP_HOST
-            [Block::CACHE_HTML, null, 4, 'raas_cache_block12.test%2Fservices%2Fservice1%2F.php'], // Здесь test, т.к. берется из страницы
-        ];
-    }
-
-
-    /**
      * Тест метода getCacheFile()
      * @param int $cacheType Тип кэша блока
-     * @param string|null $url URL для получения имени файла
-     * @param int|null $pageId Страница для получения имени файла,
-     * @param string $expected Имя относительно папки с кэшами
-     * @dataProvider getCacheFileDataProvider
+     * @param ?string $url URL для получения имени файла
+     * @param ?int $pageId Страница для получения имени файла,
+     * @param ?string $expected Имя относительно папки с кэшами
      */
-    public function testGetCacheFile(int $cacheType, string $url = null, int $pageId = null, string $expected)
+    #[TestWith([Block::CACHE_NONE, null, null, ''])]
+    #[TestWith([Block::CACHE_HTML, null, null, 'raas_cache_block12.php'])]
+    #[TestWith([Block::CACHE_HTML, '/aaa/', null, 'raas_cache_block12.localhost%2Faaa%2F.php'])] // Здесь localhost, т.к. берется из HTTP_HOST
+    #[TestWith([Block::CACHE_HTML, null, 4, 'raas_cache_block12.test%2Fservices%2Fservice1%2F.php'])] // Здесь test, т.к. берется из страницы
+    public function testGetCacheFile(int $cacheType, ?string $url = null, ?int $pageId = null, ?string $expected = null)
     {
         $block = Block::spawn(12); // Текстовый блок
         $block->cache_type = $cacheType;

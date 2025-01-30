@@ -68,14 +68,10 @@ $Page->headData .= ' <meta property="og:url" content="' . htmlspecialchars($host
           data-v-once
           data-vue-role="yandex-map"
           data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]"
-          data-v-bind_zoom="15"
-          data-v-on_map-was-initialized="$event.controls.remove('searchControl')"
-          data-v-bind_scroll-zoom="false"
         >
           <div
             data-vue-role="ymap-marker"
             data-v-bind_coords="[<?php echo (float)$lat?>, <?php echo (float)$lon?>]"
-            data-vue-marker-id="company"
             data-vue-hint-content="<?php echo htmlspecialchars(implode(', ', $mapAddressArr))?>"
           ></div>
         </div>

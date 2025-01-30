@@ -1,0 +1,383 @@
+@use 'sass:math';
+
+/// Базовая верстка
+$referenceLayout: 'xl' !default;
+
+/// Применять базовую верстку к:
+$relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
+
+/// Разбивает строку
+/// @param {string} $string Исходная строка
+/// @param {string} $separator Разделитель
+/// @return {list}
+@function str-split($string, $separator) {
+    $result: ();
+    $index : str-index($string, $separator);
+    @while $index != null {
+        $item: str-slice($string, 1, $index - 1);
+        $result: append($result, $item);
+        $string: str-slice($string, $index + 1);
+        $index : str-index($string, $separator);
+    }
+    $result: append($result, $string);
+
+    @return $result;
+}
+
+
+/// Соединяет строку из списка
+/// @param {list} $list Исходный список
+/// @param {string} $separator Разделитель
+/// @return {string}
+@function str-join($list, $separator) {
+    $result: '';
+    @for $i from 1 through length($list) {
+        @if ($i != 1) {
+            $result: $result + $separator;
+        }
+        $result: $result + nth($list, $i);
+    }
+    @return $result;
+}
+
+
+/// Парсит медиа-запрос
+/// @param {string} $viewport Медиа-запрос в формате vnMQL
+/// @return {string} Запрос для подстановки в @media
+@function parse-viewport($viewport) {
+    @if (str-slice($viewport, 1, 1) == '!') {
+        $newArg: parse-viewport(str-slice($viewport, 2));
+        @if ($newArg != null) {
+            @return 'not ' + $newArg;
+        }
+    } @else if (str-index($viewport, '|') != null) {
+        $args: str-split($viewport, '|');
+        $newArgs: ();
+        @each $arg in $args {
+            $newArg: parse-viewport($arg);
+            @if ($newArg != null) {
+                $newArgs: append($newArgs, $newArg);
+            }
+        }
+        $result: str-join($newArgs, ', ');
+        @return $result;
+    } @else if (str-index($viewport, '&') != null) {
+        $args: str-split($viewport, '&');
+        $newArgs: ();
+        @each $arg in $args {
+            $newArg: parse-viewport($arg);
+            @if ($newArg != null) {
+                $newArgs: append($newArgs, $newArg);
+            }
+        }
+        $result: str-join($newArgs, ' and ');
+        @return $result;
+    } @else if (str-index($viewport, '-') != null) {
+        $args: str-split($viewport, '-');
+        @return parse-viewport('>' + nth($args, 1) + '&<' + nth($args, 2));
+    } @else if (str-slice($viewport, 1, 1) == '<') {
+        $next: breakpoint-next(str-slice($viewport, 2));
+        $max: breakpoint-max($next);
+        @if $max {
+            @return '(max-width: ' + $max + ')';
+        } @else {
+            @return null;
+        }
+    } @else if (str-slice($viewport, 1, 1) == '>') {
+        $min: breakpoint-min(str-slice($viewport, 2));
+        @if $min {
+            @return '(min-width: ' + $min + ')';
+        } @else {
+            @return null;
+        }
+    } @else if ($viewport == 'p') {
+        @return 'print';
+    } @else if ($viewport == 's') {
+        @return 'screen';
+    } @else if (($viewport != null) and ($viewport != '')) {
+        @if (breakpoint-next($viewport) == null) {
+            @return parse-viewport('>' + $viewport);
+        } @else if ($viewport != '') {
+            @return parse-viewport('>' + $viewport + '&<' + $viewport);
+        }
+    } 
+
+    @return null;
+}
+
+/// Возвращает медиа-запросы для пропорционального уменьшения
+/// @param {number} $size Размер
+/// @param {mixed} $relativeTo Размер референсного контейнера в px, либо его название
+/// @param {list} $applyTo Применять пропорциональное уменьшение для:
+/// @param {number} $min Минимальный размер (в абсолютных величинах)
+/// @return {map}
+@function relSize($size, $applyTo: null, $relativeTo: null, $min: null)
+{
+    @if ($relativeTo == null) {
+        $relativeTo: $referenceLayout;
+    }
+    @if (type-of($relativeTo) == string) {
+        $relativeTo: map-get($container-max-widths, $relativeTo);
+    }
+    @if ($applyTo == null) {
+        $applyTo: $relativeApplyTo;
+    }
+    @if ($min) {
+        $applyTo: map-keys($grid-breakpoints);
+    }
+    $isPx: false;
+    @if (unit($size) == 'px') {
+        $isPx: true;
+    }
+    $result: ();
+    @each $key in $applyTo {
+        $width: map-get($container-max-widths, $key);
+        @if ($width and ($width > 0)) {
+            $newSize: math.div($width, $relativeTo) * $size;
+            @if ($isPx) {
+                $newSize: round($newSize)
+            }
+            @if ($min and (abs($min) > abs($newSize))) {
+                $newSize: $min;
+            }
+            @if (($key == 'sm') and not $min) {
+                $key: '<sm';
+            }
+            $result: map-merge($result, ($key: $newSize));
+        } @else if ($min) {
+            $result: map-merge($result, ($key: $min));
+        }
+    }
+    @return $result;
+}
+
+
+/// Возвращает clamp-функцию для пропорционального уменьшения
+/// Предполагает наличие переменной --container-width
+/// Поддерживаются только значения в пикселях
+/// @param {number} $size Размер
+/// @param {number} $min Минимальный размер (в абсолютных величинах)
+/// @return {map}
+@function relMin($size, $min: null, $relativeTo: null)
+{
+    $relativeTo: $referenceLayout;
+    @if (type-of($relativeTo) == string) {
+        $relativeTo: map-get($container-max-widths, $relativeTo);
+    }
+    @if ($min) {
+        @return calc(max(#{math.div($size, $relativeTo)} * var(--container-width), #{$min}));
+    } @else {
+        @return calc(#{math.div($size, $relativeTo)} * var(--container-width));
+    }
+}
+
+
+/// Между двумя или парсим
+/// @param {string} $from Медиа-запрос "от" в формате vnMQL
+/// @param {string} $to Медиа-запрос "до" в формате vnMQL
+/// @output Медиа-запрос
+@mixin viewport($from, $to: $from) {
+    $media: null;
+    @if ((str-index($from, '-') != null) or 
+        (str-index($from, '&') != null) or 
+        (str-index($from, '|') != null) or 
+        (str-index($from, '<') != null) or 
+        (str-index($from, '>') != null) or
+        (str-index($from, '*') != null) or 
+        (str-index($from, '!') != null) or
+        ($from == '') or
+        (not $to) or
+        ($to == $from)
+    ) {
+        $media: parse-viewport($from);
+    } @else {
+        $media: parse-viewport($from + '-' + $to);
+    }
+    @if ($media != null) {
+        @media #{$media} {
+            @content;
+        }
+    } @else {
+        @content;
+    }
+}
+
+
+/// Кроме интервала
+/// @param {string} $from Медиа-запрос "от" в формате vnMQL
+/// @param {string} $to Медиа-запрос "до" в формате vnMQL
+/// @output Медиа-запрос
+@mixin viewport-not($from, $to: $from) {
+    $prev: media-breakpoint-down($from);
+    @if ($prev != null) {
+        @include media-breakpoint-down($from) {
+            @content;
+        }
+    }
+    $next: breakpoint-next($to); 
+    @if ($next != null) {
+        @include media-breakpoint-up($to) {
+            @content;
+        }
+    }
+}
+
+
+/// Текущий и выше
+/// @param {string} $name Медиа-запрос в формате vnMQL
+/// @output Медиа-запрос
+/// @deprecated Предлагается использовать viewport('>' + $name)
+@mixin viewport-up($name) {
+    @include viewport('>' + $name) {
+        @content;
+    }
+}
+
+
+/// Текущий и ниже
+/// @param {string} $name Медиа-запрос в формате vnMQL
+/// @output Медиа-запрос
+/// @deprecated Предлагается использовать viewport('<' + $name)
+@mixin viewport-down($name) {
+    @include viewport('<' + $name) {
+        @content;
+    }
+}
+
+
+/// Печать + между двумя
+/// @param {string} $from Медиа-запрос "от" в формате vnMQL
+/// @param {string} $to Медиа-запрос "до" в формате vnMQL
+/// @output Медиа-запрос
+/// @deprecated Предлагается использовать viewport('p|' + $from + '-' + $to)
+@mixin print-or($from, $to: $from) {
+    @include viewport('p|' + $from + '-' + $to) {
+        @content;
+    }
+}
+
+
+/// Печать + кроме одного
+/// @param {string} $name Медиа-запрос в формате vnMQL
+/// @output Медиа-запрос
+/// @deprecated Предлагается использовать viewport('p|!' + $name)
+@mixin print-or-not($name) {
+    @media print {
+        @content;
+    }
+    @include viewport-not($name) {
+        @content;
+    }
+}
+
+
+/// Печать + текущий и выше
+/// @param {string} $name Медиа-запрос в формате vnMQL
+/// @output Медиа-запрос
+/// @deprecated Предлагается использовать viewport('p|>' + $name)
+@mixin print-or-up($name) {
+    @include viewport-up('p|>' + $name) {
+        @content;
+    }
+}
+
+
+/// Печать + текущий и ниже
+/// @param {string} $name Медиа-запрос в формате vnMQL
+/// @output Медиа-запрос
+/// @deprecated Предлагается использовать viewport('p|<' + $name)
+@mixin print-or-down($name) {
+    @include viewport('p|<' + $name) {
+        @content;
+    }
+}
+
+
+/// Свойство в зависимости от медиа-запроса
+/// @param {string} $propertyName Название свойства
+/// @param {map} $medias Значения в зависимости от экрана, 
+///     ключами являются медиа-запросы в формате vnMQL (либо '' или '*' - для всех), 
+///     значениями - соответствующие значения свойства, либо статическое значение
+/// @output Переменная в медиа-запросе
+@mixin viewport-prop($propertyName, $medias) {
+    @if (type-of($medias) == 'map') {
+        @each $key, $val in $medias {
+            @include viewport($key) {
+                #{$propertyName}: $val;
+            }
+        }
+    } @else {
+        #{$propertyName}: $medias;
+    }
+}
+
+
+/// Набор свойств в зависимости от медиа-запросов
+/// @param {map} $properties Карта для использования в viewport-prop (ключи - $propertyName, значения - $medias)
+/// @output Набор переменных в медиа-запросе
+@mixin viewport-props($properties) {
+    @each $propertyName, $medias in $properties {
+        @if (type-of($medias) != 'map') and (type-of($medias) != 'list') {
+            #{$propertyName}: $medias;
+        }
+    }
+    @each $propertyName, $medias in $properties {
+        @if (type-of($medias) == 'map') {
+            @each $key, $val in $medias {
+                @include viewport($key) {
+                    #{$propertyName}: $val;
+                }
+            }
+        }
+    }
+}
+
+
+/// Селекторы в зависимости от медиа-запроса
+/// @param {map} $selectors Карта, ключами которой являются селекторы (либо '' для всех), 
+/// значениями - медиа-запросы в формате vnMQL (либо '' или '*' - для всех)
+/// @output Сочетания селекторов и медиа-запросов
+@mixin viewport-selectors($selectors) {
+    @each $selector, $media in $selectors {
+        // @debug $key;
+        #{$selector} {
+            @include viewport($media) {
+                @content;
+            }
+        }
+    }
+}
+
+
+/// "Умная переменная"
+/// @param {string} $propertyName Название свойства
+/// @param {map} $modifiers Значения в зависимости от модификатора, 
+///     ключами являются модификаторы ('' для основного), значениями - либо статическое значение, 
+///     либо карта для использования в viewport-prop
+@mixin smartprop($propertyName, $modifiers) {
+    @each $modifierSelector, $modifier in $modifiers {
+        @if ($modifierSelector != '') {
+            #{$modifierSelector} {
+                @if (type-of($modifier) == 'map') {
+                    @include viewport-prop($propertyName, $modifier);
+                } @else {
+                    #{$propertyName}: $modifier;
+                }
+            }
+        } @else {
+            @if (type-of($modifier) == 'map') {
+                @include viewport-prop($propertyName, $modifier);
+            } @else {
+                #{$propertyName}: $modifier;
+            }
+        }
+    }
+}
+
+/// "Умные переменные"
+/// @param {map} $properties Карта для использования в smartprop (ключи - $propertyName, значения - $modifiers)
+@mixin smartprops($properties) {
+    @each $key, $val in $properties {
+        @include smartprop($key, $val);
+    }
+}

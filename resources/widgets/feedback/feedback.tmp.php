@@ -80,7 +80,7 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
                 $fieldRenderer = FormFieldRenderer::spawn(
                     $field,
                     $Block,
-                    $DATA[$fieldURN],
+                    $DATA[$fieldURN] ?? null,
                     $localError[$fieldURN] ?? ''
                 );
                 $fieldRenderData = [
@@ -88,6 +88,7 @@ if (($_POST['AJAX'] == (int)$Block->id) && ($Item instanceof Feedback)) {
                     'data-vue-type' => $field->datatype,
                     'data-v-bind_class' => "{ 'is-invalid': !!vm.errors." . $fieldURN . " }",
                     'data-v-bind_title' => "vm.errors." . $fieldURN . " || ''",
+                    'data-v-bind_model-value' => $DATA[$fieldURN] ?? null,
                 ];
                 if ($field->datatype == 'select') {
                     $fieldArrayFormatter = new FieldArrayFormatter($field);

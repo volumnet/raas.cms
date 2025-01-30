@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Класс теста абстрактного рекурсивного кэша с видимостью
- * @covers \RAAS\CMS\VisibleRecursiveCache
  */
+#[CoversClass(VisibleRecursiveCache::class)]
 class VisibleRecursiveCacheTest extends BaseTest
 {
     public static $tables = [

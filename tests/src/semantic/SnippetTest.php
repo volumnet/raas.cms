@@ -4,6 +4,9 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use RAAS\Application;
 use RAAS\Controller_Frontend as RAASControllerFrontend;
@@ -13,8 +16,8 @@ use RAAS\CMS\Shop\ImageLoader;
 
 /**
  * Тест класса Snippet
- * @covers RAAS\CMS\Snippet
  */
+#[CoversClass(Snippet::class)]
 class SnippetTest extends BaseTest
 {
     public static $tables = [

@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Тест класса FieldArrayFormatter
- * @covers RAAS\CMS\FieldArrayFormatter
  */
+#[CoversClass(FieldArrayFormatter::class)]
 class FieldArrayFormatterTest extends BaseTest
 {
     public static $tables = [];
@@ -27,7 +30,7 @@ class FieldArrayFormatterTest extends BaseTest
      *     array Ожидаемое значение
      * ></code></pre>
      */
-    public function formatDataProvider(): array
+    public static function formatDataProvider(): array
     {
         return [
             [
@@ -180,8 +183,8 @@ class FieldArrayFormatterTest extends BaseTest
      *     int[] Индекс атрибута => string URN поля
      * )> Массив дополнительных полей для отображения
      * @param array $expected Ожидаемое значение
-     * @dataProvider formatDataProvider
      */
+    #[DataProvider('formatDataProvider')]
     public function testFormat(array $fieldData, bool $getAdminFields, array $with, array $expected)
     {
         $field = new Field($fieldData);

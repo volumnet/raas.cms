@@ -4,13 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use SOME\File;
 use RAAS\Application;
 
 /**
  * Тест трейта ImportByURNTrait
- * @covers RAAS\CMS\ImportByURNTrait
  */
 class ImportByURNTraitTest extends BaseTest
 {

@@ -4,12 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 
 /**
  * Тест класса Block_Menu
- * @covers RAAS\CMS\Block_Menu
  */
+#[CoversClass(Block_Menu::class)]
 class BlockMenuTest extends BaseTest
 {
     public static $tables = [

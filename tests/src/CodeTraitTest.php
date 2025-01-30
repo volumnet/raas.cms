@@ -4,13 +4,15 @@
  */
 namespace RAAS\CMS;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use SOME\BaseTest;
 use SOME\File;
 use RAAS\Application;
 
 /**
  * Тест трейта CodeTrait
- * @covers RAAS\CMS\CodeTrait
  */
 class CodeTraitTest extends BaseTest
 {
@@ -39,73 +41,57 @@ class CodeTraitTest extends BaseTest
 
 
     /**
-     * Провайдер данных для метода testGetName
-     * @return array <pre><code>array<[
-     *     string Код,
-     *     string Установленный URN,
-     *     string Ожидаемое значение,
-     * ]></code></pre>
-     */
-    public function getNameDataProvider(): array
-    {
-        return [
-            [
-                (
-                    '<' . "?php\n" .
-                    "/**\n" .
-                    " * Тест\n" .
-                    " */\n"
-                ),
-                '',
-                'Тест',
-            ],
-            [
-                (
-                    '<' . "?php\n" .
-                    "/**\n" .
-                    " */\n"
-                ),
-                'test',
-                'test',
-            ],
-            [
-                (
-                    '<' . "?php\n" .
-                    "/**\n" .
-                    " * Тест\n" .
-                    " * @param array<[string]>\n" . // Некорректный тег PHPDoc для проверки исключения
-                    " */\n"
-                ),
-                'test1',
-                'test1',
-            ],
-            [
-                (
-                    '<' . "?php\n" .
-                    "return 'aaa';\n"
-                ),
-                'test',
-                'test',
-            ],
-            [
-                (
-                    '<' . "?php\n" .
-                    "return 'aaa';\n"
-                ),
-                '',
-                '',
-            ],
-        ];
-    }
-
-
-    /**
      * Тест получения свойства name
      * @param string $code Код
      * @param string $urn Установленный URN
      * @param string $expected Ожидаемое значение
-     * @dataProvider getNameDataProvider
      */
+    #[TestWith([
+        (
+            '<' . "?php\n" .
+            "/**\n" .
+            " * Тест\n" .
+            " */\n"
+        ),
+        '',
+        'Тест',
+    ])]
+    #[TestWith([
+        (
+            '<' . "?php\n" .
+            "/**\n" .
+            " */\n"
+        ),
+        'test',
+        'test',
+    ])]
+    #[TestWith([
+        (
+            '<' . "?php\n" .
+            "/**\n" .
+            " * Тест\n" .
+            " * @param array<[string]>\n" . // Некорректный тег PHPDoc для проверки исключения
+            " */\n"
+        ),
+        'test1',
+        'test1',
+    ])]
+    #[TestWith([
+        (
+            '<' . "?php\n" .
+            "return 'aaa';\n"
+        ),
+        'test',
+        'test',
+    ])]
+    #[TestWith([
+        (
+            '<' . "?php\n" .
+            "return 'aaa';\n"
+        ),
+        '',
+        '',
+    ])]
     public function testGetName(string $code, string $urn, string $expected)
     {
         $snippet = new Snippet(['description' => $code]);
