@@ -196,7 +196,7 @@ class PageRecursiveCache extends VisibleRecursiveCache
         // @codeCoverageIgnoreStart
         // 2024-04-09, AVS: Не могу проверить некорректное переименование - ошибка возникает только при конфликте прав
         // доступа, который в рамках теста воспроизвести затруднительно
-        if (!rename($tmpname, $filename)) {
+        if (!is_file($tmpname) || !rename($tmpname, $filename)) {
             return false;
         }
         // @codeCoverageIgnoreEnd

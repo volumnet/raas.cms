@@ -3,7 +3,7 @@
  */
 export default {
     methods: {
-        inputMask: function (options = {}) {
+        inputMask(options = {}) {
             let config = Object.assign({
                 showMaskOnFocus: false, 
                 showMaskOnHover: true,
@@ -31,20 +31,17 @@ export default {
                 // @todo Пока отключаем placeholder, т.к. глючит с InputMask
                 .inputmask('*{+}@*{+}.*{+}', config);
         },
-        applyInputMaskListeners: function () {
-            let self = this;
+        applyInputMaskListeners() {
             let $objects = $(this.$el).add($('input', this.$el));
+            // 2025-02-03, AVS: в десктопе inputmask заглушает стандартную прослушку input
             $objects
                 .filter('[data-inputmask-pattern]:not([data-inputmask-events])')
-                .on('input', function (e) {
-                    self.pValue = e.target.value;
-                    self.$emit('input', e.target.value);
-                }).on('change', function (e) {
-                    self.pValue = e.target.value;
-                    self.$emit('change', e.target.value);
-                }).on('keydown', function (e) {
-                    self.pValue = e.target.value;
-                    self.$emit('input', e.target.value);
+                .on('input', (e) => {
+                    this.$emit('input', this.pValue = e.target.value);
+                }).on('change', (e) => {
+                    this.$emit('change', this.pValue = e.target.value);
+                }).on('keydown', (e) => {
+                    this.$emit('input', this.pValue = e.target.value);
                 })
                 .attr('data-inputmask-events', 'true');
         },

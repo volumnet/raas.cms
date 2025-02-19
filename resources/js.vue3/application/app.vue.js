@@ -112,8 +112,8 @@ export default {
                     this.isScrollingNow = false;
                 }, this.isScrollingNowDelay);
             });
-        
-        $(this.$el).on('click', this.scrollToSelector, function () {
+
+        $(document).on('click', this.scrollToSelector, function () {
             let currentUrl = window.location.pathname + window.location.search;
             let url = $(this).attr('href').split('#')[0];
             // if (url) {
@@ -124,7 +124,7 @@ export default {
                 return false;
             }
         });
-        $(this.$el).on('show.bs.tab', 'a', function () {
+        $(document).on('show.bs.tab', 'a', function () {
             window.history.pushState({}, document.title, $(this).attr('href'));
         });
         $(window).on('load', () => {
@@ -399,7 +399,7 @@ export default {
             if (destY !== null) {
                 // console.log(destY)
                 let top = Math.max(0, Math.round(destY + this.getScrollOffset(destY)));
-                top = Math.min(top, $('body').outerHeight() - this.windowHeight - 1); // 2024-01-15, AVS: Поправка на нижний край документа
+                top = Math.min(top, $('.body').outerHeight() - this.windowHeight - 1); // 2024-01-15, AVS: Поправка на нижний край документа
                 let scrollToData = {
                     left: 0, 
                     top,
@@ -410,8 +410,19 @@ export default {
                 // 2023-09-19, AVS: сделаем защиту скроллинга
                 if (!instant) {
                     let protectScrolling = window.setInterval(() => {
-                        if (Math.abs(Math.round(this.scrollTop) - Math.round(scrollToData.top)) < this.scrollingInaccuracy) {
-                            console.log('stop scrolling to ' + scrollToData.top);
+                        const bodyOuterHeight = parseInt($('.body').outerHeight());
+                        if (
+                            (Math.abs(Math.round(this.scrollTop) - Math.round(scrollToData.top)) < this.scrollingInaccuracy) ||
+                            (
+                                (scrollToData.top > this.scrollTop) && 
+                                (this.scrollTop + this.windowHeight >= bodyOuterHeight - this.scrollingInaccuracy)
+                            ) || // Останавливаем, если движемся вниз, но достигли низа страницы
+                            (
+                                (scrollToData.top < this.scrollTop) && 
+                                (this.scrollTop <= this.scrollingInaccuracy)
+                            ) // Останавливаем, если движемся вверх, но достигли верха страницы
+                        ) {
+                            console.log('stop scrolling to ' + scrollToData.top + ' on ' + this.scrollTop);
                             window.clearInterval(protectScrolling);
                             protectScrolling = null;
                         } else if (!this.isScrollingNow) {

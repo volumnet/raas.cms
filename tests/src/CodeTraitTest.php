@@ -65,17 +65,18 @@ class CodeTraitTest extends BaseTest
         'test',
         'test',
     ])]
-    #[TestWith([
-        (
-            '<' . "?php\n" .
-            "/**\n" .
-            " * Тест\n" .
-            " * @param array<[string]>\n" . // Некорректный тег PHPDoc для проверки исключения
-            " */\n"
-        ),
-        'test1',
-        'test1',
-    ])]
+    // 2025-02-18, AVS: убрал, т.к. новый PHPDocumentor не выбрасывает исключение, а генерирует InvalidTag
+    // #[TestWith([
+    //     (
+    //         '<' . "?php\n" .
+    //         "/**\n" .
+    //         " * Тест\n" .
+    //         " * @param array<[string]>\n" . // Некорректный тег PHPDoc для проверки исключения
+    //         " */\n"
+    //     ),
+    //     'test1',
+    //     'test1',
+    // ])]
     #[TestWith([
         (
             '<' . "?php\n" .

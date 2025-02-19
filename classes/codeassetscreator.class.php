@@ -247,7 +247,7 @@ class CodeAssetsCreator
             if ($classData['hasVue'] ?? false) {
                 $text .= "import " . $this->toPascalCase($classData['name']) . " from './" . $classData['name'] . ".vue';\n";
             } else {
-                $text .= "import './" . $classData['name'] . ".vue';\n";
+                $text .= "import './" . $classData['name'] . ".scss';\n";
             }
         }
         $text .= "\n"
@@ -269,7 +269,11 @@ class CodeAssetsCreator
     {
         $files = [];
         foreach ($this->cssClasses as $cssClass => $cssClassData) {
-            $files[$cssClass . '.vue'] = $this->generateVue($cssClassData);
+            if ($classData['hasVue'] ?? false) {
+                $files[$cssClass . '.vue'] = $this->generateVue($cssClassData);
+            } else {
+                $files[$cssClass . '.scss'] = '';
+            }
         }
         if (!$files) {
             return;

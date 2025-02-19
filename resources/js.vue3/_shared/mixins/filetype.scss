@@ -1,3 +1,5 @@
+@use 'fa-mixin' as *;
+
 @mixin filetype() {
     &:before {
         @include fa('file-alt');

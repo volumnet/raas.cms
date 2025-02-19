@@ -33,6 +33,7 @@ export default {
         },
         applyInputMaskListeners() {
             let $objects = $(this.$el).add($('input', this.$el));
+            // 2025-02-03, AVS: в десктопе inputmask заглушает стандартную прослушку input
             $objects
                 .filter('[data-inputmask-pattern]:not([data-inputmask-events])')
                 .on('input', (e) => {

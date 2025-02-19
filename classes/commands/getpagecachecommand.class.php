@@ -191,6 +191,7 @@ class GetPageCacheCommand extends Command
         }
         $cachefile = $material->cacheFile;
         $mt = strtotime($material->last_modified);
+        $ft = 0;
         if (is_file($cachefile)) {
             $ft = filemtime($cachefile);
             if (($ft >= $mt) && !$forceUpdate) {

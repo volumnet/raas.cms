@@ -103,9 +103,9 @@ class CheckLostFilesCommand extends Command
                 $value = (array)json_decode($sqlRow['value'], true);
                 if ($value['attachment']) {
                     $lostData = [];
-                    if (!$this->attachments[$value['attachment']]) {
+                    if (!($this->attachments[$value['attachment']] ?? null)) {
                         $lostData['lost'] = true;
-                    } elseif ($this->lostAttachments[$value['attachment']]) {
+                    } elseif ($this->lostAttachments[$value['attachment']] ?? null) {
                         $lostData = array_merge($lostData, $this->lostAttachments[$value['attachment']]);
                     }
                     if ($lostData) {

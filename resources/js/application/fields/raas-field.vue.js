@@ -59,7 +59,7 @@ export default {
          *     level: Number Уровень вложенности
          * }></code></pre>
          */
-        getFlatSource: function (source, level = 0) {
+        getFlatSource(source, level = 0) {
             let result = [];
             for (let option of source) {
                 let newOption = {
@@ -80,7 +80,7 @@ export default {
     },
     computed: {
         resolvedAttrs() {
-            let result = this.$attrs;
+            let result = {...this.$attrs};
             if (typeof this.type == 'object') {
                 result.is = 'raas-field-' + (this.type.datatype || 'text');
                 if (this.type.datatype) {
@@ -171,11 +171,10 @@ export default {
          * @return {Object}
          */
         inputListeners() {
+            // Работает только в десктопе, в мобиле inputmask заглушает значение
             return Object.assign({}, this.$listeners, {
                 input: (event) => {
-                    // console.log('aaa')
-                    this.pValue = $(event.target).val();
-                    this.$emit('input', $(event.target).val())
+                    this.$emit('input', this.pValue = event.target.value)
                 },
             });
         },

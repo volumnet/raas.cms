@@ -13,7 +13,7 @@ export default {
             type: String,
         },
     },
-    data: function () {
+    data() {
         let lang = $('html').attr('lang') || 'ru';
         let result = {
             /**
@@ -36,6 +36,10 @@ export default {
              * @type {Boolean}
              */
             pickerIsShown: false,
+            /**
+             * Локальное значение
+             */
+            localValue: '',
         };
         switch (lang) {
             case 'en':
@@ -63,11 +67,12 @@ export default {
         }
         return result;
     },
-    mounted: function () {
+    mounted() {
+        this.localValue = this.getLocalValue(this.pValue);
         this.$el.classList.remove('form-control');
         this.checkDatePicker();
     },
-    updated: function () {
+    updated() {
         this.$el.classList.remove('form-control');
         this.checkDatePicker();
     },
@@ -75,7 +80,7 @@ export default {
         /**
          * Проверка/установка выбора даты
          */
-        checkDatePicker: function () {
+        checkDatePicker() {
             var self = this;
             if (!$(this.$refs.field).attr('data-datepicker-applied')) {
                 $(this.$refs.field).datepicker(this.datePickerParams)
@@ -85,50 +90,73 @@ export default {
                 // $(this.$refs.field).datepicker('refresh');
             }
         },
-        applyInputMaskListeners: function () {
-            let self = this;
+        applyInputMaskListeners() {
             let $objects = $(this.$el).add($('input', this.$el));
+            // 2025-02-03, AVS: в десктопе inputmask заглушает стандартную прослушку input
             $objects
                 .filter('[data-inputmask-pattern]:not([data-inputmask-events])')
-                .on('blur', function (e) {
+                .on('blur', (e) => {
                     if (e.target.value) {
-                        let value = window
-                            .moment(e.target.value, self.momentFormat, true)
-                            .format(self.canonicalMomentFormat);
-                        if (!/invalid/gi.test(value)) {
-                            self.pValue = value;
-                            self.$emit('input', value);
-                            self.$emit('change', value);
+                        const canonicalValue = this.getCanonicalValue(e.target.value);
+                        if (canonicalValue) {
+                            this.pValue = canonicalValue;
+                            this.$emit('input', this.pValue);
+                            this.$emit('change', this.pValue);
                         } else {
-                            self.pValue = self.value;
-                            self.$emit('input', self.value);
-                            self.$forceUpdate();
+                            this.pValue = this.value;
+                            this.localValue = this.getLocalValue(this.pValue);
+                            this.$emit('input', this.pValue);
+                            this.$forceUpdate();
                         }
                     } else {
-                        self.$emit('input', '');
+                        this.pValue = this.localValue = '';
+                        this.$emit('input', this.pValue);
                     }
                 })
-                .on('input', function (e) {
-                    if (e.target.value) {
-                        let value = window
-                            .moment(e.target.value, self.momentFormat, true)
-                            .format(self.canonicalMomentFormat);
-                        if (!/invalid/gi.test(value)) {
-                            self.pValue = value;
-                            self.$emit('input', value);
-                            self.$emit('change', value);
+                .on('input', (e) => {
+                    // 2025-02-03, AVS: костыль для inputmask - иногда при удалении текста делает значение __.__.____
+                    if (e.target.value && !!/\d/g.test(e.target.value)) {
+                        const canonicalValue = this.getCanonicalValue(e.target.value);
+                        if (canonicalValue) {
+                            this.pValue = canonicalValue;
+                            this.$emit('input', this.pValue);
+                            this.$emit('change', this.pValue);
                         }
                     } else {
-                        self.pValue = '';
-                        self.$emit('input', '');
+                        this.pValue = this.localValue = '';
+                        this.$emit('input', this.pValue);
                     }
                 })
                 .attr('data-inputmask-events', 'true');
         },
         /**
+         * Возвращает локальное значение из канонического
+         * @param  {String} canonicalValue Каноническое значение
+         * @return {String}
+         */
+        getLocalValue(canonicalValue) {
+            const m = window.moment(canonicalValue, this.canonicalMomentFormat);
+            if (m.isValid()) {
+                return m.format(this.momentFormat);
+            }
+            return '';
+        },
+        /**
+         * Возвращает каноническое значение из локального
+         * @param  {String} localValue Локальное значение
+         * @return {String}
+         */
+        getCanonicalValue(localValue) {
+            const m = window.moment(localValue, this.momentFormat, true);
+            if (m.isValid()) {
+                return m.format(this.canonicalMomentFormat);
+            }
+            return '';
+        },
+        /**
          * Отображает/скрывает календарь
          */
-        togglePicker: function () {
+        togglePicker() {
             if (this.pickerIsShown) {
                 $(this.$refs.field).datepicker('hide');
                 this.pickerIsShown = false;
@@ -140,19 +168,23 @@ export default {
 
     },
     computed: {
-        /**
-         * Локальное значение
-         * @return {String}
-         */
-        localValue: function () {
-            return window.moment(this.pValue, this.canonicalMomentFormat)
-                .format(this.momentFormat);
+        // 2025-02-03, AVS: заглушили inputListeners, т.к. в мобильном меняется pValue каждый раз при вводе и ломает дату
+        // 2025-02-03, AVS: Сделал таймаут, иначе выдает предыдущее значение
+        // Работает только в десктопе, в мобиле inputmask заглушает значение
+        inputListeners() {
+            return Object.assign({}, this.$listeners, {
+                input: (event) => {
+                    window.setTimeout(() => {
+                        this.localValue = event.target.value;
+                    })
+                },
+            });
         },
         /**
          * Параметры календаря
          * @return {Object}
          */
-        datePickerParams: function () {
+        datePickerParams() {
             return Object.assign(
                 {},
                 $.datepicker.regional[this.lang],
@@ -186,5 +218,14 @@ export default {
                 }
             );
         }
+    },
+    watch: {
+        pValue(newVal, oldVal) {
+            // 2023-11-14, AVS: заменил, чтобы не вызывалось при одинаковых значениях 
+            // (которые по какой-то причине обновились)
+            if (JSON.stringify(newVal) != JSON.stringify(oldVal)) {
+                this.localValue = this.getLocalValue(this.pValue);
+            }
+        },
     },
 };

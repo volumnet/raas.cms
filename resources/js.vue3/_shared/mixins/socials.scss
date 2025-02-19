@@ -1,4 +1,4 @@
-$social-colors: (
+$colors: (
     'vk': #45668e,
     'facebook': #3b5998,
     'odnoklassniki': #eb722e,
@@ -12,4 +12,17 @@ $social-colors: (
     'instagram': #c13584,
     'whatsapp': #65bc54,
     'telegram': #0088cc,
+) !default;
+
+$icons: (
+    'vk': 'vk',
+    'facebook': 'facebook',
+    'odnoklassniki': 'odnoklassniki',
+    'twitter': 'twitter',
+    'google-plus': 'google-plus',
+    'yandex': 'yandex',
+    'youtube': 'youtube',
+    'instagram': 'instagram',
+    'whatsapp': 'whatsapp',
+    'telegram': 'telegram-plane',
 ) !default;

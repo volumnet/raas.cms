@@ -1,3 +1,5 @@
+@use './viewports' as *;
+
 @mixin std-horizontal-menu {
     $self: &;
     display: block;
@@ -7,17 +9,17 @@
         margin: 0;
         padding: 0;
         &_main {
-            @include viewport-up('lg') {
+            @include viewport('>lg') {
                 align-items: center;
             }
-            @include viewport-down('md') {
+            @include viewport('<md') {
                 flex-direction: column;
             }
         }
         &_inner {
             transition: opacity .5s;
             background: white;
-            @include viewport-up('lg') {
+            @include viewport('>lg') {
                 flex-direction: column;
                 pointer-events: none;
                 z-index: 1;
@@ -28,12 +30,12 @@
                 display: block;
                 box-shadow: 5px 5px 10px rgba(black, .5);
             }
-            @include viewport-down('md') {
+            @include viewport('<md') {
                 display: none;
             }
         }
         &_level_1 {
-            @include viewport-up('lg') {
+            @include viewport('>lg') {
                 left: 0;
                 top: 100%;
             }
@@ -42,7 +44,7 @@
     &__item {
         display: block;
         position: relative;
-        @include viewport-up('lg') {
+        @include viewport('>lg') {
             &:hover, &:focus {
                 & > #{$self}__list {
                     opacity: 1;
@@ -52,7 +54,7 @@
             }
         }
         &_active, &_semiactive {
-            @include viewport-down('md') {
+            @include viewport('<md') {
                 & > #{$self}__list {
                     display: block;
                 }

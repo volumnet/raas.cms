@@ -96,8 +96,11 @@ trait CodeTrait
                     if (trim($result)) {
                         return trim($result);
                     }
+                // @codeCoverageIgnoreStart
+                // 2025-02-18, AVS: не могу проверить, т.к. новый PHPDocumentor не выбрасывает исключение, а генерирует InvalidTag
                 } catch (Exception $e) {
                 }
+                // @codeCoverageIgnoreEnd
             }
         }
         if ($this->urn) {

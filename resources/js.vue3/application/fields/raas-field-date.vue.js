@@ -36,6 +36,10 @@ export default {
              * @type {Boolean}
              */
             pickerIsShown: false,
+            /**
+             * Локальное значение
+             */
+            localValue: '',
         };
         switch (lang) {
             case 'en':
@@ -64,6 +68,7 @@ export default {
         return result;
     },
     mounted() {
+        this.localValue = this.getLocalValue(this.pValue);
         this.$el.classList.remove('form-control');
         this.checkDatePicker();
     },
@@ -87,36 +92,64 @@ export default {
         },
         applyInputMaskListeners() {
             let $objects = $(this.$el).add($('input', this.$el));
+            // 2025-02-03, AVS: в десктопе inputmask заглушает стандартную прослушку input
             $objects
                 .filter('[data-inputmask-pattern]:not([data-inputmask-events])')
                 .on('blur', (e) => {
                     if (e.target.value) {
-                        let value = window
-                            .moment(e.target.value, this.momentFormat, true)
-                            .format(this.canonicalMomentFormat);
-                        if (!/invalid/gi.test(value)) {
-                            this.$emit('update:modelValue', this.pValue = value);
+                        const canonicalValue = this.getCanonicalValue(e.target.value);
+                        if (canonicalValue) {
+                            this.pValue = canonicalValue;
+                            this.$emit('update:modelValue', this.pValue);
                         } else {
-                            this.$emit('update:modelValue', this.pValue = this.modelValue);
+                            this.pValue = this.value;
+                            this.localValue = this.getLocalValue(this.pValue);
+                            this.$emit('update:modelValue', this.pValue);
                             this.$forceUpdate();
                         }
                     } else {
-                        this.$emit('update:modelValue', this.pValue = '');
+                        this.pValue = this.localValue = '';
+                        this.$emit('update:modelValue', this.pValue);
                     }
                 })
                 .on('input', (e) => {
-                    if (e.target.value) {
-                        let value = window
-                            .moment(e.target.value, this.momentFormat, true)
-                            .format(this.canonicalMomentFormat);
-                        if (!/invalid/gi.test(value)) {
-                            this.$emit('update:modelValue', this.pValue = value);
+                    // 2025-02-03, AVS: костыль для inputmask - иногда при удалении текста делает значение __.__.____
+                    if (e.target.value && !!/\d/g.test(e.target.value)) {
+                        const canonicalValue = this.getCanonicalValue(e.target.value);
+                        if (canonicalValue) {
+                            this.pValue = canonicalValue;
+                            this.$emit('update:modelValue', this.pValue);
                         }
                     } else {
-                        this.$emit('update:modelValue', this.pValue = '');
+                        this.pValue = this.localValue = '';
+                        this.$emit('update:modelValue', this.pValue);
                     }
                 })
                 .attr('data-inputmask-events', 'true');
+        },
+        /**
+         * Возвращает локальное значение из канонического
+         * @param  {String} canonicalValue Каноническое значение
+         * @return {String}
+         */
+        getLocalValue(canonicalValue) {
+            const m = window.moment(canonicalValue, this.canonicalMomentFormat);
+            if (m.isValid()) {
+                return m.format(this.momentFormat);
+            }
+            return '';
+        },
+        /**
+         * Возвращает каноническое значение из локального
+         * @param  {String} localValue Локальное значение
+         * @return {String}
+         */
+        getCanonicalValue(localValue) {
+            const m = window.moment(localValue, this.momentFormat, true);
+            if (m.isValid()) {
+                return m.format(this.canonicalMomentFormat);
+            }
+            return '';
         },
         /**
          * Отображает/скрывает календарь
@@ -133,14 +166,6 @@ export default {
 
     },
     computed: {
-        /**
-         * Локальное значение
-         * @return {String}
-         */
-        localValue() {
-            return window.moment(this.pValue, this.canonicalMomentFormat)
-                .format(this.momentFormat);
-        },
         /**
          * Параметры календаря
          * @return {Object}
@@ -176,5 +201,14 @@ export default {
                 }
             );
         }
+    },
+    watch: {
+        pValue(newVal, oldVal) {
+            // 2023-11-14, AVS: заменил, чтобы не вызывалось при одинаковых значениях 
+            // (которые по какой-то причине обновились)
+            if (JSON.stringify(newVal) != JSON.stringify(oldVal)) {
+                this.localValue = this.getLocalValue(this.pValue);
+            }
+        },
     },
 };

@@ -1,12 +1,23 @@
+@use 'sass:map';
+
+$fa-font-path: '/fonts' !default;
+
+@use '@fortawesome/fontawesome-free/scss/functions' as *;
+@import '@fortawesome/fontawesome-free/scss/variables';
+
 @mixin fa($icon) {
     font-weight: bold;
-    @if (map-get($fa-icons, $icon)) {
+    $faIcon: map.get($fa-icons, $icon);
+    @if ($faIcon) {
         font-family: $fa-style-family; 
-        content: fa-content(map-get($fa-icons, $icon));
-    } @else if (map-get($fa-brand-icons, $icon)) {
-        font-family: 'Font Awesome 6 Brands'; 
-        content: fa-content(map-get($fa-brand-icons, $icon));
+        content: fa-content($faIcon);
     } @else {
-        @error($icon + ' not found');
+        $faIcon: map.get($fa-brand-icons, $icon);
+        @if ($faIcon) {
+            font-family: 'Font Awesome 6 Brands'; 
+            content: fa-content($faIcon);
+        } @else {
+            @error($icon + ' not found');
+        }
     }
 }
