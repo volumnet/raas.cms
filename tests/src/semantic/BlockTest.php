@@ -309,6 +309,19 @@ class BlockTest extends BaseTest
 
 
     /**
+     * Тест получения элемента additionalParams
+     */
+    public function testGetAdditionalParam()
+    {
+        $block = Block::spawn(34); // Каталог продукции
+
+        $result = $block->metaTemplates;
+
+        $this->assertEquals('template', $result);
+    }
+
+
+    /**
      * Тест метода commit()
      */
     public function testCommit()

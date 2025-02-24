@@ -216,7 +216,17 @@ abstract class Block extends SOME
                 return $temp;
                 break;
             default:
-                return parent::__get($var);
+                $result = parent::__get($var);
+                // 2025-20-02, AVS: указываем здесь, чтобы обращение к additionalParams -> params
+                // не перехватывало обращение к meta и не получался бесконечный цикл
+                // Для этой же цели блокируем $var == 'params'
+                if (($result === null) && ($var != 'params')) {
+                    $additionalParams = $this->__get('additionalParams');
+                    if (isset($additionalParams[$var])) {
+                        $result = $additionalParams[$var];
+                    }
+                }
+                return $result;
                 break;
         }
     }

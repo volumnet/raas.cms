@@ -67,6 +67,8 @@
 <script>
 import WithContextMenu from 'kernel/_blocks/menu-context/with-context-menu.mixin.vue.js';
 
+const GRID = 10;
+
 export default {
     mixins: [WithContextMenu],
     props: {
@@ -99,7 +101,7 @@ export default {
         if (this.editMode) {
             const commonConfig = {
                 delay: 125,
-                grid: [10, 10],
+                grid: [GRID, GRID],
                 containment: 'parent',
             };
             $(this.$el).resizable({
@@ -120,10 +122,10 @@ export default {
          */
         handleChange() {
             const inputData = JSON.parse(JSON.stringify(this.item));
-            inputData.width = Math.round(parseFloat($(this.$el).css('width')));
-            inputData.height = Math.round(parseFloat($(this.$el).css('height')));
-            inputData.x = Math.round(parseFloat($(this.$el).css('left')));
-            inputData.y = Math.round(parseFloat($(this.$el).css('top')));
+            inputData.width = Math.round(parseFloat($(this.$el).css('width')) / GRID) * GRID;
+            inputData.height = Math.round(parseFloat($(this.$el).css('height')) / GRID) * GRID;
+            inputData.x = Math.round(parseFloat($(this.$el).css('left')) / GRID) * GRID;
+            inputData.y = Math.round(parseFloat($(this.$el).css('top')) / GRID) * GRID;
             this.$emit('input', inputData);
         },
     },

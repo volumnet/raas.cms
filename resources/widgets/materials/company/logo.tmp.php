@@ -12,7 +12,7 @@ use RAAS\AssetManager;
 $company = $Page->company;
 
 ?>
-<<?php echo ($Page->pid || $Page->Material->id) ? 'a href="/"' : 'span'?> class="logo">
+<<?php echo ($Page->pid || $Page?->Material?->id) ? 'a href="/"' : 'span'?> class="logo">
   <img
     loading="lazy"
     class="logo__image"
@@ -31,4 +31,4 @@ $company = $Page->company;
         <?php } ?>
       </span>
   <?php } ?>
-</<?php echo ($Page->pid || $Page->Material->id) ? 'a' : 'span'?>>
+</<?php echo ($Page->pid || $Page?->Material?->id) ? 'a' : 'span'?>>

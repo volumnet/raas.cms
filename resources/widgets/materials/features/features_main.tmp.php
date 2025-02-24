@@ -17,15 +17,15 @@ if ($Set) { ?>
       <div class="features-main__list features-main-list">
         <?php foreach ($Set as $item) { ?>
             <div class="features-main-list__item features-main-item">
-              <?php if ($item->image->id || $item->icon) { ?>
-                  <?php if ($item->image->id) { ?>
+              <?php if ($item?->image?->id || $item?->icon) { ?>
+                  <?php if ($item?->image?->id) { ?>
                       <img
                         class="features-main-item__image"
                         loading="lazy"
-                        src="/<?php echo htmlspecialchars($item->image->fileURL)?>"
-                        alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>"
+                        src="/<?php echo htmlspecialchars((string)$item?->image?->fileURL)?>"
+                        alt="<?php echo htmlspecialchars((string)($item?->image?->name ?: $item->name))?>"
                       />
-                  <?php } elseif ($item->icon) { ?>
+                  <?php } elseif ($item?->icon) { ?>
                       <span class="features-main-item__image fa fa-<?php echo htmlspecialchars($item->icon)?>"></span>
                   <?php } ?>
               <?php } ?>

@@ -91,7 +91,7 @@ class Controller_Frontend extends Abstract_Controller
                 return 'http' . ($this->isHTTPS ? 's' : '');
                 break;
             case 'host':
-                return $_SERVER['HTTP_HOST'];
+                return $_SERVER['HTTP_HOST'] ?? '';
                 break;
             case 'idnHost':
                 return idn_to_utf8($this->host);
@@ -103,10 +103,10 @@ class Controller_Frontend extends Abstract_Controller
                 return $this->scheme . '://' . $this->idnHost;
                 break;
             case 'requestMethod':
-                return mb_strtolower($_SERVER['REQUEST_METHOD']);
+                return mb_strtolower($_SERVER['REQUEST_METHOD'] ?? '');
                 break;
             case 'requestUri':
-                return $_SERVER['REQUEST_URI'];
+                return $_SERVER['REQUEST_URI'] ?? '';
                 break;
             case 'url':
                 return $this->schemeHost . $this->requestUri;

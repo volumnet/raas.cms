@@ -208,7 +208,7 @@ class Controller_Ajax extends Abstract_Controller
      */
     public function formatMaterial(Material $material)
     {
-        $description = html_entity_decode(strip_tags($material->description), ENT_COMPAT | ENT_HTML5, 'UTF-8');
+        $description = html_entity_decode(strip_tags((string)$material->description), ENT_COMPAT | ENT_HTML5, 'UTF-8');
         $description = Text::cuttext($description, 256, '...');
         $result = [
             'id' => (int)$material->id,

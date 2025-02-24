@@ -36,8 +36,8 @@ if ($Set) { ?>
               >
                 <img
                   class="banners-item__image"<?php echo $i ? ' loading="lazy"' : ''?>
-                  src="/<?php echo htmlspecialchars($item->image->fileURL)?>"
-                  alt="<?php echo htmlspecialchars($item->image->name ?: $item->name)?>"
+                  src="/<?php echo htmlspecialchars((string)$item?->image?->fileURL)?>"
+                  alt="<?php echo htmlspecialchars((string)($item?->image?->name ?: $item?->name))?>"
                 />
               </<?php echo $item->url ? 'a' : 'div'?>>
           <?php } ?>

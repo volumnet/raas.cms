@@ -286,7 +286,7 @@ class Page extends SOME
                 break;
             case 'fullURL':
                 $domains = $this->domains;
-                if (in_array($_SERVER['HTTP_HOST'], $domains)) {
+                if (in_array($_SERVER['HTTP_HOST'] ?? '', $domains)) {
                     $result = '//' . $_SERVER['HTTP_HOST'];
                 } else {
                     $result = $this->domain;
@@ -438,7 +438,8 @@ class Page extends SOME
             $this->urn = preg_replace('/\\-\\-/umi', '-', $this->urn);
             $this->urn = trim($this->urn, '-');
         }
-        for ($i = 0; $this->checkForSimilarPages() || $this->checkForSimilarMaterials(); $i++) {
+        // 2025-02-20, AVS: убрал кросс-проверку с материалами, она скорее мешает (#981)
+        for ($i = 0; $this->checkForSimilarPages(); $i++) {
             $this->urn = Application::i()->getNewURN($this->urn, !$i, '-');
         }
 
@@ -1096,23 +1097,6 @@ class Page extends SOME
             $this->pid,
             (int)$this->id
         ]);
-        $c = (bool)(int)$sqlResult;
-        return $c;
-    }
-
-
-    /**
-     * Ищет материалы с таким же URN, как и текущая страница
-     * (для проверки на уникальность)
-     * @return bool true, если есть материал с таким URN, как и текущая страница,
-     *              false в противном случае
-     */
-    protected function checkForSimilarMaterials()
-    {
-        $sqlQuery = "SELECT COUNT(*)
-                       FROM " . Material::_tablename()
-                  . " WHERE urn = ?";
-        $sqlResult = static::$SQL->getvalue([$sqlQuery, $this->urn]);
         $c = (bool)(int)$sqlResult;
         return $c;
     }

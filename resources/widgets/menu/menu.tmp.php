@@ -29,6 +29,7 @@ $ajax = (bool)stristr($Page->url, '/ajax/');
  */
 $showMenu = function ($node, Page $current) use (&$showMenu, $ajax) {
     static $level = 0;
+    $text = '';
     if ($node instanceof Menu) {
         $children = $node->visSubMenu;
     } else {

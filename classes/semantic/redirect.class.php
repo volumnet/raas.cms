@@ -126,10 +126,9 @@ class Redirect extends SOME
         $url = str_replace('\\', '/', $url);
         $url = preg_replace('/([^\\:])(\\/){2,}/umis', '$1/', $url);
         $temp = parse_url($url);
-        if (preg_match('/[^\\/]$/i', $temp['path']) &&
-            !stristr(basename($temp['path']), '.')
-        ) {
-            $url = str_replace($temp['path'], $temp['path'] . '/', $url);
+        $path = $temp['path'] ?? '';
+        if (preg_match('/[^\\/]$/i', $path) && !stristr(basename($path), '.')) {
+            $url = str_replace(($path), ($path) . '/', $url);
         }
         $url = preg_replace_callback('/\\/[^\\?]+\\//umis', function ($matches) {
             return mb_strtolower($matches[0]);

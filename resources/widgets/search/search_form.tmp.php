@@ -11,11 +11,11 @@ use RAAS\AssetManager;
 $jsonLd = [
     '@context' => 'http://schema.org',
     '@type' => 'WebSite',
-    'url' => 'http' . ($_SERVER['HTTPS'] ? 's' : '') . '://'
+    'url' => 'http' . (($_SERVER['HTTPS'] ?? null) ? 's' : '') . '://'
           .  $_SERVER['HTTP_HOST'],
     'potentialAction' => [
         '@type' => 'SearchAction',
-        'target' => 'http' . ($_SERVER['HTTPS'] ? 's' : '') . '://'
+        'target' => 'http' . (($_SERVER['HTTPS'] ?? null) ? 's' : '') . '://'
                  .  $_SERVER['HTTP_HOST']
                  .  '/search/?search_string={search_string}',
         'query-input' => 'required name=search_string',
@@ -28,7 +28,7 @@ if ($searchBlockId = $Block->additionalParams['searchBlockId']) {
 <div itemscope itemtype="http://schema.org/WebSite">
   <link
     itemprop="url"
-    href="http<?php echo $_SERVER['HTTPS'] ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/"
+    href="http<?php echo ($_SERVER['HTTPS'] ?? null) ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/"
   />
   <form
     action="/search/"
@@ -46,7 +46,7 @@ if ($searchBlockId = $Block->additionalParams['searchBlockId']) {
   >
     <meta
       itemprop="target"
-      content="http<?php echo $_SERVER['HTTPS'] ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/search/?search_string={search_string}"
+      content="http<?php echo ($_SERVER['HTTPS'] ?? null) ? 's' : ''?>://<?php echo htmlspecialchars($_SERVER['HTTP_HOST'])?>/search/?search_string={search_string}"
     />
     <!--nodesktop-->
     <button
@@ -64,7 +64,7 @@ if ($searchBlockId = $Block->additionalParams['searchBlockId']) {
           autocomplete="off"
           class="form-control search-form__input"
           type="text"
-          value="<?php echo htmlspecialchars($_GET['search_string'])?>"
+          value="<?php echo htmlspecialchars($_GET['search_string'] ?? '')?>"
           placeholder="<?php echo SITE_SEARCH?>..."
           required="required"
           data-role="search-string"

@@ -137,7 +137,7 @@ class Material extends SOME
                 if (!$urlParent->id || !$this->url) {
                     return '';
                 }
-                if (in_array($_SERVER['HTTP_HOST'], $urlParent->domains)) {
+                if (in_array($_SERVER['HTTP_HOST'] ?? '', $urlParent->domains)) {
                     $result = '//' . $_SERVER['HTTP_HOST'];
                 } else {
                     $result = $urlParent->domain;
@@ -245,18 +245,15 @@ class Material extends SOME
             $this->urn = preg_replace('/\\-\\-/umi', '-', $this->urn);
             $this->urn = trim((string)$this->urn, '-');
         }
-        $need2UpdateURN = false;
-        if ($this->checkForSimilarPages() ||
-            Package::i()->checkForSimilar($this)
-        ) {
-            $need2UpdateURN = true;
-        }
+        // 2025-02-20, AVS: убрал кросс-проверку со страницами и с материалами других типов, она скорее мешает (#981)
+        $need2UpdateURN = (bool)$this->checkForSimilar();
         parent::commit();
         if ($need2UpdateURN) {
             if (!preg_match('/-\\d+$/', $this->urn)) {
                 $this->urn .= '-' . $this->id;
             }
-            for ($i = 0; $this->checkForSimilarPages() || Package::i()->checkForSimilar($this); $i++) {
+            // 2025-02-20, AVS: убрал кросс-проверку со страницами и с материалами других типов, она скорее мешает (#981)
+            for ($i = 0; $this->checkForSimilar(); $i++) {
                 $this->urn = Application::i()->getNewURN($this->urn, !$i, '-');
             }
             parent::commit();
@@ -887,5 +884,20 @@ class Material extends SOME
             ],
         ]));
         return $text;
+    }
+
+
+    /**
+     * Ищет материалы с таким же URN и типом, как и текущий (для проверки на уникальность)
+     * @param SOME $Object сущность для проверки
+     * @return bool true, если уже есть подобный материал, false в противном случае
+     */
+    public function checkForSimilar()
+    {
+        $sqlQuery = "SELECT COUNT(*) FROM " . static::_tablename() . " WHERE urn = ? AND pid = ? AND id != ?";
+        $sqlBind = [$this->urn, (int)$this->pid, (int)$this->id];
+        $sqlResult = static::_SQL()->getvalue([$sqlQuery, $sqlBind]);
+        $c = (bool)(int)$sqlResult;
+        return $c;
     }
 }

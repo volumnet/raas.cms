@@ -128,7 +128,7 @@ class Catalog_Cache
             function ($x) use ($t) {
                 $y = $x;
                 foreach ($y as $key => $val) {
-                    if (stristr($val, '@@@')) {
+                    if (stristr((string)$val, '@@@')) {
                         $y[$key] = explode('@@@', $val);
                         $y[$key] = array_unique($y[$key]);
                         $y[$key] = array_values($y[$key]);
@@ -173,7 +173,7 @@ class Catalog_Cache
             }
             return $temp;
         } else {
-            $data = trim($data);
+            $data = trim((string)$data);
             if (is_numeric($data) &&
                 (!$key || !in_array($key, $this->_textKeys))
             ) {
