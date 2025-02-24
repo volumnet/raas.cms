@@ -2,6 +2,7 @@
 @use 'sass:map';
 @use 'sass:meta';
 @use 'sass:string';
+@use 'sass:list';
 
 /// Базовая верстка
 $referenceLayout: 'xl' !default;
@@ -34,11 +35,11 @@ $container-max-widths: (
 /// @return {string}
 @function str-join($list, $separator) {
     $result: '';
-    @for $i from 1 through length($list) {
+    @for $i from 1 through list.length($list) {
         @if ($i != 1) {
             $result: $result + $separator;
         }
-        $result: $result + nth($list, $i);
+        $result: $result + list.nth($list, $i);
     }
     @return $result;
 }
@@ -77,7 +78,7 @@ $container-max-widths: (
         @return $result;
     } @else if (string.index($viewport, '-') != null) {
         $args: string.split($viewport, '-');
-        @return parse-viewport('>' + nth($args, 1) + '&<' + nth($args, 2));
+        @return parse-viewport('>' + list.nth($args, 1) + '&<' + list.nth($args, 2));
     } @else if (string.slice($viewport, 1, 1) == '<') {
         $name: string.slice($viewport, 2);
         $breakpoint-names: map-keys($grid-breakpoints);
@@ -85,7 +86,7 @@ $container-max-widths: (
         @if not $n {
             @error "breakpoint `#{$name}` not found in `#{$grid-breakpoints}`";
         }
-        $next: if($n < length($breakpoint-names), nth($breakpoint-names, $n + 1), null); 
+        $next: if($n < list.length($breakpoint-names), list.nth($breakpoint-names, $n + 1), null); 
         $max: map.get($grid-breakpoints, $next);
         @if $max {
             @return '(max-width: ' + ($max - .02) + ')';
