@@ -1,6 +1,6 @@
-import './design.vue';
-import './design-list.vue';
-import './design-item.vue';
+import './design.scss';
+import './design-list.scss';
+import './design-item.scss';
 
 export default {
 }

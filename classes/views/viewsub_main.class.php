@@ -90,8 +90,6 @@ class ViewSub_Main extends RAASAbstractSubView
             ]];
         }
         $this->template = ($in['Item']->id ?? null) ? 'pages' : $in['Table']->template;
-        $this->js[] = $this->publicURL . '/show_page.js';
-        $this->css[] = $this->publicURL . '/show_page.css';
     }
 
 

@@ -48,7 +48,7 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
                 </label>
                 <?php if ($dataHint) { ?>
                     <a class="btn" href="#" rel="popover" data-content="<?php echo htmlspecialchars($dataHint)?>">
-                      <i class="icon-question-sign"></i>
+                      <raas-icon icon="circle-question"></raas-icon>
                     </a>
                 <?php } ?>
               </div>
@@ -104,7 +104,7 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
                 </label>
                 <?php if ($dataHint) { ?>
                     <a class="btn" href="#" rel="popover" data-content="<?php echo htmlspecialchars($dataHint)?>">
-                      <i class="icon-question-sign"></i>
+                      <raas-icon icon="circle-question"></raas-icon>
                     </a>
                 <?php } ?>
               </div>
@@ -132,7 +132,7 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
                 </label>
                 <?php if ($dataHint) { ?>
                     <a class="btn" href="#" rel="popover" data-content="<?php echo htmlspecialchars($dataHint)?>">
-                      <i class="icon-question-sign"></i>
+                      <raas-icon icon="circle-question"></raas-icon>
                     </a>
                 <?php } ?>
               </div>

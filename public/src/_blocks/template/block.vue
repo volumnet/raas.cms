@@ -41,11 +41,11 @@
 </style>
 
 <template>
-  <div :is="editMode ? 'a' : 'span'" class="cms-block" :class="cssClass" :href="editMode ? item.url : null">
+  <component :is="editMode ? 'a' : 'span'" class="cms-block" :class="cssClass" :href="editMode ? item.url : null">
     <span class="cms-block__title">
       {{ item.name }}
     </span>
-  </div>
+  </component>
 </template>
 
 <script>

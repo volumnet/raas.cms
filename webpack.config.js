@@ -1,35 +1,30 @@
 const TerserJSPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
+const { VueLoaderPlugin } = require('vue-loader')
 const webpack = require('webpack');
-const glob = require('glob');
 const path = require('path');
 
-const entryMap = glob.sync('./public/src/*.js')
-    .reduce(function(obj, el) {
-        obj[path.parse(el).name] = './' + el;
-        return obj
-    }, {});
+const isProduction = process.argv[process.argv.indexOf('--mode') + 1] === 'production';
 
 module.exports = {
     mode: 'production',
-    entry: entryMap,
+    entry: {
+        package: './public/src/package.js',
+    },
     resolve: {
         modules: ['node_modules'],
         alias: {
             kernel: path.resolve(__dirname, 'd://web/home/libs/raas.kernel/public/src'),
             app: path.resolve(__dirname, 'public/src/'),
-            // css: path.resolve(__dirname, 'dev/css/'),
             jquery: path.resolve(__dirname, 'node_modules/jquery/dist/jquery'),
-            cms: path.resolve(__dirname, 'd:/web/home/libs/raas.cms/resources/js'),
-            // shop: path.resolve(__dirname, 'vendor/volumnet/raas.cms.shop/resources/js'),
-            // users: path.resolve(__dirname, 'vendor/volumnet/raas.cms.users/resources/js'),
+            cms: path.resolve(__dirname, 'd:/web/home/libs/raas.cms/resources/js.vue3'),
+            'fa-mixin': path.resolve(__dirname, 'd:/web/home/libs/raas.cms/resources/js.vue3/_shared/mixins/fa6.scss'),
             "./dependencyLibs/inputmask.dependencyLib": "./dependencyLibs/inputmask.dependencyLib.jquery"
         },
         extensions: [
-            '.styl',
+            '.scss',
             '.js',
             '.vue',
         ]
@@ -42,26 +37,19 @@ module.exports = {
     optimization: {
         minimizer: [
             new TerserJSPlugin({ 
-                terserOptions: { output: { comments: false, }}
-            }), 
-            new OptimizeCSSAssetsPlugin({
-                cssProcessorPluginOptions: {
-                    preset: [
-                        'default', 
-                        { discardComments: { removeAll: true }}
-                    ],
-                },
+                extractComments: false,
+                terserOptions: { format: { comments: false, }}
             }),
         ],
     },
     externals: {
         knockout: 'knockout',
         jquery: 'jQuery',
-        // vue: 'vue',
         $: 'jquery',
         'window.jQuery': 'jquery',
+        vue: 'Vue', // Иначе при рендеринге компоненты будут тянуть за собой копию Vue
     },
-    devtool: 'inline-source-map',
+    devtool: (isProduction ? false : 'inline-source-map'),
     module: {
         rules: [
             {
@@ -70,36 +58,29 @@ module.exports = {
                 exclude: /node_modules/
             },
             {
-                test: /\.styl$/,
-                use: [
-                    // 'vue-style-loader',
-                    // 'style-loader',
-                    { loader: MiniCssExtractPlugin.loader },
-                    'css-loader',
-                    'stylus-loader'
-                ]
-            },
-            {
                 test: /\.scss$/,
                 use: [
-                    // 'vue-style-loader',
-                    // 'style-loader',
                     { loader: MiniCssExtractPlugin.loader },
-                    'css-loader',
-                    // {
-                    //   loader: 'postcss-loader', // Run postcss actions
-                    //   options: {
-                    //     plugins: function () { // postcss plugins, can be exported to postcss.config.js
-                    //       return [
-                    //         require('autoprefixer')
-                    //       ];
-                    //     }
-                    //   }
-                    // },
+                    { loader: "css-loader", options: {url: false}, },
+                    {
+                        loader: 'postcss-loader', // Run postcss actions
+                        options: {
+                            postcssOptions: {
+                                plugins: [
+                                    ['postcss-utilities', { centerMethod: 'flexbox' }], 
+                                    'autoprefixer',
+                                    'rucksack-css',
+                                    'postcss-short',
+                                    'postcss-combine-duplicated-selectors',
+                                    'postcss-pseudo-elements-content',
+                                ],
+                            },
+                        },
+                    },
                     {
                         loader: "sass-loader",
                         options: {
-                            additionalData: "@import 'kernel/_shared/init.scss';\n",
+                            additionalData: "@use 'kernel/_shared/init.scss' as *;\n",
                         },
                     },
                 ]
@@ -107,9 +88,8 @@ module.exports = {
             {
                 test: /\.css$/,
                 use: [
-                    // 'style-loader',
                     { loader: MiniCssExtractPlugin.loader },
-                    'css-loader',
+                    { loader: "css-loader", options: {url: false}, },
                 ]
             },
             {
@@ -136,34 +116,14 @@ module.exports = {
                 test: /\.json$/,
                 loader: 'json-loader'
             },
-            {
-                test: require.resolve('bootstrap-multiselect/dist/js/bootstrap-multiselect'),
-                use: [
-                    {
-                        loader: 'imports-loader',
-                        options: {
-                            imports: {
-                                moduleName: 'jquery',
-                                name: '$',
-                            },
-                            additionalCode: 'var define = false; /* Disable AMD for misbehaving libraries */',
-                            wrapper: 'window',
-                        },
-                    }
-                ],
-            },
-            
         ],
     },
     plugins: [
+        new VueLoaderPlugin(),
         new webpack.ProvidePlugin({
             knockout: 'knockout',
-            // $: 'jquery',
-            // jQuery: 'jquery',
-            // 'window.jQuery': 'jquery',
         }),
-        new VueLoaderPlugin(),
-        new FixStyleOnlyEntriesPlugin(),
+        new RemoveEmptyScriptsPlugin(),
         new MiniCssExtractPlugin({ filename: './[name].css' }),
     ]
 }

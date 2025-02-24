@@ -29,13 +29,15 @@
         :item="location" 
         :edit-mode="editMode"
         :style="{ left: location.x + 'px', top: location.y + 'px', width: location.width + 'px', height: location.height + 'px', }"
-        @input="handleLocationChange($event, index)"
+        @update:item="handleLocationChange($event, index)"
       ></cms-location>
     </template>
   </div>
 </template>
 
 <script>
+const GRID = 10;
+
 export default {
     props: {
         /**
@@ -67,12 +69,13 @@ export default {
             default: false,
         },
     },
+    emits: ['update:item'],
     mounted() {
         if (this.editMode) {
             $(this.$el).resizable({
                 autoHide: true,
                 delay: 125,
-                grid: [10, 10],
+                grid: [GRID, GRID],
                 resize: this.handleChange.bind(this),
             });
         }
@@ -83,9 +86,9 @@ export default {
          */
         handleChange() {
             const inputData = JSON.parse(JSON.stringify(this.item));
-            inputData.width = $(this.$el).outerWidth();
-            inputData.height = $(this.$el).outerHeight();
-            this.$emit('input', inputData);
+            inputData.width = Math.round(parseFloat($(this.$el).css('width')) / GRID) * GRID;
+            inputData.height = Math.round(parseFloat($(this.$el).css('height')) / GRID) * GRID;
+            this.$emit('update:item', inputData);
         },
         /**
          * Обрабатывает изменения в размере/положении размещения
@@ -95,7 +98,7 @@ export default {
         handleLocationChange(locationData, index) {
             const inputData = JSON.parse(JSON.stringify(this.item));
             inputData['locations_info'][index] = locationData;
-            this.$emit('input', inputData);
+            this.$emit('update:item', inputData);
         },
     },
     computed: {

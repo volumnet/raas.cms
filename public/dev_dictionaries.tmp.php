@@ -12,7 +12,7 @@ if ($Item->id) { ?>
       </label>
       <input type="submit" class="btn btn-primary" value="<?php echo SUBMIT?>" />
       <a class="btn" href="#" rel="popover" data-content="<?php echo sprintf(\CMS\AVAILABLE_DICTIONARIES_FORMATS, strtoupper(implode(', ', Dictionary::$availableExtensions)))?>">
-        <i class="icon-question-sign"></i>
+        <raas-icon icon="circle-question"></raas-icon>
       </a>
     </form>
 <?php

@@ -97,6 +97,7 @@ export default {
             default: false,
         },
     },
+    emits: ['update:item'],
     mounted() {
         if (this.editMode) {
             const commonConfig = {
@@ -126,7 +127,7 @@ export default {
             inputData.height = Math.round(parseFloat($(this.$el).css('height')) / GRID) * GRID;
             inputData.x = Math.round(parseFloat($(this.$el).css('left')) / GRID) * GRID;
             inputData.y = Math.round(parseFloat($(this.$el).css('top')) / GRID) * GRID;
-            this.$emit('input', inputData);
+            this.$emit('update:item', inputData);
         },
     },
     computed: {

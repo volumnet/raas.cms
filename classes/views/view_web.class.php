@@ -16,6 +16,8 @@ class View_Web extends RAASPackageViewWeb
     public function header()
     {
         $this->js[] = $this->publicURL . '/multitable.js';
+        $this->js[] = $this->publicURL . '/package.js';
+        $this->css[] = $this->publicURL . '/package.css';
         $this->css[] = $this->publicURL . '/style.css';
         $c = Feedback::unreadFeedbacks();
         $this->menu[] = [

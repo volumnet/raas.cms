@@ -81,8 +81,8 @@ $container-max-widths: (
         @return parse-viewport('>' + list.nth($args, 1) + '&<' + list.nth($args, 2));
     } @else if (string.slice($viewport, 1, 1) == '<') {
         $name: string.slice($viewport, 2);
-        $breakpoint-names: map-keys($grid-breakpoints);
-        $n: index($breakpoint-names, $name);
+        $breakpoint-names: map.keys($grid-breakpoints);
+        $n: list.index($breakpoint-names, $name);
         @if not $n {
             @error "breakpoint `#{$name}` not found in `#{$grid-breakpoints}`";
         }
