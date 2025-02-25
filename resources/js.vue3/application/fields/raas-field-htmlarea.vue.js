@@ -7,7 +7,7 @@ export default {
     mixins: [RAASField],
     data() {
         return {
-            
+            pValue: this.modelValue || '',
         };
     },
     mounted() {

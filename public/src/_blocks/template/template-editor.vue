@@ -5,7 +5,12 @@
 </style>
 
 <template>
-  <cms-template class="cms-template-editor" :item="templateData" :edit-mode="true" @input="templateData = $event"></cms-template>
+  <cms-template 
+    class="cms-template-editor" 
+    :item="templateData" 
+    :edit-mode="true" 
+    @update:item="templateData = $event"
+  ></cms-template>
 </template>
 
 <script>

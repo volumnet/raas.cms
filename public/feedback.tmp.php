@@ -13,10 +13,27 @@ use RAAS\Application;
           <input type="hidden" name="<?php echo htmlspecialchars($key)?>" value="<?php echo htmlspecialchars($val)?>" />
       <?php } ?>
   <?php } ?>
-  <input type="datetime" name="from" class="span2" placeholder="<?php echo \CMS\SHOW_FROM?>" value="<?php echo $VIEW->nav['from'] ?? ''?>" />
-  <input type="datetime" name="to" class="span2" placeholder="<?php echo \CMS\SHOW_TO?>" value="<?php echo $VIEW->nav['to'] ?? ''?>" />
+  <raas-field-datetime
+    type="datetime-local"
+    name="from"
+    class="span2"
+    placeholder="<?php echo \CMS\SHOW_FROM?>"
+    model-value="<?php echo $VIEW->nav['from'] ?? ''?>"
+  ></raas-field-datetime>
+  <raas-field-datetime
+    type="datetime"
+    name="to"
+    class="span2"
+    placeholder="<?php echo \CMS\SHOW_TO?>"
+    model-value="<?php echo $VIEW->nav['to'] ?? ''?>"
+  ></raas-field-datetime>
   <div class="input-append">
-    <input type="search" class="span2 search-query" name="search_string" value="<?php echo htmlspecialchars($VIEW->nav['search_string'] ?? '')?>" />
+    <raas-field-text
+      type="search"
+      class="span2 search-query"
+      name="search_string"
+      model-value="<?php echo htmlspecialchars($VIEW->nav['search_string'] ?? '')?>"
+    ></raas-field-text>
     <button type="submit" class="btn"><i class="icon-search"></i></button>
   </div>
 </form>

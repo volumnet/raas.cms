@@ -1,6 +1,5 @@
 const TerserJSPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const { VueLoaderPlugin } = require('vue-loader')
 const webpack = require('webpack');
@@ -8,16 +7,13 @@ const path = require('path');
 
 const isProduction = process.argv[process.argv.indexOf('--mode') + 1] === 'production';
 
-module.exports = {
+const config = {
     mode: 'production',
-    entry: {
-        package: './public/src/package.js',
-    },
     resolve: {
         modules: ['node_modules'],
         alias: {
-            kernel: path.resolve(__dirname, 'd://web/home/libs/raas.kernel/public/src'),
             app: path.resolve(__dirname, 'public/src/'),
+            kernel: path.resolve(__dirname, 'd:/web/home/libs/raas.kernel/public/src'),
             jquery: path.resolve(__dirname, 'node_modules/jquery/dist/jquery'),
             cms: path.resolve(__dirname, 'd:/web/home/libs/raas.cms/resources/js.vue3'),
             'fa-mixin': path.resolve(__dirname, 'd:/web/home/libs/raas.cms/resources/js.vue3/_shared/mixins/fa6.scss'),
@@ -32,7 +28,6 @@ module.exports = {
     output: {
         filename: '[name].js',
         path: __dirname+'/public',
-        publicPath: '/vendor/volumnet/raas.cms/public/',
     },
     optimization: {
         minimizer: [
@@ -52,6 +47,10 @@ module.exports = {
     devtool: (isProduction ? false : 'inline-source-map'),
     module: {
         rules: [
+            {
+                test: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/,
+                use: [ 'raw-loader' ]
+            },
             {
                 test: /\.js$/,
                 use: 'babel-loader',
@@ -97,7 +96,7 @@ module.exports = {
                 loader: 'vue-loader'
             },
             {
-                test: /\.(png|svg|jpg|jpeg|gif)$/,
+                test: { and: [ /\.(png|svg|jpg|jpeg|gif)$/, { not: [/ckeditor5-/] } ] },
                 loader: 'file-loader',
                 options: { 
                     outputPath: './img', 
@@ -105,7 +104,7 @@ module.exports = {
                 }
             },
             {
-                test: /(\.(woff|woff2|eot|ttf|otf))|(font.*\.svg)$/,
+                test: { and: [ /(\.(woff|woff2|eot|ttf|otf))|(font.*\.svg)$/, { not: [/ckeditor5-/] } ] },
                 loader: 'file-loader',
                 options: { 
                     outputPath: './fonts', 
@@ -120,10 +119,22 @@ module.exports = {
     },
     plugins: [
         new VueLoaderPlugin(),
+        new webpack.DefinePlugin({
+            __VUE_OPTIONS_API__: 'true',
+            __VUE_PROD_DEVTOOLS__: 'false',
+            __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false'
+        }),
         new webpack.ProvidePlugin({
             knockout: 'knockout',
         }),
         new RemoveEmptyScriptsPlugin(),
         new MiniCssExtractPlugin({ filename: './[name].css' }),
     ]
-}
+};
+
+config.entry = {
+    package: './public/src/package.js',
+};
+config.output.publicPath = '/vendor/volumnet/raas.cms/public/';
+
+module.exports = config;

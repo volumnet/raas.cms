@@ -60,7 +60,7 @@ $container-max-widths: (
         @each $arg in $args {
             $newArg: parse-viewport($arg);
             @if ($newArg != null) {
-                $newArgs: append($newArgs, $newArg);
+                $newArgs: list.append($newArgs, $newArg);
             }
         }
         $result: str-join($newArgs, ', ');
@@ -71,7 +71,7 @@ $container-max-widths: (
         @each $arg in $args {
             $newArg: parse-viewport($arg);
             @if ($newArg != null) {
-                $newArgs: append($newArgs, $newArg);
+                $newArgs: list.append($newArgs, $newArg);
             }
         }
         $result: str-join($newArgs, ' and ');
