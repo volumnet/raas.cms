@@ -1,5 +1,5 @@
-import designComponents from 'app/_blocks/design';
-import templateComponents from 'app/_blocks/template';
+import designComponents from 'app/components/design';
+import templateComponents from 'app/components/template';
 import RaasFieldHtmlcodearea from 'app/application/fields/raas-field-htmlcodearea.vue';
 
 window.raasComponents = {
