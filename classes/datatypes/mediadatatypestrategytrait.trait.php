@@ -15,7 +15,7 @@ trait MediaDatatypeStrategyTrait
     {
         $result = [];
         foreach (['vis', 'name', 'description', 'attachment'] as $key) {
-            $result[$key] = $postData[$fieldName . '@' .$key] ?? null;
+            $result[$key] = $postData[$fieldName . '@' . $key] ?? null;
         }
         return $result;
     }

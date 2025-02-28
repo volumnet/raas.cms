@@ -44,4 +44,9 @@
             @include fa('file-word');
         }
     }
+    &_xls, &_xlsx, &_xlt {
+        &:before {
+            @include fa('file-excel');
+        }
+    }
 }

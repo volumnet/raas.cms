@@ -37,6 +37,50 @@ export default {
     },
     methods: {
         /**
+         * Возвращает dataURL файла
+         * @requires FileReader
+         * @param {File} file Файл для обработки
+         * @return {String[]}
+         */
+        getFileDataURL(file) {
+            return new Promise((resolve, reject) => {
+                var fr = new FileReader();  
+                fr.onload = () => {
+                    resolve(fr.result)
+                };
+                fr.onerror = reject;
+                fr.readAsDataURL(file);
+            });
+        },
+        /**
+         * Получает расширение для файла в нижнем регистре
+         * @param  {String} filename Имя (или путь) файла
+         * @return {String}
+         */
+        getExtension(filename) {
+            const fileChunks = filename.split('.');
+            const ext = ((fileChunks.length > 1) ? fileChunks[fileChunks.length - 1] : '').toLowerCase();
+            return ext;
+        },
+        /**
+         * Проверяет, допустим ли данный файл
+         * @param  {File} file Файл для проверки
+         * @return {Boolean}
+         */
+        checkIfFileIsAllowed(file) {
+            const ext = this.getExtension(file.name);
+            const mime = file.type.toLowerCase();
+            if (!this.allowedTypes || 
+                !this.allowedTypes.length ||
+                (this.allowedTypes.indexOf(ext) != -1) ||
+                (this.allowedTypes.indexOf(mime) != -1)
+            ) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        /**
          * Обработчик смены файла
          * @param  {Event} e Событие
          */
@@ -46,15 +90,8 @@ export default {
             let files = tgt.files;
             // FileReader support
             if (files && files.length) {
-                this.fileName = files[0].name;
-                let fileChunks = this.fileName.split('.');
-                let ext = (fileChunks.length > 1) ? fileChunks[fileChunks.length - 1] : '';
-                let mime = files[0].type;
-                if (!this.allowedTypes || 
-                    !this.allowedTypes.length ||
-                    (this.allowedTypes.indexOf(ext) != -1) ||
-                    (this.allowedTypes.indexOf(mime) != -1)
-                ) {
+                if (this.checkIfFileIsAllowed(files[0])) {
+                    this.fileName = files[0].name;
                     this.$emit('update:modelValue', this.fileName)
                 } else {
                     this.fileName = '';
@@ -99,7 +136,7 @@ export default {
                 return null;
             }
             let allowedTypes = this.accept.split(',');
-            allowedTypes = allowedTypes.map(x => x.replace('.', '')).filter(x => !!x);
+            allowedTypes = allowedTypes.map(x => x.replace('.', '')).filter(x => !!x).map(x => x.toLowerCase());
             return allowedTypes;
         },
         /**

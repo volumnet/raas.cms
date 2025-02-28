@@ -220,6 +220,10 @@ class Controller_Ajax extends Abstract_Controller
         } elseif ($material->parents_ids) {
             $result['pid'] = (int)$material->parents_ids[0];
         }
+        $result['url'] = '/admin/?p=cms&action=edit_material&id=' . $result['id'];
+        if ($result['pid'] ?? null) {
+            $result['url'] .= '&pid=' . $result['pid'];
+        }
         foreach ($material->fields as $field) {
             if ($field->datatype == 'image') {
                 if ($val = $field->getValue()) {

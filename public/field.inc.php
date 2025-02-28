@@ -4,499 +4,124 @@
  */
 namespace RAAS\CMS;
 
-use RAAS\Application;
 use RAAS\Attachment;
 use RAAS\Field as RAASField;
-use RAAS\OptGroup;
-use RAAS\Option;
-use RAAS\OptionCollection;
-
-/**
- * Отображение опций
- * @param OptionCollection $options Набор опций для отображения
- * @param int $level Уровень вложенности опций
- */
-$_RAASForm_Options = function (
-    OptionCollection $options,
-    $level = 0
-) use (
-    &$_RAASForm_Options,
-    &$_RAASForm_Attrs
-) {
-    foreach ($options as $row) {
-        switch (get_class($row)) {
-            case OptGroup::class:
-                include Application::i()->view->context->tmp('/optgroup.inc.php');
-                break;
-            case Option::class:
-                include Application::i()->view->context->tmp('/option.inc.php');
-                break;
-        }
-        if ($row->template) {
-            include Application::i()->view->context->tmp($row->template);
-        }
-        switch (get_class($row)) {
-            case OptGroup::class:
-                $_RAASForm_OptGroup($row, $level);
-                break;
-            case Option::class:
-                $_RAASForm_Option($row, $level);
-                break;
-            default:
-                $_RAASForm_Options($row->children, $level + 1);
-                break;
-        }
-    }
-};
-
-$_RAASForm_Source = function (
-    OptionCollection $options,
-    $level = 0
-) use (&$_RAASForm_Source) {
-    $result = [];
-    foreach ((array)$options as $option) {
-        $optionData = (array)$option->attrs;
-        $optionData['name'] = $option->caption;
-        $optionData['caption'] = $option->caption;
-        foreach (['checked', 'multiple', 'type'] as $key) {
-            unset($optionData[$key]);
-        }
-        if ($children = $option->children) {
-            $optionData['children'] = $_RAASForm_Source($children, $level + 1);
-        }
-        $result[] = $optionData;
-    }
-    return $result;
-};
-
-/**
- * Отображение опций в виде набора флажков
- * @param OptionCollection $options Набор опций для отображения
- * @param int $level Уровень вложенности опций
- */
-$_RAASForm_Checkbox = function (
-    OptionCollection $options,
-    $level = 0
-) use (
-    &$_RAASForm_Checkbox,
-    &$_RAASForm_Attrs,
-    &$_RAASForm_Source
-) {
-    $field = $options->Parent;
-    $originalOptions = $options;
-    $options = (array)$options;
-    $attrs = [];
-    $text = '';
-    // $plain = !$level &&
-    //     !array_filter($options, function ($x) {
-    //         return (bool)(array)$x->children;
-    //     }) &&
-    //     (count($options) < 16);
-    // foreach ($options as $row) {
-    //     $attrs = $row->attrs;
-    //     foreach (['type', 'name', 'multiple'] as $key) {
-    //         $attrs[$key] = $field->$key;
-    //     }
-    //     if (in_array($row->value, (array)($field->Form->DATA[$field->name] ?? []))) {
-    //         $attrs['checked'] = 'checked';
-    //     }
-    //     if ($plain) {
-    //         $text .= '<label class="' . $field->type . ' inline">
-    //                     <input' . $_RAASForm_Attrs($field, $attrs) . ' /> '
-    //               .     htmlspecialchars($row->caption)
-    //               .  '</label>';
-    //     } else {
-    //         $text .= '<li>
-    //                     <label>
-    //                       <input' . $_RAASForm_Attrs($field, $attrs) . ' /> '
-    //               .       htmlspecialchars($row->caption)
-    //               .  '  </label>'
-    //               .     $_RAASForm_Checkbox($row->children, $level + 1)
-    //               .  '</li>';
-    //     }
-    // }
-    if (!$level) {
-        $attrs = [];
-        foreach (['value', 'checked'] as $key) {
-            $attrs[$key] = null; // Убираем, т.к. для raas-field это не нужно
-        }
-        $source = $_RAASForm_Source($originalOptions);
-        $attrs[':source'] = json_encode($source);
-        $attrs[':value'] = json_encode((array)($field->Form->DATA[$field->name] ?? []));
-        // $attrs = $_RAASForm_Attrs($field, $attrs);
-        $text .= '<raas-field-checkbox' . $_RAASForm_Attrs($field, $attrs) . '></raas-field-checkbox>';
-    }
-    // return ($text && !$plain) ?
-    //        (
-    //            '<ul' . (!$level ? ' class="tree" data-raas-role="tree"' : '') . '>' .
-    //               $text .
-    //            '</ul>'
-    //        ) :
-    //        $text;
-    return $text;
-};
 
 /**
  * Отображение элемента управления
  * @param RAASField $field Поле для отображения
  * @param bool $confirm Добавить подтверждение пароля для элемента пароля
  */
-$_RAASForm_Control = function (
-    RAASField $field,
-    $confirm = true
-) use (
-    &$_RAASForm_Attrs,
-    &$_RAASForm_Options,
-    &$_RAASForm_Checkbox,
-    &$_RAASForm_Source
-) {
+$_RAASForm_Control = function (RAASField $field, $confirm = true) use (&$_RAASForm_Attrs) {
     $attrs = [];
+    // 2025-02-27, AVS: здесь используются только переопределенные типы (field.class.php:71), остальные указывать не нужно
     switch ($field->type) {
         case 'material':
-            if ($field->multiple) { ?>
-                <div data-role="raas-repo-block">
-                  <div data-role="raas-repo-container">
-                    <?php foreach ((array)($field->Form->DATA[$field->name] ?? []) as $key => $val) {
-                        $attrs = [
-                            'datatype' => 'material',
-                            'type' => 'hidden',
-                            'data-field-id' => (int)($field->Form->Item->fields[$field->name]->id ?? 0),
-                            'data-material-id' => $val->id ?? 0,
-                            'data-material-pid' => $val->parents[0]->id ?? 0,
-                            'data-material-name' => $val->name ?? ''
-                        ]; ?>
-                        <div data-role="raas-repo-element">
-                          <input<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['value' => $val->id ?? 0]))?> />
-                        </div>
-                    <?php } ?>
-                  </div>
-                  <div data-role="raas-repo">
-                    <?php $attrs = [
-                        'datatype' => 'material',
-                        'type' => 'hidden',
-                        'data-field-id' => (int)($field->Form->Item->fields[$field->name]->id ?? 0),
-                        'data-material-id' => '',
-                        'data-material-pid' => '',
-                        'data-material-name' => ''
-                    ]; ?>
-                    <input<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['disabled' => 'disabled', 'value' => '']))?> />
-                  </div>
-                </div>
+            $originalField = $field->meta['CustomField'];
+
+            $attrs = [':field-id' => $originalField->id];
+
+            if ($field->multiple) {
+                $set = (array)($field->Form->DATA[$field->name] ?? []);
+                $set = array_map(function ($val) {
+                    if (is_scalar($val) || is_null($val)) {
+                        $val = new Material($val);
+                    }
+                    return $val;
+                }, $set);
+                $data = array_map(fn($val) => Controller_Ajax::i()->formatMaterial($val), $set);
+                $attrs['multiple'] = null; // Чтобы перекрыть стандартный атрибут multiple="1"
+                $attrs[':multiple'] = 'true';
+                $attrs[':model-value'] = 'repo.modelValue';
+                $attrs['@update:model-value'] = 'repo.emit(\'update:modelValue\', repo.modelValue = $event)';
+                ?>
+                <raas-repo
+                  :model-value="<?php echo htmlspecialchars(json_encode($data))?>"
+                  :defval="null"
+                  :sortable="true"
+                  :required="<?php echo htmlspecialchars(json_encode((bool)$field->required))?>"
+                  v-slot="repo"
+                >
+                  <raas-cms-field-material <?php echo $_RAASForm_Attrs($field, $attrs)?>></raas-cms-field-material>
+                </raas-repo>
             <?php } else {
-                // 2015-06-08, AVS: В выражении
-                // (int)$field->Form->DATA[$field->name] убрал (int),
+                // 2015-06-08, AVS: В выражении (int)$field->Form->DATA[$field->name] убрал (int),
                 // т.к. $val типа материал
                 $val = $field->Form->DATA[$field->name] ?? null;
-                if (is_scalar($val)) {
+                if (is_scalar($val) || is_null($val)) {
                     $val = new Material($val);
                 }
-                $attrs = [
-                    'datatype' => 'material',
-                    'type' => 'hidden',
-                    'value' => $val ? $val->id : '',
-                    'data-field-id' => (int)$field->Form->Item->fields[$field->name]->id,
-                    'data-material-id' => $val ? $val->id : '',
-                    'data-material-pid' => isset($val->parents[0]) ? $val->parents[0]->id : 0,
-                    'data-material-name' => $val ? $val->name : '',
-                ];
+                $data = Controller_Ajax::i()->formatMaterial($val);
+                $attrs[':model-value'] = json_encode($data);
                 ?>
-                <input<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['value' => $val ? $val->id : '']))?> />
+                <raas-cms-field-material <?php echo $_RAASForm_Attrs($field, $attrs)?>></raas-cms-field-material>
             <?php }
             break;
         case 'image':
         case 'file':
-            $attrs = ['type' => 'file'];
+            $data = [];
+            if (!$field->multiple) {
+                $attachmentsArr = [$field->Form->DATA[$field->name] ?? null];
+                $attachmentsIdsArr = [$field->Form->DATA[$field->name . '@attachment'] ?? null];
+                $visArr = [$field->Form->DATA[$field->name . '@vis'] ?? null];
+                $nameArr = [$field->Form->DATA[$field->name . '@name'] ?? null];
+                $descriptionArr = [$field->Form->DATA[$field->name . '@description'] ?? null];
+            } else {
+                $attachmentsArr = (array)($field->Form->DATA[$field->name] ?? []);
+                $attachmentsIdsArr = (array)($field->Form->DATA[$field->name . '@attachment'] ?? []);
+                $visArr = (array)($field->Form->DATA[$field->name . '@vis'] ?? []);
+                $nameArr = (array)($field->Form->DATA[$field->name . '@name'] ?? []);
+                $descriptionArr = (array)($field->Form->DATA[$field->name . '@description'] ?? []);
+            }
+
+            $count = count($field->Form->isPost ? $attachmentsIdsArr : $attachmentsArr);
+
+            for ($i = 0; $i < $count; $i++) {
+                if ($field->Form->isPost) {
+                    $att = new Attachment($attachmentsIdsArr[$i] ?? 0);
+                    $dataRow = [
+                        'attachment' => (int)($attachmentsIdsArr[$i] ?? 0),
+                        'vis' => (int)($visArr[$i] ?? 1),
+                        'name' => trim((string)($nameArr[$i] ?? '')),
+                        'description' => trim((string)($descriptionArr[$i] ?? '')),
+                    ];
+                } else {
+                    $att = $attachmentsArr[$i] ?? new Attachment();
+                    $dataRow = [
+                        'attachment' => (int)$att->id,
+                        'vis' => (int)($att->id ? $att->vis : 1),
+                        'name' => trim((string)$att->name),
+                        'description' => trim((string)$att->description),
+                    ];
+                }
+                $dataRow['file'] = null;
+                $dataRow['upload'] = null;
+
+                if ($att && $att->id) {
+                    $dataRow['file'] = ['fileURL' => '/' . $att->fileURL];
+                    if ($field->type == 'image') {
+                        $dataRow['file']['tnURL'] = '/' . $att->tnURL;
+                    }
+                }
+
+                $data[] = $dataRow;
+            }
+
+            if (!$field->multiple) {
+                $data = $data[0] ?? [];
+            }
+
+            $attrs['type'] = $field->type;
+            $attrs[':model-value'] = json_encode($data);
             if ($field->type == 'image') {
                 $attrs['accept'] = 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml';
             }
-            if (!$field->multiple) {
-                $row = $field->Form->DATA[$field->name] ?? null;
-                if ($field->Form->isPost) {
-                    foreach (['name', 'attachment', 'vis', 'description'] as $key) {
-                        $DATA[$key] = $field->Form->DATA[$field->name . '@' . $key];
-                    }
-                    $row = new Attachment($DATA['attachment'] ?? 0);
-                } elseif ($row && $row->id) {
-                    foreach (['name', 'attachment', 'vis', 'description'] as $key) {
-                        $DATA[$key] = isset($row->$key) ? $row->$key : '';
-                    }
-                    $DATA['file'] = $row->id ? $row->fileURL : '';
-                } else {
-                    $DATA['vis'] = 1;
-                } ?>
-                <div class="well cms-filecard">
-                  <?php if (!$field->meta['CustomField']->required && $row && $row->id) { ?>
-                      <a class="close" data-role="delete-attach" href="#" data-ondelete="<?php echo $field->type == 'image' ? DELETE_IMAGE_TEXT : DELETE_FILE_TEXT?>">
-                        &times;
-                      </a>
-                  <?php } ?>
-                  <a href="<?php echo htmlspecialchars($row ? $row->fileURL : '')?>" target="_blank" data-role="file-link">
-                    <?php if ($field->type == 'image') { ?>
-                        <img
-                          src="<?php echo htmlspecialchars((string)((string)($row ? $row->tnURL : '')))?>"
-                          alt="<?php echo htmlspecialchars(basename((string)($row ? $row->filename : '')))?>"
-                          title="<?php echo htmlspecialchars(basename((string)($row ? $row->filename : '')))?>"
-                          class="cms-filecard__image"
-                        />
-                    <?php } else { ?>
-                        <?php echo htmlspecialchars(basename($row ? $row->filename : ''))?>
-                    <?php } ?>
-                  </a>
-                  <input type="hidden" name="<?php echo htmlspecialchars($field->name . '@attachment')?>" value="<?php echo (int)($DATA['attachment'] ?? 0)?>" />
-                  <input<?php echo $_RAASForm_Attrs($field, $attrs)?> />
-                  <label class="checkbox">
-                    <input type="checkbox" name="<?php echo htmlspecialchars($field->name . '@vis')?>" value="1" <?php echo $DATA['vis'] ? 'checked="checked"' : ''?> />
-                    <?php echo \CMS\VISIBLE?>
-                  </label>
-                  <div class="cms-filecard__fields<?php echo (($field->type == 'image' && $row && $row->id) ? ' cms-filecard__fields_image' : '')?>">
-                    <input type="text" name="<?php echo htmlspecialchars($field->name . '@name')?>" value="<?php echo htmlspecialchars($DATA['name'] ?? '')?>" placeholder="<?php echo $field->type == 'image' ? \CMS\IMG_NAME_ALT_TITLE : NAME?>" />
-                    <textarea v-pre name="<?php echo htmlspecialchars($field->name . '@description')?>" placeholder="<?php echo DESCRIPTION?>"><?php echo htmlspecialchars($DATA['description'] ?? '')?></textarea>
-                  </div>
-                </div>
-            <?php } else { ?>
-                <div data-role="raas-repo-block">
-                  <div data-role="raas-repo-container">
-                    <?php if ($Set = (array)($field->Form->DATA[$field->name . ($field->Form->isPost ? '@attachment' : '')] ?? [])) {
-                        for ($i = 0; $i < count($Set); $i++) {
-                            $row = $Set[$i];
-                            if ($field->Form->isPost) {
-                                foreach ([
-                                    'name',
-                                    'attachment',
-                                    'vis',
-                                    'description'
-                                ] as $key) {
-                                    $DATA[$key] = $field->Form->DATA[$field->name . '@' . $key][$i];
-                                }
-                                $row = new Attachment($DATA['attachment']);
-                            } elseif ($row->id) {
-                                foreach ([
-                                    'name',
-                                    'attachment',
-                                    'vis',
-                                    'description'
-                                ] as $key) {
-                                    $DATA[$key] = isset($row->$key)
-                                                ? $row->$key
-                                                : '';
-                                }
-                                $DATA['file'] = $row->id ? $row->fileURL : '';
-                            } else {
-                                $DATA['vis'] = 1;
-                            } ?>
-                            <div class="well cms-filecard" data-role="raas-repo-element">
-                              <a class="close" data-role="raas-repo-del" href="#">
-                                &times;
-                              </a>
-                              <a href="#" data-role="raas-repo-move" class="cms-filecard__move">
-                                <i class="icon icon-resize-vertical"></i>
-                              </a>
-                              <a href="<?php echo htmlspecialchars($row->fileURL)?>" target="_blank">
-                                <?php if ($field->type == 'image') { ?>
-                                    <img src="<?php echo htmlspecialchars($row->tnURL)?>" alt="<?php echo htmlspecialchars(basename((string)$row->filename))?>" title="<?php echo htmlspecialchars(basename((string)$row->filename))?>" class="cms-filecard__image" />
-                                <?php } else { ?>
-                                    <?php echo htmlspecialchars(basename($row->filename))?>
-                                <?php } ?>
-                              </a>
-                              <input type="hidden" name="<?php echo htmlspecialchars($field->name . '@attachment[]')?>" value="<?php echo (int)$DATA['attachment']?>" />
-                              <input<?php echo $_RAASForm_Attrs($field, $attrs)?> />
-                              <label class="checkbox">
-                                <input type="checkbox" name="<?php echo htmlspecialchars($field->name . '@vis[]')?>" value="1" <?php echo $DATA['vis'] ? 'checked="checked"' : ''?> />
-                                <?php echo \CMS\VISIBLE?>
-                              </label>
-                              <input type="checkbox" style="display: none" name="<?php echo htmlspecialchars($field->name . '@vis[]')?>" value="0" data-role="checkbox-shadow" />
-                              <div class="cms-filecard__fields<?php echo ($field->type == 'image' ? ' cms-filecard__fields_image' : '')?>">
-                                <input type="text" name="<?php echo htmlspecialchars($field->name . '@name[]')?>" value="<?php echo htmlspecialchars($DATA['name'])?>" placeholder="<?php echo $field->type == 'image' ? \CMS\IMG_NAME_ALT_TITLE : NAME?>" />
-                                <textarea v-pre name="<?php echo htmlspecialchars($field->name . '@description[]')?>" placeholder="<?php echo DESCRIPTION?>"><?php echo htmlspecialchars($DATA['description'])?></textarea>
-                              </div>
-                            </div>
-                        <?php }
-                    } ?>
-                  </div>
-                  <div class="well cms-filecard"<?php echo $field->multiple ? ' data-role="raas-repo"' : ''?>>
-                    <a class="close" data-role="raas-repo-del" href="#">
-                      &times;
-                    </a>
-                    <a href="#" data-role="raas-repo-move" class="cms-filecard__move">
-                      <i class="icon icon-resize-vertical"></i>
-                    </a>
-                    <input type="hidden" name="<?php echo htmlspecialchars($field->name . '@attachment[]')?>" disabled="disabled" />
-                    <input<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['disabled' => 'disabled']))?> />
-                    <label class="checkbox">
-                      <input type="checkbox" name="<?php echo htmlspecialchars($field->name . '@vis[]')?>" value="1" disabled="disabled" checked="checked" />
-                      <?php echo \CMS\VISIBLE?>
-                    </label>
-                    <input type="checkbox" style="display: none" name="<?php echo htmlspecialchars($field->name . '@vis[]')?>" disabled value="0" data-role="checkbox-shadow" />
-                    <div class="cms-filecard__fields">
-                      <input type="text" name="<?php echo htmlspecialchars($field->name . '@name[]')?>" placeholder="<?php echo $field->type == 'image' ? \CMS\IMG_NAME_ALT_TITLE : NAME?>" disabled="disabled" />
-                      <textarea v-pre name="<?php echo htmlspecialchars($field->name . '@description[]')?>" placeholder="<?php echo DESCRIPTION?>"></textarea>
-                    </div>
-                  </div>
-                </div>
-            <?php }
-            break;
-        case 'checkbox':
-            $attrs = [];
-            if ($field->multiple) {
-                $source = $_RAASForm_Source($field->children);
-                $attrs[':source'] = json_encode($source);
-                $attrs[':value'] = json_encode((array)($field->Form->DATA[$field->name] ?? []));
-            } else {
-                $attrs['defval'] = $field->defval ?: '1';
-                $attrs['mask'] = '0';
-                $attrs[':value'] = json_encode($field->Form->DATA[$field->name] ?? null);
-            }
-            ?>
-            <raas-field-checkbox<?php echo $_RAASForm_Attrs($field, $attrs)?>></raas-field-checkbox>
-            <?php
-            break;
-        case 'radio':
-            echo $_RAASForm_Checkbox($field->children);
-            break;
-        case 'select':
-            $attrs['type'] = false;
-            if ($field->placeholder || !$field->required) {
-                for ($i = count($field->children) - 1; $i >= 0; $i--) {
-                    $field->children[$i + 1] = $field->children[$i];
-                }
-                $field->children[0] = new Option([
-                    'caption' => $field->placeholder ?: '--',
-                    'value' => ''
-                ]);
-            }
-            if ($field->multiple && !$field->{'data-raas-multiselect'}) {
-                $attrs = array_merge($attrs, ['multiple' => false]); ?>
-                <div data-role="raas-repo-block">
-                  <div data-role="raas-repo-container">
-                    <?php foreach ((array)($field->Form->DATA[$field->name] ?? []) as $key => $val) {
-                        $field->value = $val; ?>
-                        <div data-role="raas-repo-element">
-                          <select<?php echo $_RAASForm_Attrs($field, $attrs)?>>
-                            <?php echo $_RAASForm_Options($field->children)?>
-                          </select>
-                        </div>
-                    <?php } ?>
-                  </div>
-                  <div data-role="raas-repo">
-                    <select<?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['disabled' => 'disabled']))?>>
-                      <?php echo $_RAASForm_Options($field->children)?>
-                    </select>
-                  </div>
-                </div>
-            <?php } else { ?>
-                <select<?php echo $_RAASForm_Attrs($field, $attrs)?>>
-                  <?php echo $_RAASForm_Options($field->children)?>
-                </select>
-            <?php }
-            break;
-        default:
-            // @todo TEST!!!
-            $attrs = [];
-            $fieldType = $field->type ?: 'text';
 
-            if (!$field->type) {
-                $attrs['type'] = 'text';
-            }
-            if (($field->type == 'password') && $confirm) {
-                $attrs['name'] = $field->name . '@confirm';
-            }
-            // $attrs['v-pre'] = 'v-pre';
-            // echo 'TEST!!!';
-            if ($field->multiple && !in_array($field->type, ['password'])) {
-                ?>
-                <div data-role="raas-repo-block">
-                  <div data-role="raas-repo-container">
-                    <?php foreach ((array)($field->Form->DATA[$field->name] ?? []) as $key => $val) { ?>
-                        <div data-role="raas-repo-element">
-                          <raas-field-<?php echo htmlspecialchars($fieldType)?> <?php echo $_RAASForm_Attrs($field, array_merge($attrs, [':value' => json_encode($val)]))?>></raas-field-<?php echo htmlspecialchars($fieldType)?>>
-                        </div>
-                    <?php } ?>
-                  </div>
-                  <div data-role="raas-repo">
-                    <raas-field-<?php echo htmlspecialchars($fieldType)?> <?php echo $_RAASForm_Attrs($field, array_merge($attrs, ['disabled' => 'disabled']))?>></raas-field-<?php echo htmlspecialchars($fieldType)?>>
-                  </div>
-                </div>
-                <?php
-            } else {
-                ?>
-                <raas-field-<?php echo htmlspecialchars($fieldType)?> <?php echo $_RAASForm_Attrs($field, array_merge($attrs, [':value' => json_encode($field->Form->DATA[$field->name] ?? null)]))?>></raas-field-<?php echo htmlspecialchars($fieldType)?>>
-                <?php
-            }
+            if (!$field->multiple) { ?>
+                <raas-cms-field-file<?php echo $_RAASForm_Attrs($field, $attrs)?>></raas-cms-field-file>
+            <?php } else { ?>
+                <raas-cms-field-file-multiple<?php echo $_RAASForm_Attrs($field, $attrs)?>></raas-cms-field-file-multiple>
+            <?php }
             break;
     }
-};
-
-/**
- * Отображение поля с подписью
- * @param RAASField $field Поле для отображения
- */
-$_RAASForm_Field = function (RAASField $field) use (
-    &$_RAASForm_Control,
-    &$_RAASForm_Options
-) {
-    $err = (bool)array_filter(
-        (array)$field->Form->localError,
-        function ($x) use ($field) {
-            return $x['value'] == $field->name;
-        }
-    );
-    if (in_array($field->type, ['htmlarea', 'codearea', 'htmlcodearea'])) { ?>
-        <div class="control-group<?php echo $err ? ' error' : ''?>">
-          <?php if ($field->caption) { ?>
-              <label class="control-label" for="<?php echo htmlspecialchars($field->name)?>">
-                <?php echo htmlspecialchars($field->caption)?>:
-              </label>
-              <div class="controls clearfix">&nbsp;</div>
-          <?php } ?>
-          <div class="clearfix"><?php echo $_RAASForm_Control($field)?></div>
-        </div>
-    <?php } elseif (($field->type == 'password') && $field->confirm) {
-        $err2 = (bool)array_filter(
-            (array)$field->Form->localError,
-            function ($x) use ($field) {
-                return $x['value'] == $field->name . '@confirm';
-            }
-        );
-        ?>
-        <div class="control-group<?php echo $err ? ' error' : ''?>">
-          <label class="control-label" for="<?php echo htmlspecialchars($field->name)?>">
-            <?php echo htmlspecialchars($field->caption)?>:
-          </label>
-          <div class="controls">
-            <?php echo $_RAASForm_Control($field, false)?>
-          </div>
-        </div>
-        <div class="control-group<?php echo $err2 ? ' error' : ''?>">
-          <label class="control-label" for="<?php echo htmlspecialchars($field->name)?>@confirm">
-            <?php echo PASSWORD_CONFIRM?>:
-          </label>
-          <div class="controls">
-            <?php echo $_RAASForm_Control($field, true)?>
-          </div>
-        </div>
-    <?php } elseif ($field->type == 'checkbox' && !$field->multiple) { ?>
-        <div class="control-group<?php echo $err ? ' error' : ''?>">
-          <div class="controls">
-            <label class="checkbox"<?php echo $field->{'data-hint'} ? ' style="width: 174px;"' : ''?>>
-              <?php echo $_RAASForm_Control($field, false)?>
-              <?php echo htmlspecialchars($field->caption)?>
-            </label>
-          </div>
-        </div>
-    <?php } elseif ($field->type == 'hidden') {
-        echo $_RAASForm_Control($field, false);
-    } else { ?>
-        <div class="control-group<?php echo $err ? ' error' : ''?>">
-          <label class="control-label" for="<?php echo htmlspecialchars($field->name)?>">
-            <?php echo htmlspecialchars(
-                $field->caption ?
-                $field->caption . ':' :
-                ''
-            )?>
-          </label>
-          <div class="controls">
-            <?php echo $_RAASForm_Control($field, false)?>
-          </div>
-        </div>
-    <?php }
 };
