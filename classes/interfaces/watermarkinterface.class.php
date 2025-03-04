@@ -151,8 +151,10 @@ class WatermarkInterface extends FilesProcessorInterface
             $newHeight = $sourceImgData['height'] * $ratio; // Ширина водяного знака
             $newWidth = $newHeight * $rate; // Высота водяного знака
         }
-        $xSource = ($sourceImgData['width'] - $newWidth) / 2; // Отступ по оси Х
-        $ySource = ($sourceImgData['height'] - $newHeight) / 2; // Отступ по оси Y
+        $xSource = round(($sourceImgData['width'] - $newWidth) / 2); // Отступ по оси Х
+        $ySource = round(($sourceImgData['height'] - $newHeight) / 2); // Отступ по оси Y
+        $newWidth = round($newWidth);
+        $newHeight = round($newHeight);
 
         imagecopyresampled(
             $img,

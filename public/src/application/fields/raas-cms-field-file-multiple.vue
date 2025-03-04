@@ -15,14 +15,8 @@
         position: relative;
         cursor: pointer;
         align-self: flex-start;
-        // padding: 2rem;
-        // border: 1px solid var(--success);
-        // border-radius: 10px;
-        // font-size: clamp(14px, 1.25vw, 20px);
-        // background: color-mix(in srgb, var(--success), white 80%);
         &:hover, &_drag {
             background: var(--info);
-            // border-color: var(--primary);
         }
         &:before {
             @include fa('plus');
@@ -53,7 +47,7 @@
         ></raas-cms-field-file>
       </div>
       <label 
-        class="raas-cms-field-file-multiple__item raas-cms-field-file-multiple__add btn btn-info"
+        class="raas-cms-field-file-multiple__item raas-cms-field-file-multiple__add btn"
         :class="{ 
             'raas-cms-field-file-multiple__add_drag': dragOver, 
             'raas-cms-field-file-multiple__add_file': (type != 'image'),

@@ -102,6 +102,9 @@ export default {
                 if (this.type.pattern) {
                     result.pattern = this.type.pattern;
                 }
+                if (this.type.disabled) {
+                    result.disabled = this.type.disabled;
+                }
                 if (this.type['class']) {
                     result['class'] = Object.assign({}, result['class'] || {}, this.type['class']);
                 }
