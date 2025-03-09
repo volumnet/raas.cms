@@ -180,16 +180,8 @@ class Controller_Ajax extends Abstract_Controller
         if ((int)($this->nav['only_by_name'] ?? 0)) {
             $onlyByName = true;
         }
-        $Set = $this->model->getMaterialsBySearch(
-            (
-                isset($_GET['search_string']) ?
-                $_GET['search_string'] :
-                ''
-            ),
-            $mtype,
-            10,
-            $onlyByName
-        );
+        $searchString = $_GET['search_string'] ?? '';
+        $Set = $this->model->getMaterialsBySearch($searchString, $mtype, 10, $onlyByName);
         $OUT['Set'] = array_map([$this, 'formatMaterial'], $Set);
         $this->view->show_page($OUT);
     }

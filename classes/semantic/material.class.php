@@ -458,11 +458,9 @@ class Material extends SOME
             }, $sqlResult)));
 
             $attachmentsToDelete = array_diff($affectedAttachmentsIds, $otherAttachmentsIds);
-
-            foreach ($attachmentsToDelete as $attachmentToDelete) {
-                $att = new Attachment($attachmentToDelete);
-                Attachment::delete($att);
-            }
+            $attachmentsToDelete = array_values($attachmentsToDelete);
+            $attachmentsToDelete = Attachment::getArraySet($attachmentsToDelete);
+            Attachment::batchDelete($attachmentsToDelete);
         }
 
         // 2019-01-24, AVS: добавил удаление из связанных данных

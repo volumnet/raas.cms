@@ -945,8 +945,10 @@ class Package extends RAASPackage
         $limit = 50,
         $onlyByName = false
     ) {
+
+        $urlComponents = parse_url($search);
         // 2016-01-14, AVS: Сделал $limit 50 вместо 10
-        $Material_Type = new Material_Type((int)$mtypeId);
+        $materialType = new Material_Type((int)$mtypeId);
         // 2016-01-14, AVS: сделал поиск по данным вместо названия.
         // Возможно, вызовет перегруз, но нужно тогда решать вопрос с базой
         // 2017-09-25, AVS: заменил JOIN на LEFT JOIN у cms_data и cms_fields,
@@ -971,8 +973,8 @@ class Package extends RAASPackage
                             OR tD.value LIKE '%" . $likeSearchString . "%' ";
         }
         $sqlQuery .= " ) ";
-        if ($Material_Type->id) {
-            $ids = $Material_Type->selfAndChildrenIds;
+        if ($materialType->id) {
+            $ids = $materialType->selfAndChildrenIds;
             $sqlQuery .= " AND tM.pid IN (" . implode(", ", $ids) . ") ";
         }
         // 2020-02-17, AVS: сделал сортировку сначала по совпадению названия
