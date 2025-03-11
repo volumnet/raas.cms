@@ -128,6 +128,12 @@ abstract class SocialProfile
     public $nickname;
 
     /**
+     * Непонятно, что это
+     * @var string
+     */
+    public $identity;
+
+    /**
      * Привязка типов адресов (регулярные выражения) к константам соц. сетей
      * @var array<string[] => int>
      */

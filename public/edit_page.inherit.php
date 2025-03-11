@@ -31,7 +31,7 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
         }
     );
     include Application::i()->view->tmp('form.inc.php');
-    include Application::i()->context->view->tmp('field.inc.php');
+    include Application::i()->view->tmp('field.inc.php');
     if ($Field->template) {
         include Application::i()->view->context->tmp($Field->template);
     }
@@ -43,7 +43,9 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
               </label>
               <div class="controls clearfix">
                 <label class="checkbox">
-                  <?php echo $_RAASForm_Control($inheritField, false) .
+                  <?php
+                  include Application::i()->view->tmp('field.inc.php');
+                  echo $_RAASForm_Control($inheritField, false) .
                              htmlspecialchars($inheritField->caption)?>
                 </label>
                 <?php if ($dataHint) { ?>
@@ -73,7 +75,9 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
             </div>
             <div class="span2">
               <label class="checkbox">
-                <?php echo $_RAASForm_Control($inheritField, false) .
+                <?php
+                include Application::i()->view->tmp('field.inc.php');
+                echo $_RAASForm_Control($inheritField, false) .
                            htmlspecialchars($inheritField->caption)?>
               </label>
             </div>
@@ -99,7 +103,9 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
               </div>
               <div class="span2">
                 <label class="checkbox">
-                  <?php echo $_RAASForm_Control($inheritField, false) .
+                  <?php
+                  include Application::i()->view->tmp('field.inc.php');
+                  echo $_RAASForm_Control($inheritField, false) .
                              htmlspecialchars($inheritField->caption)?>
                 </label>
                 <?php if ($dataHint) { ?>
@@ -127,7 +133,9 @@ $_RAASForm_FieldSet = function (FieldSet $fieldSet) use (
               </div>
               <div class="span2">
                 <label class="checkbox">
-                  <?php echo $_RAASForm_Control($inheritField, false) .
+                  <?php
+                  include Application::i()->view->tmp('field.inc.php');
+                  echo $_RAASForm_Control($inheritField, false) .
                              htmlspecialchars($inheritField->caption)?>
                 </label>
                 <?php if ($dataHint) { ?>
