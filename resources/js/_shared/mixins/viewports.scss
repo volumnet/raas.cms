@@ -24,6 +24,12 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
     @return $result;
 }
 
+// Убирает единицы измерения
+// @param {number} $number Число с единицами измерения
+// @return {number}
+@function strip-unit($number) {
+    @return ($number / ($number * 0 + 1));
+}
 
 /// Соединяет строку из списка
 /// @param {list} $list Исходный список
@@ -164,10 +170,20 @@ $relativeApplyTo: ('xxl', 'xl', 'lg', 'md') !default;
     @if (type-of($relativeTo) == string) {
         $relativeTo: map-get($container-max-widths, $relativeTo);
     }
-    @if ($min) {
-        @return calc(max(#{math.div($size, $relativeTo)} * var(--container-width), #{$min}));
+    $sizeWithoutUnit: strip-unit($size);
+    $relativeToWithoutUnit: strip-unit($relativeTo);
+    @if (math.unit($size) == 'rem') {
+        @if ($min) {
+            @return calc(max(($sizeWithoutUnit / 16 * var(--container-width) / $relativeToWithoutUnit), #{$min}));
+        } @else {
+            @return calc($sizeWithoutUnit / 16 * var(--container-width) / $relativeToWithoutUnit);
+        }
     } @else {
-        @return calc(#{math.div($size, $relativeTo)} * var(--container-width));
+        @if ($min) {
+            @return calc(max(($sizeWithoutUnit * var(--container-width) / $relativeToWithoutUnit), #{$min}));
+        } @else {
+            @return calc($sizeWithoutUnit * var(--container-width) / $relativeToWithoutUnit);
+        }
     }
 }
 

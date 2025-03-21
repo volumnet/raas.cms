@@ -85,7 +85,7 @@ class EditTemplateForm extends RAASForm
             'caption' => $this->view->_('LAYOUT'),
             'children' => [
                 new FieldSet([
-                    'template' => 'dev_edit_template',
+                    'template' => 'dev_edit_template.inc.php',
                     'export' => function (FieldSet $fieldSet) {
                         $item = $fieldSet->Form->Item;
                         foreach (['width', 'height'] as $key) {

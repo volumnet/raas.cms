@@ -70,7 +70,7 @@ $getField = function (Field $row, array $DATA = array()) use (&$getCheckbox, $ge
             }, $allowedExtensions);
             if ($row->multiple) {
                 echo '<div class="jsFieldContainer" data-role="raas-repo-container">';
-                for ($i = 0; ($i < count($DATA[$row->urn])) || (($i < 1) && $row->multiple && $row->required); $i++) {
+                for ($i = 0; ($i < count((array)($DATA[$row->urn] ?? []))) || (($i < 1) && $row->multiple && $row->required); $i++) {
                     echo '<div class="jsField cms-file" data-role="raas-repo-element">' .
                             '<a href="#" class="jsDeleteField icon system delete close" data-role="raas-repo-del" ' . ($row->required && (count($DATA[$row->urn . '@attachment']) <= 1) ? 'style="display: none"' : '') . ' title="' . DELETE . '">&times;</a>' .
                             '<div class="cms-file-internal">

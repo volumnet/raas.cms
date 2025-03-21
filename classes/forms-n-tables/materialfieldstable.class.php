@@ -25,6 +25,7 @@ class MaterialFieldsTable extends FieldsTable
                 'allContextMenu' => $view->getAllMaterialFieldsContextMenu(),
                 'allValue' => 'all'
                            .  ($params['Item'] ? '&pid=' . (int)$params['Item']->id : ''),
+                'priorityColumn' => 'priority',
             ],
             'data-role' => 'multitable',
             'columns' => [

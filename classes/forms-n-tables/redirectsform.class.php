@@ -44,7 +44,7 @@ class RedirectsForm extends RAASForm
             'export' => 'is_null',
             'children' => [
                 'redirectsTable' => new FieldSet([
-                    'template' => 'redirects.tmp.php',
+                    'template' => 'redirects.inc.php',
                     'children' => [
                         'redirect_id' => [
                             'type' => 'hidden',

@@ -12,14 +12,7 @@ use RAAS\Field as RAASField;
  * @param bool $confirm Добавлять поле подтверждения для пароля
  *                      (не используется)
  */
-$_RAASForm_Control = function (
-    RAASField $field,
-    $confirm = true
-) use (
-    &$_RAASForm_Attrs,
-    &$_RAASForm_Options,
-    &$_RAASForm_Checkbox
-) {
+$_RAASForm_Control = function (RAASField $field, $confirm = true) {
     $Item = $field->Form->Item;
     $dateN = $userN = '';
     if ($field->name == 'post_date') {

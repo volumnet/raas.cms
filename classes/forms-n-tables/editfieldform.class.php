@@ -157,7 +157,7 @@ class EditFieldForm extends RAASForm
         $children['source'] = [
             'name' => 'source',
             'caption' => $this->view->_('SOURCE'),
-            'template' => 'cms/dev_edit_field.source.tmp.php',
+            'template' => 'cms/dev_edit_field.source.inc.php',
             'check' => function ($field) {
                 if (in_array($_POST['datatype'], ['select', 'radio']) ||
                     (($_POST['datatype'] == 'checkbox') && ($_POST['multiple'] ?? false))
@@ -174,7 +174,7 @@ class EditFieldForm extends RAASForm
             'children' => $content['dictionaries']
         ];
         $children['range'] = new FieldSet([
-            'template' => 'cms/dev_edit_field.range.tmp.php',
+            'template' => 'cms/dev_edit_field.range.inc.php',
             'caption' => $this->view->_('RANGE'),
             'children' => [
                 [

@@ -16,20 +16,13 @@ jQuery(function($) {
         }
     }
 
-    $('#material_type').change(function() {
-        var url = 'ajax.php?p=cms&action=material_fields&id=' + $(this).val();
-        $('.jsMaterialTypeField').RAAS_getSelect(
-            url, 
-            { 
-                before: function (data) { 
-                    return data.Set; 
-                } 
-            }
-        );
-    })
 
     window.setTimeout(() => {
+        $('#material_type').on('change', function() {
+            var url = 'ajax.php?p=cms&action=material_fields&id=' + $(this).val();
+            $('[data-role="material-type-field"]').RAAS_getSelect(url, { before: (data) => data.Set });
+        })
         $('#cache_type').on('change', checkCaching);
         checkCaching();
-    }, 0); // Чтобы отработал Vue
+    }); // Чтобы отработал Vue
 });

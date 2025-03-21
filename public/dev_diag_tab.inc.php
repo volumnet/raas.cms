@@ -10,11 +10,7 @@ use RAAS\FormTab;
  * Отображает вкладку
  * @param FormTab $formTab Вкладка для отображения
  */
-$_RAASForm_FormTab = function(FormTab $formTab) use (
-    &$_RAASForm_Form_Tabbed,
-    &$_RAASForm_Form_Plain,
-    &$_RAASForm_Attrs
-) {
+$_RAASForm_FormTab = function (FormTab $formTab) {
     $Item = $formTab->Form->meta['Item'];
     $cVar = $formTab->name . 'Counter';
     $tVar = $formTab->name . 'Time';
@@ -26,15 +22,5 @@ $_RAASForm_FormTab = function(FormTab $formTab) use (
       <?php echo number_format($Item->$tVar ?? 0, 3, '.', ' ')?>
     </p>
     <?php
-    if (array_filter(
-        (array)$formTab->children,
-        function ($x) {
-            return $x instanceof FormTab;
-        }
-    )) {
-        $_RAASForm_Form_Tabbed($formTab->children);
-    } else {
-        $_RAASForm_Form_Plain($formTab->children);
-    }
-
+    echo $formTab->children->render();
 };

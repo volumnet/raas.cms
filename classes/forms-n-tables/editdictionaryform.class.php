@@ -49,22 +49,22 @@ class EditDictionaryForm extends RAASForm
                         .  (int)$parent->id,
             'newUrl' => $this->view->url . '&action=edit_dictionary&pid=%s'
         ];
-        $defaultParams['children'][] = [
+        $defaultParams['children']['vis'] = [
             'type' => 'checkbox',
             'name' => 'vis',
             'caption' => $this->view->_('VISIBLE'),
             'default' => 1
         ];
-        $defaultParams['children'][] = [
+        $defaultParams['children']['name'] = [
             'name' => 'name',
             'caption' => $this->view->_('NAME'),
             'required' => 'required'
         ];
-        $defaultParams['children'][] = [
+        $defaultParams['children']['urn'] = [
             'name' => 'urn',
             'caption' => $this->view->_($parent->id ? 'VALUE' : 'URN')
         ];
-        $defaultParams['children'][] = [
+        $defaultParams['children']['orderby'] = [
             'type' => 'radio',
             'name' => 'orderby',
             'children' => $CONTENT['orderBy'],

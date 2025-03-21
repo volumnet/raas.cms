@@ -37,4 +37,5 @@ use RAAS\Application;
     <button type="submit" class="btn"><i class="icon-search"></i></button>
   </div>
 </form>
-<?php include Application::i()->view->context->tmp('multitable.tmp.php'); ?>
+<?php
+echo $Table->renderFull();

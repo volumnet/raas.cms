@@ -215,7 +215,7 @@ class ViewSub_Dev extends RAASAbstractSubView
             $this->getMenuBreadcrumbs($item);
         }
         $this->contextmenu = $this->getMenuContextMenu($in['Item']);
-        $this->template = ($item->id && !$item->pid) ? $in['Form']->template : 'dev_menus';
+        $this->template = ($item->id && !$item->pid) ? $in['Form']->template : $in['Table']->template;
         $this->subtitle = $this->getMenuSubtitle($in['Item']);
     }
 
@@ -331,7 +331,6 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url
         ];
         $this->template = $form->template;
-        $this->js[] = $this->publicURL . '/redirects.js';
     }
 
 
@@ -1066,7 +1065,6 @@ class ViewSub_Dev extends RAASAbstractSubView
      */
     public function cache(array $in = [])
     {
-        $this->js[] = $this->publicURL . '/dev_cache.js';
         $this->assignVars($in);
         $this->title = $this->_('CACHE_CONTROL');
         $this->path[] = [

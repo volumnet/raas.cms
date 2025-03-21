@@ -470,7 +470,7 @@ class EditMaterialForm extends \RAAS\Form
      *             'children' => *рекурсивно*
      *         ]>
      */
-    public function getMetaCats($pid = 0, ?array $relatedPagesIds = null)
+    public function getMetaCats(int $pid = 0, ?array $relatedPagesIds = null)
     {
         $pageCache = PageRecursiveCache::i();
         $result = [];
@@ -483,11 +483,12 @@ class EditMaterialForm extends \RAAS\Form
                 'caption' => $pageData['name'],
                 'data-group' => $pageData['template'],
             ];
-            if ($pageId &&
-                ($relatedPagesIds !== null) &&
-                !isset($relatedPagesIds[$pageId])
-            ) {
-                $pageArr['style'] = 'display: none';
+            if (($relatedPagesIds !== null) && !isset($relatedPagesIds[$pageId])) { // Есть фильтр, но текущей страницы в нем нет
+                if (array_intersect($relatedPagesIds, $pageCache->getAllChildrenIds($pageId))) { // В фильтре есть дочерние страницы, делаем disabled
+                    $pageArr['disabled'] = true;
+                } else { // Дочерних тоже нет, пропускаем
+                    continue;
+                }
             }
             $pagesData[] = $pageArr;
         }

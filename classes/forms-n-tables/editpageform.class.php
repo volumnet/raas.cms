@@ -122,31 +122,7 @@ class EditPageForm extends RAASForm
             ];
         }
         foreach ($item->fields as $row) {
-            $f = $row->Field;
-            $commonTab->children[$row->urn] = new FieldSet([
-                'template' => 'edit_page.inherit.php',
-                'children' => [
-                    $f,
-                    [
-                        'type' => 'checkbox',
-                        'name' => 'inherit_' . $row->Field->name,
-                        'caption' => $this->view->_('INHERIT'),
-                        'default' => (
-                            $parent->id ?
-                            $parent->{'inherit_' . $row->Field->name} :
-                            1
-                        ),
-                        'oncommit' => function () use ($row) {
-                            if ($_POST['inherit_' . $row->Field->name] ?? false) {
-                                $row->inheritValues();
-                            }
-                        },
-                        'import' => function () use ($row) {
-                            return $row->inherited;
-                        }
-                    ]
-                ],
-            ]);
+            $commonTab->children[$row->urn] = $row->Field;
         }
         return $commonTab;
     }
@@ -164,179 +140,108 @@ class EditPageForm extends RAASForm
             [
                 'name' => 'seo',
                 'caption' => $this->view->_('SEO'),
-                'children' => []
-            ]
+                'children' => [
+                    'meta_title' => [
+                        'name' => 'meta_title',
+                        'class' => 'span5',
+                        'caption' => $this->view->_(strtoupper('meta_title')),
+                        'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
+                        'data-hint' => sprintf(
+                            $this->view->_('META_TITLE_RECOMMENDED_LIMIT'),
+                            SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
+                            SeoOptimizer::META_TITLE_WORDS_LIMIT
+                        ),
+                        'data-recommended-limit' => SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
+                        'data-strict-limit' => SeoOptimizer::META_TITLE_STRICT_LIMIT,
+                        'data-words-limit' => SeoOptimizer::META_TITLE_WORDS_LIMIT,
+                    ],
+                    'meta_description' => [
+                        'type' => 'textarea',
+                        'name' => 'meta_description',
+                        'class' => 'span5',
+                        'rows' => 5,
+                        'caption' => $this->view->_(strtoupper('meta_description')),
+                        'data-hint' => sprintf(
+                            $this->view->_('META_DESCRIPTION_RECOMMENDED_LIMIT'),
+                            SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT
+                        ),
+                        'data-recommended-limit' => SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT,
+                        'data-strict-limit' => SeoOptimizer::META_DESCRIPTION_STRICT_LIMIT,
+                    ],
+                    'meta_keywords' => [
+                        'type' => 'textarea',
+                        'name' => 'meta_keywords',
+                        'class' => 'span5',
+                        'rows' => 5,
+                        'caption' => $this->view->_(strtoupper('meta_keywords')),
+                    ],
+                    'h1' => [
+                        'name' => 'h1',
+                        'caption' => $this->view->_('H1'),
+                        'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
+                        'class' => 'span5'
+                    ],
+                    'menu_name' => [
+                        'name' => 'menu_name',
+                        'caption' => $this->view->_('MENU_NAME'),
+                        'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
+                        'class' => 'span5'
+                    ],
+                    'breadcrumbs_name' => [
+                        'name' => 'breadcrumbs_name',
+                        'caption' => $this->view->_('BREADCRUMBS_NAME'),
+                        'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
+                        'class' => 'span5'
+                    ],
+                    'changefreq' => [
+                        'type' => 'select',
+                        'name' => 'changefreq',
+                        'caption' => $this->view->_('CHANGEFREQ'),
+                        'placeholder' => $this->view->_('AUTOMATICALLY'),
+                        'children' => [
+                            [
+                                'value' => 'always',
+                                'caption' => $this->view->_('CHANGEFREQ_ALWAYS')
+                            ],
+                            [
+                                'value' => 'hourly',
+                                'caption' => $this->view->_('CHANGEFREQ_HOURLY')
+                            ],
+                            [
+                                'value' => 'daily',
+                                'caption' => $this->view->_('CHANGEFREQ_DAILY')
+                            ],
+                            [
+                                'value' => 'weekly',
+                                'caption' => $this->view->_('CHANGEFREQ_WEEKLY')
+                            ],
+                            [
+                                'value' => 'monthly',
+                                'caption' => $this->view->_('CHANGEFREQ_MONTHLY')
+                            ],
+                            [
+                                'value' => 'yearly',
+                                'caption' => $this->view->_('CHANGEFREQ_YEARLY')
+                            ],
+                            [
+                                'value' => 'never',
+                                'caption' => $this->view->_('CHANGEFREQ_NEVER')
+                            ],
+                        ]
+                    ],
+                    'sitemaps_priority' => [
+                        'type' => 'number',
+                        'class' => 'span1',
+                        'min' => 0,
+                        'step' => 0.1,
+                        'max' => 1,
+                        'name' => 'sitemaps_priority',
+                        'caption' => $this->view->_('SITEMAPS_PRIORITY'),
+                        'default' => 0.5
+                    ],
+                ],
+            ],
         );
-        $seoTab->children['meta_title'] = new FieldSet([
-            'template' => 'edit_page.inherit.php',
-            'children' => [
-                [
-                    'name' => 'meta_title',
-                    'class' => 'span5',
-                    'caption' => $this->view->_(strtoupper('meta_title')),
-                    'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
-                    'data-hint' => sprintf(
-                        $this->view->_('META_TITLE_RECOMMENDED_LIMIT'),
-                        SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
-                        SeoOptimizer::META_TITLE_WORDS_LIMIT
-                    ),
-                    'data-recommended-limit' => SeoOptimizer::META_TITLE_RECOMMENDED_LIMIT,
-                    'data-strict-limit' => SeoOptimizer::META_TITLE_STRICT_LIMIT,
-                    'data-words-limit' => SeoOptimizer::META_TITLE_WORDS_LIMIT,
-                ],
-                [
-                    'type' => 'checkbox',
-                    'name' => 'inherit_meta_title',
-                    'caption' => $this->view->_('INHERIT'),
-                    'default' => (
-                        $parent->id ?
-                        $parent->{'inherit_meta_title'} :
-                        1
-                    )
-                ]
-            ]
-        ]);
-        $seoTab->children['meta_description'] = new FieldSet([
-            'template' => 'edit_page.inherit.php',
-            'children' => [
-                [
-                    'type' => 'textarea',
-                    'name' => 'meta_description',
-                    'class' => 'span5',
-                    'rows' => 5,
-                    'caption' => $this->view->_(strtoupper('meta_description')),
-                    'data-hint' => sprintf(
-                        $this->view->_('META_DESCRIPTION_RECOMMENDED_LIMIT'),
-                        SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT
-                    ),
-                    'data-recommended-limit' => SeoOptimizer::META_DESCRIPTION_RECOMMENDED_LIMIT,
-                    'data-strict-limit' => SeoOptimizer::META_DESCRIPTION_STRICT_LIMIT,
-                ],
-                [
-                    'type' => 'checkbox',
-                    'name' => 'inherit_meta_description',
-                    'caption' => $this->view->_('INHERIT'),
-                    'default' => (
-                        $parent->id ?
-                        $parent->{'inherit_meta_description'} :
-                        1
-                    )
-                ]
-            ]
-        ]);
-        $seoTab->children['meta_keywords'] = new FieldSet([
-            'template' => 'edit_page.inherit.php',
-            'children' => [
-                [
-                    'type' => 'textarea',
-                    'name' => 'meta_keywords',
-                    'class' => 'span5',
-                    'rows' => 5,
-                    'caption' => $this->view->_(strtoupper('meta_keywords')),
-                ],
-                [
-                    'type' => 'checkbox',
-                    'name' => 'inherit_meta_keywords',
-                    'caption' => $this->view->_('INHERIT'),
-                    'default' => (
-                        $parent->id ?
-                        $parent->{'inherit_meta_keywords'} :
-                        1
-                    )
-                ]
-            ]
-        ]);
-        $seoTab->children['h1'] = [
-            'name' => 'h1',
-            'caption' => $this->view->_('H1'),
-            'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
-            'class' => 'span5'
-        ];
-        $seoTab->children['menu_name'] = [
-            'name' => 'menu_name',
-            'caption' => $this->view->_('MENU_NAME'),
-            'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
-            'class' => 'span5'
-        ];
-        $seoTab->children['breadcrumbs_name'] = [
-            'name' => 'breadcrumbs_name',
-            'caption' => $this->view->_('BREADCRUMBS_NAME'),
-            'placeholder' => $item->name ?: $this->view->_('FROM_NAME'),
-            'class' => 'span5'
-        ];
-
-        $seoTab->children['changefreq'] = new FieldSet([
-            'template' => 'edit_page.inherit.php',
-            'children' => [
-                [
-                    'type' => 'select',
-                    'name' => 'changefreq',
-                    'caption' => $this->view->_('CHANGEFREQ'),
-                    'placeholder' => $this->view->_('AUTOMATICALLY'),
-                    'children' => [
-                        [
-                            'value' => 'always',
-                            'caption' => $this->view->_('CHANGEFREQ_ALWAYS')
-                        ],
-                        [
-                            'value' => 'hourly',
-                            'caption' => $this->view->_('CHANGEFREQ_HOURLY')
-                        ],
-                        [
-                            'value' => 'daily',
-                            'caption' => $this->view->_('CHANGEFREQ_DAILY')
-                        ],
-                        [
-                            'value' => 'weekly',
-                            'caption' => $this->view->_('CHANGEFREQ_WEEKLY')
-                        ],
-                        [
-                            'value' => 'monthly',
-                            'caption' => $this->view->_('CHANGEFREQ_MONTHLY')
-                        ],
-                        [
-                            'value' => 'yearly',
-                            'caption' => $this->view->_('CHANGEFREQ_YEARLY')
-                        ],
-                        [
-                            'value' => 'never',
-                            'caption' => $this->view->_('CHANGEFREQ_NEVER')
-                        ],
-                    ]
-                ],
-                [
-                    'type' => 'checkbox',
-                    'name' => 'inherit_changefreq',
-                    'caption' => $this->view->_('INHERIT'),
-                    'default' => ($parent->id ? $parent->inherit_changefreq : 1)
-                ]
-            ]
-        ]);
-        $seoTab->children['sitemaps_priority'] = new FieldSet([
-            'template' => 'edit_page.inherit.php',
-            'children' => [
-                [
-                    'type' => 'number',
-                    'class' => 'span1',
-                    'min' => 0,
-                    'step' => 0.1,
-                    'max' => 1,
-                    'name' => 'sitemaps_priority',
-                    'caption' => $this->view->_('SITEMAPS_PRIORITY'),
-                    'default' => 0.5
-                ],
-                [
-                    'type' => 'checkbox',
-                    'name' => 'inherit_sitemaps_priority',
-                    'caption' => $this->view->_('INHERIT'),
-                    'default' => (
-                        $parent->id ?
-                        $parent->inherit_sitemaps_priority :
-                        1
-                    )
-                ]
-            ]
-        ]);
         return $seoTab;
     }
 
@@ -389,7 +294,7 @@ class EditPageForm extends RAASForm
                 'mime' => [
                     'name' => 'mime',
                     'caption' => $this->view->_('PAGE_MIME'),
-                    'data-types' => json_encode(Page::$mimeTypes),
+                    'children' => array_map(fn($x) => ['value' => $x, 'caption' => $x], Page::$mimeTypes),
                 ],
                 'nat' => [
                     'type' => 'checkbox',
@@ -397,7 +302,7 @@ class EditPageForm extends RAASForm
                     'caption' => $this->view->_('TRANSLATE_ADDRESS')
                 ],
                 'cacheFieldSet' => new FieldSet([
-                    'template' => 'edit_page.inherit.php',
+                    'template' => 'edit_page.inherit.inc.php',
                     'children' => [
                         'cache' => [
                             'type' => 'checkbox',
@@ -418,7 +323,7 @@ class EditPageForm extends RAASForm
                     ]
                 ]),
                 'templateFieldSet' => new FieldSet([
-                    'template' => 'edit_page.inherit.php',
+                    'template' => 'edit_page.inherit.inc.php',
                     'children' => [
                         'template' => [
                             'type' => 'select',
@@ -441,7 +346,7 @@ class EditPageForm extends RAASForm
                     ]
                 ]),
                 'languageFieldSet' => new FieldSet([
-                    'template' => 'edit_page.inherit.php',
+                    'template' => 'edit_page.inherit.inc.php',
                     'children' => [
                         'lang' => [
                             'type' => 'select',

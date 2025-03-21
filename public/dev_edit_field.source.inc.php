@@ -11,12 +11,7 @@ use RAAS\Field as RAASField;
  * Отображает поле
  * @param RAASField $field Поле для отображения
  */
-$_RAASForm_Field = function(RAASField $field) use (
-    &$_RAASForm_Attrs,
-    &$_RAASForm_Options,
-    &$_RAASForm_Checkbox,
-    &$_RAASForm_Control
-) {
+$_RAASForm_Field = function(RAASField $field) {
     ?>
     <div class="control-group">
       <label class="control-label">
@@ -24,27 +19,33 @@ $_RAASForm_Field = function(RAASField $field) use (
       </label>
       <div class="controls">
         <?php
-        include Application::i()->view->context->tmp('/field.inc.php');
-        $field->type = 'textarea';
-        $field->id = 'source_textarea';
-        $field->class = 'code';
-        $_RAASForm_Control($field);
-        $field->type = 'select';
-        $field->id = 'source_dictionary';
-        $field->class = '';
-        $_RAASForm_Control($field);
-        $field->id = 'source_materials';
+        $field1 = clone $field;
+        $field1->Parent = $field->Parent;
+        $field1->type = 'textarea';
+        $field1->id = 'source_textarea';
+        $field1->class = 'code';
+        $field1->__set('children', []);
+        echo $field1->render();
+        $field1 = clone $field;
+        $field1->Parent = $field->Parent;
+        $field1->type = 'select';
+        $field1->id = 'source_dictionary';
+        $field1->class = '';
+        echo $field1->render();
+        $field1 = clone $field;
+        $field1->Parent = $field->Parent;
+        $field1->id = 'source_materials';
         $row = new Material_Type();
-        $field->children = ['Set' => $row->children];
-        $field->placeholder = Application::i()->view->context->_('ALL_MATERIAL_TYPES');
-        $_RAASForm_Control($field);
+        $field1->__set('children', ['Set' => $row->children]);
+        $field1->placeholder = Application::i()->view->context->_('ALL_MATERIAL_TYPES');
+        echo $field1->render();
         ?>
       </div>
     </div>
     <?php
     $field->type = 'text';
     $field->caption = Application::i()->view->context->_('ALLOWED_FILE_EXTENSIONS');
-    $field->children = [];
+    $field->__set('children', []);
     $field->placeholder = Application::i()->view->context->_('ALLOWED_FILE_EXTENSIONS_HINT');
     $field->id = 'source_file';
     ?>
@@ -54,7 +55,7 @@ $_RAASForm_Field = function(RAASField $field) use (
       </label>
       <div class="controls">
         <?php
-        $_RAASForm_Control($field);
+        echo $field->render();
         ?>
       </div>
     </div>
@@ -62,7 +63,7 @@ $_RAASForm_Field = function(RAASField $field) use (
     $field->type = 'text';
     $field->caption = Application::i()->view->context->_('MEASURE_UNIT');
     $field->placeholder = '';
-    $field->children = [];
+    $field->__set('children', []);
     $field->id = 'source_unit';
     ?>
     <div class="control-group">
@@ -71,7 +72,7 @@ $_RAASForm_Field = function(RAASField $field) use (
       </label>
       <div class="controls">
         <?php
-        $_RAASForm_Control($field);
+        echo $field->render();
         ?>
       </div>
     </div>

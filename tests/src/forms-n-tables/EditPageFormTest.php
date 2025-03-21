@@ -136,7 +136,6 @@ class EditPageFormTest extends BaseTest
 
         $this->assertEquals('', $result['DATA']['response_code']);
         $this->assertEquals('test', $result['DATA']['urn'][0]);
-        $this->assertEquals(false, $result['DATA']['inherit_noindex']);
     }
 
 
@@ -153,7 +152,6 @@ class EditPageFormTest extends BaseTest
             'urn' => ['test2', 'test2.volumnet.ru'],
             'name' => 'Тестовый домен 2',
             '_description_' => 'aaa',
-            'inherit__description_' => 1
         ];
         $form = new EditPageForm(['Item' => new Page()]);
 
@@ -166,7 +164,6 @@ class EditPageFormTest extends BaseTest
         $this->assertEquals('Тестовый домен 2', $item->name);
         $this->assertEquals('test2 test2.volumnet.ru', $item->urn);
         $this->assertEquals('aaa', $item->_description_);
-        $this->assertEquals(true, $item->fields['_description_']->inherited);
         $this->assertEquals(1, $item->author_id);
         $this->assertEquals(1, $item->editor_id);
 

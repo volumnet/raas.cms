@@ -37,7 +37,6 @@ class EditFormForm extends RAASForm
         $CONTENT = [];
         $CONTENT['material_types'] = (array)Material_Type::getSet();
         foreach ([
-            '' => '_OFF',
             // 'captcha' => 'CAPTCHA',
             // 2020-11-04, AVS: убрал, т.к. ни разу не воспользовались,
             // и вообще не ясно, как с этим работать
@@ -58,7 +57,7 @@ class EditFormForm extends RAASForm
                 'name' => [
                     'name' => 'name',
                     'caption' => $view->_('NAME'),
-                    'required' => 'required'
+                    'required' => 'required',
                 ],
                 'urn' => [
                     'name' => 'urn',
@@ -88,7 +87,8 @@ class EditFormForm extends RAASForm
                     'name' => 'antispam',
                     'caption' => $view->_('ANTISPAM_FIELD'),
                     'children' => $CONTENT['antispam'],
-                    'default' => 'hidden'
+                    'default' => 'hidden',
+                    'placeholder' => $view->_('_OFF'),
                 ],
                 'antispam_field_name' => [
                     'name' => 'antispam_field_name',

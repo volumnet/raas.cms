@@ -256,7 +256,7 @@ class EditBlockForm extends RAASForm
                             'multiple' => true,
                         ],
                     ],
-                    'template' => 'edit_block.params.php',
+                    'template' => 'edit_block.params.inc.php',
                     'import' => function () use ($item) {
                         $params = explode('&', $item['params'] ?? '');
                         $result = [];

@@ -399,7 +399,7 @@ class Sub_Dev extends RAASAbstractSubController
                     }
                 }
             }
-            if (isset($_POST['priority']) && is_array($_POST['priority'])) {
+            if (is_array($_POST['priority'] ?? null)) {
                 $this->model->setEntitiesPriority(
                     Dictionary::class,
                     (array)$_POST['priority']
@@ -488,7 +488,7 @@ class Sub_Dev extends RAASAbstractSubController
                 : new Menu(isset($_GET['pid']) ? (int)$_GET['pid'] : 0);
         $OUT = [];
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            if (isset($_POST['priority']) && is_array($_POST['priority'])) {
+            if (is_array($_POST['priority'] ?? null)) {
                 foreach ($_POST['priority'] as $key => $val) {
                     $row = new Menu($key);
                     if ($row->id) {
@@ -674,24 +674,22 @@ class Sub_Dev extends RAASAbstractSubController
     protected function edit_material_type()
     {
         $Item = new Material_Type((int)$this->id);
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            if (isset($_POST['priority']) && is_array($_POST['priority'])) {
-                $this->model->setEntitiesPriority(
-                    Material_Field::class,
-                    (array)$_POST['priority']
-                );
+        if ((is_array($_POST['priority'] ?? null)) ||
+            (is_array($_POST['fieldgrouppriority'] ?? null)) ||
+            (is_array($_POST['show_in_form'] ?? null))
+        ) {
+            if (is_array($_POST['priority'] ?? null)) {
+                $this->model->setEntitiesPriority(Material_Field::class, (array)$_POST['priority']);
             }
-            if (isset($_POST['fieldgrouppriority']) && is_array($_POST['fieldgrouppriority'])) {
+            if (is_array($_POST['fieldgrouppriority'] ?? null)) {
                 $this->model->setEntitiesPriority(
                     FieldGroup::class,
                     (array)$_POST['fieldgrouppriority']
                 );
             }
-            if (isset($_POST['show_in_form']) && is_array($_POST['show_in_form'])) {
+            if (is_array($_POST['show_in_form'] ?? null)) {
                 $fields = $Item->fields;
-                $fieldsIds = array_map(function ($field) {
-                    return (int)$field->id;
-                }, $fields);
+                $fieldsIds = array_map(fn($field) => (int)$field->id, $fields);
                 $formVisArr = [];
                 foreach ($fieldsIds as $fieldId) {
                     $formVisArr[trim((string)$fieldId)] = [
@@ -701,6 +699,8 @@ class Sub_Dev extends RAASAbstractSubController
                 }
                 $Item->setFormFieldsIds($formVisArr);
             }
+            new Redirector('history:back');
+            exit;
         }
         if ($Item->pid) {
             $Parent = $Item->parent;
@@ -749,13 +749,10 @@ class Sub_Dev extends RAASAbstractSubController
      */
     protected function edit_form()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            if (isset($_POST['priority']) && is_array($_POST['priority'])) {
-                $this->model->setEntitiesPriority(
-                    Form_Field::class,
-                    (array)$_POST['priority']
-                );
-            }
+        if (is_array($_POST['priority'] ?? null)) {
+            $this->model->setEntitiesPriority(Form_Field::class, (array)$_POST['priority']);
+            new Redirector('history:back');
+            exit;
         }
         $Item = new Form((int)$this->id);
         $Form = new EditFormForm(['Item' => $Item]);
@@ -790,11 +787,8 @@ class Sub_Dev extends RAASAbstractSubController
     protected function pages_fields()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            if (isset($_POST['priority']) && is_array($_POST['priority'])) {
-                $this->model->setEntitiesPriority(
-                    Page_Field::class,
-                    (array)$_POST['priority']
-                );
+            if (is_array($_POST['priority'] ?? null)) {
+                $this->model->setEntitiesPriority(Page_Field::class, (array)$_POST['priority']);
             }
         }
         $this->view->pages_fields(['Set' => $this->model->dev_pages_fields()]);

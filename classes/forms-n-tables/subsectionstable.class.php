@@ -184,9 +184,13 @@ class SubsectionsTable extends \RAAS\Table
             ];
         }
         $arr = $params;
-        $arr['data-role'] = 'multitable';
-        $arr['meta']['allContextMenu'] = $view->getAllPagesContextMenu();
-        $arr['meta']['allValue'] = 'all&pid=' . (int)$params['Item']->id;
+        if ($params['Item']->id) {
+            $arr['data-role'] = 'multitable';
+            $arr['meta']['allContextMenu'] = $view->getAllPagesContextMenu();
+            $arr['meta']['allValue'] = 'all&pid=' . (int)$params['Item']->id;
+            $arr['meta']['priorityColumn'] = 'priority';
+            $arr['meta']['formHash'] = 'subsections';
+        }
         $arr['columns'] = $columns;
         parent::__construct($arr);
         if ($params['Item']->id) {

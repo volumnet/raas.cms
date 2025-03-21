@@ -538,7 +538,7 @@ class Controller_Frontend extends Abstract_Controller
         $content = '';
         $blockId = (int)($_SERVER['HTTP_X_RAAS_BLOCK_ID'] ?? 0);
         $url = parse_url($this->requestUri);
-        $url = $url['path'] ?? '';
+        $url = $url ? ($url['path'] ?? '') : '';
         $url = str_replace('\\', '/', (string)$url);
         $page = $originalPage = Page::importByURL(
             $this->scheme . '://' . $this->host . $url

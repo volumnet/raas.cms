@@ -45,26 +45,11 @@ class EditBlockMaterialForm extends EditBlockForm
     {
         $tab = parent::getServiceTab();
         $this->meta['CONTENT']['fields'] = [
-            [
-                'value' => 'name',
-                'caption' => $this->view->_('NAME')
-            ],
-            [
-                'value' => 'urn',
-                'caption' => $this->view->_('URN')
-            ],
-            [
-                'value' => 'description',
-                'caption' => $this->view->_('DESCRIPTION')
-            ],
-            [
-                'value' => 'post_date',
-                'caption' => $this->view->_('CREATED_BY')
-            ],
-            [
-                'value' => 'modify_date',
-                'caption' => $this->view->_('EDITED_BY')
-            ],
+            ['value' => 'name', 'caption' => $this->view->_('NAME')],
+            ['value' => 'urn', 'caption' => $this->view->_('URN')],
+            ['value' => 'description', 'caption' => $this->view->_('DESCRIPTION')],
+            ['value' => 'post_date', 'caption' => $this->view->_('CREATED_BY')],
+            ['value' => 'modify_date', 'caption' => $this->view->_('EDITED_BY')],
         ];
         if ($this->Item && $this->Item->id) {
             $materialType = $this->Item->Material_Type;
@@ -98,7 +83,7 @@ class EditBlockMaterialForm extends EditBlockForm
         $tab->children['rows_per_page'] = $this->getRowsPerPageField();
         $tab->children['filter_params'] = new FieldSet([
             'caption' => $this->view->_('FILTER_PARAMS'),
-            'template' => 'edit_block_material.filter.php',
+            'template' => 'edit_block_material.filter.inc.php',
             'import' => function ($fieldSet) {
                 $DATA = [];
                 if ($fieldSet->Form->Item->filter) {
@@ -126,14 +111,12 @@ class EditBlockMaterialForm extends EditBlockForm
                         }
                     }
                 }
-                if ($temp) {
-                    $fieldSet->Form->Item->filter = $temp;
-                }
+                $fieldSet->Form->Item->filter = $temp;
             }
         ]);
         $tab->children['sorting_params'] = new FieldSet([
             'caption' => $this->view->_('SORTING_PARAMS'),
-            'template' => 'edit_block_material.sort.php',
+            'template' => 'edit_block_material.sort.inc.php',
             'import' => function ($fieldSet) {
                 $DATA = $fieldSet->importDefault();
                 if ($fieldSet->Form->Item->sort) {
@@ -159,39 +142,29 @@ class EditBlockMaterialForm extends EditBlockForm
                         }
                     }
                 }
-                if ($temp) {
-                    $fieldSet->Form->Item->sort = $temp;
-                }
+                $fieldSet->Form->Item->sort = $temp;
             },
             'children' => [
                 'sort_var_name' => [
                     'name' => 'sort_var_name',
                     'placeholder' => $this->view->_('SORTING_VAR'),
-                    'class' => 'span2'
                 ],
                 'order_var_name' => [
                     'name' => 'order_var_name',
                     'placeholder' => $this->view->_('ORDER_VAR'),
-                    'class' => 'span2'
                 ],
                 'sort_field_default' => [
                     'type' => 'select',
                     'name' => 'sort_field_default',
                     'children' => $this->meta['CONTENT']['fields'],
-                    'class' => 'span2 jsMaterialTypeField'
+                    'data-role' => 'material-type-field',
                 ],
                 'sort_order_default' => [
                     'type' => 'select',
                     'name' => 'sort_order_default',
                     'children' => $this->meta['CONTENT']['orders'],
-                    'class' => 'span2'
                 ]
             ]
-        ]);
-        $tab->children['legacy'] = new RAASField([
-            'type' => 'checkbox',
-            'name' => 'legacy',
-            'caption' => $this->view->_('REDIRECT_LEGACY_ADDRESSES')
         ]);
         $tab->children['interface_id'] = $this->getInterfaceField();
         return $tab;

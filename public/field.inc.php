@@ -12,7 +12,7 @@ use RAAS\Field as RAASField;
  * @param RAASField $field Поле для отображения
  * @param bool $confirm Добавить подтверждение пароля для элемента пароля
  */
-$_RAASForm_Control = function (RAASField $field, $confirm = true) use (&$_RAASForm_Attrs) {
+$_RAASForm_Control = function (RAASField $field, $confirm = true) {
     $attrs = [];
     // 2025-02-27, AVS: здесь используются только переопределенные типы (field.class.php:71), остальные указывать не нужно
     switch ($field->type) {
@@ -42,7 +42,7 @@ $_RAASForm_Control = function (RAASField $field, $confirm = true) use (&$_RAASFo
                   :required="<?php echo htmlspecialchars(json_encode((bool)$field->required))?>"
                   v-slot="repo"
                 >
-                  <raas-cms-field-material <?php echo $_RAASForm_Attrs($field, $attrs)?>></raas-cms-field-material>
+                  <raas-cms-field-material<?php echo $field->getAttrsString($attrs)?>></raas-cms-field-material>
                 </raas-repo>
             <?php } else {
                 // 2015-06-08, AVS: В выражении (int)$field->Form->DATA[$field->name] убрал (int),
@@ -54,7 +54,7 @@ $_RAASForm_Control = function (RAASField $field, $confirm = true) use (&$_RAASFo
                 $data = Controller_Ajax::i()->formatMaterial($val);
                 $attrs[':model-value'] = json_encode($data);
                 ?>
-                <raas-cms-field-material <?php echo $_RAASForm_Attrs($field, $attrs)?>></raas-cms-field-material>
+                <raas-cms-field-material<?php echo $field->getAttrsString($attrs)?>></raas-cms-field-material>
             <?php }
             break;
         case 'image':
@@ -118,9 +118,9 @@ $_RAASForm_Control = function (RAASField $field, $confirm = true) use (&$_RAASFo
             }
 
             if (!$field->multiple) { ?>
-                <raas-cms-field-file<?php echo $_RAASForm_Attrs($field, $attrs)?>></raas-cms-field-file>
+                <raas-cms-field-file<?php echo $field->getAttrsString($attrs)?>></raas-cms-field-file>
             <?php } else { ?>
-                <raas-cms-field-file-multiple<?php echo $_RAASForm_Attrs($field, $attrs)?>></raas-cms-field-file-multiple>
+                <raas-cms-field-file-multiple<?php echo $field->getAttrsString($attrs)?>></raas-cms-field-file-multiple>
             <?php }
             break;
     }

@@ -136,7 +136,6 @@ class ViewSub_Main extends RAASAbstractSubView
             $in['Item']->id ? $in['Item'] : $in['Parent']
         );
         $this->js[] = $this->publicURL . '/edit_meta.inc.js';
-        $this->js[] = $this->publicURL . '/edit_page.js';
         $this->stdView->stdEdit($in, 'getPageContextMenu');
         $this->subtitle = $this->getPageSubtitle($in['Item']);
     }
@@ -255,7 +254,6 @@ class ViewSub_Main extends RAASAbstractSubView
             ];
         }
         $this->submenu = $this->pagesMenu(new Page(), $in['Parent']);
-        $this->js[] = $this->publicURL . '/edit_material.js';
         $this->js[] = $this->publicURL . '/edit_meta.inc.js';
         $this->stdView->stdEdit($in, 'getMaterialContextMenu');
         $this->subtitle = $this->getMaterialSubtitle($in['Item']);

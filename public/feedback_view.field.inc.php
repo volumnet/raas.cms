@@ -10,12 +10,7 @@ use RAAS\Field as RAASField;
  * Отображает поле
  * @param RAASField $field Поле для отображения
  */
-$_RAASForm_Control = function (RAASField $field) use (
-    &$_RAASForm_Attrs,
-    &$_RAASForm_Options,
-    &$_RAASForm_Checkbox,
-    &$_RAASForm_Control
-) {
+$_RAASForm_Control = function (RAASField $field) {
     $Item = $field->Form->Item;
     if (isset($field->meta['Field'])) {
         $f = $field->meta['Field'];

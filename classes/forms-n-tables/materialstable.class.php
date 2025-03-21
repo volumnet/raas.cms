@@ -52,12 +52,7 @@ class MaterialsTable extends Table
                 $columns[$col->urn] = [
                     'caption' => $col->name,
                     'sortable' => Column::SORTABLE_REVERSABLE,
-                    'callback' => function ($row) use (
-                        $col,
-                        $view,
-                        $params,
-                        $pidText
-                    ) {
+                    'callback' => function ($row) use ($col, $view, $params, $pidText) {
                         $f = $row->fields[$col->urn];
                         $v = $f->getValue();
                         if ($v && $v->id) {
@@ -180,6 +175,8 @@ class MaterialsTable extends Table
                     'allValue' => 'all&mtype='
                                .  (isset($params['mtype']) ? (int)$params['mtype']->id : 0)
                                .  $pidText,
+                    'priorityColumn' => 'priority',
+                    'formHash' => '_' . ($params['mtype']->urn ?? '')
                 ],
                 'data-role' => 'multitable',
                 'columns' => $columns

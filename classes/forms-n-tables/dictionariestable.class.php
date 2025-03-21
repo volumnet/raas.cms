@@ -75,6 +75,7 @@ class DictionariesTable extends Table
             'meta' => [
                 'allContextMenu' => $view->getAllDictionariesContextMenu(),
                 'allValue' => 'all&pid=' . (int)$params['Item']->id,
+                'priorityColumn' => 'priority',
             ],
         ];
         $arr = array_merge($defaultParams, $params);

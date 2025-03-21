@@ -34,23 +34,24 @@ class MenusTable extends Table
         $defaultParams = [
             'columns' => [],
             'emptyString' => $this->view->_('NO_NOTES_FOUND'),
-            'data-role' => 'multitable',
             'meta' => [
-                'realizedCounter' => 0,
+                'realizedCounter' => count(array_filter((array)($params['Set'] ?? []), fn($x) => $x->realized)),
             ]
         ];
         if ($item->id) {
-            $defaultParams['meta']['allContextMenu'] = $this->view->getAllMenusContextMenu();
-            $defaultParams['meta']['allValue'] = 'all&pid=' . (int)$params['Item']->id;
-            $defaultParams['template'] = 'cms/prioritytable.tmp.php';
+            if ($defaultParams['meta']['realizedCounter']) {
+                $defaultParams['data-role'] = 'multitable';
+                $defaultParams['meta']['allContextMenu'] = $this->view->getAllMenusContextMenu();
+                $defaultParams['meta']['allValue'] = 'all&pid=' . (int)$params['Item']->id;
+                $defaultParams['meta']['priorityColumn'] = 'priority';
+            }
         }
         $defaultParams['columns']['id'] = [
             'caption' => $this->view->_('ID'),
             'callback' => function (Menu $menu) use ($item) {
                 $text = (int)$menu->id ?: '';
                 if ($menu->realized || !$item->id) {
-                    $this->meta['realizedCounter'] = $this->meta['realizedCounter']
-                                                      + 1;
+                    $this->meta['realizedCounter'] = $this->meta['realizedCounter'] + 1;
                     return '<a href="' . $this->getEditURL($menu) . '" class="' . $this->getLinkClass($menu) . '">
                               ' . $text . '
                             </a>';

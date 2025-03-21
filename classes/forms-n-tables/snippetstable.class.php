@@ -122,7 +122,6 @@ class SnippetsTable extends Table
             },
             'emptyString' => $this->view->_('NO_SNIPPETS_FOUND'),
             'Set' => $this->buildSnippetTree(new Snippet_Folder(), 0),
-            'template' => 'cms/multitable.tmp.php',
             'data-role' => 'multitable',
             'meta' => [
                 'allContextMenu' => $this->view->getAllSnippetsContextMenu(),
