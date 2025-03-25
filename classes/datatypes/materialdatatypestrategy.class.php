@@ -55,4 +55,15 @@ class MaterialDatatypeStrategy extends DatatypeStrategy
         }
         return $result;
     }
+
+
+    public function importForJSON($value)
+    {
+        $result = $value;
+        if (is_scalar($result) || is_null($result)) {
+            $result = new Material($result);
+        }
+        $result = Controller_Ajax::i()->formatMaterial($result);
+        return $result;
+    }
 }

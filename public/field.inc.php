@@ -10,26 +10,29 @@ use RAAS\Field as RAASField;
 /**
  * Отображение элемента управления
  * @param RAASField $field Поле для отображения
- * @param bool $confirm Добавить подтверждение пароля для элемента пароля
+ * @param bool $confirmPassword Добавить подтверждение пароля для элемента пароля
+ * @param array $additional Дополнительные атрибуты
  */
-$_RAASForm_Control = function (RAASField $field, $confirm = true) {
+$_RAASForm_Control = function (RAASField $field, $confirmPassword = true, array $additional = []) {
     $attrs = [];
     // 2025-02-27, AVS: здесь используются только переопределенные типы (field.class.php:71), остальные указывать не нужно
     switch ($field->type) {
         case 'material':
-            $originalField = $field->meta['CustomField'];
+            $originalField = $field->meta['CustomField'] ?? null;
 
-            $attrs = [':field-id' => $originalField->id];
+            $attrs = [':field-id' => $originalField->id ?? 0];
 
             if ($field->multiple) {
-                $set = (array)($field->Form->DATA[$field->name] ?? []);
-                $set = array_map(function ($val) {
-                    if (is_scalar($val) || is_null($val)) {
-                        $val = new Material($val);
-                    }
-                    return $val;
-                }, $set);
-                $data = array_map(fn($val) => Controller_Ajax::i()->formatMaterial($val), $set);
+                $data = array_map(
+                    fn($val) => $field->datatypeStrategy->importForJSON($val),
+                    (array)($field->Form->DATA[$field->name] ?? [])
+                );
+            } else {
+                $data = $field->datatypeStrategy->importForJSON($field->Form->DATA[$field->name] ?? null);
+            }
+
+            if ($field->multiple && (!isset($additional['multiple']) || $additional['multiple'])) {
+                $attrs = array_merge($attrs, $additional);
                 $attrs['multiple'] = null; // Чтобы перекрыть стандартный атрибут multiple="1"
                 $attrs[':multiple'] = 'true';
                 $attrs[':model-value'] = 'repo.modelValue';
@@ -45,14 +48,8 @@ $_RAASForm_Control = function (RAASField $field, $confirm = true) {
                   <raas-cms-field-material<?php echo $field->getAttrsString($attrs)?>></raas-cms-field-material>
                 </raas-repo>
             <?php } else {
-                // 2015-06-08, AVS: В выражении (int)$field->Form->DATA[$field->name] убрал (int),
-                // т.к. $val типа материал
-                $val = $field->Form->DATA[$field->name] ?? null;
-                if (is_scalar($val) || is_null($val)) {
-                    $val = new Material($val);
-                }
-                $data = Controller_Ajax::i()->formatMaterial($val);
                 $attrs[':model-value'] = json_encode($data);
+                $attrs = array_merge($attrs, $additional);
                 ?>
                 <raas-cms-field-material<?php echo $field->getAttrsString($attrs)?>></raas-cms-field-material>
             <?php }
@@ -116,6 +113,7 @@ $_RAASForm_Control = function (RAASField $field, $confirm = true) {
             if ($field->type == 'image') {
                 $attrs['accept'] = 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml';
             }
+            $attrs = array_merge($attrs, $additional);
 
             if (!$field->multiple) { ?>
                 <raas-cms-field-file<?php echo $field->getAttrsString($attrs)?>></raas-cms-field-file>

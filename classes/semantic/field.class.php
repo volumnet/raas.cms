@@ -62,7 +62,7 @@ class Field extends CustomField
                 return $this->datatype;
                 break;
             case 'datatypeStrategy':
-                return DatatypeStrategy::spawn($this->datatypeStrategyURN);
+                return DatatypeStrategy::spawn($this->__get('datatypeStrategyURN'));
                 break;
             case 'Field':
                 $field = parent::__get($var);

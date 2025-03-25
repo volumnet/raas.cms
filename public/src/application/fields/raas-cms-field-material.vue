@@ -36,7 +36,7 @@ export default {
          */
         fieldId: {
             type: Number,
-            default: '',
+            default: 0,
         },
     },
 };
