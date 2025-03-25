@@ -44,7 +44,7 @@ class RedirectsForm extends RAASForm
             'export' => 'is_null',
             'children' => [
                 'redirectsTable' => new FieldSet([
-                    'template' => 'redirects.inc.php',
+                    'template' => fn($fieldSet) => $fieldSet->children->renderCompound(),
                     'children' => [
                         'redirect_id' => [
                             'type' => 'hidden',
@@ -56,6 +56,9 @@ class RedirectsForm extends RAASForm
                             'name' => 'redirect_rx',
                             'caption' => $this->view->_('REDIRECTS_RX'),
                             'multiple' => true,
+                            'meta' => [
+                                'hint' => $this->view->_('REGULAR_EXPRESSION'),
+                            ],
                         ],
                         'redirect_url_from' => [
                             'name' => 'redirect_url_from',

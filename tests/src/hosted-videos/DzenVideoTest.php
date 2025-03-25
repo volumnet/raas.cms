@@ -110,17 +110,17 @@ class DzenVideoTest extends BaseTest
     #[TestWith([
         'https://dzen.ru/video/watch/6373fd921c149b3a052105c4?sid=847798295197551089',
         [],
-        'https://avatars.dzeninfra.ru/',
+        'https://', // Адреса у них меняются постоянно
     ])]
     #[TestWith([
         'https://dzen.ru/embed/vMDEtpvOH9kw?from_block=partner&from=zen&mute=0&autoplay=0&tv=0',
         [],
-        'https://avatars.dzeninfra.ru/',
+        'https://', // Адреса у них меняются постоянно
     ])]
     #[TestWith([
         'https://dzen.ru/video/watch/66e881f5eb4e2070434f5911?sid=847798295197551089',
         [],
-        'https://avatars.dzeninfra.ru/',
+        'https://', // Адреса у них меняются постоянно
     ])]
     public function testGetCoverURL(string $url, array $options, string $expected)
     {
