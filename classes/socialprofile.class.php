@@ -134,6 +134,12 @@ abstract class SocialProfile
     public $identity;
 
     /**
+     * Непонятно, что это
+     * @var string
+     */
+    public $verified_email;
+
+    /**
      * Привязка типов адресов (регулярные выражения) к константам соц. сетей
      * @var array<string[] => int>
      */
