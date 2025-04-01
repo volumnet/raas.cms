@@ -4,4 +4,7 @@
  */
 namespace RAAS\CMS;
 
-echo $Form->children->render();
+?>
+<form<?php echo $Form->getAttrsString()?>>
+  <?php echo $Form->children->render(); ?>
+</form>

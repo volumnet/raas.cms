@@ -596,7 +596,7 @@ class SitemapInterface extends AbstractInterface
             $sqlResult = Field::_SQL()->get($sqlQuery);
             foreach ($sqlResult as $sqlRow) {
                 $json = json_decode($sqlRow['value'], true);
-                if ($json['vis']) {
+                if ($json['vis'] ?? null) {
                     $affectedMaterialsIds[trim((string)$sqlRow['pid'])] = (int)$sqlRow['pid'];
                     $affectedAttachmentsIds[trim((string)$json['attachment'])] = (int)$json['attachment'];
                     $json['fid'] = $sqlRow['fid'];
