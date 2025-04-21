@@ -453,7 +453,7 @@ class Material extends SOME
             $sqlResult = static::_SQL()->getcol([$sqlQuery]);
             $otherAttachmentsIds = array_values(array_filter(array_map(function ($x) {
                 $json = (array)json_decode($x, true);
-                $attachmentId = (int)$json['attachment'];
+                $attachmentId = (int)($json['attachment'] ?? 0);
                 return $attachmentId;
             }, $sqlResult)));
 

@@ -412,9 +412,6 @@ class Sub_Main extends RAASAbstractSubController
                   (int)$_GET['mtype'] :
                   0
               );
-        if (!$Type->id) {
-            new Redirector($this->url . '&id=' . (int)$Parent->id);
-        }
         if (!$Item->id) {
             $Item->pid = (int)$Type->id;
         }
@@ -433,6 +430,9 @@ class Sub_Main extends RAASAbstractSubController
             }
         } elseif (isset($_GET['pid'])) {
             $Parent = new Page((int)($_GET['pid'] ?? 0));
+        }
+        if (!$Type->id) {
+            new Redirector($this->url . '&id=' . (int)$Parent->id);
         }
         foreach ($Item->relatedMaterialTypes as $mtype) {
             foreach (['sort', 'order'] as $v) {
