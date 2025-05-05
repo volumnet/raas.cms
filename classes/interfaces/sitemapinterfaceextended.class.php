@@ -78,16 +78,20 @@ class SitemapInterfaceExtended extends SitemapInterface
 
         $catalogPage = Page::importByURL($page->domain . $catalogPageUrl);
         $catalogMType = Material_Type::importByURN($catalogMTypeURN);
+        // 2025-04-22, AVS: добавил проверку на не-null, иначе возникают ошибки
+        if (!$catalogPage || !$catalogMType) {
+            return;
+        }
 
         $sqlQuery = "SELECT id FROM " . Material_Type::_tablename();
-        $allMTypesIds = Material_Type::_SQL()->getcol($sqlQuery);
+        $allMTypesIds = (array)Material_Type::_SQL()->getcol($sqlQuery);
 
-        $catalogMTypesIds = $catalogMType->selfAndChildrenIds;
+        $catalogMTypesIds = (array)$catalogMType->selfAndChildrenIds;
         $restMTypesIds = array_values(
             array_diff($allMTypesIds, $catalogMTypesIds)
         );
 
-        $catalogPagesIds = $catalogPage->selfAndChildrenIds;
+        $catalogPagesIds = (array)$catalogPage->selfAndChildrenIds;
         file_put_contents(
             Application::i()->baseDir . '/sitemap.sections.xml',
             $this->getSectionsSitemap($catalogPagesIds, $restMTypesIds)

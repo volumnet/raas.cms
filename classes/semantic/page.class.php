@@ -994,7 +994,7 @@ class Page extends SOME
         $this->clearCache();
         $url = $this->fullURL;
         $url = preg_replace('/^(http(s)?:)?\/\//umis', '', $url);
-        $url = 'http' . (($_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $url;
+        $url = 'http' . ((($_SERVER['HTTPS'] ?? '') == 'on') ? 's' : '') . '://' . $url;
         $text = @file_get_contents($url, false, stream_context_create([
             'ssl' => [
                 'allow_self_signed' => true,

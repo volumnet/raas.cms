@@ -152,6 +152,12 @@ abstract class SocialProfile
     public $expires_in;
 
     /**
+     * Непонятно, что это
+     * @var string
+     */
+    public $uid;
+
+    /**
      * Привязка типов адресов (регулярные выражения) к константам соц. сетей
      * @var array<string[] => int>
      */
