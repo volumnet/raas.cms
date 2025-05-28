@@ -346,7 +346,7 @@ class PageCopyHelper
         $destBlocks = $this->getPageBlocks($pageId);
         $blocksToCopy = array_diff($srcBlocks, $destBlocks);
         foreach ($blocksToCopy as $blockId) {
-            $this->copyBlock($blockId, $srcId, $pageId, $mainPage);
+            $this->copyBlock($blockId, $srcId, $pageId);
         }
     }
 
@@ -575,11 +575,11 @@ class PageCopyHelper
         }, $mtype->fields);
         $sqlQuery = "SELECT DISTINCT tM.id
                         FROM " . Material::_tablename() . " AS tM ";
-        if (!$isGlobal) {
+        if (!$mtype->global_type) {
             $sqlQuery .= " JOIN cms_materials_pages_assoc AS tMPA ON tMPA.id = tM.id ";
         }
         $sqlQuery .= " WHERE tM.pid IN (" . implode(", ", $mtype->selfAndChildrenIds) . ") ";
-        if (!$isGlobal) {
+        if (!$mtype->global_type) {
             $sqlQuery .= " AND tMPA.pid IN (" . implode(", ", array_keys($this->pageMapping)) . ") ";
         }
         $materialsIds = Material::_SQL()->getcol($sqlQuery);
@@ -698,7 +698,7 @@ class PageCopyHelper
         $sqlResult = Material::_SQL()->getcol($sqlQuery);
         $arr = [];
         foreach ($sqlResult as $pid) {
-            if ($newPid = $this->pageMapping[$pid]) {
+            if ($newPid = ($this->pageMapping[$pid] ?? 0)) {
                 $arr[] = ['id' => $destId, 'pid' => $newPid];
             }
         }

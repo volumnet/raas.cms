@@ -86,6 +86,9 @@ class FieldArrayFormatter
                 $result['accept'] = implode(',', $allowedExtensions);
             }
         }
+        if (($result['datatype'] == 'image') && !$result['accept']) {
+            $result['accept'] = 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml';
+        }
         if (!$this->getAdminFields) {
             unset(
                 $result['classname'],

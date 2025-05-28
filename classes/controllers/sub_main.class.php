@@ -311,12 +311,10 @@ class Sub_Main extends RAASAbstractSubController
         $OUT = [];
         $OUT['Parent'] = $Parent;
         $OUT['Original'] = $Original;
-        $OUT['Type'] = $Type;
         $Item = $this->model->copyItem($Item);
         $Form = new CopyPageForm([
             'Item' => $Item,
             'Parent' => $Parent,
-            'Type' => $Type,
             'Original' => $Original,
         ]);
         $OUT = array_merge($OUT, (array)$Form->process());

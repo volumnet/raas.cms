@@ -7,6 +7,7 @@ declare(strict_types=1);
 namespace RAAS\CMS;
 
 use RAAS\Application;
+use RAAS\Field as RAASField;
 use RAAS\FieldSet;
 use RAAS\Form as RAASForm;
 use RAAS\FormTab;
@@ -49,7 +50,15 @@ class EditPageForm extends RAASForm
         }
 
         $tabs = [];
-        $tabs['common'] = $this->getCommonTab($item, $parent);
+        foreach (PageFieldGroup::getSet() as $fieldGroupURN => $fieldGroup) {
+            if ($fieldGroupURN == '') {
+                $tabs['common'] = $this->getCommonTab($item, $parent);
+            } else {
+                if ($tab = $this->getGroupTab($fieldGroup, $item)) {
+                    $tabs[$tab->name] = $tab;
+                }
+            }
+        }
         $tabs['seo'] = $this->getSeoTab($parent, $item);
         if (isset(Application::i()->packages['cms']->modules['users'])) {
             $tabs['access'] = new CMSAccessFormTab($params);
@@ -80,30 +89,29 @@ class EditPageForm extends RAASForm
      * @param Page $parent Родительская страница
      * @return FormTab
      */
-    protected function getCommonTab(Page $item, Page $parent)
+    protected function getCommonTab(Page $item, Page $parent): FormTab
     {
-        $commonTab = new FormTab([
+        $groupTabs = PageFieldGroup::getSet();
+        $groupTab = $this->getGroupTab($groupTabs[''], $item);
+        $tab = new FormTab([
             'name' => 'common',
             'caption' => $this->view->_('GENERAL'),
-            'children' => [
-                [
-                    'name' => 'name',
-                    'class' => 'span5',
-                    'caption' => $this->view->_('NAME'),
-                    'required' => 'required'
-                ]
-            ]
+        ]);
+        $tab->children['name'] = new RAASField([
+            'name' => 'name',
+            'class' => 'span8',
+            'caption' => $this->view->_('NAME'),
+            'required' => 'required'
         ]);
         if ($parent->id) {
-            $commonTab->children['urn'] = [
+            $tab->children['urn'] = [
                 'name' => 'urn',
                 'class' => 'span5',
                 'caption' => $this->view->_('URN')
             ];
         } else {
-            $commonTab->children['urn'] = [
+            $tab->children['urn'] = [
                 'name' => 'urn',
-                'class' => 'span5',
                 'multiple' => true,
                 'caption' => $this->view->_('DOMAIN_NAMES'),
                 'required' => true,
@@ -121,10 +129,35 @@ class EditPageForm extends RAASForm
                 },
             ];
         }
-        foreach ($item->fields as $row) {
-            $commonTab->children[$row->urn] = $row->Field;
+        foreach ($groupTab->children as $fieldURN => $field) {
+            $tab->children[$fieldURN] = $field;
         }
-        return $commonTab;
+        return $tab;
+    }
+
+
+    /**
+     * Получает вкладку по группе полей
+     * @param FieldGroup $fieldGroup Группа полей
+     * @param Page $item Страница для редактирования
+     * @return FormTab|null null, если нет полей и группа не общая
+     */
+    protected function getGroupTab(FieldGroup $fieldGroup, Page $item): ?FormTab
+    {
+        $tab = new FormTab([
+            'name' => 'group_' . $fieldGroup->urn,
+            'caption' => $fieldGroup->name
+        ]);
+        $formFields = $fieldGroup->getFields($item);
+        if (!$formFields && $fieldGroup->id) {
+            return null;
+        }
+        foreach ($formFields as $field) {
+            $field = $field->deepClone();
+            $field->Owner = $item;
+            $tab->children[$field->urn] = $field->Field;
+        }
+        return $tab;
     }
 
 
@@ -134,7 +167,7 @@ class EditPageForm extends RAASForm
      * @param ?Page $item Текущая страница
      * @return FormTab
      */
-    protected function getSeoTab(Page $parent, ?Page $item = null)
+    protected function getSeoTab(Page $parent, ?Page $item = null): FormTab
     {
         $seoTab = new FormTab(
             [
@@ -252,7 +285,7 @@ class EditPageForm extends RAASForm
      * @param Page $parent Родительская страница
      * @return FormTab
      */
-    protected function getServiceTab(Page $item, Page $parent)
+    protected function getServiceTab(Page $item, Page $parent): FormTab
     {
         $CONTENT = [];
         $templates = Template::getSet();

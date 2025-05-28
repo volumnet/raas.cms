@@ -25,6 +25,7 @@ class FormTest extends BaseTest
         'cms_blocks_pages_assoc',
         'cms_data',
         'cms_feedback',
+        'cms_fieldgroups',
         'cms_fields',
         'cms_forms',
         'cms_pages',

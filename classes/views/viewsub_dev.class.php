@@ -635,7 +635,7 @@ class ViewSub_Dev extends RAASAbstractSubView
     /**
      * Редактирование группы полей материалов
      * @param [
-     *            'Item' => Material_Field Поле для редактирования,
+     *            'Item' => MaterialFieldGroup Группа полей для редактирования,
      *            'Parent' =>? Material_Type Родительский тип материала
      *            'meta' => [
      *                'Parent' =>? Material_Type Родительский тип материала,
@@ -646,7 +646,7 @@ class ViewSub_Dev extends RAASAbstractSubView
      *                'value' => string URN поля, к которому относится ошибка,
      *                'description' => string Описание ошибки,
      *            ]> Ошибки,
-     *            'Form' => EditFieldForm Форма редактирования,
+     *            'Form' => EditFieldGroupForm Форма редактирования,
      *        ] $in Входные данные
      */
     public function editMaterialFieldGroup(array $in = [])
@@ -670,6 +670,72 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=edit_material_type&id=' . (int)$in['Parent']->id
         ];
         $this->stdView->stdEdit($in, 'getMaterialFieldGroupContextMenu');
+        $this->subtitle = $this->getFieldGroupSubtitle($in['Item']);
+    }
+
+
+    /**
+     * Редактирование группы полей формы
+     * @param [
+     *            'Item' => FormFieldGroup Группа полей для редактирования,
+     *            'Parent' =>? Form Родительская форма
+     *            'meta' => [
+     *                'Parent' =>? Form Родительская форма,
+     *                'parentUrl' => string URL родительской страницы
+     *            ],
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditFieldGroupForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function editFormFieldGroup(array $in = [])
+    {
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('FORMS'),
+            'href' => $this->url . '&action=forms'
+        ];
+        $this->path[] = [
+            'name' => $in['Parent']->name,
+            'href' => $this->url . '&action=edit_form&id=' . (int)$in['Parent']->id
+        ];
+        $this->stdView->stdEdit($in, 'getFormFieldGroupContextMenu');
+        $this->subtitle = $this->getFieldGroupSubtitle($in['Item']);
+    }
+
+
+    /**
+     * Редактирование группы полей страниц
+     * @param [
+     *            'Item' => PageFieldGroup Группа полей для редактирования,
+     *            'meta' => [
+     *                'parentUrl' => string URL родительской страницы
+     *            ],
+     *            'localError' =>? array<[
+     *                'name' => string Тип ошибки,
+     *                'value' => string URN поля, к которому относится ошибка,
+     *                'description' => string Описание ошибки,
+     *            ]> Ошибки,
+     *            'Form' => EditFieldGroupForm Форма редактирования,
+     *        ] $in Входные данные
+     */
+    public function editPageFieldGroup(array $in = [])
+    {
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('PAGES_FIELDS'),
+            'href' => $this->url . '&action=pages_fields'
+        ];
+        $this->stdView->stdEdit($in, 'getPageFieldGroupContextMenu');
         $this->subtitle = $this->getFieldGroupSubtitle($in['Item']);
     }
 
@@ -771,6 +837,89 @@ class ViewSub_Dev extends RAASAbstractSubView
         $this->title = $this->_('MOVING_FIELDS_TO_GROUP');
         $this->template = '/move';
     }
+
+
+    /**
+     * Перемещение поля формы в группу
+     * @param [
+     *            'Item' =>? Form_Field Текущее поле,
+     *            'items' =>? array<Form_Field> Список текущих полей
+     *        ] $in Входные данные
+     */
+    public function moveFormFieldToGroup(array $in = [])
+    {
+        $gids = array_map(function ($x) {
+            return (int)$x->gid;
+        }, $in['items']);
+        $in['menu'] = array_map(function ($fieldGroup) use ($gids) {
+            return [
+                'name' => $fieldGroup->name ?: $this->_('GENERAL'),
+                'href' => HTTP::queryString('gid=' . (int)$fieldGroup->id),
+                'active' => in_array($fieldGroup->id, $gids),
+            ];
+        }, $in['Parent']->fieldGroups);
+        $in['hint'] = $this->_('CHOOSE_FIELDGROUP');
+
+        $this->assignVars($in);
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('FORMS'),
+            'href' => $this->url . '&action=forms'
+        ];
+        $this->path[] = [
+            'name' => $in['Parent']->name,
+            'href' => $this->url . '&action=edit_form&id=' . (int)$in['Parent']->id
+        ];
+        if (count($in['items']) == 1) {
+            $this->contextmenu = $this->getFormFieldContextMenu($in['Item']);
+            $this->subtitle = $this->getFieldSubtitle($in['Item']);
+        }
+        $this->title = $this->_('MOVING_FIELDS_TO_GROUP');
+        $this->template = '/move';
+    }
+
+
+    /**
+     * Перемещение поля страниц в группу
+     * @param [
+     *            'Item' =>? Page_Field Текущее поле,
+     *            'items' =>? array<Page_Field> Список текущих полей
+     *        ] $in Входные данные
+     */
+    public function movePageFieldToGroup(array $in = [])
+    {
+        $gids = array_map(function ($x) {
+            return (int)$x->gid;
+        }, $in['items']);
+        $in['menu'] = array_map(function ($fieldGroup) use ($gids) {
+            return [
+                'name' => $fieldGroup->name ?: $this->_('GENERAL'),
+                'href' => HTTP::queryString('gid=' . (int)$fieldGroup->id),
+                'active' => in_array($fieldGroup->id, $gids),
+            ];
+        }, PageFieldGroup::getSet());
+        $in['hint'] = $this->_('CHOOSE_FIELDGROUP');
+
+        $this->assignVars($in);
+        $this->path[] = [
+            'name' => $this->_('DEVELOPMENT'),
+            'href' => $this->url
+        ];
+        $this->path[] = [
+            'name' => $this->_('PAGES_FIELDS'),
+            'href' => $this->url . '&action=pages_fields'
+        ];
+        if (count($in['items']) == 1) {
+            $this->contextmenu = $this->getPageFieldContextMenu($in['Item']);
+            $this->subtitle = $this->getFieldSubtitle($in['Item']);
+        }
+        $this->title = $this->_('MOVING_FIELDS_TO_GROUP');
+        $this->template = '/move';
+    }
+
 
     /**
      * Перемещение значений поля материалов
@@ -898,13 +1047,31 @@ class ViewSub_Dev extends RAASAbstractSubView
     {
         $view = $this;
         $Set = [];
-        foreach ($in['Item']->fields as $row) {
-            $Set[] = $row;
+        $fieldGroups = $in['Item']->fieldGroups;
+        $grouped = (count($fieldGroups) > 1);
+        if ($grouped) {
+            foreach ($fieldGroups as $fieldGroup) {
+                $groupFields = $fieldGroup->getFields($in['Item']);
+                if (!$fieldGroup->id) {
+                    $fieldGroup->name = $this->_('GENERAL');
+                }
+                $Set[] = $fieldGroup;
+                foreach ($groupFields as $row) {
+                    $Set[] = $row;
+                }
+            }
+        } else {
+            foreach ($in['Item']->fields as $row) {
+                $Set[] = $row;
+            }
         }
         $in['Table'] = new FieldsTable(array_merge($in, [
             'editAction' => 'edit_form_field',
+            'editGroupAction' => 'edit_form_fieldgroup',
             'ctxMenu' => 'getFormFieldContextMenu',
-            'Set' => $Set
+            'groupCtxMenu' => 'getFormFieldGroupContextMenu',
+            'Set' => $Set,
+            'grouped' => $grouped
         ]));
         $this->assignVars($in);
         $this->title = $in['Form']->caption;
@@ -968,9 +1135,32 @@ class ViewSub_Dev extends RAASAbstractSubView
      */
     public function pages_fields(array $in = [])
     {
+        $Set = [];
+        $fieldGroups = PageFieldGroup::getSet();
+        $grouped = (count($fieldGroups) > 1);
+        if ($grouped) {
+            foreach ($fieldGroups as $fieldGroup) {
+                $groupFields = $fieldGroup->getFields(new Page());
+                if (!$fieldGroup->id) {
+                    $fieldGroup->name = $this->_('GENERAL');
+                }
+                $Set[] = $fieldGroup;
+                foreach ($groupFields as $row) {
+                    $Set[] = $row;
+                }
+            }
+        } else {
+            foreach (Page_Field::getSet() as $row) {
+                $Set[] = $row;
+            }
+        }
         $in['Table'] = new FieldsTable(array_merge($in, [
             'editAction' => 'edit_page_field',
-            'ctxMenu' => 'getPageFieldContextMenu'
+            'editGroupAction' => 'edit_page_fieldgroup',
+            'ctxMenu' => 'getPageFieldContextMenu',
+            'groupCtxMenu' => 'getPageFieldGroupContextMenu',
+            'Set' => $Set,
+            'grouped' => $grouped
         ]));
         $this->assignVars($in);
         $this->title = $this->_('PAGES_FIELDS');
@@ -983,7 +1173,12 @@ class ViewSub_Dev extends RAASAbstractSubView
                 'name' => $this->_('CREATE_FIELD'),
                 'href' => $this->url . '&action=edit_page_field',
                 'icon' => 'plus'
-            ]
+            ],
+            [
+                'href' => $this->url . '&action=edit_page_fieldgroup',
+                'name' => $this->_('CREATE_FIELDGROUP'),
+                'icon' => 'plus'
+            ],
         ];
         $this->template = $in['Table']->template;
     }
@@ -1139,19 +1334,40 @@ class ViewSub_Dev extends RAASAbstractSubView
             'href' => $this->url . '&action=material_types',
             'name' => $this->_('MATERIAL_TYPES'),
             'active' => (
-                in_array($this->action, ['material_types', 'edit_material_type', 'edit_material_field', 'copy_material_type']) &&
+                in_array($this->action, [
+                    'material_types',
+                    'edit_material_type',
+                    'edit_material_field',
+                    'copy_material_type',
+                    'edit_material_fieldgroup',
+                    'move_material_field_to_group',
+                ]) &&
                 !$this->moduleName
             )
         ];
         $submenu[] = [
             'href' => $this->url . '&action=pages_fields',
             'name' => $this->_('PAGES_FIELDS'),
-            'active' => (in_array($this->action, ['pages_fields', 'edit_page_field']) && !$this->moduleName)
+            'active' => (in_array($this->action, [
+                    'pages_fields',
+                    'edit_page_field',
+                    'edit_page_fieldgroup',
+                    'move_page_field_to_group',
+                ]) &&
+                !$this->moduleName
+            )
         ];
         $submenu[] = [
             'href' => $this->url . '&action=forms',
             'name' => $this->_('FORMS'),
-            'active' => (in_array($this->action, ['forms', 'edit_form', 'edit_form_field']) && !$this->moduleName)
+            'active' => (in_array($this->action, [
+                    'forms',
+                    'edit_form',
+                    'edit_form_field',
+                    'edit_form_fieldgroup',
+                    'move_form_field_to_group',
+                ]) && !$this->moduleName
+        )
         ];
         $submenu[] = [
             'href' => $this->url . '&action=menus',
@@ -2111,6 +2327,62 @@ class ViewSub_Dev extends RAASAbstractSubView
 
 
     /**
+     * Возвращает контекстное меню для группы полей формы
+     * @param FormFieldGroup $fieldGroup Группа полей для получения контекстного меню
+     * @param int $i Порядок поля в списке
+     * @param int $c Количество полей в списке
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getFormFieldGroupContextMenu(FormFieldGroup $fieldGroup, $i = 0, $c = 0)
+    {
+        $arr = [];
+        $arr = array_merge($arr, $this->stdView->stdContextMenu(
+            $fieldGroup,
+            $i,
+            $c,
+            'edit_form_fieldgroup',
+            'edit_form',
+            'delete_form_fieldgroup'
+        ));
+        return $arr;
+    }
+
+
+    /**
+     * Возвращает контекстное меню для группы полей страниц
+     * @param PageFieldGroup $fieldGroup Группа полей для получения контекстного меню
+     * @param int $i Порядок поля в списке
+     * @param int $c Количество полей в списке
+     * @return array<[
+     *             'href' ?=> string Ссылка,
+     *             'name' => string Заголовок пункта
+     *             'icon' ?=> string Наименование иконки,
+     *             'title' ?=> string Всплывающая подсказка
+     *             'onclick' ?=> string JavaScript-команда при клике,
+     *         ]>
+     */
+    public function getPageFieldGroupContextMenu(PageFieldGroup $fieldGroup, $i = 0, $c = 0)
+    {
+        $arr = [];
+        $arr = array_merge($arr, $this->stdView->stdContextMenu(
+            $fieldGroup,
+            $i,
+            $c,
+            'edit_page_fieldgroup',
+            'pages_fields',
+            'delete_page_fieldgroup'
+        ));
+        return $arr;
+    }
+
+
+    /**
      * Возвращает контекстное меню для списка полей материалов
      * @return array<[
      *             'href' ?=> string Ссылка,
@@ -2249,6 +2521,11 @@ class ViewSub_Dev extends RAASAbstractSubView
             'icon' => 'asterisk',
         ];
         $arr[] = [
+            'name' => $this->_('MOVE_TO_FIELDGROUP'),
+            'href' => $this->url . '&action=move_page_field_to_group',
+            'icon' => 'share-alt'
+        ];
+        $arr[] = [
             'name' => $this->_('DELETE'),
             'href' => $this->url . '&action=delete_page_field&back=1',
             'icon' => 'remove',
@@ -2276,6 +2553,11 @@ class ViewSub_Dev extends RAASAbstractSubView
             $arr[] = [
                 'href' => $this->url . '&action=edit_form_field&pid=' . (int)$form->id,
                 'name' => $this->_('CREATE_FIELD'),
+                'icon' => 'plus'
+            ];
+            $arr[] = [
+                'href' => $this->url . '&action=edit_form_fieldgroup&pid=' . (int)$form->id,
+                'name' => $this->_('CREATE_FIELDGROUP'),
                 'icon' => 'plus'
             ];
         }
@@ -2402,6 +2684,11 @@ class ViewSub_Dev extends RAASAbstractSubView
             'name' => $this->_('REQUIRED'),
             'href' => $this->url . '&action=required_form_field&back=1',
             'icon' => 'asterisk',
+        ];
+        $arr[] = [
+            'name' => $this->_('MOVE_TO_FIELDGROUP'),
+            'href' => $this->url . '&action=move_form_field_to_group&pid=' . ($_GET['id'] ?? ''),
+            'icon' => 'share-alt'
         ];
         $arr[] = [
             'name' => $this->_('DELETE'),

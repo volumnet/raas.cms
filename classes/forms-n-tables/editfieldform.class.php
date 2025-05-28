@@ -93,16 +93,26 @@ class EditFieldForm extends RAASForm
         $children['name'] = [
             'name' => 'name',
             'caption' => $this->view->_('NAME'),
+            'class' => 'span5',
             'required' => 'required'
         ];
         $children['urn'] = [
             'name' => 'urn',
-            'caption' => $this->view->_('URN')
+            'caption' => $this->view->_('URN'),
+            'class' => 'span5',
         ];
 
         $fieldGroups = [];
         if ($parent) {
-            $fieldGroups = (array)$parent->fieldGroups;
+            if ($parent->id) {
+                $fieldGroups = (array)$parent->fieldGroups;
+            } elseif ($parent instanceof Page) {
+                $fieldGroups = PageFieldGroup::getSet();
+                usort($fieldGroups, fn($a, $b) => ($a->priority - $b->priority));
+            } elseif ($parent instanceof User) {
+                $fieldGroups = UserFieldGroup::getSet();
+                usort($fieldGroups, fn($a, $b) => ($a->priority - $b->priority));
+            }
         }
         if (count($fieldGroups) > 1) {
             $children['gid'] = [

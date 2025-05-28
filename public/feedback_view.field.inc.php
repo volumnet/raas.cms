@@ -60,7 +60,7 @@ $_RAASForm_Control = function (RAASField $field) {
                     if (!$f->multiple && ($f->datatype == 'checkbox')) {
                         $arr[$key] = $val ? _YES : _NO;
                     } else {
-                        $arr[$key] = nl2br(htmlspecialchars($val));
+                        $arr[$key] = nl2br(htmlspecialchars((string)$val));
                     }
                     break;
             }

@@ -6,10 +6,11 @@ declare(strict_types=1);
 
 namespace RAAS\CMS;
 
-use \RAAS\Field as RAASField;
-use \RAAS\FieldSet;
-use \RAAS\Form as RAASForm;
-use \RAAS\FormTab;
+use RAAS\Field as RAASField;
+use RAAS\FieldSet;
+use RAAS\Form as RAASForm;
+use RAAS\FormTab;
+use RAAS\CMS\FieldGroup;
 
 /**
  * Класс формы просмотра сообщения обратной связи
@@ -32,11 +33,11 @@ class ViewFeedbackForm extends RAASForm
 
     public function __construct(array $params = [])
     {
-        $view = $this->view;
+        $item = $params['Item'] ?? new Feedback();
         $defaultParams = $this->getParams($params);
+        $defaultParams['children'] = $this->getChildren($item);
         $arr = array_merge($defaultParams, $params);
         parent::__construct($arr);
-        $this->__set('children', $this->getChildren());
     }
 
 
@@ -59,44 +60,89 @@ class ViewFeedbackForm extends RAASForm
 
     /**
      * Получает список дочерних узлов
+     * @param Feedback $item Заявка для получения
      * @return array <pre><code>array<FormTab|FieldSet|RAASField></code></pre>
      */
-    protected function getChildren(): array
+    protected function getChildren(Feedback $item): array
     {
-        return $this->getDetails();
+        return $this->getDetails($item);
     }
 
 
     /**
      * Получает список дочерних узлов
+     * @param Feedback $item Заявка для получения
      * @return array <pre><code>array<FormTab|FieldSet|RAASField></code></pre>
      */
-    protected function getDetails(): array
+    protected function getDetails(Feedback $item): array
     {
-        $arr = [];
-        $arr['post_date'] = $this->getFeedbackField([
+        $fieldGroups = $item->parent->fieldGroups;
+        $result = [];
+        if (count($fieldGroups) > 1) {
+            foreach ($fieldGroups as $fieldGroupURN => $fieldGroup) {
+                $fieldSetURN = ($fieldGroupURN ? ('fieldset.' . $fieldGroupURN) : 'common');
+                $fieldSetData = [
+                    'name' => $fieldSetURN,
+                    'caption' => $fieldGroup->name ?: $this->view->_('GENERAL'),
+                    'children' => [],
+                ];
+                if (!$fieldGroupURN) {
+                    $fieldSetData['children'] = $this->getPreStat($item);
+                }
+                $fieldSetData['children'] = array_merge(
+                    $fieldSetData['children'],
+                    $this->getDetailsFields($item, $fieldGroup)
+                );
+                $result[$fieldSetURN] = new FieldSet($fieldSetData);
+            }
+            $result['stat'] = new FieldSet([
+                'name' => 'stat',
+                'caption' => $this->view->_('SERVICE'),
+                'children' => $this->getStat($item),
+            ]);
+        } else {
+            $result = array_merge($this->getPreStat($item), $this->getDetailsFields($item), $this->getStat($item));
+        }
+        return $result;
+    }
+
+
+    /**
+     * Получает предварительную статистическую информацию по сообщению обратной связи
+     * @param Feedback $item Заявка для получения
+     * @return array <pre><code>array<string[] URN поля в форме просмотра => [
+     *     'name' => string URN поля,
+     *     'caption' => string Заголовок поля,
+     *     'template' => string Шаблон поля,
+     * ]></code></pre>
+     */
+    protected function getPreStat(Feedback $item): array
+    {
+        $result = [];
+        $result['post_date'] = [
             'name' => 'post_date',
-            'caption' => $this->view->_('POST_DATE')
-        ]);
-        $arr = array_merge($arr, $this->getDetailsFields());
-        $arr['pid'] = [
-            'name' => 'pid',
-            'caption' => $this->view->_('FORM'),
-            'template' => 'cms/feedback_view.form_field.inc.php'
+            'caption' => $this->view->_('POST_DATE'),
+            'template' => 'cms/feedback_view.field.inc.php',
         ];
-        $arr = array_merge($arr, $this->getStat());
-        return $arr;
+        return $result;
     }
 
 
     /**
      * Получает список дочерних полей по кастомным полям формы
+     * @param Feedback $item Заявка для получения
+     * @param ?FieldGroup $fieldGroup Группа полей (null, если общим списком)
      * @return array <pre><code>array<string[] ID# поля в форме просмотра => RAASField></code></pre>
      */
-    protected function getDetailsFields(): array
+    protected function getDetailsFields(Feedback $item, ?FieldGroup $fieldGroup = null): array
     {
         $arr = [];
-        foreach (($this->Item->fields ?? []) as $field) {
+        if ($fieldGroup) {
+            $fields = $fieldGroup->getFields($item);
+        } else {
+            $fields = $item->fields ?? [];
+        }
+        foreach ($fields as $field) {
             $arr['field.' . $field->urn] = $this->getFeedbackField([
                 'name' => 'field.' . $field->urn,
                 'caption' => $field->name,
@@ -109,16 +155,22 @@ class ViewFeedbackForm extends RAASForm
 
     /**
      * Получает статистическую информацию по сообщению обратной связи
+     * @param Feedback $item Заявка для получения
      * @return array <pre><code>array<string[] URN поля в форме просмотра => [
      *     'name' => string URN поля,
      *     'caption' => string Заголовок поля,
      *     'template' => string Шаблон поля,
      * ]></code></pre>
      */
-    protected function getStat(): array
+    protected function getStat(Feedback $item): array
     {
         $arr = [];
-        if ($this->Item && $this->Item->uid) {
+        $arr['pid'] = [
+            'name' => 'pid',
+            'caption' => $this->view->_('FORM'),
+            'template' => 'cms/feedback_view.form_field.inc.php'
+        ];
+        if ($item && $item->uid) {
             $arr['uid'] = [
                 'name' => 'uid',
                 'caption' => $this->view->_('USER'),
@@ -130,7 +182,7 @@ class ViewFeedbackForm extends RAASForm
             'caption' => $this->view->_('PAGE'),
             'template' => 'cms/feedback_view.field.inc.php',
         ];
-        if ($this->Item && $this->Item->viewer->id) {
+        if ($item && $item->viewer->id) {
             $arr['vis'] = [
                 'name' => 'vis',
                 'caption' => $this->view->_('VIEWED_BY'),

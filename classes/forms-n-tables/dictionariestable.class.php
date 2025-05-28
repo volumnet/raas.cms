@@ -28,6 +28,7 @@ class DictionariesTable extends Table
     public function __construct(array $params = [])
     {
         $view = $this->view;
+
         $columns = [];
         $columns['id'] = [
             'caption' => $this->view->_('ID'),
@@ -55,8 +56,10 @@ class DictionariesTable extends Table
         ];
         $columns['priority'] = [
             'caption' => $this->view->_('PRIORITY'),
-            'callback' => function ($row) {
-                return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . ($row->priority ? (int)$row->priority : '') . '" class="span1" min="0" />';
+            'callback' => function ($row, $i) use ($params) {
+                $pages = $params['Pages'];
+                $pagePriorityOffset = (($pages->page) - 1) * $pages->rows_per_page * 10;
+                return '<input type="number" name="priority[' . (int)$row->id . ']" value="' . ($pagePriorityOffset + ($i + 1) * 10) . '" class="span1" min="0" />';
             }
         ];
         $columns[' '] = [

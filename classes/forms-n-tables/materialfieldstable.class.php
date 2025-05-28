@@ -31,11 +31,7 @@ class MaterialFieldsTable extends FieldsTable
             'columns' => [
                 'id' => [
                     'caption' => $this->view->_('ID'),
-                    'callback' => function ($row) use (
-                        $view,
-                        $editAction,
-                        $params
-                    ) {
+                    'callback' => function ($row) use ($view, $editAction, $params) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
                             if ($row instanceof FieldGroup) {
                                 return '<a href="' . $view->url . '&action=edit_material_fieldgroup&id=' . (int)$row->id . '">' .
@@ -53,11 +49,7 @@ class MaterialFieldsTable extends FieldsTable
                 ],
                 'name' => [
                     'caption' => $this->view->_('NAME'),
-                    'callback' => function ($row) use (
-                        $view,
-                        $editAction,
-                        $params
-                    ) {
+                    'callback' => function ($row) use ($view, $editAction, $params) {
                         if ($row->id && ($row->pid == $params['Item']->id)) {
                             if ($row instanceof FieldGroup) {
                                 return '<a href="' . $view->url . '&action=edit_material_fieldgroup&id=' . (int)$row->id . '">' .

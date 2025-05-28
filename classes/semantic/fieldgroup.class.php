@@ -14,6 +14,11 @@ use RAAS\Application;
  */
 class FieldGroup extends SOME
 {
+    /**
+     * Имя класса по умолчанию
+     */
+    const DEFAULT_CLASSNAME = Material_Type::class;
+
     protected static $objectCascadeDelete = false;
 
     protected static $defaultOrderBy = "priority";
@@ -38,7 +43,7 @@ class FieldGroup extends SOME
             $this->urn = Text::beautify($this->name);
         }
         if (!$this->classname) {
-            $this->classname = static::$references['parent']['classname'];
+            $this->classname = static::$references['parent']['classname'] ?? static::DEFAULT_CLASSNAME;
         }
         $sqlQuery = "SELECT COUNT(*)
                        FROM " . static::_tablename() . "

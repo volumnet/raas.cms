@@ -50,6 +50,12 @@ class Sub_Dev extends RAASAbstractSubController
             case 'move_material_field_to_group':
                 $this->moveMaterialFieldToGroup();
                 break;
+            case 'move_form_field_to_group':
+                $this->moveFormFieldToGroup();
+                break;
+            case 'move_page_field_to_group':
+                $this->movePageFieldToGroup();
+                break;
             case 'edit_material_field':
             case 'edit_form_field':
             case 'edit_page_field':
@@ -60,6 +66,12 @@ class Sub_Dev extends RAASAbstractSubController
                 break;
             case 'edit_material_fieldgroup':
                 $this->editMaterialFieldGroup();
+                break;
+            case 'edit_form_fieldgroup':
+                $this->editFormFieldGroup();
+                break;
+            case 'edit_page_fieldgroup':
+                $this->editPageFieldGroup();
                 break;
             case 'move_material_field_values':
                 $this->moveMaterialFieldValues();
@@ -288,6 +300,22 @@ class Sub_Dev extends RAASAbstractSubController
                 }, $ids);
                 $items = array_values($items);
                 StdSub::delete($items, $this->url . '&action=material_types');
+                break;
+            case 'delete_form_fieldgroup':
+                $ids = (array)$_GET['id'];
+                $items = array_map(function ($x) {
+                    return new FormFieldGroup((int)$x);
+                }, $ids);
+                $items = array_values($items);
+                StdSub::delete($items, $this->url . '&action=forms');
+                break;
+            case 'delete_page_fieldgroup':
+                $ids = (array)$_GET['id'];
+                $items = array_map(function ($x) {
+                    return new PageFieldGroup((int)$x);
+                }, $ids);
+                $items = array_values($items);
+                StdSub::delete($items, $this->url . '&action=pages_fields');
                 break;
                 break;
             case 'webmaster_faq':
@@ -749,8 +777,18 @@ class Sub_Dev extends RAASAbstractSubController
      */
     protected function edit_form()
     {
-        if (is_array($_POST['priority'] ?? null)) {
-            $this->model->setEntitiesPriority(Form_Field::class, (array)$_POST['priority']);
+        if ((is_array($_POST['priority'] ?? null)) ||
+            (is_array($_POST['fieldgrouppriority'] ?? null))
+        ) {
+            if (is_array($_POST['priority'] ?? null)) {
+                $this->model->setEntitiesPriority(Form_Field::class, (array)$_POST['priority']);
+            }
+            if (is_array($_POST['fieldgrouppriority'] ?? null)) {
+                $this->model->setEntitiesPriority(
+                    FieldGroup::class,
+                    (array)$_POST['fieldgrouppriority']
+                );
+            }
             new Redirector('history:back');
             exit;
         }
@@ -786,10 +824,20 @@ class Sub_Dev extends RAASAbstractSubController
      */
     protected function pages_fields()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ((is_array($_POST['priority'] ?? null)) ||
+            (is_array($_POST['fieldgrouppriority'] ?? null))
+        ) {
             if (is_array($_POST['priority'] ?? null)) {
                 $this->model->setEntitiesPriority(Page_Field::class, (array)$_POST['priority']);
             }
+            if (is_array($_POST['fieldgrouppriority'] ?? null)) {
+                $this->model->setEntitiesPriority(
+                    FieldGroup::class,
+                    (array)$_POST['fieldgrouppriority']
+                );
+            }
+            new Redirector('history:back');
+            exit;
         }
         $this->view->pages_fields(['Set' => $this->model->dev_pages_fields()]);
     }
@@ -830,7 +878,7 @@ class Sub_Dev extends RAASAbstractSubController
             $parentUrl .= '&id=' . (int)$parent->id;
         } else {
             $item = new Page_Field((int)$this->id);
-            $parent = null;
+            $parent = new Page();
             $parentUrl = $this->url . '&action=pages_fields';
         }
         if ($item instanceof Material_Field) {
@@ -867,17 +915,12 @@ class Sub_Dev extends RAASAbstractSubController
         if ($item->pid) {
             $parent = $item->parent;
         } else {
-            $parent = new Material_Type(
-                isset($_GET['pid']) ?
-                (int)$_GET['pid'] :
-                0
-            );
+            $parent = new Material_Type((int)($_GET['pid'] ?? 0));
         }
         if (!$parent->id) {
-            new Redirector($parentUrl);
+            new Redirector($this->url);
         }
-        $parentUrl = $this->url . '&action=edit_material_type&id='
-            . (int)$parent->id;
+        $parentUrl = $this->url . '&action=edit_material_type&id=' . (int)$parent->id;
         $form = new EditFieldGroupForm([
             'Item' => $item,
             'meta' => [
@@ -888,6 +931,52 @@ class Sub_Dev extends RAASAbstractSubController
         $out = $form->process();
         $out['Parent'] = $parent;
         $this->view->editMaterialFieldGroup($out);
+    }
+
+
+    /**
+     * Редактирование группы полей формы
+     */
+    protected function editFormFieldGroup()
+    {
+        $item = new FormFieldGroup((int)$this->id);
+        if ($item->pid) {
+            $parent = $item->parent;
+        } else {
+            $parent = new Form((int)($_GET['pid'] ?? 0));
+        }
+        if (!$parent->id) {
+            new Redirector($this->url);
+        }
+        $parentUrl = $this->url . '&action=edit_form&id=' . (int)$parent->id;
+        $form = new EditFieldGroupForm([
+            'Item' => $item,
+            'meta' => [
+                'Parent' => $parent,
+                'parentUrl' => $parentUrl
+            ]
+        ]);
+        $out = $form->process();
+        $out['Parent'] = $parent;
+        $this->view->editFormFieldGroup($out);
+    }
+
+
+    /**
+     * Редактирование группы полей страниц
+     */
+    protected function editPageFieldGroup()
+    {
+        $item = new PageFieldGroup((int)$this->id);
+        $parentUrl = $this->url . '&action=pages_fields';
+        $form = new EditFieldGroupForm([
+            'Item' => $item,
+            'meta' => [
+                'parentUrl' => $parentUrl
+            ]
+        ]);
+        $out = $form->process();
+        $this->view->editPageFieldGroup($out);
     }
 
 
@@ -948,7 +1037,7 @@ class Sub_Dev extends RAASAbstractSubController
         $ids = (array)$_GET['id'];
         if (in_array('all', $ids, true)) {
             $items = Material_Field::getSet([
-                'where' => "classname = 'RAAS\\\\CMS\\\\Material_Type' AND pid = " . (int)$_GET['pid']
+                'where' => "classname = 'RAAS\\\\CMS\\\\Material_Type' AND pid = " . (int)($_GET['pid'] ?? 0)
             ]);
         } else {
             $items = array_map(function ($x) {
@@ -956,7 +1045,7 @@ class Sub_Dev extends RAASAbstractSubController
             }, $ids);
         }
         $items = array_values($items);
-        $parent = new Material_Type($_GET['pid']);
+        $parent = new Material_Type($_GET['pid'] ?? 0);
         $item = isset($items[0]) ? $items[0] : new Material_Field();
 
         if ($items) {
@@ -975,6 +1064,84 @@ class Sub_Dev extends RAASAbstractSubController
                     'Item' => $item,
                     'items' => $items,
                     'Parent' => $parent,
+                ]);
+                return;
+            }
+        }
+    }
+
+
+    /**
+     * Размещение полей формы в группе
+     */
+    protected function moveFormFieldToGroup()
+    {
+        $items = [];
+        $ids = (array)$_GET['id'];
+        if (in_array('all', $ids, true)) {
+            $items = Form_Field::getSet([
+                'where' => "classname = 'RAAS\\\\CMS\\\\Form' AND pid = " . (int)($_GET['pid'] ?? 0)
+            ]);
+        } else {
+            $items = array_map(function ($x) {
+                return new Form_Field((int)$x);
+            }, $ids);
+        }
+        $items = array_values($items);
+        $parent = new Form($_GET['pid'] ?? 0);
+        $item = isset($items[0]) ? $items[0] : new Form_Field();
+
+        if ($items) {
+            if (isset($_GET['gid'])) {
+                foreach ($items as $row) {
+                    $row->gid = $_GET['gid'];
+                    $row->commit();
+                }
+                new Redirector(
+                    ($_GET['back'] ?? null) ?
+                    'history:back' :
+                    $this->url . '&action=edit_form&id=' . (int)$item->pid
+                );
+            } else {
+                $this->view->moveFormFieldToGroup([
+                    'Item' => $item,
+                    'items' => $items,
+                    'Parent' => $parent,
+                ]);
+                return;
+            }
+        }
+    }
+
+
+    /**
+     * Размещение полей страниц в группе
+     */
+    protected function movePageFieldToGroup()
+    {
+        $items = [];
+        $ids = (array)$_GET['id'];
+        if (in_array('all', $ids, true)) {
+            $items = Page_Field::getSet();
+        } else {
+            $items = array_map(function ($x) {
+                return new Page_Field((int)$x);
+            }, $ids);
+        }
+        $items = array_values($items);
+        $item = isset($items[0]) ? $items[0] : new Page_Field();
+
+        if ($items) {
+            if (isset($_GET['gid'])) {
+                foreach ($items as $row) {
+                    $row->gid = $_GET['gid'];
+                    $row->commit();
+                }
+                new Redirector(($_GET['back'] ?? null) ? 'history:back' : $this->url . '&action=pages_fields');
+            } else {
+                $this->view->movePageFieldToGroup([
+                    'Item' => $item,
+                    'items' => $items,
                 ]);
                 return;
             }

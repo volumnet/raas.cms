@@ -21,7 +21,7 @@ $_RAASForm_Field = function(RAASField $field) {
         <?php
         $field1 = clone $field;
         $field1->Parent = $field->Parent;
-        $field1->type = 'textarea';
+        $field1->type = 'codearea';
         $field1->id = 'source_textarea';
         $field1->class = 'code';
         $field1->__set('children', []);

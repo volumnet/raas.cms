@@ -16,6 +16,7 @@ use SOME\BaseTest;
 class FormArrayFormatterTest extends BaseTest
 {
     public static $tables = [
+        'cms_fieldgroups',
         'cms_fields',
         'cms_forms',
     ];

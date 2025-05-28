@@ -66,6 +66,9 @@ class FormArrayFormatter
                 $result[$key] = (bool)(int)$result[$key];
             }
         }
+        if (count($this->form->fieldGroups) > 1) {
+            $result['fieldGroups'] = array_map(fn($group) => $group->getArrayCopy(), $this->form->fieldGroups);
+        }
         if (!$this->getAdminFields) {
             unset(
                 $result['material_type'],

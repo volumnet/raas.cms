@@ -450,7 +450,7 @@ class Material_Type extends SOME
 
 
     /**
-     * Список полей (включая родительские)
+     * Список групп полей (включая родительские)
      * @return MaterialFieldGroup[]
      */
     protected function _fieldGroups()

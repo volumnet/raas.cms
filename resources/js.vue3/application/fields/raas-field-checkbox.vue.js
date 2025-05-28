@@ -71,7 +71,7 @@ export default {
             // 2024-05-28, AVS: приводим к string, чтобы не было путаницы при различных типах
             // 2024-10-10, AVS: заменил value на pValue, чтобы работало со статикой
             // const oldValue = (this.pValue || []).map(x => x.toString());
-            let newValue = JSON.parse(JSON.stringify(this.pValue));
+            let newValue = JSON.parse(JSON.stringify(this.pValue || []));
             if (!(newValue instanceof Array)) {
                 if (newValue) {
                     newValue = [newValue];

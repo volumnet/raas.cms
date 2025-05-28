@@ -4,9 +4,6 @@
  */
 namespace RAAS\CMS;
 
-use SOME\SOME;
-use RAAS\Application;
-
 /**
  * Класс группы полей типа материалов
  * @property-read Material_Type $parent Родительский объект
@@ -26,7 +23,7 @@ class MaterialFieldGroup extends FieldGroup
      * @param Material_Type $parent Родительский объект
      * @return Field[]
      */
-    public function getSelfFields(Material_Type $parent)
+    public function getSelfFields(Material_Type $parent): array
     {
         return array_filter($parent->selfFields, function ($field) {
             return (int)$field->gid == (int)$this->id;
@@ -39,7 +36,7 @@ class MaterialFieldGroup extends FieldGroup
      * @param Material_Type $parent Родительский объект
      * @return Field[]
      */
-    public function getVisSelfFields(Material_Type $parent)
+    public function getVisSelfFields(Material_Type $parent): array
     {
         return array_filter($parent->visSelfFields, function ($field) {
             return (int)$field->gid == (int)$this->id;
@@ -52,7 +49,7 @@ class MaterialFieldGroup extends FieldGroup
      * @param Material_Type $parent Родительский объект
      * @return Field[]
      */
-    public function getFormFields(Material_Type $parent)
+    public function getFormFields(Material_Type $parent): array
     {
         return array_filter($parent->formFields, function ($field) {
             return (int)$field->gid == (int)$this->id;
@@ -65,7 +62,7 @@ class MaterialFieldGroup extends FieldGroup
      * @param Material_Type $parent Родительский объект
      * @return int[]
      */
-    public function getFormFieldsIds(Material_Type $parent)
+    public function getFormFieldsIds(Material_Type $parent): array
     {
         return array_map(function ($field) {
             return (int)$field->id;

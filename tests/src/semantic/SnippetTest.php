@@ -29,6 +29,7 @@ class SnippetTest extends BaseTest
         'cms_blocks_material_sort',
         'cms_data',
         'cms_feedback',
+        'cms_fieldgroups',
         'cms_fields',
         'cms_forms',
         'cms_materials',

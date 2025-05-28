@@ -249,7 +249,6 @@ class CopyPageForm extends EditPageForm
                     }
                 }
             } else {
-                $options = $defActions;
                 if ($mtype->nat) {
                     if ($original->pid) {
                         $options = $this->getCopyOptions('', 'spread');

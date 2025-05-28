@@ -29,9 +29,22 @@ class CopyFormForm extends EditFormForm
         }
         $this->meta['Original'] = $original = $params['Original'];
         $this->oncommit = function ($form) use ($original, $item) {
+            $fieldGroupsMapping = [];
+            foreach ($original->fieldGroups as $fieldGroupURN => $fieldGroup) {
+                if (!$fieldGroup->id) {
+                    continue;
+                }
+                $copiedFieldGroup = clone $fieldGroup;
+                $copiedFieldGroup->pid = $item->id;
+                $copiedFieldGroup->commit();
+                $fieldGroupsMapping[(string)$fieldGroup->id] = $copiedFieldGroup->id;
+            }
             foreach ($original->fields as $field) {
                 $copiedField = clone $field;
                 $copiedField->pid = $item->id;
+                if ($copiedField->gid) {
+                    $copiedField->gid = $fieldGroupsMapping[$copiedField->gid] ?? 0;
+                }
                 $copiedField->commit();
             }
         };

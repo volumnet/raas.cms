@@ -101,8 +101,9 @@ class EditMaterialForm extends \RAAS\Form
      * Получает поле смены типа материалов
      * @param Material $item Материал для редактирования
      * @param Material_Type $type Тип материалов для редактирования
+     * @return RAASField
      */
-    protected function getChangeTypeField(Material $item, Material_Type $type)
+    protected function getChangeTypeField(Material $item, Material_Type $type): RAASField
     {
         $allowChangeMaterialType = Package::i()->registryGet('allowChangeMaterialType');
         if ($allowChangeMaterialType) {
@@ -143,7 +144,7 @@ class EditMaterialForm extends \RAAS\Form
      * @param Material_Type $type Тип материалов для редактирования
      * @return FormTab
      */
-    protected function getCommonTab(Material $item, Material_Type $type)
+    protected function getCommonTab(Material $item, Material_Type $type): FormTab
     {
         $groupTab = $this->getGroupTab($type->fieldGroups[''], $item, $type);
         $tab = new FormTab([
@@ -178,7 +179,7 @@ class EditMaterialForm extends \RAAS\Form
      * @param Material_Type $type Тип материалов
      * @return FormTab|null null, если нет полей и группа не общая
      */
-    protected function getGroupTab(FieldGroup $fieldGroup, Material $item, Material_Type $type)
+    protected function getGroupTab(FieldGroup $fieldGroup, Material $item, Material_Type $type): ?FormTab
     {
         $tab = new FormTab([
             'name' => 'group_' . $fieldGroup->urn,
@@ -202,7 +203,7 @@ class EditMaterialForm extends \RAAS\Form
      * @param ?Material $item Текущий материал
      * @return FormTab
      */
-    protected function getSeoTab(?Material $item = null)
+    protected function getSeoTab(?Material $item = null): FormTab
     {
         $seoTab = new FormTab([
             'name' => 'seo',
@@ -319,9 +320,11 @@ class EditMaterialForm extends \RAAS\Form
 
     /**
      * Получает вкладку "Служебные"
+     * @param Material $item Текущий материал
+     * @param ?Page $parent Родительская страница
      * @return FormTab
      */
-    protected function getServiceTab($item, $parent)
+    protected function getServiceTab(Material $item, ?Page $parent = null): FormTab
     {
         $serviceTab = new FormTab([
             'name' => 'service',
@@ -374,9 +377,12 @@ class EditMaterialForm extends \RAAS\Form
 
     /**
      * Получает вкладку "Страницы"
+     * @param Material $item Текущий материал
+     * @param ?Page $parent Родительская страница
+     * @param Material_Type $type Тип материалов
      * @return FormTab
      */
-    protected function getPagesTab($item, $parent, $type)
+    protected function getPagesTab(Material $item, ?Page $parent = null, ?Material_Type $type = null): FormTab
     {
         $temp = new Page();
         $affectedPagesIds = [];
@@ -431,7 +437,7 @@ class EditMaterialForm extends \RAAS\Form
         Material $item,
         Material_Type $mtype,
         array $params = []
-    ) {
+    ): FormTab {
         $temp = new MaterialsRelatedTable([
             'Item' => $item,
             'mtype' => $mtype,
@@ -470,7 +476,7 @@ class EditMaterialForm extends \RAAS\Form
      *             'children' => *рекурсивно*
      *         ]>
      */
-    public function getMetaCats(int $pid = 0, ?array $relatedPagesIds = null)
+    public function getMetaCats(int $pid = 0, ?array $relatedPagesIds = null): array
     {
         $pageCache = PageRecursiveCache::i();
         $result = [];

@@ -34,6 +34,7 @@ class Form extends SOME
         'unreadFeedbacks',
         'usingBlocks',
         'usingCartTypes',
+        'fieldGroups',
     ];
 
     protected static $references = [
@@ -62,6 +63,11 @@ class Form extends SOME
     public static function delete(SOME $object)
     {
         $id = (int)$object->id;
+        foreach ($object->fieldGroups as $fieldGroup) {
+            if ($fieldGroup->id) {
+                FieldGroup::delete($fieldGroup);
+            }
+        }
         foreach ($object->fields as $row) {
             Form_Field::delete($row);
         }
@@ -111,6 +117,38 @@ class Form extends SOME
         return array_filter($this->fields, function ($x) {
             return $x->vis;
         });
+    }
+
+
+    /**
+     * Список групп полей
+     * @return FormFieldGroup[]
+     */
+    protected function _fieldGroups()
+    {
+        $sqlQuery = "SELECT *
+                       FROM " . FormFieldGroup::_tablename()
+                  . " WHERE classname = ?
+                        AND pid = ?
+                   ORDER BY priority";
+        $sqlBind = [static::class, (int)$this->id];
+        $temp = FormFieldGroup::getSQLSet([$sqlQuery, $sqlBind]);
+        $arr = [];
+        foreach ($temp as $row) {
+            $arr[$row->urn] = $row;
+        }
+        $result = $arr;
+
+        $result = array_merge(
+            [
+                '' => new FormFieldGroup([
+                    'classname' => static::class,
+                    'pid' => (int)$this->id
+                ])
+            ],
+            $result
+        );
+        return $result;
     }
 
 
