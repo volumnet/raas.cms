@@ -229,7 +229,7 @@ CREATE TABLE IF NOT EXISTS {$DBPREFIX$}{$PACKAGENAME$}_fields (
   urn VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'URN',
   `name` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Name',
   required TINYINT(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Required',
-  maxlength int(255) NOT NULL,
+  maxlength int(255) NOT NULL DEFAULT 0 COMMENT 'Max length',
   multiple TINYINT(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Multiple data',
   source_type ENUM('','ini','csv','xml','sql','php','dictionary') NOT NULL DEFAULT '' COMMENT 'Source type',
   `source` TEXT COMMENT 'Source',

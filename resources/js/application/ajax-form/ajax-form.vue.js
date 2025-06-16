@@ -109,6 +109,7 @@ export default {
                 self.handle(response);
             } catch (err) {
                 self.loading = false;
+                self.$emit('serverError', err);
             }
             return false;
         });
