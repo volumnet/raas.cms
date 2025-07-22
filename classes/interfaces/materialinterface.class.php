@@ -745,8 +745,8 @@ class MaterialInterface extends BlockInterface
                     'HTTP/1.1 301 Moved Permanently',
                     (
                         'Location: http' .
-                        ($server['HTTPS'] == 'on' ? 's' : '') . '://' .
-                        $server['HTTP_HOST'] . $item->url
+                        (($server['HTTPS'] ?? '') == 'on' ? 's' : '') . '://' .
+                        ($server['HTTP_HOST'] ?? '') . $item->url
                     ),
                 ];
                 if ($debug) {

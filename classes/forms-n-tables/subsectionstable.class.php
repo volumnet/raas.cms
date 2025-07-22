@@ -123,7 +123,7 @@ class SubsectionsTable extends \RAAS\Table
                                         return $f->doRich();
                                     } else {
                                         if ((int)$f->getValue()) {
-                                            return '<span class="icon icon-ok"></span>';
+                                            return '<raas-icon icon="check"></raas-icon>';
                                         }
                                     }
                                     break;

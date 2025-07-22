@@ -68,7 +68,7 @@ abstract class ViewBlock
         )) {
             $f = function ($x) {
                 return [
-                    'text' => '<i class="icon-' . $x['icon'] . '"></i>&nbsp;'
+                    'text' => '<raas-icon icon="' . $x['icon'] . '"></raas-icon>&nbsp;'
                            .  $x['name'],
                     'href' => $x['href'],
                     'onclick' => isset($x['onclick']) ? $x['onclick'] : null,

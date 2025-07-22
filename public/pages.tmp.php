@@ -111,7 +111,7 @@ $formatLocation = function (Location $location, Page $page) use ($formatBlock) {
     <div class="tab-pane" id="subsections">
       <p>
         <a href="?p=<?php echo ViewSub_Main::i()->packageName?>&action=edit&pid=<?php echo (int)$Item->id?>" class="btn btn-small pull-right">
-          <i class="icon-plus"></i>
+          <raas-icon icon="plus"></raas-icon>
           <?php echo \CMS\CREATE_PAGE?>
         </a>
       </p>
@@ -125,8 +125,8 @@ $formatLocation = function (Location $location, Page $page) use ($formatBlock) {
             <div class="tab-pane" id="_<?php echo htmlspecialchars($mtype->urn)?>">
               <p>
                 <a href="?p=<?php echo ViewSub_Main::i()->packageName?>&action=edit_material&pid=<?php echo (int)$Item->id?>&mtype=<?php echo $mtype->id?>" class="btn btn-small pull-right">
-                  <i class="icon icon-plus"></i>
-                   <?php echo \CMS\CREATE_MATERIAL?>
+                  <raas-icon icon="plus"></raas-icon>
+                  <?php echo \CMS\CREATE_MATERIAL?>
                 </a>
               </p>
               <form class="form-search" action="#_<?php echo htmlspecialchars($mtype->urn)?>" method="get">
@@ -141,7 +141,7 @@ $formatLocation = function (Location $location, Page $page) use ($formatBlock) {
                 <div class="input-append">
                   <input type="search" class="span2 search-query" name="m<?php echo (int)$mtype->id?>search_string" value="<?php echo htmlspecialchars(ViewSub_Main::i()->nav['m' . (int)$mtype->id . 'search_string'] ?? '')?>" />
                   <button type="submit" class="btn">
-                    <i class="icon-search"></i>
+                    <raas-icon icon="search"></raas-icon>
                   </button>
                 </div>
               </form>

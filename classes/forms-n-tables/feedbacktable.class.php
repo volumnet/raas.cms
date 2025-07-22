@@ -108,7 +108,7 @@ class FeedbackTable extends Table
                                 $text .= $f->doRich();
                             } else {
                                 if ((int)$f->getValue()) {
-                                    $text .= '<span class="icon icon-ok"></span>';
+                                    $text .= '<raas-icon icon="check"></raas-icon>';
                                 }
                             }
                             break;

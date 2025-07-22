@@ -34,7 +34,7 @@ use RAAS\Application;
       name="search_string"
       model-value="<?php echo htmlspecialchars($VIEW->nav['search_string'] ?? '')?>"
     ></raas-field-text>
-    <button type="submit" class="btn"><i class="icon-search"></i></button>
+    <button type="submit" class="btn"><raas-icon icon="search"></raas-icon></button>
   </div>
 </form>
 <?php

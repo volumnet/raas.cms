@@ -123,6 +123,7 @@ export default {
                 }
                 this.activeFrame = newActiveFrame;
                 this.$emit('slid', index);
+                $(this.$el).trigger('slid', { index });
                 this.refreshFadeInterval();
             } else {
                 // 2021-08-22, AVS: сделал явные атрибуты индекса, 
@@ -186,6 +187,7 @@ export default {
                 let i = $(this).attr('data-slider-index');
                 self.activeFrame = i;
                 self.$emit('slid', i);
+                $(self.$el).trigger('slid', { index: i });
             });
             
             if (this.autoscroll) {

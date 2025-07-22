@@ -101,7 +101,7 @@ class MaterialFieldsTable extends FieldsTable
                     'callback' => function ($row) {
                         if ($row instanceof Field) {
                             return $row->show_in_table ?
-                                   '<i class="icon-ok"></i>' :
+                                   '<raas-icon icon="check"></raas-icon>' :
                                    '';
                         }
                     }

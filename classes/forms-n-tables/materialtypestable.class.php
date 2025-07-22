@@ -62,7 +62,7 @@ class MaterialTypesTable extends Table
             'caption' => $this->view->_('IS_GLOBAL_TYPE'),
             'title' => $this->view->_('GLOBAL_MATERIALS'),
             'callback' => function ($row) {
-                return $row->global_type ? '<i class="icon-ok"></i>' : '';
+                return $row->global_type ? '<raas-icon icon="check"></raas-icon>' : '';
             }
         ];
         $columns[' '] = [
