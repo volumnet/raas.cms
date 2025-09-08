@@ -77,7 +77,7 @@ class RuTubeVideo extends HostedVideo
             }
             // @codeCoverageIgnoreEnd
             $text = (string)file_get_contents($url, false, stream_context_create(['http'=> ['timeout' => 5]]));
-            $json = @(array)json_decode($text, true);
+            $json = @(array)json_decode((string)$text, true);
             $this->coverURL = $json['thumbnail_url'] ?? '';
         }
         return $this->coverURL;
