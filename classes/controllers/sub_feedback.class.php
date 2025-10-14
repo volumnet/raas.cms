@@ -105,13 +105,13 @@ class Sub_Feedback extends \RAAS\Abstract_Sub_Controller
                 for ($i = 0; $i < count($data); $i++) {
                     $maxcol = max($maxcol, count($data[$i]));
                     for ($j = 0; $j < count($data[$i]); $j++) {
-                        $cell = $sheet->getCellByColumnAndRow($j + 1, $i + 1);
+                        $cell = $sheet->getCell([$j + 1, $i + 1]);
                         $cell->setValueExplicit($data[$i][$j], DataType::TYPE_STRING);
                     }
                 }
                 // 2024-06-03, AVS: переделал на цикл по ячейкам для совместимости со старыми версиями PhpOffice
                 for ($j = 0; $j <= $maxcol; $j++) {
-                    $cell = $sheet->getCellByColumnAndRow($j, 1);
+                    $cell = $sheet->getCell([$j + 1, 1]);
                     $cell->getStyle()->getFont()->setBold(true);
                 }
                 // $range = [1, 1, $maxcol + 1, 1];

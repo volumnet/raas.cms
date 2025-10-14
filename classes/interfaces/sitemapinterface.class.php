@@ -166,7 +166,7 @@ class SitemapInterface extends AbstractInterface
                   .  '</changefreq>';
         } else {
             $d0 = max(0, strtotime($itemData['post_date'] ?? ''));
-            $s = ((time() - $d0) / ($itemData['modify_counter'] ?? 1));
+            $s = ((time() - $d0) / (($itemData['modify_counter'] ?? 0) ?: 1));
             $text .= '<changefreq>';
             if ($s < 1800) {
                 $text .= 'always';
