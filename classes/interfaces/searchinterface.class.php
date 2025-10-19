@@ -503,8 +503,8 @@ class SearchInterface extends BlockInterface
      */
     public function getSearchArray($searchString, $minLength = 3)
     {
-        $searchArray = preg_split('/\\s|,/umi', $searchString);
-        $searchArray = array_map('trim', $searchArray);
+        $searchArray = preg_split('/\\s|,/umi', (string)$searchString);
+        $searchArray = array_map('trim', (array)$searchArray);
         $searchArray = array_filter($searchArray);
         if ((int)$minLength) {
             $searchArray = array_values(array_filter(
