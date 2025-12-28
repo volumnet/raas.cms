@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Видео на VK Video
  *
@@ -77,7 +78,7 @@ class VKVideo extends HostedVideo
         if (!$this->realCoverURL) {
             list($oid, $id) = explode('_', $this->id);
             $url = 'https://vkvideo.ru/video_ext.php?oid=' . $oid . '&id=' . $id . '&hd=4';
-            $ctx = stream_context_create(['http'=> ['timeout' => 5, 'header' => 'Cookie: _ignoreAutoLogin=1']]);
+            $ctx = stream_context_create(['http' => ['timeout' => 5, 'header' => 'Cookie: _ignoreAutoLogin=1']]);
             $text = file_get_contents($url, false, $ctx);
             // Встречаются некорректные сочетания UTF-8, исправим
             $text = iconv('UTF-8', 'Windows-1251//IGNORE', $text);
@@ -98,6 +99,20 @@ class VKVideo extends HostedVideo
                     $json = @json_decode($regs[1], true);
                     if ($json['params'][0]['jpg'] ?? null) {
                         $this->realCoverURL = $json['params'][0]['jpg'];
+                    }
+                }
+            }
+
+            // Правки от 2025-12-26
+            if (!$result) {
+                $rx = '/;window.cur\\s+=\\s+Object.assign\\(window.cur\\s+\\|\\|\\s+\\{\\},\\s+({.*?})(,\\s+\\{"screen.*?)\\);\\s*$/umis';
+                if (preg_match($rx, $text, $regs)) {
+                    $json = @json_decode($regs[1], true);
+                    if ($images = ($json['apiPrefetchCache'][0]['response']['items'][0]['image'] ?? null)) {
+                        usort($images, function ($a, $b) {
+                            return max($b['width'] ?? 0, $b['height'] ?? 0) - max($a['width'] ?? 0, $a['height'] ?? 0);
+                        });
+                        $this->realCoverURL = $images[0]['url'];
                     }
                 }
             }

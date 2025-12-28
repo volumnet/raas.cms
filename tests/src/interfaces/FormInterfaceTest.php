@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Файл теста стандартного интерфейса формы
  */
+
 namespace RAAS\CMS;
 
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -61,18 +63,18 @@ class FormInterfaceTest extends BaseTest
         parent::setUpBeforeClass();
         RAASControllerFrontend::i()->exportLang(Application::i(), 'ru');
         RAASControllerFrontend::i()->exportLang(Package::i(), 'ru');
-    //     $formInterface = Snippet::importByURN('__raas_form_interface');
-    //     $formWidget = Snippet::importByURN('feedback');
-    //     $block = new Block_Form([
-    //         'name' => 'Обратная связь',
-    //         'form' => 1,
-    //         'location' => 'content',
-    //         'vis' => true,
-    //         'interface_id' => $formInterface->id,
-    //         'widget_id' => $formWidget->id,
-    //     ]);
-    //     $block->commit();
-    //     $this->block = $block;
+        //     $formInterface = Snippet::importByURN('__raas_form_interface');
+        //     $formWidget = Snippet::importByURN('feedback');
+        //     $block = new Block_Form([
+        //         'name' => 'Обратная связь',
+        //         'form' => 1,
+        //         'location' => 'content',
+        //         'vis' => true,
+        //         'interface_id' => $formInterface->id,
+        //         'widget_id' => $formWidget->id,
+        //     ]);
+        //     $block->commit();
+        //     $this->block = $block;
     }
 
     /**
@@ -1607,7 +1609,7 @@ class FormInterfaceTest extends BaseTest
     {
         $interface = new FormInterface();
 
-        $result = $interface->getEmbedded('/files/cms/common/image/arboretum_tree_rings.jpg');
+        $result = $interface->getEmbedded('/arboretum_tree_rings.jpg');
 
         $this->assertNotEmpty($result['tmp_name']);
         $this->assertFileExists($result['tmp_name']);

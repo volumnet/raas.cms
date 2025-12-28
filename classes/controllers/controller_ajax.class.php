@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Контроллер AJAX
  */
+
 namespace RAAS\CMS;
 
 use SOME\Text;

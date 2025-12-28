@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Система антиспама на основе анализа данных
  */
@@ -152,7 +153,7 @@ class Antispam
             $fieldURN = $this->getFieldURN($key);
             if (preg_match('/url|social|site|web|link|www|internet/umis', $fieldURN)) {
                 continue; // Если поле предназначено для ссылки или соц. сети,
-                          // то его не учитываем
+                // то его не учитываем
             }
             // if ($fieldURN == 'email') {
             //     var_dump(mixed:value, mixed:values...)
@@ -472,7 +473,7 @@ class Antispam
      */
     public function getFieldURN($dataKey)
     {
-        $nameArr = explode('[', $dataKey, 2);
+        $nameArr = explode('[', (string)$dataKey, 2);
         return $nameArr[0];
     }
 }

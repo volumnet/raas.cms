@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Стандартный интерфейс формы
  */
@@ -26,7 +27,7 @@ class FormInterface extends BlockInterface
     /**
      * Максимальный размер (px, по большей стороне) изображений для письма
      */
-    const MAIL_SIZE = 600;
+    public const MAIL_SIZE = 600;
 
     /**
      * Условно обязательные поля
@@ -253,16 +254,16 @@ class FormInterface extends BlockInterface
                         $field->name,
                         $allowedExtensions
                     );
-                // @codeCoverageIgnoreStart
-                // 2024-03-13, AVS: По факту сейчас такого быть не может, поскольку DatatypeFileTypeMismatchException
-                // в чистом виде (не DatatypeImageTypeMismatchException) выбрасывается только в слуае несовпадения с
-                // accept (он же allowedExtensions)
+                    // @codeCoverageIgnoreStart
+                    // 2024-03-13, AVS: По факту сейчас такого быть не может, поскольку DatatypeFileTypeMismatchException
+                    // в чистом виде (не DatatypeImageTypeMismatchException) выбрасывается только в слуае несовпадения с
+                    // accept (он же allowedExtensions)
                 } else {
                     return sprintf(View_Web::i()->_('ERR_CUSTOM_FILE_INVALID'), $field->name);
                 }
                 // @codeCoverageIgnoreEnd
             } catch (DatatypeInvalidValueException $e) {
-                 return sprintf(View_Web::i()->_('ERR_CUSTOM_FIELD_INVALID'), $field->name);
+                return sprintf(View_Web::i()->_('ERR_CUSTOM_FIELD_INVALID'), $field->name);
             }
         }
         return null;
@@ -787,7 +788,7 @@ class FormInterface extends BlockInterface
                 ]);
                 if ($debug || !Application::i()->prod) {
                     $debugMessages['smsPhones'][] = $url;
-                // @codeCoverageIgnoreStart
+                    // @codeCoverageIgnoreStart
                 } elseif (!$debug && Application::i()->prod) {
                     $result = file_get_contents($url);
                 }
