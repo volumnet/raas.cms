@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Профиль социальной сети
  */
+
 namespace RAAS\CMS;
 
 /**
@@ -18,72 +20,77 @@ abstract class SocialProfile
     /**
      * ВКонтакте
      */
-    const SN_VK = 1;
+    public const SN_VK = 1;
 
     /**
      * Facebook
      */
-    const SN_FB = 2;
+    public const SN_FB = 2;
 
     /**
      * Одноклассники
      */
-    const SN_OK = 3;
+    public const SN_OK = 3;
 
     /**
      * Мой мир (mail.ru)
      */
-    const SN_MR = 4;
+    public const SN_MR = 4;
 
     /**
      * Twitter
      */
-    const SN_TW = 5;
+    public const SN_TW = 5;
 
     /**
      * LiveJournal
      */
-    const SN_LJ = 6;
+    public const SN_LJ = 6;
 
     /**
      * Google
      */
-    const SN_GO = 7;
+    public const SN_GO = 7;
 
     /**
      * Яндекс
      */
-    const SN_YA = 8;
+    public const SN_YA = 8;
 
     /**
      * WebMoney
      */
-    const SN_WM = 9;
+    public const SN_WM = 9;
 
     /**
      * YouTube
      */
-    const SN_YT = 10;
+    public const SN_YT = 10;
 
     /**
      * Instagram
      */
-    const SN_IN = 11;
+    public const SN_IN = 11;
 
     /**
      * WhatsApp
      */
-    const SN_WA = 12;
+    public const SN_WA = 12;
 
     /**
      * Telegram
      */
-    const SN_TG = 13;
+    public const SN_TG = 13;
 
     /**
      * Яндекс.Дзен
      */
-    const SN_ZN = 14;
+    public const SN_ZN = 14;
+
+    /**
+     * MAX
+     */
+    public const SN_MAX = 15;
 
     /**
      * Токен входа
@@ -176,6 +183,7 @@ abstract class SocialProfile
         '(whatsapp|wa)\\.(com|ru|me|php)' => self::SN_WA,
         '((t)\\.(com|ru|me))|telegram' => self::SN_TG,
         '(dzen\\.ru)|(zen.yandex.ru)' => self::SN_ZN,
+        '(max\\.ru)' => self::SN_MAX,
     ];
 
     public function __get($var)
