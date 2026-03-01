@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Контроллер сайта
  */
@@ -189,6 +190,9 @@ class Controller_Frontend extends Abstract_Controller
     {
         $oldUrl = $this->url;
         $newUrl = Redirect::processAll($oldUrl);
+        if (!stristr($newUrl, '//')) {
+            $oldUrl = parse_url($oldUrl, PHP_URL_PATH) . parse_url($oldUrl, PHP_URL_QUERY) . parse_url($oldUrl, PHP_URL_FRAGMENT);
+        }
         if ($newUrl != $oldUrl) {
             header("HTTP/1.1 301 Moved Permanently");
             header('Location: ' . $newUrl);
@@ -821,7 +825,7 @@ class Controller_Frontend extends Abstract_Controller
      * @param string $filename Имя файла, для которого нужно построить эскиз
      * @param int|null $width Ширина эскиза, либо null, если не ограничена
      * @param int|null $height Высота эскиза, либо null, если не ограничена
-     * @param 'inline'|'frame'|'crop'|null $mode Режим создания эскиза
+     * @param 'inline'|'frame'|'crop'|'cover'|null $mode Режим создания эскиза
      */
     protected function getThumbnail(
         $filename,

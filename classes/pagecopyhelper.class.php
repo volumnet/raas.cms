@@ -1,4 +1,5 @@
 <?php
+
 namespace RAAS\CMS;
 
 use RAAS\Application;
@@ -364,7 +365,7 @@ class PageCopyHelper
                   . " WHERE id = " . (int)$blockId;
         $blockData = Block::_SQL()->getline($sqlQuery);
 
-        if ($blockData['block_type'] == 'RAAS\CMS\Block_HTML') {
+        if (($blockData['block_type'] ?? null) == 'RAAS\CMS\Block_HTML') {
             if ($blockData['inherit'] ||
                 (
                     isset($this->blocksPagesAssoc[$blockId]) &&
@@ -377,7 +378,7 @@ class PageCopyHelper
             }
         } elseif (!$this->src->pid &&
             in_array(
-                $blockData['block_type'],
+                $blockData['block_type'] ?? null,
                 [
                     Block_Menu::class,
                     Block_Search::class,

@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Форма редактирования материала
  */
+
 namespace RAAS\CMS;
 
 use SOME\Pages;
@@ -320,11 +322,11 @@ class EditMaterialForm extends \RAAS\Form
 
     /**
      * Получает вкладку "Служебные"
-     * @param Material $item Текущий материал
+     * @param ?Material $item Текущий материал
      * @param ?Page $parent Родительская страница
      * @return FormTab
      */
-    protected function getServiceTab(Material $item, ?Page $parent = null): FormTab
+    protected function getServiceTab(?Material $item = null, ?Page $parent = null): FormTab
     {
         $serviceTab = new FormTab([
             'name' => 'service',
@@ -377,12 +379,12 @@ class EditMaterialForm extends \RAAS\Form
 
     /**
      * Получает вкладку "Страницы"
-     * @param Material $item Текущий материал
+     * @param ?Material $item Текущий материал
      * @param ?Page $parent Родительская страница
      * @param Material_Type $type Тип материалов
      * @return FormTab
      */
-    protected function getPagesTab(Material $item, ?Page $parent = null, ?Material_Type $type = null): FormTab
+    protected function getPagesTab(?Material $item, ?Page $parent = null, ?Material_Type $type = null): FormTab
     {
         $temp = new Page();
         $affectedPagesIds = [];
@@ -423,8 +425,8 @@ class EditMaterialForm extends \RAAS\Form
 
     /**
      * Получает вкладку связанных материалов
-     * @param Material $item Материал, для которого получается вкладка
-     * @param Material_Type $mtype Связанный тип материалов
+     * @param ?Material $item Материал, для которого получается вкладка
+     * @param ?Material_Type $mtype Связанный тип материалов
      * @param [
      *            'MSet' => array<Material> Список связанных материалов,
      *            'MPages' => Pages Постраничная разбивка,
@@ -434,8 +436,8 @@ class EditMaterialForm extends \RAAS\Form
      * @return FormTab
      */
     protected function getMTab(
-        Material $item,
-        Material_Type $mtype,
+        ?Material $item = null,
+        ?Material_Type $mtype = null,
         array $params = []
     ): FormTab {
         $temp = new MaterialsRelatedTable([
@@ -449,8 +451,8 @@ class EditMaterialForm extends \RAAS\Form
             'pagesVar' => 'm' . $mtype->id . 'page',
             'sort' => $params['Msort'][$mtype->urn],
             'order' => (strtolower($params['Morder'][$mtype->urn]) == 'desc')
-                    ?  Column::SORT_DESC
-                    :  Column::SORT_ASC
+                    ? Column::SORT_DESC
+                    : Column::SORT_ASC
         ]);
         $tab = new FormTab([
             'name' => '_' . $mtype->urn,

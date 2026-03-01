@@ -138,7 +138,7 @@ class RuTubeVideoTest extends BaseTest
     #[TestWith([
         'https://rutube.ru/play/embed/0f8778b4b61fa43667831b7301f33c4e',
         [],
-        'https://pic.rutube.ru/video/b5/8d/b58d46a63a4c0d106f999b628c4f950d.jpg'
+        'https://pic.rtbcdn.ru/video/b5/8d/b58d46a63a4c0d106f999b628c4f950d.jpg'
     ])]
     public function testGetCoverURL(string $url, array $options, string $expected)
     {

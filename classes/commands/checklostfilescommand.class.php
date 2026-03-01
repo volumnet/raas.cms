@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Команда проверки на битые файлы
  */
+
 namespace RAAS\CMS;
 
 use RAAS\Attachment;
@@ -134,7 +136,7 @@ class CheckLostFilesCommand extends Command
                         $text .= "\n    " . 'Поле "' . $this->fields[$fid]['name'] . '"';
                         foreach ($fidData as $fii => $fiiData) {
                             $text .= "\n        Индекс " . $fii;
-                            if ($fiiData['lost']) {
+                            if ($fiiData['lost'] ?? null) {
                                 $text .= ' — потеряно вложение';
                             } else {
                                 foreach ($fiiData as $key => $filename) {

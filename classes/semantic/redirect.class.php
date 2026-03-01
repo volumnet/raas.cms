@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Редирект
  */
+
 namespace RAAS\CMS;
 
 use SOME\SOME;
@@ -64,36 +66,42 @@ class Redirect extends SOME
 
         if (parse_url($url, PHP_URL_SCHEME) == 'raas') {
             $internalUrlArr = explode('/', trim(parse_url($url, PHP_URL_HOST) . parse_url($url, PHP_URL_PATH), '/'));
+            $query = parse_url($url, PHP_URL_QUERY);
+            $newUrl = null;
             switch ($internalUrlArr[0]) {
                 case 'page':
                     $p = new Page((int)$internalUrlArr[1]);
-                    return $p->url;
+                    $newUrl = $p->url;
                     break;
                 case 'material':
                     $m = new Material((int)$internalUrlArr[1]);
-                    return $m->url;
+                    $newUrl = $m->url;
                     break;
                 case 'attachment':
                     $m = new Attachment((int)$internalUrlArr[1]);
-                    return '/' . $m->fileURL;
+                    $newUrl = '/' . $m->fileURL;
                     break;
                 case 'domain':
                     switch ($internalUrlArr[1]) {
                         case 'page':
                             $p = new Page((int)$internalUrlArr[2]);
-                            return $p->domain . $p->url;
+                            $newUrl = $p->domain . $p->url;
                             break;
                         case 'material':
                             $m = new Material((int)$internalUrlArr[2]);
-                            return $m->urlParent->domain . $m->url;
+                            $newUrl = $m->urlParent->domain . $m->url;
                             break;
                         case 'attachment':
                             $m = new Attachment((int)$internalUrlArr[2]);
-                            return $m->urlParent->domain . '/' . $m->fileURL;
+                            $newUrl = $m->urlParent->domain . '/' . $m->fileURL;
                             break;
                     }
                     break;
             }
+            if ($newUrl && $query) {
+                $newUrl .= '?' . $query;
+            }
+            return $newUrl;
         }
         return null;
     }
