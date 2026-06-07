@@ -79,7 +79,7 @@ class VKVideo extends HostedVideo
             list($oid, $id) = explode('_', $this->id);
             $url = 'https://vkvideo.ru/video_ext.php?oid=' . $oid . '&id=' . $id . '&hd=4';
             $ctx = stream_context_create(['http' => ['timeout' => 5, 'header' => 'Cookie: _ignoreAutoLogin=1']]);
-            $text = file_get_contents($url, false, $ctx);
+            $text = (string)file_get_contents($url, false, $ctx);
             // Встречаются некорректные сочетания UTF-8, исправим
             $text = iconv('UTF-8', 'Windows-1251//IGNORE', $text);
             $text = iconv('Windows-1251', 'UTF-8', $text);

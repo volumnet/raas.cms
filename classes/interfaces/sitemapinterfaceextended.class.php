@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Расширенный интерфейс sitemap.xml
  *
@@ -7,6 +8,7 @@
  *                        sitemap.catalog.xml (каталог),
  *                        sitemap.goods.xml (товары)
  */
+
 namespace RAAS\CMS;
 
 use RAAS\Timer;
