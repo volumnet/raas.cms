@@ -130,7 +130,7 @@ class Redirect extends SOME
      */
     public static function checkStdRedirects($url)
     {
-        $url = trim($url);
+        $url = trim((string)$url);
         $url = str_replace('\\', '/', $url);
         $url = preg_replace('/([^\\:])(\\/){2,}/umis', '$1/', $url);
         $temp = parse_url($url);

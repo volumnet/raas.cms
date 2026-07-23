@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Тест класса VKVideo
  */
+
 namespace RAAS\CMS;
 
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -132,7 +134,7 @@ class VKVideoTest extends BaseTest
      * @param array $options Опции
      * @param string $expected Ожидаемое значение
      */
-    #[TestWith([[], '.userapi.com/c837131/v837131892/71a7/oF-2Dqg2PTQ.jpg'])]
+    #[TestWith([[], '.vkuserphoto.ru/c837131/v837131892/71a7/oF-2Dqg2PTQ.jpg'])]
     public function testGetCoverURL(array $options, string $expected)
     {
         $result = (new VKVideo('-45960892_456246794'))->getCoverURL($options);

@@ -112,6 +112,13 @@ class VKVideo extends HostedVideo
                         usort($images, function ($a, $b) {
                             return max($b['width'] ?? 0, $b['height'] ?? 0) - max($a['width'] ?? 0, $a['height'] ?? 0);
                         });
+                        $width = $options['width'] ?? null;
+                        $height = $options['height'] ?? null;
+                        if (($width || $height) && $filteredImages = array_filter($images, function ($image) use ($width, $height) {
+                            return (!$width || (($image['width'] ?? 0) < $width)) && (!$height || (($image['height'] ?? 0) < $height));
+                        })) {
+                            $images = array_values($filteredImages);
+                        }
                         $this->realCoverURL = $images[0]['url'];
                     }
                 }
